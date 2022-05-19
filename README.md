@@ -35,7 +35,7 @@ A runner provider creates compute resources on-demand and uses [actions/runner][
 
 The best provider to use mostly depends on your current infrastructure. When in doubt, CodeBuild is always a good choice. Execution history and logs are easy to view, and it has no restrictive limits unless you need to run for more than 8 hours.
 
-You can also create your own provider by implementing `IRunnerProvider`.
+You can also create your own provider by implementing [`IRunnerProvider`](API.md#IRunnerProvider).
 
 ## Installation
 
@@ -44,7 +44,7 @@ You can also create your own provider by implementing `IRunnerProvider`.
    1. [Python][6]
    2. [TypeScript or JavaScript][7]
    3. [Java][8]
-3. Use `GitHubRunners` construct in your code (starting with defaults is fine)
+3. Use [`GitHubRunners`](API.md#CodeBuildRunner) construct in your code (starting with defaults is fine)
 4. Deploy your stack
 5. Look for the status command output similar to `aws --region us-east-1 lambda invoke --function-name status-XYZ123 status.json`
 6. Execute the status command (you may need to specify `--profile` too) and open the resulting `status.json` file
