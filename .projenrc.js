@@ -1,7 +1,6 @@
 const fs = require('fs');
 const { awscdk } = require('projen');
 const { Stability } = require('projen/lib/cdk/jsii-project');
-const { ReleaseTrigger } = require('projen/lib/release');
 
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Amir Szekely',
@@ -28,7 +27,6 @@ const project = new awscdk.AwsCdkConstructLibrary({
     // we build lambdas manually below
     'src/lambdas',
   ],
-  releaseTrigger: ReleaseTrigger.manual(),
   releaseToNpm: true,
   publishToPypi: {
     distName: 'cloudsnorkel.cdk-github-runners',
