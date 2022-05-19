@@ -63,6 +63,18 @@ const project = new awscdk.AwsCdkConstructLibrary({
   ],
   sampleCode: false,
   compat: true,
+  githubOptions: {
+    pullRequestLintOptions: {
+      semanticTitleOptions: {
+        types: [
+          'feat',
+          'fix',
+          'chore',
+          'docs',
+        ],
+      },
+    },
+  },
 });
 
 // bundle lambdas so user doesn't have to install dependencies like octokit locally

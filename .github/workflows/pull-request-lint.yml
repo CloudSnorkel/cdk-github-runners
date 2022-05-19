@@ -25,4 +25,5 @@ jobs:
             feat
             fix
             chore
+            docs
           requireScope: false
