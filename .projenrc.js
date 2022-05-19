@@ -39,6 +39,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     mavenGroupId: 'com.cloudsnorkel',
     mavenArtifactId: 'cdk.github.runners',
     javaPackage: 'com.cloudsnorkel.cdk.github.runners',
+    mavenEndpoint: 'https://s01.oss.sonatype.org',
   },
   keywords: [
     'aws',
