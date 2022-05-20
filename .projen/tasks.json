@@ -168,7 +168,19 @@
           "spawn": "package:python"
         },
         {
+          "spawn": "package:dotnet"
+        },
+        {
           "spawn": "package:go"
+        }
+      ]
+    },
+    "package:dotnet": {
+      "name": "package:dotnet",
+      "description": "Create dotnet language bindings",
+      "steps": [
+        {
+          "exec": "jsii-pacmak -v --target dotnet"
         }
       ]
     },
