@@ -1,7 +1,7 @@
 # GitHub Self-Hosted Runners CDK Constructs
 
-[![NPM](https://img.shields.io/npm/v/@cloudsnorkel/cdk-github-runners?label=npm+cdk&logo=npm)][6]
-[![PyPI](https://img.shields.io/pypi/v/@cloudsnorkel/cdk-github-runners?label=pypi+cdk&logo=pypi)][7]
+[![NPM](https://img.shields.io/npm/v/@cloudsnorkel/cdk-github-runners?label=npm&logo=npm)][6]
+[![PyPI](https://img.shields.io/pypi/v/cloudsnorkel.cdk-github-runners?label=pypi&logo=pypi)][7]
 [![Maven Central](https://img.shields.io/maven-central/v/com.cloudsndorkel/cdk.github.runners.svg?label=Maven%20Central&logo=java)][8]
 [![Go](https://img.shields.io/github/v/tag/CloudSnorkel/cdk-github-runners?color=red&label=go&logo=go)][11]
 [![Nuget](https://img.shields.io/nuget/v/CloudSnorkel.Cdk.Github.Runners?color=red&&logo=nuget)][12]
@@ -44,10 +44,28 @@ You can also create your own provider by implementing [`IRunnerProvider`](API.md
 1. Confirm you're using CDK v2
 2. Install the appropriate package
    1. [Python][6]
+      ```
+      pip install cloudsnorkel.cdk-github-runners
+      ```
    2. [TypeScript or JavaScript][7]
+      ```
+      npm i @cloudsnorkel/cdk-github-runners
+      ```
    3. [Java][8]
+      ```xml
+      <dependency>
+      <groupId>com.cloudsnorkel</groupId>
+      <artifactId>cdk.github.runners</artifactId>
+      </dependency>
+      ```
    4. [Go][11]
+      ```
+      go get github.com/CloudSnorkel/cdk-github-runners-go/cloudsnorkelcdkgithubrunners
+      ```
    5. [.NET][12]
+      ```
+      dotnet add package CloudSnorkel.Cdk.Github.Runners
+      ```
 3. Use [`GitHubRunners`](API.md#CodeBuildRunner) construct in your code (starting with defaults is fine)
 4. Deploy your stack
 5. Look for the status command output similar to `aws --region us-east-1 lambda invoke --function-name status-XYZ123 status.json`
@@ -141,5 +159,5 @@ app.synth();
 [8]: https://search.maven.org/search?q=g:%22com.cloudnsorkel%22%20AND%20a:%22cdk.github.runners%22
 [9]: https://docs.github.com/en/developers/apps/getting-started-with-apps/about-apps
 [10]: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
-[11]: https://github.com/CloudSnorkel/cdk-github-runners-go/tree/main/cloudsnorkelcdkgithubrunners
+[11]: https://pkg.go.dev/github.com/CloudSnorkel/cdk-github-runners-go/cloudsnorkelcdkgithubrunners
 [12]: https://www.nuget.org/packages/CloudSnorkel.Cdk.Github.Runners/
