@@ -4,7 +4,7 @@
 [![PyPI](https://img.shields.io/pypi/v/@cloudsnorkel/cdk-github-runners?label=pypi+cdk&logo=pypi)][7]
 [![Maven Central](https://img.shields.io/maven-central/v/com.cloudsndorkel/cdk.github.runners.svg?label=Maven%20Central&logo=java)][8]
 [![Go](https://img.shields.io/github/v/tag/CloudSnorkel/cdk-github-runners?color=red&label=go&logo=go)][11]
-[![Nuget](https://img.shields.io/nuget/v/CloudSnorkel.Cdk.Github.Runners?color=red&&logo=nuget)][11]
+[![Nuget](https://img.shields.io/nuget/v/CloudSnorkel.Cdk.Github.Runners?color=red&&logo=nuget)][12]
 [![Release](https://github.com/CloudSnorkel/cdk-github-runners/actions/workflows/release.yml/badge.svg)](https://github.com/CloudSnorkel/cdk-github-runners/actions/workflows/release.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/LICENSE)
 
@@ -47,6 +47,7 @@ You can also create your own provider by implementing [`IRunnerProvider`](API.md
    2. [TypeScript or JavaScript][7]
    3. [Java][8]
    4. [Go][11]
+   5. [.NET][12]
 3. Use [`GitHubRunners`](API.md#CodeBuildRunner) construct in your code (starting with defaults is fine)
 4. Deploy your stack
 5. Look for the status command output similar to `aws --region us-east-1 lambda invoke --function-name status-XYZ123 status.json`
@@ -141,3 +142,4 @@ app.synth();
 [9]: https://docs.github.com/en/developers/apps/getting-started-with-apps/about-apps
 [10]: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 [11]: https://github.com/CloudSnorkel/cdk-github-runners-go/tree/main/cloudsnorkelcdkgithubrunners
+[12]: https://www.nuget.org/packages/CloudSnorkel.Cdk.Github.Runners/
