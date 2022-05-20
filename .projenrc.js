@@ -47,7 +47,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
   },
   keywords: [
     'aws',
-    'awscdk',
+    'aws-cdk',
+    'aws-cdk-construct',
+    'cdk',
     'codebuild',
     'lambda',
     'fargate',

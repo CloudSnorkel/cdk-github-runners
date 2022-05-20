@@ -74,7 +74,8 @@
   },
   "keywords": [
     "aws",
-    "awscdk",
+    "aws-cdk",
+    "aws-cdk-construct",
     "cdk",
     "codebuild",
     "fargate",
