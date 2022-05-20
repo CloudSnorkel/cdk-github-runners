@@ -96,6 +96,8 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
       phases: {
         install: {
           commands: [
+            'nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &',
+            'timeout 15 sh -c "until docker info; do echo .; sleep 1; done"',
             'sudo -Hu runner /home/runner/config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --disableupdate --name "${RUNNER_NAME}"',
           ],
         },
@@ -124,6 +126,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
             },
           }),
           computeType: props.computeType || ComputeType.SMALL,
+          privileged: true,
         },
         logging: {
           cloudWatch: {

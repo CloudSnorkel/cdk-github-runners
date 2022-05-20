@@ -9,7 +9,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y curl sudo jq bash
     echo "%sudo   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner
 
 # add awscli
-RUN curl -sL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip && \
+RUN curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip && \
     unzip -q awscliv2.zip && ./aws/install && rm -rf awscliv2.zip aws
 
 # add ghcli
@@ -23,8 +23,8 @@ WORKDIR /home/runner
 
 # add runner
 ARG RUNNER_VERSION
-RUN if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_VERSION=`curl -sL https://api.github.com/repos/actions/runner/releases/latest | jq -r .tag_name | cut -c2-`; fi && \
-    curl -sLO  "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz" && \
+RUN if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_VERSION=`curl -fsSL https://api.github.com/repos/actions/runner/releases/latest | jq -r .tag_name | cut -c2-`; fi && \
+    curl -fsSLO  "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz" && \
     tar xzf "actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz" && \
     rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz && \
     ./bin/installdependencies.sh

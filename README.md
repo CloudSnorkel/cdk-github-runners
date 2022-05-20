@@ -29,11 +29,11 @@ See [API.md](API.md) for full interface documentation.
 
 A runner provider creates compute resources on-demand and uses [actions/runner][5] to start a runner.
 
-| Provider  | Time limit               | vCPUs                    | RAM                               | Storage                      | sudo | Docker   |
-|-----------|--------------------------|--------------------------|-----------------------------------|------------------------------|------|----------|
-| CodeBuild | 8 hours (default 1 hour) | 2 (default), 4, 8, or 72 | 3gb (default), 7gb, 15gb or 145gb | 50gb to 824gb (default 64gb) | ✔    | TBD #1   |
-| Fargate   | Unlimited                | 0.25 to 4 (default 1)    | 512mb to 30gb (default 2gb)       | 20gb to 200gb (default 25gb) | ✔    | TBD #2   |
-| Lambda    | 15 minutes               | 1 to 6 (default 2)       | 128mb to 10gb (default 2gb)       | Up to 10gb (default 10gb)    | ❌    | ❌       |
+| Provider  | Time limit               | vCPUs                    | RAM                               | Storage                      | sudo | Docker |
+|-----------|--------------------------|--------------------------|-----------------------------------|------------------------------|------|--------|
+| CodeBuild | 8 hours (default 1 hour) | 2 (default), 4, 8, or 72 | 3gb (default), 7gb, 15gb or 145gb | 50gb to 824gb (default 64gb) | ✔    | ✔     |
+| Fargate   | Unlimited                | 0.25 to 4 (default 1)    | 512mb to 30gb (default 2gb)       | 20gb to 200gb (default 25gb) | ✔    | TBD    |
+| Lambda    | 15 minutes               | 1 to 6 (default 2)       | 128mb to 10gb (default 2gb)       | Up to 10gb (default 10gb)    | ❌    | ❌     |
 
 The best provider to use mostly depends on your current infrastructure. When in doubt, CodeBuild is always a good choice. Execution history and logs are easy to view, and it has no restrictive limits unless you need to run for more than 8 hours.
 
