@@ -47,16 +47,13 @@ const project = new awscdk.AwsCdkConstructLibrary({
   },
   keywords: [
     'aws',
-    'cdk',
-    'aws-cdk',
+    'awscdk',
     'codebuild',
     'lambda',
     'fargate',
-    'auto-scale',
     'github',
     'github-actions',
-    'runner',
-    'docker',
+    'self-hosted',
   ],
   gitignore: [
     'cdk.out',

@@ -73,17 +73,15 @@
     "constructs": "^10.0.5"
   },
   "keywords": [
-    "auto-scale",
     "aws",
-    "aws-cdk",
+    "awscdk",
     "cdk",
     "codebuild",
-    "docker",
     "fargate",
     "github",
     "github-actions",
     "lambda",
-    "runner"
+    "self-hosted"
   ],
   "main": "lib/index.js",
   "license": "Apache-2.0",
