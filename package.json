@@ -146,7 +146,7 @@
       },
       "dotnet": {
         "namespace": "CloudSnorkel",
-        "packageId": "cdk.github.runners"
+        "packageId": "CloudSnorkel.Cdk.Github.Runners"
       },
       "go": {
         "moduleName": "github.com/CloudSnorkel/cdk-github-runners-go"
