@@ -5,7 +5,6 @@ const { Stability } = require('projen/lib/cdk/jsii-project');
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Amir Szekely',
   authorAddress: 'amir@cloudsnorkel.com',
-  authorOrganization: 'CloudSnorkel',
   stability: Stability.EXPERIMENTAL,
   cdkVersion: '2.21.1', // first version with lambda url support
   defaultReleaseBranch: 'main',

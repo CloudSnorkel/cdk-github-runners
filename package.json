@@ -37,7 +37,7 @@
   "author": {
     "name": "Amir Szekely",
     "email": "amir@cloudsnorkel.com",
-    "organization": "CloudSnorkel"
+    "organization": false
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.78.0",
