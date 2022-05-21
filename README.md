@@ -23,7 +23,7 @@ Self-hosted runners in AWS are useful when:
 
 ## API
 
-See [API.md](API.md) for full interface documentation.
+Documentation of available constructs and their interface is available on [Constructs Hub][13] in all supported programming languages.
 
 ## Providers
 
@@ -37,7 +37,7 @@ A runner provider creates compute resources on-demand and uses [actions/runner][
 
 The best provider to use mostly depends on your current infrastructure. When in doubt, CodeBuild is always a good choice. Execution history and logs are easy to view, and it has no restrictive limits unless you need to run for more than 8 hours.
 
-You can also create your own provider by implementing [`IRunnerProvider`](API.md#IRunnerProvider).
+You can also create your own provider by implementing `IRunnerProvider`.
 
 ## Installation
 
@@ -66,7 +66,7 @@ You can also create your own provider by implementing [`IRunnerProvider`](API.md
       ```
       dotnet add package CloudSnorkel.Cdk.Github.Runners
       ```
-3. Use [`GitHubRunners`](API.md#CodeBuildRunner) construct in your code (starting with defaults is fine)
+3. Use `GitHubRunners` construct in your code (starting with default arguments is fine)
 4. Deploy your stack
 5. Look for the status command output similar to `aws --region us-east-1 lambda invoke --function-name status-XYZ123 status.json`
 6. Execute the status command (you may need to specify `--profile` too) and open the resulting `status.json` file
@@ -77,7 +77,7 @@ You can also create your own provider by implementing [`IRunnerProvider`](API.md
 
 ## Customizing
 
-The default providers configured by [`GitHubRunners`](API.md#CodeBuildRunner) are useful for testing but probably not too much for actual production work. They run in the default VPC or no VPC and have no added IAM permissions. You would usually want to configure the providers yourself.
+The default providers configured by [`GitHubRunners`](https://constructs.dev/packages/@cloudsnorkel/cdk-github-runners/v/0.0.11/api/GitHubRunners?lang=typescript) are useful for testing but probably not too much for actual production work. They run in the default VPC or no VPC and have no added IAM permissions. You would usually want to configure the providers yourself.
 
 For example:
 
@@ -161,3 +161,4 @@ app.synth();
 [10]: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 [11]: https://pkg.go.dev/github.com/CloudSnorkel/cdk-github-runners-go/cloudsnorkelcdkgithubrunners
 [12]: https://www.nuget.org/packages/CloudSnorkel.Cdk.Github.Runners/
+[13]: https://constructs.dev/packages/@cloudsnorkel/cdk-github-runners/
