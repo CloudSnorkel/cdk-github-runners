@@ -64,6 +64,14 @@ const project = new awscdk.AwsCdkConstructLibrary({
   ],
   sampleCode: false,
   compat: true,
+  autoApproveOptions: {
+    allowedUsernames: ['kichik'],
+  },
+  depsUpgradeOptions: {
+    workflowOptions: {
+      labels: ['auto-approve'],
+    },
+  },
   githubOptions: {
     pullRequestLintOptions: {
       semanticTitleOptions: {
@@ -79,8 +87,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
 });
 
 // disable automatic releases, but keep workflow that can be triggered manually
-const releaseWorkflowFile = project.tryFindObjectFile('.github/workflows/release.yml');
-releaseWorkflowFile.addDeletionOverride('on.push');
+const releaseWorkflow = project.github.tryFindWorkflow('release');
+releaseWorkflow.file.addDeletionOverride('on.push');
 
 // bundle lambdas so user doesn't have to install dependencies like octokit locally
 const lambdas = fs.readdirSync('src/lambdas');
