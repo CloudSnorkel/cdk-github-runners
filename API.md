@@ -10,6 +10,8 @@ GitHub Actions runner provider using CodeBuild to execute the actions.
 
 Creates a project that gets started for each job.
 
+This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.Initializer"></a>
 
 ```typescript
@@ -49,7 +51,7 @@ new CodeBuildRunner(scope: Construct, id: string, props: CodeBuildRunnerProps)
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.toString">toString</a></code> | Returns a string representation of this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function tasks that execute the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
 
 ---
 
@@ -67,11 +69,15 @@ Returns a string representation of this construct.
 public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
 ```
 
-Generate step function tasks that execute the runner.
+Generate step function task(s) to start a new runner.
+
+Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.getStepFunctionTask.parameter.parameters"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+
+workflow job details.
 
 ---
 
@@ -107,11 +113,11 @@ Any object.
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | The principal to grant permissions to. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.label">label</a></code> | <code>string</code> | GitHub Actions label associated with this runner provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.project">project</a></code> | <code>aws-cdk-lib.aws_codebuild.Project</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group associated with runners. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC network in which runners will be placed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.label">label</a></code> | <code>string</code> | Label associated with this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.project">project</a></code> | <code>aws-cdk-lib.aws_codebuild.Project</code> | CodeBuild project hosting the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to the task. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for hosting the project. |
 
 ---
 
@@ -147,7 +153,7 @@ public readonly grantPrincipal: IPrincipal;
 
 - *Type:* aws-cdk-lib.aws_iam.IPrincipal
 
-The principal to grant permissions to.
+Grant principal used to add permissions to the runner role.
 
 ---
 
@@ -159,7 +165,7 @@ public readonly label: string;
 
 - *Type:* string
 
-GitHub Actions label associated with this runner provider.
+Label associated with this provider.
 
 ---
 
@@ -171,6 +177,8 @@ public readonly project: Project;
 
 - *Type:* aws-cdk-lib.aws_codebuild.Project
 
+CodeBuild project hosting the runner.
+
 ---
 
 ##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.securityGroup"></a>
@@ -181,7 +189,7 @@ public readonly securityGroup: ISecurityGroup;
 
 - *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
 
-Security group associated with runners.
+Security group attached to the task.
 
 ---
 
@@ -193,7 +201,7 @@ public readonly vpc: IVpc;
 
 - *Type:* aws-cdk-lib.aws_ec2.IVpc
 
-VPC network in which runners will be placed.
+VPC used for hosting the project.
 
 ---
 
@@ -205,6 +213,8 @@ VPC network in which runners will be placed.
 GitHub Actions runner provider using Fargate to execute the actions.
 
 Creates a task definition with a single container that gets started for each job.
+
+This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.FargateRunner.Initializer"></a>
 
@@ -245,7 +255,7 @@ new FargateRunner(scope: Construct, id: string, props: FargateRunnerProps)
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.toString">toString</a></code> | Returns a string representation of this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function tasks that execute the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
 
 ---
 
@@ -263,11 +273,15 @@ Returns a string representation of this construct.
 public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
 ```
 
-Generate step function tasks that execute the runner.
+Generate step function task(s) to start a new runner.
+
+Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.FargateRunner.getStepFunctionTask.parameter.parameters"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+
+workflow job details.
 
 ---
 
@@ -302,15 +316,15 @@ Any object.
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.assignPublicIp">assignPublicIp</a></code> | <code>boolean</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_ecs.Cluster</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.assignPublicIp">assignPublicIp</a></code> | <code>boolean</code> | Whether task will have a public IP. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_ecs.Cluster</code> | Cluster hosting the task hosting the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.container">container</a></code> | <code>aws-cdk-lib.aws_ecs.ContainerDefinition</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | The principal to grant permissions to. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.label">label</a></code> | <code>string</code> | GitHub Actions label associated with this runner provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.task">task</a></code> | <code>aws-cdk-lib.aws_ecs.FargateTaskDefinition</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group associated with runners. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC network in which runners will be placed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.container">container</a></code> | <code>aws-cdk-lib.aws_ecs.ContainerDefinition</code> | Container definition hosting the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.label">label</a></code> | <code>string</code> | Label associated with this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.task">task</a></code> | <code>aws-cdk-lib.aws_ecs.FargateTaskDefinition</code> | Fargate task hosting the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to the task. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for hosting the task. |
 
 ---
 
@@ -334,6 +348,8 @@ public readonly assignPublicIp: boolean;
 
 - *Type:* boolean
 
+Whether task will have a public IP.
+
 ---
 
 ##### `cluster`<sup>Required</sup> <a name="cluster" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.cluster"></a>
@@ -343,6 +359,8 @@ public readonly cluster: Cluster;
 ```
 
 - *Type:* aws-cdk-lib.aws_ecs.Cluster
+
+Cluster hosting the task hosting the runner.
 
 ---
 
@@ -366,6 +384,8 @@ public readonly container: ContainerDefinition;
 
 - *Type:* aws-cdk-lib.aws_ecs.ContainerDefinition
 
+Container definition hosting the runner.
+
 ---
 
 ##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.grantPrincipal"></a>
@@ -376,7 +396,7 @@ public readonly grantPrincipal: IPrincipal;
 
 - *Type:* aws-cdk-lib.aws_iam.IPrincipal
 
-The principal to grant permissions to.
+Grant principal used to add permissions to the runner role.
 
 ---
 
@@ -388,7 +408,7 @@ public readonly label: string;
 
 - *Type:* string
 
-GitHub Actions label associated with this runner provider.
+Label associated with this provider.
 
 ---
 
@@ -400,6 +420,8 @@ public readonly task: FargateTaskDefinition;
 
 - *Type:* aws-cdk-lib.aws_ecs.FargateTaskDefinition
 
+Fargate task hosting the runner.
+
 ---
 
 ##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.securityGroup"></a>
@@ -410,7 +432,7 @@ public readonly securityGroup: ISecurityGroup;
 
 - *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
 
-Security group associated with runners.
+Security group attached to the task.
 
 ---
 
@@ -422,12 +444,54 @@ public readonly vpc: IVpc;
 
 - *Type:* aws-cdk-lib.aws_ec2.IVpc
 
-VPC network in which runners will be placed.
+VPC used for hosting the task.
 
 ---
 
 
 ### GitHubRunners <a name="GitHubRunners" id="@cloudsnorkel/cdk-github-runners.GitHubRunners"></a>
+
+Create all the required infrastructure to provide self-hosted GitHub runners.
+
+It creates a webhook, secrets, and a step function to orchestrate all runs. Secrets are not automatically filled. See README.md for instructions on how to setup GitHub integration.
+
+By default, this will create a runner provider of each available type with the defaults. This is good enough for the initial setup stage when you just want to get GitHub integration working.
+
+```typescript
+new GitHubRunners(stack, 'runners', {});
+```
+
+Usually you'd want to configure the runner providers so the runners can run in a certain VPC or have certain permissions.
+
+```typescript
+const vpc = ec2.Vpc.fromLookup(stack, 'vpc', { vpcId: 'vpc-1234567' });
+const runnerSg = new ec2.SecurityGroup(stack, 'runner security group', { vpc: vpc });
+const dbSg = ec2.SecurityGroup.fromSecurityGroupId(stack, 'database security group', 'sg-1234567');
+const bucket = new s3.Bucket(stack, 'runner bucket');
+
+// create a custom CodeBuild provider
+const myProvider = new CodeBuildRunner(
+   stack, 'codebuild runner',
+   {
+      label: 'my-codebuild',
+      vpc: vpc,
+      securityGroup: runnerSg,
+   },
+);
+// grant some permissions to the provider
+bucket.grantReadWrite(myProvider);
+dbSg.connections.allowFrom(runnerSg, ec2.Port.tcp(3306), 'allow runners to connect to MySQL database');
+
+// create the runner infrastructure
+new GitHubRunners(
+   stack,
+   'runners',
+   {
+     providers: [myProvider],
+     defaultProviderLabel: 'my-codebuild',
+   }
+);
+```
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.Initializer"></a>
 
@@ -510,10 +574,10 @@ Any object.
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.defaultProvider">defaultProvider</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.defaultProvider">defaultProvider</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a></code> | Default provider as set by {@link GitHubRunnersProps.defaultProviderLabel}. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps">GitHubRunnersProps</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.secrets">secrets</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets">Secrets</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | Configured runner providers. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.secrets">secrets</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets">Secrets</a></code> | Secrets for GitHub communication including webhook secret and runner authentication. |
 
 ---
 
@@ -537,6 +601,8 @@ public readonly defaultProvider: IRunnerProvider;
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
 
+Default provider as set by {@link GitHubRunnersProps.defaultProviderLabel}.
+
 ---
 
 ##### `props`<sup>Required</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.property.props"></a>
@@ -557,6 +623,8 @@ public readonly providers: IRunnerProvider[];
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]
 
+Configured runner providers.
+
 ---
 
 ##### `secrets`<sup>Required</sup> <a name="secrets" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.property.secrets"></a>
@@ -566,6 +634,8 @@ public readonly secrets: Secrets;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Secrets">Secrets</a>
+
+Secrets for GitHub communication including webhook secret and runner authentication.
 
 ---
 
@@ -577,6 +647,8 @@ public readonly secrets: Secrets;
 GitHub Actions runner provider using Lambda to execute the actions.
 
 Creates a Docker-based function that gets executed for each job.
+
+This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.Initializer"></a>
 
@@ -617,7 +689,7 @@ new LambdaRunner(scope: Construct, id: string, props: LambdaRunnerProps)
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.toString">toString</a></code> | Returns a string representation of this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function tasks that execute the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
 
 ---
 
@@ -635,11 +707,15 @@ Returns a string representation of this construct.
 public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
 ```
 
-Generate step function tasks that execute the runner.
+Generate step function task(s) to start a new runner.
+
+Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.getStepFunctionTask.parameter.parameters"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+
+workflow job details.
 
 ---
 
@@ -675,11 +751,11 @@ Any object.
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.function">function</a></code> | <code>aws-cdk-lib.aws_lambda.Function</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | The principal to grant permissions to. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.label">label</a></code> | <code>string</code> | GitHub Actions label associated with this runner provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group associated with runners. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC network in which runners will be placed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.function">function</a></code> | <code>aws-cdk-lib.aws_lambda.Function</code> | The function hosting the GitHub runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.label">label</a></code> | <code>string</code> | Label associated with this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to the function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for hosting the function. |
 
 ---
 
@@ -715,6 +791,8 @@ public readonly function: Function;
 
 - *Type:* aws-cdk-lib.aws_lambda.Function
 
+The function hosting the GitHub runner.
+
 ---
 
 ##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.grantPrincipal"></a>
@@ -725,7 +803,7 @@ public readonly grantPrincipal: IPrincipal;
 
 - *Type:* aws-cdk-lib.aws_iam.IPrincipal
 
-The principal to grant permissions to.
+Grant principal used to add permissions to the runner role.
 
 ---
 
@@ -737,7 +815,7 @@ public readonly label: string;
 
 - *Type:* string
 
-GitHub Actions label associated with this runner provider.
+Label associated with this provider.
 
 ---
 
@@ -749,7 +827,7 @@ public readonly securityGroup: ISecurityGroup;
 
 - *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
 
-Security group associated with runners.
+Security group attached to the function.
 
 ---
 
@@ -761,7 +839,7 @@ public readonly vpc: IVpc;
 
 - *Type:* aws-cdk-lib.aws_ec2.IVpc
 
-VPC network in which runners will be placed.
+VPC used for hosting the function.
 
 ---
 
@@ -844,9 +922,9 @@ Any object.
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.github">github</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.githubPrivateKey">githubPrivateKey</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.webhook">webhook</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.github">github</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | Authentication secret for GitHub containing either app details or personal authentication token. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.githubPrivateKey">githubPrivateKey</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | GitHub app private key. Not needed when using personal authentication tokens. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.webhook">webhook</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | Webhook secret used to confirm events are coming from GitHub and nowhere else. |
 
 ---
 
@@ -870,6 +948,13 @@ public readonly github: Secret;
 
 - *Type:* aws-cdk-lib.aws_secretsmanager.Secret
 
+Authentication secret for GitHub containing either app details or personal authentication token.
+
+This secret is used to register runners and
+cancel jobs when the runner fails to start.
+
+This secret is meant to be edited by the user after being created.
+
 ---
 
 ##### `githubPrivateKey`<sup>Required</sup> <a name="githubPrivateKey" id="@cloudsnorkel/cdk-github-runners.Secrets.property.githubPrivateKey"></a>
@@ -880,6 +965,10 @@ public readonly githubPrivateKey: Secret;
 
 - *Type:* aws-cdk-lib.aws_secretsmanager.Secret
 
+GitHub app private key. Not needed when using personal authentication tokens.
+
+This secret is meant to be edited by the user after being created.
+
 ---
 
 ##### `webhook`<sup>Required</sup> <a name="webhook" id="@cloudsnorkel/cdk-github-runners.Secrets.property.webhook"></a>
@@ -889,6 +978,8 @@ public readonly webhook: Secret;
 ```
 
 - *Type:* aws-cdk-lib.aws_secretsmanager.Secret
+
+Webhook secret used to confirm events are coming from GitHub and nowhere else.
 
 ---
 
@@ -1035,6 +1126,8 @@ VPC to launch the runners in.
 
 ### FargateRunnerProps <a name="FargateRunnerProps" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps"></a>
 
+Properties for FargateRunner.
+
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.Initializer"></a>
 
 ```typescript
@@ -1100,6 +1193,8 @@ public readonly assignPublicIp: boolean;
 - *Default:* true
 
 Assign public IP to the runner task.
+
+Make sure the task will have access to GitHub. A public IP might be required unless you have NAT gateway.
 
 ---
 
@@ -1227,7 +1322,7 @@ VPC to launch the runners in.
 
 ### GitHubRunnersProps <a name="GitHubRunnersProps" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps"></a>
 
-Properties of the GitHubRunners.
+Properties for GitHubRunners.
 
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.Initializer"></a>
 
@@ -1241,8 +1336,8 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.defaultProviderLabel">defaultProviderLabel</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.defaultProviderLabel">defaultProviderLabel</a></code> | <code>string</code> | Label of default provider in case the workflow job doesn't specify any known label. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | List of runner providers to use. |
 
 ---
 
@@ -1253,6 +1348,11 @@ public readonly defaultProviderLabel: string;
 ```
 
 - *Type:* string
+- *Default:* 'codebuild'
+
+Label of default provider in case the workflow job doesn't specify any known label.
+
+A provider with that label must be configured.
 
 ---
 
@@ -1263,6 +1363,11 @@ public readonly providers: IRunnerProvider[];
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]
+- *Default:* CodeBuild, Lambda and Fargate runners with all the defaults (no VPC or default account VPC)
+
+List of runner providers to use.
+
+At least one provider is required. Provider will be selected when its label matches the labels requested by the workflow job.
 
 ---
 
@@ -1422,6 +1527,8 @@ VPC to launch the runners in.
 
 ### RunnerProviderProps <a name="RunnerProviderProps" id="@cloudsnorkel/cdk-github-runners.RunnerProviderProps"></a>
 
+Common properties for all runner providers.
+
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.RunnerProviderProps.Initializer"></a>
 
 ```typescript
@@ -1471,6 +1578,14 @@ Version of GitHub Runners to install.
 
 ### RunnerRuntimeParameters <a name="RunnerRuntimeParameters" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters"></a>
 
+Workflow job parameters as parsed from the webhook event. Pass these into your runner executor and run something like:.
+
+```sh
+./config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --name "${RUNNER_NAME}" --disableupdate
+```
+
+All parameters are specified as step function paths and therefore must be used only in step function task parameters.
+
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.Initializer"></a>
 
 ```typescript
@@ -1483,11 +1598,11 @@ const runnerRuntimeParameters: RunnerRuntimeParameters = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.githubDomainPath">githubDomainPath</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.ownerPath">ownerPath</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.repoPath">repoPath</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerNamePath">runnerNamePath</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerTokenPath">runnerTokenPath</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.githubDomainPath">githubDomainPath</a></code> | <code>string</code> | Path to GitHub domain. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.ownerPath">ownerPath</a></code> | <code>string</code> | Path to repostiroy owner name. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.repoPath">repoPath</a></code> | <code>string</code> | Path to repository name. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerNamePath">runnerNamePath</a></code> | <code>string</code> | Path to desired runner name. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerTokenPath">runnerTokenPath</a></code> | <code>string</code> | Path to runner token used to register token. |
 
 ---
 
@@ -1499,6 +1614,10 @@ public readonly githubDomainPath: string;
 
 - *Type:* string
 
+Path to GitHub domain.
+
+Most of the time this will be github.com but for self-hosted GitHub instances, this will be different.
+
 ---
 
 ##### `ownerPath`<sup>Required</sup> <a name="ownerPath" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.ownerPath"></a>
@@ -1508,6 +1627,8 @@ public readonly ownerPath: string;
 ```
 
 - *Type:* string
+
+Path to repostiroy owner name.
 
 ---
 
@@ -1519,6 +1640,8 @@ public readonly repoPath: string;
 
 - *Type:* string
 
+Path to repository name.
+
 ---
 
 ##### `runnerNamePath`<sup>Required</sup> <a name="runnerNamePath" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerNamePath"></a>
@@ -1528,6 +1651,10 @@ public readonly runnerNamePath: string;
 ```
 
 - *Type:* string
+
+Path to desired runner name.
+
+We specifically set the name to make troubleshooting easier.
 
 ---
 
@@ -1539,11 +1666,15 @@ public readonly runnerTokenPath: string;
 
 - *Type:* string
 
+Path to runner token used to register token.
+
 ---
 
 ## Classes <a name="Classes" id="Classes"></a>
 
 ### RunnerVersion <a name="RunnerVersion" id="@cloudsnorkel/cdk-github-runners.RunnerVersion"></a>
+
+Defines desired GitHub Actions runner version.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.RunnerVersion.Initializer"></a>
 
@@ -1570,8 +1701,8 @@ new RunnerVersion(version: string)
 
 | **Name** | **Description** |
 | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion.latest">latest</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion.specific">specific</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion.latest">latest</a></code> | Use the latest version available at the time the runner provider image is built. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion.specific">specific</a></code> | Use a specific version. |
 
 ---
 
@@ -1583,6 +1714,8 @@ import { RunnerVersion } from '@cloudsnorkel/cdk-github-runners'
 RunnerVersion.latest()
 ```
 
+Use the latest version available at the time the runner provider image is built.
+
 ##### `specific` <a name="specific" id="@cloudsnorkel/cdk-github-runners.RunnerVersion.specific"></a>
 
 ```typescript
@@ -1591,9 +1724,15 @@ import { RunnerVersion } from '@cloudsnorkel/cdk-github-runners'
 RunnerVersion.specific(version: string)
 ```
 
+Use a specific version.
+
+> [https://github.com/actions/runner/releases](https://github.com/actions/runner/releases)
+
 ###### `version`<sup>Required</sup> <a name="version" id="@cloudsnorkel/cdk-github-runners.RunnerVersion.specific.parameter.version"></a>
 
 - *Type:* string
+
+GitHub Runner version.
 
 ---
 
@@ -1624,6 +1763,10 @@ public readonly version: string;
 
 - *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner">CodeBuildRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunner">FargateRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner">LambdaRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
 
+Interface for all runner providers.
+
+Implementations create all required resources and return a step function task that starts those resources from {@link getStepFunctionTask}.
+
 #### Methods <a name="Methods" id="Methods"></a>
 
 | **Name** | **Description** |
@@ -1639,6 +1782,8 @@ public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
 ```
 
 Generate step function tasks that execute the runner.
+
+Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
 

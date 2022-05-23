@@ -71,13 +71,33 @@ export interface LambdaRunnerProps extends RunnerProviderProps {
  * GitHub Actions runner provider using Lambda to execute the actions.
  *
  * Creates a Docker-based function that gets executed for each job.
+ *
+ * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class LambdaRunner extends Construct implements IRunnerProvider {
+  /**
+   * The function hosting the GitHub runner.
+   */
   readonly function: lambda.Function;
 
+  /**
+   * Label associated with this provider.
+   */
   readonly label: string;
+
+  /**
+   * VPC used for hosting the function.
+   */
   readonly vpc?: ec2.IVpc;
+
+  /**
+   * Security group attached to the function.
+   */
   readonly securityGroup?: ec2.ISecurityGroup;
+
+  /**
+   * Grant principal used to add permissions to the runner role.
+   */
   readonly grantPrincipal: iam.IPrincipal;
 
   constructor(scope: Construct, id: string, props: LambdaRunnerProps) {
@@ -113,10 +133,20 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
     this.grantPrincipal = this.function.grantPrincipal;
   }
 
+  /**
+   * The network connections associated with this resource.
+   */
   public get connections(): ec2.Connections {
     return this.function.connections;
   }
 
+  /**
+   * Generate step function task(s) to start a new runner.
+   *
+   * Called by GithubRunners and shouldn't be called manually.
+   *
+   * @param parameters workflow job details
+   */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.LambdaInvoke(
       this,

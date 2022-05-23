@@ -10,19 +10,83 @@ import { BundledNodejsFunction } from './utils';
 import { GithubWebhookHandler } from './webhook';
 
 /**
- * Properties of the GitHubRunners
+ * Properties for GitHubRunners
  */
 export interface GitHubRunnersProps {
+
+  /**
+   * Label of default provider in case the workflow job doesn't specify any known label. A provider with that label must be configured.
+   *
+   * @default 'codebuild'
+   */
   readonly defaultProviderLabel?: string;
 
+  /**
+   * List of runner providers to use. At least one provider is required. Provider will be selected when its label matches the labels requested by the workflow job.
+   *
+   * @default CodeBuild, Lambda and Fargate runners with all the defaults (no VPC or default account VPC)
+   */
   readonly providers?: IRunnerProvider[];
 }
 
+/**
+ * Create all the required infrastructure to provide self-hosted GitHub runners. It creates a webhook, secrets, and a step function to orchestrate all runs. Secrets are not automatically filled. See README.md for instructions on how to setup GitHub integration.
+ *
+ * By default, this will create a runner provider of each available type with the defaults. This is good enough for the initial setup stage when you just want to get GitHub integration working.
+ *
+ * ```typescript
+ * new GitHubRunners(stack, 'runners', {});
+ * ```
+ *
+ * Usually you'd want to configure the runner providers so the runners can run in a certain VPC or have certain permissions.
+ *
+ * ```typescript
+ * const vpc = ec2.Vpc.fromLookup(stack, 'vpc', { vpcId: 'vpc-1234567' });
+ * const runnerSg = new ec2.SecurityGroup(stack, 'runner security group', { vpc: vpc });
+ * const dbSg = ec2.SecurityGroup.fromSecurityGroupId(stack, 'database security group', 'sg-1234567');
+ * const bucket = new s3.Bucket(stack, 'runner bucket');
+ *
+ * // create a custom CodeBuild provider
+ * const myProvider = new CodeBuildRunner(
+ *   stack, 'codebuild runner',
+ *   {
+ *      label: 'my-codebuild',
+ *      vpc: vpc,
+ *      securityGroup: runnerSg,
+ *   },
+ * );
+ * // grant some permissions to the provider
+ * bucket.grantReadWrite(myProvider);
+ * dbSg.connections.allowFrom(runnerSg, ec2.Port.tcp(3306), 'allow runners to connect to MySQL database');
+ *
+ * // create the runner infrastructure
+ * new GitHubRunners(
+ *   stack,
+ *   'runners',
+ *   {
+ *     providers: [myProvider],
+ *     defaultProviderLabel: 'my-codebuild',
+ *   }
+ * );
+ * ```
+ */
 export class GitHubRunners extends Construct {
 
+  /**
+   * Configured runner providers.
+   */
   readonly providers: IRunnerProvider[];
+
+  /**
+   * Default provider as set by {@link GitHubRunnersProps.defaultProviderLabel}.
+   */
   readonly defaultProvider: IRunnerProvider;
+
+  /**
+   * Secrets for GitHub communication including webhook secret and runner authentication.
+   */
   readonly secrets: Secrets;
+
   private readonly webhook: GithubWebhookHandler;
   private readonly orchestrator: stepfunctions.StateMachine;
 

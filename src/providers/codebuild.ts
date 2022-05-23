@@ -65,13 +65,33 @@ export interface CodeBuildRunnerProps extends RunnerProviderProps {
  * GitHub Actions runner provider using CodeBuild to execute the actions.
  *
  * Creates a project that gets started for each job.
+ *
+ * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class CodeBuildRunner extends Construct implements IRunnerProvider {
+  /**
+   * CodeBuild project hosting the runner.
+   */
   readonly project: codebuild.Project;
 
+  /**
+   * Label associated with this provider.
+   */
   readonly label: string;
+
+  /**
+   * VPC used for hosting the project.
+   */
   readonly vpc?: ec2.IVpc;
+
+  /**
+   * Security group attached to the task.
+   */
   readonly securityGroup?: ec2.ISecurityGroup;
+
+  /**
+   * Grant principal used to add permissions to the runner role.
+   */
   readonly grantPrincipal: iam.IPrincipal;
 
   constructor(scope: Construct, id: string, props: CodeBuildRunnerProps) {
@@ -145,6 +165,13 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
     this.grantPrincipal = this.project.grantPrincipal;
   }
 
+  /**
+   * Generate step function task(s) to start a new runner.
+   *
+   * Called by GithubRunners and shouldn't be called manually.
+   *
+   * @param parameters workflow job details
+   */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.CodeBuildStartBuild(
       this,
@@ -182,6 +209,9 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
     );
   }
 
+  /**
+   * The network connections associated with this resource.
+   */
   public get connections(): ec2.Connections {
     return this.project.connections;
   }
