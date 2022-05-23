@@ -21,6 +21,8 @@ Self-hosted runners in AWS are useful when:
 * You want to pre-install some software for your actions
 * You want to provide some basic AWS API access ([aws-actions/configure-aws-credentials][2] has more security controls)
 
+Ephemeral runners are the [recommended way by GitHub][14] for auto-scaling, and they make sure all jobs run with a clean image. Runners are started on-demand. You don't pay unless a job is running.
+
 ## API
 
 Documentation of available constructs and their interface is available on [Constructs Hub][13] in all supported programming languages.
@@ -32,7 +34,7 @@ A runner provider creates compute resources on-demand and uses [actions/runner][
 | Provider  | Time limit               | vCPUs                    | RAM                               | Storage                      | sudo | Docker |
 |-----------|--------------------------|--------------------------|-----------------------------------|------------------------------|------|--------|
 | CodeBuild | 8 hours (default 1 hour) | 2 (default), 4, 8, or 72 | 3gb (default), 7gb, 15gb or 145gb | 50gb to 824gb (default 64gb) | ✔    | ✔     |
-| Fargate   | Unlimited                | 0.25 to 4 (default 1)    | 512mb to 30gb (default 2gb)       | 20gb to 200gb (default 25gb) | ✔    | TBD    |
+| Fargate   | Unlimited                | 0.25 to 4 (default 1)    | 512mb to 30gb (default 2gb)       | 20gb to 200gb (default 25gb) | ✔    | ❌    |
 | Lambda    | 15 minutes               | 1 to 6 (default 2)       | 128mb to 10gb (default 2gb)       | Up to 10gb (default 10gb)    | ❌    | ❌     |
 
 The best provider to use mostly depends on your current infrastructure. When in doubt, CodeBuild is always a good choice. Execution history and logs are easy to view, and it has no restrictive limits unless you need to run for more than 8 hours.
@@ -162,3 +164,4 @@ app.synth();
 [11]: https://pkg.go.dev/github.com/CloudSnorkel/cdk-github-runners-go/cloudsnorkelcdkgithubrunners
 [12]: https://www.nuget.org/packages/CloudSnorkel.Cdk.Github.Runners/
 [13]: https://constructs.dev/packages/@cloudsnorkel/cdk-github-runners/
+[14]: https://docs.github.com/en/actions/hosting-your-own-runners/autoscaling-with-self-hosted-runners#using-ephemeral-runners-for-autoscaling

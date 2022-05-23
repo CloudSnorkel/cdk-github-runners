@@ -11,6 +11,9 @@ import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import { IRunnerProvider, RunnerProviderProps, RunnerRuntimeParameters, RunnerVersion } from './common';
 
+/**
+ * Properties for FargateRunner.
+ */
 export interface FargateRunnerProps extends RunnerProviderProps {
   /**
    * GitHub Actions label used for this provider.
@@ -42,6 +45,8 @@ export interface FargateRunnerProps extends RunnerProviderProps {
 
   /**
    * Assign public IP to the runner task.
+   *
+   * Make sure the task will have access to GitHub. A public IP might be required unless you have NAT gateway.
    *
    * @default true
    */
@@ -98,17 +103,53 @@ export interface FargateRunnerProps extends RunnerProviderProps {
  * GitHub Actions runner provider using Fargate to execute the actions.
  *
  * Creates a task definition with a single container that gets started for each job.
+ *
+ * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class FargateRunner extends Construct implements IRunnerProvider {
+  /**
+   * Cluster hosting the task hosting the runner.
+   */
   readonly cluster: ecs.Cluster;
+
+  /**
+   * Fargate task hosting the runner.
+   */
   readonly task: ecs.FargateTaskDefinition;
+
+  /**
+   * Container definition hosting the runner.
+   */
   readonly container: ecs.ContainerDefinition;
 
+  /**
+   * Label associated with this provider.
+   */
   readonly label: string;
+
+  /**
+   * VPC used for hosting the task.
+   */
   readonly vpc?: ec2.IVpc;
+
+  /**
+   * Security group attached to the task.
+   */
   readonly securityGroup?: ec2.ISecurityGroup;
+
+  /**
+   * Whether task will have a public IP.
+   */
   readonly assignPublicIp: boolean;
+
+  /**
+   * Grant principal used to add permissions to the runner role.
+   */
   readonly grantPrincipal: iam.IPrincipal;
+
+  /**
+   * The network connections associated with this resource.
+   */
   readonly connections: ec2.Connections;
 
   constructor(scope: Construct, id: string, props: FargateRunnerProps) {
@@ -158,6 +199,13 @@ export class FargateRunner extends Construct implements IRunnerProvider {
     this.grantPrincipal = new iam.UnknownPrincipal({ resource: this.task.taskRole });
   }
 
+  /**
+   * Generate step function task(s) to start a new runner.
+   *
+   * Called by GithubRunners and shouldn't be called manually.
+   *
+   * @param parameters workflow job details
+   */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.EcsRunTask(
       this,
