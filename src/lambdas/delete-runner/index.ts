@@ -34,13 +34,13 @@ exports.handler = async function (event: any) {
   });
 
   // find runner id
-  const runnerId = await getRunnerId(octokit, event.owner, event.repo, event.runnerName);
+  const runnerId = await getRunnerId(octokit, event.owner, event.repo, event.runnerName.slice(0, 63));
   if (!runnerId) {
-    console.error(`Unable to find runner id for ${event.owner}/${event.repo}:${event.runnerName}`);
+    console.error(`Unable to find runner id for ${event.owner}/${event.repo}:${event.runnerName.slice(0, 63)}`);
     return;
   }
 
-  console.log(`Runner ${event.runnerName} has id #${runnerId}`);
+  console.log(`Runner ${event.runnerName.slice(0, 63)} has id #${runnerId}`);
 
   // delete runner (it usually gets deleted by ./run.sh, but it stopped prematurely if we're here)
   await octokit.request('DELETE /repos/{owner}/{repo}/actions/runners/{runnerId}', {
