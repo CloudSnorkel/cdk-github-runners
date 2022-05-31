@@ -8,7 +8,7 @@ exports.handler = async (event, context) => {
         REPO: event.repo,
         GITHUB_DOMAIN: event.githubDomain,
         RUNNER_TOKEN: event.token,
-        RUNNER_NAME: event.runnerName,
+        RUNNER_NAME: event.runnerName.slice(0, 63),
         RUNNER_LABEL: event.label,
       },
     });
