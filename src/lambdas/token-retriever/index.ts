@@ -1,7 +1,7 @@
 import { getOctokit } from '../github';
 
 exports.handler = async function (event: any) {
-  const { githubSecrets, octokit } = await getOctokit();
+  const { githubSecrets, octokit } = await getOctokit(event.installationId as string);
 
   const response = await octokit.request('POST /repos/{owner}/{repo}/actions/runners/registration-token', {
     owner: event.owner,
