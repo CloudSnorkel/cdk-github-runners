@@ -71,8 +71,8 @@ exports.handler = async function () {
         privateKeySecretArn: process.env.GITHUB_PRIVATE_KEY_SECRET_ARN,
         privateKeySecretUrl: secretArnToUrl(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN),
         app: {
-          appId: '',
-          // TODO get app name from appId -- appUrl: `https://github.com/settings/apps/...`,
+          id: '',
+          url: '',
           installations: [] as AppInstallation[],
         },
         personalAuthToken: '',
@@ -168,7 +168,7 @@ exports.handler = async function () {
   } else {
     // try authenticating with GitHub app
     status.github.auth.type = 'GitHub App';
-    status.github.auth.app.appId = githubSecrets.appId;
+    status.github.auth.app.id = githubSecrets.appId;
 
     let appOctokit;
     try {
@@ -182,6 +182,15 @@ exports.handler = async function () {
       });
     } catch (e) {
       status.github.auth.status = `Unable to authenticate app: ${e}`;
+      return status;
+    }
+
+    // get app url
+    try {
+      const app = (await appOctokit.request('GET /app')).data;
+      status.github.auth.app.url = app.html_url;
+    } catch (e) {
+      status.github.auth.status = `Unable to get app details: ${e}`;
       return status;
     }
 
