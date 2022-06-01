@@ -31,6 +31,13 @@ function stepFunctionArnToUrl(arn: string) {
   return `https://${region}.console.aws.amazon.com/states/home?region=${region}#/statemachines/view/${arn}`;
 }
 
+interface AppInstallation {
+  readonly id: number;
+  readonly url: string;
+  readonly status: string;
+  readonly repositories: string[];
+}
+
 interface RecentRun {
   readonly owner?: string;
   readonly repo?: string;
@@ -66,9 +73,7 @@ exports.handler = async function () {
         app: {
           appId: '',
           // TODO get app name from appId -- appUrl: `https://github.com/settings/apps/...`,
-          clientId: '',
-          installationId: '',
-          installationUrl: '',
+          installations: [] as AppInstallation[],
         },
         personalAuthToken: '',
       },
@@ -163,12 +168,7 @@ exports.handler = async function () {
   } else {
     // try authenticating with GitHub app
     status.github.auth.type = 'GitHub App';
-    status.github.auth.app = {
-      appId: githubSecrets.appId,
-      clientId: githubSecrets.clientId,
-      installationId: githubSecrets.installationId,
-      installationUrl: `https://${githubSecrets.domain}/settings/installations/${githubSecrets.installationId}`,
-    };
+    status.github.auth.app.appId = githubSecrets.appId;
 
     let appOctokit;
     try {
@@ -185,34 +185,57 @@ exports.handler = async function () {
       return status;
     }
 
-    let token;
+    // list all app installations
     try {
-      token = (await appOctokit.auth({
-        type: 'installation',
-        installationId: githubSecrets.installationId,
-      }) as any).token;
-    } catch (e) {
-      status.github.auth.status = `Unable to authenticate app installation: ${e}`;
-      return status;
-    }
+      const installations = (await appOctokit.request('GET /app/installations')).data;
+      for (const installation of installations) {
+        let installationDetails = {
+          id: installation.id,
+          url: `https://${githubSecrets.domain}/settings/installations/${installation.id}`,
+          status: 'Unable to query',
+          repositories: [] as string[],
+        };
 
-    let octokit;
-    try {
-      octokit = new Octokit({ baseUrl, auth: token });
-    } catch (e) {
-      status.github.auth.status = `Unable to authenticate using app: ${e}`;
-      return status;
-    }
+        let token;
+        try {
+          token = (await appOctokit.auth({
+            type: 'installation',
+            installationId: installation.id,
+          }) as any).token;
+        } catch (e) {
+          installationDetails.status = `Unable to authenticate app installation: ${e}`;
+          continue;
+        }
 
-    try {
-      JSON.stringify(await octokit.request('GET /'));
+        let octokit;
+        try {
+          octokit = new Octokit({ baseUrl, auth: token });
+        } catch (e) {
+          installationDetails.status = `Unable to authenticate using app: ${e}`;
+          continue;
+        }
+
+        try {
+          const repositories = (await octokit.request('GET /installation/repositories')).data.repositories;
+          for (const repo of repositories) {
+            installationDetails.repositories.push(repo.full_name as string);
+          }
+        } catch (e) {
+          installationDetails.status = `Unable to authenticate using installation token: ${e}`;
+          continue;
+        }
+
+        installationDetails.status = 'OK';
+        status.github.auth.app.installations.push(installationDetails);
+      }
     } catch (e) {
-      status.github.auth.status = `Unable to authenticate using installation token: ${e}`;
+      status.github.auth.status = 'Unable to list app installations';
       return status;
     }
 
     status.github.auth.status = 'OK';
 
+    // check webhook config
     try {
       const response = await appOctokit.request('GET /app/hook/config', {});
 

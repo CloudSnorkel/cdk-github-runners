@@ -104,6 +104,7 @@ exports.handler = async function (event: any) {
       owner: payload.repository.owner.login,
       repo: payload.repository.name,
       runId: payload.workflow_job.run_id,
+      installationId: payload.installation?.id,
       labels: labels,
     }),
     // name is not random so multiple execution of this webhook won't cause multiple builders to start

@@ -13,7 +13,7 @@ export function baseUrlFromDomain(domain: string): string {
 }
 
 
-export async function getOctokit() {
+export async function getOctokit(installationId?: string) {
   if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
     throw new Error('Missing environment variables');
   }
@@ -49,7 +49,7 @@ export async function getOctokit() {
 
     token = (await appOctokit.auth({
       type: 'installation',
-      installationId: githubSecrets.installationId,
+      installationId: installationId,
     }) as any).token;
   }
 

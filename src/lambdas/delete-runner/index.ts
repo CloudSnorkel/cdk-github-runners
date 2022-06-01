@@ -24,7 +24,7 @@ async function getRunnerId(octokit: any, owner: string, repo: string, name: stri
 }
 
 exports.handler = async function (event: any) {
-  const { octokit } = await getOctokit();
+  const { octokit } = await getOctokit(event.installationId as string);
 
   // cancel job so it doesn't get assigned to other runners by mistake or just sit there waiting
   await octokit.request('POST /repos/{owner}/{repo}/actions/runs/{runId}/cancel', {

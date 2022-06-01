@@ -1,6 +1,6 @@
 # Setup GitHub
 
-Integration with GitHub can be done using an [app][9] or [personal access token][10]. Using an app allows more fine-grained access control. Personal access tokens are easier to set up but belong to a user instead of an organization.
+Integration with GitHub can be done using an [app](#app-authentication) or [personal access token](#personal-access-token). Using an app allows more fine-grained access control. Personal access tokens are easier to set up but belong to a user instead of an organization.
 
 ## App Authentication
 
@@ -18,19 +18,11 @@ Integration with GitHub can be done using an [app][9] or [personal access token]
     1. Workflow job
 6. Under "Where can this GitHub App be installed?" select "Only on this account"
 7. Click the Create button
-8. From the new app page:
-    1. Write down the app id and client id
-    2. Click generate new client secret and write it down
-    3. Generate a private key and save the downloaded key
-9. On the top left go to Install App page and:
-    1. Install the app on the desired account or organization
-    2. Copy the installation id number from the URL and write it down (e.g. if the URL is https://github.com/settings/installations/123456, your installation id is 123456)
+8. From the new app page generate a private key and save the downloaded key
+9. On the top left go to Install App page and install the app on the desired account or organization
 10. Open the URL in `github.auth.secretUrl` from `status.json` and edit the secret value
     1. If you're using a self-hosted GitHub instance, put its domain in `domain` (e.g. `github.mycompany.com`)
     2. Put the new application id in `appId` (e.g. `34789562`)
-    3. Put the client id in `clientId` (e.g. `Iv1.0beef123456`)
-    4. Put the client secret in `clientSecret` (e.g. `4e2b66fab69065001500697b0d751beb033a3deb`)
-    5. Put the installation id you copied from the URL in `installationId` (e.g. `123456`)
     6. Ignore/delete `dummy` and **leave `personalAuthToken` empty**
 11. Open the URL in `github.auth.privateKeySecretUrl` from `status.json` and edit the secret value
     1. Open the downloaded private key with any text editor

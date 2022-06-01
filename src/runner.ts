@@ -154,6 +154,7 @@ export class GitHubRunners extends Construct {
           owner: stepfunctions.JsonPath.stringAt('$.owner'),
           repo: stepfunctions.JsonPath.stringAt('$.repo'),
           runId: stepfunctions.JsonPath.stringAt('$.runId'),
+          installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
         }),
       },
     );
