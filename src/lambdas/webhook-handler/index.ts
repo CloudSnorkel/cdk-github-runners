@@ -95,8 +95,9 @@ exports.handler = async function (event: any) {
   let labels: any = {};
   payload.workflow_job.labels.forEach((l: string) => labels[l] = true);
 
+  // set execution name which is also used as runner name which are limited to 64 characters
+  let executionName = `${payload.repository.full_name.replace('/', '-')}-${event.headers['x-github-delivery']}`.slice(0, 64);
   // start execution
-  let executionName = `${payload.repository.full_name.replace('/', '-')}-${event.headers['x-github-delivery']}`;
   const execution = await sf.startExecution({
     stateMachineArn: process.env.STEP_FUNCTION_ARN,
     input: JSON.stringify({
