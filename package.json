@@ -48,7 +48,7 @@
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
     "aws-cdk-lib": "2.21.1",
-    "aws-sdk": "^2.1147.0",
+    "aws-sdk": "^2.1148.0",
     "constructs": "10.0.5",
     "esbuild": "^0.14.42",
     "eslint": "^8",
