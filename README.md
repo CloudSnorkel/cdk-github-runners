@@ -10,22 +10,22 @@
 
 Use this CDK construct to create ephemeral [self-hosted GitHub runners][1] on-demand inside your AWS account.
 
-* Easy to configure GitHub integration
+* Easy to configure GitHub integration with a web-based interface
 * Customizable runners with decent defaults
-* Supports multiple runner configurations controlled by labels
+* Multiple runner configurations controlled by labels
 * Everything fully hosted in your account
 
 Self-hosted runners in AWS are useful when:
 
 * You need easy access to internal resources in your actions
 * You want to pre-install some software for your actions
-* You want to provide some basic AWS API access ([aws-actions/configure-aws-credentials][2] has more security controls)
+* You want to provide some basic AWS API access (but [aws-actions/configure-aws-credentials][2] has more security controls)
 
-Ephemeral runners are the [recommended way by GitHub][14] for auto-scaling, and they make sure all jobs run with a clean image. Runners are started on-demand. You don't pay unless a job is running.
+Ephemeral (or on-demand) runners are the [recommended way by GitHub][14] for auto-scaling, and they make sure all jobs run with a clean image. Runners are started on-demand. You don't pay unless a job is running.
 
 ## API
 
-Documentation of available constructs and their interface is available on [Constructs Hub][13] in all supported programming languages.
+The best way to browse API documentation is on [Constructs Hub][13]. It is available in all supported programming languages.
 
 ## Providers
 
@@ -72,7 +72,7 @@ You can also create your own provider by implementing `IRunnerProvider`.
 4. Deploy your stack
 5. Look for the status command output similar to `aws --region us-east-1 lambda invoke --function-name status-XYZ123 status.json`
 6. Execute the status command (you may need to specify `--profile` too) and open the resulting `status.json` file
-7. [Setup GitHub](SETUP_GITHUB.md) integration as an app or with personal access token
+7. Open the URL in `github.setup.url` from `status.json` or [manually setup GitHub](SETUP_GITHUB.md) integration as an app or with personal access token
 8. Run status command again to confirm `github.auth.status` and `github.webhook.status` are OK
 9. Trigger a GitHub action that has a `self-hosted` label with `runs-on: [self-hosted, linux, codebuild]` or similar
 10. If the action is not successful, see [troubleshooting](#Troubleshooting)

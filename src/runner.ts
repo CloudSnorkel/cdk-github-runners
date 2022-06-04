@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_iam as iam, aws_stepfunctions as stepfunctions, aws_stepfunctions_tasks as stepfunctions_tasks } from 'aws-cdk-lib';
+import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { CodeBuildRunner } from './providers/codebuild';
 import { IRunnerProvider } from './providers/common';
@@ -89,6 +90,7 @@ export class GitHubRunners extends Construct {
 
   private readonly webhook: GithubWebhookHandler;
   private readonly orchestrator: stepfunctions.StateMachine;
+  private readonly setupUrl: string;
 
   constructor(scope: Construct, id: string, readonly props: GitHubRunnersProps) {
     super(scope, id);
@@ -118,7 +120,8 @@ export class GitHubRunners extends Construct {
       secrets: this.secrets,
     });
 
-    this.statusFunctions();
+    this.setupUrl = this.setupFunction();
+    this.statusFunction();
   }
 
   private getDefaultProvider(): IRunnerProvider | null {
@@ -242,8 +245,8 @@ export class GitHubRunners extends Construct {
     return func;
   }
 
-  private statusFunctions() {
-    const func = this.providers.map(provider => {
+  private statusFunction() {
+    const providers = this.providers.map(provider => {
       return {
         type: provider.constructor.name,
         label: provider.label,
@@ -261,10 +264,12 @@ export class GitHubRunners extends Construct {
           WEBHOOK_SECRET_ARN: this.secrets.webhook.secretArn,
           GITHUB_SECRET_ARN: this.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+          SETUP_SECRET_ARN: this.secrets.setup.secretArn,
           WEBHOOK_URL: this.webhook.url,
-          PROVIDERS: JSON.stringify(func),
+          PROVIDERS: JSON.stringify(providers),
           WEBHOOK_HANDLER_ARN: this.webhook.handler.latestVersion.functionArn,
           STEP_FUNCTION_ARN: this.orchestrator.stateMachineArn,
+          SETUP_FUNCTION_URL: this.setupUrl,
         },
         timeout: cdk.Duration.minutes(3),
       },
@@ -273,6 +278,7 @@ export class GitHubRunners extends Construct {
     this.secrets.webhook.grantRead(statusFunction);
     this.secrets.github.grantRead(statusFunction);
     this.secrets.githubPrivateKey.grantRead(statusFunction);
+    this.secrets.setup.grantRead(statusFunction);
     this.orchestrator.grantRead(statusFunction);
 
     new cdk.CfnOutput(
@@ -282,5 +288,33 @@ export class GitHubRunners extends Construct {
         value: `aws --region ${cdk.Stack.of(this).region} lambda invoke --function-name ${statusFunction.functionName} status.json`,
       },
     );
+  }
+
+  private setupFunction(): string {
+    const setupFunction = new BundledNodejsFunction(
+      this,
+      'setup',
+      {
+        environment: {
+          SETUP_SECRET_ARN: this.secrets.setup.secretArn,
+          WEBHOOK_SECRET_ARN: this.secrets.webhook.secretArn,
+          GITHUB_SECRET_ARN: this.secrets.github.secretArn,
+          GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+          WEBHOOK_URL: this.webhook.url,
+        },
+        timeout: cdk.Duration.minutes(3),
+      },
+    );
+
+    // this.secrets.webhook.grantRead(setupFunction);
+    this.secrets.webhook.grantWrite(setupFunction);
+    // this.secrets.github.grantRead(setupFunction);
+    this.secrets.github.grantWrite(setupFunction);
+    // this.secrets.githubPrivateKey.grantRead(setupFunction);
+    this.secrets.githubPrivateKey.grantWrite(setupFunction);
+    this.secrets.setup.grantRead(setupFunction);
+    this.secrets.setup.grantWrite(setupFunction);
+
+    return setupFunction.addFunctionUrl({ authType: FunctionUrlAuthType.NONE }).url;
   }
 }

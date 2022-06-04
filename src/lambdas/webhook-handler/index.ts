@@ -1,9 +1,9 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import * as crypto from 'crypto';
 import * as AWS from 'aws-sdk';
+import { getSecretJsonValue } from '../helpers';
 
 const sf = new AWS.StepFunctions();
-const sm = new AWS.SecretsManager();
 
 // TODO use @octokit/webhooks?
 
@@ -35,15 +35,7 @@ exports.handler = async function (event: any) {
     throw new Error('Missing environment variables');
   }
 
-  const secret = await sm.getSecretValue({
-    SecretId: process.env.WEBHOOK_SECRET_ARN,
-  }).promise();
-
-  if (!secret.SecretString) {
-    throw new Error(`No SecretString in ${process.env.WEBHOOK_SECRET_ARN}`);
-  }
-
-  const webhookSecret = JSON.parse(secret.SecretString).webhookSecret;
+  const webhookSecret = (await getSecretJsonValue(process.env.WEBHOOK_SECRET_ARN)).webhookSecret;
 
   let body;
   try {

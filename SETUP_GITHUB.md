@@ -1,8 +1,22 @@
 # Setup GitHub
 
-Integration with GitHub can be done using an [app](#app-authentication) or [personal access token](#personal-access-token). Using an app allows more fine-grained access control. Personal access tokens are easier to set up but belong to a user instead of an organization.
+Integration with GitHub can be done using an [app](#app-authentication) or [personal access token](#personal-access-token). Using an app allows more fine-grained access control. Using an app is easier with the setup wizard.
 
 ## App Authentication
+
+### Setup Wizard
+
+1. Open the URL in `github.setup.url` from `status.json`
+2. If you want to create an app for your personal repositories, click the Create button under New Personal App
+3. If you want to create an app for your organization:
+   1. Find the New Organization App section
+   2. Type in the organization name in organization slug (ORGANIZATION from https://github.com/ORGANIZATION/REPO)
+   3. Click the Create button
+4. Follow the instructions on GitHub
+5. When brought back to the setup wizard, click the install link
+6. Install the new app on your desired repositories
+
+### Manually
 
 1. Decide if you want to create a personal app or an organization app
     1. For a personal app use https://github.com/settings/apps/new
@@ -30,21 +44,44 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 
 ## Personal Access Token
 
-1. Create a new token
-    1. Go to https://github.com/settings/tokens/new
-    2. Choose your expiration date (you will need to replace the token if it expires)
-    3. Under scopes select `repo`
-    4. Copy the generated token
-2. Open the URL in `github.auth.secretUrl` from `status.json` and edit the secret value
-    1. If you're using a self-hosted GitHub instance, put its domain in `domain` (e.g. `github.mycompany.com`)
-    2. Put the generated token in `personalAuthToken`
-    3. Ignore all other values
-3. Create a webhook
-    1. For organizations go to https://github.com/organizations/MY_ORG/settings/hooks after replacing `MY_ORG` with your GitHub organization name
-    2. For enterprise go to https://github.com/enterprises/MY_ENTERPRISE/settings/hooks after replacing `MY_ENTERPRISE` with your GitHub enterprise name
-    3. Otherwise, you can create one per repository in your repository settings under Webhooks
-    4. Configure the webhook:
-        1. For Webhook URL use the value of `github.webhook.url` from `status.json`
-        2. Open the URL in `github.webhook.secretUrl` from `status.json`, retrieve the secret value, and use it for webhook secret
-        3. Make sure content type is set to JSON
-        4. Select individual jobs and select only Workflow jobs
+### Create Token
+
+1. Go to https://github.com/settings/tokens/new
+2. Choose your expiration date (you will need to replace the token if it expires)
+3. Under scopes select `repo`
+4. Copy the generated token
+
+### Set Token
+
+#### Setup Wizard
+
+1. Open the URL in `github.setup.url` from `status.json`
+2. Enter your personal access token under Using Personal Access Token
+3. Click the Set button
+
+#### Manually
+
+1. Open the URL in `github.auth.secretUrl` from `status.json` and edit the secret value
+2. If you're using a self-hosted GitHub instance, put its domain in `domain` (e.g. `github.mycompany.com`)
+3. Put the generated token in `personalAuthToken`
+4. Ignore all other values
+
+### Setup Webhook
+
+1. For organizations go to https://github.com/organizations/MY_ORG/settings/hooks after replacing `MY_ORG` with your GitHub organization name
+2. For enterprise go to https://github.com/enterprises/MY_ENTERPRISE/settings/hooks after replacing `MY_ENTERPRISE` with your GitHub enterprise name
+3. Otherwise, you can create one per repository in your repository settings under Webhooks
+4. Configure the webhook:
+    1. For Webhook URL use the value of `github.webhook.url` from `status.json`
+    2. Open the URL in `github.webhook.secretUrl` from `status.json`, retrieve the secret value, and use it for webhook secret
+    3. Make sure content type is set to JSON
+    4. Select individual jobs and select only Workflow jobs
+
+## Resetting Setup Wizard
+
+If the setup wizard tells you setup has already been completed or if `github.setup.status` is completed, or if `github.setup.url` is empty:
+
+1. Open the URL in `github.setup.secretUrl` from `status.json`
+2. Edit the secret
+3. Put a new random value in `token`
+4. Run status function again to get the new URL
