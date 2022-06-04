@@ -15,9 +15,18 @@ function getHtml(manifest: string, token: string): string {
 <body>
 <h1>Setup GitHub Runners</h1>
 <p>You can choose between creating a new app that will provide authentication for specific repositories, or a personal access token that will provide access to all repositories available to you. Apps are easier to set up and provide more fine-grained access control.</p>
+<form>
+    <fieldset>
+        <legend>GitHub Domain</legend>
+        <p>When using a GitHub Enterprise Server, change this to your own domain like github.mycompany.com.</p>
+        <label for="domain">Domain: </label>
+        <input id="domain" value="github.com">
+    </fieldset>
+</form>
+
 <h2>Using App</h2>
 <p>Choose whether you want a personal app, an organization app, or an existing app created according to the instructions in <a href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md">SETUP_GITHUB.md</a>. The scope of the app should match the scope of the repositories you need to provide runners for.</p>
-<form action="https://github.com/settings/apps/new?state=${token}" method="post">
+<form action="https://github.com/settings/apps/new?state=${token}" method="post" id="appform">
     <fieldset>
         <legend>New Personal App</legend>
         <input type="hidden" name="manifest" id="manifest">
@@ -26,11 +35,11 @@ function getHtml(manifest: string, token: string): string {
 </form>
 
 <br>
-<form action="https://github.com/organizations/ORGANIZATION/settings/apps/new?state=${token}" method="post">
+<form action="https://github.com/organizations/ORGANIZATION/settings/apps/new?state=${token}" method="post" id="orgappform">
     <fieldset>
         <legend>New Organization App</legend>
         <label for="org">Organization slug:</label>
-        <input id="org" name="org" value="ORGANIZATION" onchange="this.form.action = \`https://github.com/organizations/\${this.value}/settings/apps/new?state=${token}\`"><br><br>
+        <input id="org" name="org" value="ORGANIZATION"><br><br>
         <input type="hidden" name="manifest" id="manifestorg">
         <input type="submit" value="Create">
     </fieldset>
@@ -41,7 +50,8 @@ function getHtml(manifest: string, token: string): string {
     <fieldset>
         <p>Existing apps must have <code>actions</code> and <code>administration</code> write permissions. Don't forget to set up the webhook and its secret as described in <a href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md">SETUP_GITHUB.md</a>.</p>
         <legend>Existing App</legend>
-        <label for="pat">App Id:</label>
+        <input type="hidden" name="domain" id="existingdomain" value="github.com">
+        <label for="appid">App id:</label>
         <input type="number" id="appid" name="appid"><br><br>
         <label for="pk">Private key:</label>
         <textarea id="pk" name="pk"></textarea><br><br>
@@ -49,20 +59,31 @@ function getHtml(manifest: string, token: string): string {
     </fieldset>
 </form>
 
-<script>
-    document.getElementById("manifest").value = JSON.stringify(${manifest});
-    document.getElementById("manifestorg").value = JSON.stringify(${manifest});
-</script>
-
 <h2>Using Personal Access Token</h2>
 <p>The personal token must have the <code>repo</code> scope enable. Don't forget to also create a webhook as described in <a href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md">SETUP_GITHUB.md</a>.</p>
 <form action="pat?token=${token}" method="post">
     <fieldset>
         <label for="pat">Token:</label>
+        <input type="hidden" name="domain" id="patdomain" value="github.com">
         <input type="password" id="pat" name="pat">
         <input type="submit" value="Set">
     </fieldset>
 </form>
+
+<script>
+    document.getElementById("manifest").value = JSON.stringify(${manifest});
+    document.getElementById("manifestorg").value = JSON.stringify(${manifest});
+    function setDomainAndOrg() {
+        const domain = document.getElementById("domain").value;
+        const org = document.getElementById("org").value;
+        document.getElementById("appform").action = \`https://\${domain}/settings/apps/new?state=${token}\`;
+        document.getElementById("orgappform").action = \`https://\${domain}/organizations/\${org}/settings/apps/new?state=${token}\`;
+        document.getElementById("existingdomain").value = domain;
+        document.getElementById("patdomain").value = domain;
+    }
+    document.getElementById("domain").onchange = setDomainAndOrg;
+    document.getElementById("org").onchange = setDomainAndOrg;
+</script>
 </body>
 </html>
 `;
@@ -108,7 +129,7 @@ function decodeBody(event: any) {
 
 async function handlePat(event: any) {
   const body = decodeBody(event);
-  if (!body.pat) {
+  if (!body.pat || !body.domain) {
     return {
       statusCode: 400,
       headers: {
@@ -119,7 +140,7 @@ async function handlePat(event: any) {
   }
 
   await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify({
-    domain: 'github.com',
+    domain: body.domain,
     appId: '',
     personalAuthToken: body.pat,
   }));
@@ -150,7 +171,7 @@ async function handleNewApp(event: any) {
   const newApp = await new Octokit().rest.apps.createFromManifest({ code });
 
   await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify({
-    domain: 'github.com',
+    domain: new URL(newApp.data.html_url).host,
     appId: newApp.data.id,
     personalAuthToken: '',
   }));
@@ -172,7 +193,7 @@ async function handleNewApp(event: any) {
 async function handleExistingApp(event: any) {
   const body = decodeBody(event);
 
-  if (!body.appid || !body.pk) {
+  if (!body.appid || !body.pk || !body.domain) {
     return {
       statusCode: 400,
       headers: {
@@ -183,7 +204,7 @@ async function handleExistingApp(event: any) {
   }
 
   await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify({
-    domain: 'github.com',
+    domain: body.domain,
     appId: body.appid,
     personalAuthToken: '',
   }));
