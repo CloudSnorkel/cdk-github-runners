@@ -37,7 +37,7 @@ function getHtml(manifest: string, token: string): string {
 </form>
 
 <br>
-<form action="app" method="post">
+<form action="app?token=${token}" method="post">
     <fieldset>
         <p>Existing apps must have <code>actions</code> and <code>administration</code> write permissions. Don't forget to set up the webhook and its secret as described in <a href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md">SETUP_GITHUB.md</a>.</p>
         <legend>Existing App</legend>
@@ -169,6 +169,36 @@ async function handleNewApp(event: any) {
   };
 }
 
+async function handleExistingApp(event: any) {
+  const body = decodeBody(event);
+
+  if (!body.appid || !body.pk) {
+    return {
+      statusCode: 400,
+      headers: {
+        'Content-Type': 'text/html',
+      },
+      body: 'Missing fields',
+    };
+  }
+
+  await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify({
+    domain: 'github.com',
+    appId: body.appid,
+    personalAuthToken: '',
+  }));
+  await updateSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN, body.pk as string);
+  await updateSecretValue(process.env.SETUP_SECRET_ARN, JSON.stringify({ token: '' }));
+
+  return {
+    statusCode: 200,
+    headers: {
+      'Content-Type': 'text/html',
+    },
+    body: 'Existing app set. Don\'t forget to set up the webhook.',
+  };
+}
+
 exports.handler = async function (event: any) {
   // confirm required environment variables
   if (!process.env.WEBHOOK_URL) {
@@ -217,6 +247,8 @@ exports.handler = async function (event: any) {
     return handlePat(event);
   } else if (event.requestContext.http.path == '/complete-new-app' && event.requestContext.http.method == 'GET') {
     return handleNewApp(event);
+  } else if (event.requestContext.http.path == '/app' && event.requestContext.http.method == 'POST') {
+    return handleExistingApp(event);
   } else {
     return {
       statusCode: 404,
