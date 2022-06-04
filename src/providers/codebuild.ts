@@ -1,12 +1,13 @@
 import * as path from 'path';
 import {
-  Duration,
   aws_codebuild as codebuild,
   aws_ec2 as ec2,
   aws_iam as iam,
   aws_logs as logs,
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
+  Duration,
+  RemovalPolicy,
 } from 'aws-cdk-lib';
 import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
@@ -155,6 +156,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
               'Logs',
               {
                 retention: props.logRetention || RetentionDays.ONE_MONTH,
+                removalPolicy: RemovalPolicy.DESTROY,
               },
             ),
           },

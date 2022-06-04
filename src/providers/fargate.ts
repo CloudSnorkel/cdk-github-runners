@@ -5,8 +5,9 @@ import {
   aws_iam as iam,
   aws_logs as logs,
   aws_stepfunctions as stepfunctions,
-  aws_stepfunctions_tasks as stepfunctions_tasks,
+  aws_stepfunctions_tasks as stepfunctions_tasks, RemovalPolicy,
 } from 'aws-cdk-lib';
+import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import { IRunnerProvider, RunnerProviderProps, RunnerRuntimeParameters, RunnerVersion } from './common';
@@ -190,7 +191,10 @@ export class FargateRunner extends Construct implements IRunnerProvider {
           },
         ),
         logging: ecs.AwsLogDriver.awsLogs({
-          logGroup: new logs.LogGroup(this, 'logs'),
+          logGroup: new logs.LogGroup(this, 'logs', {
+            retention: props.logRetention || RetentionDays.ONE_MONTH,
+            removalPolicy: RemovalPolicy.DESTROY,
+          }),
           streamPrefix: 'runner',
         }),
       },
