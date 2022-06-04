@@ -26,6 +26,11 @@ export class Secrets extends Construct {
    */
   readonly githubPrivateKey: secretsmanager.Secret;
 
+  /**
+   * Setup secret used to authenticate user for our setup wizard. Should be empty after setup has been completed.
+   */
+  readonly setup: secretsmanager.Secret;
+
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
@@ -65,6 +70,21 @@ export class Secrets extends Construct {
       'GitHub Private Key',
       {
         secretStringValue: cdk.SecretValue.unsafePlainText('-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----'),
+      },
+    );
+
+    this.setup = new secretsmanager.Secret(
+      this,
+      'Setup',
+      {
+        generateSecretString: {
+          secretStringTemplate: JSON.stringify({
+            token: '',
+          }),
+          generateStringKey: 'token',
+          includeSpace: false,
+          excludePunctuation: true,
+        },
       },
     );
   }

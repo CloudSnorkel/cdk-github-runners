@@ -13,6 +13,10 @@
       "type": "build"
     },
     {
+      "name": "@octokit/rest",
+      "type": "build"
+    },
+    {
       "name": "@types/jest",
       "type": "build"
     },

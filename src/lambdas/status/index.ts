@@ -3,8 +3,8 @@ import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/core';
 import * as AWS from 'aws-sdk';
 import { baseUrlFromDomain } from '../github';
+import { getSecretJsonValue, getSecretValue } from '../helpers';
 
-const sm = new AWS.SecretsManager();
 const sf = new AWS.StepFunctions();
 
 function secretArnToUrl(arn: string) {
@@ -47,15 +47,21 @@ interface RecentRun {
 }
 
 exports.handler = async function () {
-  // confirm required environment vairables
+  // confirm required environment variables
   if (!process.env.WEBHOOK_SECRET_ARN || !process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN || !process.env.PROVIDERS ||
-      !process.env.WEBHOOK_HANDLER_ARN || !process.env.STEP_FUNCTION_ARN) {
+      !process.env.WEBHOOK_HANDLER_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SETUP_SECRET_ARN || !process.env.SETUP_FUNCTION_URL) {
     throw new Error('Missing environment variables');
   }
 
   // base status
   const status = {
     github: {
+      setup: {
+        status: 'Unknown',
+        url: '',
+        secretArn: process.env.SETUP_SECRET_ARN,
+        secretUrl: secretArnToUrl(process.env.SETUP_SECRET_ARN),
+      },
       domain: 'Unknown',
       webhook: {
         url: process.env.WEBHOOK_URL,
@@ -88,6 +94,15 @@ exports.handler = async function () {
     },
   };
 
+  // setup url
+  const setupToken = (await getSecretJsonValue(process.env.SETUP_SECRET_ARN)).token;
+  if (setupToken) {
+    status.github.setup.status = 'Pending';
+    status.github.setup.url = `${process.env.SETUP_FUNCTION_URL}?token=${setupToken}`;
+  } else {
+    status.github.setup.status = 'Complete';
+  }
+
   // list last 10 executions and their status
   try {
     const executions = await sf.listExecutions({
@@ -115,14 +130,7 @@ exports.handler = async function () {
   // get secrets
   let githubSecrets;
   try {
-    const secret = await sm.getSecretValue({
-      SecretId: process.env.GITHUB_SECRET_ARN,
-    }).promise();
-    if (!secret.SecretString) {
-      status.github.auth.status = 'GitHub Secret has no SecretString';
-      return status;
-    }
-    githubSecrets = JSON.parse(secret.SecretString);
+    githubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   } catch (e) {
     status.github.auth.status = `Unable to read secret: ${e}`;
     return status;
@@ -130,9 +138,7 @@ exports.handler = async function () {
 
   let privateKey;
   try {
-    privateKey = (await sm.getSecretValue({
-      SecretId: process.env.GITHUB_PRIVATE_KEY_SECRET_ARN,
-    }).promise()).SecretString;
+    privateKey = await getSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN);
   } catch (e) {
     status.github.auth.status = `Unable to read private key secret: ${e}`;
     return status;
