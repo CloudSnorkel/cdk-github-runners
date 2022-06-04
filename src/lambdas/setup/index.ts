@@ -14,19 +14,9 @@ function getHtml(manifest: string, token: string): string {
     <title>Setup GitHub Runners</title>
 <body>
 <h1>Setup GitHub Runners</h1>
+<p>You can choose between creating a new app that will provide authentication for specific repositories, or a personal access token that will provide access to all repositories available to you. Apps are easier to set up and provide more fine-grained access control.</p>
 <h2>Using App</h2>
-<form action="app" method="post">
-    <fieldset>
-        <legend>Existing App</legend>
-        <label for="pat">App Id:</label>
-        <input type="number" id="appid" name="appid"><br><br>
-        <label for="pk">Private key:</label>
-        <textarea id="pk" name="pk"></textarea><br><br>
-        <input type="submit" value="Set">
-    </fieldset>
-</form>
-
-<br>
+<p>Choose whether you want a personal app, an organization app, or an existing app created according to the instructions in <a href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md">SETUP_GITHUB.md</a>. The scope of the app should match the scope of the repositories you need to provide runners for.</p>
 <form action="https://github.com/settings/apps/new?state=${token}" method="post">
     <fieldset>
         <legend>New Personal App</legend>
@@ -46,17 +36,31 @@ function getHtml(manifest: string, token: string): string {
     </fieldset>
 </form>
 
+<br>
+<form action="app" method="post">
+    <fieldset>
+        <p>Existing apps must have <code>actions</code> and <code>administration</code> write permissions. Don't forget to set up the webhook and its secret as described in <a href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md">SETUP_GITHUB.md</a>.</p>
+        <legend>Existing App</legend>
+        <label for="pat">App Id:</label>
+        <input type="number" id="appid" name="appid"><br><br>
+        <label for="pk">Private key:</label>
+        <textarea id="pk" name="pk"></textarea><br><br>
+        <input type="submit" value="Set">
+    </fieldset>
+</form>
+
 <script>
- document.getElementById("manifest").value = JSON.stringify(${manifest});
- document.getElementById("manifestorg").value = JSON.stringify(${manifest});
+    document.getElementById("manifest").value = JSON.stringify(${manifest});
+    document.getElementById("manifestorg").value = JSON.stringify(${manifest});
 </script>
 
 <h2>Using Personal Access Token</h2>
+<p>The personal token must have the <code>repo</code> scope enable. Don't forget to also create a webhook as described in <a href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md">SETUP_GITHUB.md</a>.</p>
 <form action="pat?token=${token}" method="post">
     <fieldset>
-    <label for="pat">Token:</label>
-    <input type="password" id="pat" name="pat">
-    <input type="submit" value="Set">
+        <label for="pat">Token:</label>
+        <input type="password" id="pat" name="pat">
+        <input type="submit" value="Set">
     </fieldset>
 </form>
 </body>
