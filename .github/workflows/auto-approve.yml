@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
-    if: contains(github.event.pull_request.labels.*.name, 'auto-approve') && (github.event.pull_request.user.login == 'kichik')
+    if: contains(github.event.pull_request.labels.*.name, 'auto-approve') && (github.event.pull_request.user.login == 'kichik' || github.event.pull_request.user.login == 'CloudSnorkelBot')
     steps:
       - uses: hmarr/auto-approve-action@v2.2.1
         with:

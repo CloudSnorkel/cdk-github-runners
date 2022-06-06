@@ -66,7 +66,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   sampleCode: false,
   compat: true,
   autoApproveOptions: {
-    allowedUsernames: ['kichik'],
+    allowedUsernames: ['kichik', 'CloudSnorkelBot'],
   },
   depsUpgradeOptions: {
     workflowOptions: {
