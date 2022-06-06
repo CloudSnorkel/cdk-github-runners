@@ -1,0 +1,73 @@
+name: self-hosted integration test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  codebuild:
+    runs-on: [self-hosted, linux, codebuild]
+    steps:
+      - run: export
+      - run: ls -lah
+      - name: Checkout
+        uses: actions/checkout@v2
+      - run: ls -lah
+      - name: github script
+        uses: actions/github-script@0.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log("hello world");
+      - name: git
+        run: git --version
+      - name: aws
+        run: aws --version
+      - name: gh
+        run: gh --version
+      - name: docker
+        run: |
+          echo FROM public.ecr.aws/docker/library/bash > Dockerfile
+          docker build  .
+          docker-compose --version
+
+  lambda:
+    runs-on: [self-hosted, linux, lambda]
+    steps:
+      - run: export
+      - run: ls -lah
+      - name: Checkout
+        uses: actions/checkout@v2
+      - run: ls -lah
+      - name: github script
+        uses: actions/github-script@0.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log("hello world");
+      - name: git
+        run: git --version
+      - name: aws
+        run: aws --version
+      - name: gh
+        run: gh --version
+
+  fargate:
+    runs-on: [self-hosted, linux, fargate]
+    steps:
+      - run: export
+      - run: ls -lah
+      - name: Checkout
+        uses: actions/checkout@v2
+      - run: ls -lah
+      - name: github script
+        uses: actions/github-script@0.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log("hello world");
+      - name: git
+        run: git --version
+      - name: aws
+        run: aws --version
+      - name: gh
+        run: gh --version
