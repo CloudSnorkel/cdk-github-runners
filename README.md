@@ -77,6 +77,8 @@ You can also create your own provider by implementing `IRunnerProvider`.
 9. Trigger a GitHub action that has a `self-hosted` label with `runs-on: [self-hosted, linux, codebuild]` or similar
 10. If the action is not successful, see [troubleshooting](#Troubleshooting)
 
+[![Demo](demo-thumbnail.jpg)](https://youtu.be/wlyv_3V8lIw)
+
 ## Customizing
 
 The default providers configured by [`GitHubRunners`](https://constructs.dev/packages/@cloudsnorkel/cdk-github-runners/v/0.0.11/api/GitHubRunners?lang=typescript) are useful for testing but probably not too much for actual production work. They run in the default VPC or no VPC and have no added IAM permissions. You would usually want to configure the providers yourself.
