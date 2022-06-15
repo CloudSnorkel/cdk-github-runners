@@ -4,8 +4,37 @@ on:
   workflow_dispatch:
 
 jobs:
-  codebuild:
-    runs-on: [self-hosted, linux, codebuild]
+  self-hosted:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: linux
+            arch: x64
+            label: codebuild-x64
+            docker: true
+          - os: linux
+            arch: arm64
+            label: codebuild-arm64
+            docker: true
+          - os: linux
+            arch: x64
+            label: lambda-x64
+            docker: false
+          - os: linux
+            arch: arm64
+            label: lambda-arm64
+            docker: false
+          - os: linux
+            arch: x64
+            label: fargate-x64
+            docker: false
+          - os: linux
+            arch: arm64
+            label: fargate-arm64
+            docker: false
+
+    runs-on: [self-hosted, "${{ matrix.os }}", "${{ matrix.arch }}", "${{ matrix.label }}"]
     steps:
       - run: export
       - run: ls -lah
@@ -25,49 +54,8 @@ jobs:
       - name: gh
         run: gh --version
       - name: docker
+        if: ${{ matrix.docker }}
         run: |
           echo FROM public.ecr.aws/docker/library/bash > Dockerfile
           docker build  .
           docker-compose --version
-
-  lambda:
-    runs-on: [self-hosted, linux, lambda]
-    steps:
-      - run: export
-      - run: ls -lah
-      - name: Checkout
-        uses: actions/checkout@v2
-      - run: ls -lah
-      - name: github script
-        uses: actions/github-script@0.3.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            console.log("hello world");
-      - name: git
-        run: git --version
-      - name: aws
-        run: aws --version
-      - name: gh
-        run: gh --version
-
-  fargate:
-    runs-on: [self-hosted, linux, fargate]
-    steps:
-      - run: export
-      - run: ls -lah
-      - name: Checkout
-        uses: actions/checkout@v2
-      - run: ls -lah
-      - name: github script
-        uses: actions/github-script@0.3.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            console.log("hello world");
-      - name: git
-        run: git --version
-      - name: aws
-        run: aws --version
-      - name: gh
-        run: gh --version
