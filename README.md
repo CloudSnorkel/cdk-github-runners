@@ -126,7 +126,6 @@ new GitHubRunners(
   'runners',
   {
     providers: [myProvider],
-    defaultProviderLabel: 'my-codebuild',
   }
 );
 
