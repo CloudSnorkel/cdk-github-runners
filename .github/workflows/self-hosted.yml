@@ -10,33 +10,38 @@ jobs:
       matrix:
         include:
           - os: linux
-            arch: x64
+            arch: X64
             label: codebuild-x64
             docker: true
           - os: linux
-            arch: arm64
+            arch: ARM64
             label: codebuild-arm64
             docker: true
           - os: linux
-            arch: x64
+            arch: X64
             label: lambda-x64
             docker: false
           - os: linux
-            arch: arm64
+            arch: ARM64
             label: lambda-arm64
             docker: false
           - os: linux
-            arch: x64
+            arch: X64
             label: fargate-x64
             docker: false
           - os: linux
-            arch: arm64
+            arch: ARM64
             label: fargate-arm64
             docker: false
 
     runs-on: [self-hosted, "${{ matrix.os }}", "${{ matrix.arch }}", "${{ matrix.label }}"]
     steps:
       - run: export
+      - run: |
+          if [ "${{ matrix.arch }}" != "${RUNNER_ARCH}" ]; then
+            echo "Expected RUNNER_ARCH to be ${{ matrix.arch }} but it's $RUNNER_ARCH"
+            exit 1
+          fi
       - run: ls -lah
       - name: Checkout
         uses: actions/checkout@v2
