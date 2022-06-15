@@ -27,11 +27,15 @@ exports.handler = async function (event: any) {
   const { octokit } = await getOctokit(event.installationId as string);
 
   // cancel job so it doesn't get assigned to other runners by mistake or just sit there waiting
-  await octokit.request('POST /repos/{owner}/{repo}/actions/runs/{runId}/cancel', {
-    owner: event.owner,
-    repo: event.repo,
-    runId: event.runId,
-  });
+  try {
+    await octokit.request('POST /repos/{owner}/{repo}/actions/runs/{runId}/cancel', {
+      owner: event.owner,
+      repo: event.repo,
+      runId: event.runId,
+    });
+  } catch (e) {
+    console.error(`Unable to cancel workflow: ${e}`);
+  }
 
   // find runner id
   const runnerId = await getRunnerId(octokit, event.owner, event.repo, event.runnerName);
