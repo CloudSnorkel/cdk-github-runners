@@ -488,7 +488,6 @@ new GitHubRunners(
    'runners',
    {
      providers: [myProvider],
-     defaultProviderLabel: 'my-codebuild',
    }
 );
 ```
@@ -574,7 +573,6 @@ Any object.
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.defaultProvider">defaultProvider</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a></code> | Default provider as set by {@link GitHubRunnersProps.defaultProviderLabel}. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps">GitHubRunnersProps</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | Configured runner providers. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.secrets">secrets</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets">Secrets</a></code> | Secrets for GitHub communication including webhook secret and runner authentication. |
@@ -590,18 +588,6 @@ public readonly node: Node;
 - *Type:* constructs.Node
 
 The tree node.
-
----
-
-##### `defaultProvider`<sup>Required</sup> <a name="defaultProvider" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.property.defaultProvider"></a>
-
-```typescript
-public readonly defaultProvider: IRunnerProvider;
-```
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
-
-Default provider as set by {@link GitHubRunnersProps.defaultProviderLabel}.
 
 ---
 
@@ -1351,23 +1337,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.defaultProviderLabel">defaultProviderLabel</a></code> | <code>string</code> | Label of default provider in case the workflow job doesn't specify any known label. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | List of runner providers to use. |
-
----
-
-##### `defaultProviderLabel`<sup>Optional</sup> <a name="defaultProviderLabel" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.defaultProviderLabel"></a>
-
-```typescript
-public readonly defaultProviderLabel: string;
-```
-
-- *Type:* string
-- *Default:* 'codebuild'
-
-Label of default provider in case the workflow job doesn't specify any known label.
-
-A provider with that label must be configured.
 
 ---
 

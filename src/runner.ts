@@ -14,14 +14,6 @@ import { GithubWebhookHandler } from './webhook';
  * Properties for GitHubRunners
  */
 export interface GitHubRunnersProps {
-
-  /**
-   * Label of default provider in case the workflow job doesn't specify any known label. A provider with that label must be configured.
-   *
-   * @default 'codebuild'
-   */
-  readonly defaultProviderLabel?: string;
-
   /**
    * List of runner providers to use. At least one provider is required. Provider will be selected when its label matches the labels requested by the workflow job.
    *
@@ -66,7 +58,6 @@ export interface GitHubRunnersProps {
  *   'runners',
  *   {
  *     providers: [myProvider],
- *     defaultProviderLabel: 'my-codebuild',
  *   }
  * );
  * ```
@@ -77,11 +68,6 @@ export class GitHubRunners extends Construct {
    * Configured runner providers.
    */
   readonly providers: IRunnerProvider[];
-
-  /**
-   * Default provider as set by {@link GitHubRunnersProps.defaultProviderLabel}.
-   */
-  readonly defaultProvider: IRunnerProvider;
 
   /**
    * Secrets for GitHub communication including webhook secret and runner authentication.
@@ -107,13 +93,6 @@ export class GitHubRunners extends Construct {
       ];
     }
 
-    const defaultProvider = this.getDefaultProvider();
-    if (!defaultProvider) {
-      throw new Error(`No provider was found for the default label "${this.props.defaultProviderLabel}"`);
-    } else {
-      this.defaultProvider = defaultProvider;
-    }
-
     this.orchestrator = this.stateMachine();
     this.webhook = new GithubWebhookHandler(this, 'Webhook Handler', {
       orchestrator: this.orchestrator,
@@ -122,16 +101,6 @@ export class GitHubRunners extends Construct {
 
     this.setupUrl = this.setupFunction();
     this.statusFunction();
-  }
-
-  private getDefaultProvider(): IRunnerProvider | null {
-    for (const provider of this.providers) {
-      if ((this.props.defaultProviderLabel || 'codebuild') == provider.label) {
-        return provider;
-      }
-    }
-
-    return null;
   }
 
   private stateMachine() {
@@ -177,10 +146,9 @@ export class GitHubRunners extends Construct {
         stepfunctions.Condition.isPresent(`$.labels.${provider.label}`),
         providerTask,
       );
-      if (this.defaultProvider == provider) {
-        providerChooser.otherwise(providerTask);
-      }
     }
+
+    providerChooser.otherwise(new stepfunctions.Fail(this, 'Unknown label'));
 
     const work = tokenRetrieverTask.next(
       new stepfunctions.Parallel(this, 'Error Catcher', { resultPath: '$.result' })
