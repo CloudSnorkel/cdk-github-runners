@@ -33,11 +33,20 @@ jobs:
             arch: ARM64
             label: fargate-arm64
             docker: false
+          - os: linux
+            arch: X64
+            label: fargate-x64-spot
+            docker: false
+          - os: linux
+            arch: ARM64
+            label: fargate-arm64-spot
+            docker: false
 
     runs-on: [self-hosted, "${{ matrix.os }}", "${{ matrix.arch }}", "${{ matrix.label }}"]
     steps:
       - run: export
-      - run: |
+      - name: Check arch
+        run: |
           if [ "${{ matrix.arch }}" != "${RUNNER_ARCH}" ]; then
             echo "Expected RUNNER_ARCH to be ${{ matrix.arch }} but it's $RUNNER_ARCH"
             exit 1

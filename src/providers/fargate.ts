@@ -98,6 +98,38 @@ export interface FargateRunnerProps extends RunnerProviderProps {
    * @default 20
    */
   readonly ephemeralStorageGiB?: number;
+
+  /**
+   * Use Fargate spot capacity provider to save money.
+   *
+   * * Runners may fail to start due to missing capacity.
+   * * Runners might be stopped prematurely with spot pricing.
+   *
+   * @default false
+   */
+  readonly spot?: boolean;
+}
+
+class EcsFargateSpotLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
+  /**
+   * Called when the Fargate launch type configured on RunTask
+   */
+  public bind(_task: stepfunctions_tasks.EcsRunTask,
+    launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
+    if (!launchTargetOptions.taskDefinition.isFargateCompatible) {
+      throw new Error('Supplied TaskDefinition is not compatible with Fargate');
+    }
+
+    return {
+      parameters: {
+        CapacityProviderStrategy: [
+          {
+            CapacityProvider: 'FARGATE_SPOT',
+          },
+        ],
+      },
+    };
+  }
 }
 
 /**
@@ -153,6 +185,11 @@ export class FargateRunner extends Construct implements IRunnerProvider {
    */
   readonly connections: ec2.Connections;
 
+  /**
+   * Use spot pricing for Fargate tasks.
+   */
+  readonly spot: boolean;
+
   constructor(scope: Construct, id: string, props: FargateRunnerProps) {
     super(scope, id);
 
@@ -169,6 +206,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
         enableFargateCapacityProviders: true,
       },
     );
+    this.spot = props.spot ?? false;
 
     this.task = new ecs.FargateTaskDefinition(
       this,
@@ -218,7 +256,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,
         cluster: this.cluster,
-        launchTarget: new stepfunctions_tasks.EcsFargateLaunchTarget(),
+        launchTarget: this.spot ? new EcsFargateSpotLaunchTarget() : new stepfunctions_tasks.EcsFargateLaunchTarget(),
         assignPublicIp: this.assignPublicIp,
         securityGroups: this.securityGroup ? [this.securityGroup] : undefined,
         containerOverrides: [
