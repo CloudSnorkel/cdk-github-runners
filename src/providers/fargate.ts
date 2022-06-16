@@ -100,7 +100,10 @@ export interface FargateRunnerProps extends RunnerProviderProps {
   readonly ephemeralStorageGiB?: number;
 
   /**
-   * Use Fargate spot capacity provider to save money. Runners might be stopped prematurely with spot pricing.
+   * Use Fargate spot capacity provider to save money.
+   *
+   * * Runners may fail to start due to missing capacity.
+   * * Runners might be stopped prematurely with spot pricing.
    *
    * @default false
    */
