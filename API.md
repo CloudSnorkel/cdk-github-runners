@@ -1333,7 +1333,8 @@ public readonly spot: boolean;
 
 Use Fargate spot capacity provider to save money.
 
-Runners might be stopped prematurely with spot pricing.
+* Runners may fail to start due to missing capacity.
+* Runners might be stopped prematurely with spot pricing.
 
 ---
 
