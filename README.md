@@ -91,50 +91,47 @@ The default providers configured by `GitHubRunners` are useful for testing but p
 For example:
 
 ```typescript
-import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2, aws_s3 as s3 } from 'aws-cdk-lib';
-import { GitHubRunners, CodeBuildRunner } from '@cloudsnorkel/cdk-github-runners';
-
-const app = new cdk.App();
-const stack = new cdk.Stack(
-  app,
-  'github-runners-test',
-  {
-     env: {
-        account: process.env.CDK_DEFAULT_ACCOUNT,
-        region: process.env.CDK_DEFAULT_REGION,
-     },
-  },
-);
-
-const vpc = ec2.Vpc.fromLookup(stack, 'vpc', { vpcId: 'vpc-1234567' });
-const runnerSg = new ec2.SecurityGroup(stack, 'runner security group', { vpc: vpc });
-const dbSg = ec2.SecurityGroup.fromSecurityGroupId(stack, 'database security group', 'sg-1234567');
-const bucket = new s3.Bucket(stack, 'runner bucket');
+let vpc: ec2.Vpc;
+let runnerSg: ec2.SecurityGroup;
+let dbSg: ec2.SecurityGroup;
+let bucket: s3.Bucket;
 
 // create a custom CodeBuild provider
-const myProvider = new CodeBuildRunner(
-  stack, 'codebuild runner',
-  {
-     label: 'my-codebuild',
-     vpc: vpc,
-     securityGroup: runnerSg,
-  },
-);
+const myProvider = new CodeBuildRunner(this, 'codebuild runner', { 
+    label: 'my-codebuild',
+    vpc: vpc,
+    securityGroup: runnerSg,
+});
 // grant some permissions to the provider
 bucket.grantReadWrite(myProvider);
 dbSg.connections.allowFrom(runnerSg, ec2.Port.tcp(3306), 'allow runners to connect to MySQL database');
 
 // create the runner infrastructure
-new GitHubRunners(
-  stack,
-  'runners',
-  {
+new GitHubRunners(this, 'runners', {
     providers: [myProvider],
-  }
-);
+});
+```
 
-app.synth();
+Another way to customize runners is by modifying the image used to spin them up. The image contains the [runner][5], any required dependencies, and integration code with the provider. You may choose to customize this image by adding more packages, for example.
+
+```typescript
+const myBuilder = new CodeBuildImageBuilder(this, 'image builder', {
+   dockerfilePath: FargateProvider.LINUX_X64_DOCKERFILE_PATH,
+   runnerVersion: RunnerVersion.specific('2.291.0'),
+   rebuildInterval: Duration.days(14),    
+});
+myBuilder.setBuildArg('EXTRA_PACKAGES', 'nginx xz-utils');
+
+const myProvider = new FargateProvider(this, 'fargate runner', {
+   label: 'my-codebuild',
+   vpc: vpc,
+   securityGroup: runnerSg,
+});
+
+// create the runner infrastructure
+new GitHubRunners(stack, 'runners', {
+   providers: [myProvider],
+});
 ```
 
 ## Architecture
