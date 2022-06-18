@@ -20,6 +20,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@octokit/rest',
     'aws-sdk',
     '@aws-sdk/types',
+    '@types/aws-lambda',
   ],
   deps: [
   ],
@@ -102,5 +103,12 @@ for (const lambdaDir of lambdas) {
 
 // bundle docker images
 project.compileTask.exec('bash -c "cp -r src/providers/docker-images lib/providers"'); // we use bash so it works on Windows
+
+// set proper line endings
+project.gitattributes.addAttributes('*.js', 'eol=lf');
+project.gitattributes.addAttributes('*.json', 'eol=lf');
+project.gitattributes.addAttributes('*.sh', 'eol=lf');
+project.gitattributes.addAttributes('*.yml', 'eol=lf');
+project.gitattributes.addAttributes('Dockerfile', 'eol=lf');
 
 project.synth();

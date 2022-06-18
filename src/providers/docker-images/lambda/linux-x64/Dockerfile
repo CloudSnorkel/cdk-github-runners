@@ -1,0 +1,31 @@
+# https://docs.aws.amazon.com/lambda/latest/dg/images-create.html
+
+ARG BASE_IMAGE="public.ecr.aws/lambda/nodejs:14-x86_64"
+FROM $BASE_IMAGE
+
+WORKDIR /runner
+
+# add dependencies
+ARG EXTRA_PACKAGES=""
+RUN yum update -y && yum install -y jq tar gzip bzip2 which binutils git zip unzip $EXTRA_PACKAGES
+
+# add awscli
+RUN curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip && \
+    unzip -q awscliv2.zip && ./aws/install && rm -rf awscliv2.zip aws
+
+# add ghcli
+RUN curl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo && \
+    yum install -y gh
+
+# add runner without github's api which is rate limited
+ARG RUNNER_VERSION=latest
+RUN if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_VERSION=`curl  -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest | grep -oE "[^/v]+$"`; fi && \
+    curl -fsSLO "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz" && \
+    tar xzf "actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz" && \
+    rm -f actions-runner-linux-x64-*.tar.gz && \
+    yum install -y openssl-libs krb5-libs zlib libicu60
+
+# prepare for execution
+WORKDIR ${LAMBDA_TASK_ROOT}
+COPY runner.js runner.sh ${LAMBDA_TASK_ROOT}/
+CMD ["runner.handler"]

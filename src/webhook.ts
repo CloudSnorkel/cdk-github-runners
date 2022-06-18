@@ -45,6 +45,7 @@ export class GithubWebhookHandler extends Construct {
       this,
       'webhook-handler',
       {
+        description: 'Handle GitHub webhook and start runner orchestrator',
         environment: {
           STEP_FUNCTION_ARN: props.orchestrator.stateMachineArn,
           WEBHOOK_SECRET_ARN: props.secrets.webhook.secretArn,

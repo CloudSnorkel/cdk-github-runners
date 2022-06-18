@@ -2,6 +2,8 @@ import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import {
   aws_ec2 as ec2,
+  aws_events as events,
+  aws_events_targets as events_targets,
   aws_iam as iam,
   aws_lambda as lambda,
   aws_stepfunctions as stepfunctions,
@@ -9,9 +11,21 @@ import {
 } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
-import { IRunnerProvider, RunnerRuntimeParameters, RunnerProviderProps, RunnerVersion } from './common';
+import { BundledNodejsFunction } from '../utils';
+import { IRunnerProvider, RunnerRuntimeParameters, RunnerProviderProps, IImageBuilder, Os, Architecture, RunnerImage } from './common';
+import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 export interface LambdaRunnerProps extends RunnerProviderProps {
+  /**
+   * Provider running an image to run inside CodeBuild with GitHub runner pre-configured.
+   *
+   * The default command (`CMD`) should be `["runner.handler"]` which points to an included `runner.js` with a function named `handler`. The function should start the GitHub runner.
+   *
+   * @see https://github.com/CloudSnorkel/cdk-github-runners/tree/main/src/providers/docker-images/lambda
+   * @default image builder with LambdaRunner.LINUX_X64_DOCKERFILE_PATH as Dockerfile
+   */
+  readonly imageBuilder?: IImageBuilder;
+
   /**
    * GitHub Actions label used for this provider.
    *
@@ -76,6 +90,24 @@ export interface LambdaRunnerProps extends RunnerProviderProps {
  */
 export class LambdaRunner extends Construct implements IRunnerProvider {
   /**
+   * Path to Dockerfile for Linux x64 with all the requirement for Lambda runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
+   *
+   * Available build arguments that can be set in the image builder:
+   * * `BASE_IMAGE` sets the `FROM` line. This should be similar to public.ecr.aws/lambda/nodejs:14.
+   * * `EXTRA_PACKAGES` can be used to install additional packages.
+   */
+  public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'lambda', 'linux-x64');
+
+  /**
+   * Path to Dockerfile for Linux ARM64 with all the requirement for Lambda runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
+   *
+   * Available build arguments that can be set in the image builder:
+   * * `BASE_IMAGE` sets the `FROM` line. This should be similar to public.ecr.aws/lambda/nodejs:14.
+   * * `EXTRA_PACKAGES` can be used to install additional packages.
+   */
+  public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'lambda', 'linux-arm64');
+
+  /**
    * The function hosting the GitHub runner.
    */
   readonly function: lambda.Function;
@@ -107,19 +139,33 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
     this.vpc = props.vpc;
     this.securityGroup = props.securityGroup;
 
+    const imageBuilder = props.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
+      dockerfilePath: LambdaRunner.LINUX_X64_DOCKERFILE_PATH,
+    });
+    const image = imageBuilder.bind();
+
+    let architecture: lambda.Architecture | undefined;
+    if (image.os.is(Os.LINUX)) {
+      if (image.architecture.is(Architecture.X86_64)) {
+        architecture = lambda.Architecture.X86_64;
+      }
+      if (image.architecture.is(Architecture.ARM64)) {
+        architecture = lambda.Architecture.ARM_64;
+      }
+    }
+
+    if (!architecture) {
+      throw new Error(`Unable to find support Lambda architecture for ${image.os.name}/${image.architecture.name}`);
+    }
+
     this.function = new lambda.DockerImageFunction(
       this,
       'Function',
       {
-        // https://docs.aws.amazon.com/lambda/latest/dg/images-create.html
-        code: lambda.DockerImageCode.fromImageAsset(
-          path.join(__dirname, 'docker-images', 'lambda'),
-          {
-            buildArgs: {
-              RUNNER_VERSION: props.runnerVersion ? props.runnerVersion.version : RunnerVersion.latest().version,
-            },
-          },
-        ),
+        description: `GitHub Actions runner for "${this.label}" label`,
+        // CDK requires "sha256:" literal prefix -- https://github.com/aws/aws-cdk/blob/ba91ca45ad759ab5db6da17a62333e2bc11e1075/packages/%40aws-cdk/aws-ecr/lib/repository.ts#L184
+        code: lambda.DockerImageCode.fromEcr(image.imageRepository, { tagOrDigest: `sha256:${image.imageDigest}` }),
+        architecture,
         vpc: this.vpc,
         securityGroups: this.securityGroup && [this.securityGroup],
         vpcSubnets: props.subnetSelection,
@@ -131,6 +177,8 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
     );
 
     this.grantPrincipal = this.function.grantPrincipal;
+
+    this.addImageUpdater(image);
   }
 
   /**
@@ -150,7 +198,7 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.LambdaInvoke(
       this,
-      'Lambda Runner',
+      this.label,
       {
         lambdaFunction: this.function,
         payload: stepfunctions.TaskInput.fromObject({
@@ -163,5 +211,57 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
         }),
       },
     );
+  }
+
+  private addImageUpdater(image: RunnerImage) {
+    // Lambda needs to be pointing to a specific image digest and not just a tag.
+    // Whenever we update the tag to a new digest, we need to update the lambda.
+
+    let stack = cdk.Stack.of(this);
+
+    const updater = BundledNodejsFunction.singleton(this, 'update-lambda', {
+      description: 'Function that updates a GitHub Actions runner function with the latest image digest after the image has been rebuilt',
+      timeout: cdk.Duration.seconds(30),
+      initialPolicy: [
+        new iam.PolicyStatement({
+          actions: ['lambda:UpdateFunctionCode'],
+          resources: [this.function.functionArn],
+        }),
+        new iam.PolicyStatement({
+          actions: ['cloudformation:DescribeStacks'],
+          resources: [stack.formatArn({
+            service: 'cloudformation',
+            resource: 'stack',
+            resourceName: `${stack.stackName}/*`,
+          })],
+        }),
+      ],
+    });
+
+    let lambdaTarget = new events_targets.LambdaFunction(updater, {
+      event: events.RuleTargetInput.fromObject({
+        lambdaName: this.function.functionName,
+        repositoryUri: image.imageRepository.repositoryUri,
+        repositoryTag: image.imageTag,
+        stackName: stack.stackName,
+      }),
+    });
+
+    const rule = image.imageRepository.onEvent('Push rule', {
+      description: 'Update GitHub Actions runner Lambda on ECR image push',
+      eventPattern: {
+        detailType: ['ECR Image Action'],
+        detail: {
+          'action-type': ['PUSH'],
+          'repository-name': [image.imageRepository.repositoryName],
+          'image-tag': ['latest'],
+          'result': ['SUCCESS'],
+        },
+      },
+      target: lambdaTarget,
+    });
+
+    // the event never triggers without this - not sure why
+    (rule.node.defaultChild as events.CfnRule).addDeletionOverride('Properties.EventPattern.resources');
   }
 }

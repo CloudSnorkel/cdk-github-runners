@@ -90,6 +90,9 @@
           "exec": "jsii --silence-warnings=reserved-word"
         },
         {
+          "exec": "esbuild src/lambdas/build-image/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/build-image/index.js"
+        },
+        {
           "exec": "esbuild src/lambdas/delete-runner/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/delete-runner/index.js"
         },
         {
@@ -100,6 +103,9 @@
         },
         {
           "exec": "esbuild src/lambdas/token-retriever/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/token-retriever/index.js"
+        },
+        {
+          "exec": "esbuild src/lambdas/update-lambda/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/update-lambda/index.js"
         },
         {
           "exec": "esbuild src/lambdas/webhook-handler/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/webhook-handler/index.js"

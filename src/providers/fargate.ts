@@ -10,12 +10,30 @@ import {
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
-import { IRunnerProvider, RunnerProviderProps, RunnerRuntimeParameters, RunnerVersion } from './common';
+import { Architecture, IImageBuilder, IRunnerProvider, RunnerProviderProps, RunnerRuntimeParameters } from './common';
+import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 /**
  * Properties for FargateRunner.
  */
 export interface FargateRunnerProps extends RunnerProviderProps {
+  /**
+   * Provider running an image to run inside CodeBuild with GitHub runner pre-configured. A user named `runner` is expected to exist.
+   *
+   * The entry point should start GitHub runner. For example:
+   *
+   * ```
+   * #!/bin/bash
+   * set -e -u -o pipefail
+   *
+   * /home/runner/config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --disableupdate --name "${RUNNER_NAME}"
+   * /home/runner/run.sh
+   * ```
+   *
+   * @default image builder with `FargateRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
+   */
+  readonly imageBuilder?: IImageBuilder;
+
   /**
    * GitHub Actions label used for this provider.
    *
@@ -98,6 +116,38 @@ export interface FargateRunnerProps extends RunnerProviderProps {
    * @default 20
    */
   readonly ephemeralStorageGiB?: number;
+
+  /**
+   * Use Fargate spot capacity provider to save money.
+   *
+   * * Runners may fail to start due to missing capacity.
+   * * Runners might be stopped prematurely with spot pricing.
+   *
+   * @default false
+   */
+  readonly spot?: boolean;
+}
+
+class EcsFargateSpotLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
+  /**
+   * Called when the Fargate launch type configured on RunTask
+   */
+  public bind(_task: stepfunctions_tasks.EcsRunTask,
+    launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
+    if (!launchTargetOptions.taskDefinition.isFargateCompatible) {
+      throw new Error('Supplied TaskDefinition is not compatible with Fargate');
+    }
+
+    return {
+      parameters: {
+        CapacityProviderStrategy: [
+          {
+            CapacityProvider: 'FARGATE_SPOT',
+          },
+        ],
+      },
+    };
+  }
 }
 
 /**
@@ -108,6 +158,24 @@ export interface FargateRunnerProps extends RunnerProviderProps {
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class FargateRunner extends Construct implements IRunnerProvider {
+  /**
+   * Path to Dockerfile for Linux x64 with all the requirement for Fargate runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
+   *
+   * Available build arguments that can be set in the image builder:
+   * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
+   * * `EXTRA_PACKAGES` can be used to install additional packages.
+   */
+  public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'fargate', 'linux-x64');
+
+  /**
+   * Path to Dockerfile for Linux ARM64 with all the requirement for Fargate runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
+   *
+   * Available build arguments that can be set in the image builder:
+   * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
+   * * `EXTRA_PACKAGES` can be used to install additional packages.
+   */
+  public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'fargate', 'linux-arm64');
+
   /**
    * Cluster hosting the task hosting the runner.
    */
@@ -153,6 +221,11 @@ export class FargateRunner extends Construct implements IRunnerProvider {
    */
   readonly connections: ec2.Connections;
 
+  /**
+   * Use spot pricing for Fargate tasks.
+   */
+  readonly spot: boolean;
+
   constructor(scope: Construct, id: string, props: FargateRunnerProps) {
     super(scope, id);
 
@@ -169,6 +242,21 @@ export class FargateRunner extends Construct implements IRunnerProvider {
         enableFargateCapacityProviders: true,
       },
     );
+    this.spot = props.spot ?? false;
+
+    const imageBuilder = props.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
+      dockerfilePath: FargateRunner.LINUX_X64_DOCKERFILE_PATH,
+    });
+    const image = imageBuilder.bind();
+
+    let arch: ecs.CpuArchitecture;
+    if (image.architecture.is(Architecture.ARM64)) {
+      arch = ecs.CpuArchitecture.ARM64;
+    } else if (image.architecture.is(Architecture.X86_64)) {
+      arch = ecs.CpuArchitecture.X86_64;
+    } else {
+      throw new Error(`${image.architecture.name} is not supported on Fargate`);
+    }
 
     this.task = new ecs.FargateTaskDefinition(
       this,
@@ -177,19 +265,16 @@ export class FargateRunner extends Construct implements IRunnerProvider {
         cpu: props.cpu || 1024,
         memoryLimitMiB: props.memoryLimitMiB || 2048,
         ephemeralStorageGiB: props.ephemeralStorageGiB || 25,
+        runtimePlatform: {
+          operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
+          cpuArchitecture: arch,
+        },
       },
     );
     this.container = this.task.addContainer(
       'runner',
       {
-        image: ecs.AssetImage.fromAsset(
-          path.join(__dirname, 'docker-images', 'fargate'),
-          {
-            buildArgs: {
-              RUNNER_VERSION: props.runnerVersion ? props.runnerVersion.version : RunnerVersion.latest().version,
-            },
-          },
-        ),
+        image: ecs.AssetImage.fromEcrRepository(image.imageRepository, image.imageTag),
         logging: ecs.AwsLogDriver.awsLogs({
           logGroup: new logs.LogGroup(this, 'logs', {
             retention: props.logRetention || RetentionDays.ONE_MONTH,
@@ -213,12 +298,12 @@ export class FargateRunner extends Construct implements IRunnerProvider {
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.EcsRunTask(
       this,
-      'Fargate Runner',
+      this.label,
       {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,
         cluster: this.cluster,
-        launchTarget: new stepfunctions_tasks.EcsFargateLaunchTarget(),
+        launchTarget: this.spot ? new EcsFargateSpotLaunchTarget() : new stepfunctions_tasks.EcsFargateLaunchTarget(),
         assignPublicIp: this.assignPublicIp,
         securityGroups: this.securityGroup ? [this.securityGroup] : undefined,
         containerOverrides: [

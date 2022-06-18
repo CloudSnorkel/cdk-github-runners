@@ -64,6 +64,8 @@ export interface GitHubRunnersProps {
  */
 export class GitHubRunners extends Construct {
 
+  private readonly props: GitHubRunnersProps;
+
   /**
    * Configured runner providers.
    */
@@ -78,9 +80,10 @@ export class GitHubRunners extends Construct {
   private readonly orchestrator: stepfunctions.StateMachine;
   private readonly setupUrl: string;
 
-  constructor(scope: Construct, id: string, readonly props: GitHubRunnersProps) {
+  constructor(scope: Construct, id: string, props?: GitHubRunnersProps) {
     super(scope, id);
 
+    this.props = props ?? {};
     this.secrets = new Secrets(this, 'Secrets');
 
     if (this.props.providers) {
@@ -180,6 +183,7 @@ export class GitHubRunners extends Construct {
       this,
       'token-retriever',
       {
+        description: 'Get token from GitHub Actions used to start new self-hosted runner',
         environment: {
           GITHUB_SECRET_ARN: this.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
@@ -199,6 +203,7 @@ export class GitHubRunners extends Construct {
       this,
       'delete-runner',
       {
+        description: 'Delete GitHub Actions runner on error',
         environment: {
           GITHUB_SECRET_ARN: this.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
@@ -228,6 +233,7 @@ export class GitHubRunners extends Construct {
       this,
       'status',
       {
+        description: 'Provide user with status about self-hosted GitHub Actions runners',
         environment: {
           WEBHOOK_SECRET_ARN: this.secrets.webhook.secretArn,
           GITHUB_SECRET_ARN: this.secrets.github.secretArn,
@@ -263,6 +269,7 @@ export class GitHubRunners extends Construct {
       this,
       'setup',
       {
+        description: 'Setup GitHub Actions integration with self-hosted runners',
         environment: {
           SETUP_SECRET_ARN: this.secrets.setup.secretArn,
           WEBHOOK_SECRET_ARN: this.secrets.webhook.secretArn,
