@@ -1,3 +1,6 @@
+# The labels used here are meant to be used only with CloudSnorkel's AWS account.
+# We have a deployment of this construct with all the matching providers for testing.
+
 name: self-hosted integration test
 
 on:

@@ -134,6 +134,18 @@ new GitHubRunners(stack, 'runners', {
 });
 ```
 
+Your workflow will then look like:
+
+```yaml
+name: self-hosted example
+on: push
+jobs:
+  self-hosted:
+    runs-on: [self-hosted, my-codebuild]
+    steps:
+      - run: echo hello world
+```
+
 ## Architecture
 
 ![Architecture diagram](architecture.svg)
