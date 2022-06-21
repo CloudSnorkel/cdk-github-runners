@@ -1,4 +1,4 @@
-import { aws_ec2 as ec2, aws_iam as iam, aws_logs as logs, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_ecr as ecr, aws_iam as iam, aws_logs as logs, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
 
 /**
  * Defines desired GitHub Actions runner version.
@@ -27,16 +27,120 @@ export class RunnerVersion {
 }
 
 /**
+ * CPU architecture enum for an image.
+ */
+export class Architecture {
+  /**
+   * ARM64
+   */
+  public static readonly ARM64 = Architecture.of('ARM64');
+
+  /**
+   * X86_64
+   */
+  public static readonly X86_64 = Architecture.of('X86_64');
+
+  private static of(architecture: string) {
+    return new Architecture(architecture);
+  }
+
+  private constructor(public readonly name: string) {
+  }
+
+  /**
+  * Checks if the given architecture is the same as this one.
+  *
+  * @param arch architecture to compare
+  */
+  public is(arch: Architecture) {
+    return arch.name == this.name;
+  }
+}
+
+/**
+ * OS enum for an image.
+ */
+export class Os {
+  /**
+  * Linux
+  */
+  public static readonly LINUX = Os.of('Linux');
+
+  /**
+  * Windows
+  */
+  public static readonly WINDOWS = Os.of('Windows');
+
+  private static of(os: string) {
+    return new Os(os);
+  }
+
+  private constructor(public readonly name: string) {
+  }
+
+  /**
+  * Checks if the given OS is the same as this one.
+  *
+  * @param os OS to compare
+  */
+  public is(os: Os) {
+    return os.name == this.name;
+  }
+}
+
+export interface RunnerImage {
+  /**
+   * ECR repository containing the image.
+   */
+  readonly imageRepository: ecr.IRepository;
+
+  /**
+   * Static image tag where the image will be pushed.
+   */
+  readonly imageTag: string;
+
+  /**
+   * Image digest for providers that need to know the digest like Lambda.
+   *
+   * WARNING: the digest might change when the builder automatically rebuilds the image on a schedule. Do not expect for this digest to stay the same between deploys.
+   */
+  readonly imageDigest: string;
+
+  /**
+   * Architecture of the image.
+   */
+  readonly architecture: Architecture;
+
+  /**
+   * OS type of the image.
+   */
+  readonly os: Os;
+}
+
+/**
+ * Interface for constructs that build an image that can be used in {@link IRunnerProvider}.
+ *
+ * Anything that ends up with an ECR repository containing a Docker image that runs GitHub self-hosted runners can be used. A simple implementation could even point to an existing image and nothing else.
+ *
+ * It's important that the specified image tag be available at the time the repository is available. Providers usually assume the image is ready and will fail if it's not.
+ *
+ * The image can be further updated over time manually or using a schedule as long as it is always written to the same tag.
+ */
+export interface IImageBuilder {
+  /**
+   * ECR repository containing the image.
+   *
+   * This method can be called multiple times if the image is bound to multiple providers. Make sure you cache the image when implementing or return an error if this builder doesn't support reusing images.
+   *
+   * @return image
+   */
+  bind(): RunnerImage;
+}
+
+/**
  * Common properties for all runner providers.
  */
 export interface RunnerProviderProps {
-  /**
-   * Version of GitHub Runners to install.
-   *
-   * @default latest version available
-   */
-  readonly runnerVersion?: RunnerVersion;
-
   /**
    * The number of days log events are kept in CloudWatch Logs. When updating
    * this property, unsetting it doesn't remove the log retention policy. To

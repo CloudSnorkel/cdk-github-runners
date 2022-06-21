@@ -13,9 +13,18 @@ import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
-import { IRunnerProvider, RunnerProviderProps, RunnerRuntimeParameters, RunnerVersion } from './common';
+import { Architecture, IImageBuilder, IRunnerProvider, Os, RunnerProviderProps, RunnerRuntimeParameters } from './common';
+import { CodeBuildImageBuilder } from './image-builders/codebuild';
+
 
 export interface CodeBuildRunnerProps extends RunnerProviderProps {
+  /**
+   * Provider running an image to run inside CodeBuild with GitHub runner pre-configured. A user named `runner` is expected to exist with access to Docker-in-Docker.
+   *
+   * @default image builder with `CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
+   */
+  readonly imageBuilder?: IImageBuilder;
+
   /**
    * GitHub Actions label used for this provider.
    *
@@ -71,6 +80,32 @@ export interface CodeBuildRunnerProps extends RunnerProviderProps {
  */
 export class CodeBuildRunner extends Construct implements IRunnerProvider {
   /**
+   * Path to Dockerfile for Linux x64 with all the requirements for CodeBuild runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
+   *
+   * Available build arguments that can be set in the image builder:
+   * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
+   * * `EXTRA_PACKAGES` can be used to install additional packages.
+   * * `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stsable"`.
+   * * `DIND_COMMIT` overrides the commit where dind is found.
+   * * `DOCKER_VERSION` overrides the installed Docker version.
+   * * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
+   */
+  public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'codebuild', 'linux-x64');
+
+  /**
+   * Path to Dockerfile for Linux ARM64 with all the requirements for CodeBuild runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
+   *
+   * Available build arguments that can be set in the image builder:
+   * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
+   * * `EXTRA_PACKAGES` can be used to install additional packages.
+   * * `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stsable"`.
+   * * `DIND_COMMIT` overrides the commit where dind is found.
+   * * `DOCKER_VERSION` overrides the installed Docker version.
+   * * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
+   */
+  public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'codebuild', 'linux-arm64');
+
+  /**
    * CodeBuild project hosting the runner.
    */
   readonly project: codebuild.Project;
@@ -98,7 +133,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
   constructor(scope: Construct, id: string, props: CodeBuildRunnerProps) {
     super(scope, id);
 
-    this.label = props.label || 'codebuild';
+    this.label = props.label ?? 'codebuild';
     this.vpc = props.vpc;
     this.securityGroup = props.securityGroup;
 
@@ -130,23 +165,44 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
       },
     };
 
+    const imageBuilder = props.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
+      dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH,
+    });
+    const image = imageBuilder.bind();
+
+    // choose build image
+    let buildImage: codebuild.IBuildImage | undefined;
+    if (image.os.is(Os.LINUX)) {
+      if (image.architecture.is(Architecture.X86_64)) {
+        buildImage = codebuild.LinuxBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);
+      } else if (image.architecture.is(Architecture.ARM64)) {
+        buildImage = codebuild.LinuxArmBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);
+      }
+    }
+    if (image.os.is(Os.WINDOWS)) {
+      if (image.architecture.is(Architecture.X86_64)) {
+        buildImage = codebuild.WindowsBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);
+      }
+    }
+
+    if (buildImage === undefined) {
+      throw new Error(`Unable to find supported CodeBuild image for ${image.os.name}/${image.architecture.name}`);
+    }
+
+    // create project
     this.project = new codebuild.Project(
       this,
       'CodeBuild',
       {
+        description: `GitHub Actions self-hosted runner for label "${this.label}"`,
         buildSpec: codebuild.BuildSpec.fromObject(buildSpec),
         vpc: this.vpc,
         securityGroups: this.securityGroup ? [this.securityGroup] : undefined,
         subnetSelection: props.subnetSelection,
-        timeout: props.timeout || Duration.hours(1),
+        timeout: props.timeout ?? Duration.hours(1),
         environment: {
-          buildImage: codebuild.LinuxBuildImage.fromAsset(this, 'image', {
-            directory: path.join(__dirname, 'docker-images', 'codebuild'),
-            buildArgs: {
-              RUNNER_VERSION: props.runnerVersion ? props.runnerVersion.version : RunnerVersion.latest().version,
-            },
-          }),
-          computeType: props.computeType || ComputeType.SMALL,
+          buildImage,
+          computeType: props.computeType ?? ComputeType.SMALL,
           privileged: true,
         },
         logging: {
@@ -155,7 +211,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
               this,
               'Logs',
               {
-                retention: props.logRetention || RetentionDays.ONE_MONTH,
+                retention: props.logRetention ?? RetentionDays.ONE_MONTH,
                 removalPolicy: RemovalPolicy.DESTROY,
               },
             ),
@@ -177,7 +233,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.CodeBuildStartBuild(
       this,
-      'Linux CodeBuild Runner',
+      this.label,
       {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         project: this.project,
