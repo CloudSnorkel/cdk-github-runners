@@ -1,4 +1,4 @@
-ARG BASE_IMAGE="public.ecr.aws/lts/ubuntu:18.04"
+ARG BASE_IMAGE="public.ecr.aws/lts/ubuntu:20.04"
 FROM $BASE_IMAGE
 
 # setup user
@@ -6,9 +6,12 @@ RUN addgroup runner && adduser --system --disabled-password --home /home/runner 
 
 # add dependencies and sudo
 ARG EXTRA_PACKAGES=""
-RUN apt-get update && apt-get upgrade -y && apt-get install -y curl sudo jq bash git zip unzip iptables $EXTRA_PACKAGES && \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common $EXTRA_PACKAGES && \
     usermod -aG sudo runner && \
     echo "%sudo   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner
+
+# add latest git
+RUN add-apt-repository ppa:git-core/ppa && apt update && apt-get install -y git
 
 # add awscli
 RUN curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o awscliv2.zip && \
