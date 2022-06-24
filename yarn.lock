@@ -651,9 +651,9 @@
     infer-owner "^1.0.4"
 
 "@npmcli/run-script@^4.1.0":
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/@npmcli/run-script/-/run-script-4.1.2.tgz#05847f11016139d22f7185a2003a07870bdee6cc"
-  integrity sha512-fCSOS4L4yKRjX+FoWkGHugihBgUK+EjATJn6gfmZnRCt620OqRB8Mrtu/LMv7m1dMrTFVGdywsDq8wFGpyZKDA==
+  version "4.1.3"
+  resolved "https://registry.yarnpkg.com/@npmcli/run-script/-/run-script-4.1.3.tgz#b89a3f861d740379892f9b2c44f8bb66dd7b577c"
+  integrity sha512-xb47c2KMkn6ERw2AwPPGKIITbWoXOT1yDV5rU3SYeC1vksYOodbgN0pnOptIVnRgS2e9G8R7BVDVm8lWp92unQ==
   dependencies:
     "@npmcli/node-gyp" "^2.0.0"
     "@npmcli/promise-spawn" "^3.0.0"
@@ -1359,10 +1359,10 @@ aws-cdk-lib@2.21.1:
     semver "^7.3.6"
     yaml "1.10.2"
 
-aws-sdk@^2.1160.0:
-  version "2.1160.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1160.0.tgz#4af9bcbf044b77e836341fad47627cc0d7c2b854"
-  integrity sha512-aUjpuuVctjoRDnbs/SnDJXS7QeXmBANbYFPNLwm5JXcszkokoGcYzD37PFRNJUHQ30XNBoH451mxdNWZQ606xg==
+aws-sdk@^2.1161.0:
+  version "2.1161.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1161.0.tgz#acfc1a257808c31e6c57625b874b7fc2de5113a8"
+  integrity sha512-qpOtPovj3xJhdTFBkJgqmSuy5rc7vDu2HtM+S3sLiP8Uhkb3Pn3z7LtTZt5YUnY2lV1DDR9H1aWuRlRDK96k1w==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -2245,9 +2245,9 @@ ecdsa-sig-formatter@1.0.11:
     safe-buffer "^5.0.1"
 
 electron-to-chromium@^1.4.164:
-  version "1.4.166"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.166.tgz#83cd596e59c1a192425b99e6ecc64d9ffff50aff"
-  integrity sha512-ZPLdq3kcATkD6dwne5M4SgJBHw21t90BqTGzf3AceJwj3cE/ICv6jyDwHYyJoF4JNuXM3pzRxlaRmpO7pdwmcg==
+  version "1.4.168"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.168.tgz#8f6bda320a434ac963850d18e41d83220973cbdd"
+  integrity sha512-yz247hclRBaP8ABB1hf9kL7AMfa+yC2hB9F3XF8Y87VWMnYgq4QYvV6acRACcDkTDxfGQ4GYK/aZPQiuFMGbaA==
 
 emittery@^0.8.1:
   version "0.8.1"
@@ -4481,9 +4481,9 @@ lru-cache@^6.0.0:
     yallist "^4.0.0"
 
 lru-cache@^7.4.4, lru-cache@^7.5.1, lru-cache@^7.7.1:
-  version "7.10.1"
-  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.10.1.tgz#db577f42a94c168f676b638d15da8fb073448cab"
-  integrity sha512-BQuhQxPuRl79J5zSXRP+uNzPOyZw2oFI9JLRQ80XswSvg21KMKNtQza9eF42rfI/3Z40RvzBdXgziEkudzjo8A==
+  version "7.10.2"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.10.2.tgz#aab494e0768ce94f199ef553ffe0a362f2a58bb9"
+  integrity sha512-9zDbhgmXAUvUMPV81A705K3tVzcPiZL3Bf5/5JC/FjYJlLZ5AJCeqIRFHJqyBppiLosqF+uKB7p8/RDXylqBIw==
 
 make-dir@^3.0.0:
   version "3.1.0"
@@ -6254,9 +6254,9 @@ universalify@^2.0.0:
   integrity sha512-hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==
 
 update-browserslist-db@^1.0.0:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/update-browserslist-db/-/update-browserslist-db-1.0.3.tgz#6c47cb996f34afb363e924748e2f6e4d983c6fc1"
-  integrity sha512-ufSazemeh9Gty0qiWtoRpJ9F5Q5W3xdIPm1UZQqYQv/q0Nyb9EMHUB2lu+O9x1re9WsorpMAUu4Y6Lxcs5n+XQ==
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/update-browserslist-db/-/update-browserslist-db-1.0.4.tgz#dbfc5a789caa26b1db8990796c2c8ebbce304824"
+  integrity sha512-jnmO2BEGUjsMOe/Fg9u0oczOe/ppIDZPebzccl1yDWGLFP16Pa1/RM5wEoKYPG2zstNcDuAStejyxsOuKINdGA==
   dependencies:
     escalade "^3.1.1"
     picocolors "^1.0.0"
