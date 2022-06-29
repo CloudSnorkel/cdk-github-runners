@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_iam as iam, aws_stepfunctions as stepfunctions, aws_stepfunctions_tasks as stepfunctions_tasks } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_iam as iam, aws_stepfunctions as stepfunctions, aws_stepfunctions_tasks as stepfunctions_tasks } from 'aws-cdk-lib';
 import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { CodeBuildRunner } from './providers/codebuild';
@@ -20,6 +20,28 @@ export interface GitHubRunnersProps {
    * @default CodeBuild, Lambda and Fargate runners with all the defaults (no VPC or default account VPC)
    */
   readonly providers?: IRunnerProvider[];
+
+  /**
+   * VPC used for all management functions. Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
+   */
+  readonly vpc?: ec2.IVpc;
+
+  /**
+   * VPC subnets used for all management functions. Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
+   */
+  readonly vpcSubnets?: ec2.SubnetSelection;
+
+  /**
+   * Allow management functions to run in public subnets. Lambda Functions in a public subnet can NOT access the internet.
+   *
+   * @default false
+   */
+  readonly allowPublicSubnet?: boolean;
+
+  /**
+   * Security group attached to all management functions. Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
+   */
+  readonly securityGroup?: ec2.ISecurityGroup;
 }
 
 /**
@@ -189,6 +211,10 @@ export class GitHubRunners extends Construct {
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
         },
         timeout: cdk.Duration.seconds(30),
+        vpc: this.props.vpc,
+        vpcSubnets: this.props.vpcSubnets,
+        allowPublicSubnet: this.props.allowPublicSubnet,
+        securityGroups: this.props.securityGroup ? [this.props.securityGroup] : undefined,
       },
     );
 
@@ -209,6 +235,10 @@ export class GitHubRunners extends Construct {
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
         },
         timeout: cdk.Duration.seconds(30),
+        vpc: this.props.vpc,
+        vpcSubnets: this.props.vpcSubnets,
+        allowPublicSubnet: this.props.allowPublicSubnet,
+        securityGroups: this.props.securityGroup ? [this.props.securityGroup] : undefined,
       },
     );
 
@@ -246,6 +276,10 @@ export class GitHubRunners extends Construct {
           SETUP_FUNCTION_URL: this.setupUrl,
         },
         timeout: cdk.Duration.minutes(3),
+        vpc: this.props.vpc,
+        vpcSubnets: this.props.vpcSubnets,
+        allowPublicSubnet: this.props.allowPublicSubnet,
+        securityGroups: this.props.securityGroup ? [this.props.securityGroup] : undefined,
       },
     );
 
@@ -278,6 +312,10 @@ export class GitHubRunners extends Construct {
           WEBHOOK_URL: this.webhook.url,
         },
         timeout: cdk.Duration.minutes(3),
+        vpc: this.props.vpc,
+        vpcSubnets: this.props.vpcSubnets,
+        allowPublicSubnet: this.props.allowPublicSubnet,
+        securityGroups: this.props.securityGroup ? [this.props.securityGroup] : undefined,
       },
     );
 
