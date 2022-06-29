@@ -283,7 +283,7 @@ export class GitHubRunners extends Construct {
 
     // this.secrets.webhook.grantRead(setupFunction);
     this.secrets.webhook.grantWrite(setupFunction);
-    // this.secrets.github.grantRead(setupFunction);
+    this.secrets.github.grantRead(setupFunction);
     this.secrets.github.grantWrite(setupFunction);
     // this.secrets.githubPrivateKey.grantRead(setupFunction);
     this.secrets.githubPrivateKey.grantWrite(setupFunction);

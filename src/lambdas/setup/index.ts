@@ -2,9 +2,10 @@
 import * as crypto from 'crypto';
 import * as querystring from 'querystring';
 import { Octokit } from '@octokit/rest';
+import { baseUrlFromDomain } from '../github';
 import { getSecretJsonValue, updateSecretValue } from '../helpers';
 
-function getHtml(manifest: string, token: string): string {
+function getHtml(manifest: string, token: string, domain: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,18 +16,19 @@ function getHtml(manifest: string, token: string): string {
 <body>
 <h1>Setup GitHub Runners</h1>
 <p>You can choose between creating a new app that will provide authentication for specific repositories, or a personal access token that will provide access to all repositories available to you. Apps are easier to set up and provide more fine-grained access control.</p>
-<form>
+<form action="domain?token=${token}" method="post">
     <fieldset>
         <legend>GitHub Domain</legend>
         <p>When using a GitHub Enterprise Server, change this to your own domain like github.mycompany.com.</p>
         <label for="domain">Domain: </label>
-        <input id="domain" value="github.com">
+        <input id="domain" name="domain" value="${domain}">
+        <input type="submit" value="Update">
     </fieldset>
 </form>
 
 <h2>Using App</h2>
 <p>Choose whether you want a personal app, an organization app, or an existing app created according to the instructions in <a href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md">SETUP_GITHUB.md</a>. The scope of the app should match the scope of the repositories you need to provide runners for.</p>
-<form action="https://github.com/settings/apps/new?state=${token}" method="post" id="appform">
+<form action="https://${domain}/settings/apps/new?state=${token}" method="post" id="appform">
     <fieldset>
         <legend>New Personal App</legend>
         <input type="hidden" name="manifest" id="manifest">
@@ -35,7 +37,7 @@ function getHtml(manifest: string, token: string): string {
 </form>
 
 <br>
-<form action="https://github.com/organizations/ORGANIZATION/settings/apps/new?state=${token}" method="post" id="orgappform">
+<form action="https://${domain}/organizations/ORGANIZATION/settings/apps/new?state=${token}" method="post" id="orgappform">
     <fieldset>
         <legend>New Organization App</legend>
         <label for="org">Organization slug:</label>
@@ -50,7 +52,7 @@ function getHtml(manifest: string, token: string): string {
     <fieldset>
         <p>Existing apps must have <code>actions</code> and <code>administration</code> write permissions. Don't forget to set up the webhook and its secret as described in <a href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md">SETUP_GITHUB.md</a>.</p>
         <legend>Existing App</legend>
-        <input type="hidden" name="domain" id="existingdomain" value="github.com">
+        <input type="hidden" name="domain" id="existingdomain" value="${domain}">
         <label for="appid">App id:</label>
         <input type="number" id="appid" name="appid"><br><br>
         <label for="pk">Private key:</label>
@@ -64,7 +66,7 @@ function getHtml(manifest: string, token: string): string {
 <form action="pat?token=${token}" method="post">
     <fieldset>
         <label for="pat">Token:</label>
-        <input type="hidden" name="domain" id="patdomain" value="github.com">
+        <input type="hidden" name="domain" id="patdomain" value="${domain}">
         <input type="password" id="pat" name="pat">
         <input type="submit" value="Set">
     </fieldset>
@@ -109,13 +111,14 @@ function getManifest(baseUrl: string) {
 
 async function handleRoot(event: any, setupToken: string) {
   const setupBaseUrl = `https://${event.requestContext.domainName}`;
+  const githubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
 
   return {
     statusCode: 200,
     headers: {
       'Content-Type': 'text/html',
     },
-    body: getHtml(getManifest(setupBaseUrl), setupToken),
+    body: getHtml(getManifest(setupBaseUrl), setupToken, githubSecrets.domain),
   };
 }
 
@@ -125,6 +128,25 @@ function decodeBody(event: any) {
     body = Buffer.from(body, 'base64').toString('utf-8');
   }
   return querystring.decode(body);
+}
+
+async function handleDomain(event: any, setupToken: string) {
+  const body = decodeBody(event);
+  if (!body.domain) {
+    return {
+      statusCode: 400,
+      headers: {
+        'Content-Type': 'text/html',
+      },
+      body: 'Invalid domain',
+    };
+  }
+
+  const githubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
+  githubSecrets.domain = body.domain;
+  await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(githubSecrets));
+
+  return handleRoot(event, setupToken);
 }
 
 async function handlePat(event: any) {
@@ -168,7 +190,9 @@ async function handleNewApp(event: any) {
     };
   }
 
-  const newApp = await new Octokit().rest.apps.createFromManifest({ code });
+  const githubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
+  const baseUrl = baseUrlFromDomain(githubSecrets.domain);
+  const newApp = await new Octokit({ baseUrl }).rest.apps.createFromManifest({ code });
 
   await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify({
     domain: new URL(newApp.data.html_url).host,
@@ -262,21 +286,33 @@ exports.handler = async function (event: any) {
   }
 
   // handle requests
-  if (event.requestContext.http.path == '/') {
-    return handleRoot(event, setupToken);
-  } else if (event.requestContext.http.path == '/pat' && event.requestContext.http.method == 'POST') {
-    return handlePat(event);
-  } else if (event.requestContext.http.path == '/complete-new-app' && event.requestContext.http.method == 'GET') {
-    return handleNewApp(event);
-  } else if (event.requestContext.http.path == '/app' && event.requestContext.http.method == 'POST') {
-    return handleExistingApp(event);
-  } else {
+  try {
+    if (event.requestContext.http.path == '/') {
+      return await handleRoot(event, setupToken);
+    } else if (event.requestContext.http.path == '/domain' && event.requestContext.http.method == 'POST') {
+      return await handleDomain(event, setupToken);
+    } else if (event.requestContext.http.path == '/pat' && event.requestContext.http.method == 'POST') {
+      return await handlePat(event);
+    } else if (event.requestContext.http.path == '/complete-new-app' && event.requestContext.http.method == 'GET') {
+      return await handleNewApp(event);
+    } else if (event.requestContext.http.path == '/app' && event.requestContext.http.method == 'POST') {
+      return await handleExistingApp(event);
+    } else {
+      return {
+        statusCode: 404,
+        headers: {
+          'Content-Type': 'text/html',
+        },
+        body: 'Not found',
+      };
+    }
+  } catch (e) {
     return {
-      statusCode: 404,
+      statusCode: 500,
       headers: {
         'Content-Type': 'text/html',
       },
-      body: 'Not found',
+      body: `<b>Error:</b> ${e}`,
     };
   }
 };
