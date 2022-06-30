@@ -53,6 +53,26 @@ export interface GitHubRunnersProps {
    * Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.
    *
    * You may also want to use custom images for your runner providers that contain the same certificates. See {@link CodeBuildImageBuilder.addCertificates}.
+   *
+   * ```typescript
+   * const imageBuilder = new CodeBuildImageBuilder(this, 'Image Builder with Certs', {
+   *     dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH,
+   * });
+   * imageBuilder.addExtraCertificates('path-to-my-extra-certs-folder');
+   *
+   * const provider = new CodeBuildRunner(this, 'CodeBuild', {
+   *     imageBuilder: imageBuilder,
+   * });
+   *
+   * new GitHubRunners(
+   *   this,
+   *   'runners',
+   *   {
+   *     providers: [provider],
+   *     extraCertificates: 'path-to-my-extra-certs-folder',
+   *   }
+   * );
+   * ```
    */
   readonly extraCertificates?: string;
 }
@@ -63,20 +83,20 @@ export interface GitHubRunnersProps {
  * By default, this will create a runner provider of each available type with the defaults. This is good enough for the initial setup stage when you just want to get GitHub integration working.
  *
  * ```typescript
- * new GitHubRunners(stack, 'runners');
+ * new GitHubRunners(this, 'runners');
  * ```
  *
  * Usually you'd want to configure the runner providers so the runners can run in a certain VPC or have certain permissions.
  *
  * ```typescript
- * const vpc = ec2.Vpc.fromLookup(stack, 'vpc', { vpcId: 'vpc-1234567' });
- * const runnerSg = new ec2.SecurityGroup(stack, 'runner security group', { vpc: vpc });
- * const dbSg = ec2.SecurityGroup.fromSecurityGroupId(stack, 'database security group', 'sg-1234567');
- * const bucket = new s3.Bucket(stack, 'runner bucket');
+ * const vpc = ec2.Vpc.fromLookup(this, 'vpc', { vpcId: 'vpc-1234567' });
+ * const runnerSg = new ec2.SecurityGroup(this, 'runner security group', { vpc: vpc });
+ * const dbSg = ec2.SecurityGroup.fromSecurityGroupId(this, 'database security group', 'sg-1234567');
+ * const bucket = new s3.Bucket(this, 'runner bucket');
  *
  * // create a custom CodeBuild provider
  * const myProvider = new CodeBuildRunner(
- *   stack, 'codebuild runner',
+ *   this, 'codebuild runner',
  *   {
  *      label: 'my-codebuild',
  *      vpc: vpc,
@@ -89,7 +109,7 @@ export interface GitHubRunnersProps {
  *
  * // create the runner infrastructure
  * new GitHubRunners(
- *   stack,
+ *   this,
  *   'runners',
  *   {
  *     providers: [myProvider],
