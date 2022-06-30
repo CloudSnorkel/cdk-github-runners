@@ -68,6 +68,7 @@ new CodeBuildImageBuilder(scope: Construct, id: string, props: CodeBuildImageBui
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addExtraCertificates">addExtraCertificates</a></code> | Add extra trusted certificates. This helps deal with self-signed certificates for GitHub Enterprise Server. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addFiles">addFiles</a></code> | Uploads a folder to the build server at a given folder name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addPolicyStatement">addPolicyStatement</a></code> | Add a policy statement to the builder to access resources required to the image build. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addPostBuildCommand">addPostBuildCommand</a></code> | Adds a command that runs after `docker build` and `docker push`. |
@@ -84,6 +85,24 @@ public toString(): string
 ```
 
 Returns a string representation of this construct.
+
+##### `addExtraCertificates` <a name="addExtraCertificates" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addExtraCertificates"></a>
+
+```typescript
+public addExtraCertificates(path: string): void
+```
+
+Add extra trusted certificates. This helps deal with self-signed certificates for GitHub Enterprise Server.
+
+All first party Dockerfiles support this. Others may not.
+
+###### `path`<sup>Required</sup> <a name="path" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addExtraCertificates.parameter.path"></a>
+
+- *Type:* string
+
+path to directory containing a file called certs.pem containing all the required certificates.
+
+---
 
 ##### `addFiles` <a name="addFiles" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addFiles"></a>
 
@@ -814,20 +833,20 @@ It creates a webhook, secrets, and a step function to orchestrate all runs. Secr
 By default, this will create a runner provider of each available type with the defaults. This is good enough for the initial setup stage when you just want to get GitHub integration working.
 
 ```typescript
-new GitHubRunners(stack, 'runners', {});
+new GitHubRunners(this, 'runners');
 ```
 
 Usually you'd want to configure the runner providers so the runners can run in a certain VPC or have certain permissions.
 
 ```typescript
-const vpc = ec2.Vpc.fromLookup(stack, 'vpc', { vpcId: 'vpc-1234567' });
-const runnerSg = new ec2.SecurityGroup(stack, 'runner security group', { vpc: vpc });
-const dbSg = ec2.SecurityGroup.fromSecurityGroupId(stack, 'database security group', 'sg-1234567');
-const bucket = new s3.Bucket(stack, 'runner bucket');
+const vpc = ec2.Vpc.fromLookup(this, 'vpc', { vpcId: 'vpc-1234567' });
+const runnerSg = new ec2.SecurityGroup(this, 'runner security group', { vpc: vpc });
+const dbSg = ec2.SecurityGroup.fromSecurityGroupId(this, 'database security group', 'sg-1234567');
+const bucket = new s3.Bucket(this, 'runner bucket');
 
 // create a custom CodeBuild provider
 const myProvider = new CodeBuildRunner(
-   stack, 'codebuild runner',
+   this, 'codebuild runner',
    {
       label: 'my-codebuild',
       vpc: vpc,
@@ -840,7 +859,7 @@ dbSg.connections.allowFrom(runnerSg, ec2.Port.tcp(3306), 'allow runners to conne
 
 // create the runner infrastructure
 new GitHubRunners(
-   stack,
+   this,
    'runners',
    {
      providers: [myProvider],
@@ -1962,7 +1981,61 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.allowPublicSubnet">allowPublicSubnet</a></code> | <code>boolean</code> | Allow management functions to run in public subnets. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.extraCertificates">extraCertificates</a></code> | <code>string</code> | Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | List of runner providers to use. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to all management functions. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for all management functions. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpcSubnets">vpcSubnets</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | VPC subnets used for all management functions. |
+
+---
+
+##### `allowPublicSubnet`<sup>Optional</sup> <a name="allowPublicSubnet" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.allowPublicSubnet"></a>
+
+```typescript
+public readonly allowPublicSubnet: boolean;
+```
+
+- *Type:* boolean
+- *Default:* false
+
+Allow management functions to run in public subnets.
+
+Lambda Functions in a public subnet can NOT access the internet.
+
+---
+
+##### `extraCertificates`<sup>Optional</sup> <a name="extraCertificates" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.extraCertificates"></a>
+
+```typescript
+public readonly extraCertificates: string;
+```
+
+- *Type:* string
+
+Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.
+
+You may also want to use custom images for your runner providers that contain the same certificates. See {@link CodeBuildImageBuilder.addCertificates}.
+
+```typescript
+const imageBuilder = new CodeBuildImageBuilder(this, 'Image Builder with Certs', {
+     dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH,
+});
+imageBuilder.addExtraCertificates('path-to-my-extra-certs-folder');
+
+const provider = new CodeBuildRunner(this, 'CodeBuild', {
+     imageBuilder: imageBuilder,
+});
+
+new GitHubRunners(
+   this,
+   'runners',
+   {
+     providers: [provider],
+     extraCertificates: 'path-to-my-extra-certs-folder',
+   }
+);
+```
 
 ---
 
@@ -1978,6 +2051,48 @@ public readonly providers: IRunnerProvider[];
 List of runner providers to use.
 
 At least one provider is required. Provider will be selected when its label matches the labels requested by the workflow job.
+
+---
+
+##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup"></a>
+
+```typescript
+public readonly securityGroup: ISecurityGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
+
+Security group attached to all management functions.
+
+Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
+
+---
+
+##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpc"></a>
+
+```typescript
+public readonly vpc: IVpc;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.IVpc
+
+VPC used for all management functions.
+
+Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
+
+---
+
+##### `vpcSubnets`<sup>Optional</sup> <a name="vpcSubnets" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpcSubnets"></a>
+
+```typescript
+public readonly vpcSubnets: SubnetSelection;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.SubnetSelection
+
+VPC subnets used for all management functions.
+
+Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
 
 ---
 

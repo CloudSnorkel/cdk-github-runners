@@ -209,7 +209,7 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
 
     const asset = new s3_assets.Asset(this, destName, { path: sourcePath });
     this.secondaryAssets.set(destName, asset);
-    this.preBuild.push(`ln -s "$CODEBUILD_SRC_DIR_${destName}" "${destName}"`);
+    this.preBuild.push(`rm -rf "${destName}" && cp -r "$CODEBUILD_SRC_DIR_${destName}" "${destName}"`); // symlinks don't work with docker
   }
 
   /**
@@ -259,6 +259,20 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
       throw new Error('Image is already bound. Use this method before passing the builder to a runner provider.');
     }
     this.policyStatements.push(statement);
+  }
+
+  /**
+   * Add extra trusted certificates. This helps deal with self-signed certificates for GitHub Enterprise Server.
+   *
+   * All first party Dockerfiles support this. Others may not.
+   *
+   * @param path path to directory containing a file called certs.pem containing all the required certificates
+   */
+  public addExtraCertificates(path: string) {
+    if (this.boundImage) {
+      throw new Error('Image is already bound. Use this method before passing the builder to a runner provider.');
+    }
+    this.addFiles(path, 'extra_certs');
   }
 
   /**
@@ -378,6 +392,7 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
       phases: {
         pre_build: {
           commands: this.preBuild.concat([
+            'mkdir -p extra_certs',
             '$(aws ecr get-login --no-include-email --region "$AWS_DEFAULT_REGION")',
           ]),
         },

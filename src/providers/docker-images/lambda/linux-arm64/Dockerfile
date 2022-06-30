@@ -5,6 +5,10 @@ FROM $BASE_IMAGE
 
 WORKDIR /runner
 
+# install extra certificates
+COPY extra_certs/. /tmp/certs/
+RUN if [ -f /tmp/certs/certs.pem ]; then cp /tmp/certs/certs.pem /etc/pki/ca-trust/source/anchors/ghe.crt; update-ca-trust; else echo no self-signed certificates; fi
+
 # add dependencies
 ARG EXTRA_PACKAGES=""
 RUN yum update -y && yum install -y jq tar gzip bzip2 which binutils git zip unzip $EXTRA_PACKAGES

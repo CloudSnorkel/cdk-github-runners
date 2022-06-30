@@ -1,5 +1,11 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2, aws_iam as iam, aws_stepfunctions as stepfunctions, aws_stepfunctions_tasks as stepfunctions_tasks } from 'aws-cdk-lib';
+import {
+  aws_ec2 as ec2,
+  aws_iam as iam,
+  aws_lambda as lambda,
+  aws_stepfunctions as stepfunctions,
+  aws_stepfunctions_tasks as stepfunctions_tasks,
+} from 'aws-cdk-lib';
 import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { CodeBuildRunner } from './providers/codebuild';
@@ -42,6 +48,33 @@ export interface GitHubRunnersProps {
    * Security group attached to all management functions. Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
    */
   readonly securityGroup?: ec2.ISecurityGroup;
+
+  /**
+   * Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.
+   *
+   * You may also want to use custom images for your runner providers that contain the same certificates. See {@link CodeBuildImageBuilder.addCertificates}.
+   *
+   * ```typescript
+   * const imageBuilder = new CodeBuildImageBuilder(this, 'Image Builder with Certs', {
+   *     dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH,
+   * });
+   * imageBuilder.addExtraCertificates('path-to-my-extra-certs-folder');
+   *
+   * const provider = new CodeBuildRunner(this, 'CodeBuild', {
+   *     imageBuilder: imageBuilder,
+   * });
+   *
+   * new GitHubRunners(
+   *   this,
+   *   'runners',
+   *   {
+   *     providers: [provider],
+   *     extraCertificates: 'path-to-my-extra-certs-folder',
+   *   }
+   * );
+   * ```
+   */
+  readonly extraCertificates?: string;
 }
 
 /**
@@ -50,20 +83,20 @@ export interface GitHubRunnersProps {
  * By default, this will create a runner provider of each available type with the defaults. This is good enough for the initial setup stage when you just want to get GitHub integration working.
  *
  * ```typescript
- * new GitHubRunners(stack, 'runners', {});
+ * new GitHubRunners(this, 'runners');
  * ```
  *
  * Usually you'd want to configure the runner providers so the runners can run in a certain VPC or have certain permissions.
  *
  * ```typescript
- * const vpc = ec2.Vpc.fromLookup(stack, 'vpc', { vpcId: 'vpc-1234567' });
- * const runnerSg = new ec2.SecurityGroup(stack, 'runner security group', { vpc: vpc });
- * const dbSg = ec2.SecurityGroup.fromSecurityGroupId(stack, 'database security group', 'sg-1234567');
- * const bucket = new s3.Bucket(stack, 'runner bucket');
+ * const vpc = ec2.Vpc.fromLookup(this, 'vpc', { vpcId: 'vpc-1234567' });
+ * const runnerSg = new ec2.SecurityGroup(this, 'runner security group', { vpc: vpc });
+ * const dbSg = ec2.SecurityGroup.fromSecurityGroupId(this, 'database security group', 'sg-1234567');
+ * const bucket = new s3.Bucket(this, 'runner bucket');
  *
  * // create a custom CodeBuild provider
  * const myProvider = new CodeBuildRunner(
- *   stack, 'codebuild runner',
+ *   this, 'codebuild runner',
  *   {
  *      label: 'my-codebuild',
  *      vpc: vpc,
@@ -76,7 +109,7 @@ export interface GitHubRunnersProps {
  *
  * // create the runner infrastructure
  * new GitHubRunners(
- *   stack,
+ *   this,
  *   'runners',
  *   {
  *     providers: [myProvider],
@@ -101,12 +134,27 @@ export class GitHubRunners extends Construct {
   private readonly webhook: GithubWebhookHandler;
   private readonly orchestrator: stepfunctions.StateMachine;
   private readonly setupUrl: string;
+  private readonly extraLambdaEnv: {[p: string]: string} = {};
+  private readonly extraLambdaProps: lambda.FunctionOptions;
 
   constructor(scope: Construct, id: string, props?: GitHubRunnersProps) {
     super(scope, id);
 
     this.props = props ?? {};
     this.secrets = new Secrets(this, 'Secrets');
+    this.extraLambdaProps = {
+      vpc: this.props.vpc,
+      vpcSubnets: this.props.vpcSubnets,
+      allowPublicSubnet: this.props.allowPublicSubnet,
+      securityGroups: this.props.securityGroup ? [this.props.securityGroup] : undefined,
+      layers: this.props.extraCertificates ? [new lambda.LayerVersion(scope, 'Certificate Layer', {
+        description: 'Layer containing GitHub Enterprise Server certificate for cdk-github-runners',
+        code: lambda.Code.fromAsset(this.props.extraCertificates),
+      })] : undefined,
+    };
+    if (this.props.extraCertificates) {
+      this.extraLambdaEnv.NODE_EXTRA_CA_CERTS = '/opt/certs.pem';
+    }
 
     if (this.props.providers) {
       this.providers = this.props.providers;
@@ -209,12 +257,10 @@ export class GitHubRunners extends Construct {
         environment: {
           GITHUB_SECRET_ARN: this.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+          ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.seconds(30),
-        vpc: this.props.vpc,
-        vpcSubnets: this.props.vpcSubnets,
-        allowPublicSubnet: this.props.allowPublicSubnet,
-        securityGroups: this.props.securityGroup ? [this.props.securityGroup] : undefined,
+        ...this.extraLambdaProps,
       },
     );
 
@@ -233,12 +279,10 @@ export class GitHubRunners extends Construct {
         environment: {
           GITHUB_SECRET_ARN: this.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+          ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.seconds(30),
-        vpc: this.props.vpc,
-        vpcSubnets: this.props.vpcSubnets,
-        allowPublicSubnet: this.props.allowPublicSubnet,
-        securityGroups: this.props.securityGroup ? [this.props.securityGroup] : undefined,
+        ...this.extraLambdaProps,
       },
     );
 
@@ -274,12 +318,10 @@ export class GitHubRunners extends Construct {
           WEBHOOK_HANDLER_ARN: this.webhook.handler.latestVersion.functionArn,
           STEP_FUNCTION_ARN: this.orchestrator.stateMachineArn,
           SETUP_FUNCTION_URL: this.setupUrl,
+          ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.minutes(3),
-        vpc: this.props.vpc,
-        vpcSubnets: this.props.vpcSubnets,
-        allowPublicSubnet: this.props.allowPublicSubnet,
-        securityGroups: this.props.securityGroup ? [this.props.securityGroup] : undefined,
+        ...this.extraLambdaProps,
       },
     );
 
@@ -310,12 +352,10 @@ export class GitHubRunners extends Construct {
           GITHUB_SECRET_ARN: this.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
           WEBHOOK_URL: this.webhook.url,
+          ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.minutes(3),
-        vpc: this.props.vpc,
-        vpcSubnets: this.props.vpcSubnets,
-        allowPublicSubnet: this.props.allowPublicSubnet,
-        securityGroups: this.props.securityGroup ? [this.props.securityGroup] : undefined,
+        ...this.extraLambdaProps,
       },
     );
 

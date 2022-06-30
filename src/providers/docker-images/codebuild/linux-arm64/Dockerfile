@@ -6,9 +6,13 @@ RUN addgroup runner && adduser --system --disabled-password --home /home/runner 
 
 # add dependencies and sudo
 ARG EXTRA_PACKAGES=""
-RUN apt-get update && apt-get upgrade -y && apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common $EXTRA_PACKAGES && \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates $EXTRA_PACKAGES && \
     usermod -aG sudo runner && \
     echo "%sudo   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner
+
+# install extra certificates
+COPY extra_certs/. /tmp/certs/
+RUN if [ -f /tmp/certs/certs.pem ]; then cp /tmp/certs/certs.pem /usr/local/share/ca-certificates/github-enterprise-server.crt; update-ca-certificates; else echo no self-signed certificates; fi
 
 # add latest git
 RUN add-apt-repository ppa:git-core/ppa && apt update && apt-get install -y git
