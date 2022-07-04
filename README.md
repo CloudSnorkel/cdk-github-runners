@@ -123,7 +123,7 @@ const myBuilder = new CodeBuildImageBuilder(this, 'image builder', {
 myBuilder.setBuildArg('EXTRA_PACKAGES', 'nginx xz-utils');
 
 const myProvider = new FargateProvider(this, 'fargate runner', {
-   label: 'my-codebuild',
+   label: 'customized-fargate',
    vpc: vpc,
    securityGroup: runnerSg,
 });
@@ -141,7 +141,7 @@ name: self-hosted example
 on: push
 jobs:
   self-hosted:
-    runs-on: [self-hosted, my-codebuild]
+    runs-on: [self-hosted, customized-fargate]
     steps:
       - run: echo hello world
 ```
