@@ -72,6 +72,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
   depsUpgradeOptions: {
     workflowOptions: {
       labels: ['auto-approve'],
+      schedule: {
+        cron: ['0 0 * * 1'],
+      },
     },
   },
   githubOptions: {
