@@ -154,6 +154,78 @@
         }
       ]
     },
+    "integ:default:assert": {
+      "name": "integ:default:assert",
+      "description": "assert the snapshot of integration test 'default'",
+      "steps": [
+        {
+          "exec": "[ -d \"test/default.integ.snapshot\" ] || (echo \"No snapshot available for integration test 'default'. Run 'projen integ:default:deploy' to capture.\" && exit 1)"
+        },
+        {
+          "exec": "cdk synth --app \"ts-node -P tsconfig.dev.json test/default.integ.ts\" --no-version-reporting --no-asset-metadata --no-path-metadata -o test/.tmp/default.integ/assert.cdk.out > /dev/null"
+        },
+        {
+          "exec": "diff -r -x asset.* -x cdk.out -x manifest.json -x tree.json test/default.integ.snapshot/ test/.tmp/default.integ/assert.cdk.out/"
+        }
+      ]
+    },
+    "integ:default:deploy": {
+      "name": "integ:default:deploy",
+      "description": "deploy integration test 'default' and capture snapshot",
+      "steps": [
+        {
+          "exec": "rm -fr test/.tmp/default.integ/deploy.cdk.out"
+        },
+        {
+          "exec": "cdk deploy --app \"ts-node -P tsconfig.dev.json test/default.integ.ts\" --no-version-reporting --no-asset-metadata --no-path-metadata '**' --require-approval=never -o test/.tmp/default.integ/deploy.cdk.out"
+        },
+        {
+          "exec": "rm -fr test/default.integ.snapshot"
+        },
+        {
+          "exec": "mv test/.tmp/default.integ/deploy.cdk.out test/default.integ.snapshot"
+        },
+        {
+          "spawn": "integ:default:destroy"
+        }
+      ]
+    },
+    "integ:default:destroy": {
+      "name": "integ:default:destroy",
+      "description": "destroy integration test 'default'",
+      "steps": [
+        {
+          "exec": "cdk destroy --app test/default.integ.snapshot '**' --no-version-reporting"
+        }
+      ]
+    },
+    "integ:default:snapshot": {
+      "name": "integ:default:snapshot",
+      "description": "update snapshot for integration test \"default\"",
+      "steps": [
+        {
+          "exec": "cdk synth --app \"ts-node -P tsconfig.dev.json test/default.integ.ts\" --no-version-reporting --no-asset-metadata --no-path-metadata -o test/default.integ.snapshot > /dev/null"
+        }
+      ]
+    },
+    "integ:default:watch": {
+      "name": "integ:default:watch",
+      "description": "watch integration test 'default' (without updating snapshots)",
+      "steps": [
+        {
+          "exec": "cdk watch --app \"ts-node -P tsconfig.dev.json test/default.integ.ts\" --no-version-reporting --no-asset-metadata --no-path-metadata '**' -o test/.tmp/default.integ/deploy.cdk.out"
+        }
+      ]
+    },
+    "integ:snapshot-all": {
+      "name": "integ:snapshot-all",
+      "description": "update snapshot for all integration tests",
+      "steps": [
+        {
+          "spawn": "integ:default:snapshot"
+        }
+      ]
+    },
     "package": {
       "name": "package",
       "description": "Creates the distribution package",
@@ -279,6 +351,9 @@
         },
         {
           "spawn": "eslint"
+        },
+        {
+          "spawn": "integ:default:assert"
         }
       ]
     },
