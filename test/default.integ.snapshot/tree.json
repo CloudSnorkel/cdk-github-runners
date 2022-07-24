@@ -1379,8 +1379,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "Fargate builder arm": {
@@ -2060,8 +2060,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "Lambda Image Builder x64": {
@@ -2883,8 +2883,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "CodeBuild Image Builder": {
@@ -3564,8 +3564,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "CodeBuildx64": {
@@ -3894,8 +3894,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.CodeBuildRunner",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "build-image-dcc036c8-876b-451e-a2c1-552f9e06e9e1": {
@@ -4855,8 +4855,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "CodeBuildARM": {
@@ -5185,8 +5185,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.CodeBuildRunner",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "Lambda": {
@@ -5368,8 +5368,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.LambdaRunner",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "update-lambda-dcc036c8-876b-451e-a2c1-552f9e06e9e1": {
@@ -6404,8 +6404,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "LambdaARM": {
@@ -6587,8 +6587,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.LambdaRunner",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "Fargate": {
@@ -6914,8 +6914,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.FargateRunner",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "Fargate-x64-spot": {
@@ -7241,8 +7241,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.FargateRunner",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "Fargate-arm64": {
@@ -7568,8 +7568,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.FargateRunner",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "Fargate-arm64-spot": {
@@ -7895,8 +7895,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.FargateRunner",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "runners": {
@@ -8020,8 +8020,8 @@
                   }
                 },
                 "constructInfo": {
-                  "fqn": "@cloudsnorkel/cdk-github-runners.Secrets",
-                  "version": "0.0.0"
+                  "fqn": "constructs.Construct",
+                  "version": "10.0.5"
                 }
               },
               "token-retriever": {
@@ -8167,7 +8167,7 @@
                           "s3Bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "s3Key": "4a3632542520bb7e065dcf867c8e24d0817380e9cb8c9c006875992c3553bc73.zip"
+                          "s3Key": "c8dc840c6fe6304247812f4cb46b560989005047ac825d67e2109784eaf0c629.zip"
                         },
                         "role": {
                           "Fn::GetAtt": [
@@ -9642,7 +9642,7 @@
                               "s3Bucket": {
                                 "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                               },
-                              "s3Key": "f27c45b28c57e77b0cb0a8e081417d28b513fa5a9dc3d9ce69eed489dda57c31.zip"
+                              "s3Key": "564ffe21ca81144c9594fbd10fde0e3a816974d4834da4d430acbd29d54a9cc3.zip"
                             },
                             "role": {
                               "Fn::GetAtt": [
@@ -10303,7 +10303,7 @@
                           "s3Bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "s3Key": "03df4925eff0c43641e2d63dbbdaafffa52c5026f30ffbb9a70e131943ba4bea.zip"
+                          "s3Key": "6c0219b00cddc09ccbf8ffd86979fe73b745606a759600bfaf791f90e0555ca9.zip"
                         },
                         "role": {
                           "Fn::GetAtt": [
@@ -10538,8 +10538,8 @@
               }
             },
             "constructInfo": {
-              "fqn": "@cloudsnorkel/cdk-github-runners.GitHubRunners",
-              "version": "0.0.0"
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
             }
           },
           "Service-principalMap": {

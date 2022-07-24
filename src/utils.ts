@@ -21,7 +21,7 @@ export class BundledNodejsFunction extends lambda.Function {
   constructor(scope: Construct, id: string, readonly props: lambda.FunctionOptions, srcId?: string) {
     super(scope, id, {
       ...props,
-      code: lambda.Code.fromAsset(path.join(__dirname, 'lambdas', srcId ?? id)),
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lib', 'lambdas', srcId ?? id)),
       handler: 'index.handler',
       runtime: lambda.Runtime.NODEJS_14_X,
       logRetention: logs.RetentionDays.ONE_MONTH,

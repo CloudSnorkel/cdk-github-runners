@@ -6,12 +6,7 @@
 
 import * as cdk from 'aws-cdk-lib';
 import { aws_codebuild as codebuild, aws_ecs as ecs } from 'aws-cdk-lib';
-import { CodeBuildRunner } from '../lib/providers/codebuild';
-import { Architecture } from '../lib/providers/common';
-import { FargateRunner } from '../lib/providers/fargate';
-import { CodeBuildImageBuilder } from '../lib/providers/image-builders/codebuild';
-import { LambdaRunner } from '../lib/providers/lambda';
-import { GitHubRunners } from '../lib/runner';
+import { Architecture, CodeBuildImageBuilder, CodeBuildRunner, FargateRunner, GitHubRunners, LambdaRunner } from '../src';
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
