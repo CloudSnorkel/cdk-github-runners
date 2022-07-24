@@ -15,6 +15,12 @@
     "docgen": "npx projen docgen",
     "eject": "npx projen eject",
     "eslint": "npx projen eslint",
+    "integ:default:assert": "npx projen integ:default:assert",
+    "integ:default:deploy": "npx projen integ:default:deploy",
+    "integ:default:destroy": "npx projen integ:default:destroy",
+    "integ:default:snapshot": "npx projen integ:default:snapshot",
+    "integ:default:watch": "npx projen integ:default:watch",
+    "integ:snapshot-all": "npx projen integ:snapshot-all",
     "package": "npx projen package",
     "package-all": "npx projen package-all",
     "package:dotnet": "npx projen package:dotnet",
@@ -49,6 +55,7 @@
     "@types/node": "^14",
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
+    "aws-cdk": "^2",
     "aws-cdk-lib": "2.21.1",
     "aws-sdk": "^2.1177.0",
     "constructs": "10.0.5",
@@ -68,6 +75,7 @@
     "projen": "^0.58.35",
     "standard-version": "^9",
     "ts-jest": "^27",
+    "ts-node": "^10.9.1",
     "typescript": "^4.7.4"
   },
   "peerDependencies": {
