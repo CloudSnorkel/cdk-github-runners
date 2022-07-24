@@ -621,47 +621,6 @@
          "Arn"
         ]
        }
-      },
-      {
-       "Action": [
-        "s3:GetObject*",
-        "s3:GetBucket*",
-        "s3:List*"
-       ],
-       "Effect": "Allow",
-       "Resource": [
-        {
-         "Fn::Join": [
-          "",
-          [
-           "arn:",
-           {
-            "Ref": "AWS::Partition"
-           },
-           ":s3:::",
-           {
-            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-           }
-          ]
-         ]
-        },
-        {
-         "Fn::Join": [
-          "",
-          [
-           "arn:",
-           {
-            "Ref": "AWS::Partition"
-           },
-           ":s3:::",
-           {
-            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-           },
-           "/00650b0110f6befa301f099aaa9dfab5c82029a669442d84840bb6a8ef182c96.zip"
-          ]
-         ]
-        }
-       ]
       }
      ],
      "Version": "2012-10-17"
@@ -747,7 +706,7 @@
         {
          "Ref": "FargatebuilderRepository8F7BA13C"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"rm -rf \\\"extra_certs\\\" && cp -r \\\"$CODEBUILD_SRC_DIR_extra_certs\\\" \\\"extra_certs\\\"\",\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "FargatebuilderLogs2F794091"
         },
@@ -781,23 +740,6 @@
       "Status": "ENABLED"
      }
     },
-    "SecondarySources": [
-     {
-      "Location": {
-       "Fn::Join": [
-        "",
-        [
-         {
-          "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-         },
-         "/00650b0110f6befa301f099aaa9dfab5c82029a669442d84840bb6a8ef182c96.zip"
-        ]
-       ]
-      },
-      "SourceIdentifier": "extra_certs",
-      "Type": "S3"
-     }
-    ],
     "TimeoutInMinutes": 60
    }
   },
@@ -898,7 +840,7 @@
     "ProjectName": {
      "Ref": "FargatebuilderCodeBuild4F182743"
     },
-    "BuildHash": "39a449057ef8d3083dae7bb4098ef313"
+    "BuildHash": "d6216cafe30fb475e853e0c7257ae447"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -1663,47 +1605,6 @@
          "Arn"
         ]
        }
-      },
-      {
-       "Action": [
-        "s3:GetObject*",
-        "s3:GetBucket*",
-        "s3:List*"
-       ],
-       "Effect": "Allow",
-       "Resource": [
-        {
-         "Fn::Join": [
-          "",
-          [
-           "arn:",
-           {
-            "Ref": "AWS::Partition"
-           },
-           ":s3:::",
-           {
-            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-           }
-          ]
-         ]
-        },
-        {
-         "Fn::Join": [
-          "",
-          [
-           "arn:",
-           {
-            "Ref": "AWS::Partition"
-           },
-           ":s3:::",
-           {
-            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-           },
-           "/00650b0110f6befa301f099aaa9dfab5c82029a669442d84840bb6a8ef182c96.zip"
-          ]
-         ]
-        }
-       ]
       }
      ],
      "Version": "2012-10-17"
@@ -1789,7 +1690,7 @@
         {
          "Ref": "LambdaImageBuilderx64Repository57F632F1"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"rm -rf \\\"extra_certs\\\" && cp -r \\\"$CODEBUILD_SRC_DIR_extra_certs\\\" \\\"extra_certs\\\"\",\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "LambdaImageBuilderx64Logs1C003BB4"
         },
@@ -1823,23 +1724,6 @@
       "Status": "ENABLED"
      }
     },
-    "SecondarySources": [
-     {
-      "Location": {
-       "Fn::Join": [
-        "",
-        [
-         {
-          "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-         },
-         "/00650b0110f6befa301f099aaa9dfab5c82029a669442d84840bb6a8ef182c96.zip"
-        ]
-       ]
-      },
-      "SourceIdentifier": "extra_certs",
-      "Type": "S3"
-     }
-    ],
     "TimeoutInMinutes": 60
    }
   },
@@ -1940,7 +1824,7 @@
     "ProjectName": {
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
-    "BuildHash": "5322fe6fa29a020e7d77679811be552e"
+    "BuildHash": "4d9954fe17e392795c604a410bc67863"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",

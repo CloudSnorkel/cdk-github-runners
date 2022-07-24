@@ -27,7 +27,6 @@ const fargateX64Builder = new CodeBuildImageBuilder(stack, 'Fargate builder', {
   dockerfilePath: FargateRunner.LINUX_X64_DOCKERFILE_PATH,
   architecture: Architecture.X86_64,
 });
-fargateX64Builder.addExtraCertificates('certs');
 const fargateArm64Builder = new CodeBuildImageBuilder(stack, 'Fargate builder arm', {
   dockerfilePath: FargateRunner.LINUX_ARM64_DOCKERFILE_PATH,
   architecture: Architecture.ARM64,
@@ -36,7 +35,6 @@ let lambdaImageBuilder = new CodeBuildImageBuilder(stack, 'Lambda Image Builder 
   dockerfilePath: LambdaRunner.LINUX_X64_DOCKERFILE_PATH,
   architecture: Architecture.X86_64,
 });
-lambdaImageBuilder.addExtraCertificates('certs');
 new GitHubRunners(stack, 'runners', {
   providers: [
     new CodeBuildRunner(stack, 'CodeBuildx64', {
