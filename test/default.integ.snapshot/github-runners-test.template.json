@@ -1,0 +1,7510 @@
+{
+ "Resources": {
+  "cluster611F8AFF": {
+   "Type": "AWS::ECS::Cluster"
+  },
+  "clusterVpc91107A71": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/16",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "InstanceTenancy": "default",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc"
+     }
+    ]
+   }
+  },
+  "clusterVpcPublicSubnet1Subnet3948EFCA": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "VpcId": {
+     "Ref": "clusterVpc91107A71"
+    },
+    "AvailabilityZone": {
+     "Fn::Select": [
+      0,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.0.0/18",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc/PublicSubnet1"
+     }
+    ]
+   }
+  },
+  "clusterVpcPublicSubnet1RouteTable85A91E8C": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "VpcId": {
+     "Ref": "clusterVpc91107A71"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc/PublicSubnet1"
+     }
+    ]
+   }
+  },
+  "clusterVpcPublicSubnet1RouteTableAssociationABF3C3B6": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "clusterVpcPublicSubnet1RouteTable85A91E8C"
+    },
+    "SubnetId": {
+     "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+    }
+   }
+  },
+  "clusterVpcPublicSubnet1DefaultRouteF41D2737": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "clusterVpcPublicSubnet1RouteTable85A91E8C"
+    },
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "clusterVpcIGW64BABB17"
+    }
+   },
+   "DependsOn": [
+    "clusterVpcVPCGW9E9B1FA8"
+   ]
+  },
+  "clusterVpcPublicSubnet1EIP0E24289A": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc/PublicSubnet1"
+     }
+    ]
+   }
+  },
+  "clusterVpcPublicSubnet1NATGateway278CA43C": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "SubnetId": {
+     "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+    },
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "clusterVpcPublicSubnet1EIP0E24289A",
+      "AllocationId"
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc/PublicSubnet1"
+     }
+    ]
+   }
+  },
+  "clusterVpcPublicSubnet2SubnetEFB8E71C": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "VpcId": {
+     "Ref": "clusterVpc91107A71"
+    },
+    "AvailabilityZone": {
+     "Fn::Select": [
+      1,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.64.0/18",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc/PublicSubnet2"
+     }
+    ]
+   }
+  },
+  "clusterVpcPublicSubnet2RouteTable21948248": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "VpcId": {
+     "Ref": "clusterVpc91107A71"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc/PublicSubnet2"
+     }
+    ]
+   }
+  },
+  "clusterVpcPublicSubnet2RouteTableAssociation21B4DF05": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "clusterVpcPublicSubnet2RouteTable21948248"
+    },
+    "SubnetId": {
+     "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+    }
+   }
+  },
+  "clusterVpcPublicSubnet2DefaultRouteC71B8373": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "clusterVpcPublicSubnet2RouteTable21948248"
+    },
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "clusterVpcIGW64BABB17"
+    }
+   },
+   "DependsOn": [
+    "clusterVpcVPCGW9E9B1FA8"
+   ]
+  },
+  "clusterVpcPublicSubnet2EIP6FF291E5": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc/PublicSubnet2"
+     }
+    ]
+   }
+  },
+  "clusterVpcPublicSubnet2NATGatewayD971ED50": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "SubnetId": {
+     "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+    },
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "clusterVpcPublicSubnet2EIP6FF291E5",
+      "AllocationId"
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc/PublicSubnet2"
+     }
+    ]
+   }
+  },
+  "clusterVpcPrivateSubnet1Subnet4D445D11": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "VpcId": {
+     "Ref": "clusterVpc91107A71"
+    },
+    "AvailabilityZone": {
+     "Fn::Select": [
+      0,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.128.0/18",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc/PrivateSubnet1"
+     }
+    ]
+   }
+  },
+  "clusterVpcPrivateSubnet1RouteTable6B7B6A77": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "VpcId": {
+     "Ref": "clusterVpc91107A71"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc/PrivateSubnet1"
+     }
+    ]
+   }
+  },
+  "clusterVpcPrivateSubnet1RouteTableAssociationDE66313E": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "clusterVpcPrivateSubnet1RouteTable6B7B6A77"
+    },
+    "SubnetId": {
+     "Ref": "clusterVpcPrivateSubnet1Subnet4D445D11"
+    }
+   }
+  },
+  "clusterVpcPrivateSubnet1DefaultRoute6A776454": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "clusterVpcPrivateSubnet1RouteTable6B7B6A77"
+    },
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "clusterVpcPublicSubnet1NATGateway278CA43C"
+    }
+   }
+  },
+  "clusterVpcPrivateSubnet2Subnet6DFF6572": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "VpcId": {
+     "Ref": "clusterVpc91107A71"
+    },
+    "AvailabilityZone": {
+     "Fn::Select": [
+      1,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.192.0/18",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc/PrivateSubnet2"
+     }
+    ]
+   }
+  },
+  "clusterVpcPrivateSubnet2RouteTable0D967850": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "VpcId": {
+     "Ref": "clusterVpc91107A71"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc/PrivateSubnet2"
+     }
+    ]
+   }
+  },
+  "clusterVpcPrivateSubnet2RouteTableAssociation0E224256": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "clusterVpcPrivateSubnet2RouteTable0D967850"
+    },
+    "SubnetId": {
+     "Ref": "clusterVpcPrivateSubnet2Subnet6DFF6572"
+    }
+   }
+  },
+  "clusterVpcPrivateSubnet2DefaultRouteF3B52CD2": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "clusterVpcPrivateSubnet2RouteTable0D967850"
+    },
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "clusterVpcPublicSubnet2NATGatewayD971ED50"
+    }
+   }
+  },
+  "clusterVpcIGW64BABB17": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "github-runners-test/cluster/Vpc"
+     }
+    ]
+   }
+  },
+  "clusterVpcVPCGW9E9B1FA8": {
+   "Type": "AWS::EC2::VPCGatewayAttachment",
+   "Properties": {
+    "VpcId": {
+     "Ref": "clusterVpc91107A71"
+    },
+    "InternetGatewayId": {
+     "Ref": "clusterVpcIGW64BABB17"
+    }
+   }
+  },
+  "clusterA4C38409": {
+   "Type": "AWS::ECS::ClusterCapacityProviderAssociations",
+   "Properties": {
+    "CapacityProviders": [
+     "FARGATE",
+     "FARGATE_SPOT"
+    ],
+    "Cluster": {
+     "Ref": "cluster611F8AFF"
+    },
+    "DefaultCapacityProviderStrategy": []
+   }
+  },
+  "FargatebuilderRepository8F7BA13C": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "ImageScanningConfiguration": {
+     "ScanOnPush": true
+    },
+    "ImageTagMutability": "MUTABLE",
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "FargatebuilderLogs2F794091": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "FargatebuilderCodeBuildRole814DF0A3": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "FargatebuilderCodeBuildRoleDefaultPolicy154A06CC": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           },
+           "/4873aabd98900f485d3d5030bc6ba74565d55fe45574e02de8b6bc09c87736e5.zip"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderLogs2F794091",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "FargatebuilderCodeBuild4F182743"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "FargatebuilderCodeBuild4F182743"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":report-group/",
+          {
+           "Ref": "FargatebuilderCodeBuild4F182743"
+          },
+          "-*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderRepository8F7BA13C",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ecr:PutImage",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderRepository8F7BA13C",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "FargatebuilderCodeBuildRoleDefaultPolicy154A06CC",
+    "Roles": [
+     {
+      "Ref": "FargatebuilderCodeBuildRole814DF0A3"
+     }
+    ]
+   }
+  },
+  "FargatebuilderCodeBuild4F182743": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "NO_ARTIFACTS"
+    },
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "Image": "aws/codebuild/standard:4.0",
+     "ImagePullCredentialsType": "CODEBUILD",
+     "PrivilegedMode": true,
+     "Type": "LINUX_CONTAINER"
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "FargatebuilderCodeBuildRole814DF0A3",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": {
+      "Fn::Join": [
+       "",
+       [
+        "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
+        {
+         "Fn::GetAtt": [
+          "FargatebuilderRepository8F7BA13C",
+          "Arn"
+         ]
+        },
+        "\",\n      \"REPO_URI\": \"",
+        {
+         "Fn::Select": [
+          4,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "FargatebuilderRepository8F7BA13C",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".dkr.ecr.",
+        {
+         "Fn::Select": [
+          3,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "FargatebuilderRepository8F7BA13C",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".",
+        {
+         "Ref": "AWS::URLSuffix"
+        },
+        "/",
+        {
+         "Ref": "FargatebuilderRepository8F7BA13C"
+        },
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        {
+         "Ref": "FargatebuilderLogs2F794091"
+        },
+        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Digest\\\": \\\"$DIGEST\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+       ]
+      ]
+     },
+     "Location": {
+      "Fn::Join": [
+       "",
+       [
+        {
+         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+        },
+        "/4873aabd98900f485d3d5030bc6ba74565d55fe45574e02de8b6bc09c87736e5.zip"
+       ]
+      ]
+     },
+     "Type": "S3"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/Fargate builder (Linux/X86_64)",
+    "EncryptionKey": "alias/aws/s3",
+    "LogsConfig": {
+     "CloudWatchLogs": {
+      "GroupName": {
+       "Ref": "FargatebuilderLogs2F794091"
+      },
+      "Status": "ENABLED"
+     }
+    },
+    "TimeoutInMinutes": 60
+   }
+  },
+  "FargatebuilderCodeBuildEventsRole92F2259E": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "events.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "FargatebuilderCodeBuildEventsRoleDefaultPolicyD2B048CD": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderCodeBuild4F182743",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "FargatebuilderCodeBuildEventsRoleDefaultPolicyD2B048CD",
+    "Roles": [
+     {
+      "Ref": "FargatebuilderCodeBuildEventsRole92F2259E"
+     }
+    ]
+   }
+  },
+  "FargatebuilderCRPolicy22FB4B05": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderCodeBuild4F182743",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchDeleteImage",
+        "ecr:ListImages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderRepository8F7BA13C",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "FargatebuilderCRPolicy22FB4B05",
+    "Roles": [
+     {
+      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+     }
+    ]
+   }
+  },
+  "FargatebuilderBuilder0834CD0B": {
+   "Type": "Custom::ImageBuilder",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+      "Arn"
+     ]
+    },
+    "RepoName": {
+     "Ref": "FargatebuilderRepository8F7BA13C"
+    },
+    "ProjectName": {
+     "Ref": "FargatebuilderCodeBuild4F182743"
+    },
+    "BuildHash": "d6216cafe30fb475e853e0c7257ae447"
+   },
+   "DependsOn": [
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+    "FargatebuilderCodeBuildEventsRoleDefaultPolicyD2B048CD",
+    "FargatebuilderCodeBuildEventsRole92F2259E",
+    "FargatebuilderCodeBuild4F182743",
+    "FargatebuilderCodeBuildRoleDefaultPolicy154A06CC",
+    "FargatebuilderCodeBuildRole814DF0A3",
+    "FargatebuilderCRPolicy22FB4B05"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "FargatebuilderBuildSchedule0B083A73": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Rebuild runner image for ",
+       {
+        "Ref": "FargatebuilderRepository8F7BA13C"
+       }
+      ]
+     ]
+    },
+    "ScheduleExpression": "rate(7 days)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "FargatebuilderCodeBuild4F182743",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "RoleArn": {
+       "Fn::GetAtt": [
+        "FargatebuilderCodeBuildEventsRole92F2259E",
+        "Arn"
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "FargatebuilderarmRepository77DCC132": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "ImageScanningConfiguration": {
+     "ScanOnPush": true
+    },
+    "ImageTagMutability": "MUTABLE",
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "FargatebuilderarmLogs63D60F4D": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "FargatebuilderarmCodeBuildRole10194D7D": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "FargatebuilderarmCodeBuildRoleDefaultPolicy43BE6861": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           },
+           "/c27e6e0f7224f4fd63be740718fc70d63fe486de35abbc62830edb5e44b83335.zip"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderarmLogs63D60F4D",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "FargatebuilderarmCodeBuild0D30679A"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "FargatebuilderarmCodeBuild0D30679A"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":report-group/",
+          {
+           "Ref": "FargatebuilderarmCodeBuild0D30679A"
+          },
+          "-*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderarmRepository77DCC132",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ecr:PutImage",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderarmRepository77DCC132",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "FargatebuilderarmCodeBuildRoleDefaultPolicy43BE6861",
+    "Roles": [
+     {
+      "Ref": "FargatebuilderarmCodeBuildRole10194D7D"
+     }
+    ]
+   }
+  },
+  "FargatebuilderarmCodeBuild0D30679A": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "NO_ARTIFACTS"
+    },
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "Image": "aws/codebuild/amazonlinux2-aarch64-standard:2.0",
+     "ImagePullCredentialsType": "CODEBUILD",
+     "PrivilegedMode": true,
+     "Type": "ARM_CONTAINER"
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "FargatebuilderarmCodeBuildRole10194D7D",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": {
+      "Fn::Join": [
+       "",
+       [
+        "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
+        {
+         "Fn::GetAtt": [
+          "FargatebuilderarmRepository77DCC132",
+          "Arn"
+         ]
+        },
+        "\",\n      \"REPO_URI\": \"",
+        {
+         "Fn::Select": [
+          4,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "FargatebuilderarmRepository77DCC132",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".dkr.ecr.",
+        {
+         "Fn::Select": [
+          3,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "FargatebuilderarmRepository77DCC132",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".",
+        {
+         "Ref": "AWS::URLSuffix"
+        },
+        "/",
+        {
+         "Ref": "FargatebuilderarmRepository77DCC132"
+        },
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        {
+         "Ref": "FargatebuilderarmLogs63D60F4D"
+        },
+        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Digest\\\": \\\"$DIGEST\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+       ]
+      ]
+     },
+     "Location": {
+      "Fn::Join": [
+       "",
+       [
+        {
+         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+        },
+        "/c27e6e0f7224f4fd63be740718fc70d63fe486de35abbc62830edb5e44b83335.zip"
+       ]
+      ]
+     },
+     "Type": "S3"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/Fargate builder arm (Linux/ARM64)",
+    "EncryptionKey": "alias/aws/s3",
+    "LogsConfig": {
+     "CloudWatchLogs": {
+      "GroupName": {
+       "Ref": "FargatebuilderarmLogs63D60F4D"
+      },
+      "Status": "ENABLED"
+     }
+    },
+    "TimeoutInMinutes": 60
+   }
+  },
+  "FargatebuilderarmCodeBuildEventsRole20E8CE66": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "events.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "FargatebuilderarmCodeBuildEventsRoleDefaultPolicy39CAA8CB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderarmCodeBuild0D30679A",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "FargatebuilderarmCodeBuildEventsRoleDefaultPolicy39CAA8CB",
+    "Roles": [
+     {
+      "Ref": "FargatebuilderarmCodeBuildEventsRole20E8CE66"
+     }
+    ]
+   }
+  },
+  "FargatebuilderarmCRPolicyD241BB66": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderarmCodeBuild0D30679A",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchDeleteImage",
+        "ecr:ListImages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderarmRepository77DCC132",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "FargatebuilderarmCRPolicyD241BB66",
+    "Roles": [
+     {
+      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+     }
+    ]
+   }
+  },
+  "FargatebuilderarmBuilder48D1AF5A": {
+   "Type": "Custom::ImageBuilder",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+      "Arn"
+     ]
+    },
+    "RepoName": {
+     "Ref": "FargatebuilderarmRepository77DCC132"
+    },
+    "ProjectName": {
+     "Ref": "FargatebuilderarmCodeBuild0D30679A"
+    },
+    "BuildHash": "271c23e93db2d4f6ef4b9d30c87abe32"
+   },
+   "DependsOn": [
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+    "FargatebuilderarmCodeBuildEventsRoleDefaultPolicy39CAA8CB",
+    "FargatebuilderarmCodeBuildEventsRole20E8CE66",
+    "FargatebuilderarmCodeBuild0D30679A",
+    "FargatebuilderarmCodeBuildRoleDefaultPolicy43BE6861",
+    "FargatebuilderarmCodeBuildRole10194D7D",
+    "FargatebuilderarmCRPolicyD241BB66"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "FargatebuilderarmBuildSchedule854B2895": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Rebuild runner image for ",
+       {
+        "Ref": "FargatebuilderarmRepository77DCC132"
+       }
+      ]
+     ]
+    },
+    "ScheduleExpression": "rate(7 days)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "FargatebuilderarmCodeBuild0D30679A",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "RoleArn": {
+       "Fn::GetAtt": [
+        "FargatebuilderarmCodeBuildEventsRole20E8CE66",
+        "Arn"
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "LambdaImageBuilderx64Repository57F632F1": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "ImageScanningConfiguration": {
+     "ScanOnPush": true
+    },
+    "ImageTagMutability": "MUTABLE",
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "LambdaImageBuilderx64Logs1C003BB4": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "LambdaImageBuilderx64CodeBuildRole144A321F": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "LambdaImageBuilderx64CodeBuildRoleDefaultPolicy3268409C": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           },
+           "/e28c9227468cb90a6a0635bd91d351d90a6ca667d95a1af578f4f349dc550b31.zip"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64Logs1C003BB4",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":report-group/",
+          {
+           "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
+          },
+          "-*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64Repository57F632F1",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ecr:PutImage",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64Repository57F632F1",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LambdaImageBuilderx64CodeBuildRoleDefaultPolicy3268409C",
+    "Roles": [
+     {
+      "Ref": "LambdaImageBuilderx64CodeBuildRole144A321F"
+     }
+    ]
+   }
+  },
+  "LambdaImageBuilderx64CodeBuild67DE14C8": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "NO_ARTIFACTS"
+    },
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "Image": "aws/codebuild/standard:4.0",
+     "ImagePullCredentialsType": "CODEBUILD",
+     "PrivilegedMode": true,
+     "Type": "LINUX_CONTAINER"
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "LambdaImageBuilderx64CodeBuildRole144A321F",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": {
+      "Fn::Join": [
+       "",
+       [
+        "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
+        {
+         "Fn::GetAtt": [
+          "LambdaImageBuilderx64Repository57F632F1",
+          "Arn"
+         ]
+        },
+        "\",\n      \"REPO_URI\": \"",
+        {
+         "Fn::Select": [
+          4,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "LambdaImageBuilderx64Repository57F632F1",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".dkr.ecr.",
+        {
+         "Fn::Select": [
+          3,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "LambdaImageBuilderx64Repository57F632F1",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".",
+        {
+         "Ref": "AWS::URLSuffix"
+        },
+        "/",
+        {
+         "Ref": "LambdaImageBuilderx64Repository57F632F1"
+        },
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        {
+         "Ref": "LambdaImageBuilderx64Logs1C003BB4"
+        },
+        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Digest\\\": \\\"$DIGEST\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+       ]
+      ]
+     },
+     "Location": {
+      "Fn::Join": [
+       "",
+       [
+        {
+         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+        },
+        "/e28c9227468cb90a6a0635bd91d351d90a6ca667d95a1af578f4f349dc550b31.zip"
+       ]
+      ]
+     },
+     "Type": "S3"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/Lambda Image Builder x64 (Linux/X86_64)",
+    "EncryptionKey": "alias/aws/s3",
+    "LogsConfig": {
+     "CloudWatchLogs": {
+      "GroupName": {
+       "Ref": "LambdaImageBuilderx64Logs1C003BB4"
+      },
+      "Status": "ENABLED"
+     }
+    },
+    "TimeoutInMinutes": 60
+   }
+  },
+  "LambdaImageBuilderx64CodeBuildEventsRoleF8B03C21": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "events.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "LambdaImageBuilderx64CodeBuildEventsRoleDefaultPolicy2B894997": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64CodeBuild67DE14C8",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LambdaImageBuilderx64CodeBuildEventsRoleDefaultPolicy2B894997",
+    "Roles": [
+     {
+      "Ref": "LambdaImageBuilderx64CodeBuildEventsRoleF8B03C21"
+     }
+    ]
+   }
+  },
+  "LambdaImageBuilderx64CRPolicy6DBE0D1F": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64CodeBuild67DE14C8",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchDeleteImage",
+        "ecr:ListImages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64Repository57F632F1",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LambdaImageBuilderx64CRPolicy6DBE0D1F",
+    "Roles": [
+     {
+      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+     }
+    ]
+   }
+  },
+  "LambdaImageBuilderx64Builder42F384AF": {
+   "Type": "Custom::ImageBuilder",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+      "Arn"
+     ]
+    },
+    "RepoName": {
+     "Ref": "LambdaImageBuilderx64Repository57F632F1"
+    },
+    "ProjectName": {
+     "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
+    },
+    "BuildHash": "4d9954fe17e392795c604a410bc67863"
+   },
+   "DependsOn": [
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+    "LambdaImageBuilderx64CodeBuildEventsRoleDefaultPolicy2B894997",
+    "LambdaImageBuilderx64CodeBuildEventsRoleF8B03C21",
+    "LambdaImageBuilderx64CodeBuild67DE14C8",
+    "LambdaImageBuilderx64CodeBuildRoleDefaultPolicy3268409C",
+    "LambdaImageBuilderx64CodeBuildRole144A321F",
+    "LambdaImageBuilderx64CRPolicy6DBE0D1F"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "LambdaImageBuilderx64BuildScheduleFA3DBF6A": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Rebuild runner image for ",
+       {
+        "Ref": "LambdaImageBuilderx64Repository57F632F1"
+       }
+      ]
+     ]
+    },
+    "ScheduleExpression": "rate(7 days)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "LambdaImageBuilderx64CodeBuild67DE14C8",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "RoleArn": {
+       "Fn::GetAtt": [
+        "LambdaImageBuilderx64CodeBuildEventsRoleF8B03C21",
+        "Arn"
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "LambdaImageBuilderx64DependableImagePushruleDEB26F21": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Update GitHub Actions runner Lambda on ECR image push",
+    "EventPattern": {
+     "detail-type": [
+      "ECR Image Action"
+     ],
+     "detail": {
+      "action-type": [
+       "PUSH"
+      ],
+      "repository-name": [
+       {
+        "Ref": "LambdaImageBuilderx64Repository57F632F1"
+       }
+      ],
+      "image-tag": [
+       "latest"
+      ],
+      "result": [
+       "SUCCESS"
+      ]
+     },
+     "source": [
+      "aws.ecr"
+     ]
+    },
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": {
+       "Fn::Join": [
+        "",
+        [
+         "{\"lambdaName\":\"",
+         {
+          "Ref": "LambdaFunction9233991D"
+         },
+         "\",\"repositoryUri\":\"",
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "LambdaImageBuilderx64Builder42F384AF"
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "LambdaImageBuilderx64Builder42F384AF"
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "LambdaImageBuilderx64Repository57F632F1"
+         },
+         "\",\"repositoryTag\":\"latest\",\"stackName\":\"github-runners-test\"}"
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "LambdaImageBuilderx64DependableImagePushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98E7BC3031D": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "LambdaImageBuilderx64DependableImagePushruleDEB26F21",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "CodeBuildImageBuilderRepository9DE3B6F0": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "ImageScanningConfiguration": {
+     "ScanOnPush": true
+    },
+    "ImageTagMutability": "MUTABLE",
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "CodeBuildImageBuilderLogsE4CADFCC": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "CodeBuildImageBuilderCodeBuildRoleF8F57ECB": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "CodeBuildImageBuilderCodeBuildRoleDefaultPolicy1060FBF9": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           },
+           "/fe710895fc78c6ee320929ed6260a21ff4938541ecc882b95d0a504a09ac105a.zip"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderLogsE4CADFCC",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":report-group/",
+          {
+           "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
+          },
+          "-*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderRepository9DE3B6F0",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ecr:PutImage",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderRepository9DE3B6F0",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CodeBuildImageBuilderCodeBuildRoleDefaultPolicy1060FBF9",
+    "Roles": [
+     {
+      "Ref": "CodeBuildImageBuilderCodeBuildRoleF8F57ECB"
+     }
+    ]
+   }
+  },
+  "CodeBuildImageBuilderCodeBuild38ECAA44": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "NO_ARTIFACTS"
+    },
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "Image": "aws/codebuild/standard:4.0",
+     "ImagePullCredentialsType": "CODEBUILD",
+     "PrivilegedMode": true,
+     "Type": "LINUX_CONTAINER"
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "CodeBuildImageBuilderCodeBuildRoleF8F57ECB",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": {
+      "Fn::Join": [
+       "",
+       [
+        "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
+        {
+         "Fn::GetAtt": [
+          "CodeBuildImageBuilderRepository9DE3B6F0",
+          "Arn"
+         ]
+        },
+        "\",\n      \"REPO_URI\": \"",
+        {
+         "Fn::Select": [
+          4,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "CodeBuildImageBuilderRepository9DE3B6F0",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".dkr.ecr.",
+        {
+         "Fn::Select": [
+          3,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "CodeBuildImageBuilderRepository9DE3B6F0",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".",
+        {
+         "Ref": "AWS::URLSuffix"
+        },
+        "/",
+        {
+         "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+        },
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        {
+         "Ref": "CodeBuildImageBuilderLogsE4CADFCC"
+        },
+        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Digest\\\": \\\"$DIGEST\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+       ]
+      ]
+     },
+     "Location": {
+      "Fn::Join": [
+       "",
+       [
+        {
+         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+        },
+        "/fe710895fc78c6ee320929ed6260a21ff4938541ecc882b95d0a504a09ac105a.zip"
+       ]
+      ]
+     },
+     "Type": "S3"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/CodeBuild Image Builder (Linux/X86_64)",
+    "EncryptionKey": "alias/aws/s3",
+    "LogsConfig": {
+     "CloudWatchLogs": {
+      "GroupName": {
+       "Ref": "CodeBuildImageBuilderLogsE4CADFCC"
+      },
+      "Status": "ENABLED"
+     }
+    },
+    "TimeoutInMinutes": 60
+   }
+  },
+  "CodeBuildImageBuilderCodeBuildEventsRole4277A55E": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "events.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderCodeBuild38ECAA44",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D",
+    "Roles": [
+     {
+      "Ref": "CodeBuildImageBuilderCodeBuildEventsRole4277A55E"
+     }
+    ]
+   }
+  },
+  "CodeBuildImageBuilderCRPolicyAFC63F28": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderCodeBuild38ECAA44",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchDeleteImage",
+        "ecr:ListImages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderRepository9DE3B6F0",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CodeBuildImageBuilderCRPolicyAFC63F28",
+    "Roles": [
+     {
+      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+     }
+    ]
+   }
+  },
+  "CodeBuildImageBuilderB8638EC8": {
+   "Type": "Custom::ImageBuilder",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+      "Arn"
+     ]
+    },
+    "RepoName": {
+     "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+    },
+    "ProjectName": {
+     "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
+    },
+    "BuildHash": "2fed9af5f8a6b0e9fefaeb54869d7149"
+   },
+   "DependsOn": [
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+    "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D",
+    "CodeBuildImageBuilderCodeBuildEventsRole4277A55E",
+    "CodeBuildImageBuilderCodeBuild38ECAA44",
+    "CodeBuildImageBuilderCodeBuildRoleDefaultPolicy1060FBF9",
+    "CodeBuildImageBuilderCodeBuildRoleF8F57ECB",
+    "CodeBuildImageBuilderCRPolicyAFC63F28"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "CodeBuildImageBuilderBuildSchedule66D9D18A": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Rebuild runner image for ",
+       {
+        "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+       }
+      ]
+     ]
+    },
+    "ScheduleExpression": "rate(7 days)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "CodeBuildImageBuilderCodeBuild38ECAA44",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "RoleArn": {
+       "Fn::GetAtt": [
+        "CodeBuildImageBuilderCodeBuildEventsRole4277A55E",
+        "Arn"
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "CodeBuildx64LogsA21ECD59": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "CodeBuildx64CodeBuildRole32E5C764": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "CodeBuildx64CodeBuildRoleDefaultPolicy221DA642": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "CodeBuildImageBuilderB8638EC8"
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildx64LogsA21ECD59",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "CodeBuildx64CodeBuild7DC01A1E"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "CodeBuildx64CodeBuild7DC01A1E"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":report-group/",
+          {
+           "Ref": "CodeBuildx64CodeBuild7DC01A1E"
+          },
+          "-*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CodeBuildx64CodeBuildRoleDefaultPolicy221DA642",
+    "Roles": [
+     {
+      "Ref": "CodeBuildx64CodeBuildRole32E5C764"
+     }
+    ]
+   }
+  },
+  "CodeBuildx64CodeBuild7DC01A1E": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "NO_ARTIFACTS"
+    },
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "Image": {
+      "Fn::Join": [
+       "",
+       [
+        {
+         "Fn::Select": [
+          4,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Ref": "CodeBuildImageBuilderB8638EC8"
+            }
+           ]
+          }
+         ]
+        },
+        ".dkr.ecr.",
+        {
+         "Fn::Select": [
+          3,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Ref": "CodeBuildImageBuilderB8638EC8"
+            }
+           ]
+          }
+         ]
+        },
+        ".",
+        {
+         "Ref": "AWS::URLSuffix"
+        },
+        "/",
+        {
+         "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+        },
+        ":latest"
+       ]
+      ]
+     },
+     "ImagePullCredentialsType": "SERVICE_ROLE",
+     "PrivilegedMode": true,
+     "Type": "LINUX_CONTAINER"
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "CodeBuildx64CodeBuildRole32E5C764",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL}\\\" --disableupdate --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo -Hu runner /home/runner/run.sh\"\n      ]\n    }\n  }\n}",
+     "Type": "NO_SOURCE"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "Description": "GitHub Actions self-hosted runner for label \"codebuild-x64\"",
+    "EncryptionKey": "alias/aws/s3",
+    "LogsConfig": {
+     "CloudWatchLogs": {
+      "GroupName": {
+       "Ref": "CodeBuildx64LogsA21ECD59"
+      },
+      "Status": "ENABLED"
+     }
+    },
+    "TimeoutInMinutes": 60
+   }
+  },
+  "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "8a683a1184d5bfa0d05ae96add648f44c4912c0884ca5bc08f95581a85db48fb.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+      "Arn"
+     ]
+    },
+    "Description": "Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion",
+    "Environment": {
+     "Variables": {
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs14.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+   ]
+  },
+  "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:PutRetentionPolicy",
+        "logs:DeleteRetentionPolicy"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "Roles": [
+     {
+      "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+     }
+    ]
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Handler": "index.handler",
+    "Runtime": "nodejs14.x",
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "558dc75fbdc793c8e2f64f85d2d7ed2cb820c727ec7e9b08666ad1af0103992e.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+      "Arn"
+     ]
+    }
+   },
+   "DependsOn": [
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+   ]
+  },
+  "CodeBuildImageBuilderarmRepositoryE967421B": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "ImageScanningConfiguration": {
+     "ScanOnPush": true
+    },
+    "ImageTagMutability": "MUTABLE",
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "CodeBuildImageBuilderarmLogs5A60CB81": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "CodeBuildImageBuilderarmCodeBuildRoleEF082AD2": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "CodeBuildImageBuilderarmCodeBuildRoleDefaultPolicyB642F141": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           },
+           "/ff60a42c91c0f8214eaa25030c3a2857ecd5d20434e145d39c3909e3fffcfa34.zip"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderarmLogs5A60CB81",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":report-group/",
+          {
+           "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
+          },
+          "-*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderarmRepositoryE967421B",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ecr:PutImage",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderarmRepositoryE967421B",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CodeBuildImageBuilderarmCodeBuildRoleDefaultPolicyB642F141",
+    "Roles": [
+     {
+      "Ref": "CodeBuildImageBuilderarmCodeBuildRoleEF082AD2"
+     }
+    ]
+   }
+  },
+  "CodeBuildImageBuilderarmCodeBuildBFF1CF57": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "NO_ARTIFACTS"
+    },
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "Image": "aws/codebuild/amazonlinux2-aarch64-standard:2.0",
+     "ImagePullCredentialsType": "CODEBUILD",
+     "PrivilegedMode": true,
+     "Type": "ARM_CONTAINER"
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "CodeBuildImageBuilderarmCodeBuildRoleEF082AD2",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": {
+      "Fn::Join": [
+       "",
+       [
+        "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
+        {
+         "Fn::GetAtt": [
+          "CodeBuildImageBuilderarmRepositoryE967421B",
+          "Arn"
+         ]
+        },
+        "\",\n      \"REPO_URI\": \"",
+        {
+         "Fn::Select": [
+          4,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "CodeBuildImageBuilderarmRepositoryE967421B",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".dkr.ecr.",
+        {
+         "Fn::Select": [
+          3,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "CodeBuildImageBuilderarmRepositoryE967421B",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".",
+        {
+         "Ref": "AWS::URLSuffix"
+        },
+        "/",
+        {
+         "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
+        },
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        {
+         "Ref": "CodeBuildImageBuilderarmLogs5A60CB81"
+        },
+        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Digest\\\": \\\"$DIGEST\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+       ]
+      ]
+     },
+     "Location": {
+      "Fn::Join": [
+       "",
+       [
+        {
+         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+        },
+        "/ff60a42c91c0f8214eaa25030c3a2857ecd5d20434e145d39c3909e3fffcfa34.zip"
+       ]
+      ]
+     },
+     "Type": "S3"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/CodeBuild Image Builder arm (Linux/ARM64)",
+    "EncryptionKey": "alias/aws/s3",
+    "LogsConfig": {
+     "CloudWatchLogs": {
+      "GroupName": {
+       "Ref": "CodeBuildImageBuilderarmLogs5A60CB81"
+      },
+      "Status": "ENABLED"
+     }
+    },
+    "TimeoutInMinutes": 60
+   }
+  },
+  "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "events.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "CodeBuildImageBuilderarmCodeBuildEventsRoleDefaultPolicyEA24770D": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderarmCodeBuildBFF1CF57",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CodeBuildImageBuilderarmCodeBuildEventsRoleDefaultPolicyEA24770D",
+    "Roles": [
+     {
+      "Ref": "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89"
+     }
+    ]
+   }
+  },
+  "CodeBuildImageBuilderarmCRPolicy75CB8D91": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderarmCodeBuildBFF1CF57",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchDeleteImage",
+        "ecr:ListImages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderarmRepositoryE967421B",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CodeBuildImageBuilderarmCRPolicy75CB8D91",
+    "Roles": [
+     {
+      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+     }
+    ]
+   }
+  },
+  "CodeBuildImageBuilderarmBuilder755EB37D": {
+   "Type": "Custom::ImageBuilder",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+      "Arn"
+     ]
+    },
+    "RepoName": {
+     "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
+    },
+    "ProjectName": {
+     "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
+    },
+    "BuildHash": "21182c8b3705b184ce0f9aeeba9fefd7"
+   },
+   "DependsOn": [
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+    "CodeBuildImageBuilderarmCodeBuildEventsRoleDefaultPolicyEA24770D",
+    "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89",
+    "CodeBuildImageBuilderarmCodeBuildBFF1CF57",
+    "CodeBuildImageBuilderarmCodeBuildRoleDefaultPolicyB642F141",
+    "CodeBuildImageBuilderarmCodeBuildRoleEF082AD2",
+    "CodeBuildImageBuilderarmCRPolicy75CB8D91"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "CodeBuildImageBuilderarmBuildSchedule909D75E9": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Rebuild runner image for ",
+       {
+        "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
+       }
+      ]
+     ]
+    },
+    "ScheduleExpression": "rate(7 days)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "CodeBuildImageBuilderarmCodeBuildBFF1CF57",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "RoleArn": {
+       "Fn::GetAtt": [
+        "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89",
+        "Arn"
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "CodeBuildARMLogs7C7FC5A7": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "CodeBuildARMCodeBuildRole74DB4985": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "CodeBuildARMCodeBuildRoleDefaultPolicyFC84CEAE": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildARMLogs7C7FC5A7",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "CodeBuildARMCodeBuildC5F301F2"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "CodeBuildARMCodeBuildC5F301F2"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":report-group/",
+          {
+           "Ref": "CodeBuildARMCodeBuildC5F301F2"
+          },
+          "-*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CodeBuildARMCodeBuildRoleDefaultPolicyFC84CEAE",
+    "Roles": [
+     {
+      "Ref": "CodeBuildARMCodeBuildRole74DB4985"
+     }
+    ]
+   }
+  },
+  "CodeBuildARMCodeBuildC5F301F2": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "NO_ARTIFACTS"
+    },
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "Image": {
+      "Fn::Join": [
+       "",
+       [
+        {
+         "Fn::Select": [
+          4,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+            }
+           ]
+          }
+         ]
+        },
+        ".dkr.ecr.",
+        {
+         "Fn::Select": [
+          3,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+            }
+           ]
+          }
+         ]
+        },
+        ".",
+        {
+         "Ref": "AWS::URLSuffix"
+        },
+        "/",
+        {
+         "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
+        },
+        ":latest"
+       ]
+      ]
+     },
+     "ImagePullCredentialsType": "SERVICE_ROLE",
+     "PrivilegedMode": true,
+     "Type": "ARM_CONTAINER"
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "CodeBuildARMCodeBuildRole74DB4985",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL}\\\" --disableupdate --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo -Hu runner /home/runner/run.sh\"\n      ]\n    }\n  }\n}",
+     "Type": "NO_SOURCE"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "Description": "GitHub Actions self-hosted runner for label \"codebuild-arm64\"",
+    "EncryptionKey": "alias/aws/s3",
+    "LogsConfig": {
+     "CloudWatchLogs": {
+      "GroupName": {
+       "Ref": "CodeBuildARMLogs7C7FC5A7"
+      },
+      "Status": "ENABLED"
+     }
+    },
+    "TimeoutInMinutes": 60
+   }
+  },
+  "LambdaFunctionServiceRoleB1826A50": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "LambdaFunction9233991D": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "ImageUri": {
+      "Fn::Join": [
+       "",
+       [
+        {
+         "Fn::Select": [
+          4,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Ref": "LambdaImageBuilderx64Builder42F384AF"
+            }
+           ]
+          }
+         ]
+        },
+        ".dkr.ecr.",
+        {
+         "Fn::Select": [
+          3,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Ref": "LambdaImageBuilderx64Builder42F384AF"
+            }
+           ]
+          }
+         ]
+        },
+        ".",
+        {
+         "Ref": "AWS::URLSuffix"
+        },
+        "/",
+        {
+         "Ref": "LambdaImageBuilderx64Repository57F632F1"
+        },
+        "@sha256:",
+        {
+         "Fn::GetAtt": [
+          "LambdaImageBuilderx64Builder42F384AF",
+          "Digest"
+         ]
+        }
+       ]
+      ]
+     }
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "LambdaFunctionServiceRoleB1826A50",
+      "Arn"
+     ]
+    },
+    "Architectures": [
+     "x86_64"
+    ],
+    "Description": "GitHub Actions runner for \"lambda-x64\" label",
+    "EphemeralStorage": {
+     "Size": 10240
+    },
+    "MemorySize": 2048,
+    "PackageType": "Image",
+    "Timeout": 900
+   },
+   "DependsOn": [
+    "LambdaFunctionServiceRoleB1826A50"
+   ]
+  },
+  "LambdaFunctionLogRetentionB6D78D6D": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "LambdaFunction9233991D"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE163ADCA": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy1EF644A6": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "lambda:UpdateFunctionCode",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaFunction9233991D",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "cloudformation:DescribeStacks",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":cloudformation:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":stack/github-runners-test/*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy1EF644A6",
+    "Roles": [
+     {
+      "Ref": "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE163ADCA"
+     }
+    ]
+   }
+  },
+  "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "24923bbd656ee8cbc3524bb108bc521f6e55a5c1a44bb2759b282d54abd867ba.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE163ADCA",
+      "Arn"
+     ]
+    },
+    "Description": "Function that updates a GitHub Actions runner function with the latest image digest after the image has been rebuilt",
+    "Environment": {
+     "Variables": {
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs14.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy1EF644A6",
+    "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE163ADCA"
+   ]
+  },
+  "updatelambdadcc036c8876b451ea2c1552f9e06e9e1LogRetentionEF9C436F": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "LambdaImageBuilderzRepository7C7AD146": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "ImageScanningConfiguration": {
+     "ScanOnPush": true
+    },
+    "ImageTagMutability": "MUTABLE",
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "LambdaImageBuilderzLogsC9FB42C8": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "LambdaImageBuilderzCodeBuildRole2CC96DA0": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "LambdaImageBuilderzCodeBuildRoleDefaultPolicy30B67E5A": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           },
+           "/f42e40ba2d5ca6d6513aa94e011449cad93c282b5651a39bc56fdb3a5c74b40a.zip"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzLogsC9FB42C8",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":report-group/",
+          {
+           "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
+          },
+          "-*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzRepository7C7AD146",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ecr:PutImage",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzRepository7C7AD146",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LambdaImageBuilderzCodeBuildRoleDefaultPolicy30B67E5A",
+    "Roles": [
+     {
+      "Ref": "LambdaImageBuilderzCodeBuildRole2CC96DA0"
+     }
+    ]
+   }
+  },
+  "LambdaImageBuilderzCodeBuild73AB6718": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "NO_ARTIFACTS"
+    },
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "Image": "aws/codebuild/amazonlinux2-aarch64-standard:2.0",
+     "ImagePullCredentialsType": "CODEBUILD",
+     "PrivilegedMode": true,
+     "Type": "ARM_CONTAINER"
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "LambdaImageBuilderzCodeBuildRole2CC96DA0",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": {
+      "Fn::Join": [
+       "",
+       [
+        "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
+        {
+         "Fn::GetAtt": [
+          "LambdaImageBuilderzRepository7C7AD146",
+          "Arn"
+         ]
+        },
+        "\",\n      \"REPO_URI\": \"",
+        {
+         "Fn::Select": [
+          4,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "LambdaImageBuilderzRepository7C7AD146",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".dkr.ecr.",
+        {
+         "Fn::Select": [
+          3,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "LambdaImageBuilderzRepository7C7AD146",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".",
+        {
+         "Ref": "AWS::URLSuffix"
+        },
+        "/",
+        {
+         "Ref": "LambdaImageBuilderzRepository7C7AD146"
+        },
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        {
+         "Ref": "LambdaImageBuilderzLogsC9FB42C8"
+        },
+        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Digest\\\": \\\"$DIGEST\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+       ]
+      ]
+     },
+     "Location": {
+      "Fn::Join": [
+       "",
+       [
+        {
+         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+        },
+        "/f42e40ba2d5ca6d6513aa94e011449cad93c282b5651a39bc56fdb3a5c74b40a.zip"
+       ]
+      ]
+     },
+     "Type": "S3"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/Lambda Image Builderz (Linux/ARM64)",
+    "EncryptionKey": "alias/aws/s3",
+    "LogsConfig": {
+     "CloudWatchLogs": {
+      "GroupName": {
+       "Ref": "LambdaImageBuilderzLogsC9FB42C8"
+      },
+      "Status": "ENABLED"
+     }
+    },
+    "TimeoutInMinutes": 60
+   }
+  },
+  "LambdaImageBuilderzCodeBuildEventsRoleE9E50664": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "events.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "LambdaImageBuilderzCodeBuildEventsRoleDefaultPolicyE0DB8E23": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzCodeBuild73AB6718",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LambdaImageBuilderzCodeBuildEventsRoleDefaultPolicyE0DB8E23",
+    "Roles": [
+     {
+      "Ref": "LambdaImageBuilderzCodeBuildEventsRoleE9E50664"
+     }
+    ]
+   }
+  },
+  "LambdaImageBuilderzCRPolicyC9B09855": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzCodeBuild73AB6718",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchDeleteImage",
+        "ecr:ListImages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzRepository7C7AD146",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LambdaImageBuilderzCRPolicyC9B09855",
+    "Roles": [
+     {
+      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+     }
+    ]
+   }
+  },
+  "LambdaImageBuilderzBuilder235DD147": {
+   "Type": "Custom::ImageBuilder",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+      "Arn"
+     ]
+    },
+    "RepoName": {
+     "Ref": "LambdaImageBuilderzRepository7C7AD146"
+    },
+    "ProjectName": {
+     "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
+    },
+    "BuildHash": "8296fc682b519a37cfb8e52e2c70e58c"
+   },
+   "DependsOn": [
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+    "LambdaImageBuilderzCodeBuildEventsRoleDefaultPolicyE0DB8E23",
+    "LambdaImageBuilderzCodeBuildEventsRoleE9E50664",
+    "LambdaImageBuilderzCodeBuild73AB6718",
+    "LambdaImageBuilderzCodeBuildRoleDefaultPolicy30B67E5A",
+    "LambdaImageBuilderzCodeBuildRole2CC96DA0",
+    "LambdaImageBuilderzCRPolicyC9B09855"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "LambdaImageBuilderzBuildSchedule81F79A6A": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Rebuild runner image for ",
+       {
+        "Ref": "LambdaImageBuilderzRepository7C7AD146"
+       }
+      ]
+     ]
+    },
+    "ScheduleExpression": "rate(7 days)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "LambdaImageBuilderzCodeBuild73AB6718",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "RoleArn": {
+       "Fn::GetAtt": [
+        "LambdaImageBuilderzCodeBuildEventsRoleE9E50664",
+        "Arn"
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "LambdaImageBuilderzDependableImagePushrule2E3269CC": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Update GitHub Actions runner Lambda on ECR image push",
+    "EventPattern": {
+     "detail-type": [
+      "ECR Image Action"
+     ],
+     "detail": {
+      "action-type": [
+       "PUSH"
+      ],
+      "repository-name": [
+       {
+        "Ref": "LambdaImageBuilderzRepository7C7AD146"
+       }
+      ],
+      "image-tag": [
+       "latest"
+      ],
+      "result": [
+       "SUCCESS"
+      ]
+     },
+     "source": [
+      "aws.ecr"
+     ]
+    },
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": {
+       "Fn::Join": [
+        "",
+        [
+         "{\"lambdaName\":\"",
+         {
+          "Ref": "LambdaARMFunctionDD4B5FF7"
+         },
+         "\",\"repositoryUri\":\"",
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "LambdaImageBuilderzBuilder235DD147"
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "LambdaImageBuilderzBuilder235DD147"
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "LambdaImageBuilderzRepository7C7AD146"
+         },
+         "\",\"repositoryTag\":\"latest\",\"stackName\":\"github-runners-test\"}"
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "LambdaImageBuilderzDependableImagePushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98ECD865F34": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "LambdaImageBuilderzDependableImagePushrule2E3269CC",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "LambdaARMFunctionServiceRole136069A0": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "LambdaARMFunctionDD4B5FF7": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "ImageUri": {
+      "Fn::Join": [
+       "",
+       [
+        {
+         "Fn::Select": [
+          4,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Ref": "LambdaImageBuilderzBuilder235DD147"
+            }
+           ]
+          }
+         ]
+        },
+        ".dkr.ecr.",
+        {
+         "Fn::Select": [
+          3,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Ref": "LambdaImageBuilderzBuilder235DD147"
+            }
+           ]
+          }
+         ]
+        },
+        ".",
+        {
+         "Ref": "AWS::URLSuffix"
+        },
+        "/",
+        {
+         "Ref": "LambdaImageBuilderzRepository7C7AD146"
+        },
+        "@sha256:",
+        {
+         "Fn::GetAtt": [
+          "LambdaImageBuilderzBuilder235DD147",
+          "Digest"
+         ]
+        }
+       ]
+      ]
+     }
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "LambdaARMFunctionServiceRole136069A0",
+      "Arn"
+     ]
+    },
+    "Architectures": [
+     "arm64"
+    ],
+    "Description": "GitHub Actions runner for \"lambda-arm64\" label",
+    "EphemeralStorage": {
+     "Size": 10240
+    },
+    "MemorySize": 2048,
+    "PackageType": "Image",
+    "Timeout": 900
+   },
+   "DependsOn": [
+    "LambdaARMFunctionServiceRole136069A0"
+   ]
+  },
+  "LambdaARMFunctionLogRetention67E9FEF8": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "LambdaARMFunctionDD4B5FF7"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "FargatesecuritygroupAFCAFD34": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "github-runners-test/Fargate/security group",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "clusterVpc91107A71"
+    }
+   }
+  },
+  "FargatetaskTaskRoleEFFCDAF8": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "FargatetaskFDFF3302": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Essential": true,
+      "Image": {
+       "Fn::Join": [
+        "",
+        [
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "FargatebuilderBuilder0834CD0B"
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "FargatebuilderBuilder0834CD0B"
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "FargatebuilderRepository8F7BA13C"
+         },
+         ":latest"
+        ]
+       ]
+      },
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "FargatelogsCB753638"
+        },
+        "awslogs-stream-prefix": "runner",
+        "awslogs-region": {
+         "Ref": "AWS::Region"
+        }
+       }
+      },
+      "Name": "runner"
+     }
+    ],
+    "Cpu": "256",
+    "EphemeralStorage": {
+     "SizeInGiB": 25
+    },
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "FargatetaskExecutionRole88A42307",
+      "Arn"
+     ]
+    },
+    "Family": "githubrunnerstestFargatetaskA755E0CE",
+    "Memory": "512",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "RuntimePlatform": {
+     "CpuArchitecture": "X86_64",
+     "OperatingSystemFamily": "LINUX"
+    },
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "FargatetaskTaskRoleEFFCDAF8",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "FargatetaskExecutionRole88A42307": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "FargatetaskExecutionRoleDefaultPolicy72A5073A": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "FargatebuilderBuilder0834CD0B"
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatelogsCB753638",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "FargatetaskExecutionRoleDefaultPolicy72A5073A",
+    "Roles": [
+     {
+      "Ref": "FargatetaskExecutionRole88A42307"
+     }
+    ]
+   }
+  },
+  "FargatelogsCB753638": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "Fargatex64spotsecuritygroup2A9F4299": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "github-runners-test/Fargate-x64-spot/security group",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "clusterVpc91107A71"
+    }
+   }
+  },
+  "Fargatex64spottaskTaskRole02893C25": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "Fargatex64spottask4C8B023D": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Essential": true,
+      "Image": {
+       "Fn::Join": [
+        "",
+        [
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "FargatebuilderBuilder0834CD0B"
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "FargatebuilderBuilder0834CD0B"
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "FargatebuilderRepository8F7BA13C"
+         },
+         ":latest"
+        ]
+       ]
+      },
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "Fargatex64spotlogs0BCF618B"
+        },
+        "awslogs-stream-prefix": "runner",
+        "awslogs-region": {
+         "Ref": "AWS::Region"
+        }
+       }
+      },
+      "Name": "runner"
+     }
+    ],
+    "Cpu": "256",
+    "EphemeralStorage": {
+     "SizeInGiB": 25
+    },
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "Fargatex64spottaskExecutionRoleD0E0B7D6",
+      "Arn"
+     ]
+    },
+    "Family": "githubrunnerstestFargatex64spottask7B2E300E",
+    "Memory": "512",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "RuntimePlatform": {
+     "CpuArchitecture": "X86_64",
+     "OperatingSystemFamily": "LINUX"
+    },
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "Fargatex64spottaskTaskRole02893C25",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "Fargatex64spottaskExecutionRoleD0E0B7D6": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "Fargatex64spottaskExecutionRoleDefaultPolicyA51A696A": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "FargatebuilderBuilder0834CD0B"
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "Fargatex64spotlogs0BCF618B",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "Fargatex64spottaskExecutionRoleDefaultPolicyA51A696A",
+    "Roles": [
+     {
+      "Ref": "Fargatex64spottaskExecutionRoleD0E0B7D6"
+     }
+    ]
+   }
+  },
+  "Fargatex64spotlogs0BCF618B": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "Fargatearm64securitygroup08ABAD9E": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "github-runners-test/Fargate-arm64/security group",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "clusterVpc91107A71"
+    }
+   }
+  },
+  "Fargatearm64taskTaskRoleD3C2CD58": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "Fargatearm64taskECD67399": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Essential": true,
+      "Image": {
+       "Fn::Join": [
+        "",
+        [
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "FargatebuilderarmBuilder48D1AF5A"
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "FargatebuilderarmBuilder48D1AF5A"
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "FargatebuilderarmRepository77DCC132"
+         },
+         ":latest"
+        ]
+       ]
+      },
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "Fargatearm64logs00171A52"
+        },
+        "awslogs-stream-prefix": "runner",
+        "awslogs-region": {
+         "Ref": "AWS::Region"
+        }
+       }
+      },
+      "Name": "runner"
+     }
+    ],
+    "Cpu": "256",
+    "EphemeralStorage": {
+     "SizeInGiB": 25
+    },
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "Fargatearm64taskExecutionRoleD10B61DC",
+      "Arn"
+     ]
+    },
+    "Family": "githubrunnerstestFargatearm64task6B95C05B",
+    "Memory": "512",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "RuntimePlatform": {
+     "CpuArchitecture": "ARM64",
+     "OperatingSystemFamily": "LINUX"
+    },
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "Fargatearm64taskTaskRoleD3C2CD58",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "Fargatearm64taskExecutionRoleD10B61DC": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "Fargatearm64taskExecutionRoleDefaultPolicy0E3D42DB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "FargatebuilderarmBuilder48D1AF5A"
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "Fargatearm64logs00171A52",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "Fargatearm64taskExecutionRoleDefaultPolicy0E3D42DB",
+    "Roles": [
+     {
+      "Ref": "Fargatearm64taskExecutionRoleD10B61DC"
+     }
+    ]
+   }
+  },
+  "Fargatearm64logs00171A52": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "Fargatearm64spotsecuritygroup20C885E4": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "github-runners-test/Fargate-arm64-spot/security group",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "clusterVpc91107A71"
+    }
+   }
+  },
+  "Fargatearm64spottaskTaskRole0F078C81": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "Fargatearm64spottaskD21E60F2": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Essential": true,
+      "Image": {
+       "Fn::Join": [
+        "",
+        [
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "FargatebuilderarmBuilder48D1AF5A"
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "FargatebuilderarmBuilder48D1AF5A"
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "FargatebuilderarmRepository77DCC132"
+         },
+         ":latest"
+        ]
+       ]
+      },
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "Fargatearm64spotlogsEFCCEC59"
+        },
+        "awslogs-stream-prefix": "runner",
+        "awslogs-region": {
+         "Ref": "AWS::Region"
+        }
+       }
+      },
+      "Name": "runner"
+     }
+    ],
+    "Cpu": "256",
+    "EphemeralStorage": {
+     "SizeInGiB": 25
+    },
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "Fargatearm64spottaskExecutionRole90E5A05B",
+      "Arn"
+     ]
+    },
+    "Family": "githubrunnerstestFargatearm64spottaskF9ADF192",
+    "Memory": "512",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "RuntimePlatform": {
+     "CpuArchitecture": "ARM64",
+     "OperatingSystemFamily": "LINUX"
+    },
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "Fargatearm64spottaskTaskRole0F078C81",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "Fargatearm64spottaskExecutionRole90E5A05B": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "Fargatearm64spottaskExecutionRoleDefaultPolicyB9BB282A": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "FargatebuilderarmBuilder48D1AF5A"
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "Fargatearm64spotlogsEFCCEC59",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "Fargatearm64spottaskExecutionRoleDefaultPolicyB9BB282A",
+    "Roles": [
+     {
+      "Ref": "Fargatearm64spottaskExecutionRole90E5A05B"
+     }
+    ]
+   }
+  },
+  "Fargatearm64spotlogsEFCCEC59": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "runnersSecretsWebhook7AF0D74E": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "GenerateSecretString": {
+     "ExcludePunctuation": true,
+     "GenerateStringKey": "webhookSecret",
+     "IncludeSpace": false,
+     "SecretStringTemplate": "{}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "runnersSecretsGitHubEFD96479": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "GenerateSecretString": {
+     "ExcludePunctuation": true,
+     "GenerateStringKey": "dummy",
+     "IncludeSpace": false,
+     "SecretStringTemplate": "{\"domain\":\"github.com\",\"appId\":\"\",\"personalAuthToken\":\"\"}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "runnersSecretsGitHubPrivateKey79498F91": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "SecretString": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "runnersSecretsSetup692A93B1": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "GenerateSecretString": {
+     "ExcludePunctuation": true,
+     "GenerateStringKey": "token",
+     "IncludeSpace": false,
+     "SecretStringTemplate": "{\"token\":\"\"}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "runnerstokenretrieverServiceRole6099F71C": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "runnerstokenretrieverServiceRoleDefaultPolicy24965D29": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubEFD96479"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "runnerstokenretrieverServiceRoleDefaultPolicy24965D29",
+    "Roles": [
+     {
+      "Ref": "runnerstokenretrieverServiceRole6099F71C"
+     }
+    ]
+   }
+  },
+  "runnerstokenretrieverD5E8392A": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "c8dc840c6fe6304247812f4cb46b560989005047ac825d67e2109784eaf0c629.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "runnerstokenretrieverServiceRole6099F71C",
+      "Arn"
+     ]
+    },
+    "Description": "Get token from GitHub Actions used to start new self-hosted runner",
+    "Environment": {
+     "Variables": {
+      "GITHUB_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubEFD96479"
+      },
+      "GITHUB_PRIVATE_KEY_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+      },
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs14.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "runnerstokenretrieverServiceRoleDefaultPolicy24965D29",
+    "runnerstokenretrieverServiceRole6099F71C"
+   ]
+  },
+  "runnerstokenretrieverLogRetention05A536AD": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "runnerstokenretrieverD5E8392A"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "runnersdeleterunnerServiceRole35856967": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "runnersdeleterunnerServiceRoleDefaultPolicyECFB6BF7": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubEFD96479"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "runnersdeleterunnerServiceRoleDefaultPolicyECFB6BF7",
+    "Roles": [
+     {
+      "Ref": "runnersdeleterunnerServiceRole35856967"
+     }
+    ]
+   }
+  },
+  "runnersdeleterunner7F8D5293": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "60d7e2be5086ce32b18bf5379403effa3794b469da10a9d7ba2d3548073e4735.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "runnersdeleterunnerServiceRole35856967",
+      "Arn"
+     ]
+    },
+    "Description": "Delete GitHub Actions runner on error",
+    "Environment": {
+     "Variables": {
+      "GITHUB_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubEFD96479"
+      },
+      "GITHUB_PRIVATE_KEY_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+      },
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs14.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "runnersdeleterunnerServiceRoleDefaultPolicyECFB6BF7",
+    "runnersdeleterunnerServiceRole35856967"
+   ]
+  },
+  "runnersdeleterunnerLogRetention76F47082": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "runnersdeleterunner7F8D5293"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "runnersRunnerOrchestratorRole5D220AD7": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::FindInMap": [
+          "ServiceprincipalMap",
+          {
+           "Ref": "AWS::Region"
+          },
+          "states"
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "runnersRunnerOrchestratorRoleDefaultPolicyD1C26D61": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "runnerstokenretrieverD5E8392A",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "runnerstokenretrieverD5E8392A",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "runnersdeleterunner7F8D5293",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "runnersdeleterunner7F8D5293",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:StartBuild",
+        "codebuild:StopBuild",
+        "codebuild:BatchGetBuilds",
+        "codebuild:BatchGetReports"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildx64CodeBuild7DC01A1E",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "events:PutTargets",
+        "events:PutRule",
+        "events:DescribeRule"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":events:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":rule/StepFunctionsGetEventForCodeBuildStartBuildRule"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "codebuild:StartBuild",
+        "codebuild:StopBuild",
+        "codebuild:BatchGetBuilds",
+        "codebuild:BatchGetReports"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildARMCodeBuildC5F301F2",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "LambdaFunction9233991D",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "LambdaFunction9233991D",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "LambdaARMFunctionDD4B5FF7",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "LambdaARMFunctionDD4B5FF7",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "ecs:RunTask",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Fn::Select": [
+            1,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "FargatetaskFDFF3302"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            2,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "FargatetaskFDFF3302"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "FargatetaskFDFF3302"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "FargatetaskFDFF3302"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              "/",
+              {
+               "Fn::Select": [
+                5,
+                {
+                 "Fn::Split": [
+                  ":",
+                  {
+                   "Ref": "FargatetaskFDFF3302"
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          "/",
+          {
+           "Fn::Select": [
+            1,
+            {
+             "Fn::Split": [
+              "/",
+              {
+               "Fn::Select": [
+                5,
+                {
+                 "Fn::Split": [
+                  ":",
+                  {
+                   "Ref": "FargatetaskFDFF3302"
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecs:StopTask",
+        "ecs:DescribeTasks"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": "iam:PassRole",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "FargatetaskTaskRoleEFFCDAF8",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::GetAtt": [
+          "FargatetaskExecutionRole88A42307",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "events:PutTargets",
+        "events:PutRule",
+        "events:DescribeRule"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":events:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":rule/StepFunctionsGetEventsForECSTaskRule"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": "ecs:RunTask",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Fn::Select": [
+            1,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "Fargatex64spottask4C8B023D"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            2,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "Fargatex64spottask4C8B023D"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "Fargatex64spottask4C8B023D"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "Fargatex64spottask4C8B023D"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              "/",
+              {
+               "Fn::Select": [
+                5,
+                {
+                 "Fn::Split": [
+                  ":",
+                  {
+                   "Ref": "Fargatex64spottask4C8B023D"
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          "/",
+          {
+           "Fn::Select": [
+            1,
+            {
+             "Fn::Split": [
+              "/",
+              {
+               "Fn::Select": [
+                5,
+                {
+                 "Fn::Split": [
+                  ":",
+                  {
+                   "Ref": "Fargatex64spottask4C8B023D"
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        ]
+       }
+      },
+      {
+       "Action": "iam:PassRole",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "Fargatex64spottaskTaskRole02893C25",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::GetAtt": [
+          "Fargatex64spottaskExecutionRoleD0E0B7D6",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "ecs:RunTask",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Fn::Select": [
+            1,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "Fargatearm64taskECD67399"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            2,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "Fargatearm64taskECD67399"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "Fargatearm64taskECD67399"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "Fargatearm64taskECD67399"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              "/",
+              {
+               "Fn::Select": [
+                5,
+                {
+                 "Fn::Split": [
+                  ":",
+                  {
+                   "Ref": "Fargatearm64taskECD67399"
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          "/",
+          {
+           "Fn::Select": [
+            1,
+            {
+             "Fn::Split": [
+              "/",
+              {
+               "Fn::Select": [
+                5,
+                {
+                 "Fn::Split": [
+                  ":",
+                  {
+                   "Ref": "Fargatearm64taskECD67399"
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        ]
+       }
+      },
+      {
+       "Action": "iam:PassRole",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "Fargatearm64taskTaskRoleD3C2CD58",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::GetAtt": [
+          "Fargatearm64taskExecutionRoleD10B61DC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "ecs:RunTask",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Fn::Select": [
+            1,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "Fargatearm64spottaskD21E60F2"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            2,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "Fargatearm64spottaskD21E60F2"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "Fargatearm64spottaskD21E60F2"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "Fargatearm64spottaskD21E60F2"
+              }
+             ]
+            }
+           ]
+          },
+          ":",
+          {
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              "/",
+              {
+               "Fn::Select": [
+                5,
+                {
+                 "Fn::Split": [
+                  ":",
+                  {
+                   "Ref": "Fargatearm64spottaskD21E60F2"
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          "/",
+          {
+           "Fn::Select": [
+            1,
+            {
+             "Fn::Split": [
+              "/",
+              {
+               "Fn::Select": [
+                5,
+                {
+                 "Fn::Split": [
+                  ":",
+                  {
+                   "Ref": "Fargatearm64spottaskD21E60F2"
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        ]
+       }
+      },
+      {
+       "Action": "iam:PassRole",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "Fargatearm64spottaskTaskRole0F078C81",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::GetAtt": [
+          "Fargatearm64spottaskExecutionRole90E5A05B",
+          "Arn"
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "runnersRunnerOrchestratorRoleDefaultPolicyD1C26D61",
+    "Roles": [
+     {
+      "Ref": "runnersRunnerOrchestratorRole5D220AD7"
+     }
+    ]
+   }
+  },
+  "runnersRunnerOrchestratorF9B66EBA": {
+   "Type": "AWS::StepFunctions::StateMachine",
+   "Properties": {
+    "RoleArn": {
+     "Fn::GetAtt": [
+      "runnersRunnerOrchestratorRole5D220AD7",
+      "Arn"
+     ]
+    },
+    "DefinitionString": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"StartAt\":\"Is self hosted?\",\"States\":{\"Is self hosted?\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.labels.self-hosted\",\"IsPresent\":false,\"Next\":\"No\"}],\"Default\":\"Get Runner Token\"},\"Get Runner Token\":{\"Next\":\"Error Catcher\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
+       {
+        "Fn::GetAtt": [
+         "runnerstokenretrieverD5E8392A",
+         "Arn"
+        ]
+       },
+       "\"},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true,\"Next\":\"codebuild-x64\"},{\"Variable\":\"$.labels.codebuild-arm64\",\"IsPresent\":true,\"Next\":\"codebuild-arm64\"},{\"Variable\":\"$.labels.lambda-x64\",\"IsPresent\":true,\"Next\":\"lambda-x64\"},{\"Variable\":\"$.labels.lambda-arm64\",\"IsPresent\":true,\"Next\":\"lambda-arm64\"},{\"Variable\":\"$.labels.fargate-x64\",\"IsPresent\":true,\"Next\":\"fargate-x64\"},{\"Variable\":\"$.labels.fargate-x64-spot\",\"IsPresent\":true,\"Next\":\"fargate-x64-spot\"},{\"Variable\":\"$.labels.fargate-arm64\",\"IsPresent\":true,\"Next\":\"fargate-arm64\"},{\"Variable\":\"$.labels.fargate-arm64-spot\",\"IsPresent\":true,\"Next\":\"fargate-arm64-spot\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Fail\"},\"codebuild-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::codebuild:startBuild.sync\",\"Parameters\":{\"ProjectName\":\"",
+       {
+        "Ref": "CodeBuildx64CodeBuild7DC01A1E"
+       },
+       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"}]}},\"codebuild-arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::codebuild:startBuild.sync\",\"Parameters\":{\"ProjectName\":\"",
+       {
+        "Ref": "CodeBuildARMCodeBuildC5F301F2"
+       },
+       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild-arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"}]}},\"lambda-x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "LambdaFunction9233991D",
+         "Arn"
+        ]
+       },
+       "\",\"Payload\":{\"token.$\":\"$.runner.token\",\"runnerName.$\":\"$$.Execution.Name\",\"label\":\"lambda-x64\",\"githubDomain.$\":\"$.runner.domain\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\"}}},\"lambda-arm64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "LambdaARMFunctionDD4B5FF7",
+         "Arn"
+        ]
+       },
+       "\",\"Payload\":{\"token.$\":\"$.runner.token\",\"runnerName.$\":\"$$.Execution.Name\",\"label\":\"lambda-arm64\",\"githubDomain.$\":\"$.runner.domain\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\"}}},\"fargate-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::ecs:runTask.sync\",\"Parameters\":{\"Cluster\":\"",
+       {
+        "Fn::GetAtt": [
+         "cluster611F8AFF",
+         "Arn"
+        ]
+       },
+       "\",\"TaskDefinition\":\"githubrunnerstestFargatetaskA755E0CE\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
+       {
+        "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+       },
+       "\",\"",
+       {
+        "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+       },
+       "\"],\"SecurityGroups\":[\"",
+       {
+        "Fn::GetAtt": [
+         "FargatesecuritygroupAFCAFD34",
+         "GroupId"
+        ]
+       },
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"LaunchType\":\"FARGATE\"}},\"fargate-x64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::ecs:runTask.sync\",\"Parameters\":{\"Cluster\":\"",
+       {
+        "Fn::GetAtt": [
+         "cluster611F8AFF",
+         "Arn"
+        ]
+       },
+       "\",\"TaskDefinition\":\"githubrunnerstestFargatex64spottask7B2E300E\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
+       {
+        "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+       },
+       "\",\"",
+       {
+        "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+       },
+       "\"],\"SecurityGroups\":[\"",
+       {
+        "Fn::GetAtt": [
+         "Fargatex64spotsecuritygroup2A9F4299",
+         "GroupId"
+        ]
+       },
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-x64-spot\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}]}},\"fargate-arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::ecs:runTask.sync\",\"Parameters\":{\"Cluster\":\"",
+       {
+        "Fn::GetAtt": [
+         "cluster611F8AFF",
+         "Arn"
+        ]
+       },
+       "\",\"TaskDefinition\":\"githubrunnerstestFargatearm64task6B95C05B\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
+       {
+        "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+       },
+       "\",\"",
+       {
+        "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+       },
+       "\"],\"SecurityGroups\":[\"",
+       {
+        "Fn::GetAtt": [
+         "Fargatearm64securitygroup08ABAD9E",
+         "GroupId"
+        ]
+       },
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"LaunchType\":\"FARGATE\"}},\"fargate-arm64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::ecs:runTask.sync\",\"Parameters\":{\"Cluster\":\"",
+       {
+        "Fn::GetAtt": [
+         "cluster611F8AFF",
+         "Arn"
+        ]
+       },
+       "\",\"TaskDefinition\":\"githubrunnerstestFargatearm64spottaskF9ADF192\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
+       {
+        "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+       },
+       "\",\"",
+       {
+        "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+       },
+       "\"],\"SecurityGroups\":[\"",
+       {
+        "Fn::GetAtt": [
+         "Fargatearm64spotsecuritygroup20C885E4",
+         "GroupId"
+        ]
+       },
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-arm64-spot\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"LaunchType\":\"FARGATE\"}}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       {
+        "Fn::GetAtt": [
+         "runnersdeleterunner7F8D5293",
+         "Arn"
+        ]
+       },
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"runId.$\":\"$.runId\",\"installationId.$\":\"$.installationId\"}},\"Runner Failed\":{\"Type\":\"Fail\"},\"No\":{\"Type\":\"Succeed\"}}}"
+      ]
+     ]
+    }
+   },
+   "DependsOn": [
+    "runnersRunnerOrchestratorRoleDefaultPolicyD1C26D61",
+    "runnersRunnerOrchestratorRole5D220AD7"
+   ]
+  },
+  "runnersWebhookHandlerwebhookhandlerServiceRole03DB58D2": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "runnersWebhookHandlerwebhookhandlerServiceRoleDefaultPolicy1600452C": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsWebhook7AF0D74E"
+       }
+      },
+      {
+       "Action": "states:StartExecution",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersRunnerOrchestratorF9B66EBA"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "runnersWebhookHandlerwebhookhandlerServiceRoleDefaultPolicy1600452C",
+    "Roles": [
+     {
+      "Ref": "runnersWebhookHandlerwebhookhandlerServiceRole03DB58D2"
+     }
+    ]
+   }
+  },
+  "runnersWebhookHandlerwebhookhandler22779A81": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "564ffe21ca81144c9594fbd10fde0e3a816974d4834da4d430acbd29d54a9cc3.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "runnersWebhookHandlerwebhookhandlerServiceRole03DB58D2",
+      "Arn"
+     ]
+    },
+    "Description": "Handle GitHub webhook and start runner orchestrator",
+    "Environment": {
+     "Variables": {
+      "STEP_FUNCTION_ARN": {
+       "Ref": "runnersRunnerOrchestratorF9B66EBA"
+      },
+      "WEBHOOK_SECRET_ARN": {
+       "Ref": "runnersSecretsWebhook7AF0D74E"
+      },
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs14.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "runnersWebhookHandlerwebhookhandlerServiceRoleDefaultPolicy1600452C",
+    "runnersWebhookHandlerwebhookhandlerServiceRole03DB58D2"
+   ]
+  },
+  "runnersWebhookHandlerwebhookhandlerLogRetention0F5ED260": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "runnersWebhookHandlerwebhookhandler22779A81"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "runnersWebhookHandlerwebhookhandlerFunctionUrlC8FB3D17": {
+   "Type": "AWS::Lambda::Url",
+   "Properties": {
+    "AuthType": "NONE",
+    "TargetFunctionArn": {
+     "Fn::GetAtt": [
+      "runnersWebhookHandlerwebhookhandler22779A81",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "runnersWebhookHandlerwebhookhandlerinvokefunctionurl871AC245": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunctionUrl",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "runnersWebhookHandlerwebhookhandler22779A81",
+      "Arn"
+     ]
+    },
+    "Principal": "*",
+    "FunctionUrlAuthType": "NONE"
+   }
+  },
+  "runnerssetupServiceRole588BFE9A": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "runnerssetupServiceRoleDefaultPolicy40EF213B": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:PutSecretValue",
+        "secretsmanager:UpdateSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsWebhook7AF0D74E"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubEFD96479"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:PutSecretValue",
+        "secretsmanager:UpdateSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubEFD96479"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:PutSecretValue",
+        "secretsmanager:UpdateSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsSetup692A93B1"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:PutSecretValue",
+        "secretsmanager:UpdateSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsSetup692A93B1"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "runnerssetupServiceRoleDefaultPolicy40EF213B",
+    "Roles": [
+     {
+      "Ref": "runnerssetupServiceRole588BFE9A"
+     }
+    ]
+   }
+  },
+  "runnerssetup9896CB59": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "52568fa2df718a4c13ab78eb0b2da3d9993ddbc816367dfe4e774ae74aad271b.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "runnerssetupServiceRole588BFE9A",
+      "Arn"
+     ]
+    },
+    "Description": "Setup GitHub Actions integration with self-hosted runners",
+    "Environment": {
+     "Variables": {
+      "SETUP_SECRET_ARN": {
+       "Ref": "runnersSecretsSetup692A93B1"
+      },
+      "WEBHOOK_SECRET_ARN": {
+       "Ref": "runnersSecretsWebhook7AF0D74E"
+      },
+      "GITHUB_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubEFD96479"
+      },
+      "GITHUB_PRIVATE_KEY_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+      },
+      "WEBHOOK_URL": {
+       "Fn::GetAtt": [
+        "runnersWebhookHandlerwebhookhandlerFunctionUrlC8FB3D17",
+        "FunctionUrl"
+       ]
+      },
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs14.x",
+    "Timeout": 180
+   },
+   "DependsOn": [
+    "runnerssetupServiceRoleDefaultPolicy40EF213B",
+    "runnerssetupServiceRole588BFE9A"
+   ]
+  },
+  "runnerssetupLogRetentionA9A82D27": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "runnerssetup9896CB59"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "runnerssetupFunctionUrlB8BC43E8": {
+   "Type": "AWS::Lambda::Url",
+   "Properties": {
+    "AuthType": "NONE",
+    "TargetFunctionArn": {
+     "Fn::GetAtt": [
+      "runnerssetup9896CB59",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "runnerssetupinvokefunctionurl5F3B865C": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunctionUrl",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "runnerssetup9896CB59",
+      "Arn"
+     ]
+    },
+    "Principal": "*",
+    "FunctionUrlAuthType": "NONE"
+   }
+  },
+  "runnersstatusServiceRole71A1ADB6": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "runnersstatusServiceRoleDefaultPolicyBD4E619B": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsWebhook7AF0D74E"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubEFD96479"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsSetup692A93B1"
+       }
+      },
+      {
+       "Action": [
+        "states:ListExecutions",
+        "states:ListStateMachines"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersRunnerOrchestratorF9B66EBA"
+       }
+      },
+      {
+       "Action": [
+        "states:DescribeExecution",
+        "states:DescribeStateMachineForExecution",
+        "states:GetExecutionHistory"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":states:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":execution:",
+          {
+           "Fn::Select": [
+            6,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "runnersRunnerOrchestratorF9B66EBA"
+              }
+             ]
+            }
+           ]
+          },
+          ":*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "states:ListActivities",
+        "states:DescribeStateMachine",
+        "states:DescribeActivity"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "runnersstatusServiceRoleDefaultPolicyBD4E619B",
+    "Roles": [
+     {
+      "Ref": "runnersstatusServiceRole71A1ADB6"
+     }
+    ]
+   }
+  },
+  "runnersstatus1A5771C0": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "6c0219b00cddc09ccbf8ffd86979fe73b745606a759600bfaf791f90e0555ca9.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "runnersstatusServiceRole71A1ADB6",
+      "Arn"
+     ]
+    },
+    "Description": "Provide user with status about self-hosted GitHub Actions runners",
+    "Environment": {
+     "Variables": {
+      "WEBHOOK_SECRET_ARN": {
+       "Ref": "runnersSecretsWebhook7AF0D74E"
+      },
+      "GITHUB_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubEFD96479"
+      },
+      "GITHUB_PRIVATE_KEY_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+      },
+      "SETUP_SECRET_ARN": {
+       "Ref": "runnersSecretsSetup692A93B1"
+      },
+      "WEBHOOK_URL": {
+       "Fn::GetAtt": [
+        "runnersWebhookHandlerwebhookhandlerFunctionUrlC8FB3D17",
+        "FunctionUrl"
+       ]
+      },
+      "PROVIDERS": {
+       "Fn::Join": [
+        "",
+        [
+         "[{\"type\":\"CodeBuildRunner\",\"label\":\"codebuild-x64\",\"roleArn\":\"",
+         {
+          "Fn::GetAtt": [
+           "CodeBuildx64CodeBuildRole32E5C764",
+           "Arn"
+          ]
+         },
+         "\"},{\"type\":\"CodeBuildRunner\",\"label\":\"codebuild-arm64\",\"roleArn\":\"",
+         {
+          "Fn::GetAtt": [
+           "CodeBuildARMCodeBuildRole74DB4985",
+           "Arn"
+          ]
+         },
+         "\"},{\"type\":\"LambdaRunner\",\"label\":\"lambda-x64\",\"roleArn\":\"",
+         {
+          "Fn::GetAtt": [
+           "LambdaFunctionServiceRoleB1826A50",
+           "Arn"
+          ]
+         },
+         "\"},{\"type\":\"LambdaRunner\",\"label\":\"lambda-arm64\",\"roleArn\":\"",
+         {
+          "Fn::GetAtt": [
+           "LambdaARMFunctionServiceRole136069A0",
+           "Arn"
+          ]
+         },
+         "\"},{\"type\":\"FargateRunner\",\"label\":\"fargate-x64\",\"vpcArn\":\"arn:",
+         {
+          "Ref": "AWS::Partition"
+         },
+         ":ec2:",
+         {
+          "Ref": "AWS::Region"
+         },
+         ":",
+         {
+          "Ref": "AWS::AccountId"
+         },
+         ":vpc/",
+         {
+          "Ref": "clusterVpc91107A71"
+         },
+         "\",\"securityGroup\":\"",
+         {
+          "Fn::GetAtt": [
+           "FargatesecuritygroupAFCAFD34",
+           "GroupId"
+          ]
+         },
+         "\"},{\"type\":\"FargateRunner\",\"label\":\"fargate-x64-spot\",\"vpcArn\":\"arn:",
+         {
+          "Ref": "AWS::Partition"
+         },
+         ":ec2:",
+         {
+          "Ref": "AWS::Region"
+         },
+         ":",
+         {
+          "Ref": "AWS::AccountId"
+         },
+         ":vpc/",
+         {
+          "Ref": "clusterVpc91107A71"
+         },
+         "\",\"securityGroup\":\"",
+         {
+          "Fn::GetAtt": [
+           "Fargatex64spotsecuritygroup2A9F4299",
+           "GroupId"
+          ]
+         },
+         "\"},{\"type\":\"FargateRunner\",\"label\":\"fargate-arm64\",\"vpcArn\":\"arn:",
+         {
+          "Ref": "AWS::Partition"
+         },
+         ":ec2:",
+         {
+          "Ref": "AWS::Region"
+         },
+         ":",
+         {
+          "Ref": "AWS::AccountId"
+         },
+         ":vpc/",
+         {
+          "Ref": "clusterVpc91107A71"
+         },
+         "\",\"securityGroup\":\"",
+         {
+          "Fn::GetAtt": [
+           "Fargatearm64securitygroup08ABAD9E",
+           "GroupId"
+          ]
+         },
+         "\"},{\"type\":\"FargateRunner\",\"label\":\"fargate-arm64-spot\",\"vpcArn\":\"arn:",
+         {
+          "Ref": "AWS::Partition"
+         },
+         ":ec2:",
+         {
+          "Ref": "AWS::Region"
+         },
+         ":",
+         {
+          "Ref": "AWS::AccountId"
+         },
+         ":vpc/",
+         {
+          "Ref": "clusterVpc91107A71"
+         },
+         "\",\"securityGroup\":\"",
+         {
+          "Fn::GetAtt": [
+           "Fargatearm64spotsecuritygroup20C885E4",
+           "GroupId"
+          ]
+         },
+         "\"}]"
+        ]
+       ]
+      },
+      "WEBHOOK_HANDLER_ARN": {
+       "Fn::Join": [
+        "",
+        [
+         {
+          "Fn::GetAtt": [
+           "runnersWebhookHandlerwebhookhandler22779A81",
+           "Arn"
+          ]
+         },
+         ":$LATEST"
+        ]
+       ]
+      },
+      "STEP_FUNCTION_ARN": {
+       "Ref": "runnersRunnerOrchestratorF9B66EBA"
+      },
+      "SETUP_FUNCTION_URL": {
+       "Fn::GetAtt": [
+        "runnerssetupFunctionUrlB8BC43E8",
+        "FunctionUrl"
+       ]
+      },
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs14.x",
+    "Timeout": 180
+   },
+   "DependsOn": [
+    "runnersstatusServiceRoleDefaultPolicyBD4E619B",
+    "runnersstatusServiceRole71A1ADB6"
+   ]
+  },
+  "runnersstatusLogRetention8EB4A773": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "runnersstatus1A5771C0"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  }
+ },
+ "Outputs": {
+  "runnersstatuscommand4A30F0F5": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "aws --region ",
+      {
+       "Ref": "AWS::Region"
+      },
+      " lambda invoke --function-name ",
+      {
+       "Ref": "runnersstatus1A5771C0"
+      },
+      " status.json"
+     ]
+    ]
+   }
+  }
+ },
+ "Mappings": {
+  "ServiceprincipalMap": {
+   "af-south-1": {
+    "states": "states.af-south-1.amazonaws.com"
+   },
+   "ap-east-1": {
+    "states": "states.ap-east-1.amazonaws.com"
+   },
+   "ap-northeast-1": {
+    "states": "states.ap-northeast-1.amazonaws.com"
+   },
+   "ap-northeast-2": {
+    "states": "states.ap-northeast-2.amazonaws.com"
+   },
+   "ap-northeast-3": {
+    "states": "states.ap-northeast-3.amazonaws.com"
+   },
+   "ap-south-1": {
+    "states": "states.ap-south-1.amazonaws.com"
+   },
+   "ap-southeast-1": {
+    "states": "states.ap-southeast-1.amazonaws.com"
+   },
+   "ap-southeast-2": {
+    "states": "states.ap-southeast-2.amazonaws.com"
+   },
+   "ap-southeast-3": {
+    "states": "states.ap-southeast-3.amazonaws.com"
+   },
+   "ca-central-1": {
+    "states": "states.ca-central-1.amazonaws.com"
+   },
+   "cn-north-1": {
+    "states": "states.cn-north-1.amazonaws.com"
+   },
+   "cn-northwest-1": {
+    "states": "states.cn-northwest-1.amazonaws.com"
+   },
+   "eu-central-1": {
+    "states": "states.eu-central-1.amazonaws.com"
+   },
+   "eu-north-1": {
+    "states": "states.eu-north-1.amazonaws.com"
+   },
+   "eu-south-1": {
+    "states": "states.eu-south-1.amazonaws.com"
+   },
+   "eu-south-2": {
+    "states": "states.eu-south-2.amazonaws.com"
+   },
+   "eu-west-1": {
+    "states": "states.eu-west-1.amazonaws.com"
+   },
+   "eu-west-2": {
+    "states": "states.eu-west-2.amazonaws.com"
+   },
+   "eu-west-3": {
+    "states": "states.eu-west-3.amazonaws.com"
+   },
+   "me-south-1": {
+    "states": "states.me-south-1.amazonaws.com"
+   },
+   "sa-east-1": {
+    "states": "states.sa-east-1.amazonaws.com"
+   },
+   "us-east-1": {
+    "states": "states.us-east-1.amazonaws.com"
+   },
+   "us-east-2": {
+    "states": "states.us-east-2.amazonaws.com"
+   },
+   "us-gov-east-1": {
+    "states": "states.us-gov-east-1.amazonaws.com"
+   },
+   "us-gov-west-1": {
+    "states": "states.us-gov-west-1.amazonaws.com"
+   },
+   "us-iso-east-1": {
+    "states": "states.amazonaws.com"
+   },
+   "us-iso-west-1": {
+    "states": "states.amazonaws.com"
+   },
+   "us-isob-east-1": {
+    "states": "states.amazonaws.com"
+   },
+   "us-west-1": {
+    "states": "states.us-west-1.amazonaws.com"
+   },
+   "us-west-2": {
+    "states": "states.us-west-2.amazonaws.com"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

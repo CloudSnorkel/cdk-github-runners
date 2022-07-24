@@ -21,3 +21,5 @@ dist
 tsconfig.tsbuildinfo
 /.eslintrc.json
 !.jsii
+test/.tmp
+test/default.integ.snapshot
