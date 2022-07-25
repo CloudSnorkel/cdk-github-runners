@@ -1,7 +1,7 @@
 # GitHub Self-Hosted Runners CDK Constructs
 
-[![NPM](https://img.shields.io/npm/v/@cloudsnorkel/cdk-github-runners?label=npm&logo=npm)][6]
-[![PyPI](https://img.shields.io/pypi/v/cloudsnorkel.cdk-github-runners?label=pypi&logo=pypi)][7]
+[![NPM](https://img.shields.io/npm/v/@cloudsnorkel/cdk-github-runners?label=npm&logo=npm)][7]
+[![PyPI](https://img.shields.io/pypi/v/cloudsnorkel.cdk-github-runners?label=pypi&logo=pypi)][6]
 [![Maven Central](https://img.shields.io/maven-central/v/com.cloudsnorkel/cdk.github.runners.svg?label=Maven%20Central&logo=java)][8]
 [![Go](https://img.shields.io/github/v/tag/CloudSnorkel/cdk-github-runners?color=red&label=go&logo=go)][11]
 [![Nuget](https://img.shields.io/nuget/v/CloudSnorkel.Cdk.Github.Runners?color=red&&logo=nuget)][12]
@@ -172,8 +172,8 @@ jobs:
 [3]: https://github.com/philips-labs/terraform-aws-github-runner
 [4]: https://github.com/actions-runner-controller/actions-runner-controller
 [5]: https://github.com/actions/runner
-[6]: https://www.npmjs.com/package/@cloudsnorkel/cdk-github-runners
-[7]: https://pypi.org/project/cloudsnorkel.cdk-github-runners
+[6]: https://pypi.org/project/cloudsnorkel.cdk-github-runners
+[7]: https://www.npmjs.com/package/@cloudsnorkel/cdk-github-runners
 [8]: https://search.maven.org/search?q=g:%22com.cloudsnorkel%22%20AND%20a:%22cdk.github.runners%22
 [9]: https://docs.github.com/en/developers/apps/getting-started-with-apps/about-apps
 [10]: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
