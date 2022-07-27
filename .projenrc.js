@@ -21,6 +21,18 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'aws-sdk',
     '@aws-sdk/types',
     '@types/aws-lambda',
+    // for setup ui
+    '@sveltejs/vite-plugin-svelte@^1.0.1',
+    '@tsconfig/svelte@^3.0.0',
+    'bootstrap@^5.2.0',
+    'sass@^1.54.0',
+    'svelte@^3.49.0',
+    'svelte-check@^2.8.0',
+    'svelte-preprocess@^4.10.7',
+    //'tslib@^2.4.0',
+    //'typescript@^4.6.4',
+    'vite@^3.0.0',
+    'vite-plugin-singlefile@^0.11.0',
   ],
   deps: [
   ],
@@ -113,5 +125,10 @@ project.gitattributes.addAttributes('*.json', 'eol=lf');
 project.gitattributes.addAttributes('*.sh', 'eol=lf');
 project.gitattributes.addAttributes('*.yml', 'eol=lf');
 project.gitattributes.addAttributes('Dockerfile', 'eol=lf');
+
+// setup ui
+project.gitignore.addPatterns('/setup/dist');
+project.compileTask.exec('vite build setup');
+project.compileTask.exec('bash -c "cp -r setup/dist/index.html lib/lambdas/setup/index.html"'); // we use bash so it works on Windows
 
 project.synth();

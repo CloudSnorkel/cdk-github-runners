@@ -112,6 +112,12 @@
         },
         {
           "exec": "bash -c \"cp -r src/providers/docker-images lib/providers\""
+        },
+        {
+          "exec": "vite build setup"
+        },
+        {
+          "exec": "bash -c \"cp -r setup/dist/index.html lib/lambdas/setup/index.html\""
         }
       ]
     },
