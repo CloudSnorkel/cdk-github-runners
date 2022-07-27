@@ -12,7 +12,7 @@
   let success: boolean;
   let result: string | undefined;
 
-  const manifest = JSON.stringify({
+  const manifest = {
     url: 'https://github.com/CloudSnorkel/cdk-github-runners',
     hook_attributes: {
       url: 'INSERT_WEBHOOK_URL_HERE',
@@ -26,7 +26,7 @@
     default_events: [
       'workflow_job',
     ],
-  });
+  };
 
   function isSubmitDisabled(instance, auth, existingAppId, existingAppPk, pat, success) {
     if (success) {
@@ -207,6 +207,16 @@
                 Organization app
               </label>
             </div>
+            {#if instance === 'ghes'}
+              <p class="pt-2">If multiple organizations under the same GitHub Enterprise Server need to use the runners,
+                you can make the app public.</p>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" bind:value={manifest.public} id="public">
+                <label class="form-check-label" for="public">
+                  Public app
+                </label>
+              </div>
+            {/if}
           </div>
 
           {#if appScope === 'org'}
@@ -259,6 +269,12 @@
               {result}
             </div>
           {/if}
+          {#if manifest.public && auth === 'newApp'}
+            <p><b class="text-danger">WARNING:</b> using a public app means anyone with access to <code>{domain}</code>
+              can use the runners you're setting up now. Anyone can create a workflow that will run on those runners,
+              have access to their instance profile, and be part of their security group. Consider the security
+              implications before continuing.</p>
+          {/if}
           <button type="submit" class="btn btn-success"
                   disabled={isSubmitDisabled(instance, auth, existingAppId, existingAppPk, pat, success)}>
             {submitText(auth)}
@@ -270,6 +286,6 @@
 
   <form action="https://{domain}/{appScope === 'org' ? `organizations/${org}/` : ''}settings/apps/new?state={token}"
         method="post" id="appform">
-    <input type="hidden" name="manifest" value={manifest}>
+    <input type="hidden" name="manifest" value={JSON.stringify(manifest)}>
   </form>
 </main>
