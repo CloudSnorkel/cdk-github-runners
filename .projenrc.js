@@ -124,8 +124,8 @@ project.gitattributes.addAttributes('*.js', 'eol=lf');
 project.gitattributes.addAttributes('*.json', 'eol=lf');
 project.gitattributes.addAttributes('*.sh', 'eol=lf');
 project.gitattributes.addAttributes('*.yml', 'eol=lf');
-project.gitattributes.addAttributes('*.html', 'eol=lf')
-project.gitattributes.addAttributes('*.svelte', 'eol=lf')
+project.gitattributes.addAttributes('*.html', 'eol=lf');
+project.gitattributes.addAttributes('*.svelte', 'eol=lf');
 project.gitattributes.addAttributes('Dockerfile', 'eol=lf');
 
 // setup ui
