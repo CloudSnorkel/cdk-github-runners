@@ -14,6 +14,7 @@ Use this CDK construct to create ephemeral [self-hosted GitHub runners][1] on-de
 * Customizable runners with decent defaults
 * Multiple runner configurations controlled by labels
 * Everything fully hosted in your account
+* Automatically updated build environment with latest runner version
 
 Self-hosted runners in AWS are useful when:
 
