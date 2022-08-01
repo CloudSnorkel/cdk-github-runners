@@ -44,6 +44,10 @@ jobs:
             arch: ARM64
             label: fargate-arm64-spot
             docker: false
+          - os: windows
+            arch: X64
+            label: codebuild-windows-x64
+            docker: false
 
     runs-on: [self-hosted, "${{ matrix.os }}", "${{ matrix.arch }}", "${{ matrix.label }}"]
     steps:

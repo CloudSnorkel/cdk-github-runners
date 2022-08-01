@@ -55,10 +55,11 @@
     "@types/aws-lambda": "^8.10.102",
     "@types/jest": "^27",
     "@types/node": "^14",
+    "@types/semver": "^7.3.12",
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
     "aws-cdk": "^2",
-    "aws-cdk-lib": "2.21.1",
+    "aws-cdk-lib": "2.29.0",
     "aws-sdk": "^2.1199.0",
     "bootstrap": "^5.2.0",
     "constructs": "10.0.5",
@@ -77,6 +78,7 @@
     "npm-check-updates": "^15",
     "projen": "^0.61.23",
     "sass": "^1.54.0",
+    "semver": "^7.3.7",
     "standard-version": "^9",
     "svelte": "^3.49.0",
     "svelte-check": "^2.8.0",
@@ -88,7 +90,7 @@
     "vite-plugin-singlefile": "^0.11.0"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.21.1",
+    "aws-cdk-lib": "^2.29.0",
     "constructs": "^10.0.5"
   },
   "keywords": [

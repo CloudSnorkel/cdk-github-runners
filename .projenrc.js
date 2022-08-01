@@ -6,7 +6,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Amir Szekely',
   authorAddress: 'amir@cloudsnorkel.com',
   stability: Stability.EXPERIMENTAL,
-  cdkVersion: '2.21.1', // first version with lambda url support
+  cdkVersion: '2.29.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName()
   defaultReleaseBranch: 'main',
   name: '@cloudsnorkel/cdk-github-runners',
   repositoryUrl: 'https://github.com/CloudSnorkel/cdk-github-runners.git',
@@ -21,6 +21,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'aws-sdk',
     '@aws-sdk/types',
     '@types/aws-lambda',
+    'semver',
+    '@types/semver',
     // for setup ui
     '@sveltejs/vite-plugin-svelte@^1.0.1',
     '@tsconfig/svelte@^3.0.0',
