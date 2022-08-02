@@ -117,7 +117,7 @@ for (const lambdaDir of lambdas) {
 }
 
 // bundle docker images
-project.compileTask.exec('bash -c "cp -r src/providers/docker-images lib/providers"'); // we use bash so it works on Windows
+project.compileTask.exec('cp -r src/providers/docker-images lib/providers');
 
 // set proper line endings
 project.gitattributes.addAttributes('*.js', 'eol=lf');
@@ -131,6 +131,6 @@ project.gitattributes.addAttributes('Dockerfile', 'eol=lf');
 // setup ui
 project.gitignore.addPatterns('/setup/dist');
 project.compileTask.exec('vite build setup');
-project.compileTask.exec('bash -c "cp -r setup/dist/index.html lib/lambdas/setup/index.html"'); // we use bash so it works on Windows
+project.compileTask.exec('cp -r setup/dist/index.html lib/lambdas/setup/index.html');
 
 project.synth();
