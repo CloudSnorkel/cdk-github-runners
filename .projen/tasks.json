@@ -111,13 +111,13 @@
           "exec": "esbuild src/lambdas/webhook-handler/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/webhook-handler/index.js"
         },
         {
-          "exec": "bash -c \"cp -r src/providers/docker-images lib/providers\""
+          "exec": "cp -r src/providers/docker-images lib/providers"
         },
         {
           "exec": "vite build setup"
         },
         {
-          "exec": "bash -c \"cp -r setup/dist/index.html lib/lambdas/setup/index.html\""
+          "exec": "cp -r setup/dist/index.html lib/lambdas/setup/index.html"
         }
       ]
     },
