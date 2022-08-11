@@ -1,5 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import * as crypto from 'crypto';
+/* eslint-disable-next-line import/no-extraneous-dependencies,import/no-unresolved */
+import * as AWSLambda from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { getSecretJsonValue } from '../helpers';
 
@@ -7,14 +9,18 @@ const sf = new AWS.StepFunctions();
 
 // TODO use @octokit/webhooks?
 
-function verifyBody(event: any, secret: any) {
+function verifyBody(event: AWSLambda.APIGatewayProxyEventV2, secret: any): string {
   const sig = Buffer.from(event.headers['x-hub-signature-256'] || '', 'utf8');
 
-  let body = event.body;
+  if (!event.body) {
+    throw new Error('No body');
+  }
+
+  let body: Buffer;
   if (event.isBase64Encoded) {
-    body = Buffer.from(body, 'base64');
+    body = Buffer.from(event.body, 'base64');
   } else {
-    body = Buffer.from(body || '', 'utf8');
+    body = Buffer.from(event.body || '', 'utf8');
   }
 
   const hmac = crypto.createHmac('sha256', secret);
@@ -27,10 +33,10 @@ function verifyBody(event: any, secret: any) {
     throw new Error(`Signature mismatch. Expected ${expectedSig.toString()} but got ${sig.toString()}`);
   }
 
-  return body;
+  return body.toString();
 }
 
-exports.handler = async function (event: any) {
+exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
   if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN) {
     throw new Error('Missing environment variables');
   }

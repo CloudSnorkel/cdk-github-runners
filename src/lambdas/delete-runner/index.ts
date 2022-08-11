@@ -1,4 +1,5 @@
 import { getOctokit } from '../github';
+import { StepFunctionLambdaInput } from '../helpers';
 
 async function getRunnerId(octokit: any, owner: string, repo: string, name: string) {
   let page = 1;
@@ -23,8 +24,8 @@ async function getRunnerId(octokit: any, owner: string, repo: string, name: stri
   }
 }
 
-exports.handler = async function (event: any) {
-  const { octokit } = await getOctokit(event.installationId as string);
+exports.handler = async function (event: StepFunctionLambdaInput) {
+  const { octokit } = await getOctokit(event.installationId);
 
   // cancel job so it doesn't get assigned to other runners by mistake or just sit there waiting
   try {
