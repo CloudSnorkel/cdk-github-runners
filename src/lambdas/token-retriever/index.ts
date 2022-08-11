@@ -1,7 +1,8 @@
 import { getOctokit } from '../github';
+import { StepFunctionLambdaInput } from '../helpers';
 
-exports.handler = async function (event: any) {
-  const { githubSecrets, octokit } = await getOctokit(event.installationId as string);
+exports.handler = async function (event: StepFunctionLambdaInput) {
+  const { githubSecrets, octokit } = await getOctokit(event.installationId);
 
   const response = await octokit.request('POST /repos/{owner}/{repo}/actions/runners/registration-token', {
     owner: event.owner,

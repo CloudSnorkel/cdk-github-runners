@@ -2,6 +2,8 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import { Octokit } from '@octokit/rest';
+/* eslint-disable-next-line import/no-extraneous-dependencies,import/no-unresolved */
+import * as AWSLambda from 'aws-lambda';
 import { baseUrlFromDomain } from '../github';
 import { getSecretJsonValue, updateSecretValue } from '../helpers';
 
@@ -18,7 +20,7 @@ function getHtml(baseUrl: string, token: string, domain: string): string {
     .replace(/<style/g, `<style nonce="${nonce}"`);
 }
 
-function response(code: number, body: string) {
+function response(code: number, body: string): AWSLambda.APIGatewayProxyResultV2 {
   return {
     statusCode: code,
     headers: {
@@ -29,22 +31,25 @@ function response(code: number, body: string) {
   };
 }
 
-async function handleRoot(event: any, setupToken: string) {
+async function handleRoot(event: AWSLambda.APIGatewayProxyEventV2, setupToken: string): Promise<AWSLambda.APIGatewayProxyResultV2> {
   const setupBaseUrl = `https://${event.requestContext.domainName}`;
   const githubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
 
   return response(200, getHtml(setupBaseUrl, setupToken, githubSecrets.domain));
 }
 
-function decodeBody(event: any) {
+function decodeBody(event: AWSLambda.APIGatewayProxyEventV2) {
   let body = event.body;
+  if (!body) {
+    throw new Error('No body found');
+  }
   if (event.isBase64Encoded) {
     body = Buffer.from(body, 'base64').toString('utf-8');
   }
   return JSON.parse(body);
 }
 
-async function handleDomain(event: any) {
+async function handleDomain(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
   const body = decodeBody(event);
   if (!body.domain) {
     return response(400, 'Invalid domain');
@@ -57,7 +62,7 @@ async function handleDomain(event: any) {
   return response(200, 'Domain set');
 }
 
-async function handlePat(event: any) {
+async function handlePat(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
   const body = decodeBody(event);
   if (!body.pat || !body.domain) {
     return response(400, 'Invalid personal access token');
@@ -73,7 +78,11 @@ async function handlePat(event: any) {
   return response( 200, 'Personal access token set');
 }
 
-async function handleNewApp(event: any) {
+async function handleNewApp(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
+  if (!event.queryStringParameters) {
+    return response( 400, 'Invalid code');
+  }
+
   const code = event.queryStringParameters.code;
 
   if (!code) {
@@ -98,7 +107,7 @@ async function handleNewApp(event: any) {
   return response( 200, `New app set. <a href="${newApp.data.html_url}/installations/new">Install it</a> for your repositories.`);
 }
 
-async function handleExistingApp(event: any) {
+async function handleExistingApp(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
   const body = decodeBody(event);
 
   if (!body.appid || !body.pk || !body.domain) {
@@ -116,7 +125,7 @@ async function handleExistingApp(event: any) {
   return response( 200, 'Existing app set. Don\'t forget to set up the webhook.');
 }
 
-exports.handler = async function (event: any) {
+exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
   // confirm required environment variables
   if (!process.env.WEBHOOK_URL) {
     throw new Error('Missing environment variables');
