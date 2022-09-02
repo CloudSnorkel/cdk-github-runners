@@ -524,6 +524,162 @@ Available build arguments that can be set in the image builder:
 
 ---
 
+### ContainerImageBuilder <a name="ContainerImageBuilder" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder"></a>
+
+- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a>
+
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.Initializer"></a>
+
+```typescript
+import { ContainerImageBuilder } from '@cloudsnorkel/cdk-github-runners'
+
+new ContainerImageBuilder(scope: Construct, id: string, props?: ContainerImageBuilderProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps">ContainerImageBuilderProps</a></code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps">ContainerImageBuilderProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.bind">bind</a></code> | ECR repository containing the image. |
+
+---
+
+##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `bind` <a name="bind" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.bind"></a>
+
+```typescript
+public bind(): RunnerImage
+```
+
+ECR repository containing the image.
+
+This method can be called multiple times if the image is bound to multiple providers. Make sure you cache the image when implementing or return an error if this builder doesn't support reusing images.
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.isConstruct"></a>
+
+```typescript
+import { ContainerImageBuilder } from '@cloudsnorkel/cdk-github-runners'
+
+ContainerImageBuilder.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.architecture">architecture</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.imageTag">imageTag</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.os">os</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.repository">repository</a></code> | <code>aws-cdk-lib.aws_ecr.IRepository</code> | *No description.* |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `architecture`<sup>Required</sup> <a name="architecture" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.architecture"></a>
+
+```typescript
+public readonly architecture: Architecture;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
+
+---
+
+##### `imageTag`<sup>Required</sup> <a name="imageTag" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.imageTag"></a>
+
+```typescript
+public readonly imageTag: string;
+```
+
+- *Type:* string
+
+---
+
+##### `os`<sup>Required</sup> <a name="os" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.os"></a>
+
+```typescript
+public readonly os: Os;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
+
+---
+
+##### `repository`<sup>Required</sup> <a name="repository" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.repository"></a>
+
+```typescript
+public readonly repository: IRepository;
+```
+
+- *Type:* aws-cdk-lib.aws_ecr.IRepository
+
+---
+
+
 ### FargateRunner <a name="FargateRunner" id="@cloudsnorkel/cdk-github-runners.FargateRunner"></a>
 
 - *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
@@ -1740,6 +1896,211 @@ VPC to launch the runners in.
 
 ---
 
+### ContainerImageBuilderProps <a name="ContainerImageBuilderProps" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps"></a>
+
+Properties for ContainerImageBuilder construct.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.Initializer"></a>
+
+```typescript
+import { ContainerImageBuilderProps } from '@cloudsnorkel/cdk-github-runners'
+
+const containerImageBuilderProps: ContainerImageBuilderProps = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.dockerfilePath">dockerfilePath</a></code> | <code>string</code> | Path to Dockerfile to be built. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.architecture">architecture</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a></code> | Image architecture. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.logRemovalPolicy">logRemovalPolicy</a></code> | <code>aws-cdk-lib.RemovalPolicy</code> | Removal policy for logs of image builds. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.os">os</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Image OS. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.rebuildInterval">rebuildInterval</a></code> | <code>aws-cdk-lib.Duration</code> | Schedule the image to be rebuilt every given interval. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.runnerVersion">runnerVersion</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion">RunnerVersion</a></code> | Version of GitHub Runners to install. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to this instance. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The number of minutes after which AWS CodeBuild stops the build if it's not complete. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
+
+---
+
+##### `dockerfilePath`<sup>Required</sup> <a name="dockerfilePath" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.dockerfilePath"></a>
+
+```typescript
+public readonly dockerfilePath: string;
+```
+
+- *Type:* string
+
+Path to Dockerfile to be built.
+
+It can be a path to a Dockerfile, a folder containing a Dockerfile, or a zip file containing a Dockerfile.
+
+---
+
+##### `architecture`<sup>Optional</sup> <a name="architecture" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.architecture"></a>
+
+```typescript
+public readonly architecture: Architecture;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
+- *Default:* Architecture.X86_64
+
+Image architecture.
+
+---
+
+##### `computeType`<sup>Optional</sup> <a name="computeType" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.computeType"></a>
+
+```typescript
+public readonly computeType: ComputeType;
+```
+
+- *Type:* aws-cdk-lib.aws_codebuild.ComputeType
+- *Default:* {@link ComputeType#SMALL}
+
+The type of compute to use for this build.
+
+See the {@link ComputeType} enum for the possible values.
+
+---
+
+##### `logRemovalPolicy`<sup>Optional</sup> <a name="logRemovalPolicy" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.logRemovalPolicy"></a>
+
+```typescript
+public readonly logRemovalPolicy: RemovalPolicy;
+```
+
+- *Type:* aws-cdk-lib.RemovalPolicy
+- *Default:* RemovalPolicy.DESTROY
+
+Removal policy for logs of image builds.
+
+If deployment fails on the custom resource, try setting this to `RemovalPolicy.RETAIN`. This way the CodeBuild logs can still be viewed, and you can see why the build failed.
+
+We try to not leave anything behind when removed. But sometimes a log staying behind is useful.
+
+---
+
+##### `logRetention`<sup>Optional</sup> <a name="logRetention" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.logRetention"></a>
+
+```typescript
+public readonly logRetention: RetentionDays;
+```
+
+- *Type:* aws-cdk-lib.aws_logs.RetentionDays
+- *Default:* logs.RetentionDays.ONE_MONTH
+
+The number of days log events are kept in CloudWatch Logs.
+
+When updating
+this property, unsetting it doesn't remove the log retention policy. To
+remove the retention policy, set the value to `INFINITE`.
+
+---
+
+##### `os`<sup>Optional</sup> <a name="os" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.os"></a>
+
+```typescript
+public readonly os: Os;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
+- *Default:* OS.LINUX
+
+Image OS.
+
+---
+
+##### `rebuildInterval`<sup>Optional</sup> <a name="rebuildInterval" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.rebuildInterval"></a>
+
+```typescript
+public readonly rebuildInterval: Duration;
+```
+
+- *Type:* aws-cdk-lib.Duration
+- *Default:* Duration.days(7)
+
+Schedule the image to be rebuilt every given interval.
+
+Useful for keeping the image up-do-date with the latest GitHub runner version and latest OS updates.
+
+Set to zero to disable.
+
+---
+
+##### `runnerVersion`<sup>Optional</sup> <a name="runnerVersion" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.runnerVersion"></a>
+
+```typescript
+public readonly runnerVersion: RunnerVersion;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion">RunnerVersion</a>
+- *Default:* latest version available
+
+Version of GitHub Runners to install.
+
+---
+
+##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.securityGroup"></a>
+
+```typescript
+public readonly securityGroup: ISecurityGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
+- *Default:* public project with no security group
+
+Security Group to assign to this instance.
+
+---
+
+##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.subnetSelection"></a>
+
+```typescript
+public readonly subnetSelection: SubnetSelection;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.SubnetSelection
+- *Default:* no subnet
+
+Where to place the network interfaces within the VPC.
+
+---
+
+##### `timeout`<sup>Optional</sup> <a name="timeout" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.timeout"></a>
+
+```typescript
+public readonly timeout: Duration;
+```
+
+- *Type:* aws-cdk-lib.Duration
+- *Default:* Duration.hours(1)
+
+The number of minutes after which AWS CodeBuild stops the build if it's not complete.
+
+For valid values, see the timeoutInMinutes field in the AWS
+CodeBuild User Guide.
+
+---
+
+##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.vpc"></a>
+
+```typescript
+public readonly vpc: IVpc;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.IVpc
+- *Default:* no VPC
+
+VPC to launch the runners in.
+
+---
+
 ### FargateRunnerProps <a name="FargateRunnerProps" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps"></a>
 
 Properties for FargateRunner.
@@ -2841,7 +3202,7 @@ image OS.
 
 ### IImageBuilder <a name="IImageBuilder" id="@cloudsnorkel/cdk-github-runners.IImageBuilder"></a>
 
-- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder">CodeBuildImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a>
+- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder">CodeBuildImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder">ContainerImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a>
 
 Interface for constructs that build an image that can be used in {@link IRunnerProvider}.
 

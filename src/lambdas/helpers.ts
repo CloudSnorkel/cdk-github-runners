@@ -39,7 +39,7 @@ export async function updateSecretValue(arn: string | undefined, value: string) 
 }
 
 export async function customResourceRespond(event: AWSLambda.CloudFormationCustomResourceEvent, responseStatus: string,
-                                            reason: string, physicalResourceId: string, data: any) {
+  reason: string, physicalResourceId: string, data: any) {
   const responseBody = JSON.stringify({
     Status: responseStatus,
     Reason: reason,
