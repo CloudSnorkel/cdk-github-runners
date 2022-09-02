@@ -38,7 +38,8 @@ export async function updateSecretValue(arn: string | undefined, value: string) 
   await sm.updateSecret({ SecretId: arn, SecretString: value }).promise();
 }
 
-export async function customResourceRespond(event: AWSLambda.CloudFormationCustomResourceEvent, responseStatus: string, reason: string, physicalResourceId: string, data: any) {
+export async function customResourceRespond(event: AWSLambda.CloudFormationCustomResourceEvent, responseStatus: string,
+                                            reason: string, physicalResourceId: string, data: any) {
   const responseBody = JSON.stringify({
     Status: responseStatus,
     Reason: reason,
