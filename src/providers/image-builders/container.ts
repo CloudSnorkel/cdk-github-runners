@@ -357,9 +357,9 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
         'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\latest-gha',
         '$LatestUrl = Get-Content $Env:TEMP\\latest-gha',
         '$RUNNER_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
-      ]
+      ];
     } else {
-      runnerCommands = [`$RUNNER_VERSION = '${this.runnerVersion.version}'`]
+      runnerCommands = [`$RUNNER_VERSION = '${this.runnerVersion.version}'`];
     }
 
     this.addComponent(new ImageBuilderComponent(this, 'GitHub Actions Runner', {
@@ -406,7 +406,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     });
 
     const recipe = new ContainerRecipe(this, 'Container Recipe', {
-      platform:  this.platform,
+      platform: this.platform,
       components: this.components,
       targetRepository: this.repository,
     });
@@ -428,7 +428,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       scheduleOptions = {
         scheduleExpression: events.Schedule.rate(this.rebuildInterval).expressionString,
         pipelineExecutionStartCondition: 'EXPRESSION_MATCH_ONLY',
-      }
+      };
     }
     new imagebuilder.CfnImagePipeline(this, 'Pipeline', {
       name: cdk.Names.uniqueResourceName(this, { maxLength: 100, separator: '-', allowedSpecialCharacters: '_-' }),
