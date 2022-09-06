@@ -58,21 +58,21 @@ export interface ContainerImageBuilderProps {
   /**
    * VPC to launch the runners in.
    *
-   * @default no VPC
+   * @default default account VPC
    */
   readonly vpc?: ec2.IVpc;
 
   /**
    * Security Group to assign to this instance.
    *
-   * @default public project with no security group
+   * @default default account security group
    */
   readonly securityGroup?: ec2.ISecurityGroup;
 
   /**
    * Where to place the network interfaces within the VPC.
    *
-   * @default no subnet
+   * @default default VPC subnet
    */
   readonly subnetSelection?: ec2.SubnetSelection;
 
@@ -141,21 +141,76 @@ abstract class ImageBuilderObjectBase extends cdk.Resource {
   }
 }
 
+/**
+ * An asset including file or directory to place inside the built image.
+ */
 export interface ImageBuilderAsset {
+  /**
+   * Path to place asset in the image.
+   */
   readonly path: string;
+
+  /**
+   * Asset to place in the image.
+   */
   readonly asset: s3_assets.Asset;
 }
 
+/**
+ * Properties for ImageBuilderComponent construct.
+ */
 export interface ImageBuilderComponentProperties {
+  /**
+   * Component platform. Must match the builder platform.
+   */
   readonly platform: 'Linux' | 'Windows';
+
+  /**
+   * Component display name.
+   */
   readonly displayName: string;
+
+  /**
+   * Component description.
+   */
   readonly description: string;
+
+  /**
+   * Shell commands to run when adding this component to the image.
+   *
+   * On Linux, these are bash commands. On Windows, there are PowerShell commands.
+   */
   readonly commands: string[];
+
+  /**
+   * Optional assets to add to the built image.
+   */
   readonly assets?: ImageBuilderAsset[];
 }
 
+/**
+ * Components are a set of commands to run and optional files to add to an image. Components are the building blocks of images built by Image Builder.
+ *
+ * Example:
+ *
+ * ```
+ * new ImageBuilderComponent(this, 'AWS CLI', {
+ *   platform: 'Windows',
+ *   displayName: 'AWS CLI',
+ *   description: 'Install latest version of AWS CLI',
+ *   commands: [
+ *     '$ErrorActionPreference = \'Stop\'',
+ *     'Start-Process msiexec.exe -Wait -ArgumentList \'/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn\'',
+ *   ],
+ * }
+ * ```
+ */
 export class ImageBuilderComponent extends ImageBuilderObjectBase {
+  /**
+   * Component ARN.
+   */
   public readonly arn: string;
+
   private readonly assets: s3_assets.Asset[] = [];
 
   constructor(scope: Construct, id: string, props: ImageBuilderComponentProperties) {
@@ -243,6 +298,11 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
     this.arn = component.attrArn;
   }
 
+  /**
+   * Grants read permissions to the principal on the assets buckets.
+   *
+   * @param grantee
+   */
   grantAssetsRead(grantee: iam.IGrantable) {
     for (const asset of this.assets) {
       asset.grantRead(grantee);
@@ -250,12 +310,29 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
   }
 }
 
+/**
+ * Properties for ContainerRecipe construct.
+ */
 interface ContainerRecipeProperties {
+  /**
+   * Target platform. Must match builder platform.
+   */
   readonly platform: 'Linux' | 'Windows';
+
+  /**
+   * Components to add to target container image.
+   */
   readonly components: ImageBuilderComponent[];
+
+  /**
+   * ECR repository where resulting conatiner image will be uploaded.
+   */
   readonly targetRepository: ecr.IRepository;
 }
 
+/**
+ * Image builder recipe for a Docker container image.
+ */
 class ContainerRecipe extends ImageBuilderObjectBase {
   public readonly arn: string;
   public readonly name: string;
@@ -293,9 +370,30 @@ class ContainerRecipe extends ImageBuilderObjectBase {
   }
 }
 
+// TODO delete old Image Builder objects
+// TODO get components from provider?
+
 /**
- * TODO document
- * TODO delete old Image Builder objects
+ * An image builder that uses Image Builder to build Docker images pre-baked with all the GitHub Actions runner requirements. Builders can be used with runner providers.
+ *
+ * The CodeBuild builder is better and faster. Only use this one if you have no choice. For example, if you need Windows containers.
+ *
+ * Each builder re-runs automatically at a set interval to make sure the images contain the latest versions of everything.
+ *
+ * You can create an instance of this construct to customize the image used to spin-up runners. It is up to you to make sure the right components for the provider are used. The default works with CodeBuild.
+ *
+ * For example, to set a specific runner version, rebuild the image every 2 weeks, and add a few packages for the Fargate provider, use:
+ *
+ * ```
+ * const builder = new ContainerImageBuilder(this, 'Builder', {
+ *     runnerVersion: RunnerVersion.specific('2.293.0'),
+ *     rebuildInterval: Duration.days(14),
+ * });
+ * new CodeBuildRunner(this, 'Fargate provider', {
+ *     label: 'windows-codebuild',
+ *     imageBuilder: builder,
+ * });
+ * ```
  */
 export class ContainerImageBuilder extends Construct implements IImageBuilder {
   readonly architecture: Architecture;
@@ -441,6 +539,10 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     }));
   }
 
+  /**
+   * Add a component to be installed before any other components. Useful for required system settings like certificates or proxy settings.
+   * @param component
+   */
   prependComponent(component: ImageBuilderComponent) {
     if (this.boundImage) {
       throw new Error('Image is already bound. Use this method before passing the builder to a runner provider.');
@@ -448,6 +550,10 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     this.components = [component].concat(this.components);
   }
 
+  /**
+   * Add a component to be installed.
+   * @param component
+   */
   addComponent(component: ImageBuilderComponent) {
     if (this.boundImage) {
       throw new Error('Image is already bound. Use this method before passing the builder to a runner provider.');
