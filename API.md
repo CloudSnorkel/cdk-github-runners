@@ -23,7 +23,7 @@ const builder = new CodeBuildImageBuilder(this, 'Builder', {
      rebuildInterval: Duration.days(14),
 });
 builder.setBuildArg('EXTRA_PACKAGES', 'nginx xz-utils');
-new FargateProvider(this, 'Fargate provider', {
+new FargateRunner(this, 'Fargate provider', {
      label: 'customized-fargate',
      imageBuilder: builder,
 });
@@ -528,7 +528,28 @@ Available build arguments that can be set in the image builder:
 
 - *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a>
 
-TODO document.
+An image builder that uses Image Builder to build Docker images pre-baked with all the GitHub Actions runner requirements.
+
+Builders can be used with runner providers.
+
+The CodeBuild builder is better and faster. Only use this one if you have no choice. For example, if you need Windows containers.
+
+Each builder re-runs automatically at a set interval to make sure the images contain the latest versions of everything.
+
+You can create an instance of this construct to customize the image used to spin-up runners. It is up to you to make sure the right components for the provider are used. The default works with CodeBuild.
+
+For example, to set a specific runner version, rebuild the image every 2 weeks, and add a few packages for the Fargate provider, use:
+
+```
+const builder = new ContainerImageBuilder(this, 'Builder', {
+     runnerVersion: RunnerVersion.specific('2.293.0'),
+     rebuildInterval: Duration.days(14),
+});
+new CodeBuildRunner(this, 'Fargate provider', {
+     label: 'windows-codebuild',
+     imageBuilder: builder,
+});
+```
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.Initializer"></a>
 
@@ -569,8 +590,10 @@ new ContainerImageBuilder(scope: Construct, id: string, props?: ContainerImageBu
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.toString">toString</a></code> | Returns a string representation of this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.addComponent">addComponent</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.bind">bind</a></code> | ECR repository containing the image. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.addComponent">addComponent</a></code> | Add a component to be installed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.addExtraCertificates">addExtraCertificates</a></code> | Add extra trusted certificates. This helps deal with self-signed certificates for GitHub Enterprise Server. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.bind">bind</a></code> | Called by IRunnerProvider to finalize settings and create the image builder. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.prependComponent">prependComponent</a></code> | Add a component to be installed before any other components. |
 
 ---
 
@@ -588,9 +611,29 @@ Returns a string representation of this construct.
 public addComponent(component: ImageBuilderComponent): void
 ```
 
+Add a component to be installed.
+
 ###### `component`<sup>Required</sup> <a name="component" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.addComponent.parameter.component"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent">ImageBuilderComponent</a>
+
+---
+
+##### `addExtraCertificates` <a name="addExtraCertificates" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.addExtraCertificates"></a>
+
+```typescript
+public addExtraCertificates(path: string): void
+```
+
+Add extra trusted certificates. This helps deal with self-signed certificates for GitHub Enterprise Server.
+
+All first party Dockerfiles support this. Others may not.
+
+###### `path`<sup>Required</sup> <a name="path" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.addExtraCertificates.parameter.path"></a>
+
+- *Type:* string
+
+path to directory containing a file called certs.pem containing all the required certificates.
 
 ---
 
@@ -600,9 +643,23 @@ public addComponent(component: ImageBuilderComponent): void
 public bind(): RunnerImage
 ```
 
-ECR repository containing the image.
+Called by IRunnerProvider to finalize settings and create the image builder.
 
-This method can be called multiple times if the image is bound to multiple providers. Make sure you cache the image when implementing or return an error if this builder doesn't support reusing images.
+##### `prependComponent` <a name="prependComponent" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.prependComponent"></a>
+
+```typescript
+public prependComponent(component: ImageBuilderComponent): void
+```
+
+Add a component to be installed before any other components.
+
+Useful for required system settings like certificates or proxy settings.
+
+###### `component`<sup>Required</sup> <a name="component" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.prependComponent.parameter.component"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent">ImageBuilderComponent</a>
+
+---
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -1251,6 +1308,24 @@ Secrets for GitHub communication including webhook secret and runner authenticat
 
 ### ImageBuilderComponent <a name="ImageBuilderComponent" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponent"></a>
 
+Components are a set of commands to run and optional files to add to an image.
+
+Components are the building blocks of images built by Image Builder.
+
+Example:
+
+```
+new ImageBuilderComponent(this, 'AWS CLI', {
+   platform: 'Windows',
+   displayName: 'AWS CLI',
+   description: 'Install latest version of AWS CLI',
+   commands: [
+     '$ErrorActionPreference = \'Stop\'',
+     'Start-Process msiexec.exe -Wait -ArgumentList \'/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn\'',
+   ],
+}
+```
+
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.Initializer"></a>
 
 ```typescript
@@ -1291,6 +1366,7 @@ new ImageBuilderComponent(scope: Construct, id: string, props: ImageBuilderCompo
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.applyRemovalPolicy">applyRemovalPolicy</a></code> | Apply the given removal policy to this resource. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.grantAssetsRead">grantAssetsRead</a></code> | Grants read permissions to the principal on the assets buckets. |
 
 ---
 
@@ -1321,6 +1397,20 @@ account for data recovery and cleanup later (`RemovalPolicy.RETAIN`).
 ###### `policy`<sup>Required</sup> <a name="policy" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.applyRemovalPolicy.parameter.policy"></a>
 
 - *Type:* aws-cdk-lib.RemovalPolicy
+
+---
+
+##### `grantAssetsRead` <a name="grantAssetsRead" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.grantAssetsRead"></a>
+
+```typescript
+public grantAssetsRead(grantee: IGrantable): void
+```
+
+Grants read permissions to the principal on the assets buckets.
+
+###### `grantee`<sup>Required</sup> <a name="grantee" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.grantAssetsRead.parameter.grantee"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IGrantable
 
 ---
 
@@ -1374,7 +1464,7 @@ Check whether the given construct is a Resource.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.env">env</a></code> | <code>aws-cdk-lib.ResourceEnvironment</code> | The environment this resource belongs to. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.stack">stack</a></code> | <code>aws-cdk-lib.Stack</code> | The stack in which this resource is defined. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.arn">arn</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.arn">arn</a></code> | <code>string</code> | Component ARN. |
 
 ---
 
@@ -1428,6 +1518,8 @@ public readonly arn: string;
 ```
 
 - *Type:* string
+
+Component ARN.
 
 ---
 
@@ -2321,7 +2413,7 @@ public readonly securityGroup: ISecurityGroup;
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
-- *Default:* public project with no security group
+- *Default:* default account security group
 
 Security Group to assign to this instance.
 
@@ -2334,7 +2426,7 @@ public readonly subnetSelection: SubnetSelection;
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.SubnetSelection
-- *Default:* no subnet
+- *Default:* default VPC subnet
 
 Where to place the network interfaces within the VPC.
 
@@ -2347,7 +2439,7 @@ public readonly vpc: IVpc;
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.IVpc
-- *Default:* no VPC
+- *Default:* default account VPC
 
 VPC to launch the runners in.
 
@@ -2709,7 +2801,54 @@ Use this with GitHub Enterprise Server hosted that's inaccessible from outside t
 
 ---
 
+### ImageBuilderAsset <a name="ImageBuilderAsset" id="@cloudsnorkel/cdk-github-runners.ImageBuilderAsset"></a>
+
+An asset including file or directory to place inside the built image.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ImageBuilderAsset.Initializer"></a>
+
+```typescript
+import { ImageBuilderAsset } from '@cloudsnorkel/cdk-github-runners'
+
+const imageBuilderAsset: ImageBuilderAsset = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderAsset.property.asset">asset</a></code> | <code>aws-cdk-lib.aws_s3_assets.Asset</code> | Asset to place in the image. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderAsset.property.path">path</a></code> | <code>string</code> | Path to place asset in the image. |
+
+---
+
+##### `asset`<sup>Required</sup> <a name="asset" id="@cloudsnorkel/cdk-github-runners.ImageBuilderAsset.property.asset"></a>
+
+```typescript
+public readonly asset: Asset;
+```
+
+- *Type:* aws-cdk-lib.aws_s3_assets.Asset
+
+Asset to place in the image.
+
+---
+
+##### `path`<sup>Required</sup> <a name="path" id="@cloudsnorkel/cdk-github-runners.ImageBuilderAsset.property.path"></a>
+
+```typescript
+public readonly path: string;
+```
+
+- *Type:* string
+
+Path to place asset in the image.
+
+---
+
 ### ImageBuilderComponentProperties <a name="ImageBuilderComponentProperties" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties"></a>
+
+Properties for ImageBuilderComponent construct.
 
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.Initializer"></a>
 
@@ -2723,10 +2862,11 @@ const imageBuilderComponentProperties: ImageBuilderComponentProperties = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.commands">commands</a></code> | <code>string[]</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.description">description</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.displayName">displayName</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.platform">platform</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.commands">commands</a></code> | <code>string[]</code> | Shell commands to run when adding this component to the image. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.description">description</a></code> | <code>string</code> | Component description. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.displayName">displayName</a></code> | <code>string</code> | Component display name. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.platform">platform</a></code> | <code>string</code> | Component platform. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.assets">assets</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderAsset">ImageBuilderAsset</a>[]</code> | Optional assets to add to the built image. |
 
 ---
 
@@ -2738,6 +2878,10 @@ public readonly commands: string[];
 
 - *Type:* string[]
 
+Shell commands to run when adding this component to the image.
+
+On Linux, these are bash commands. On Windows, there are PowerShell commands.
+
 ---
 
 ##### `description`<sup>Required</sup> <a name="description" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.description"></a>
@@ -2747,6 +2891,8 @@ public readonly description: string;
 ```
 
 - *Type:* string
+
+Component description.
 
 ---
 
@@ -2758,6 +2904,8 @@ public readonly displayName: string;
 
 - *Type:* string
 
+Component display name.
+
 ---
 
 ##### `platform`<sup>Required</sup> <a name="platform" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.platform"></a>
@@ -2767,6 +2915,22 @@ public readonly platform: string;
 ```
 
 - *Type:* string
+
+Component platform.
+
+Must match the builder platform.
+
+---
+
+##### `assets`<sup>Optional</sup> <a name="assets" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.assets"></a>
+
+```typescript
+public readonly assets: ImageBuilderAsset[];
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderAsset">ImageBuilderAsset</a>[]
+
+Optional assets to add to the built image.
 
 ---
 

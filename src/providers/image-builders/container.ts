@@ -260,7 +260,7 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
           inputs: {
             commands: extractCommands,
           },
-        })
+        });
       }
     }
 
@@ -270,7 +270,7 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
       inputs: {
         commands: props.commands,
       },
-    })
+    });
 
     const data = {
       name: props.displayName,
@@ -580,7 +580,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       assets: [
         {
           path: 'certs',
-          asset: new s3_assets.Asset(this, 'Extra Certs Asset', {path})
+          asset: new s3_assets.Asset(this, 'Extra Certs Asset', { path }),
         },
       ],
     }));
