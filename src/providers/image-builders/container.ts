@@ -6,6 +6,7 @@ import {
   aws_iam as iam,
   aws_imagebuilder as imagebuilder,
   aws_logs as logs,
+  aws_s3_assets as s3_assets,
   CustomResource,
   Duration,
   RemovalPolicy,
@@ -101,6 +102,10 @@ export interface ContainerImageBuilderProps {
   readonly logRemovalPolicy?: RemovalPolicy;
 }
 
+function uniqueName(scope: Construct): string {
+  return cdk.Names.uniqueResourceName(scope, { maxLength: 126, separator: '-', allowedSpecialCharacters: '_-' });
+}
+
 abstract class ImageBuilderObjectBase extends cdk.Resource {
   protected constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -136,20 +141,82 @@ abstract class ImageBuilderObjectBase extends cdk.Resource {
   }
 }
 
+export interface ImageBuilderAsset {
+  readonly path: string;
+  readonly asset: s3_assets.Asset;
+}
+
 export interface ImageBuilderComponentProperties {
   readonly platform: 'Linux' | 'Windows';
   readonly displayName: string;
   readonly description: string;
   readonly commands: string[];
+  readonly assets?: ImageBuilderAsset[];
 }
 
 export class ImageBuilderComponent extends ImageBuilderObjectBase {
   public readonly arn: string;
+  private readonly assets: s3_assets.Asset[] = [];
 
   constructor(scope: Construct, id: string, props: ImageBuilderComponentProperties) {
     super(scope, id);
 
-    const name = cdk.Names.uniqueResourceName(this, { maxLength: 126, separator: '-', allowedSpecialCharacters: '_-' });
+    let steps: any[] = [];
+
+    if (props.assets) {
+      let inputs: any[] = [];
+      let extractCommands: string[] = [];
+      for (const asset of props.assets) {
+        this.assets.push(asset.asset);
+
+        if (asset.asset.isFile) {
+          inputs.push({
+            source: asset.asset.s3ObjectUrl,
+            destination: asset.path,
+          });
+        } else if (asset.asset.isZipArchive) {
+          inputs.push({
+            source: asset.asset.s3ObjectUrl,
+            destination: `${asset.path}.zip`,
+          });
+          if (props.platform === 'Windows') {
+            extractCommands.push('$ErrorActionPreference = \'Stop\'');
+            extractCommands.push(`Expand-Archive "${asset.path}.zip" -DestinationPath "${asset.path}"`);
+            extractCommands.push(`del "${asset.path}.zip"`);
+          } else {
+            extractCommands.push(`unzip "${asset.path}.zip" -d "${asset.path}"`);
+            extractCommands.push(`rm "${asset.path}.zip"`);
+          }
+        } else {
+          throw new Error(`Unknown asset type: ${asset.asset}`);
+        }
+      }
+
+      steps.push({
+        name: 'Download',
+        action: 'S3Download',
+        inputs,
+      });
+
+      if (extractCommands.length > 0) {
+        steps.push({
+          name: 'Extract',
+          action: props.platform === 'Linux' ? 'ExecuteBash' : 'ExecutePowerShell',
+          inputs: {
+            commands: extractCommands,
+          },
+        })
+      }
+    }
+
+    steps.push({
+      name: 'Run',
+      action: props.platform === 'Linux' ? 'ExecuteBash' : 'ExecutePowerShell',
+      inputs: {
+        commands: props.commands,
+      },
+    })
+
     const data = {
       name: props.displayName,
       description: props.description,
@@ -157,19 +224,12 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
       phases: [
         {
           name: 'build',
-          steps: [
-            {
-              name: 'Run',
-              action: props.platform === 'Linux' ? 'ExecuteBash' : 'ExecutePowerShell',
-              inputs: {
-                commands: props.commands,
-              },
-            },
-          ],
+          steps,
         },
       ],
     };
 
+    const name = uniqueName(this);
     const component = new imagebuilder.CfnComponent(this, 'Component', {
       name: name,
       platform: props.platform,
@@ -181,6 +241,12 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
     });
 
     this.arn = component.attrArn;
+  }
+
+  grantAssetsRead(grantee: iam.IGrantable) {
+    for (const asset of this.assets) {
+      asset.grantRead(grantee);
+    }
   }
 }
 
@@ -197,7 +263,7 @@ class ContainerRecipe extends ImageBuilderObjectBase {
   constructor(scope: Construct, id: string, props: ContainerRecipeProperties) {
     super(scope, id);
 
-    const name = cdk.Names.uniqueResourceName(this, { maxLength: 126, separator: '-', allowedSpecialCharacters: '_-' });
+    const name = uniqueName(this);
 
     let components = props.components.map(component => {
       return {
@@ -227,11 +293,9 @@ class ContainerRecipe extends ImageBuilderObjectBase {
   }
 }
 
-
-// TODO certs
-
 /**
  * TODO document
+ * TODO delete old Image Builder objects
  */
 export class ContainerImageBuilder extends Construct implements IImageBuilder {
   readonly architecture: Architecture;
@@ -377,10 +441,48 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     }));
   }
 
+  prependComponent(component: ImageBuilderComponent) {
+    if (this.boundImage) {
+      throw new Error('Image is already bound. Use this method before passing the builder to a runner provider.');
+    }
+    this.components = [component].concat(this.components);
+  }
+
   addComponent(component: ImageBuilderComponent) {
+    if (this.boundImage) {
+      throw new Error('Image is already bound. Use this method before passing the builder to a runner provider.');
+    }
     this.components.push(component);
   }
 
+  /**
+   * Add extra trusted certificates. This helps deal with self-signed certificates for GitHub Enterprise Server.
+   *
+   * All first party Dockerfiles support this. Others may not.
+   *
+   * @param path path to directory containing a file called certs.pem containing all the required certificates
+   */
+  public addExtraCertificates(path: string) {
+    this.prependComponent(new ImageBuilderComponent(this, 'Extra Certs', {
+      platform: this.platform,
+      displayName: 'GitHub Actions Runner',
+      description: 'Install latest version of GitHub Actions Runner',
+      commands: [
+        '$ErrorActionPreference = \'Stop\'',
+        'Import-Certificate -FilePath certs\\certs.pem -CertStoreLocation Cert:\\LocalMachine\\Root',
+      ],
+      assets: [
+        {
+          path: 'certs',
+          asset: new s3_assets.Asset(this, 'Extra Certs Asset', {path})
+        },
+      ],
+    }));
+  }
+
+  /**
+   * Called by IRunnerProvider to finalize settings and create the image builder.
+   */
   bind(): RunnerImage {
     if (this.boundImage) {
       return this.boundImage;
@@ -389,7 +491,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     const infra = this.infrastructure();
 
     const dist = new imagebuilder.CfnDistributionConfiguration(this, 'Distribution', {
-      name: cdk.Names.uniqueResourceName(this, { maxLength: 126, separator: '-', allowedSpecialCharacters: '_-' }),
+      name: uniqueName(this),
       description: this.description,
       distributions: [
         {
@@ -431,7 +533,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       };
     }
     new imagebuilder.CfnImagePipeline(this, 'Pipeline', {
-      name: cdk.Names.uniqueResourceName(this, { maxLength: 100, separator: '-', allowedSpecialCharacters: '_-' }),
+      name: uniqueName(this),
       description: this.description,
       containerRecipeArn: recipe.arn,
       infrastructureConfigurationArn: infra.attrArn,
@@ -454,21 +556,27 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
   }
 
   private infrastructure(): imagebuilder.CfnInfrastructureConfiguration {
+    let role = new iam.Role(this, 'Role', {
+      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
+        iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilderECRContainerBuilds'),
+      ],
+    });
+
+    for (const component of this.components) {
+      component.grantAssetsRead(role);
+    }
+
     return new imagebuilder.CfnInfrastructureConfiguration(this, 'Infrastructure', {
-      name: cdk.Names.uniqueResourceName(this, { maxLength: 126, separator: '-', allowedSpecialCharacters: '_-' }),
+      name: uniqueName(this),
       description: this.description,
       subnetId: this.subnetId,
       securityGroupIds: this.securityGroupIds,
       instanceTypes: this.instanceTypes,
       instanceProfileName: new iam.CfnInstanceProfile(this, 'Instance Profile', {
         roles: [
-          new iam.Role(this, 'Role', {
-            assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
-            managedPolicies: [
-              iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
-              iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilderECRContainerBuilds'),
-            ],
-          }).roleName,
+          role.roleName,
         ],
       }).ref,
     });
