@@ -51,8 +51,6 @@ new GitHubRunners(stack, 'runners', {
       label: 'codebuild-windows-x64',
       computeType: codebuild.ComputeType.MEDIUM,
       imageBuilder: new ContainerImageBuilder(stack, 'Windows Image Builder', {
-        //dockerfilePath: CodeBuildRunner.WINDOWS_X64_DOCKERFILE_PATH,
-        dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH,
         architecture: Architecture.X86_64,
         os: Os.WINDOWS,
       }),

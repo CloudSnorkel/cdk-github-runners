@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/a62270c4088ed6a082b74358f9fd0f72c2cbe9bb955bbbf2132a5f3d92b6cd7e.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/5f6c7bc4088f13c16b5cbd8598aca138b989366c07b8a50e9d3de17667042ba7.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -591,30 +591,6 @@
             "data": "WindowsImageBuilderRepositoryA4CBB6D8"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderRole717C46A6"
-          }
-        ],
-        "/github-runners-test/Windows Image Builder/Instance Profile": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderInstanceProfileBFCCEC08"
-          }
-        ],
-        "/github-runners-test/Windows Image Builder/Infrastructure": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderInfrastructureFF99A30B"
-          }
-        ],
-        "/github-runners-test/Windows Image Builder/dist": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderdist387BEC3A"
-          }
-        ],
         "/github-runners-test/Windows Image Builder/AWS CLI/Version/Default": [
           {
             "type": "aws:cdk:logicalId",
@@ -663,6 +639,30 @@
             "data": "WindowsImageBuilderGitHubActionsRunnerComponent248E9189"
           }
         ],
+        "/github-runners-test/Windows Image Builder/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderRole717C46A6"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Instance Profile": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderInstanceProfileBFCCEC08"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Infrastructure": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderInfrastructureFF99A30B"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Distribution": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderDistribution843AF65B"
+          }
+        ],
         "/github-runners-test/Windows Image Builder/Container Recipe/Version/Default": [
           {
             "type": "aws:cdk:logicalId",
@@ -675,10 +675,22 @@
             "data": "WindowsImageBuilderContainerRecipeB2A421D7"
           }
         ],
-        "/github-runners-test/Windows Image Builder/pipeline": [
+        "/github-runners-test/Windows Image Builder/Log/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderpipelineD4043383"
+            "data": "WindowsImageBuilderLog0E03408E"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Image": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderImage7065BB07"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Pipeline": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderPipeline29B7B6E1"
           }
         ],
         "/github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/Resource": [

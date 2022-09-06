@@ -68,7 +68,7 @@ export interface CodeBuildImageBuilderProps {
   readonly rebuildInterval?: Duration;
 
   /**
-   * VPC to launch the runners in.
+   * VPC to build the image in.
    *
    * @default no VPC
    */

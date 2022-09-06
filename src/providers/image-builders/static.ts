@@ -22,7 +22,6 @@ export class StaticRunnerImage {
         return {
           imageRepository: repository,
           imageTag: tag,
-          imageDigest: 'unknown',
           architecture,
           os,
         };

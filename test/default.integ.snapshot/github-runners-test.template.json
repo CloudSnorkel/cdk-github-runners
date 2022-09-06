@@ -3621,107 +3621,11 @@
     },
     "ImageTagMutability": "MUTABLE",
     "LifecyclePolicy": {
-     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove all but the latest image\",\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}}]}"
     }
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
-  },
-  "WindowsImageBuilderRole717C46A6": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     },
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
-       ]
-      ]
-     }
-    ]
-   }
-  },
-  "WindowsImageBuilderInstanceProfileBFCCEC08": {
-   "Type": "AWS::IAM::InstanceProfile",
-   "Properties": {
-    "Roles": [
-     {
-      "Ref": "WindowsImageBuilderRole717C46A6"
-     }
-    ]
-   }
-  },
-  "WindowsImageBuilderInfrastructureFF99A30B": {
-   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
-   "Properties": {
-    "InstanceProfileName": {
-     "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
-    },
-    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2-infrastructure"
-   }
-  },
-  "WindowsImageBuilderdist387BEC3A": {
-   "Type": "AWS::ImageBuilder::DistributionConfiguration",
-   "Properties": {
-    "Distributions": [
-     {
-      "ContainerDistributionConfiguration": {
-       "ContainerTags": [
-        "latest"
-       ],
-       "TargetRepository": {
-        "Service": "ECR",
-        "RepositoryName": {
-         "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
-        }
-       }
-      },
-      "Region": {
-       "Ref": "AWS::Region"
-      }
-     }
-    ],
-    "Name": "dist"
-   }
   },
   "WindowsImageBuilderAWSCLIVersion7C70BA9E": {
    "Type": "Custom::ImageBuilder-Component-Version",
@@ -3859,7 +3763,11 @@
            "commands": [
             "$ErrorActionPreference = 'Stop'",
             "$ProgressPreference = 'SilentlyContinue'",
-            "Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v2.37.1.windows.1/Git-2.37.1-64-bit.exe -OutFile git-setup.exe",
+            "cmd /c curl -w \"%{redirect_url}\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\latest-git",
+            "$LatestUrl = Get-Content $Env:TEMP\\latest-git",
+            "$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)",
+            "$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]",
+            "Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe",
             "Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'",
             "del git-setup.exe"
            ]
@@ -3882,7 +3790,7 @@
     "Version": {
      "Ref": "WindowsImageBuildergitVersion78548E80"
     },
-    "Data": "{\"name\":\"Git\",\"description\":\"Install latest version of git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v2.37.1.windows.1/Git-2.37.1-64-bit.exe -OutFile git-setup.exe\",\"Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'\",\"del git-setup.exe\"]}}]}]}"
+    "Data": "{\"name\":\"Git\",\"description\":\"Install latest version of git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'\",\"del git-setup.exe\"]}}]}]}"
    }
   },
   "WindowsImageBuilderGitHubActionsRunnerVersion9E35A9C2": {
@@ -3912,10 +3820,10 @@
           "inputs": {
            "commands": [
             "$ErrorActionPreference = 'Stop'",
+            "$ProgressPreference = 'SilentlyContinue'",
             "cmd /c curl -w \"%{redirect_url}\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\latest-gha",
             "$LatestUrl = Get-Content $Env:TEMP\\latest-gha",
             "$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)",
-            "$ProgressPreference = 'SilentlyContinue'",
             "Invoke-WebRequest -UseBasicParsing -Uri \"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\" -OutFile actions.zip",
             "Expand-Archive actions.zip -DestinationPath C:\\actions",
             "del actions.zip"
@@ -3939,7 +3847,108 @@
     "Version": {
      "Ref": "WindowsImageBuilderGitHubActionsRunnerVersion9E35A9C2"
     },
-    "Data": "{\"name\":\"GitHub Actions Runner\",\"description\":\"Install latest version of GitHub Actions Runner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$ProgressPreference = 'SilentlyContinue'\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\"]}}]}]}"
+    "Data": "{\"name\":\"GitHub Actions Runner\",\"description\":\"Install latest version of GitHub Actions Runner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\"]}}]}]}"
+   }
+  },
+  "WindowsImageBuilderRole717C46A6": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "ec2.",
+           {
+            "Ref": "AWS::URLSuffix"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "WindowsImageBuilderInstanceProfileBFCCEC08": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "WindowsImageBuilderRole717C46A6"
+     }
+    ]
+   }
+  },
+  "WindowsImageBuilderInfrastructureFF99A30B": {
+   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
+   "Properties": {
+    "InstanceProfileName": {
+     "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
+    },
+    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "Description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
+    "InstanceTypes": [
+     "m5.large"
+    ]
+   }
+  },
+  "WindowsImageBuilderDistribution843AF65B": {
+   "Type": "AWS::ImageBuilder::DistributionConfiguration",
+   "Properties": {
+    "Distributions": [
+     {
+      "ContainerDistributionConfiguration": {
+       "ContainerTags": [
+        "latest"
+       ],
+       "TargetRepository": {
+        "Service": "ECR",
+        "RepositoryName": {
+         "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
+        }
+       }
+      },
+      "Region": {
+       "Ref": "AWS::Region"
+      }
+     }
+    ],
+    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "Description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)"
    }
   },
   "WindowsImageBuilderContainerRecipeVersion13A2E3FD": {
@@ -4046,8 +4055,30 @@
     "DockerfileTemplateData": "FROM {{{ imagebuilder:parentImage }}}\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}"
    }
   },
-  "WindowsImageBuilderpipelineD4043383": {
-   "Type": "AWS::ImageBuilder::ImagePipeline",
+  "WindowsImageBuilderLog0E03408E": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/imagebuilder/",
+       {
+        "Fn::GetAtt": [
+         "WindowsImageBuilderContainerRecipeB2A421D7",
+         "Name"
+        ]
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "WindowsImageBuilderImage7065BB07": {
+   "Type": "AWS::ImageBuilder::Image",
    "Properties": {
     "InfrastructureConfigurationArn": {
      "Fn::GetAtt": [
@@ -4055,7 +4086,6 @@
       "Arn"
      ]
     },
-    "Name": "pipeline",
     "ContainerRecipeArn": {
      "Fn::GetAtt": [
       "WindowsImageBuilderContainerRecipeB2A421D7",
@@ -4064,9 +4094,38 @@
     },
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "WindowsImageBuilderdist387BEC3A",
+      "WindowsImageBuilderDistribution843AF65B",
       "Arn"
      ]
+    }
+   }
+  },
+  "WindowsImageBuilderPipeline29B7B6E1": {
+   "Type": "AWS::ImageBuilder::ImagePipeline",
+   "Properties": {
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderInfrastructureFF99A30B",
+      "Arn"
+     ]
+    },
+    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "ContainerRecipeArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderContainerRecipeB2A421D7",
+      "Arn"
+     ]
+    },
+    "Description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderDistribution843AF65B",
+      "Arn"
+     ]
+    },
+    "Schedule": {
+     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
+     "ScheduleExpression": "rate(7 days)"
     }
    }
   },
@@ -4216,9 +4275,49 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderRepositoryA4CBB6D8",
-         "Arn"
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":ecr:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":repository/",
+          {
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::Select": [
+                1,
+                {
+                 "Fn::Split": [
+                  "/",
+                  {
+                   "Fn::GetAtt": [
+                    "WindowsImageBuilderImage7065BB07",
+                    "ImageUri"
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
         ]
        }
       },
@@ -4355,37 +4454,11 @@
        "",
        [
         {
-         "Fn::Select": [
-          4,
-          {
-           "Fn::Split": [
-            ":",
-            {
-             "Fn::GetAtt": [
-              "WindowsImageBuilderRepositoryA4CBB6D8",
-              "Arn"
-             ]
-            }
-           ]
-          }
-         ]
+         "Ref": "AWS::AccountId"
         },
         ".dkr.ecr.",
         {
-         "Fn::Select": [
-          3,
-          {
-           "Fn::Split": [
-            ":",
-            {
-             "Fn::GetAtt": [
-              "WindowsImageBuilderRepositoryA4CBB6D8",
-              "Arn"
-             ]
-            }
-           ]
-          }
-         ]
+         "Ref": "AWS::Region"
         },
         ".",
         {
@@ -4393,9 +4466,48 @@
         },
         "/",
         {
-         "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
+         "Fn::Select": [
+          0,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::Select": [
+              1,
+              {
+               "Fn::Split": [
+                "/",
+                {
+                 "Fn::GetAtt": [
+                  "WindowsImageBuilderImage7065BB07",
+                  "ImageUri"
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
         },
-        ":latest"
+        ":",
+        {
+         "Fn::Select": [
+          1,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "WindowsImageBuilderImage7065BB07",
+              "ImageUri"
+             ]
+            }
+           ]
+          }
+         ]
+        }
        ]
       ]
      },
