@@ -371,7 +371,6 @@ class ContainerRecipe extends ImageBuilderObjectBase {
 }
 
 // TODO delete old Image Builder objects
-// TODO get components from provider?
 
 /**
  * An image builder that uses Image Builder to build Docker images pre-baked with all the GitHub Actions runner requirements. Builders can be used with runner providers.
@@ -380,7 +379,7 @@ class ContainerRecipe extends ImageBuilderObjectBase {
  *
  * Each builder re-runs automatically at a set interval to make sure the images contain the latest versions of everything.
  *
- * You can create an instance of this construct to customize the image used to spin-up runners. It is up to you to make sure the right components for the provider are used. The default works with CodeBuild.
+ * You can create an instance of this construct to customize the image used to spin-up runners. Some runner providers may require custom components. Check the runner provider documentation. The default components work with CodeBuild.
  *
  * For example, to set a specific runner version, rebuild the image every 2 weeks, and add a few packages for the Fargate provider, use:
  *

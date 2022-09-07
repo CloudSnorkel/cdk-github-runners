@@ -536,7 +536,7 @@ The CodeBuild builder is better and faster. Only use this one if you have no cho
 
 Each builder re-runs automatically at a set interval to make sure the images contain the latest versions of everything.
 
-You can create an instance of this construct to customize the image used to spin-up runners. It is up to you to make sure the right components for the provider are used. The default works with CodeBuild.
+You can create an instance of this construct to customize the image used to spin-up runners. Some runner providers may require custom components. Check the runner provider documentation. The default components work with CodeBuild.
 
 For example, to set a specific runner version, rebuild the image every 2 weeks, and add a few packages for the Fargate provider, use:
 
@@ -1851,7 +1851,7 @@ Any object.
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.github">github</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | Authentication secret for GitHub containing either app details or personal authentication token. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.githubPrivateKey">githubPrivateKey</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | GitHub app private key. Not needed when using personal authentication tokens. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.githubPrivateKey">githubPrivateKey</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | GitHub app private key. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.setup">setup</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | Setup secret used to authenticate user for our setup wizard. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.webhook">webhook</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | Webhook secret used to confirm events are coming from GitHub and nowhere else. |
 
@@ -1894,7 +1894,9 @@ public readonly githubPrivateKey: Secret;
 
 - *Type:* aws-cdk-lib.aws_secretsmanager.Secret
 
-GitHub app private key. Not needed when using personal authentication tokens.
+GitHub app private key.
+
+Not needed when using personal authentication tokens.
 
 This secret is meant to be edited by the user after being created. It is separate than the main GitHub secret because inserting private keys into JSON is hard.
 
@@ -2154,7 +2156,7 @@ const codeBuildRunnerProps: CodeBuildRunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to this instance. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The number of minutes after which AWS CodeBuild stops the build if it's not complete. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The number of minutes after which AWS CodeBuild stops the build if it's not complete. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
 
 ---
@@ -2254,7 +2256,7 @@ public readonly timeout: Duration;
 - *Type:* aws-cdk-lib.Duration
 - *Default:* Duration.hours(1)
 
-The number of minutes after which AWS CodeBuild stops the build if it's not complete.
+The number of minutes after which AWS CodeBuild stops the build if it's not complete.
 
 For valid values, see the timeoutInMinutes field in the AWS
 CodeBuild User Guide.
@@ -2687,7 +2689,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.allowPublicSubnet">allowPublicSubnet</a></code> | <code>boolean</code> | Allow management functions to run in public subnets. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.extraCertificates">extraCertificates</a></code> | <code>string</code> | Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.extraCertificates">extraCertificates</a></code> | <code>string</code> | Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.  You may also want to use custom images for your runner providers that contain the same certificates. See {@link CodeBuildImageBuilder.addCertificates}.  ```typescript const imageBuilder = new CodeBuildImageBuilder(this, 'Image Builder with Certs', {      dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH, }); imageBuilder.addExtraCertificates('path-to-my-extra-certs-folder');  const provider = new CodeBuildRunner(this, 'CodeBuild', {      imageBuilder: imageBuilder, });  new GitHubRunners(    this,    'runners',    {      providers: [provider],      extraCertificates: 'path-to-my-extra-certs-folder',    } ); ```. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | List of runner providers to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to all management functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for all management functions. |
@@ -2718,29 +2720,7 @@ public readonly extraCertificates: string;
 
 - *Type:* string
 
-Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.
-
-You may also want to use custom images for your runner providers that contain the same certificates. See {@link CodeBuildImageBuilder.addCertificates}.
-
-```typescript
-const imageBuilder = new CodeBuildImageBuilder(this, 'Image Builder with Certs', {
-     dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH,
-});
-imageBuilder.addExtraCertificates('path-to-my-extra-certs-folder');
-
-const provider = new CodeBuildRunner(this, 'CodeBuild', {
-     imageBuilder: imageBuilder,
-});
-
-new GitHubRunners(
-   this,
-   'runners',
-   {
-     providers: [provider],
-     extraCertificates: 'path-to-my-extra-certs-folder',
-   }
-);
-```
+Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.  You may also want to use custom images for your runner providers that contain the same certificates. See {@link CodeBuildImageBuilder.addCertificates}.  ```typescript const imageBuilder = new CodeBuildImageBuilder(this, 'Image Builder with Certs', {      dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH, }); imageBuilder.addExtraCertificates('path-to-my-extra-certs-folder');  const provider = new CodeBuildRunner(this, 'CodeBuild', {      imageBuilder: imageBuilder, });  new GitHubRunners(    this,    'runners',    {      providers: [provider],      extraCertificates: 'path-to-my-extra-certs-folder',    } ); ```.
 
 ---
 
