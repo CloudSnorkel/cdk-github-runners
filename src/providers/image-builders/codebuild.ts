@@ -428,7 +428,7 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
   private customResource(project: codebuild.Project) {
     const crHandler = BundledNodejsFunction.singleton(this, 'build-image', {
       description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
-      timeout: cdk.Duration.seconds(30),
+      timeout: cdk.Duration.minutes(3),
     });
 
     const policy = new iam.Policy(this, 'CR Policy', {

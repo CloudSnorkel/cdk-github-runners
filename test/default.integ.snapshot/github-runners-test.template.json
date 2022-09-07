@@ -2756,7 +2756,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "4fff8fceb8f50fcb14da26d507e340ba4c658b9d55b64a0574f8834cfb8ee40f.zip"
+     "S3Key": "9ee3838187ac2312b2f11ba3314233ee57c7dfac2332d1295374da71f41be7dc.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -4098,7 +4098,78 @@
       "Arn"
      ]
     }
+   },
+   "DependsOn": [
+    "WindowsImageBuilderLog0E03408E"
+   ]
+  },
+  "WindowsImageBuilderCRPolicy81A41F62": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchDeleteImage",
+        "ecr:ListImages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "WindowsImageBuilderRepositoryA4CBB6D8",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "imagebuilder:ListImages",
+        "imagebuilder:ListImageBuildVersions",
+        "imagebuilder:DeleteImage"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "WindowsImageBuilderCRPolicy81A41F62",
+    "Roles": [
+     {
+      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+     }
+    ]
    }
+  },
+  "WindowsImageBuilderDeleterB5A108CD": {
+   "Type": "Custom::ImageDeleter",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+      "Arn"
+     ]
+    },
+    "RepoName": {
+     "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
+    },
+    "ImageBuilderName": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderImage7065BB07",
+      "Name"
+     ]
+    },
+    "DeleteOnly": true
+   },
+   "DependsOn": [
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+    "WindowsImageBuilderCRPolicy81A41F62",
+    "WindowsImageBuilderImage7065BB07"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   },
   "WindowsImageBuilderPipeline29B7B6E1": {
    "Type": "AWS::ImageBuilder::ImagePipeline",
@@ -4127,7 +4198,10 @@
      "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
      "ScheduleExpression": "rate(7 days)"
     }
-   }
+   },
+   "DependsOn": [
+    "WindowsImageBuilderLog0E03408E"
+   ]
   },
   "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58": {
    "Type": "AWS::IAM::Role",

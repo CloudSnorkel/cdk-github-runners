@@ -6,6 +6,7 @@ import { customResourceRespond } from '../helpers';
 
 const codebuild = new AWS.CodeBuild();
 const ecr = new AWS.ECR();
+const ib = new AWS.Imagebuilder();
 
 
 /* eslint-disable @typescript-eslint/no-require-imports, import/no-extraneous-dependencies */
@@ -13,8 +14,10 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
   try {
     console.log(JSON.stringify(event));
 
+    const deleteOnly = event.ResourceProperties.DeleteOnly as boolean | undefined;
     const repoName = event.ResourceProperties.RepoName;
     const projectName = event.ResourceProperties.ProjectName;
+    const ibName = event.ResourceProperties.ImageBuilderName as string | undefined;
 
     // let physicalResourceId: string;
     // let data: { [key: string]: string } = {};
@@ -22,6 +25,11 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
     switch (event.RequestType) {
       case 'Create':
       case 'Update':
+        if (deleteOnly) {
+          await customResourceRespond(event, 'SUCCESS', 'OK', 'Deleter', {});
+          break;
+        }
+
         console.log(`Starting CodeBuild project ${projectName}`);
         await codebuild.startBuild({
           projectName,
@@ -59,11 +67,29 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
             repositoryName: repoName,
           }).promise();
         }
+        if (ibName) {
+          const images = await ib.listImages({filters: [{name:'name', values:[ibName]}]}).promise();
+          if (images.imageVersionList) {
+            for (const v of images.imageVersionList) {
+              if (v.arn) {
+                const imageVersions = await ib.listImageBuildVersions({imageVersionArn: v.arn}).promise();
+                if (imageVersions.imageSummaryList) {
+                  for (const vs of imageVersions.imageSummaryList) {
+                    if (vs.arn) {
+                      console.log(`Deleting ${vs.arn}`);
+                      await ib.deleteImage({ imageBuildVersionArn: vs.arn }).promise();
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
         await customResourceRespond(event, 'SUCCESS', 'OK', event.PhysicalResourceId, {});
         break;
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
     await customResourceRespond(event, 'FAILED', (e as Error).message || 'Internal Error', context.logStreamName, {});
   }
 }

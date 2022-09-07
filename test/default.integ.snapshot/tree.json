@@ -3987,7 +3987,7 @@
                       "s3Bucket": {
                         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                       },
-                      "s3Key": "4fff8fceb8f50fcb14da26d507e340ba4c658b9d55b64a0574f8834cfb8ee40f.zip"
+                      "s3Key": "9ee3838187ac2312b2f11ba3314233ee57c7dfac2332d1295374da71f41be7dc.zip"
                     },
                     "role": {
                       "Fn::GetAtt": [
@@ -5708,6 +5708,80 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImage",
+                  "version": "2.29.0"
+                }
+              },
+              "CR Policy": {
+                "id": "CR Policy",
+                "path": "github-runners-test/Windows Image Builder/CR Policy",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Windows Image Builder/CR Policy/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                      "aws:cdk:cloudformation:props": {
+                        "policyDocument": {
+                          "Statement": [
+                            {
+                              "Action": [
+                                "ecr:BatchDeleteImage",
+                                "ecr:ListImages"
+                              ],
+                              "Effect": "Allow",
+                              "Resource": {
+                                "Fn::GetAtt": [
+                                  "WindowsImageBuilderRepositoryA4CBB6D8",
+                                  "Arn"
+                                ]
+                              }
+                            },
+                            {
+                              "Action": [
+                                "imagebuilder:ListImages",
+                                "imagebuilder:ListImageBuildVersions",
+                                "imagebuilder:DeleteImage"
+                              ],
+                              "Effect": "Allow",
+                              "Resource": "*"
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "policyName": "WindowsImageBuilderCRPolicy81A41F62",
+                        "roles": [
+                          {
+                            "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Policy",
+                  "version": "2.29.0"
+                }
+              },
+              "Deleter": {
+                "id": "Deleter",
+                "path": "github-runners-test/Windows Image Builder/Deleter",
+                "children": {
+                  "Default": {
+                    "id": "Default",
+                    "path": "github-runners-test/Windows Image Builder/Deleter/Default",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.CfnResource",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CustomResource",
                   "version": "2.29.0"
                 }
               },

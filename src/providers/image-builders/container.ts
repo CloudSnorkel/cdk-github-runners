@@ -211,10 +211,17 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
    */
   public readonly arn: string;
 
+  /**
+   * Supported platform for the component.
+   */
+  public readonly platform: 'Windows' | 'Linux';
+
   private readonly assets: s3_assets.Asset[] = [];
 
   constructor(scope: Construct, id: string, props: ImageBuilderComponentProperties) {
     super(scope, id);
+
+    this.platform = props.platform;
 
     let steps: any[] = [];
 
@@ -369,8 +376,6 @@ class ContainerRecipe extends ImageBuilderObjectBase {
     this.name = recipe.attrName;
   }
 }
-
-// TODO delete old Image Builder objects
 
 /**
  * An image builder that uses Image Builder to build Docker images pre-baked with all the GitHub Actions runner requirements. Builders can be used with runner providers.
@@ -546,6 +551,9 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     if (this.boundImage) {
       throw new Error('Image is already bound. Use this method before passing the builder to a runner provider.');
     }
+    if (component.platform != this.platform) {
+      throw new Error('Component platform doesn\'t match builder platform');
+    }
     this.components = [component].concat(this.components);
   }
 
@@ -556,6 +564,9 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
   addComponent(component: ImageBuilderComponent) {
     if (this.boundImage) {
       throw new Error('Image is already bound. Use this method before passing the builder to a runner provider.');
+    }
+    if (component.platform != this.platform) {
+      throw new Error('Component platform doesn\'t match builder platform');
     }
     this.components.push(component);
   }
@@ -618,7 +629,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       targetRepository: this.repository,
     });
 
-    new logs.LogGroup(this, 'Log', {
+    const log = new logs.LogGroup(this, 'Log', {
       logGroupName: `/aws/imagebuilder/${recipe.name}`,
       retention: this.logRetention,
       removalPolicy: this.logRemovalPolicy,
@@ -629,6 +640,9 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       distributionConfigurationArn: dist.attrArn,
       containerRecipeArn: recipe.arn,
     });
+    image.node.addDependency(log);
+
+    this.imageCleaner(image);
 
     let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
     if (this.rebuildInterval.toDays() > 0) {
@@ -637,7 +651,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
         pipelineExecutionStartCondition: 'EXPRESSION_MATCH_ONLY',
       };
     }
-    new imagebuilder.CfnImagePipeline(this, 'Pipeline', {
+    const pipeline = new imagebuilder.CfnImagePipeline(this, 'Pipeline', {
       name: uniqueName(this),
       description: this.description,
       containerRecipeArn: recipe.arn,
@@ -645,6 +659,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       distributionConfigurationArn: dist.attrArn,
       schedule: scheduleOptions,
     });
+    pipeline.node.addDependency(log);
 
     return {
       // There are simpler ways to get the ARN, but we want an image object that depends on the newly built image.
@@ -685,5 +700,43 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
         ],
       }).ref,
     });
+  }
+
+  private imageCleaner(image: imagebuilder.CfnImage) {
+    const crHandler = BundledNodejsFunction.singleton(this, 'build-image', {
+      description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
+      timeout: cdk.Duration.minutes(3),
+    });
+
+    const policy = new iam.Policy(this, 'CR Policy', {
+      statements: [
+        new iam.PolicyStatement({
+          actions: ['ecr:BatchDeleteImage', 'ecr:ListImages'],
+          resources: [this.repository.repositoryArn],
+        }),
+        new iam.PolicyStatement({
+          actions: ['imagebuilder:ListImages', 'imagebuilder:ListImageBuildVersions', 'imagebuilder:DeleteImage'],
+          resources: ['*'], // Image Builder doesn't support scoping this :(
+        }),
+      ],
+    });
+    crHandler.role?.attachInlinePolicy(policy);
+
+    const cr = new CustomResource(this, 'Deleter', {
+      serviceToken: crHandler.functionArn,
+      resourceType: 'Custom::ImageDeleter',
+      properties: {
+        RepoName: this.repository.repositoryName,
+        ImageBuilderName: image.attrName,
+        DeleteOnly: true,
+      },
+    });
+
+    // add dependencies to make sure resources are there when we need them
+    cr.node.addDependency(image);
+    cr.node.addDependency(policy);
+    cr.node.addDependency(crHandler);
+
+    return cr;
   }
 }
