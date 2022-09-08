@@ -9,6 +9,8 @@ const ib = new AWS.Imagebuilder();
 
 /* eslint-disable @typescript-eslint/no-require-imports, import/no-extraneous-dependencies */
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
+  console.log(JSON.stringify({ ...event, ResponseURL: '...' }));
+
   try {
     const objectType = event.ResourceProperties.ObjectType;
     const objectName = event.ResourceProperties.ObjectName;
