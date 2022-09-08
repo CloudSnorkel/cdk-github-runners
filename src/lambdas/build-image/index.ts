@@ -12,7 +12,7 @@ const ib = new AWS.Imagebuilder();
 /* eslint-disable @typescript-eslint/no-require-imports, import/no-extraneous-dependencies */
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   try {
-    console.log(JSON.stringify(event));
+    console.log(JSON.stringify({ ...event, ResponseURL: '...' }));
 
     const deleteOnly = event.ResourceProperties.DeleteOnly as boolean | undefined;
     const repoName = event.ResourceProperties.RepoName;
