@@ -373,7 +373,7 @@ class ContainerRecipe extends ImageBuilderObjectBase {
     });
 
     this.arn = recipe.attrArn;
-    this.name = recipe.attrName;
+    this.name = name;
   }
 }
 
@@ -642,7 +642,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     });
     image.node.addDependency(log);
 
-    this.imageCleaner(image);
+    this.imageCleaner(image, recipe.name);
 
     let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
     if (this.rebuildInterval.toDays() > 0) {
@@ -702,7 +702,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     });
   }
 
-  private imageCleaner(image: imagebuilder.CfnImage) {
+  private imageCleaner(image: imagebuilder.CfnImage, recipeName: string) {
     const crHandler = BundledNodejsFunction.singleton(this, 'build-image', {
       description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
       timeout: cdk.Duration.minutes(3),
@@ -727,7 +727,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       resourceType: 'Custom::ImageDeleter',
       properties: {
         RepoName: this.repository.repositoryName,
-        ImageBuilderName: image.attrName,
+        ImageBuilderName: recipeName, // we don't use image.name because CloudFormation complains if it was deleted already
         DeleteOnly: true,
       },
     });

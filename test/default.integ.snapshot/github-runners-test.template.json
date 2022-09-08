@@ -2756,7 +2756,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "9ee3838187ac2312b2f11ba3314233ee57c7dfac2332d1295374da71f41be7dc.zip"
+     "S3Key": "4503299f1badbfa403cedac88ca887dfdc3e4f5fe69b25234fca1a67c1db9b2c.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -2772,7 +2772,7 @@
     },
     "Handler": "index.handler",
     "Runtime": "nodejs14.x",
-    "Timeout": 30
+    "Timeout": 180
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
@@ -4058,20 +4058,7 @@
   "WindowsImageBuilderLog0E03408E": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/imagebuilder/",
-       {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderContainerRecipeB2A421D7",
-         "Name"
-        ]
-       }
-      ]
-     ]
-    },
+    "LogGroupName": "/aws/imagebuilder/github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -4153,12 +4140,7 @@
     "RepoName": {
      "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
     },
-    "ImageBuilderName": {
-     "Fn::GetAtt": [
-      "WindowsImageBuilderImage7065BB07",
-      "Name"
-     ]
-    },
+    "ImageBuilderName": "github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
     "DeleteOnly": true
    },
    "DependsOn": [

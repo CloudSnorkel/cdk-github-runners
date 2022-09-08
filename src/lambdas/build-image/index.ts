@@ -58,23 +58,23 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
         }).promise();
         break;
       case 'Delete':
-        const images = await ecr.listImages({ repositoryName: repoName, maxResults: 100 }).promise();
-        if (images.imageIds && images.imageIds.length > 0) {
+        const ecrImages = await ecr.listImages({ repositoryName: repoName, maxResults: 100 }).promise();
+        if (ecrImages.imageIds && ecrImages.imageIds.length > 0) {
           await ecr.batchDeleteImage({
-            imageIds: images.imageIds.map(i => {
+            imageIds: ecrImages.imageIds.map(i => {
               return { imageDigest: i.imageDigest };
             }),
             repositoryName: repoName,
           }).promise();
         }
         if (ibName) {
-          const images = await ib.listImages({filters: [{name:'name', values:[ibName]}]}).promise();
-          if (images.imageVersionList) {
-            for (const v of images.imageVersionList) {
+          const ibImages = await ib.listImages({filters: [{name:'name', values:[ibName]}]}).promise();
+          if (ibImages.imageVersionList) {
+            for (const v of ibImages.imageVersionList) {
               if (v.arn) {
-                const imageVersions = await ib.listImageBuildVersions({imageVersionArn: v.arn}).promise();
-                if (imageVersions.imageSummaryList) {
-                  for (const vs of imageVersions.imageSummaryList) {
+                const ibImageVersions = await ib.listImageBuildVersions({imageVersionArn: v.arn}).promise();
+                if (ibImageVersions.imageSummaryList) {
+                  for (const vs of ibImageVersions.imageSummaryList) {
                     if (vs.arn) {
                       console.log(`Deleting ${vs.arn}`);
                       await ib.deleteImage({ imageBuildVersionArn: vs.arn }).promise();
