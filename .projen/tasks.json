@@ -90,6 +90,9 @@
           "exec": "jsii --silence-warnings=reserved-word"
         },
         {
+          "exec": "esbuild src/lambdas/aws-image-builder-versioner/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/aws-image-builder-versioner/index.js"
+        },
+        {
           "exec": "esbuild src/lambdas/build-image/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/build-image/index.js"
         },
         {

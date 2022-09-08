@@ -6,7 +6,7 @@
 
 import * as cdk from 'aws-cdk-lib';
 import { aws_codebuild as codebuild, aws_ecs as ecs } from 'aws-cdk-lib';
-import { Architecture, CodeBuildImageBuilder, CodeBuildRunner, FargateRunner, GitHubRunners, LambdaRunner } from '../src';
+import { Architecture, Os, CodeBuildImageBuilder, CodeBuildRunner, ContainerImageBuilder, FargateRunner, GitHubRunners, LambdaRunner } from '../src';
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
@@ -47,15 +47,14 @@ new GitHubRunners(stack, 'runners', {
         architecture: Architecture.ARM64,
       }),
     }),
-    // new CodeBuildRunner(stack, 'CodeBuildWindows', {
-    //   label: 'codebuild-windows-x64',
-    //   computeType: codebuild.ComputeType.MEDIUM,
-    //   imageBuilder: new ContainerImageBuilder(stack, 'Windows Image Builder', {
-    //     dockerfilePath: CodeBuildRunner.WINDOWS_X64_DOCKERFILE_PATH,
-    //     architecture: Architecture.X86_64,
-    //     os: Os.WINDOWS,
-    //   }),
-    // }),
+    new CodeBuildRunner(stack, 'CodeBuildWindows', {
+      label: 'codebuild-windows-x64',
+      computeType: codebuild.ComputeType.MEDIUM,
+      imageBuilder: new ContainerImageBuilder(stack, 'Windows Image Builder', {
+        architecture: Architecture.X86_64,
+        os: Os.WINDOWS,
+      }),
+    }),
     new LambdaRunner(stack, 'Lambda', {
       label: 'lambda-x64',
       imageBuilder: lambdaImageBuilder,

@@ -137,7 +137,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
     this.vpc = props.vpc;
     this.securityGroup = props.securityGroup;
 
-    const buildSpec = {
+    let buildSpec = {
       version: '0.2',
       env: {
         variables: {
@@ -170,6 +170,17 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
     });
     const image = imageBuilder.bind();
 
+    if (image.os.is(Os.WINDOWS)) {
+      buildSpec.phases.install.commands = [
+        'cd \\actions',
+        './config.cmd --unattended --url "https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL}" --disableupdate --name "${Env:RUNNER_NAME}"',
+      ];
+      buildSpec.phases.build.commands = [
+        'cd \\actions',
+        './run.cmd',
+      ];
+    }
+
     // choose build image
     let buildImage: codebuild.IBuildImage | undefined;
     if (image.os.is(Os.LINUX)) {
@@ -181,7 +192,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
     }
     if (image.os.is(Os.WINDOWS)) {
       if (image.architecture.is(Architecture.X86_64)) {
-        buildImage = codebuild.WindowsBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);
+        buildImage = codebuild.WindowsBuildImage.fromEcrRepository(image.imageRepository, image.imageTag, codebuild.WindowsImageType.SERVER_2019);
       }
     }
 
@@ -203,7 +214,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
         environment: {
           buildImage,
           computeType: props.computeType ?? ComputeType.SMALL,
-          privileged: true,
+          privileged: image.os.is(Os.LINUX),
         },
         logging: {
           cloudWatch: {

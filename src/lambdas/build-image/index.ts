@@ -2,9 +2,11 @@
 import * as AWSLambda from 'aws-lambda';
 /* eslint-disable-next-line import/no-extraneous-dependencies */
 import * as AWS from 'aws-sdk';
+import { customResourceRespond } from '../helpers';
 
 const codebuild = new AWS.CodeBuild();
 const ecr = new AWS.ECR();
+const ib = new AWS.Imagebuilder();
 
 
 /* eslint-disable @typescript-eslint/no-require-imports, import/no-extraneous-dependencies */
@@ -12,8 +14,10 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
   try {
     console.log(JSON.stringify(event));
 
+    const deleteOnly = event.ResourceProperties.DeleteOnly as boolean | undefined;
     const repoName = event.ResourceProperties.RepoName;
     const projectName = event.ResourceProperties.ProjectName;
+    const ibName = event.ResourceProperties.ImageBuilderName as string | undefined;
 
     // let physicalResourceId: string;
     // let data: { [key: string]: string } = {};
@@ -21,6 +25,11 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
     switch (event.RequestType) {
       case 'Create':
       case 'Update':
+        if (deleteOnly) {
+          await customResourceRespond(event, 'SUCCESS', 'OK', 'Deleter', {});
+          break;
+        }
+
         console.log(`Starting CodeBuild project ${projectName}`);
         await codebuild.startBuild({
           projectName,
@@ -49,59 +58,38 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
         }).promise();
         break;
       case 'Delete':
-        const images = await ecr.listImages({ repositoryName: repoName, maxResults: 100 }).promise();
-        if (images.imageIds && images.imageIds.length > 0) {
+        const ecrImages = await ecr.listImages({ repositoryName: repoName, maxResults: 100 }).promise();
+        if (ecrImages.imageIds && ecrImages.imageIds.length > 0) {
           await ecr.batchDeleteImage({
-            imageIds: images.imageIds.map(i => {
+            imageIds: ecrImages.imageIds.map(i => {
               return { imageDigest: i.imageDigest };
             }),
             repositoryName: repoName,
           }).promise();
         }
-        await respond('SUCCESS', 'OK', event.PhysicalResourceId, {});
+        if (ibName) {
+          const ibImages = await ib.listImages({ filters: [{ name: 'name', values: [ibName] }] }).promise();
+          if (ibImages.imageVersionList) {
+            for (const v of ibImages.imageVersionList) {
+              if (v.arn) {
+                const ibImageVersions = await ib.listImageBuildVersions({ imageVersionArn: v.arn }).promise();
+                if (ibImageVersions.imageSummaryList) {
+                  for (const vs of ibImageVersions.imageSummaryList) {
+                    if (vs.arn) {
+                      console.log(`Deleting ${vs.arn}`);
+                      await ib.deleteImage({ imageBuildVersionArn: vs.arn }).promise();
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        await customResourceRespond(event, 'SUCCESS', 'OK', event.PhysicalResourceId, {});
         break;
     }
   } catch (e) {
-    console.log(e);
-    await respond('FAILED', (e as Error).message || 'Internal Error', context.logStreamName, {});
-  }
-
-  function respond(responseStatus: string, reason: string, physicalResourceId: string, data: any) {
-    const responseBody = JSON.stringify({
-      Status: responseStatus,
-      Reason: reason,
-      PhysicalResourceId: physicalResourceId,
-      StackId: event.StackId,
-      RequestId: event.RequestId,
-      LogicalResourceId: event.LogicalResourceId,
-      NoEcho: false,
-      Data: data,
-    });
-
-    console.log('Responding', responseBody);
-
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const parsedUrl = require('url').parse(event.ResponseURL);
-    const requestOptions = {
-      hostname: parsedUrl.hostname,
-      path: parsedUrl.path,
-      method: 'PUT',
-      headers: {
-        'content-type': '',
-        'content-length': responseBody.length,
-      },
-    };
-
-    return new Promise((resolve, reject) => {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const request = require('https').request(requestOptions, resolve);
-        request.on('error', reject);
-        request.write(responseBody);
-        request.end();
-      } catch (e) {
-        reject(e);
-      }
-    });
+    console.error(e);
+    await customResourceRespond(event, 'FAILED', (e as Error).message || 'Internal Error', context.logStreamName, {});
   }
 }

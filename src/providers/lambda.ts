@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import {
+  Annotations,
   aws_ec2 as ec2,
   aws_events as events,
   aws_events_targets as events_targets,
@@ -158,13 +159,24 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
       throw new Error(`Unable to find support Lambda architecture for ${image.os.name}/${image.architecture.name}`);
     }
 
+    let code;
+    if (image.imageDigest) {
+      code = lambda.DockerImageCode.fromEcr(image.imageRepository, { tagOrDigest: `sha256:${image.imageDigest}` });
+    } else {
+      if (image.imageTag == 'latest') {
+        Annotations.of(this).addWarning('imageTag is `latest` even though imageDigest is not specified! This means any updates to the image by the' +
+          'stack will be used.');
+      }
+      code = lambda.DockerImageCode.fromEcr(image.imageRepository, { tagOrDigest: image.imageTag });
+    }
+
     this.function = new lambda.DockerImageFunction(
       this,
       'Function',
       {
         description: `GitHub Actions runner for "${this.label}" label`,
         // CDK requires "sha256:" literal prefix -- https://github.com/aws/aws-cdk/blob/ba91ca45ad759ab5db6da17a62333e2bc11e1075/packages/%40aws-cdk/aws-ecr/lib/repository.ts#L184
-        code: lambda.DockerImageCode.fromEcr(image.imageRepository, { tagOrDigest: `sha256:${image.imageDigest}` }),
+        code,
         architecture,
         vpc: this.vpc,
         securityGroups: this.securityGroup && [this.securityGroup],

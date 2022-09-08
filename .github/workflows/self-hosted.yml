@@ -76,3 +76,46 @@ jobs:
           echo FROM public.ecr.aws/docker/library/bash > Dockerfile
           docker build  .
           docker-compose --version
+
+  self-hosted-windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows
+            arch: X64
+            label: codebuild-windows-x64
+            docker: false
+
+    runs-on: [self-hosted, "${{ matrix.os }}", "${{ matrix.arch }}", "${{ matrix.label }}"]
+    steps:
+      - run: |
+          Get-ChildItem env:
+      - name: Check arch
+        run: |
+          if (Compare-Object "${{ matrix.arch }}" $Env:RUNNER_ARCH) {
+            Write-Host "Expected RUNNER_ARCH to be ${{ matrix.arch }} but it's $Env:RUNNER_ARCH"
+            exit 1
+          }
+      - run: ls
+      - name: Checkout
+        uses: actions/checkout@v2
+      - run: ls
+      - name: github script
+        uses: actions/github-script@0.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log("hello world");
+      - name: git
+        run: git --version
+      - name: aws
+        run: aws --version
+      - name: gh
+        run: gh --version
+      - name: docker
+        if: ${{ matrix.docker }}
+        run: |
+          echo FROM public.ecr.aws/docker/library/bash > Dockerfile
+          docker build  .
+          docker-compose --version
