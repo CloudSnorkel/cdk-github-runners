@@ -11375,6 +11375,105 @@
                                 "policyDocument": {
                                   "Statement": [
                                     {
+                                      "Action": "ecr:DescribeImages",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Ref": "CodeBuildImageBuilderB8638EC8"
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecr:DescribeImages",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecr:DescribeImages",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::Join": [
+                                          "",
+                                          [
+                                            "arn:",
+                                            {
+                                              "Ref": "AWS::Partition"
+                                            },
+                                            ":ecr:",
+                                            {
+                                              "Ref": "AWS::Region"
+                                            },
+                                            ":",
+                                            {
+                                              "Ref": "AWS::AccountId"
+                                            },
+                                            ":repository/",
+                                            {
+                                              "Fn::Select": [
+                                                0,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Fn::Select": [
+                                                        1,
+                                                        {
+                                                          "Fn::Split": [
+                                                            "/",
+                                                            {
+                                                              "Fn::GetAtt": [
+                                                                "WindowsImageBuilderImage7065BB07",
+                                                                "ImageUri"
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecr:DescribeImages",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Ref": "LambdaImageBuilderx64Builder42F384AF"
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecr:DescribeImages",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Ref": "LambdaImageBuilderzBuilder235DD147"
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecr:DescribeImages",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Ref": "FargatebuilderBuilder0834CD0B"
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecr:DescribeImages",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Ref": "FargatebuilderarmBuilder48D1AF5A"
+                                      }
+                                    },
+                                    {
+                                      "Action": "cloudformation:DescribeStackResource",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Ref": "AWS::StackId"
+                                      }
+                                    },
+                                    {
                                       "Action": [
                                         "secretsmanager:GetSecretValue",
                                         "secretsmanager:DescribeSecret"
@@ -11539,7 +11638,7 @@
                           "s3Bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "s3Key": "9e198a6bad9806e2db6f981c6c0868292183ac7c843c4c205ea160ddd0963eb5.zip"
+                          "s3Key": "ab5f954cc7aa68680f826e948118a38f0b287614532cb518abd0b2d00c0c0c32.zip"
                         },
                         "role": {
                           "Fn::GetAtt": [
@@ -11566,141 +11665,6 @@
                               "Fn::GetAtt": [
                                 "runnersWebhookHandlerwebhookhandlerFunctionUrlC8FB3D17",
                                 "FunctionUrl"
-                              ]
-                            },
-                            "PROVIDERS": {
-                              "Fn::Join": [
-                                "",
-                                [
-                                  "[{\"type\":\"CodeBuildRunner\",\"label\":\"codebuild-x64\",\"roleArn\":\"",
-                                  {
-                                    "Fn::GetAtt": [
-                                      "CodeBuildx64CodeBuildRole32E5C764",
-                                      "Arn"
-                                    ]
-                                  },
-                                  "\"},{\"type\":\"CodeBuildRunner\",\"label\":\"codebuild-arm64\",\"roleArn\":\"",
-                                  {
-                                    "Fn::GetAtt": [
-                                      "CodeBuildARMCodeBuildRole74DB4985",
-                                      "Arn"
-                                    ]
-                                  },
-                                  "\"},{\"type\":\"CodeBuildRunner\",\"label\":\"codebuild-windows-x64\",\"roleArn\":\"",
-                                  {
-                                    "Fn::GetAtt": [
-                                      "CodeBuildWindowsCodeBuildRoleDC93697E",
-                                      "Arn"
-                                    ]
-                                  },
-                                  "\"},{\"type\":\"LambdaRunner\",\"label\":\"lambda-x64\",\"roleArn\":\"",
-                                  {
-                                    "Fn::GetAtt": [
-                                      "LambdaFunctionServiceRoleB1826A50",
-                                      "Arn"
-                                    ]
-                                  },
-                                  "\"},{\"type\":\"LambdaRunner\",\"label\":\"lambda-arm64\",\"roleArn\":\"",
-                                  {
-                                    "Fn::GetAtt": [
-                                      "LambdaARMFunctionServiceRole136069A0",
-                                      "Arn"
-                                    ]
-                                  },
-                                  "\"},{\"type\":\"FargateRunner\",\"label\":\"fargate-x64\",\"vpcArn\":\"arn:",
-                                  {
-                                    "Ref": "AWS::Partition"
-                                  },
-                                  ":ec2:",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  ":",
-                                  {
-                                    "Ref": "AWS::AccountId"
-                                  },
-                                  ":vpc/",
-                                  {
-                                    "Ref": "clusterVpc91107A71"
-                                  },
-                                  "\",\"securityGroup\":\"",
-                                  {
-                                    "Fn::GetAtt": [
-                                      "FargatesecuritygroupAFCAFD34",
-                                      "GroupId"
-                                    ]
-                                  },
-                                  "\"},{\"type\":\"FargateRunner\",\"label\":\"fargate-x64-spot\",\"vpcArn\":\"arn:",
-                                  {
-                                    "Ref": "AWS::Partition"
-                                  },
-                                  ":ec2:",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  ":",
-                                  {
-                                    "Ref": "AWS::AccountId"
-                                  },
-                                  ":vpc/",
-                                  {
-                                    "Ref": "clusterVpc91107A71"
-                                  },
-                                  "\",\"securityGroup\":\"",
-                                  {
-                                    "Fn::GetAtt": [
-                                      "Fargatex64spotsecuritygroup2A9F4299",
-                                      "GroupId"
-                                    ]
-                                  },
-                                  "\"},{\"type\":\"FargateRunner\",\"label\":\"fargate-arm64\",\"vpcArn\":\"arn:",
-                                  {
-                                    "Ref": "AWS::Partition"
-                                  },
-                                  ":ec2:",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  ":",
-                                  {
-                                    "Ref": "AWS::AccountId"
-                                  },
-                                  ":vpc/",
-                                  {
-                                    "Ref": "clusterVpc91107A71"
-                                  },
-                                  "\",\"securityGroup\":\"",
-                                  {
-                                    "Fn::GetAtt": [
-                                      "Fargatearm64securitygroup08ABAD9E",
-                                      "GroupId"
-                                    ]
-                                  },
-                                  "\"},{\"type\":\"FargateRunner\",\"label\":\"fargate-arm64-spot\",\"vpcArn\":\"arn:",
-                                  {
-                                    "Ref": "AWS::Partition"
-                                  },
-                                  ":ec2:",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  ":",
-                                  {
-                                    "Ref": "AWS::AccountId"
-                                  },
-                                  ":vpc/",
-                                  {
-                                    "Ref": "clusterVpc91107A71"
-                                  },
-                                  "\",\"securityGroup\":\"",
-                                  {
-                                    "Fn::GetAtt": [
-                                      "Fargatearm64spotsecuritygroup20C885E4",
-                                      "GroupId"
-                                    ]
-                                  },
-                                  "\"}]"
-                                ]
                               ]
                             },
                             "WEBHOOK_HANDLER_ARN": {

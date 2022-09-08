@@ -5,6 +5,8 @@ import * as AWS from 'aws-sdk';
 import { baseUrlFromDomain } from '../github';
 import { getSecretJsonValue, getSecretValue } from '../helpers';
 
+const cfn = new AWS.CloudFormation();
+const ecr = new AWS.ECR();
 const sf = new AWS.StepFunctions();
 
 function secretArnToUrl(arn: string) {
@@ -31,6 +33,36 @@ function stepFunctionArnToUrl(arn: string) {
   return `https://${region}.console.aws.amazon.com/states/home?region=${region}#/statemachines/view/${arn}`;
 }
 
+async function generateProvidersStatus(stack: string, logicalId: string) {
+  const resource = await cfn.describeStackResource({StackName: stack, LogicalResourceId: logicalId}).promise();
+  const providers = JSON.parse(resource.StackResourceDetail?.Metadata ?? '{}').providers as any[] | undefined;
+
+  if (!providers) {
+    return {};
+  }
+
+  return await Promise.all(providers.map(async (p) => {
+    // add ECR data, if image is from ECR
+    if (p.image?.imageRepository?.match(/[0-9]+\.dkr\.ecr\.[a-z0-9\-]+\.amazonaws\.com\/.+/)) {
+      const tags = await ecr.describeImages({
+        repositoryName: p.image.imageRepository.split('/')[1],
+        filter: {
+          tagStatus: 'TAGGED',
+        },
+        maxResults: 1,
+      }).promise();
+      if (tags.imageDetails && tags.imageDetails?.length >= 1) {
+        p.image.latestImage = {
+          tags: tags.imageDetails[0].imageTags,
+          digest: tags.imageDetails[0].imageDigest,
+          date: tags.imageDetails[0].imagePushedAt,
+        }
+      }
+    }
+    return p;
+  }));
+}
+
 interface AppInstallation {
   readonly id: number;
   readonly url: string;
@@ -48,8 +80,9 @@ interface RecentRun {
 
 exports.handler = async function () {
   // confirm required environment variables
-  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN || !process.env.PROVIDERS ||
-      !process.env.WEBHOOK_HANDLER_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SETUP_SECRET_ARN || !process.env.SETUP_FUNCTION_URL) {
+  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN || !process.env.LOGICAL_ID ||
+      !process.env.WEBHOOK_HANDLER_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SETUP_SECRET_ARN || !process.env.SETUP_FUNCTION_URL ||
+      !process.env.STACK_NAME) {
     throw new Error('Missing environment variables');
   }
 
@@ -84,7 +117,7 @@ exports.handler = async function () {
         personalAuthToken: '',
       },
     },
-    providers: JSON.parse(process.env.PROVIDERS),
+    providers: await generateProvidersStatus(process.env.STACK_NAME, process.env.LOGICAL_ID),
     troubleshooting: {
       webhookHandlerArn: process.env.WEBHOOK_HANDLER_ARN,
       webhookHandlerUrl: lambdaArnToUrl(process.env.WEBHOOK_HANDLER_ARN),

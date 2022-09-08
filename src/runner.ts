@@ -293,16 +293,6 @@ export class GitHubRunners extends Construct {
   }
 
   private statusFunction() {
-    const providers = this.providers.map(provider => {
-      return {
-        type: provider.constructor.name,
-        label: provider.label,
-        vpcArn: provider.vpc && provider.vpc.vpcArn,
-        securityGroup: provider.securityGroup && provider.securityGroup.securityGroupId,
-        roleArn: (provider.grantPrincipal.grantPrincipal as iam.Role).roleArn,
-      };
-    });
-
     const statusFunction = new BundledNodejsFunction(
       this,
       'status',
@@ -314,7 +304,6 @@ export class GitHubRunners extends Construct {
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
           SETUP_SECRET_ARN: this.secrets.setup.secretArn,
           WEBHOOK_URL: this.webhook.url,
-          PROVIDERS: JSON.stringify(providers),
           WEBHOOK_HANDLER_ARN: this.webhook.handler.latestVersion.functionArn,
           STEP_FUNCTION_ARN: this.orchestrator.stateMachineArn,
           SETUP_FUNCTION_URL: this.setupUrl,
@@ -324,6 +313,35 @@ export class GitHubRunners extends Construct {
         ...this.extraLambdaProps,
       },
     );
+
+    const providers = this.providers.map(provider => {
+      provider.image.imageRepository.grant(statusFunction, 'ecr:DescribeImages')
+
+      return {
+        type: provider.constructor.name,
+        label: provider.label,
+        vpcArn: provider.vpc?.vpcArn,
+        securityGroup: provider.securityGroup?.securityGroupId,
+        roleArn: (provider.grantPrincipal.grantPrincipal as iam.Role).roleArn,
+        image: {
+          imageRepository: provider.image.imageRepository.repositoryUri,
+          imageTag: provider.image.imageTag,
+          imageBuilderLogGroup: provider.image.logGroup?.logGroupName,
+        }
+      };
+    });
+
+    // expose providers as stack metadata as it's too big for Lambda environment variables
+    // specifically integration testing got an error because lambda update request was >5kb
+    const stack = cdk.Stack.of(this);
+    const f = (statusFunction.node.defaultChild as lambda.CfnFunction);
+    f.addPropertyOverride('Environment.Variables.LOGICAL_ID', f.logicalId);
+    f.addPropertyOverride('Environment.Variables.STACK_NAME', stack.stackName);
+    f.addMetadata("providers", providers);
+    statusFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['cloudformation:DescribeStackResource'],
+      resources: [stack.stackId],
+    }));
 
     this.secrets.webhook.grantRead(statusFunction);
     this.secrets.github.grantRead(statusFunction);
@@ -335,7 +353,7 @@ export class GitHubRunners extends Construct {
       this,
       'status command',
       {
-        value: `aws --region ${cdk.Stack.of(this).region} lambda invoke --function-name ${statusFunction.functionName} status.json`,
+        value: `aws --region ${stack.region} lambda invoke --function-name ${statusFunction.functionName} status.json`,
       },
     );
   }

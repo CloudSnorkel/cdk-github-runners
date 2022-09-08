@@ -117,6 +117,11 @@ export interface RunnerImage {
    * OS type of the image.
    */
   readonly os: Os;
+
+  /**
+   * Log group where image builds are logged.
+   */
+  readonly logGroup?: logs.LogGroup;
 }
 
 /**
@@ -190,6 +195,26 @@ export interface RunnerRuntimeParameters {
 }
 
 /**
+ * Interface for runner image status used by status.json.
+ */
+export interface IRunnerImageStatus {
+  /**
+   * Image repository where runner image is pushed.
+   */
+  readonly imageRepository?: string;
+
+  /**
+   * Tag of image that should be used.
+   */
+  readonly imageTag?: string;
+
+  /**
+   * Log group name for the image builder where history of image builds can be analyzed.
+   */
+  readonly imageBuilderLogGroup?: string;
+}
+
+/**
  * Interface for all runner providers. Implementations create all required resources and return a step function task that starts those resources from {@link getStepFunctionTask}.
  */
 export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
@@ -207,6 +232,11 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
    * Security group associated with runners.
    */
   readonly securityGroup?: ec2.ISecurityGroup;
+
+  /**
+   * Image used to create a new resource compute. Can be Docker image, AMI, or something else.
+   */
+  readonly image: RunnerImage;
 
   /**
    * Generate step function tasks that execute the runner.

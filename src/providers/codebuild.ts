@@ -13,7 +13,7 @@ import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
-import { Architecture, IImageBuilder, IRunnerProvider, Os, RunnerProviderProps, RunnerRuntimeParameters } from './common';
+import { Architecture, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 
@@ -130,6 +130,11 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
    */
   readonly grantPrincipal: iam.IPrincipal;
 
+  /**
+   * Docker image in CodeBuild project.
+   */
+  readonly image: RunnerImage;
+
   constructor(scope: Construct, id: string, props: CodeBuildRunnerProps) {
     super(scope, id);
 
@@ -168,9 +173,9 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
     const imageBuilder = props.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
       dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH,
     });
-    const image = imageBuilder.bind();
+    const image = this.image = imageBuilder.bind();
 
-    if (image.os.is(Os.WINDOWS)) {
+    if (this.image.os.is(Os.WINDOWS)) {
       buildSpec.phases.install.commands = [
         'cd \\actions',
         './config.cmd --unattended --url "https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL}" --disableupdate --name "${Env:RUNNER_NAME}"',
@@ -214,7 +219,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
         environment: {
           buildImage,
           computeType: props.computeType ?? ComputeType.SMALL,
-          privileged: image.os.is(Os.LINUX),
+          privileged: this.image.os.is(Os.LINUX),
         },
         logging: {
           cloudWatch: {
