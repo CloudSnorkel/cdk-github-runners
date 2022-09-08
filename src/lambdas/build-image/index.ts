@@ -68,11 +68,11 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
           }).promise();
         }
         if (ibName) {
-          const ibImages = await ib.listImages({filters: [{name:'name', values:[ibName]}]}).promise();
+          const ibImages = await ib.listImages({ filters: [{ name: 'name', values: [ibName] }] }).promise();
           if (ibImages.imageVersionList) {
             for (const v of ibImages.imageVersionList) {
               if (v.arn) {
-                const ibImageVersions = await ib.listImageBuildVersions({imageVersionArn: v.arn}).promise();
+                const ibImageVersions = await ib.listImageBuildVersions({ imageVersionArn: v.arn }).promise();
                 if (ibImageVersions.imageSummaryList) {
                   for (const vs of ibImageVersions.imageSummaryList) {
                     if (vs.arn) {
