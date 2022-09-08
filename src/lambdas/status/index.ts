@@ -206,7 +206,7 @@ exports.handler = async function () {
       for (const installation of installations) {
         let installationDetails = {
           id: installation.id,
-          url: `https://${githubSecrets.domain}/settings/installations/${installation.id}`,
+          url: installation.html_url,
           status: 'Unable to query',
           repositories: [] as string[],
         };
