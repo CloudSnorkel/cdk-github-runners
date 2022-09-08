@@ -12,7 +12,7 @@ interface Input {
 }
 
 export async function handler(event: Input) {
-  console.log(event);
+  console.log(JSON.stringify(event));
 
   const stacks = await cfn.describeStacks({
     StackName: event.stackName,
