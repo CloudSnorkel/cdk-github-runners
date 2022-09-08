@@ -6645,16 +6645,6 @@
                             "policyDocument": {
                               "Statement": [
                                 {
-                                  "Action": "lambda:UpdateFunctionCode",
-                                  "Effect": "Allow",
-                                  "Resource": {
-                                    "Fn::GetAtt": [
-                                      "LambdaFunction9233991D",
-                                      "Arn"
-                                    ]
-                                  }
-                                },
-                                {
                                   "Action": "cloudformation:DescribeStacks",
                                   "Effect": "Allow",
                                   "Resource": {
@@ -6675,6 +6665,26 @@
                                         },
                                         ":stack/github-runners-test/*"
                                       ]
+                                    ]
+                                  }
+                                },
+                                {
+                                  "Action": "lambda:UpdateFunctionCode",
+                                  "Effect": "Allow",
+                                  "Resource": {
+                                    "Fn::GetAtt": [
+                                      "LambdaFunction9233991D",
+                                      "Arn"
+                                    ]
+                                  }
+                                },
+                                {
+                                  "Action": "lambda:UpdateFunctionCode",
+                                  "Effect": "Allow",
+                                  "Resource": {
+                                    "Fn::GetAtt": [
+                                      "LambdaARMFunctionDD4B5FF7",
+                                      "Arn"
                                     ]
                                   }
                                 }
@@ -6742,7 +6752,7 @@
                       "s3Bucket": {
                         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                       },
-                      "s3Key": "69d02ba76fb89974a3d82ce4b3b404188be8c54589f2b9b359851ca87c5a2112.zip"
+                      "s3Key": "35c99ca05f12b61868c715d657cd142b535de141a93e018fd30f8198753d147e.zip"
                     },
                     "role": {
                       "Fn::GetAtt": [

@@ -236,10 +236,6 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
       timeout: cdk.Duration.seconds(30),
       initialPolicy: [
         new iam.PolicyStatement({
-          actions: ['lambda:UpdateFunctionCode'],
-          resources: [this.function.functionArn],
-        }),
-        new iam.PolicyStatement({
           actions: ['cloudformation:DescribeStacks'],
           resources: [stack.formatArn({
             service: 'cloudformation',
@@ -249,6 +245,11 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
         }),
       ],
     });
+
+    updater.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['lambda:UpdateFunctionCode'],
+      resources: [this.function.functionArn],
+    }));
 
     let lambdaTarget = new events_targets.LambdaFunction(updater, {
       event: events.RuleTargetInput.fromObject({
