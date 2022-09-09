@@ -315,7 +315,7 @@ export class GitHubRunners extends Construct {
     );
 
     const providers = this.providers.map(provider => {
-      provider.image.imageRepository.grant(statusFunction, 'ecr:DescribeImages')
+      provider.image.imageRepository.grant(statusFunction, 'ecr:DescribeImages');
 
       return {
         type: provider.constructor.name,
@@ -327,7 +327,7 @@ export class GitHubRunners extends Construct {
           imageRepository: provider.image.imageRepository.repositoryUri,
           imageTag: provider.image.imageTag,
           imageBuilderLogGroup: provider.image.logGroup?.logGroupName,
-        }
+        },
       };
     });
 
@@ -337,7 +337,7 @@ export class GitHubRunners extends Construct {
     const f = (statusFunction.node.defaultChild as lambda.CfnFunction);
     f.addPropertyOverride('Environment.Variables.LOGICAL_ID', f.logicalId);
     f.addPropertyOverride('Environment.Variables.STACK_NAME', stack.stackName);
-    f.addMetadata("providers", providers);
+    f.addMetadata('providers', providers);
     statusFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: ['cloudformation:DescribeStackResource'],
       resources: [stack.stackId],

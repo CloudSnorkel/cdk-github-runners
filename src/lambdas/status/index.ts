@@ -34,14 +34,14 @@ function stepFunctionArnToUrl(arn: string) {
 }
 
 async function generateProvidersStatus(stack: string, logicalId: string) {
-  const resource = await cfn.describeStackResource({StackName: stack, LogicalResourceId: logicalId}).promise();
+  const resource = await cfn.describeStackResource({ StackName: stack, LogicalResourceId: logicalId }).promise();
   const providers = JSON.parse(resource.StackResourceDetail?.Metadata ?? '{}').providers as any[] | undefined;
 
   if (!providers) {
     return {};
   }
 
-  return await Promise.all(providers.map(async (p) => {
+  return Promise.all(providers.map(async (p) => {
     // add ECR data, if image is from ECR
     if (p.image?.imageRepository?.match(/[0-9]+\.dkr\.ecr\.[a-z0-9\-]+\.amazonaws\.com\/.+/)) {
       const tags = await ecr.describeImages({
@@ -56,7 +56,7 @@ async function generateProvidersStatus(stack: string, logicalId: string) {
           tags: tags.imageDetails[0].imageTags,
           digest: tags.imageDetails[0].imageDigest,
           date: tags.imageDetails[0].imagePushedAt,
-        }
+        };
       }
     }
     return p;
