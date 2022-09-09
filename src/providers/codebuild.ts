@@ -175,7 +175,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
     });
     const image = this.image = imageBuilder.bind();
 
-    if (this.image.os.is(Os.WINDOWS)) {
+    if (image.os.is(Os.WINDOWS)) {
       buildSpec.phases.install.commands = [
         'cd \\actions',
         './config.cmd --unattended --url "https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL}" --disableupdate --name "${Env:RUNNER_NAME}"',
@@ -219,7 +219,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
         environment: {
           buildImage,
           computeType: props.computeType ?? ComputeType.SMALL,
-          privileged: this.image.os.is(Os.LINUX),
+          privileged: image.os.is(Os.LINUX),
         },
         logging: {
           cloudWatch: {
