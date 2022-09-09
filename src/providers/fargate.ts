@@ -5,12 +5,13 @@ import {
   aws_iam as iam,
   aws_logs as logs,
   aws_stepfunctions as stepfunctions,
-  aws_stepfunctions_tasks as stepfunctions_tasks, RemovalPolicy,
+  aws_stepfunctions_tasks as stepfunctions_tasks,
+  RemovalPolicy,
 } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
-import { Architecture, IImageBuilder, IRunnerProvider, RunnerProviderProps, RunnerRuntimeParameters } from './common';
+import { Architecture, IImageBuilder, IRunnerProvider, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 /**
@@ -226,6 +227,11 @@ export class FargateRunner extends Construct implements IRunnerProvider {
    */
   readonly spot: boolean;
 
+  /**
+   * Docker image used to start a new Fargate task.
+   */
+  readonly image: RunnerImage;
+
   constructor(scope: Construct, id: string, props: FargateRunnerProps) {
     super(scope, id);
 
@@ -247,7 +253,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
     const imageBuilder = props.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
       dockerfilePath: FargateRunner.LINUX_X64_DOCKERFILE_PATH,
     });
-    const image = imageBuilder.bind();
+    const image = this.image = imageBuilder.bind();
 
     let arch: ecs.CpuArchitecture;
     if (image.architecture.is(Architecture.ARM64)) {

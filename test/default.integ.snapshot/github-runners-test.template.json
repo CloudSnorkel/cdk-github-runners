@@ -8042,6 +8042,105 @@
     "PolicyDocument": {
      "Statement": [
       {
+       "Action": "ecr:DescribeImages",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "CodeBuildImageBuilderB8638EC8"
+       }
+      },
+      {
+       "Action": "ecr:DescribeImages",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+       }
+      },
+      {
+       "Action": "ecr:DescribeImages",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":ecr:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":repository/",
+          {
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::Select": [
+                1,
+                {
+                 "Fn::Split": [
+                  "/",
+                  {
+                   "Fn::GetAtt": [
+                    "WindowsImageBuilderImage7065BB07",
+                    "ImageUri"
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        ]
+       }
+      },
+      {
+       "Action": "ecr:DescribeImages",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "LambdaImageBuilderx64Builder42F384AF"
+       }
+      },
+      {
+       "Action": "ecr:DescribeImages",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "LambdaImageBuilderzBuilder235DD147"
+       }
+      },
+      {
+       "Action": "ecr:DescribeImages",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "FargatebuilderBuilder0834CD0B"
+       }
+      },
+      {
+       "Action": "ecr:DescribeImages",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "FargatebuilderarmBuilder48D1AF5A"
+       }
+      },
+      {
+       "Action": "cloudformation:DescribeStackResource",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "AWS::StackId"
+       }
+      },
+      {
        "Action": [
         "secretsmanager:GetSecretValue",
         "secretsmanager:DescribeSecret"
@@ -8160,7 +8259,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "9e198a6bad9806e2db6f981c6c0868292183ac7c843c4c205ea160ddd0963eb5.zip"
+     "S3Key": "4ff541a138168dcfc0ba775da503263bb8c5ac444fb2a162f0cb6b45fb05da52.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -8189,141 +8288,6 @@
         "FunctionUrl"
        ]
       },
-      "PROVIDERS": {
-       "Fn::Join": [
-        "",
-        [
-         "[{\"type\":\"CodeBuildRunner\",\"label\":\"codebuild-x64\",\"roleArn\":\"",
-         {
-          "Fn::GetAtt": [
-           "CodeBuildx64CodeBuildRole32E5C764",
-           "Arn"
-          ]
-         },
-         "\"},{\"type\":\"CodeBuildRunner\",\"label\":\"codebuild-arm64\",\"roleArn\":\"",
-         {
-          "Fn::GetAtt": [
-           "CodeBuildARMCodeBuildRole74DB4985",
-           "Arn"
-          ]
-         },
-         "\"},{\"type\":\"CodeBuildRunner\",\"label\":\"codebuild-windows-x64\",\"roleArn\":\"",
-         {
-          "Fn::GetAtt": [
-           "CodeBuildWindowsCodeBuildRoleDC93697E",
-           "Arn"
-          ]
-         },
-         "\"},{\"type\":\"LambdaRunner\",\"label\":\"lambda-x64\",\"roleArn\":\"",
-         {
-          "Fn::GetAtt": [
-           "LambdaFunctionServiceRoleB1826A50",
-           "Arn"
-          ]
-         },
-         "\"},{\"type\":\"LambdaRunner\",\"label\":\"lambda-arm64\",\"roleArn\":\"",
-         {
-          "Fn::GetAtt": [
-           "LambdaARMFunctionServiceRole136069A0",
-           "Arn"
-          ]
-         },
-         "\"},{\"type\":\"FargateRunner\",\"label\":\"fargate-x64\",\"vpcArn\":\"arn:",
-         {
-          "Ref": "AWS::Partition"
-         },
-         ":ec2:",
-         {
-          "Ref": "AWS::Region"
-         },
-         ":",
-         {
-          "Ref": "AWS::AccountId"
-         },
-         ":vpc/",
-         {
-          "Ref": "clusterVpc91107A71"
-         },
-         "\",\"securityGroup\":\"",
-         {
-          "Fn::GetAtt": [
-           "FargatesecuritygroupAFCAFD34",
-           "GroupId"
-          ]
-         },
-         "\"},{\"type\":\"FargateRunner\",\"label\":\"fargate-x64-spot\",\"vpcArn\":\"arn:",
-         {
-          "Ref": "AWS::Partition"
-         },
-         ":ec2:",
-         {
-          "Ref": "AWS::Region"
-         },
-         ":",
-         {
-          "Ref": "AWS::AccountId"
-         },
-         ":vpc/",
-         {
-          "Ref": "clusterVpc91107A71"
-         },
-         "\",\"securityGroup\":\"",
-         {
-          "Fn::GetAtt": [
-           "Fargatex64spotsecuritygroup2A9F4299",
-           "GroupId"
-          ]
-         },
-         "\"},{\"type\":\"FargateRunner\",\"label\":\"fargate-arm64\",\"vpcArn\":\"arn:",
-         {
-          "Ref": "AWS::Partition"
-         },
-         ":ec2:",
-         {
-          "Ref": "AWS::Region"
-         },
-         ":",
-         {
-          "Ref": "AWS::AccountId"
-         },
-         ":vpc/",
-         {
-          "Ref": "clusterVpc91107A71"
-         },
-         "\",\"securityGroup\":\"",
-         {
-          "Fn::GetAtt": [
-           "Fargatearm64securitygroup08ABAD9E",
-           "GroupId"
-          ]
-         },
-         "\"},{\"type\":\"FargateRunner\",\"label\":\"fargate-arm64-spot\",\"vpcArn\":\"arn:",
-         {
-          "Ref": "AWS::Partition"
-         },
-         ":ec2:",
-         {
-          "Ref": "AWS::Region"
-         },
-         ":",
-         {
-          "Ref": "AWS::AccountId"
-         },
-         ":vpc/",
-         {
-          "Ref": "clusterVpc91107A71"
-         },
-         "\",\"securityGroup\":\"",
-         {
-          "Fn::GetAtt": [
-           "Fargatearm64spotsecuritygroup20C885E4",
-           "GroupId"
-          ]
-         },
-         "\"}]"
-        ]
-       ]
-      },
       "WEBHOOK_HANDLER_ARN": {
        "Fn::Join": [
         "",
@@ -8347,7 +8311,9 @@
         "FunctionUrl"
        ]
       },
-      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
+      "LOGICAL_ID": "runnersstatus1A5771C0",
+      "STACK_NAME": "github-runners-test"
      }
     },
     "Handler": "index.handler",
@@ -8357,7 +8323,643 @@
    "DependsOn": [
     "runnersstatusServiceRoleDefaultPolicyBD4E619B",
     "runnersstatusServiceRole71A1ADB6"
-   ]
+   ],
+   "Metadata": {
+    "providers": [
+     {
+      "type": "CodeBuildRunner",
+      "label": "codebuild-x64",
+      "roleArn": {
+       "Fn::GetAtt": [
+        "CodeBuildx64CodeBuildRole32E5C764",
+        "Arn"
+       ]
+      },
+      "image": {
+       "imageRepository": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "CodeBuildImageBuilderB8638EC8"
+              }
+             ]
+            }
+           ]
+          },
+          ".dkr.ecr.",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "CodeBuildImageBuilderB8638EC8"
+              }
+             ]
+            }
+           ]
+          },
+          ".",
+          {
+           "Ref": "AWS::URLSuffix"
+          },
+          "/",
+          {
+           "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+          }
+         ]
+        ]
+       },
+       "imageTag": "latest",
+       "imageBuilderLogGroup": {
+        "Ref": "CodeBuildImageBuilderLogsE4CADFCC"
+       }
+      }
+     },
+     {
+      "type": "CodeBuildRunner",
+      "label": "codebuild-arm64",
+      "roleArn": {
+       "Fn::GetAtt": [
+        "CodeBuildARMCodeBuildRole74DB4985",
+        "Arn"
+       ]
+      },
+      "image": {
+       "imageRepository": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+              }
+             ]
+            }
+           ]
+          },
+          ".dkr.ecr.",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+              }
+             ]
+            }
+           ]
+          },
+          ".",
+          {
+           "Ref": "AWS::URLSuffix"
+          },
+          "/",
+          {
+           "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
+          }
+         ]
+        ]
+       },
+       "imageTag": "latest",
+       "imageBuilderLogGroup": {
+        "Ref": "CodeBuildImageBuilderarmLogs5A60CB81"
+       }
+      }
+     },
+     {
+      "type": "CodeBuildRunner",
+      "label": "codebuild-windows-x64",
+      "roleArn": {
+       "Fn::GetAtt": [
+        "CodeBuildWindowsCodeBuildRoleDC93697E",
+        "Arn"
+       ]
+      },
+      "image": {
+       "imageRepository": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ".dkr.ecr.",
+          {
+           "Ref": "AWS::Region"
+          },
+          ".",
+          {
+           "Ref": "AWS::URLSuffix"
+          },
+          "/",
+          {
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::Select": [
+                1,
+                {
+                 "Fn::Split": [
+                  "/",
+                  {
+                   "Fn::GetAtt": [
+                    "WindowsImageBuilderImage7065BB07",
+                    "ImageUri"
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        ]
+       },
+       "imageTag": {
+        "Fn::Select": [
+         1,
+         {
+          "Fn::Split": [
+           ":",
+           {
+            "Fn::GetAtt": [
+             "WindowsImageBuilderImage7065BB07",
+             "ImageUri"
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       "imageBuilderLogGroup": {
+        "Ref": "WindowsImageBuilderLog0E03408E"
+       }
+      }
+     },
+     {
+      "type": "LambdaRunner",
+      "label": "lambda-x64",
+      "roleArn": {
+       "Fn::GetAtt": [
+        "LambdaFunctionServiceRoleB1826A50",
+        "Arn"
+       ]
+      },
+      "image": {
+       "imageRepository": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "LambdaImageBuilderx64Builder42F384AF"
+              }
+             ]
+            }
+           ]
+          },
+          ".dkr.ecr.",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "LambdaImageBuilderx64Builder42F384AF"
+              }
+             ]
+            }
+           ]
+          },
+          ".",
+          {
+           "Ref": "AWS::URLSuffix"
+          },
+          "/",
+          {
+           "Ref": "LambdaImageBuilderx64Repository57F632F1"
+          }
+         ]
+        ]
+       },
+       "imageTag": "latest",
+       "imageBuilderLogGroup": {
+        "Ref": "LambdaImageBuilderx64Logs1C003BB4"
+       }
+      }
+     },
+     {
+      "type": "LambdaRunner",
+      "label": "lambda-arm64",
+      "roleArn": {
+       "Fn::GetAtt": [
+        "LambdaARMFunctionServiceRole136069A0",
+        "Arn"
+       ]
+      },
+      "image": {
+       "imageRepository": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "LambdaImageBuilderzBuilder235DD147"
+              }
+             ]
+            }
+           ]
+          },
+          ".dkr.ecr.",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "LambdaImageBuilderzBuilder235DD147"
+              }
+             ]
+            }
+           ]
+          },
+          ".",
+          {
+           "Ref": "AWS::URLSuffix"
+          },
+          "/",
+          {
+           "Ref": "LambdaImageBuilderzRepository7C7AD146"
+          }
+         ]
+        ]
+       },
+       "imageTag": "latest",
+       "imageBuilderLogGroup": {
+        "Ref": "LambdaImageBuilderzLogsC9FB42C8"
+       }
+      }
+     },
+     {
+      "type": "FargateRunner",
+      "label": "fargate-x64",
+      "vpcArn": {
+       "Fn::Join": [
+        "",
+        [
+         "arn:",
+         {
+          "Ref": "AWS::Partition"
+         },
+         ":ec2:",
+         {
+          "Ref": "AWS::Region"
+         },
+         ":",
+         {
+          "Ref": "AWS::AccountId"
+         },
+         ":vpc/",
+         {
+          "Ref": "clusterVpc91107A71"
+         }
+        ]
+       ]
+      },
+      "securityGroup": {
+       "Fn::GetAtt": [
+        "FargatesecuritygroupAFCAFD34",
+        "GroupId"
+       ]
+      },
+      "image": {
+       "imageRepository": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "FargatebuilderBuilder0834CD0B"
+              }
+             ]
+            }
+           ]
+          },
+          ".dkr.ecr.",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "FargatebuilderBuilder0834CD0B"
+              }
+             ]
+            }
+           ]
+          },
+          ".",
+          {
+           "Ref": "AWS::URLSuffix"
+          },
+          "/",
+          {
+           "Ref": "FargatebuilderRepository8F7BA13C"
+          }
+         ]
+        ]
+       },
+       "imageTag": "latest",
+       "imageBuilderLogGroup": {
+        "Ref": "FargatebuilderLogs2F794091"
+       }
+      }
+     },
+     {
+      "type": "FargateRunner",
+      "label": "fargate-x64-spot",
+      "vpcArn": {
+       "Fn::Join": [
+        "",
+        [
+         "arn:",
+         {
+          "Ref": "AWS::Partition"
+         },
+         ":ec2:",
+         {
+          "Ref": "AWS::Region"
+         },
+         ":",
+         {
+          "Ref": "AWS::AccountId"
+         },
+         ":vpc/",
+         {
+          "Ref": "clusterVpc91107A71"
+         }
+        ]
+       ]
+      },
+      "securityGroup": {
+       "Fn::GetAtt": [
+        "Fargatex64spotsecuritygroup2A9F4299",
+        "GroupId"
+       ]
+      },
+      "image": {
+       "imageRepository": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "FargatebuilderBuilder0834CD0B"
+              }
+             ]
+            }
+           ]
+          },
+          ".dkr.ecr.",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "FargatebuilderBuilder0834CD0B"
+              }
+             ]
+            }
+           ]
+          },
+          ".",
+          {
+           "Ref": "AWS::URLSuffix"
+          },
+          "/",
+          {
+           "Ref": "FargatebuilderRepository8F7BA13C"
+          }
+         ]
+        ]
+       },
+       "imageTag": "latest",
+       "imageBuilderLogGroup": {
+        "Ref": "FargatebuilderLogs2F794091"
+       }
+      }
+     },
+     {
+      "type": "FargateRunner",
+      "label": "fargate-arm64",
+      "vpcArn": {
+       "Fn::Join": [
+        "",
+        [
+         "arn:",
+         {
+          "Ref": "AWS::Partition"
+         },
+         ":ec2:",
+         {
+          "Ref": "AWS::Region"
+         },
+         ":",
+         {
+          "Ref": "AWS::AccountId"
+         },
+         ":vpc/",
+         {
+          "Ref": "clusterVpc91107A71"
+         }
+        ]
+       ]
+      },
+      "securityGroup": {
+       "Fn::GetAtt": [
+        "Fargatearm64securitygroup08ABAD9E",
+        "GroupId"
+       ]
+      },
+      "image": {
+       "imageRepository": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "FargatebuilderarmBuilder48D1AF5A"
+              }
+             ]
+            }
+           ]
+          },
+          ".dkr.ecr.",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "FargatebuilderarmBuilder48D1AF5A"
+              }
+             ]
+            }
+           ]
+          },
+          ".",
+          {
+           "Ref": "AWS::URLSuffix"
+          },
+          "/",
+          {
+           "Ref": "FargatebuilderarmRepository77DCC132"
+          }
+         ]
+        ]
+       },
+       "imageTag": "latest",
+       "imageBuilderLogGroup": {
+        "Ref": "FargatebuilderarmLogs63D60F4D"
+       }
+      }
+     },
+     {
+      "type": "FargateRunner",
+      "label": "fargate-arm64-spot",
+      "vpcArn": {
+       "Fn::Join": [
+        "",
+        [
+         "arn:",
+         {
+          "Ref": "AWS::Partition"
+         },
+         ":ec2:",
+         {
+          "Ref": "AWS::Region"
+         },
+         ":",
+         {
+          "Ref": "AWS::AccountId"
+         },
+         ":vpc/",
+         {
+          "Ref": "clusterVpc91107A71"
+         }
+        ]
+       ]
+      },
+      "securityGroup": {
+       "Fn::GetAtt": [
+        "Fargatearm64spotsecuritygroup20C885E4",
+        "GroupId"
+       ]
+      },
+      "image": {
+       "imageRepository": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "FargatebuilderarmBuilder48D1AF5A"
+              }
+             ]
+            }
+           ]
+          },
+          ".dkr.ecr.",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "FargatebuilderarmBuilder48D1AF5A"
+              }
+             ]
+            }
+           ]
+          },
+          ".",
+          {
+           "Ref": "AWS::URLSuffix"
+          },
+          "/",
+          {
+           "Ref": "FargatebuilderarmRepository77DCC132"
+          }
+         ]
+        ]
+       },
+       "imageTag": "latest",
+       "imageBuilderLogGroup": {
+        "Ref": "FargatebuilderarmLogs63D60F4D"
+       }
+      }
+     }
+    ]
+   }
   },
   "runnersstatusLogRetention8EB4A773": {
    "Type": "Custom::LogRetention",

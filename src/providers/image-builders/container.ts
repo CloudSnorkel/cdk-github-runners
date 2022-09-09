@@ -672,6 +672,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       imageTag: cdk.Fn.split(':', image.attrImageUri, 2)[1],
       os: this.os,
       architecture: this.architecture,
+      logGroup: log,
     };
   }
 

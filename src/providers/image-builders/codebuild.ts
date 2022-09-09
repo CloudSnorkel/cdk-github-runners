@@ -349,6 +349,7 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
       imageDigest: cr.getAtt('Digest').toString(),
       architecture: this.architecture,
       os: this.os,
+      logGroup,
     };
     return this.boundImage;
   }

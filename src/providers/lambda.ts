@@ -13,7 +13,7 @@ import {
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import { BundledNodejsFunction } from '../utils';
-import { IRunnerProvider, RunnerRuntimeParameters, RunnerProviderProps, IImageBuilder, Os, Architecture, RunnerImage } from './common';
+import { Architecture, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 export interface LambdaRunnerProps extends RunnerProviderProps {
@@ -133,6 +133,11 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
    */
   readonly grantPrincipal: iam.IPrincipal;
 
+  /**
+   * Docker image used to start Lambda function.
+   */
+  readonly image: RunnerImage;
+
   constructor(scope: Construct, id: string, props: LambdaRunnerProps) {
     super(scope, id);
 
@@ -143,7 +148,7 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
     const imageBuilder = props.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
       dockerfilePath: LambdaRunner.LINUX_X64_DOCKERFILE_PATH,
     });
-    const image = imageBuilder.bind();
+    const image = this.image = imageBuilder.bind();
 
     let architecture: lambda.Architecture | undefined;
     if (image.os.is(Os.LINUX)) {
