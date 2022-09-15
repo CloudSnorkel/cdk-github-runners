@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/eec7ddf5ddef416beed0b559678e3fc361291c42a70d00a7942df957d8d5f6fb.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/281fea18609a1af0cc35f88caf7c5208faeffc506b1c05c52d8c4ebcd9c00b72.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -681,6 +681,18 @@
             "data": "CodeBuildWindowsCodeBuildC39F35C1"
           }
         ],
+        "/github-runners-test/Lambda/Image Digest Reader/CustomResourcePolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageDigestReaderCustomResourcePolicyE8E146E6"
+          }
+        ],
+        "/github-runners-test/Lambda/Image Digest Reader/Resource/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageDigestReaderE0842577"
+          }
+        ],
         "/github-runners-test/Lambda/Function/ServiceRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -697,6 +709,24 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "LambdaFunctionLogRetentionB6D78D6D"
+          }
+        ],
+        "/github-runners-test/AWS679f53fac002430cb0da5b7982bd2287/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+          }
+        ],
+        "/github-runners-test/AWS679f53fac002430cb0da5b7982bd2287/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AWS679f53fac002430cb0da5b7982bd22872D164C4C"
+          }
+        ],
+        "/github-runners-test/AWS679f53fac002430cb0da5b7982bd2287/LogRetention/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AWS679f53fac002430cb0da5b7982bd2287LogRetentionCE72797A"
           }
         ],
         "/github-runners-test/update-lambda-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/Resource": [
@@ -793,6 +823,18 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "LambdaImageBuilderzDependableImagePushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98ECD865F34"
+          }
+        ],
+        "/github-runners-test/LambdaARM/Image Digest Reader/CustomResourcePolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaARMImageDigestReaderCustomResourcePolicy2980B36A"
+          }
+        ],
+        "/github-runners-test/LambdaARM/Image Digest Reader/Resource/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaARMImageDigestReaderF3DD55C4"
           }
         ],
         "/github-runners-test/LambdaARM/Function/ServiceRole/Resource": [

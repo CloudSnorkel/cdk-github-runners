@@ -100,15 +100,6 @@ export interface RunnerImage {
   readonly imageTag: string;
 
   /**
-   * Image digest for providers that need to know the digest like Lambda.
-   *
-   * If the digest is not specified, imageTag must always point to a new tag on update. If not, the build may try to use the old image.
-   *
-   * WARNING: the digest might change when the builder automatically rebuilds the image on a schedule. Do not expect for this digest to stay the same between deploys.
-   */
-  readonly imageDigest?: string;
-
-  /**
    * Architecture of the image.
    */
   readonly architecture: Architecture;

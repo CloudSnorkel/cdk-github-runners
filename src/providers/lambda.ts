@@ -1,7 +1,6 @@
 import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import {
-  Annotations,
   aws_ec2 as ec2,
   aws_events as events,
   aws_events_targets as events_targets,
@@ -9,6 +8,7 @@ import {
   aws_lambda as lambda,
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
+  custom_resources as cr,
 } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
@@ -164,16 +164,22 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
       throw new Error(`Unable to find support Lambda architecture for ${image.os.name}/${image.architecture.name}`);
     }
 
-    let code;
-    if (image.imageDigest) {
-      code = lambda.DockerImageCode.fromEcr(image.imageRepository, { tagOrDigest: `sha256:${image.imageDigest}` });
-    } else {
-      if (image.imageTag == 'latest') {
-        Annotations.of(this).addWarning('imageTag is `latest` even though imageDigest is not specified! This means any updates to the image by the' +
-          'stack will be used.');
-      }
-      code = lambda.DockerImageCode.fromEcr(image.imageRepository, { tagOrDigest: image.imageTag });
-    }
+    // get image digest and make sure to get it every time the lambda function might be updated
+    // pass all variables that may change and cause a function update
+    // if we don't get the latest digest, the update may fail as a new image was already built outside the stack on a schedule
+    // we automatically delete old images, so we must always get the latest digest
+    const imageDigest = this.imageDigest(image, {
+      version: 1, // bump this for any non-user changes like description or defaults
+      label: this.label,
+      architecture: architecture.name,
+      vpc: this.vpc?.vpcId,
+      securityGroups: this.securityGroup?.securityGroupId,
+      vpcSubnets: props.subnetSelection?.subnets?.map(s => s.subnetId),
+      timeout: props.timeout?.toSeconds(),
+      memorySize: props.memorySize,
+      ephemeralStorageSize: props.ephemeralStorageSize?.toKibibytes(),
+      logRetention: props.logRetention?.toFixed(),
+    });
 
     this.function = new lambda.DockerImageFunction(
       this,
@@ -181,7 +187,7 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
       {
         description: `GitHub Actions runner for "${this.label}" label`,
         // CDK requires "sha256:" literal prefix -- https://github.com/aws/aws-cdk/blob/ba91ca45ad759ab5db6da17a62333e2bc11e1075/packages/%40aws-cdk/aws-ecr/lib/repository.ts#L184
-        code,
+        code: lambda.DockerImageCode.fromEcr(image.imageRepository, { tagOrDigest: `sha256:${imageDigest}` }),
         architecture,
         vpc: this.vpc,
         securityGroups: this.securityGroup && [this.securityGroup],
@@ -281,5 +287,62 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
 
     // the event never triggers without this - not sure why
     (rule.node.defaultChild as events.CfnRule).addDeletionOverride('Properties.EventPattern.resources');
+  }
+
+  private imageDigest(image: RunnerImage, variableSettings: any): string {
+    // describe ECR image to get its digest
+    // the physical id is random so the resource always runs and always gets the latest digest, even if a scheduled build replaced the stack image
+    const reader = new cr.AwsCustomResource(this, 'Image Digest Reader', {
+      onCreate: {
+        service: 'ECR',
+        action: 'describeImages',
+        parameters: {
+          repositoryName: image.imageRepository.repositoryName,
+          imageIds: [
+            {
+              imageTag: image.imageTag,
+            },
+          ],
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('ImageDigest'),
+      },
+      onUpdate: {
+        service: 'ECR',
+        action: 'describeImages',
+        parameters: {
+          repositoryName: image.imageRepository.repositoryName,
+          imageIds: [
+            {
+              imageTag: image.imageTag,
+            },
+          ],
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('ImageDigest'),
+      },
+      onDelete: {
+        // this will NOT be called thanks to RemovalPolicy.RETAIN below
+        // we only use this to force the custom resource to be called again and get a new digest
+        service: 'fake',
+        action: 'fake',
+        parameters: variableSettings,
+      },
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: [image.imageRepository.repositoryArn],
+      }),
+      resourceType: 'Custom::EcrImageDigest',
+      installLatestAwsSdk: false, // no need and it takes 60 seconds
+      logRetention: RetentionDays.ONE_MONTH,
+    });
+
+    const res = reader.node.tryFindChild('Resource') as cdk.CustomResource | undefined;
+    if (res) {
+      // don't actually call the fake onDelete above
+      res.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
+    } else {
+      throw new Error('Resource not found in AwsCustomResource. Report this bug at https://github.com/CloudSnorkel/cdk-github-runners/issues.');
+    }
+
+    // return only the digest because CDK expects 'sha256:' literal above
+    return cdk.Fn.split(':', reader.getResponseField('imageDetails.0.imageDigest'), 2)[1];
   }
 }

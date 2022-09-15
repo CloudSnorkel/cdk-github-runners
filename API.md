@@ -3162,7 +3162,6 @@ const runnerImage: RunnerImage = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage.property.imageRepository">imageRepository</a></code> | <code>aws-cdk-lib.aws_ecr.IRepository</code> | ECR repository containing the image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage.property.imageTag">imageTag</a></code> | <code>string</code> | Static image tag where the image will be pushed. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage.property.os">os</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | OS type of the image. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage.property.imageDigest">imageDigest</a></code> | <code>string</code> | Image digest for providers that need to know the digest like Lambda. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.LogGroup</code> | Log group where image builds are logged. |
 
 ---
@@ -3212,22 +3211,6 @@ public readonly os: Os;
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
 
 OS type of the image.
-
----
-
-##### `imageDigest`<sup>Optional</sup> <a name="imageDigest" id="@cloudsnorkel/cdk-github-runners.RunnerImage.property.imageDigest"></a>
-
-```typescript
-public readonly imageDigest: string;
-```
-
-- *Type:* string
-
-Image digest for providers that need to know the digest like Lambda.
-
-If the digest is not specified, imageTag must always point to a new tag on update. If not, the build may try to use the old image.
-
-WARNING: the digest might change when the builder automatically rebuilds the image on a schedule. Do not expect for this digest to stay the same between deploys.
 
 ---
 

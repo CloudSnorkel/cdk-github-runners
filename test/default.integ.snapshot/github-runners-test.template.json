@@ -504,11 +504,15 @@
         {
          "Ref": "FargatebuilderRepository8F7BA13C"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "FargatebuilderLogs2F794091"
         },
-        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Digest\\\": \\\"$DIGEST\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
+        {
+         "Ref": "FargatebuilderRepository8F7BA13C"
+        },
+        "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -638,7 +642,7 @@
     "ProjectName": {
      "Ref": "FargatebuilderCodeBuild4F182743"
     },
-    "BuildHash": "cc3d04f6622c3d43e149767a42d3265f"
+    "BuildHash": "84e62f8c69563bae535b19891eb2d8d9"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -996,11 +1000,15 @@
         {
          "Ref": "FargatebuilderarmRepository77DCC132"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "FargatebuilderarmLogs63D60F4D"
         },
-        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Digest\\\": \\\"$DIGEST\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
+        {
+         "Ref": "FargatebuilderarmRepository77DCC132"
+        },
+        "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -1130,7 +1138,7 @@
     "ProjectName": {
      "Ref": "FargatebuilderarmCodeBuild0D30679A"
     },
-    "BuildHash": "7991c693107c4ccdce5ed3d7bfff9926"
+    "BuildHash": "2d3997ab554ef29cf77733b310a789cc"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -1488,11 +1496,15 @@
         {
          "Ref": "LambdaImageBuilderx64Repository57F632F1"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "LambdaImageBuilderx64Logs1C003BB4"
         },
-        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Digest\\\": \\\"$DIGEST\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
+        {
+         "Ref": "LambdaImageBuilderx64Repository57F632F1"
+        },
+        "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -1622,7 +1634,7 @@
     "ProjectName": {
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
-    "BuildHash": "4d9954fe17e392795c604a410bc67863"
+    "BuildHash": "0cf05ec9f06e2ff23e2f94489f897b9d"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -1687,7 +1699,10 @@
       ],
       "repository-name": [
        {
-        "Ref": "LambdaImageBuilderx64Repository57F632F1"
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64Builder42F384AF",
+         "Name"
+        ]
        }
       ],
       "image-tag": [
@@ -1753,7 +1768,10 @@
          },
          "/",
          {
-          "Ref": "LambdaImageBuilderx64Repository57F632F1"
+          "Fn::GetAtt": [
+           "LambdaImageBuilderx64Builder42F384AF",
+           "Name"
+          ]
          },
          "\",\"repositoryTag\":\"latest\",\"stackName\":\"github-runners-test\"}"
         ]
@@ -2847,11 +2865,15 @@
         {
          "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "CodeBuildImageBuilderLogsE4CADFCC"
         },
-        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Digest\\\": \\\"$DIGEST\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
+        {
+         "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+        },
+        "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -2981,7 +3003,7 @@
     "ProjectName": {
      "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
     },
-    "BuildHash": "2fed9af5f8a6b0e9fefaeb54869d7149"
+    "BuildHash": "103b2f743625d7f99a8c0f8bcc701ed3"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -3238,7 +3260,10 @@
         },
         "/",
         {
-         "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+         "Fn::GetAtt": [
+          "CodeBuildImageBuilderB8638EC8",
+          "Name"
+         ]
         },
         ":latest"
        ]
@@ -3664,11 +3689,15 @@
         {
          "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "CodeBuildImageBuilderarmLogs5A60CB81"
         },
-        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Digest\\\": \\\"$DIGEST\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
+        {
+         "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
+        },
+        "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -3798,7 +3827,7 @@
     "ProjectName": {
      "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
     },
-    "BuildHash": "21182c8b3705b184ce0f9aeeba9fefd7"
+    "BuildHash": "f6900d4af688c7e21926ac8d97b0cdf7"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -4055,7 +4084,10 @@
         },
         "/",
         {
-         "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
+         "Fn::GetAtt": [
+          "CodeBuildImageBuilderarmBuilder755EB37D",
+          "Name"
+         ]
         },
         ":latest"
        ]
@@ -4345,23 +4377,7 @@
           }
          ]
         },
-        ":",
-        {
-         "Fn::Select": [
-          1,
-          {
-           "Fn::Split": [
-            ":",
-            {
-             "Fn::GetAtt": [
-              "WindowsImageBuilderImage7065BB07",
-              "ImageUri"
-             ]
-            }
-           ]
-          }
-         ]
-        }
+        ":latest"
        ]
       ]
      },
@@ -4394,6 +4410,84 @@
     },
     "TimeoutInMinutes": 60
    }
+  },
+  "LambdaImageDigestReaderCustomResourcePolicyE8E146E6": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "ecr:DescribeImages",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "LambdaImageBuilderx64Builder42F384AF"
+       }
+      },
+      {
+       "Action": "fake:Fake",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "LambdaImageBuilderx64Builder42F384AF"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LambdaImageDigestReaderCustomResourcePolicyE8E146E6",
+    "Roles": [
+     {
+      "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+     }
+    ]
+   }
+  },
+  "LambdaImageDigestReaderE0842577": {
+   "Type": "Custom::EcrImageDigest",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
+      "Arn"
+     ]
+    },
+    "Create": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
+       {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64Builder42F384AF",
+         "Name"
+        ]
+       },
+       "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
+      ]
+     ]
+    },
+    "Update": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
+       {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64Builder42F384AF",
+         "Name"
+        ]
+       },
+       "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
+      ]
+     ]
+    },
+    "Delete": "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"label\":\"lambda-x64\",\"architecture\":\"x86_64\"}}",
+    "InstallLatestAwsSdk": false
+   },
+   "DependsOn": [
+    "LambdaImageDigestReaderCustomResourcePolicyE8E146E6"
+   ],
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
   },
   "LambdaFunctionServiceRoleB1826A50": {
    "Type": "AWS::IAM::Role",
@@ -4467,13 +4561,26 @@
         },
         "/",
         {
-         "Ref": "LambdaImageBuilderx64Repository57F632F1"
+         "Fn::GetAtt": [
+          "LambdaImageBuilderx64Builder42F384AF",
+          "Name"
+         ]
         },
         "@sha256:",
         {
-         "Fn::GetAtt": [
-          "LambdaImageBuilderx64Builder42F384AF",
-          "Digest"
+         "Fn::Select": [
+          1,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "LambdaImageDigestReaderE0842577",
+              "imageDetails.0.imageDigest"
+             ]
+            }
+           ]
+          }
          ]
         }
        ]
@@ -4517,6 +4624,83 @@
        "/aws/lambda/",
        {
         "Ref": "LambdaFunction9233991D"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "AWS679f53fac002430cb0da5b7982bd22872D164C4C": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "864aa5eb2d6ca4e0d4d65c940bc9e4d5a29db1e4f3f3a098ddb56f76b2129ac4.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+      "Arn"
+     ]
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs14.x",
+    "Timeout": 120
+   },
+   "DependsOn": [
+    "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+   ]
+  },
+  "AWS679f53fac002430cb0da5b7982bd2287LogRetentionCE72797A": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "AWS679f53fac002430cb0da5b7982bd22872D164C4C"
        }
       ]
      ]
@@ -4975,11 +5159,15 @@
         {
          "Ref": "LambdaImageBuilderzRepository7C7AD146"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"DIGEST=\\\"UNKNOWN\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; else DIGEST=`docker inspect \\\"$REPO_URI\\\" | jq -r '.[0].RepoDigests[0] | split(\\\"@\\\")[1] | split(\\\":\\\")[1]'`; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"$(aws ecr get-login --no-include-email --region \\\"$AWS_DEFAULT_REGION\\\")\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "LambdaImageBuilderzLogsC9FB42C8"
         },
-        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Digest\\\": \\\"$DIGEST\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+        "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
+        {
+         "Ref": "LambdaImageBuilderzRepository7C7AD146"
+        },
+        "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -5109,7 +5297,7 @@
     "ProjectName": {
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
-    "BuildHash": "8296fc682b519a37cfb8e52e2c70e58c"
+    "BuildHash": "ef5678072a3a16bbf63acea0043dacc1"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -5174,7 +5362,10 @@
       ],
       "repository-name": [
        {
-        "Ref": "LambdaImageBuilderzRepository7C7AD146"
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzBuilder235DD147",
+         "Name"
+        ]
        }
       ],
       "image-tag": [
@@ -5240,7 +5431,10 @@
          },
          "/",
          {
-          "Ref": "LambdaImageBuilderzRepository7C7AD146"
+          "Fn::GetAtt": [
+           "LambdaImageBuilderzBuilder235DD147",
+           "Name"
+          ]
          },
          "\",\"repositoryTag\":\"latest\",\"stackName\":\"github-runners-test\"}"
         ]
@@ -5268,6 +5462,84 @@
      ]
     }
    }
+  },
+  "LambdaARMImageDigestReaderCustomResourcePolicy2980B36A": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "ecr:DescribeImages",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "LambdaImageBuilderzBuilder235DD147"
+       }
+      },
+      {
+       "Action": "fake:Fake",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "LambdaImageBuilderzBuilder235DD147"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LambdaARMImageDigestReaderCustomResourcePolicy2980B36A",
+    "Roles": [
+     {
+      "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+     }
+    ]
+   }
+  },
+  "LambdaARMImageDigestReaderF3DD55C4": {
+   "Type": "Custom::EcrImageDigest",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
+      "Arn"
+     ]
+    },
+    "Create": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
+       {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzBuilder235DD147",
+         "Name"
+        ]
+       },
+       "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
+      ]
+     ]
+    },
+    "Update": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
+       {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzBuilder235DD147",
+         "Name"
+        ]
+       },
+       "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
+      ]
+     ]
+    },
+    "Delete": "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"label\":\"lambda-arm64\",\"architecture\":\"arm64\"}}",
+    "InstallLatestAwsSdk": false
+   },
+   "DependsOn": [
+    "LambdaARMImageDigestReaderCustomResourcePolicy2980B36A"
+   ],
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
   },
   "LambdaARMFunctionServiceRole136069A0": {
    "Type": "AWS::IAM::Role",
@@ -5341,13 +5613,26 @@
         },
         "/",
         {
-         "Ref": "LambdaImageBuilderzRepository7C7AD146"
+         "Fn::GetAtt": [
+          "LambdaImageBuilderzBuilder235DD147",
+          "Name"
+         ]
         },
         "@sha256:",
         {
-         "Fn::GetAtt": [
-          "LambdaImageBuilderzBuilder235DD147",
-          "Digest"
+         "Fn::Select": [
+          1,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "LambdaARMImageDigestReaderF3DD55C4",
+              "imageDetails.0.imageDigest"
+             ]
+            }
+           ]
+          }
          ]
         }
        ]
@@ -5479,7 +5764,10 @@
          },
          "/",
          {
-          "Ref": "FargatebuilderRepository8F7BA13C"
+          "Fn::GetAtt": [
+           "FargatebuilderBuilder0834CD0B",
+           "Name"
+          ]
          },
          ":latest"
         ]
@@ -5679,7 +5967,10 @@
          },
          "/",
          {
-          "Ref": "FargatebuilderRepository8F7BA13C"
+          "Fn::GetAtt": [
+           "FargatebuilderBuilder0834CD0B",
+           "Name"
+          ]
          },
          ":latest"
         ]
@@ -5879,7 +6170,10 @@
          },
          "/",
          {
-          "Ref": "FargatebuilderarmRepository77DCC132"
+          "Fn::GetAtt": [
+           "FargatebuilderarmBuilder48D1AF5A",
+           "Name"
+          ]
          },
          ":latest"
         ]
@@ -6079,7 +6373,10 @@
          },
          "/",
          {
-          "Ref": "FargatebuilderarmRepository77DCC132"
+          "Fn::GetAtt": [
+           "FargatebuilderarmBuilder48D1AF5A",
+           "Name"
+          ]
          },
          ":latest"
         ]
@@ -6284,23 +6581,7 @@
            }
           ]
          },
-         ":",
-         {
-          "Fn::Select": [
-           1,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Fn::GetAtt": [
-               "WindowsImageBuilderImage7065BB07",
-               "ImageUri"
-              ]
-             }
-            ]
-           }
-          ]
-         }
+         ":latest"
         ]
        ]
       },
@@ -8609,7 +8890,10 @@
           },
           "/",
           {
-           "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+           "Fn::GetAtt": [
+            "CodeBuildImageBuilderB8638EC8",
+            "Name"
+           ]
           }
          ]
         ]
@@ -8667,7 +8951,10 @@
           },
           "/",
           {
-           "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
+           "Fn::GetAtt": [
+            "CodeBuildImageBuilderarmBuilder755EB37D",
+            "Name"
+           ]
           }
          ]
         ]
@@ -8733,22 +9020,7 @@
          ]
         ]
        },
-       "imageTag": {
-        "Fn::Select": [
-         1,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "WindowsImageBuilderImage7065BB07",
-             "ImageUri"
-            ]
-           }
-          ]
-         }
-        ]
-       },
+       "imageTag": "latest",
        "imageBuilderLogGroup": {
         "Ref": "WindowsImageBuilderLog0E03408E"
        }
@@ -8801,7 +9073,10 @@
           },
           "/",
           {
-           "Ref": "LambdaImageBuilderx64Repository57F632F1"
+           "Fn::GetAtt": [
+            "LambdaImageBuilderx64Builder42F384AF",
+            "Name"
+           ]
           }
          ]
         ]
@@ -8859,7 +9134,10 @@
           },
           "/",
           {
-           "Ref": "LambdaImageBuilderzRepository7C7AD146"
+           "Fn::GetAtt": [
+            "LambdaImageBuilderzBuilder235DD147",
+            "Name"
+           ]
           }
          ]
         ]
@@ -8940,7 +9218,10 @@
           },
           "/",
           {
-           "Ref": "FargatebuilderRepository8F7BA13C"
+           "Fn::GetAtt": [
+            "FargatebuilderBuilder0834CD0B",
+            "Name"
+           ]
           }
          ]
         ]
@@ -9021,7 +9302,10 @@
           },
           "/",
           {
-           "Ref": "FargatebuilderRepository8F7BA13C"
+           "Fn::GetAtt": [
+            "FargatebuilderBuilder0834CD0B",
+            "Name"
+           ]
           }
          ]
         ]
@@ -9102,7 +9386,10 @@
           },
           "/",
           {
-           "Ref": "FargatebuilderarmRepository77DCC132"
+           "Fn::GetAtt": [
+            "FargatebuilderarmBuilder48D1AF5A",
+            "Name"
+           ]
           }
          ]
         ]
@@ -9183,7 +9470,10 @@
           },
           "/",
           {
-           "Ref": "FargatebuilderarmRepository77DCC132"
+           "Fn::GetAtt": [
+            "FargatebuilderarmBuilder48D1AF5A",
+            "Name"
+           ]
           }
          ]
         ]
@@ -9272,22 +9562,7 @@
          ]
         ]
        },
-       "imageTag": {
-        "Fn::Select": [
-         1,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "WindowsImageBuilderImage7065BB07",
-             "ImageUri"
-            ]
-           }
-          ]
-         }
-        ]
-       },
+       "imageTag": "latest",
        "imageBuilderLogGroup": {
         "Ref": "WindowsImageBuilderLog0E03408E"
        }
