@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/d92da6158be48b454a5fac49b589752f636e0d84d3cf3a20b8e7af91072c9498.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/eec7ddf5ddef416beed0b559678e3fc361291c42a70d00a7942df957d8d5f6fb.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -39,148 +39,76 @@
         "github-runners-test.assets"
       ],
       "metadata": {
+        "/github-runners-test/Vpc/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Vpc8378EB38"
+          }
+        ],
+        "/github-runners-test/Vpc/PublicSubnet1/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcPublicSubnet1Subnet5C2D37C4"
+          }
+        ],
+        "/github-runners-test/Vpc/PublicSubnet1/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcPublicSubnet1RouteTable6C95E38E"
+          }
+        ],
+        "/github-runners-test/Vpc/PublicSubnet1/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcPublicSubnet1RouteTableAssociation97140677"
+          }
+        ],
+        "/github-runners-test/Vpc/PublicSubnet1/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcPublicSubnet1DefaultRoute3DA9E72A"
+          }
+        ],
+        "/github-runners-test/Vpc/PublicSubnet2/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcPublicSubnet2Subnet691E08A3"
+          }
+        ],
+        "/github-runners-test/Vpc/PublicSubnet2/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcPublicSubnet2RouteTable94F7E489"
+          }
+        ],
+        "/github-runners-test/Vpc/PublicSubnet2/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcPublicSubnet2RouteTableAssociationDD5762D8"
+          }
+        ],
+        "/github-runners-test/Vpc/PublicSubnet2/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcPublicSubnet2DefaultRoute97F91067"
+          }
+        ],
+        "/github-runners-test/Vpc/IGW": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcIGWD7BA715C"
+          }
+        ],
+        "/github-runners-test/Vpc/VPCGW": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcVPCGWBF912B6E"
+          }
+        ],
         "/github-runners-test/cluster/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "cluster611F8AFF"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpc91107A71"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PublicSubnet1/Subnet": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPublicSubnet1Subnet3948EFCA"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PublicSubnet1/RouteTable": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPublicSubnet1RouteTable85A91E8C"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PublicSubnet1/RouteTableAssociation": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPublicSubnet1RouteTableAssociationABF3C3B6"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PublicSubnet1/DefaultRoute": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPublicSubnet1DefaultRouteF41D2737"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PublicSubnet1/EIP": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPublicSubnet1EIP0E24289A"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PublicSubnet1/NATGateway": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPublicSubnet1NATGateway278CA43C"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PublicSubnet2/Subnet": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPublicSubnet2SubnetEFB8E71C"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PublicSubnet2/RouteTable": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPublicSubnet2RouteTable21948248"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PublicSubnet2/RouteTableAssociation": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPublicSubnet2RouteTableAssociation21B4DF05"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PublicSubnet2/DefaultRoute": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPublicSubnet2DefaultRouteC71B8373"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PublicSubnet2/EIP": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPublicSubnet2EIP6FF291E5"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PublicSubnet2/NATGateway": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPublicSubnet2NATGatewayD971ED50"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PrivateSubnet1/Subnet": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPrivateSubnet1Subnet4D445D11"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PrivateSubnet1/RouteTable": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPrivateSubnet1RouteTable6B7B6A77"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PrivateSubnet1/RouteTableAssociation": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPrivateSubnet1RouteTableAssociationDE66313E"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PrivateSubnet1/DefaultRoute": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPrivateSubnet1DefaultRoute6A776454"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PrivateSubnet2/Subnet": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPrivateSubnet2Subnet6DFF6572"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PrivateSubnet2/RouteTable": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPrivateSubnet2RouteTable0D967850"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PrivateSubnet2/RouteTableAssociation": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPrivateSubnet2RouteTableAssociation0E224256"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/PrivateSubnet2/DefaultRoute": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcPrivateSubnet2DefaultRouteF3B52CD2"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/IGW": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcIGW64BABB17"
-          }
-        ],
-        "/github-runners-test/cluster/Vpc/VPCGW": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "clusterVpcVPCGW9E9B1FA8"
           }
         ],
         "/github-runners-test/cluster/cluster": [

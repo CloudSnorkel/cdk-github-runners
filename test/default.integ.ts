@@ -5,8 +5,8 @@
  */
 
 import * as cdk from 'aws-cdk-lib';
-import { aws_codebuild as codebuild, aws_ecs as ecs } from 'aws-cdk-lib';
-import { Architecture, Os, CodeBuildImageBuilder, CodeBuildRunner, ContainerImageBuilder, FargateRunner, GitHubRunners, LambdaRunner } from '../src';
+import { aws_codebuild as codebuild, aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
+import { Architecture, CodeBuildImageBuilder, CodeBuildRunner, ContainerImageBuilder, FargateRunner, GitHubRunners, LambdaRunner, Os } from '../src';
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
@@ -16,6 +16,15 @@ const cluster = new ecs.Cluster(
   'cluster',
   {
     enableFargateCapacityProviders: true,
+    vpc: new ec2.Vpc(stack, 'Vpc', {
+      subnetConfiguration: [
+        // just public so we don't need to waste money on VPC endpoints or NAT gateway
+        {
+          name: 'Public',
+          subnetType: ec2.SubnetType.PUBLIC,
+        },
+      ],
+    }),
   },
 );
 const fargateX64Builder = new CodeBuildImageBuilder(stack, 'Fargate builder', {
@@ -74,6 +83,7 @@ new GitHubRunners(stack, 'runners', {
       imageBuilder: fargateX64Builder,
       cluster,
       vpc: cluster.vpc,
+      assignPublicIp: true,
     }),
     new FargateRunner(stack, 'Fargate-x64-spot', {
       label: 'fargate-x64-spot',
@@ -83,6 +93,7 @@ new GitHubRunners(stack, 'runners', {
       imageBuilder: fargateX64Builder,
       cluster,
       vpc: cluster.vpc,
+      assignPublicIp: true,
     }),
     new FargateRunner(stack, 'Fargate-arm64', {
       label: 'fargate-arm64',
@@ -91,6 +102,7 @@ new GitHubRunners(stack, 'runners', {
       imageBuilder: fargateArm64Builder,
       cluster,
       vpc: cluster.vpc,
+      assignPublicIp: true,
     }),
     new FargateRunner(stack, 'Fargate-arm64-spot', {
       label: 'fargate-arm64-spot',
@@ -100,6 +112,7 @@ new GitHubRunners(stack, 'runners', {
       imageBuilder: fargateArm64Builder,
       cluster,
       vpc: cluster.vpc,
+      assignPublicIp: true,
     }),
     new FargateRunner(stack, 'Fargate-Windows', {
       label: 'fargate-windows-x64',
@@ -108,6 +121,7 @@ new GitHubRunners(stack, 'runners', {
       imageBuilder: windowsImageBuilder,
       cluster,
       vpc: cluster.vpc,
+      assignPublicIp: true,
     }),
   ],
 });
