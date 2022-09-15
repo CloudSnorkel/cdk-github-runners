@@ -147,7 +147,7 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
    * Called when the Fargate launch type configured on RunTask
    */
   public bind(_task: stepfunctions_tasks.EcsRunTask,
-              launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
+    launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
     if (!launchTargetOptions.taskDefinition.isFargateCompatible) {
       throw new Error('Supplied TaskDefinition is not compatible with Fargate');
     }
@@ -380,12 +380,12 @@ export class FargateRunner extends Construct implements IRunnerProvider {
       return [
         'sh', '-c',
         './config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --disableupdate --name "${RUNNER_NAME}" && ./run.sh',
-      ]
+      ];
     } else if (this.image.os.is(Os.WINDOWS)) {
       return [
         'powershell', '-Command',
         'cd \\actions && ./config.cmd --unattended --url "https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL}" --disableupdate --name "${Env:RUNNER_NAME}" && ./run.cmd',
-      ]
+      ];
     } else {
       throw new Error(`Fargate runner doesn't support ${this.image.os.name}`);
     }
