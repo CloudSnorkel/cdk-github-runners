@@ -16,6 +16,315 @@
         "id": "github-runners-test",
         "path": "github-runners-test",
         "children": {
+          "Vpc": {
+            "id": "Vpc",
+            "path": "github-runners-test/Vpc",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "github-runners-test/Vpc/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::EC2::VPC",
+                  "aws:cdk:cloudformation:props": {
+                    "cidrBlock": "10.0.0.0/16",
+                    "enableDnsHostnames": true,
+                    "enableDnsSupport": true,
+                    "instanceTenancy": "default",
+                    "tags": [
+                      {
+                        "key": "Name",
+                        "value": "github-runners-test/Vpc"
+                      }
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.CfnVPC",
+                  "version": "2.29.0"
+                }
+              },
+              "PublicSubnet1": {
+                "id": "PublicSubnet1",
+                "path": "github-runners-test/Vpc/PublicSubnet1",
+                "children": {
+                  "Subnet": {
+                    "id": "Subnet",
+                    "path": "github-runners-test/Vpc/PublicSubnet1/Subnet",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
+                      "aws:cdk:cloudformation:props": {
+                        "vpcId": {
+                          "Ref": "Vpc8378EB38"
+                        },
+                        "availabilityZone": {
+                          "Fn::Select": [
+                            0,
+                            {
+                              "Fn::GetAZs": ""
+                            }
+                          ]
+                        },
+                        "cidrBlock": "10.0.0.0/17",
+                        "mapPublicIpOnLaunch": true,
+                        "tags": [
+                          {
+                            "key": "aws-cdk:subnet-name",
+                            "value": "Public"
+                          },
+                          {
+                            "key": "aws-cdk:subnet-type",
+                            "value": "Public"
+                          },
+                          {
+                            "key": "Name",
+                            "value": "github-runners-test/Vpc/PublicSubnet1"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSubnet",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "Acl": {
+                    "id": "Acl",
+                    "path": "github-runners-test/Vpc/PublicSubnet1/Acl",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "RouteTable": {
+                    "id": "RouteTable",
+                    "path": "github-runners-test/Vpc/PublicSubnet1/RouteTable",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::RouteTable",
+                      "aws:cdk:cloudformation:props": {
+                        "vpcId": {
+                          "Ref": "Vpc8378EB38"
+                        },
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "github-runners-test/Vpc/PublicSubnet1"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnRouteTable",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "RouteTableAssociation": {
+                    "id": "RouteTableAssociation",
+                    "path": "github-runners-test/Vpc/PublicSubnet1/RouteTableAssociation",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::SubnetRouteTableAssociation",
+                      "aws:cdk:cloudformation:props": {
+                        "routeTableId": {
+                          "Ref": "VpcPublicSubnet1RouteTable6C95E38E"
+                        },
+                        "subnetId": {
+                          "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSubnetRouteTableAssociation",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "DefaultRoute": {
+                    "id": "DefaultRoute",
+                    "path": "github-runners-test/Vpc/PublicSubnet1/DefaultRoute",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::Route",
+                      "aws:cdk:cloudformation:props": {
+                        "routeTableId": {
+                          "Ref": "VpcPublicSubnet1RouteTable6C95E38E"
+                        },
+                        "destinationCidrBlock": "0.0.0.0/0",
+                        "gatewayId": {
+                          "Ref": "VpcIGWD7BA715C"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnRoute",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.PublicSubnet",
+                  "version": "2.29.0"
+                }
+              },
+              "PublicSubnet2": {
+                "id": "PublicSubnet2",
+                "path": "github-runners-test/Vpc/PublicSubnet2",
+                "children": {
+                  "Subnet": {
+                    "id": "Subnet",
+                    "path": "github-runners-test/Vpc/PublicSubnet2/Subnet",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
+                      "aws:cdk:cloudformation:props": {
+                        "vpcId": {
+                          "Ref": "Vpc8378EB38"
+                        },
+                        "availabilityZone": {
+                          "Fn::Select": [
+                            1,
+                            {
+                              "Fn::GetAZs": ""
+                            }
+                          ]
+                        },
+                        "cidrBlock": "10.0.128.0/17",
+                        "mapPublicIpOnLaunch": true,
+                        "tags": [
+                          {
+                            "key": "aws-cdk:subnet-name",
+                            "value": "Public"
+                          },
+                          {
+                            "key": "aws-cdk:subnet-type",
+                            "value": "Public"
+                          },
+                          {
+                            "key": "Name",
+                            "value": "github-runners-test/Vpc/PublicSubnet2"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSubnet",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "Acl": {
+                    "id": "Acl",
+                    "path": "github-runners-test/Vpc/PublicSubnet2/Acl",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "RouteTable": {
+                    "id": "RouteTable",
+                    "path": "github-runners-test/Vpc/PublicSubnet2/RouteTable",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::RouteTable",
+                      "aws:cdk:cloudformation:props": {
+                        "vpcId": {
+                          "Ref": "Vpc8378EB38"
+                        },
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "github-runners-test/Vpc/PublicSubnet2"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnRouteTable",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "RouteTableAssociation": {
+                    "id": "RouteTableAssociation",
+                    "path": "github-runners-test/Vpc/PublicSubnet2/RouteTableAssociation",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::SubnetRouteTableAssociation",
+                      "aws:cdk:cloudformation:props": {
+                        "routeTableId": {
+                          "Ref": "VpcPublicSubnet2RouteTable94F7E489"
+                        },
+                        "subnetId": {
+                          "Ref": "VpcPublicSubnet2Subnet691E08A3"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSubnetRouteTableAssociation",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "DefaultRoute": {
+                    "id": "DefaultRoute",
+                    "path": "github-runners-test/Vpc/PublicSubnet2/DefaultRoute",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::Route",
+                      "aws:cdk:cloudformation:props": {
+                        "routeTableId": {
+                          "Ref": "VpcPublicSubnet2RouteTable94F7E489"
+                        },
+                        "destinationCidrBlock": "0.0.0.0/0",
+                        "gatewayId": {
+                          "Ref": "VpcIGWD7BA715C"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnRoute",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.PublicSubnet",
+                  "version": "2.29.0"
+                }
+              },
+              "IGW": {
+                "id": "IGW",
+                "path": "github-runners-test/Vpc/IGW",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::EC2::InternetGateway",
+                  "aws:cdk:cloudformation:props": {
+                    "tags": [
+                      {
+                        "key": "Name",
+                        "value": "github-runners-test/Vpc"
+                      }
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.CfnInternetGateway",
+                  "version": "2.29.0"
+                }
+              },
+              "VPCGW": {
+                "id": "VPCGW",
+                "path": "github-runners-test/Vpc/VPCGW",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::EC2::VPCGatewayAttachment",
+                  "aws:cdk:cloudformation:props": {
+                    "vpcId": {
+                      "Ref": "Vpc8378EB38"
+                    },
+                    "internetGatewayId": {
+                      "Ref": "VpcIGWD7BA715C"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.CfnVPCGatewayAttachment",
+                  "version": "2.29.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_ec2.Vpc",
+              "version": "2.29.0"
+            }
+          },
           "cluster": {
             "id": "cluster",
             "path": "github-runners-test/cluster",
@@ -29,649 +338,6 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_ecs.CfnCluster",
-                  "version": "2.29.0"
-                }
-              },
-              "Vpc": {
-                "id": "Vpc",
-                "path": "github-runners-test/cluster/Vpc",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/cluster/Vpc/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::EC2::VPC",
-                      "aws:cdk:cloudformation:props": {
-                        "cidrBlock": "10.0.0.0/16",
-                        "enableDnsHostnames": true,
-                        "enableDnsSupport": true,
-                        "instanceTenancy": "default",
-                        "tags": [
-                          {
-                            "key": "Name",
-                            "value": "github-runners-test/cluster/Vpc"
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_ec2.CfnVPC",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "PublicSubnet1": {
-                    "id": "PublicSubnet1",
-                    "path": "github-runners-test/cluster/Vpc/PublicSubnet1",
-                    "children": {
-                      "Subnet": {
-                        "id": "Subnet",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet1/Subnet",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
-                          "aws:cdk:cloudformation:props": {
-                            "vpcId": {
-                              "Ref": "clusterVpc91107A71"
-                            },
-                            "availabilityZone": {
-                              "Fn::Select": [
-                                0,
-                                {
-                                  "Fn::GetAZs": ""
-                                }
-                              ]
-                            },
-                            "cidrBlock": "10.0.0.0/18",
-                            "mapPublicIpOnLaunch": true,
-                            "tags": [
-                              {
-                                "key": "aws-cdk:subnet-name",
-                                "value": "Public"
-                              },
-                              {
-                                "key": "aws-cdk:subnet-type",
-                                "value": "Public"
-                              },
-                              {
-                                "key": "Name",
-                                "value": "github-runners-test/cluster/Vpc/PublicSubnet1"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnSubnet",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "Acl": {
-                        "id": "Acl",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet1/Acl",
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.Resource",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "RouteTable": {
-                        "id": "RouteTable",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet1/RouteTable",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::RouteTable",
-                          "aws:cdk:cloudformation:props": {
-                            "vpcId": {
-                              "Ref": "clusterVpc91107A71"
-                            },
-                            "tags": [
-                              {
-                                "key": "Name",
-                                "value": "github-runners-test/cluster/Vpc/PublicSubnet1"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnRouteTable",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "RouteTableAssociation": {
-                        "id": "RouteTableAssociation",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet1/RouteTableAssociation",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::SubnetRouteTableAssociation",
-                          "aws:cdk:cloudformation:props": {
-                            "routeTableId": {
-                              "Ref": "clusterVpcPublicSubnet1RouteTable85A91E8C"
-                            },
-                            "subnetId": {
-                              "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
-                            }
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnSubnetRouteTableAssociation",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "DefaultRoute": {
-                        "id": "DefaultRoute",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet1/DefaultRoute",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::Route",
-                          "aws:cdk:cloudformation:props": {
-                            "routeTableId": {
-                              "Ref": "clusterVpcPublicSubnet1RouteTable85A91E8C"
-                            },
-                            "destinationCidrBlock": "0.0.0.0/0",
-                            "gatewayId": {
-                              "Ref": "clusterVpcIGW64BABB17"
-                            }
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnRoute",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "EIP": {
-                        "id": "EIP",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet1/EIP",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::EIP",
-                          "aws:cdk:cloudformation:props": {
-                            "domain": "vpc",
-                            "tags": [
-                              {
-                                "key": "Name",
-                                "value": "github-runners-test/cluster/Vpc/PublicSubnet1"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnEIP",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "NATGateway": {
-                        "id": "NATGateway",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet1/NATGateway",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::NatGateway",
-                          "aws:cdk:cloudformation:props": {
-                            "subnetId": {
-                              "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
-                            },
-                            "allocationId": {
-                              "Fn::GetAtt": [
-                                "clusterVpcPublicSubnet1EIP0E24289A",
-                                "AllocationId"
-                              ]
-                            },
-                            "tags": [
-                              {
-                                "key": "Name",
-                                "value": "github-runners-test/cluster/Vpc/PublicSubnet1"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnNatGateway",
-                          "version": "2.29.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_ec2.PublicSubnet",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "PublicSubnet2": {
-                    "id": "PublicSubnet2",
-                    "path": "github-runners-test/cluster/Vpc/PublicSubnet2",
-                    "children": {
-                      "Subnet": {
-                        "id": "Subnet",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet2/Subnet",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
-                          "aws:cdk:cloudformation:props": {
-                            "vpcId": {
-                              "Ref": "clusterVpc91107A71"
-                            },
-                            "availabilityZone": {
-                              "Fn::Select": [
-                                1,
-                                {
-                                  "Fn::GetAZs": ""
-                                }
-                              ]
-                            },
-                            "cidrBlock": "10.0.64.0/18",
-                            "mapPublicIpOnLaunch": true,
-                            "tags": [
-                              {
-                                "key": "aws-cdk:subnet-name",
-                                "value": "Public"
-                              },
-                              {
-                                "key": "aws-cdk:subnet-type",
-                                "value": "Public"
-                              },
-                              {
-                                "key": "Name",
-                                "value": "github-runners-test/cluster/Vpc/PublicSubnet2"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnSubnet",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "Acl": {
-                        "id": "Acl",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet2/Acl",
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.Resource",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "RouteTable": {
-                        "id": "RouteTable",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet2/RouteTable",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::RouteTable",
-                          "aws:cdk:cloudformation:props": {
-                            "vpcId": {
-                              "Ref": "clusterVpc91107A71"
-                            },
-                            "tags": [
-                              {
-                                "key": "Name",
-                                "value": "github-runners-test/cluster/Vpc/PublicSubnet2"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnRouteTable",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "RouteTableAssociation": {
-                        "id": "RouteTableAssociation",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet2/RouteTableAssociation",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::SubnetRouteTableAssociation",
-                          "aws:cdk:cloudformation:props": {
-                            "routeTableId": {
-                              "Ref": "clusterVpcPublicSubnet2RouteTable21948248"
-                            },
-                            "subnetId": {
-                              "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
-                            }
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnSubnetRouteTableAssociation",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "DefaultRoute": {
-                        "id": "DefaultRoute",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet2/DefaultRoute",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::Route",
-                          "aws:cdk:cloudformation:props": {
-                            "routeTableId": {
-                              "Ref": "clusterVpcPublicSubnet2RouteTable21948248"
-                            },
-                            "destinationCidrBlock": "0.0.0.0/0",
-                            "gatewayId": {
-                              "Ref": "clusterVpcIGW64BABB17"
-                            }
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnRoute",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "EIP": {
-                        "id": "EIP",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet2/EIP",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::EIP",
-                          "aws:cdk:cloudformation:props": {
-                            "domain": "vpc",
-                            "tags": [
-                              {
-                                "key": "Name",
-                                "value": "github-runners-test/cluster/Vpc/PublicSubnet2"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnEIP",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "NATGateway": {
-                        "id": "NATGateway",
-                        "path": "github-runners-test/cluster/Vpc/PublicSubnet2/NATGateway",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::NatGateway",
-                          "aws:cdk:cloudformation:props": {
-                            "subnetId": {
-                              "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
-                            },
-                            "allocationId": {
-                              "Fn::GetAtt": [
-                                "clusterVpcPublicSubnet2EIP6FF291E5",
-                                "AllocationId"
-                              ]
-                            },
-                            "tags": [
-                              {
-                                "key": "Name",
-                                "value": "github-runners-test/cluster/Vpc/PublicSubnet2"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnNatGateway",
-                          "version": "2.29.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_ec2.PublicSubnet",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "PrivateSubnet1": {
-                    "id": "PrivateSubnet1",
-                    "path": "github-runners-test/cluster/Vpc/PrivateSubnet1",
-                    "children": {
-                      "Subnet": {
-                        "id": "Subnet",
-                        "path": "github-runners-test/cluster/Vpc/PrivateSubnet1/Subnet",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
-                          "aws:cdk:cloudformation:props": {
-                            "vpcId": {
-                              "Ref": "clusterVpc91107A71"
-                            },
-                            "availabilityZone": {
-                              "Fn::Select": [
-                                0,
-                                {
-                                  "Fn::GetAZs": ""
-                                }
-                              ]
-                            },
-                            "cidrBlock": "10.0.128.0/18",
-                            "mapPublicIpOnLaunch": false,
-                            "tags": [
-                              {
-                                "key": "aws-cdk:subnet-name",
-                                "value": "Private"
-                              },
-                              {
-                                "key": "aws-cdk:subnet-type",
-                                "value": "Private"
-                              },
-                              {
-                                "key": "Name",
-                                "value": "github-runners-test/cluster/Vpc/PrivateSubnet1"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnSubnet",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "Acl": {
-                        "id": "Acl",
-                        "path": "github-runners-test/cluster/Vpc/PrivateSubnet1/Acl",
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.Resource",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "RouteTable": {
-                        "id": "RouteTable",
-                        "path": "github-runners-test/cluster/Vpc/PrivateSubnet1/RouteTable",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::RouteTable",
-                          "aws:cdk:cloudformation:props": {
-                            "vpcId": {
-                              "Ref": "clusterVpc91107A71"
-                            },
-                            "tags": [
-                              {
-                                "key": "Name",
-                                "value": "github-runners-test/cluster/Vpc/PrivateSubnet1"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnRouteTable",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "RouteTableAssociation": {
-                        "id": "RouteTableAssociation",
-                        "path": "github-runners-test/cluster/Vpc/PrivateSubnet1/RouteTableAssociation",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::SubnetRouteTableAssociation",
-                          "aws:cdk:cloudformation:props": {
-                            "routeTableId": {
-                              "Ref": "clusterVpcPrivateSubnet1RouteTable6B7B6A77"
-                            },
-                            "subnetId": {
-                              "Ref": "clusterVpcPrivateSubnet1Subnet4D445D11"
-                            }
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnSubnetRouteTableAssociation",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "DefaultRoute": {
-                        "id": "DefaultRoute",
-                        "path": "github-runners-test/cluster/Vpc/PrivateSubnet1/DefaultRoute",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::Route",
-                          "aws:cdk:cloudformation:props": {
-                            "routeTableId": {
-                              "Ref": "clusterVpcPrivateSubnet1RouteTable6B7B6A77"
-                            },
-                            "destinationCidrBlock": "0.0.0.0/0",
-                            "natGatewayId": {
-                              "Ref": "clusterVpcPublicSubnet1NATGateway278CA43C"
-                            }
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnRoute",
-                          "version": "2.29.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_ec2.PrivateSubnet",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "PrivateSubnet2": {
-                    "id": "PrivateSubnet2",
-                    "path": "github-runners-test/cluster/Vpc/PrivateSubnet2",
-                    "children": {
-                      "Subnet": {
-                        "id": "Subnet",
-                        "path": "github-runners-test/cluster/Vpc/PrivateSubnet2/Subnet",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
-                          "aws:cdk:cloudformation:props": {
-                            "vpcId": {
-                              "Ref": "clusterVpc91107A71"
-                            },
-                            "availabilityZone": {
-                              "Fn::Select": [
-                                1,
-                                {
-                                  "Fn::GetAZs": ""
-                                }
-                              ]
-                            },
-                            "cidrBlock": "10.0.192.0/18",
-                            "mapPublicIpOnLaunch": false,
-                            "tags": [
-                              {
-                                "key": "aws-cdk:subnet-name",
-                                "value": "Private"
-                              },
-                              {
-                                "key": "aws-cdk:subnet-type",
-                                "value": "Private"
-                              },
-                              {
-                                "key": "Name",
-                                "value": "github-runners-test/cluster/Vpc/PrivateSubnet2"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnSubnet",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "Acl": {
-                        "id": "Acl",
-                        "path": "github-runners-test/cluster/Vpc/PrivateSubnet2/Acl",
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.Resource",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "RouteTable": {
-                        "id": "RouteTable",
-                        "path": "github-runners-test/cluster/Vpc/PrivateSubnet2/RouteTable",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::RouteTable",
-                          "aws:cdk:cloudformation:props": {
-                            "vpcId": {
-                              "Ref": "clusterVpc91107A71"
-                            },
-                            "tags": [
-                              {
-                                "key": "Name",
-                                "value": "github-runners-test/cluster/Vpc/PrivateSubnet2"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnRouteTable",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "RouteTableAssociation": {
-                        "id": "RouteTableAssociation",
-                        "path": "github-runners-test/cluster/Vpc/PrivateSubnet2/RouteTableAssociation",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::SubnetRouteTableAssociation",
-                          "aws:cdk:cloudformation:props": {
-                            "routeTableId": {
-                              "Ref": "clusterVpcPrivateSubnet2RouteTable0D967850"
-                            },
-                            "subnetId": {
-                              "Ref": "clusterVpcPrivateSubnet2Subnet6DFF6572"
-                            }
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnSubnetRouteTableAssociation",
-                          "version": "2.29.0"
-                        }
-                      },
-                      "DefaultRoute": {
-                        "id": "DefaultRoute",
-                        "path": "github-runners-test/cluster/Vpc/PrivateSubnet2/DefaultRoute",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::EC2::Route",
-                          "aws:cdk:cloudformation:props": {
-                            "routeTableId": {
-                              "Ref": "clusterVpcPrivateSubnet2RouteTable0D967850"
-                            },
-                            "destinationCidrBlock": "0.0.0.0/0",
-                            "natGatewayId": {
-                              "Ref": "clusterVpcPublicSubnet2NATGatewayD971ED50"
-                            }
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_ec2.CfnRoute",
-                          "version": "2.29.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_ec2.PrivateSubnet",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "IGW": {
-                    "id": "IGW",
-                    "path": "github-runners-test/cluster/Vpc/IGW",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::EC2::InternetGateway",
-                      "aws:cdk:cloudformation:props": {
-                        "tags": [
-                          {
-                            "key": "Name",
-                            "value": "github-runners-test/cluster/Vpc"
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_ec2.CfnInternetGateway",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "VPCGW": {
-                    "id": "VPCGW",
-                    "path": "github-runners-test/cluster/Vpc/VPCGW",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::EC2::VPCGatewayAttachment",
-                      "aws:cdk:cloudformation:props": {
-                        "vpcId": {
-                          "Ref": "clusterVpc91107A71"
-                        },
-                        "internetGatewayId": {
-                          "Ref": "clusterVpcIGW64BABB17"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_ec2.CfnVPCGatewayAttachment",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_ec2.Vpc",
                   "version": "2.29.0"
                 }
               },
@@ -7837,7 +7503,7 @@
                           }
                         ],
                         "vpcId": {
-                          "Ref": "clusterVpc91107A71"
+                          "Ref": "Vpc8378EB38"
                         }
                       }
                     },
@@ -8169,7 +7835,7 @@
                           }
                         ],
                         "vpcId": {
-                          "Ref": "clusterVpc91107A71"
+                          "Ref": "Vpc8378EB38"
                         }
                       }
                     },
@@ -8501,7 +8167,7 @@
                           }
                         ],
                         "vpcId": {
-                          "Ref": "clusterVpc91107A71"
+                          "Ref": "Vpc8378EB38"
                         }
                       }
                     },
@@ -8833,7 +8499,7 @@
                           }
                         ],
                         "vpcId": {
-                          "Ref": "clusterVpc91107A71"
+                          "Ref": "Vpc8378EB38"
                         }
                       }
                     },
@@ -9165,7 +8831,7 @@
                           }
                         ],
                         "vpcId": {
-                          "Ref": "clusterVpc91107A71"
+                          "Ref": "Vpc8378EB38"
                         }
                       }
                     },
@@ -11173,11 +10839,11 @@
                               },
                               "\",\"TaskDefinition\":\"githubrunnerstestFargatetaskA755E0CE\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
                               {
-                                "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+                                "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                               },
                               "\",\"",
                               {
-                                "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+                                "Ref": "VpcPublicSubnet2Subnet691E08A3"
                               },
                               "\"],\"SecurityGroups\":[\"",
                               {
@@ -11199,11 +10865,11 @@
                               },
                               "\",\"TaskDefinition\":\"githubrunnerstestFargatex64spottask7B2E300E\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
                               {
-                                "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+                                "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                               },
                               "\",\"",
                               {
-                                "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+                                "Ref": "VpcPublicSubnet2Subnet691E08A3"
                               },
                               "\"],\"SecurityGroups\":[\"",
                               {
@@ -11225,11 +10891,11 @@
                               },
                               "\",\"TaskDefinition\":\"githubrunnerstestFargatearm64task6B95C05B\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
                               {
-                                "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+                                "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                               },
                               "\",\"",
                               {
-                                "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+                                "Ref": "VpcPublicSubnet2Subnet691E08A3"
                               },
                               "\"],\"SecurityGroups\":[\"",
                               {
@@ -11251,11 +10917,11 @@
                               },
                               "\",\"TaskDefinition\":\"githubrunnerstestFargatearm64spottaskF9ADF192\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
                               {
-                                "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+                                "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                               },
                               "\",\"",
                               {
-                                "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+                                "Ref": "VpcPublicSubnet2Subnet691E08A3"
                               },
                               "\"],\"SecurityGroups\":[\"",
                               {
@@ -11277,11 +10943,11 @@
                               },
                               "\",\"TaskDefinition\":\"githubrunnerstestFargateWindowstask95BB2245\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
                               {
-                                "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+                                "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                               },
                               "\",\"",
                               {
-                                "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+                                "Ref": "VpcPublicSubnet2Subnet691E08A3"
                               },
                               "\"],\"SecurityGroups\":[\"",
                               {

@@ -1,9 +1,6 @@
 {
  "Resources": {
-  "cluster611F8AFF": {
-   "Type": "AWS::ECS::Cluster"
-  },
-  "clusterVpc91107A71": {
+  "Vpc8378EB38": {
    "Type": "AWS::EC2::VPC",
    "Properties": {
     "CidrBlock": "10.0.0.0/16",
@@ -13,16 +10,16 @@
     "Tags": [
      {
       "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc"
+      "Value": "github-runners-test/Vpc"
      }
     ]
    }
   },
-  "clusterVpcPublicSubnet1Subnet3948EFCA": {
+  "VpcPublicSubnet1Subnet5C2D37C4": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
     "VpcId": {
-     "Ref": "clusterVpc91107A71"
+     "Ref": "Vpc8378EB38"
     },
     "AvailabilityZone": {
      "Fn::Select": [
@@ -32,7 +29,7 @@
       }
      ]
     },
-    "CidrBlock": "10.0.0.0/18",
+    "CidrBlock": "10.0.0.0/17",
     "MapPublicIpOnLaunch": true,
     "Tags": [
      {
@@ -45,88 +42,56 @@
      },
      {
       "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc/PublicSubnet1"
+      "Value": "github-runners-test/Vpc/PublicSubnet1"
      }
     ]
    }
   },
-  "clusterVpcPublicSubnet1RouteTable85A91E8C": {
+  "VpcPublicSubnet1RouteTable6C95E38E": {
    "Type": "AWS::EC2::RouteTable",
    "Properties": {
     "VpcId": {
-     "Ref": "clusterVpc91107A71"
+     "Ref": "Vpc8378EB38"
     },
     "Tags": [
      {
       "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc/PublicSubnet1"
+      "Value": "github-runners-test/Vpc/PublicSubnet1"
      }
     ]
    }
   },
-  "clusterVpcPublicSubnet1RouteTableAssociationABF3C3B6": {
+  "VpcPublicSubnet1RouteTableAssociation97140677": {
    "Type": "AWS::EC2::SubnetRouteTableAssociation",
    "Properties": {
     "RouteTableId": {
-     "Ref": "clusterVpcPublicSubnet1RouteTable85A91E8C"
+     "Ref": "VpcPublicSubnet1RouteTable6C95E38E"
     },
     "SubnetId": {
-     "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+     "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
     }
    }
   },
-  "clusterVpcPublicSubnet1DefaultRouteF41D2737": {
+  "VpcPublicSubnet1DefaultRoute3DA9E72A": {
    "Type": "AWS::EC2::Route",
    "Properties": {
     "RouteTableId": {
-     "Ref": "clusterVpcPublicSubnet1RouteTable85A91E8C"
+     "Ref": "VpcPublicSubnet1RouteTable6C95E38E"
     },
     "DestinationCidrBlock": "0.0.0.0/0",
     "GatewayId": {
-     "Ref": "clusterVpcIGW64BABB17"
+     "Ref": "VpcIGWD7BA715C"
     }
    },
    "DependsOn": [
-    "clusterVpcVPCGW9E9B1FA8"
+    "VpcVPCGWBF912B6E"
    ]
   },
-  "clusterVpcPublicSubnet1EIP0E24289A": {
-   "Type": "AWS::EC2::EIP",
-   "Properties": {
-    "Domain": "vpc",
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc/PublicSubnet1"
-     }
-    ]
-   }
-  },
-  "clusterVpcPublicSubnet1NATGateway278CA43C": {
-   "Type": "AWS::EC2::NatGateway",
-   "Properties": {
-    "SubnetId": {
-     "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
-    },
-    "AllocationId": {
-     "Fn::GetAtt": [
-      "clusterVpcPublicSubnet1EIP0E24289A",
-      "AllocationId"
-     ]
-    },
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc/PublicSubnet1"
-     }
-    ]
-   }
-  },
-  "clusterVpcPublicSubnet2SubnetEFB8E71C": {
+  "VpcPublicSubnet2Subnet691E08A3": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
     "VpcId": {
-     "Ref": "clusterVpc91107A71"
+     "Ref": "Vpc8378EB38"
     },
     "AvailabilityZone": {
      "Fn::Select": [
@@ -136,7 +101,7 @@
       }
      ]
     },
-    "CidrBlock": "10.0.64.0/18",
+    "CidrBlock": "10.0.128.0/17",
     "MapPublicIpOnLaunch": true,
     "Tags": [
      {
@@ -149,242 +114,75 @@
      },
      {
       "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc/PublicSubnet2"
+      "Value": "github-runners-test/Vpc/PublicSubnet2"
      }
     ]
    }
   },
-  "clusterVpcPublicSubnet2RouteTable21948248": {
+  "VpcPublicSubnet2RouteTable94F7E489": {
    "Type": "AWS::EC2::RouteTable",
    "Properties": {
     "VpcId": {
-     "Ref": "clusterVpc91107A71"
+     "Ref": "Vpc8378EB38"
     },
     "Tags": [
      {
       "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc/PublicSubnet2"
+      "Value": "github-runners-test/Vpc/PublicSubnet2"
      }
     ]
    }
   },
-  "clusterVpcPublicSubnet2RouteTableAssociation21B4DF05": {
+  "VpcPublicSubnet2RouteTableAssociationDD5762D8": {
    "Type": "AWS::EC2::SubnetRouteTableAssociation",
    "Properties": {
     "RouteTableId": {
-     "Ref": "clusterVpcPublicSubnet2RouteTable21948248"
+     "Ref": "VpcPublicSubnet2RouteTable94F7E489"
     },
     "SubnetId": {
-     "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+     "Ref": "VpcPublicSubnet2Subnet691E08A3"
     }
    }
   },
-  "clusterVpcPublicSubnet2DefaultRouteC71B8373": {
+  "VpcPublicSubnet2DefaultRoute97F91067": {
    "Type": "AWS::EC2::Route",
    "Properties": {
     "RouteTableId": {
-     "Ref": "clusterVpcPublicSubnet2RouteTable21948248"
+     "Ref": "VpcPublicSubnet2RouteTable94F7E489"
     },
     "DestinationCidrBlock": "0.0.0.0/0",
     "GatewayId": {
-     "Ref": "clusterVpcIGW64BABB17"
+     "Ref": "VpcIGWD7BA715C"
     }
    },
    "DependsOn": [
-    "clusterVpcVPCGW9E9B1FA8"
+    "VpcVPCGWBF912B6E"
    ]
   },
-  "clusterVpcPublicSubnet2EIP6FF291E5": {
-   "Type": "AWS::EC2::EIP",
-   "Properties": {
-    "Domain": "vpc",
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc/PublicSubnet2"
-     }
-    ]
-   }
-  },
-  "clusterVpcPublicSubnet2NATGatewayD971ED50": {
-   "Type": "AWS::EC2::NatGateway",
-   "Properties": {
-    "SubnetId": {
-     "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
-    },
-    "AllocationId": {
-     "Fn::GetAtt": [
-      "clusterVpcPublicSubnet2EIP6FF291E5",
-      "AllocationId"
-     ]
-    },
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc/PublicSubnet2"
-     }
-    ]
-   }
-  },
-  "clusterVpcPrivateSubnet1Subnet4D445D11": {
-   "Type": "AWS::EC2::Subnet",
-   "Properties": {
-    "VpcId": {
-     "Ref": "clusterVpc91107A71"
-    },
-    "AvailabilityZone": {
-     "Fn::Select": [
-      0,
-      {
-       "Fn::GetAZs": ""
-      }
-     ]
-    },
-    "CidrBlock": "10.0.128.0/18",
-    "MapPublicIpOnLaunch": false,
-    "Tags": [
-     {
-      "Key": "aws-cdk:subnet-name",
-      "Value": "Private"
-     },
-     {
-      "Key": "aws-cdk:subnet-type",
-      "Value": "Private"
-     },
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc/PrivateSubnet1"
-     }
-    ]
-   }
-  },
-  "clusterVpcPrivateSubnet1RouteTable6B7B6A77": {
-   "Type": "AWS::EC2::RouteTable",
-   "Properties": {
-    "VpcId": {
-     "Ref": "clusterVpc91107A71"
-    },
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc/PrivateSubnet1"
-     }
-    ]
-   }
-  },
-  "clusterVpcPrivateSubnet1RouteTableAssociationDE66313E": {
-   "Type": "AWS::EC2::SubnetRouteTableAssociation",
-   "Properties": {
-    "RouteTableId": {
-     "Ref": "clusterVpcPrivateSubnet1RouteTable6B7B6A77"
-    },
-    "SubnetId": {
-     "Ref": "clusterVpcPrivateSubnet1Subnet4D445D11"
-    }
-   }
-  },
-  "clusterVpcPrivateSubnet1DefaultRoute6A776454": {
-   "Type": "AWS::EC2::Route",
-   "Properties": {
-    "RouteTableId": {
-     "Ref": "clusterVpcPrivateSubnet1RouteTable6B7B6A77"
-    },
-    "DestinationCidrBlock": "0.0.0.0/0",
-    "NatGatewayId": {
-     "Ref": "clusterVpcPublicSubnet1NATGateway278CA43C"
-    }
-   }
-  },
-  "clusterVpcPrivateSubnet2Subnet6DFF6572": {
-   "Type": "AWS::EC2::Subnet",
-   "Properties": {
-    "VpcId": {
-     "Ref": "clusterVpc91107A71"
-    },
-    "AvailabilityZone": {
-     "Fn::Select": [
-      1,
-      {
-       "Fn::GetAZs": ""
-      }
-     ]
-    },
-    "CidrBlock": "10.0.192.0/18",
-    "MapPublicIpOnLaunch": false,
-    "Tags": [
-     {
-      "Key": "aws-cdk:subnet-name",
-      "Value": "Private"
-     },
-     {
-      "Key": "aws-cdk:subnet-type",
-      "Value": "Private"
-     },
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc/PrivateSubnet2"
-     }
-    ]
-   }
-  },
-  "clusterVpcPrivateSubnet2RouteTable0D967850": {
-   "Type": "AWS::EC2::RouteTable",
-   "Properties": {
-    "VpcId": {
-     "Ref": "clusterVpc91107A71"
-    },
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc/PrivateSubnet2"
-     }
-    ]
-   }
-  },
-  "clusterVpcPrivateSubnet2RouteTableAssociation0E224256": {
-   "Type": "AWS::EC2::SubnetRouteTableAssociation",
-   "Properties": {
-    "RouteTableId": {
-     "Ref": "clusterVpcPrivateSubnet2RouteTable0D967850"
-    },
-    "SubnetId": {
-     "Ref": "clusterVpcPrivateSubnet2Subnet6DFF6572"
-    }
-   }
-  },
-  "clusterVpcPrivateSubnet2DefaultRouteF3B52CD2": {
-   "Type": "AWS::EC2::Route",
-   "Properties": {
-    "RouteTableId": {
-     "Ref": "clusterVpcPrivateSubnet2RouteTable0D967850"
-    },
-    "DestinationCidrBlock": "0.0.0.0/0",
-    "NatGatewayId": {
-     "Ref": "clusterVpcPublicSubnet2NATGatewayD971ED50"
-    }
-   }
-  },
-  "clusterVpcIGW64BABB17": {
+  "VpcIGWD7BA715C": {
    "Type": "AWS::EC2::InternetGateway",
    "Properties": {
     "Tags": [
      {
       "Key": "Name",
-      "Value": "github-runners-test/cluster/Vpc"
+      "Value": "github-runners-test/Vpc"
      }
     ]
    }
   },
-  "clusterVpcVPCGW9E9B1FA8": {
+  "VpcVPCGWBF912B6E": {
    "Type": "AWS::EC2::VPCGatewayAttachment",
    "Properties": {
     "VpcId": {
-     "Ref": "clusterVpc91107A71"
+     "Ref": "Vpc8378EB38"
     },
     "InternetGatewayId": {
-     "Ref": "clusterVpcIGW64BABB17"
+     "Ref": "VpcIGWD7BA715C"
     }
    }
+  },
+  "cluster611F8AFF": {
+   "Type": "AWS::ECS::Cluster"
   },
   "clusterA4C38409": {
    "Type": "AWS::ECS::ClusterCapacityProviderAssociations",
@@ -5612,7 +5410,7 @@
      }
     ],
     "VpcId": {
-     "Ref": "clusterVpc91107A71"
+     "Ref": "Vpc8378EB38"
     }
    }
   },
@@ -5812,7 +5610,7 @@
      }
     ],
     "VpcId": {
-     "Ref": "clusterVpc91107A71"
+     "Ref": "Vpc8378EB38"
     }
    }
   },
@@ -6012,7 +5810,7 @@
      }
     ],
     "VpcId": {
-     "Ref": "clusterVpc91107A71"
+     "Ref": "Vpc8378EB38"
     }
    }
   },
@@ -6212,7 +6010,7 @@
      }
     ],
     "VpcId": {
-     "Ref": "clusterVpc91107A71"
+     "Ref": "Vpc8378EB38"
     }
    }
   },
@@ -6412,7 +6210,7 @@
      }
     ],
     "VpcId": {
-     "Ref": "clusterVpc91107A71"
+     "Ref": "Vpc8378EB38"
     }
    }
   },
@@ -7956,11 +7754,11 @@
        },
        "\",\"TaskDefinition\":\"githubrunnerstestFargatetaskA755E0CE\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
        {
-        "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+        "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
        "\",\"",
        {
-        "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+        "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
        "\"],\"SecurityGroups\":[\"",
        {
@@ -7982,11 +7780,11 @@
        },
        "\",\"TaskDefinition\":\"githubrunnerstestFargatex64spottask7B2E300E\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
        {
-        "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+        "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
        "\",\"",
        {
-        "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+        "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
        "\"],\"SecurityGroups\":[\"",
        {
@@ -8008,11 +7806,11 @@
        },
        "\",\"TaskDefinition\":\"githubrunnerstestFargatearm64task6B95C05B\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
        {
-        "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+        "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
        "\",\"",
        {
-        "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+        "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
        "\"],\"SecurityGroups\":[\"",
        {
@@ -8034,11 +7832,11 @@
        },
        "\",\"TaskDefinition\":\"githubrunnerstestFargatearm64spottaskF9ADF192\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
        {
-        "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+        "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
        "\",\"",
        {
-        "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+        "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
        "\"],\"SecurityGroups\":[\"",
        {
@@ -8060,11 +7858,11 @@
        },
        "\",\"TaskDefinition\":\"githubrunnerstestFargateWindowstask95BB2245\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
        {
-        "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+        "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
        "\",\"",
        {
-        "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+        "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
        "\"],\"SecurityGroups\":[\"",
        {
@@ -9093,7 +8891,7 @@
          },
          ":vpc/",
          {
-          "Ref": "clusterVpc91107A71"
+          "Ref": "Vpc8378EB38"
          }
         ]
        ]
@@ -9174,7 +8972,7 @@
          },
          ":vpc/",
          {
-          "Ref": "clusterVpc91107A71"
+          "Ref": "Vpc8378EB38"
          }
         ]
        ]
@@ -9255,7 +9053,7 @@
          },
          ":vpc/",
          {
-          "Ref": "clusterVpc91107A71"
+          "Ref": "Vpc8378EB38"
          }
         ]
        ]
@@ -9336,7 +9134,7 @@
          },
          ":vpc/",
          {
-          "Ref": "clusterVpc91107A71"
+          "Ref": "Vpc8378EB38"
          }
         ]
        ]
@@ -9417,7 +9215,7 @@
          },
          ":vpc/",
          {
-          "Ref": "clusterVpc91107A71"
+          "Ref": "Vpc8378EB38"
          }
         ]
        ]
