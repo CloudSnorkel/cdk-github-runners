@@ -7,7 +7,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_codebuild as codebuild, aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
 import { Architecture, CodeBuildImageBuilder, CodeBuildRunner, ContainerImageBuilder, FargateRunner, GitHubRunners, LambdaRunner, Os } from '../src';
-import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
@@ -22,7 +21,7 @@ const cluster = new ecs.Cluster(
         // just public so we don't need to waste money on VPC endpoints or NAT gateway
         {
           name: 'Public',
-          subnetType: SubnetType.PUBLIC,
+          subnetType: ec2.SubnetType.PUBLIC,
         }
       ],
     }),
