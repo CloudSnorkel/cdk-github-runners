@@ -301,10 +301,10 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
           imageIds: [
             {
               imageTag: image.imageTag,
-            }
+            },
           ],
         },
-        physicalResourceId: cr.PhysicalResourceId.of(`ImageDigest`),
+        physicalResourceId: cr.PhysicalResourceId.of('ImageDigest'),
       },
       onUpdate: {
         service: 'ECR',
@@ -314,10 +314,10 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
           imageIds: [
             {
               imageTag: image.imageTag,
-            }
+            },
           ],
         },
-        physicalResourceId: cr.PhysicalResourceId.of(`ImageDigest`),
+        physicalResourceId: cr.PhysicalResourceId.of('ImageDigest'),
       },
       onDelete: {
         // this will NOT be called thanks to RemovalPolicy.RETAIN below
