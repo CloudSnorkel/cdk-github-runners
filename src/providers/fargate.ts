@@ -386,7 +386,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
     } else if (this.image.os.is(Os.WINDOWS)) {
       return [
         'powershell', '-Command',
-        'cd \\actions && ./config.cmd --unattended --url "https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL}" --disableupdate --name "${Env:RUNNER_NAME}" && ./run.cmd',
+        'cd \\actions ; ./config.cmd --unattended --url "https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL}" --disableupdate --name "${Env:RUNNER_NAME}" ; ./run.cmd',
       ];
     } else {
       throw new Error(`Fargate runner doesn't support ${this.image.os.name}`);

@@ -9230,7 +9230,7 @@
                             "command": [
                               "powershell",
                               "-Command",
-                              "cd \\actions && ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL}\" --disableupdate --name \"${Env:RUNNER_NAME}\" && ./run.cmd"
+                              "cd \\actions ; ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL}\" --disableupdate --name \"${Env:RUNNER_NAME}\" ; ./run.cmd"
                             ],
                             "essential": true,
                             "image": {
