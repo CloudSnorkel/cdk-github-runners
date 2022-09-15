@@ -129,23 +129,38 @@ export interface FargateRunnerProps extends RunnerProviderProps {
   readonly spot?: boolean;
 }
 
-class EcsFargateSpotLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
+/**
+ * Properties for EcsFargateLaunchTarget.
+ */
+interface EcsFargateLaunchTargetProps {
+  readonly spot: boolean;
+  readonly enableExecute: boolean;
+}
+
+/**
+ * Our special launch target that can use spot instances and set EnableExecuteCommand.
+ */
+class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
+  constructor(readonly props: EcsFargateLaunchTargetProps) {}
+
   /**
    * Called when the Fargate launch type configured on RunTask
    */
   public bind(_task: stepfunctions_tasks.EcsRunTask,
-    launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
+              launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
     if (!launchTargetOptions.taskDefinition.isFargateCompatible) {
       throw new Error('Supplied TaskDefinition is not compatible with Fargate');
     }
 
     return {
       parameters: {
-        CapacityProviderStrategy: [
+        LaunchType: 'FARGATE',
+        EnableExecuteCommand: this.props.enableExecute,
+        CapacityProviderStrategy: this.props.spot ? [
           {
             CapacityProvider: 'FARGATE_SPOT',
           },
-        ],
+        ] : undefined,
       },
     };
   }
@@ -319,7 +334,10 @@ export class FargateRunner extends Construct implements IRunnerProvider {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,
         cluster: this.cluster,
-        launchTarget: this.spot ? new EcsFargateSpotLaunchTarget() : new stepfunctions_tasks.EcsFargateLaunchTarget(),
+        launchTarget: new EcsFargateLaunchTarget({
+          spot: this.spot,
+          enableExecute: this.image.os.is(Os.LINUX),
+        }),
         assignPublicIp: this.assignPublicIp,
         securityGroups: this.securityGroup ? [this.securityGroup] : undefined,
         containerOverrides: [

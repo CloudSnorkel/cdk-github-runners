@@ -661,7 +661,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     });
     pipeline.node.addDependency(log);
 
-    return {
+    this.boundImage = {
       // There are simpler ways to get the ARN, but we want an image object that depends on the newly built image.
       // We want whoever is using this image to automatically wait for Image Builder to finish building before using the image.
       imageRepository: ecr.Repository.fromRepositoryName(
@@ -674,6 +674,8 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       architecture: this.architecture,
       logGroup: log,
     };
+
+    return this.boundImage;
   }
 
   private infrastructure(): imagebuilder.CfnInfrastructureConfiguration {
