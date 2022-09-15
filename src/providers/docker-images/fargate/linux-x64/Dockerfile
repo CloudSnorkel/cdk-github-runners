@@ -40,6 +40,3 @@ RUN if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_VERSION=`curl  -w "%{redi
 
 # configure runner
 USER runner
-
-ADD runner.sh .
-CMD ["bash", "/home/runner/runner.sh"]

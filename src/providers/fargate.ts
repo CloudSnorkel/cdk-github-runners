@@ -11,7 +11,7 @@ import {
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
-import { Architecture, IImageBuilder, IRunnerProvider, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
+import { Architecture, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 /**
@@ -264,6 +264,15 @@ export class FargateRunner extends Construct implements IRunnerProvider {
       throw new Error(`${image.architecture.name} is not supported on Fargate`);
     }
 
+    let os: ecs.OperatingSystemFamily;
+    if (image.os.is(Os.LINUX)) {
+      os = ecs.OperatingSystemFamily.LINUX;
+    } else if (image.os.is(Os.WINDOWS)) {
+      os = ecs.OperatingSystemFamily.WINDOWS_SERVER_2019_CORE;
+    } else {
+      throw new Error(`${image.os.name} is not supported on Fargate`);
+    }
+
     this.task = new ecs.FargateTaskDefinition(
       this,
       'task',
@@ -272,7 +281,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
         memoryLimitMiB: props.memoryLimitMiB || 2048,
         ephemeralStorageGiB: props.ephemeralStorageGiB || 25,
         runtimePlatform: {
-          operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
+          operatingSystemFamily: os,
           cpuArchitecture: arch,
         },
       },
@@ -288,6 +297,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
           }),
           streamPrefix: 'runner',
         }),
+        command: this.runCommand(),
       },
     );
 
@@ -345,5 +355,21 @@ export class FargateRunner extends Construct implements IRunnerProvider {
         ],
       },
     );
+  }
+
+  private runCommand(): string[] {
+    if (this.image.os.is(Os.LINUX)) {
+      return [
+        'sh', '-c',
+        './config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --disableupdate --name "${RUNNER_NAME}" && ./run.sh',
+      ]
+    } else if (this.image.os.is(Os.WINDOWS)) {
+      return [
+        'powershell', '-Command',
+        'cd \\actions && ./config.cmd --unattended --url "https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL}" --disableupdate --name "${Env:RUNNER_NAME}" && ./run.cmd',
+      ]
+    } else {
+      throw new Error(`Fargate runner doesn't support ${this.image.os.name}`);
+    }
   }
 }

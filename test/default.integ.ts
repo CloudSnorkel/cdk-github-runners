@@ -26,9 +26,13 @@ const fargateArm64Builder = new CodeBuildImageBuilder(stack, 'Fargate builder ar
   dockerfilePath: FargateRunner.LINUX_ARM64_DOCKERFILE_PATH,
   architecture: Architecture.ARM64,
 });
-let lambdaImageBuilder = new CodeBuildImageBuilder(stack, 'Lambda Image Builder x64', {
+const lambdaImageBuilder = new CodeBuildImageBuilder(stack, 'Lambda Image Builder x64', {
   dockerfilePath: LambdaRunner.LINUX_X64_DOCKERFILE_PATH,
   architecture: Architecture.X86_64,
+});
+const windowsImageBuilder = new ContainerImageBuilder(stack, 'Windows Image Builder', {
+  architecture: Architecture.X86_64,
+  os: Os.WINDOWS,
 });
 new GitHubRunners(stack, 'runners', {
   providers: [
@@ -50,10 +54,7 @@ new GitHubRunners(stack, 'runners', {
     new CodeBuildRunner(stack, 'CodeBuildWindows', {
       label: 'codebuild-windows-x64',
       computeType: codebuild.ComputeType.MEDIUM,
-      imageBuilder: new ContainerImageBuilder(stack, 'Windows Image Builder', {
-        architecture: Architecture.X86_64,
-        os: Os.WINDOWS,
-      }),
+      imageBuilder: windowsImageBuilder,
     }),
     new LambdaRunner(stack, 'Lambda', {
       label: 'lambda-x64',
@@ -97,6 +98,14 @@ new GitHubRunners(stack, 'runners', {
       cpu: 256,
       memoryLimitMiB: 512,
       imageBuilder: fargateArm64Builder,
+      cluster,
+      vpc: cluster.vpc,
+    }),
+    new FargateRunner(stack, 'Fargate-Windows', {
+      label: 'fargate-windows-x64',
+      cpu: 1024,
+      memoryLimitMiB: 2048,
+      imageBuilder: windowsImageBuilder,
       cluster,
       vpc: cluster.vpc,
     }),
