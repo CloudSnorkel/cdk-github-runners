@@ -154,13 +154,12 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
 
     return {
       parameters: {
-        LaunchType: 'FARGATE',
         EnableExecuteCommand: this.props.enableExecute,
-        CapacityProviderStrategy: this.props.spot ? [
+        CapacityProviderStrategy: [
           {
-            CapacityProvider: 'FARGATE_SPOT',
+            CapacityProvider: this.props.spot ? 'FARGATE_SPOT' : 'FARGATE',
           },
-        ] : undefined,
+        ],
       },
     };
   }
@@ -250,11 +249,11 @@ export class FargateRunner extends Construct implements IRunnerProvider {
   constructor(scope: Construct, id: string, props: FargateRunnerProps) {
     super(scope, id);
 
-    this.label = props.label || 'fargate';
-    this.vpc = props.vpc || ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
-    this.securityGroup = props.securityGroup || new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc });
+    this.label = props.label ?? 'fargate';
+    this.vpc = props.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
+    this.securityGroup = props.securityGroup ?? new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc });
     this.connections = this.securityGroup.connections;
-    this.assignPublicIp = props.assignPublicIp || true;
+    this.assignPublicIp = props.assignPublicIp ?? true;
     this.cluster = props.cluster ? props.cluster : new ecs.Cluster(
       this,
       'cluster',
@@ -284,6 +283,9 @@ export class FargateRunner extends Construct implements IRunnerProvider {
       os = ecs.OperatingSystemFamily.LINUX;
     } else if (image.os.is(Os.WINDOWS)) {
       os = ecs.OperatingSystemFamily.WINDOWS_SERVER_2019_CORE;
+      if (props.ephemeralStorageGiB) {
+        throw new Error(`Ephemeral storage is not supported on Fargate Windows`);
+      }
     } else {
       throw new Error(`${image.os.name} is not supported on Fargate`);
     }
@@ -292,9 +294,9 @@ export class FargateRunner extends Construct implements IRunnerProvider {
       this,
       'task',
       {
-        cpu: props.cpu || 1024,
-        memoryLimitMiB: props.memoryLimitMiB || 2048,
-        ephemeralStorageGiB: props.ephemeralStorageGiB || 25,
+        cpu: props.cpu ?? 1024,
+        memoryLimitMiB: props.memoryLimitMiB ?? 2048,
+        ephemeralStorageGiB: props.ephemeralStorageGiB ?? !image.os.is(Os.WINDOWS) ? 25 : undefined,
         runtimePlatform: {
           operatingSystemFamily: os,
           cpuArchitecture: arch,
@@ -307,7 +309,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
         image: ecs.AssetImage.fromEcrRepository(image.imageRepository, image.imageTag),
         logging: ecs.AwsLogDriver.awsLogs({
           logGroup: new logs.LogGroup(this, 'logs', {
-            retention: props.logRetention || RetentionDays.ONE_MONTH,
+            retention: props.logRetention ?? RetentionDays.ONE_MONTH,
             removalPolicy: RemovalPolicy.DESTROY,
           }),
           streamPrefix: 'runner',

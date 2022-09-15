@@ -6522,9 +6522,6 @@
      }
     ],
     "Cpu": "1024",
-    "EphemeralStorage": {
-     "SizeInGiB": 25
-    },
     "ExecutionRoleArn": {
      "Fn::GetAtt": [
       "FargateWindowstaskExecutionRoleEE562927",
@@ -7972,7 +7969,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"LaunchType\":\"FARGATE\",\"EnableExecuteCommand\":true}},\"fargate-x64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-x64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -7998,7 +7995,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-x64-spot\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"LaunchType\":\"FARGATE\",\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}]}},\"fargate-arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-x64-spot\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}]}},\"fargate-arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -8024,7 +8021,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"LaunchType\":\"FARGATE\",\"EnableExecuteCommand\":true}},\"fargate-arm64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-arm64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -8050,7 +8047,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-arm64-spot\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"LaunchType\":\"FARGATE\",\"EnableExecuteCommand\":true}},\"fargate-windows-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-arm64-spot\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-windows-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -8076,7 +8073,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-windows-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"LaunchType\":\"FARGATE\",\"EnableExecuteCommand\":false}}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-windows-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnersdeleterunner7F8D5293",
