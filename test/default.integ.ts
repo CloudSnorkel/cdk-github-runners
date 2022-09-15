@@ -22,7 +22,7 @@ const cluster = new ecs.Cluster(
         {
           name: 'Public',
           subnetType: ec2.SubnetType.PUBLIC,
-        }
+        },
       ],
     }),
   },
