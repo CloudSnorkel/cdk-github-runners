@@ -147,7 +147,11 @@ export interface CodeBuildImageBuilderProps {
  * ```
  */
 export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
-  private static BUILDSPEC_VERSION = 1;
+  /**
+   * Bump this number every time the buildspec or any important setting of the project changes. It will force a rebuild of the image.
+   * @private
+   */
+  private static BUILDSPEC_VERSION = 2;
 
   private readonly architecture: Architecture;
   private readonly os: Os;
@@ -340,13 +344,12 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
 
     this.boundImage = {
       imageRepository: ecr.Repository.fromRepositoryAttributes(this, 'Dependable Image', {
-        repositoryName: this.repository.repositoryName,
-        // There are simpler ways to get the ARN, but we want an image object that depends on the custom resource.
+        // There are simpler ways to get name and ARN, but we want an image object that depends on the custom resource.
         // We want whoever is using this image to automatically wait for CodeBuild to start and finish through the custom resource.
+        repositoryName: cr.getAttString('Name'),
         repositoryArn: cr.ref,
       }),
       imageTag: 'latest',
-      imageDigest: cr.getAtt('Digest').toString(),
       architecture: this.architecture,
       os: this.os,
       logGroup,
@@ -406,8 +409,7 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
         post_build: {
           commands: this.postBuild.concat([
             'STATUS="SUCCESS"',
-            'DIGEST="UNKNOWN"',
-            'if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS="FAILED"; else DIGEST=`docker inspect "$REPO_URI" | jq -r \'.[0].RepoDigests[0] | split("@")[1] | split(":")[1]\'`; fi',
+            'if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS="FAILED"; fi',
             'cat <<EOF > /tmp/payload.json\n' +
             '{\n' +
             '  "StackId": "$STACK_ID",\n' +
@@ -416,7 +418,7 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
             '  "PhysicalResourceId": "$REPO_ARN",\n' +
             '  "Status": "$STATUS",\n' +
             `  "Reason": "See logs in ${logGroup.logGroupName}/$CODEBUILD_LOG_PATH (deploy again with \'cdk deploy -R\' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)",\n` +
-            '  "Data": {"Digest": "$DIGEST"}\n' + // include the digest to mark the resource updated so the runner providers get updated with the latest digest too (specifically Lambda)
+            `  "Data": {"Name": "${repository.repositoryName}"}\n` +
             '}\n' +
             'EOF',
             'if [ "$RESPONSE_URL" != "unspecified" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$RESPONSE_URL"; fi',

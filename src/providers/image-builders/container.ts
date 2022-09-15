@@ -669,7 +669,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
         // we can't use image.attrName because it comes up with upper case
         cdk.Fn.split(':', cdk.Fn.split('/', image.attrImageUri, 2)[1], 2)[0],
       ),
-      imageTag: cdk.Fn.split(':', image.attrImageUri, 2)[1],
+      imageTag: 'latest',
       os: this.os,
       architecture: this.architecture,
       logGroup: log,
