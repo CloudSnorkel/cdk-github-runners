@@ -32,17 +32,17 @@ The best way to browse API documentation is on [Constructs Hub][13]. It is avail
 
 A runner provider creates compute resources on-demand and uses [actions/runner][5] to start a runner.
 
-|                  | CodeBuild                  | Fargate       | Lambda        |
-|------------------|----------------------------|---------------|---------------|
-| **Time limit**   | 8 hours                    | Unlimited     | 15 minutes    |
-| **vCPUs**        | 2, 4, 8, or 72             | 0.25 to 4     | 1 to 6        |
-| **RAM**          | 3gb, 7gb, 15gb, or 145gb   | 512mb to 30gb | 128mb to 10gb |
-| **Storage**      | 50gb to 824gb              | 20gb to 200gb | Up to 10gb    |
-| **Architecture** | x86_64, ARM64              | x86_64, ARM64 | x86_64, ARM64 |
-| **sudo**         | ✔                         | ✔            | ❌           |
-| **Docker**       | ✔ (Linux only)            | ❌            | ❌           |
-| **Spot pricing** | ❌                         | ✔            | ❌           |
-| **OS**           | Linux, Windows             | Linux         | Linux         |
+|                  | CodeBuild                  | Fargate        | Lambda        |
+|------------------|----------------------------|----------------|---------------|
+| **Time limit**   | 8 hours                    | Unlimited      | 15 minutes    |
+| **vCPUs**        | 2, 4, 8, or 72             | 0.25 to 4      | 1 to 6        |
+| **RAM**          | 3gb, 7gb, 15gb, or 145gb   | 512mb to 30gb  | 128mb to 10gb |
+| **Storage**      | 50gb to 824gb              | 20gb to 200gb  | Up to 10gb    |
+| **Architecture** | x86_64, ARM64              | x86_64, ARM64  | x86_64, ARM64 |
+| **sudo**         | ✔                         | ✔              | ❌           |
+| **Docker**       | ✔ (Linux only)            | ❌              | ❌           |
+| **Spot pricing** | ❌                         | ✔              | ❌           |
+| **OS**           | Linux, Windows             | Linux, Windows | Linux         |
 
 The best provider to use mostly depends on your current infrastructure. When in doubt, CodeBuild is always a good choice. Execution history and logs are easy to view, and it has no restrictive limits unless you need to run for more than 8 hours.
 

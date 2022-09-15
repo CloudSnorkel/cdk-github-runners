@@ -866,7 +866,7 @@
                                               {
                                                 "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                                               },
-                                              "/4873aabd98900f485d3d5030bc6ba74565d55fe45574e02de8b6bc09c87736e5.zip"
+                                              "/f21a107de9aaed0625532057c2f8259320d99d5185adcaece346941d88d04250.zip"
                                             ]
                                           ]
                                         }
@@ -1069,7 +1069,7 @@
                                 {
                                   "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                                 },
-                                "/4873aabd98900f485d3d5030bc6ba74565d55fe45574e02de8b6bc09c87736e5.zip"
+                                "/f21a107de9aaed0625532057c2f8259320d99d5185adcaece346941d88d04250.zip"
                               ]
                             ]
                           },
@@ -1547,7 +1547,7 @@
                                               {
                                                 "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                                               },
-                                              "/c27e6e0f7224f4fd63be740718fc70d63fe486de35abbc62830edb5e44b83335.zip"
+                                              "/c7602b829f7a84e4b86e023a450c177a3e502b09bfabd905df981b666c626443.zip"
                                             ]
                                           ]
                                         }
@@ -1750,7 +1750,7 @@
                                 {
                                   "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                                 },
-                                "/c27e6e0f7224f4fd63be740718fc70d63fe486de35abbc62830edb5e44b83335.zip"
+                                "/c7602b829f7a84e4b86e023a450c177a3e502b09bfabd905df981b666c626443.zip"
                               ]
                             ]
                           },
@@ -2878,6 +2878,962 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_ecr.RepositoryBase",
+                  "version": "2.29.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
+            }
+          },
+          "Windows Image Builder": {
+            "id": "Windows Image Builder",
+            "path": "github-runners-test/Windows Image Builder",
+            "children": {
+              "Repository": {
+                "id": "Repository",
+                "path": "github-runners-test/Windows Image Builder/Repository",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Windows Image Builder/Repository/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECR::Repository",
+                      "aws:cdk:cloudformation:props": {
+                        "imageScanningConfiguration": {
+                          "scanOnPush": true
+                        },
+                        "imageTagMutability": "MUTABLE",
+                        "lifecyclePolicy": {
+                          "lifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove all but the latest image\",\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}}]}"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecr.CfnRepository",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecr.Repository",
+                  "version": "2.29.0"
+                }
+              },
+              "AWS CLI": {
+                "id": "AWS CLI",
+                "path": "github-runners-test/Windows Image Builder/AWS CLI",
+                "children": {
+                  "Version": {
+                    "id": "Version",
+                    "path": "github-runners-test/Windows Image Builder/AWS CLI/Version",
+                    "children": {
+                      "Default": {
+                        "id": "Default",
+                        "path": "github-runners-test/Windows Image Builder/AWS CLI/Version/Default",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnResource",
+                          "version": "2.29.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.CustomResource",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "Component": {
+                    "id": "Component",
+                    "path": "github-runners-test/Windows Image Builder/AWS CLI/Component",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
+                      "aws:cdk:cloudformation:props": {
+                        "name": "github-runners-test-WindowsImageBuilder-AWSCLI-2F2337FE",
+                        "platform": "Windows",
+                        "version": {
+                          "Ref": "WindowsImageBuilderAWSCLIVersion7C70BA9E"
+                        },
+                        "data": "{\"name\":\"AWS CLI\",\"description\":\"Install latest version of AWS CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn'\"]}}]}]}"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_imagebuilder.CfnComponent",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.29.0"
+                }
+              },
+              "GitHub CLI": {
+                "id": "GitHub CLI",
+                "path": "github-runners-test/Windows Image Builder/GitHub CLI",
+                "children": {
+                  "Version": {
+                    "id": "Version",
+                    "path": "github-runners-test/Windows Image Builder/GitHub CLI/Version",
+                    "children": {
+                      "Default": {
+                        "id": "Default",
+                        "path": "github-runners-test/Windows Image Builder/GitHub CLI/Version/Default",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnResource",
+                          "version": "2.29.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.CustomResource",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "Component": {
+                    "id": "Component",
+                    "path": "github-runners-test/Windows Image Builder/GitHub CLI/Component",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
+                      "aws:cdk:cloudformation:props": {
+                        "name": "github-runners-test-WindowsImageBuilder-GitHubCLI-A93C9338",
+                        "platform": "Windows",
+                        "version": {
+                          "Ref": "WindowsImageBuilderGitHubCLIVersionBF0CA21E"
+                        },
+                        "data": "{\"name\":\"GitHub CLI\",\"description\":\"Install latest version of gh\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$ProgressPreference = 'SilentlyContinue'\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_imagebuilder.CfnComponent",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.29.0"
+                }
+              },
+              "git": {
+                "id": "git",
+                "path": "github-runners-test/Windows Image Builder/git",
+                "children": {
+                  "Version": {
+                    "id": "Version",
+                    "path": "github-runners-test/Windows Image Builder/git/Version",
+                    "children": {
+                      "Default": {
+                        "id": "Default",
+                        "path": "github-runners-test/Windows Image Builder/git/Version/Default",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnResource",
+                          "version": "2.29.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.CustomResource",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "Component": {
+                    "id": "Component",
+                    "path": "github-runners-test/Windows Image Builder/git/Component",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
+                      "aws:cdk:cloudformation:props": {
+                        "name": "github-runners-test-WindowsImageBuilder-git-D282309C",
+                        "platform": "Windows",
+                        "version": {
+                          "Ref": "WindowsImageBuildergitVersion78548E80"
+                        },
+                        "data": "{\"name\":\"Git\",\"description\":\"Install latest version of git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'\",\"del git-setup.exe\"]}}]}]}"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_imagebuilder.CfnComponent",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.29.0"
+                }
+              },
+              "GitHub Actions Runner": {
+                "id": "GitHub Actions Runner",
+                "path": "github-runners-test/Windows Image Builder/GitHub Actions Runner",
+                "children": {
+                  "Version": {
+                    "id": "Version",
+                    "path": "github-runners-test/Windows Image Builder/GitHub Actions Runner/Version",
+                    "children": {
+                      "Default": {
+                        "id": "Default",
+                        "path": "github-runners-test/Windows Image Builder/GitHub Actions Runner/Version/Default",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnResource",
+                          "version": "2.29.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.CustomResource",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "Component": {
+                    "id": "Component",
+                    "path": "github-runners-test/Windows Image Builder/GitHub Actions Runner/Component",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
+                      "aws:cdk:cloudformation:props": {
+                        "name": "github-runners-test-WindowsImageBuilder-GitHubActionsRunner-A167823A",
+                        "platform": "Windows",
+                        "version": {
+                          "Ref": "WindowsImageBuilderGitHubActionsRunnerVersion9E35A9C2"
+                        },
+                        "data": "{\"name\":\"GitHub Actions Runner\",\"description\":\"Install latest version of GitHub Actions Runner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\"]}}]}]}"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_imagebuilder.CfnComponent",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.29.0"
+                }
+              },
+              "Role": {
+                "id": "Role",
+                "path": "github-runners-test/Windows Image Builder/Role",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Windows Image Builder/Role/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": {
+                                  "Fn::Join": [
+                                    "",
+                                    [
+                                      "ec2.",
+                                      {
+                                        "Ref": "AWS::URLSuffix"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+                              ]
+                            ]
+                          },
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.29.0"
+                }
+              },
+              "Instance Profile": {
+                "id": "Instance Profile",
+                "path": "github-runners-test/Windows Image Builder/Instance Profile",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
+                  "aws:cdk:cloudformation:props": {
+                    "roles": [
+                      {
+                        "Ref": "WindowsImageBuilderRole717C46A6"
+                      }
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
+                  "version": "2.29.0"
+                }
+              },
+              "Infrastructure": {
+                "id": "Infrastructure",
+                "path": "github-runners-test/Windows Image Builder/Infrastructure",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::InfrastructureConfiguration",
+                  "aws:cdk:cloudformation:props": {
+                    "instanceProfileName": {
+                      "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
+                    },
+                    "name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+                    "description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
+                    "instanceTypes": [
+                      "m5.large"
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnInfrastructureConfiguration",
+                  "version": "2.29.0"
+                }
+              },
+              "Distribution": {
+                "id": "Distribution",
+                "path": "github-runners-test/Windows Image Builder/Distribution",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::DistributionConfiguration",
+                  "aws:cdk:cloudformation:props": {
+                    "distributions": [
+                      {
+                        "region": {
+                          "Ref": "AWS::Region"
+                        },
+                        "containerDistributionConfiguration": {
+                          "ContainerTags": [
+                            "latest"
+                          ],
+                          "TargetRepository": {
+                            "Service": "ECR",
+                            "RepositoryName": {
+                              "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+                    "description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnDistributionConfiguration",
+                  "version": "2.29.0"
+                }
+              },
+              "Container Recipe": {
+                "id": "Container Recipe",
+                "path": "github-runners-test/Windows Image Builder/Container Recipe",
+                "children": {
+                  "Version": {
+                    "id": "Version",
+                    "path": "github-runners-test/Windows Image Builder/Container Recipe/Version",
+                    "children": {
+                      "Default": {
+                        "id": "Default",
+                        "path": "github-runners-test/Windows Image Builder/Container Recipe/Version/Default",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnResource",
+                          "version": "2.29.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.CustomResource",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "Recipe": {
+                    "id": "Recipe",
+                    "path": "github-runners-test/Windows Image Builder/Container Recipe/Recipe",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ContainerRecipe",
+                      "aws:cdk:cloudformation:props": {
+                        "components": [
+                          {
+                            "componentArn": {
+                              "Fn::GetAtt": [
+                                "WindowsImageBuilderAWSCLIComponentC38DBB5C",
+                                "Arn"
+                              ]
+                            }
+                          },
+                          {
+                            "componentArn": {
+                              "Fn::GetAtt": [
+                                "WindowsImageBuilderGitHubCLIComponent01DB322F",
+                                "Arn"
+                              ]
+                            }
+                          },
+                          {
+                            "componentArn": {
+                              "Fn::GetAtt": [
+                                "WindowsImageBuildergitComponent39E4D9CB",
+                                "Arn"
+                              ]
+                            }
+                          },
+                          {
+                            "componentArn": {
+                              "Fn::GetAtt": [
+                                "WindowsImageBuilderGitHubActionsRunnerComponent248E9189",
+                                "Arn"
+                              ]
+                            }
+                          }
+                        ],
+                        "containerType": "DOCKER",
+                        "name": "github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
+                        "parentImage": "arn:aws:imagebuilder:us-east-1:aws:image/windows-server-2019-x86-core-ltsc2019-amd64/2020.12.8",
+                        "targetRepository": {
+                          "service": "ECR",
+                          "repositoryName": {
+                            "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
+                          }
+                        },
+                        "version": {
+                          "Ref": "WindowsImageBuilderContainerRecipeVersion13A2E3FD"
+                        },
+                        "dockerfileTemplateData": "FROM {{{ imagebuilder:parentImage }}}\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_imagebuilder.CfnContainerRecipe",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.29.0"
+                }
+              },
+              "Log": {
+                "id": "Log",
+                "path": "github-runners-test/Windows Image Builder/Log",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Windows Image Builder/Log/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "logGroupName": "/aws/imagebuilder/github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
+                        "retentionInDays": 30
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
+                  "version": "2.29.0"
+                }
+              },
+              "Image": {
+                "id": "Image",
+                "path": "github-runners-test/Windows Image Builder/Image",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Image",
+                  "aws:cdk:cloudformation:props": {
+                    "infrastructureConfigurationArn": {
+                      "Fn::GetAtt": [
+                        "WindowsImageBuilderInfrastructureFF99A30B",
+                        "Arn"
+                      ]
+                    },
+                    "containerRecipeArn": {
+                      "Fn::GetAtt": [
+                        "WindowsImageBuilderContainerRecipeB2A421D7",
+                        "Arn"
+                      ]
+                    },
+                    "distributionConfigurationArn": {
+                      "Fn::GetAtt": [
+                        "WindowsImageBuilderDistribution843AF65B",
+                        "Arn"
+                      ]
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImage",
+                  "version": "2.29.0"
+                }
+              },
+              "CR Policy": {
+                "id": "CR Policy",
+                "path": "github-runners-test/Windows Image Builder/CR Policy",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Windows Image Builder/CR Policy/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                      "aws:cdk:cloudformation:props": {
+                        "policyDocument": {
+                          "Statement": [
+                            {
+                              "Action": [
+                                "ecr:BatchDeleteImage",
+                                "ecr:ListImages"
+                              ],
+                              "Effect": "Allow",
+                              "Resource": {
+                                "Fn::GetAtt": [
+                                  "WindowsImageBuilderRepositoryA4CBB6D8",
+                                  "Arn"
+                                ]
+                              }
+                            },
+                            {
+                              "Action": [
+                                "imagebuilder:ListImages",
+                                "imagebuilder:ListImageBuildVersions",
+                                "imagebuilder:DeleteImage"
+                              ],
+                              "Effect": "Allow",
+                              "Resource": "*"
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "policyName": "WindowsImageBuilderCRPolicy81A41F62",
+                        "roles": [
+                          {
+                            "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Policy",
+                  "version": "2.29.0"
+                }
+              },
+              "Deleter": {
+                "id": "Deleter",
+                "path": "github-runners-test/Windows Image Builder/Deleter",
+                "children": {
+                  "Default": {
+                    "id": "Default",
+                    "path": "github-runners-test/Windows Image Builder/Deleter/Default",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.CfnResource",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CustomResource",
+                  "version": "2.29.0"
+                }
+              },
+              "Pipeline": {
+                "id": "Pipeline",
+                "path": "github-runners-test/Windows Image Builder/Pipeline",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
+                  "aws:cdk:cloudformation:props": {
+                    "infrastructureConfigurationArn": {
+                      "Fn::GetAtt": [
+                        "WindowsImageBuilderInfrastructureFF99A30B",
+                        "Arn"
+                      ]
+                    },
+                    "name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+                    "containerRecipeArn": {
+                      "Fn::GetAtt": [
+                        "WindowsImageBuilderContainerRecipeB2A421D7",
+                        "Arn"
+                      ]
+                    },
+                    "description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
+                    "distributionConfigurationArn": {
+                      "Fn::GetAtt": [
+                        "WindowsImageBuilderDistribution843AF65B",
+                        "Arn"
+                      ]
+                    },
+                    "schedule": {
+                      "scheduleExpression": "rate(7 days)",
+                      "pipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImagePipeline",
+                  "version": "2.29.0"
+                }
+              },
+              "Dependable Image": {
+                "id": "Dependable Image",
+                "path": "github-runners-test/Windows Image Builder/Dependable Image",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecr.RepositoryBase",
+                  "version": "2.29.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
+            }
+          },
+          "aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1": {
+            "id": "aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1",
+            "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1",
+            "children": {
+              "ServiceRole": {
+                "id": "ServiceRole",
+                "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "DefaultPolicy": {
+                    "id": "DefaultPolicy",
+                    "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/DefaultPolicy",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/DefaultPolicy/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                          "aws:cdk:cloudformation:props": {
+                            "policyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": [
+                                    "imagebuilder:ListComponents",
+                                    "imagebuilder:ListContainerRecipes",
+                                    "imagebuilder:ListImageRecipes"
+                                  ],
+                                  "Effect": "Allow",
+                                  "Resource": "*"
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            },
+                            "policyName": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy93D80BBD",
+                            "roles": [
+                              {
+                                "Ref": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58"
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                          "version": "2.29.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Policy",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.29.0"
+                }
+              },
+              "Code": {
+                "id": "Code",
+                "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Code",
+                "children": {
+                  "Stage": {
+                    "id": "Stage",
+                    "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Code/Stage",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.AssetStaging",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "AssetBucket": {
+                    "id": "AssetBucket",
+                    "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Code/AssetBucket",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3.BucketBase",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
+                  "version": "2.29.0"
+                }
+              },
+              "Resource": {
+                "id": "Resource",
+                "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
+                  "aws:cdk:cloudformation:props": {
+                    "code": {
+                      "s3Bucket": {
+                        "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                      },
+                      "s3Key": "47f0eabb30db37def53735bde36273880be115fda7f270fbf4f175b6bc6e334f.zip"
+                    },
+                    "role": {
+                      "Fn::GetAtt": [
+                        "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58",
+                        "Arn"
+                      ]
+                    },
+                    "description": "Custom resource handler that bumps up Image Builder versions",
+                    "environment": {
+                      "variables": {
+                        "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+                      }
+                    },
+                    "handler": "index.handler",
+                    "runtime": "nodejs14.x"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+                  "version": "2.29.0"
+                }
+              },
+              "LogRetention": {
+                "id": "LogRetention",
+                "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogRetention",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogRetention/Resource",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.CfnResource",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.LogRetention",
+                  "version": "2.29.0"
+                }
+              },
+              "LogGroup": {
+                "id": "LogGroup",
+                "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogGroup",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.29.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_lambda.Function",
+              "version": "2.29.0"
+            }
+          },
+          "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a": {
+            "id": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a",
+            "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a",
+            "children": {
+              "Code": {
+                "id": "Code",
+                "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Code",
+                "children": {
+                  "Stage": {
+                    "id": "Stage",
+                    "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Code/Stage",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.AssetStaging",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "AssetBucket": {
+                    "id": "AssetBucket",
+                    "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Code/AssetBucket",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3.BucketBase",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
+                  "version": "2.29.0"
+                }
+              },
+              "ServiceRole": {
+                "id": "ServiceRole",
+                "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "DefaultPolicy": {
+                    "id": "DefaultPolicy",
+                    "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                          "aws:cdk:cloudformation:props": {
+                            "policyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": [
+                                    "logs:PutRetentionPolicy",
+                                    "logs:DeleteRetentionPolicy"
+                                  ],
+                                  "Effect": "Allow",
+                                  "Resource": "*"
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            },
+                            "policyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+                            "roles": [
+                              {
+                                "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                          "version": "2.29.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Policy",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.29.0"
+                }
+              },
+              "Resource": {
+                "id": "Resource",
+                "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnResource",
                   "version": "2.29.0"
                 }
               }
@@ -4043,141 +4999,6 @@
               "version": "2.29.0"
             }
           },
-          "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a": {
-            "id": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a",
-            "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a",
-            "children": {
-              "Code": {
-                "id": "Code",
-                "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Code",
-                "children": {
-                  "Stage": {
-                    "id": "Stage",
-                    "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Code/Stage",
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.AssetStaging",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "AssetBucket": {
-                    "id": "AssetBucket",
-                    "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Code/AssetBucket",
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_s3.BucketBase",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
-                  "version": "2.29.0"
-                }
-              },
-              "ServiceRole": {
-                "id": "ServiceRole",
-                "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
-                      "aws:cdk:cloudformation:props": {
-                        "assumeRolePolicyDocument": {
-                          "Statement": [
-                            {
-                              "Action": "sts:AssumeRole",
-                              "Effect": "Allow",
-                              "Principal": {
-                                "Service": "lambda.amazonaws.com"
-                              }
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        },
-                        "managedPolicyArns": [
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-                              ]
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "DefaultPolicy": {
-                    "id": "DefaultPolicy",
-                    "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy",
-                    "children": {
-                      "Resource": {
-                        "id": "Resource",
-                        "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
-                          "aws:cdk:cloudformation:props": {
-                            "policyDocument": {
-                              "Statement": [
-                                {
-                                  "Action": [
-                                    "logs:PutRetentionPolicy",
-                                    "logs:DeleteRetentionPolicy"
-                                  ],
-                                  "Effect": "Allow",
-                                  "Resource": "*"
-                                }
-                              ],
-                              "Version": "2012-10-17"
-                            },
-                            "policyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
-                            "roles": [
-                              {
-                                "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
-                          "version": "2.29.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.Policy",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Role",
-                  "version": "2.29.0"
-                }
-              },
-              "Resource": {
-                "id": "Resource",
-                "path": "github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource",
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.CfnResource",
-                  "version": "2.29.0"
-                }
-              }
-            },
-            "constructInfo": {
-              "fqn": "constructs.Construct",
-              "version": "10.0.5"
-            }
-          },
           "CodeBuild Image Builder arm": {
             "id": "CodeBuild Image Builder arm",
             "path": "github-runners-test/CodeBuild Image Builder arm",
@@ -5187,827 +6008,6 @@
             "constructInfo": {
               "fqn": "constructs.Construct",
               "version": "10.0.5"
-            }
-          },
-          "Windows Image Builder": {
-            "id": "Windows Image Builder",
-            "path": "github-runners-test/Windows Image Builder",
-            "children": {
-              "Repository": {
-                "id": "Repository",
-                "path": "github-runners-test/Windows Image Builder/Repository",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/Windows Image Builder/Repository/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::ECR::Repository",
-                      "aws:cdk:cloudformation:props": {
-                        "imageScanningConfiguration": {
-                          "scanOnPush": true
-                        },
-                        "imageTagMutability": "MUTABLE",
-                        "lifecyclePolicy": {
-                          "lifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove all but the latest image\",\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}}]}"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_ecr.CfnRepository",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_ecr.Repository",
-                  "version": "2.29.0"
-                }
-              },
-              "AWS CLI": {
-                "id": "AWS CLI",
-                "path": "github-runners-test/Windows Image Builder/AWS CLI",
-                "children": {
-                  "Version": {
-                    "id": "Version",
-                    "path": "github-runners-test/Windows Image Builder/AWS CLI/Version",
-                    "children": {
-                      "Default": {
-                        "id": "Default",
-                        "path": "github-runners-test/Windows Image Builder/AWS CLI/Version/Default",
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.CfnResource",
-                          "version": "2.29.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.CustomResource",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "Component": {
-                    "id": "Component",
-                    "path": "github-runners-test/Windows Image Builder/AWS CLI/Component",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
-                      "aws:cdk:cloudformation:props": {
-                        "name": "github-runners-test-WindowsImageBuilder-AWSCLI-2F2337FE",
-                        "platform": "Windows",
-                        "version": {
-                          "Ref": "WindowsImageBuilderAWSCLIVersion7C70BA9E"
-                        },
-                        "data": "{\"name\":\"AWS CLI\",\"description\":\"Install latest version of AWS CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn'\"]}}]}]}"
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_imagebuilder.CfnComponent",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.Resource",
-                  "version": "2.29.0"
-                }
-              },
-              "GitHub CLI": {
-                "id": "GitHub CLI",
-                "path": "github-runners-test/Windows Image Builder/GitHub CLI",
-                "children": {
-                  "Version": {
-                    "id": "Version",
-                    "path": "github-runners-test/Windows Image Builder/GitHub CLI/Version",
-                    "children": {
-                      "Default": {
-                        "id": "Default",
-                        "path": "github-runners-test/Windows Image Builder/GitHub CLI/Version/Default",
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.CfnResource",
-                          "version": "2.29.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.CustomResource",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "Component": {
-                    "id": "Component",
-                    "path": "github-runners-test/Windows Image Builder/GitHub CLI/Component",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
-                      "aws:cdk:cloudformation:props": {
-                        "name": "github-runners-test-WindowsImageBuilder-GitHubCLI-A93C9338",
-                        "platform": "Windows",
-                        "version": {
-                          "Ref": "WindowsImageBuilderGitHubCLIVersionBF0CA21E"
-                        },
-                        "data": "{\"name\":\"GitHub CLI\",\"description\":\"Install latest version of gh\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$ProgressPreference = 'SilentlyContinue'\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}"
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_imagebuilder.CfnComponent",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.Resource",
-                  "version": "2.29.0"
-                }
-              },
-              "git": {
-                "id": "git",
-                "path": "github-runners-test/Windows Image Builder/git",
-                "children": {
-                  "Version": {
-                    "id": "Version",
-                    "path": "github-runners-test/Windows Image Builder/git/Version",
-                    "children": {
-                      "Default": {
-                        "id": "Default",
-                        "path": "github-runners-test/Windows Image Builder/git/Version/Default",
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.CfnResource",
-                          "version": "2.29.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.CustomResource",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "Component": {
-                    "id": "Component",
-                    "path": "github-runners-test/Windows Image Builder/git/Component",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
-                      "aws:cdk:cloudformation:props": {
-                        "name": "github-runners-test-WindowsImageBuilder-git-D282309C",
-                        "platform": "Windows",
-                        "version": {
-                          "Ref": "WindowsImageBuildergitVersion78548E80"
-                        },
-                        "data": "{\"name\":\"Git\",\"description\":\"Install latest version of git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'\",\"del git-setup.exe\"]}}]}]}"
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_imagebuilder.CfnComponent",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.Resource",
-                  "version": "2.29.0"
-                }
-              },
-              "GitHub Actions Runner": {
-                "id": "GitHub Actions Runner",
-                "path": "github-runners-test/Windows Image Builder/GitHub Actions Runner",
-                "children": {
-                  "Version": {
-                    "id": "Version",
-                    "path": "github-runners-test/Windows Image Builder/GitHub Actions Runner/Version",
-                    "children": {
-                      "Default": {
-                        "id": "Default",
-                        "path": "github-runners-test/Windows Image Builder/GitHub Actions Runner/Version/Default",
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.CfnResource",
-                          "version": "2.29.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.CustomResource",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "Component": {
-                    "id": "Component",
-                    "path": "github-runners-test/Windows Image Builder/GitHub Actions Runner/Component",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
-                      "aws:cdk:cloudformation:props": {
-                        "name": "github-runners-test-WindowsImageBuilder-GitHubActionsRunner-A167823A",
-                        "platform": "Windows",
-                        "version": {
-                          "Ref": "WindowsImageBuilderGitHubActionsRunnerVersion9E35A9C2"
-                        },
-                        "data": "{\"name\":\"GitHub Actions Runner\",\"description\":\"Install latest version of GitHub Actions Runner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\"]}}]}]}"
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_imagebuilder.CfnComponent",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.Resource",
-                  "version": "2.29.0"
-                }
-              },
-              "Role": {
-                "id": "Role",
-                "path": "github-runners-test/Windows Image Builder/Role",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/Windows Image Builder/Role/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
-                      "aws:cdk:cloudformation:props": {
-                        "assumeRolePolicyDocument": {
-                          "Statement": [
-                            {
-                              "Action": "sts:AssumeRole",
-                              "Effect": "Allow",
-                              "Principal": {
-                                "Service": {
-                                  "Fn::Join": [
-                                    "",
-                                    [
-                                      "ec2.",
-                                      {
-                                        "Ref": "AWS::URLSuffix"
-                                      }
-                                    ]
-                                  ]
-                                }
-                              }
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        },
-                        "managedPolicyArns": [
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-                              ]
-                            ]
-                          },
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
-                              ]
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Role",
-                  "version": "2.29.0"
-                }
-              },
-              "Instance Profile": {
-                "id": "Instance Profile",
-                "path": "github-runners-test/Windows Image Builder/Instance Profile",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
-                  "aws:cdk:cloudformation:props": {
-                    "roles": [
-                      {
-                        "Ref": "WindowsImageBuilderRole717C46A6"
-                      }
-                    ]
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
-                  "version": "2.29.0"
-                }
-              },
-              "Infrastructure": {
-                "id": "Infrastructure",
-                "path": "github-runners-test/Windows Image Builder/Infrastructure",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::InfrastructureConfiguration",
-                  "aws:cdk:cloudformation:props": {
-                    "instanceProfileName": {
-                      "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
-                    },
-                    "name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
-                    "description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
-                    "instanceTypes": [
-                      "m5.large"
-                    ]
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnInfrastructureConfiguration",
-                  "version": "2.29.0"
-                }
-              },
-              "Distribution": {
-                "id": "Distribution",
-                "path": "github-runners-test/Windows Image Builder/Distribution",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::DistributionConfiguration",
-                  "aws:cdk:cloudformation:props": {
-                    "distributions": [
-                      {
-                        "region": {
-                          "Ref": "AWS::Region"
-                        },
-                        "containerDistributionConfiguration": {
-                          "ContainerTags": [
-                            "latest"
-                          ],
-                          "TargetRepository": {
-                            "Service": "ECR",
-                            "RepositoryName": {
-                              "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
-                            }
-                          }
-                        }
-                      }
-                    ],
-                    "name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
-                    "description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)"
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnDistributionConfiguration",
-                  "version": "2.29.0"
-                }
-              },
-              "Container Recipe": {
-                "id": "Container Recipe",
-                "path": "github-runners-test/Windows Image Builder/Container Recipe",
-                "children": {
-                  "Version": {
-                    "id": "Version",
-                    "path": "github-runners-test/Windows Image Builder/Container Recipe/Version",
-                    "children": {
-                      "Default": {
-                        "id": "Default",
-                        "path": "github-runners-test/Windows Image Builder/Container Recipe/Version/Default",
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.CfnResource",
-                          "version": "2.29.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.CustomResource",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "Recipe": {
-                    "id": "Recipe",
-                    "path": "github-runners-test/Windows Image Builder/Container Recipe/Recipe",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ContainerRecipe",
-                      "aws:cdk:cloudformation:props": {
-                        "components": [
-                          {
-                            "componentArn": {
-                              "Fn::GetAtt": [
-                                "WindowsImageBuilderAWSCLIComponentC38DBB5C",
-                                "Arn"
-                              ]
-                            }
-                          },
-                          {
-                            "componentArn": {
-                              "Fn::GetAtt": [
-                                "WindowsImageBuilderGitHubCLIComponent01DB322F",
-                                "Arn"
-                              ]
-                            }
-                          },
-                          {
-                            "componentArn": {
-                              "Fn::GetAtt": [
-                                "WindowsImageBuildergitComponent39E4D9CB",
-                                "Arn"
-                              ]
-                            }
-                          },
-                          {
-                            "componentArn": {
-                              "Fn::GetAtt": [
-                                "WindowsImageBuilderGitHubActionsRunnerComponent248E9189",
-                                "Arn"
-                              ]
-                            }
-                          }
-                        ],
-                        "containerType": "DOCKER",
-                        "name": "github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
-                        "parentImage": "arn:aws:imagebuilder:us-east-1:aws:image/windows-server-2019-x86-core-ltsc2019-amd64/2020.12.8",
-                        "targetRepository": {
-                          "service": "ECR",
-                          "repositoryName": {
-                            "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
-                          }
-                        },
-                        "version": {
-                          "Ref": "WindowsImageBuilderContainerRecipeVersion13A2E3FD"
-                        },
-                        "dockerfileTemplateData": "FROM {{{ imagebuilder:parentImage }}}\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}"
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_imagebuilder.CfnContainerRecipe",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.Resource",
-                  "version": "2.29.0"
-                }
-              },
-              "Log": {
-                "id": "Log",
-                "path": "github-runners-test/Windows Image Builder/Log",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/Windows Image Builder/Log/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
-                      "aws:cdk:cloudformation:props": {
-                        "logGroupName": "/aws/imagebuilder/github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
-                        "retentionInDays": 30
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
-                  "version": "2.29.0"
-                }
-              },
-              "Image": {
-                "id": "Image",
-                "path": "github-runners-test/Windows Image Builder/Image",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Image",
-                  "aws:cdk:cloudformation:props": {
-                    "infrastructureConfigurationArn": {
-                      "Fn::GetAtt": [
-                        "WindowsImageBuilderInfrastructureFF99A30B",
-                        "Arn"
-                      ]
-                    },
-                    "containerRecipeArn": {
-                      "Fn::GetAtt": [
-                        "WindowsImageBuilderContainerRecipeB2A421D7",
-                        "Arn"
-                      ]
-                    },
-                    "distributionConfigurationArn": {
-                      "Fn::GetAtt": [
-                        "WindowsImageBuilderDistribution843AF65B",
-                        "Arn"
-                      ]
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImage",
-                  "version": "2.29.0"
-                }
-              },
-              "CR Policy": {
-                "id": "CR Policy",
-                "path": "github-runners-test/Windows Image Builder/CR Policy",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/Windows Image Builder/CR Policy/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
-                      "aws:cdk:cloudformation:props": {
-                        "policyDocument": {
-                          "Statement": [
-                            {
-                              "Action": [
-                                "ecr:BatchDeleteImage",
-                                "ecr:ListImages"
-                              ],
-                              "Effect": "Allow",
-                              "Resource": {
-                                "Fn::GetAtt": [
-                                  "WindowsImageBuilderRepositoryA4CBB6D8",
-                                  "Arn"
-                                ]
-                              }
-                            },
-                            {
-                              "Action": [
-                                "imagebuilder:ListImages",
-                                "imagebuilder:ListImageBuildVersions",
-                                "imagebuilder:DeleteImage"
-                              ],
-                              "Effect": "Allow",
-                              "Resource": "*"
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        },
-                        "policyName": "WindowsImageBuilderCRPolicy81A41F62",
-                        "roles": [
-                          {
-                            "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Policy",
-                  "version": "2.29.0"
-                }
-              },
-              "Deleter": {
-                "id": "Deleter",
-                "path": "github-runners-test/Windows Image Builder/Deleter",
-                "children": {
-                  "Default": {
-                    "id": "Default",
-                    "path": "github-runners-test/Windows Image Builder/Deleter/Default",
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.CfnResource",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.CustomResource",
-                  "version": "2.29.0"
-                }
-              },
-              "Pipeline": {
-                "id": "Pipeline",
-                "path": "github-runners-test/Windows Image Builder/Pipeline",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
-                  "aws:cdk:cloudformation:props": {
-                    "infrastructureConfigurationArn": {
-                      "Fn::GetAtt": [
-                        "WindowsImageBuilderInfrastructureFF99A30B",
-                        "Arn"
-                      ]
-                    },
-                    "name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
-                    "containerRecipeArn": {
-                      "Fn::GetAtt": [
-                        "WindowsImageBuilderContainerRecipeB2A421D7",
-                        "Arn"
-                      ]
-                    },
-                    "description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
-                    "distributionConfigurationArn": {
-                      "Fn::GetAtt": [
-                        "WindowsImageBuilderDistribution843AF65B",
-                        "Arn"
-                      ]
-                    },
-                    "schedule": {
-                      "scheduleExpression": "rate(7 days)",
-                      "pipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImagePipeline",
-                  "version": "2.29.0"
-                }
-              },
-              "Dependable Image": {
-                "id": "Dependable Image",
-                "path": "github-runners-test/Windows Image Builder/Dependable Image",
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_ecr.RepositoryBase",
-                  "version": "2.29.0"
-                }
-              }
-            },
-            "constructInfo": {
-              "fqn": "constructs.Construct",
-              "version": "10.0.5"
-            }
-          },
-          "aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1": {
-            "id": "aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1",
-            "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1",
-            "children": {
-              "ServiceRole": {
-                "id": "ServiceRole",
-                "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
-                      "aws:cdk:cloudformation:props": {
-                        "assumeRolePolicyDocument": {
-                          "Statement": [
-                            {
-                              "Action": "sts:AssumeRole",
-                              "Effect": "Allow",
-                              "Principal": {
-                                "Service": "lambda.amazonaws.com"
-                              }
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        },
-                        "managedPolicyArns": [
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-                              ]
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "DefaultPolicy": {
-                    "id": "DefaultPolicy",
-                    "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/DefaultPolicy",
-                    "children": {
-                      "Resource": {
-                        "id": "Resource",
-                        "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/DefaultPolicy/Resource",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
-                          "aws:cdk:cloudformation:props": {
-                            "policyDocument": {
-                              "Statement": [
-                                {
-                                  "Action": [
-                                    "imagebuilder:ListComponents",
-                                    "imagebuilder:ListContainerRecipes",
-                                    "imagebuilder:ListImageRecipes"
-                                  ],
-                                  "Effect": "Allow",
-                                  "Resource": "*"
-                                }
-                              ],
-                              "Version": "2012-10-17"
-                            },
-                            "policyName": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy93D80BBD",
-                            "roles": [
-                              {
-                                "Ref": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
-                          "version": "2.29.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.Policy",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Role",
-                  "version": "2.29.0"
-                }
-              },
-              "Code": {
-                "id": "Code",
-                "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Code",
-                "children": {
-                  "Stage": {
-                    "id": "Stage",
-                    "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Code/Stage",
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.AssetStaging",
-                      "version": "2.29.0"
-                    }
-                  },
-                  "AssetBucket": {
-                    "id": "AssetBucket",
-                    "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Code/AssetBucket",
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_s3.BucketBase",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
-                  "version": "2.29.0"
-                }
-              },
-              "Resource": {
-                "id": "Resource",
-                "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Resource",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
-                  "aws:cdk:cloudformation:props": {
-                    "code": {
-                      "s3Bucket": {
-                        "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-                      },
-                      "s3Key": "47f0eabb30db37def53735bde36273880be115fda7f270fbf4f175b6bc6e334f.zip"
-                    },
-                    "role": {
-                      "Fn::GetAtt": [
-                        "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58",
-                        "Arn"
-                      ]
-                    },
-                    "description": "Custom resource handler that bumps up Image Builder versions",
-                    "environment": {
-                      "variables": {
-                        "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
-                      }
-                    },
-                    "handler": "index.handler",
-                    "runtime": "nodejs14.x"
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
-                  "version": "2.29.0"
-                }
-              },
-              "LogRetention": {
-                "id": "LogRetention",
-                "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogRetention",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogRetention/Resource",
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.CfnResource",
-                      "version": "2.29.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_logs.LogRetention",
-                  "version": "2.29.0"
-                }
-              },
-              "LogGroup": {
-                "id": "LogGroup",
-                "path": "github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogGroup",
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.Resource",
-                  "version": "2.29.0"
-                }
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_lambda.Function",
-              "version": "2.29.0"
             }
           },
           "CodeBuildWindows": {
@@ -7899,6 +7899,11 @@
                       "aws:cdk:cloudformation:props": {
                         "containerDefinitions": [
                           {
+                            "command": [
+                              "sh",
+                              "-c",
+                              "./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" --disableupdate --name \"${RUNNER_NAME}\" && ./run.sh"
+                            ],
                             "essential": true,
                             "image": {
                               "Fn::Join": [
@@ -8226,6 +8231,11 @@
                       "aws:cdk:cloudformation:props": {
                         "containerDefinitions": [
                           {
+                            "command": [
+                              "sh",
+                              "-c",
+                              "./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" --disableupdate --name \"${RUNNER_NAME}\" && ./run.sh"
+                            ],
                             "essential": true,
                             "image": {
                               "Fn::Join": [
@@ -8553,6 +8563,11 @@
                       "aws:cdk:cloudformation:props": {
                         "containerDefinitions": [
                           {
+                            "command": [
+                              "sh",
+                              "-c",
+                              "./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" --disableupdate --name \"${RUNNER_NAME}\" && ./run.sh"
+                            ],
                             "essential": true,
                             "image": {
                               "Fn::Join": [
@@ -8880,6 +8895,11 @@
                       "aws:cdk:cloudformation:props": {
                         "containerDefinitions": [
                           {
+                            "command": [
+                              "sh",
+                              "-c",
+                              "./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" --disableupdate --name \"${RUNNER_NAME}\" && ./run.sh"
+                            ],
                             "essential": true,
                             "image": {
                               "Fn::Join": [
@@ -9111,6 +9131,397 @@
               "fargate-arm64-spot": {
                 "id": "fargate-arm64-spot",
                 "path": "github-runners-test/Fargate-arm64-spot/fargate-arm64-spot",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.EcsRunTask",
+                  "version": "2.29.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
+            }
+          },
+          "Fargate-Windows": {
+            "id": "Fargate-Windows",
+            "path": "github-runners-test/Fargate-Windows",
+            "children": {
+              "security group": {
+                "id": "security group",
+                "path": "github-runners-test/Fargate-Windows/security group",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Fargate-Windows/security group/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "groupDescription": "github-runners-test/Fargate-Windows/security group",
+                        "securityGroupEgress": [
+                          {
+                            "cidrIp": "0.0.0.0/0",
+                            "description": "Allow all outbound traffic by default",
+                            "ipProtocol": "-1"
+                          }
+                        ],
+                        "vpcId": {
+                          "Ref": "clusterVpc91107A71"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                  "version": "2.29.0"
+                }
+              },
+              "task": {
+                "id": "task",
+                "path": "github-runners-test/Fargate-Windows/task",
+                "children": {
+                  "TaskRole": {
+                    "id": "TaskRole",
+                    "path": "github-runners-test/Fargate-Windows/task/TaskRole",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/Fargate-Windows/task/TaskRole/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                          "aws:cdk:cloudformation:props": {
+                            "assumeRolePolicyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sts:AssumeRole",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": "ecs-tasks.amazonaws.com"
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                          "version": "2.29.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Fargate-Windows/task/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECS::TaskDefinition",
+                      "aws:cdk:cloudformation:props": {
+                        "containerDefinitions": [
+                          {
+                            "command": [
+                              "powershell",
+                              "-Command",
+                              "cd \\actions ; ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL}\" --disableupdate --name \"${Env:RUNNER_NAME}\" ; ./run.cmd"
+                            ],
+                            "essential": true,
+                            "image": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  {
+                                    "Ref": "AWS::AccountId"
+                                  },
+                                  ".dkr.ecr.",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  ".",
+                                  {
+                                    "Ref": "AWS::URLSuffix"
+                                  },
+                                  "/",
+                                  {
+                                    "Fn::Select": [
+                                      0,
+                                      {
+                                        "Fn::Split": [
+                                          ":",
+                                          {
+                                            "Fn::Select": [
+                                              1,
+                                              {
+                                                "Fn::Split": [
+                                                  "/",
+                                                  {
+                                                    "Fn::GetAtt": [
+                                                      "WindowsImageBuilderImage7065BB07",
+                                                      "ImageUri"
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  ":",
+                                  {
+                                    "Fn::Select": [
+                                      1,
+                                      {
+                                        "Fn::Split": [
+                                          ":",
+                                          {
+                                            "Fn::GetAtt": [
+                                              "WindowsImageBuilderImage7065BB07",
+                                              "ImageUri"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              ]
+                            },
+                            "name": "runner",
+                            "logConfiguration": {
+                              "logDriver": "awslogs",
+                              "options": {
+                                "awslogs-group": {
+                                  "Ref": "FargateWindowslogs52881DBF"
+                                },
+                                "awslogs-stream-prefix": "runner",
+                                "awslogs-region": {
+                                  "Ref": "AWS::Region"
+                                }
+                              }
+                            }
+                          }
+                        ],
+                        "cpu": "1024",
+                        "executionRoleArn": {
+                          "Fn::GetAtt": [
+                            "FargateWindowstaskExecutionRoleEE562927",
+                            "Arn"
+                          ]
+                        },
+                        "family": "githubrunnerstestFargateWindowstask95BB2245",
+                        "memory": "2048",
+                        "networkMode": "awsvpc",
+                        "requiresCompatibilities": [
+                          "FARGATE"
+                        ],
+                        "runtimePlatform": {
+                          "cpuArchitecture": "X86_64",
+                          "operatingSystemFamily": "WINDOWS_SERVER_2019_CORE"
+                        },
+                        "taskRoleArn": {
+                          "Fn::GetAtt": [
+                            "FargateWindowstaskTaskRole364508C8",
+                            "Arn"
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.CfnTaskDefinition",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "runner": {
+                    "id": "runner",
+                    "path": "github-runners-test/Fargate-Windows/task/runner",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.ContainerDefinition",
+                      "version": "2.29.0"
+                    }
+                  },
+                  "ExecutionRole": {
+                    "id": "ExecutionRole",
+                    "path": "github-runners-test/Fargate-Windows/task/ExecutionRole",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/Fargate-Windows/task/ExecutionRole/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                          "aws:cdk:cloudformation:props": {
+                            "assumeRolePolicyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sts:AssumeRole",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": "ecs-tasks.amazonaws.com"
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                          "version": "2.29.0"
+                        }
+                      },
+                      "DefaultPolicy": {
+                        "id": "DefaultPolicy",
+                        "path": "github-runners-test/Fargate-Windows/task/ExecutionRole/DefaultPolicy",
+                        "children": {
+                          "Resource": {
+                            "id": "Resource",
+                            "path": "github-runners-test/Fargate-Windows/task/ExecutionRole/DefaultPolicy/Resource",
+                            "attributes": {
+                              "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                              "aws:cdk:cloudformation:props": {
+                                "policyDocument": {
+                                  "Statement": [
+                                    {
+                                      "Action": [
+                                        "ecr:BatchCheckLayerAvailability",
+                                        "ecr:GetDownloadUrlForLayer",
+                                        "ecr:BatchGetImage"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::Join": [
+                                          "",
+                                          [
+                                            "arn:",
+                                            {
+                                              "Ref": "AWS::Partition"
+                                            },
+                                            ":ecr:",
+                                            {
+                                              "Ref": "AWS::Region"
+                                            },
+                                            ":",
+                                            {
+                                              "Ref": "AWS::AccountId"
+                                            },
+                                            ":repository/",
+                                            {
+                                              "Fn::Select": [
+                                                0,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Fn::Select": [
+                                                        1,
+                                                        {
+                                                          "Fn::Split": [
+                                                            "/",
+                                                            {
+                                                              "Fn::GetAtt": [
+                                                                "WindowsImageBuilderImage7065BB07",
+                                                                "ImageUri"
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecr:GetAuthorizationToken",
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    },
+                                    {
+                                      "Action": [
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::GetAtt": [
+                                          "FargateWindowslogs52881DBF",
+                                          "Arn"
+                                        ]
+                                      }
+                                    }
+                                  ],
+                                  "Version": "2012-10-17"
+                                },
+                                "policyName": "FargateWindowstaskExecutionRoleDefaultPolicy2EF7D3FD",
+                                "roles": [
+                                  {
+                                    "Ref": "FargateWindowstaskExecutionRoleEE562927"
+                                  }
+                                ]
+                              }
+                            },
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                              "version": "2.29.0"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.Policy",
+                          "version": "2.29.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.FargateTaskDefinition",
+                  "version": "2.29.0"
+                }
+              },
+              "logs": {
+                "id": "logs",
+                "path": "github-runners-test/Fargate-Windows/logs",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Fargate-Windows/logs/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "retentionInDays": 30
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                      "version": "2.29.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
+                  "version": "2.29.0"
+                }
+              },
+              "fargate-windows-x64": {
+                "id": "fargate-windows-x64",
+                "path": "github-runners-test/Fargate-Windows/fargate-windows-x64",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.EcsRunTask",
                   "version": "2.29.0"
@@ -10518,6 +10929,139 @@
                                           ]
                                         }
                                       ]
+                                    },
+                                    {
+                                      "Action": "ecs:RunTask",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::Join": [
+                                          "",
+                                          [
+                                            "arn:",
+                                            {
+                                              "Fn::Select": [
+                                                1,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "FargateWindowstask9F9B942D"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                2,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "FargateWindowstask9F9B942D"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                3,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "FargateWindowstask9F9B942D"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                4,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "FargateWindowstask9F9B942D"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                0,
+                                                {
+                                                  "Fn::Split": [
+                                                    "/",
+                                                    {
+                                                      "Fn::Select": [
+                                                        5,
+                                                        {
+                                                          "Fn::Split": [
+                                                            ":",
+                                                            {
+                                                              "Ref": "FargateWindowstask9F9B942D"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            "/",
+                                            {
+                                              "Fn::Select": [
+                                                1,
+                                                {
+                                                  "Fn::Split": [
+                                                    "/",
+                                                    {
+                                                      "Fn::Select": [
+                                                        5,
+                                                        {
+                                                          "Fn::Split": [
+                                                            ":",
+                                                            {
+                                                              "Ref": "FargateWindowstask9F9B942D"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "Action": "iam:PassRole",
+                                      "Effect": "Allow",
+                                      "Resource": [
+                                        {
+                                          "Fn::GetAtt": [
+                                            "FargateWindowstaskTaskRole364508C8",
+                                            "Arn"
+                                          ]
+                                        },
+                                        {
+                                          "Fn::GetAtt": [
+                                            "FargateWindowstaskExecutionRoleEE562927",
+                                            "Arn"
+                                          ]
+                                        }
+                                      ]
                                     }
                                   ],
                                   "Version": "2012-10-17"
@@ -10570,7 +11114,7 @@
                                   "Arn"
                                 ]
                               },
-                              "\"},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true,\"Next\":\"codebuild-x64\"},{\"Variable\":\"$.labels.codebuild-arm64\",\"IsPresent\":true,\"Next\":\"codebuild-arm64\"},{\"Variable\":\"$.labels.codebuild-windows-x64\",\"IsPresent\":true,\"Next\":\"codebuild-windows-x64\"},{\"Variable\":\"$.labels.lambda-x64\",\"IsPresent\":true,\"Next\":\"lambda-x64\"},{\"Variable\":\"$.labels.lambda-arm64\",\"IsPresent\":true,\"Next\":\"lambda-arm64\"},{\"Variable\":\"$.labels.fargate-x64\",\"IsPresent\":true,\"Next\":\"fargate-x64\"},{\"Variable\":\"$.labels.fargate-x64-spot\",\"IsPresent\":true,\"Next\":\"fargate-x64-spot\"},{\"Variable\":\"$.labels.fargate-arm64\",\"IsPresent\":true,\"Next\":\"fargate-arm64\"},{\"Variable\":\"$.labels.fargate-arm64-spot\",\"IsPresent\":true,\"Next\":\"fargate-arm64-spot\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Fail\"},\"codebuild-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+                              "\"},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true,\"Next\":\"codebuild-x64\"},{\"Variable\":\"$.labels.codebuild-arm64\",\"IsPresent\":true,\"Next\":\"codebuild-arm64\"},{\"Variable\":\"$.labels.codebuild-windows-x64\",\"IsPresent\":true,\"Next\":\"codebuild-windows-x64\"},{\"Variable\":\"$.labels.lambda-x64\",\"IsPresent\":true,\"Next\":\"lambda-x64\"},{\"Variable\":\"$.labels.lambda-arm64\",\"IsPresent\":true,\"Next\":\"lambda-arm64\"},{\"Variable\":\"$.labels.fargate-x64\",\"IsPresent\":true,\"Next\":\"fargate-x64\"},{\"Variable\":\"$.labels.fargate-x64-spot\",\"IsPresent\":true,\"Next\":\"fargate-x64-spot\"},{\"Variable\":\"$.labels.fargate-arm64\",\"IsPresent\":true,\"Next\":\"fargate-arm64\"},{\"Variable\":\"$.labels.fargate-arm64-spot\",\"IsPresent\":true,\"Next\":\"fargate-arm64-spot\"},{\"Variable\":\"$.labels.fargate-windows-x64\",\"IsPresent\":true,\"Next\":\"fargate-windows-x64\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Fail\"},\"codebuild-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -10642,7 +11186,7 @@
                                   "GroupId"
                                 ]
                               },
-                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"LaunchType\":\"FARGATE\"}},\"fargate-x64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-x64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -10668,7 +11212,7 @@
                                   "GroupId"
                                 ]
                               },
-                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-x64-spot\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}]}},\"fargate-arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-x64-spot\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}]}},\"fargate-arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -10694,7 +11238,7 @@
                                   "GroupId"
                                 ]
                               },
-                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"LaunchType\":\"FARGATE\"}},\"fargate-arm64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-arm64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -10720,7 +11264,33 @@
                                   "GroupId"
                                 ]
                               },
-                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-arm64-spot\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"LaunchType\":\"FARGATE\"}}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-arm64-spot\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-windows-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              ":states:::ecs:runTask.sync\",\"Parameters\":{\"Cluster\":\"",
+                              {
+                                "Fn::GetAtt": [
+                                  "cluster611F8AFF",
+                                  "Arn"
+                                ]
+                              },
+                              "\",\"TaskDefinition\":\"githubrunnerstestFargateWindowstask95BB2245\",\"NetworkConfiguration\":{\"AwsvpcConfiguration\":{\"AssignPublicIp\":\"ENABLED\",\"Subnets\":[\"",
+                              {
+                                "Ref": "clusterVpcPublicSubnet1Subnet3948EFCA"
+                              },
+                              "\",\"",
+                              {
+                                "Ref": "clusterVpcPublicSubnet2SubnetEFB8E71C"
+                              },
+                              "\"],\"SecurityGroups\":[\"",
+                              {
+                                "Fn::GetAtt": [
+                                  "FargateWindowssecuritygroupE684A7B0",
+                                  "GroupId"
+                                ]
+                              },
+                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-windows-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
                               {
                                 "Fn::GetAtt": [
                                   "runnersdeleterunner7F8D5293",

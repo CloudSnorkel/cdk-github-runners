@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/2730c00b32b7a9d24439e6c6f40a5292bda44667a94adc4ee9f909956b5f6701.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/d92da6158be48b454a5fac49b589752f636e0d84d3cf3a20b8e7af91072c9498.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -381,210 +381,6 @@
             "data": "LambdaImageBuilderx64DependableImagePushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98E7BC3031D"
           }
         ],
-        "/github-runners-test/CodeBuild Image Builder/Repository/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderRepository9DE3B6F0"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder/Logs/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderLogsE4CADFCC"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder/CodeBuild/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderCodeBuildRoleF8F57ECB"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder/CodeBuild/Role/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderCodeBuildRoleDefaultPolicy1060FBF9"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder/CodeBuild/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderCodeBuild38ECAA44"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder/CodeBuild/EventsRole/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderCodeBuildEventsRole4277A55E"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder/CodeBuild/EventsRole/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder/CR Policy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderCRPolicyAFC63F28"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder/Builder/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderB8638EC8"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder/Build Schedule/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderBuildSchedule66D9D18A"
-          }
-        ],
-        "/github-runners-test/CodeBuildx64/Logs/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildx64LogsA21ECD59"
-          }
-        ],
-        "/github-runners-test/CodeBuildx64/CodeBuild/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildx64CodeBuildRole32E5C764"
-          }
-        ],
-        "/github-runners-test/CodeBuildx64/CodeBuild/Role/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildx64CodeBuildRoleDefaultPolicy221DA642"
-          }
-        ],
-        "/github-runners-test/CodeBuildx64/CodeBuild/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildx64CodeBuild7DC01A1E"
-          }
-        ],
-        "/github-runners-test/build-image-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
-          }
-        ],
-        "/github-runners-test/build-image-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A"
-          }
-        ],
-        "/github-runners-test/build-image-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogRetention/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB"
-          }
-        ],
-        "/github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
-          }
-        ],
-        "/github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB"
-          }
-        ],
-        "/github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/Repository/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmRepositoryE967421B"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/Logs/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmLogs5A60CB81"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmCodeBuildRoleEF082AD2"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/Role/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmCodeBuildRoleDefaultPolicyB642F141"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/EventsRole/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/EventsRole/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmCodeBuildEventsRoleDefaultPolicyEA24770D"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/CR Policy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmCRPolicy75CB8D91"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/Builder/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmBuilder755EB37D"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/Build Schedule/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmBuildSchedule909D75E9"
-          }
-        ],
-        "/github-runners-test/CodeBuildARM/Logs/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildARMLogs7C7FC5A7"
-          }
-        ],
-        "/github-runners-test/CodeBuildARM/CodeBuild/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildARMCodeBuildRole74DB4985"
-          }
-        ],
-        "/github-runners-test/CodeBuildARM/CodeBuild/Role/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildARMCodeBuildRoleDefaultPolicyFC84CEAE"
-          }
-        ],
-        "/github-runners-test/CodeBuildARM/CodeBuild/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildARMCodeBuildC5F301F2"
-          }
-        ],
         "/github-runners-test/Windows Image Builder/Repository/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -727,6 +523,210 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1LogRetentionA8337CBD"
+          }
+        ],
+        "/github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+          }
+        ],
+        "/github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB"
+          }
+        ],
+        "/github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder/Repository/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderRepository9DE3B6F0"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder/Logs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderLogsE4CADFCC"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder/CodeBuild/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderCodeBuildRoleF8F57ECB"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder/CodeBuild/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderCodeBuildRoleDefaultPolicy1060FBF9"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder/CodeBuild/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderCodeBuild38ECAA44"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder/CodeBuild/EventsRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderCodeBuildEventsRole4277A55E"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder/CodeBuild/EventsRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder/CR Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderCRPolicyAFC63F28"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder/Builder/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderB8638EC8"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder/Build Schedule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderBuildSchedule66D9D18A"
+          }
+        ],
+        "/github-runners-test/CodeBuildx64/Logs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildx64LogsA21ECD59"
+          }
+        ],
+        "/github-runners-test/CodeBuildx64/CodeBuild/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildx64CodeBuildRole32E5C764"
+          }
+        ],
+        "/github-runners-test/CodeBuildx64/CodeBuild/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildx64CodeBuildRoleDefaultPolicy221DA642"
+          }
+        ],
+        "/github-runners-test/CodeBuildx64/CodeBuild/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildx64CodeBuild7DC01A1E"
+          }
+        ],
+        "/github-runners-test/build-image-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+          }
+        ],
+        "/github-runners-test/build-image-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A"
+          }
+        ],
+        "/github-runners-test/build-image-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogRetention/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/Repository/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmRepositoryE967421B"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/Logs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmLogs5A60CB81"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmCodeBuildRoleEF082AD2"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmCodeBuildRoleDefaultPolicyB642F141"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/EventsRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/EventsRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmCodeBuildEventsRoleDefaultPolicyEA24770D"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/CR Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmCRPolicy75CB8D91"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/Builder/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmBuilder755EB37D"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/Build Schedule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmBuildSchedule909D75E9"
+          }
+        ],
+        "/github-runners-test/CodeBuildARM/Logs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildARMLogs7C7FC5A7"
+          }
+        ],
+        "/github-runners-test/CodeBuildARM/CodeBuild/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildARMCodeBuildRole74DB4985"
+          }
+        ],
+        "/github-runners-test/CodeBuildARM/CodeBuild/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildARMCodeBuildRoleDefaultPolicyFC84CEAE"
+          }
+        ],
+        "/github-runners-test/CodeBuildARM/CodeBuild/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildARMCodeBuildC5F301F2"
           }
         ],
         "/github-runners-test/CodeBuildWindows/Logs/Resource": [
@@ -1027,6 +1027,42 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "Fargatearm64spotlogsEFCCEC59"
+          }
+        ],
+        "/github-runners-test/Fargate-Windows/security group/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargateWindowssecuritygroupE684A7B0"
+          }
+        ],
+        "/github-runners-test/Fargate-Windows/task/TaskRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargateWindowstaskTaskRole364508C8"
+          }
+        ],
+        "/github-runners-test/Fargate-Windows/task/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargateWindowstask9F9B942D"
+          }
+        ],
+        "/github-runners-test/Fargate-Windows/task/ExecutionRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargateWindowstaskExecutionRoleEE562927"
+          }
+        ],
+        "/github-runners-test/Fargate-Windows/task/ExecutionRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargateWindowstaskExecutionRoleDefaultPolicy2EF7D3FD"
+          }
+        ],
+        "/github-runners-test/Fargate-Windows/logs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargateWindowslogs52881DBF"
           }
         ],
         "/github-runners-test/runners/Secrets/Webhook/Resource": [

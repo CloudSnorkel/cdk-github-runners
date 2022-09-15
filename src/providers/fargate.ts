@@ -11,7 +11,7 @@ import {
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
-import { Architecture, IImageBuilder, IRunnerProvider, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
+import { Architecture, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 /**
@@ -129,7 +129,20 @@ export interface FargateRunnerProps extends RunnerProviderProps {
   readonly spot?: boolean;
 }
 
-class EcsFargateSpotLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
+/**
+ * Properties for EcsFargateLaunchTarget.
+ */
+interface EcsFargateLaunchTargetProps {
+  readonly spot: boolean;
+  readonly enableExecute: boolean;
+}
+
+/**
+ * Our special launch target that can use spot instances and set EnableExecuteCommand.
+ */
+class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
+  constructor(readonly props: EcsFargateLaunchTargetProps) {}
+
   /**
    * Called when the Fargate launch type configured on RunTask
    */
@@ -141,9 +154,10 @@ class EcsFargateSpotLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget
 
     return {
       parameters: {
+        EnableExecuteCommand: this.props.enableExecute,
         CapacityProviderStrategy: [
           {
-            CapacityProvider: 'FARGATE_SPOT',
+            CapacityProvider: this.props.spot ? 'FARGATE_SPOT' : 'FARGATE',
           },
         ],
       },
@@ -235,11 +249,11 @@ export class FargateRunner extends Construct implements IRunnerProvider {
   constructor(scope: Construct, id: string, props: FargateRunnerProps) {
     super(scope, id);
 
-    this.label = props.label || 'fargate';
-    this.vpc = props.vpc || ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
-    this.securityGroup = props.securityGroup || new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc });
+    this.label = props.label ?? 'fargate';
+    this.vpc = props.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
+    this.securityGroup = props.securityGroup ?? new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc });
     this.connections = this.securityGroup.connections;
-    this.assignPublicIp = props.assignPublicIp || true;
+    this.assignPublicIp = props.assignPublicIp ?? true;
     this.cluster = props.cluster ? props.cluster : new ecs.Cluster(
       this,
       'cluster',
@@ -264,15 +278,27 @@ export class FargateRunner extends Construct implements IRunnerProvider {
       throw new Error(`${image.architecture.name} is not supported on Fargate`);
     }
 
+    let os: ecs.OperatingSystemFamily;
+    if (image.os.is(Os.LINUX)) {
+      os = ecs.OperatingSystemFamily.LINUX;
+    } else if (image.os.is(Os.WINDOWS)) {
+      os = ecs.OperatingSystemFamily.WINDOWS_SERVER_2019_CORE;
+      if (props.ephemeralStorageGiB) {
+        throw new Error('Ephemeral storage is not supported on Fargate Windows');
+      }
+    } else {
+      throw new Error(`${image.os.name} is not supported on Fargate`);
+    }
+
     this.task = new ecs.FargateTaskDefinition(
       this,
       'task',
       {
-        cpu: props.cpu || 1024,
-        memoryLimitMiB: props.memoryLimitMiB || 2048,
-        ephemeralStorageGiB: props.ephemeralStorageGiB || 25,
+        cpu: props.cpu ?? 1024,
+        memoryLimitMiB: props.memoryLimitMiB ?? 2048,
+        ephemeralStorageGiB: props.ephemeralStorageGiB ?? !image.os.is(Os.WINDOWS) ? 25 : undefined,
         runtimePlatform: {
-          operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
+          operatingSystemFamily: os,
           cpuArchitecture: arch,
         },
       },
@@ -283,11 +309,12 @@ export class FargateRunner extends Construct implements IRunnerProvider {
         image: ecs.AssetImage.fromEcrRepository(image.imageRepository, image.imageTag),
         logging: ecs.AwsLogDriver.awsLogs({
           logGroup: new logs.LogGroup(this, 'logs', {
-            retention: props.logRetention || RetentionDays.ONE_MONTH,
+            retention: props.logRetention ?? RetentionDays.ONE_MONTH,
             removalPolicy: RemovalPolicy.DESTROY,
           }),
           streamPrefix: 'runner',
         }),
+        command: this.runCommand(),
       },
     );
 
@@ -309,7 +336,10 @@ export class FargateRunner extends Construct implements IRunnerProvider {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,
         cluster: this.cluster,
-        launchTarget: this.spot ? new EcsFargateSpotLaunchTarget() : new stepfunctions_tasks.EcsFargateLaunchTarget(),
+        launchTarget: new EcsFargateLaunchTarget({
+          spot: this.spot,
+          enableExecute: this.image.os.is(Os.LINUX),
+        }),
         assignPublicIp: this.assignPublicIp,
         securityGroups: this.securityGroup ? [this.securityGroup] : undefined,
         containerOverrides: [
@@ -345,5 +375,21 @@ export class FargateRunner extends Construct implements IRunnerProvider {
         ],
       },
     );
+  }
+
+  private runCommand(): string[] {
+    if (this.image.os.is(Os.LINUX)) {
+      return [
+        'sh', '-c',
+        './config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --disableupdate --name "${RUNNER_NAME}" && ./run.sh',
+      ];
+    } else if (this.image.os.is(Os.WINDOWS)) {
+      return [
+        'powershell', '-Command',
+        'cd \\actions ; ./config.cmd --unattended --url "https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL}" --disableupdate --name "${Env:RUNNER_NAME}" ; ./run.cmd',
+      ];
+    } else {
+      throw new Error(`Fargate runner doesn't support ${this.image.os.name}`);
+    }
   }
 }

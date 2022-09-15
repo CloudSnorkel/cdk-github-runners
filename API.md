@@ -549,7 +549,7 @@ The CodeBuild builder is better and faster. Only use this one if you have no cho
 
 Each builder re-runs automatically at a set interval to make sure the images contain the latest versions of everything.
 
-You can create an instance of this construct to customize the image used to spin-up runners. Some runner providers may require custom components. Check the runner provider documentation. The default components work with CodeBuild.
+You can create an instance of this construct to customize the image used to spin-up runners. Some runner providers may require custom components. Check the runner provider documentation. The default components work with CodeBuild and Fargate.
 
 For example, to set a specific runner version, rebuild the image every 2 weeks, and add a few packages for the Fargate provider, use:
 
@@ -558,7 +558,7 @@ const builder = new ContainerImageBuilder(this, 'Builder', {
      runnerVersion: RunnerVersion.specific('2.293.0'),
      rebuildInterval: Duration.days(14),
 });
-new CodeBuildRunner(this, 'Fargate provider', {
+new CodeBuildRunner(this, 'CodeBuild provider', {
      label: 'windows-codebuild',
      imageBuilder: builder,
 });

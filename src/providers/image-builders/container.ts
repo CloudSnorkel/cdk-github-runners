@@ -384,7 +384,7 @@ class ContainerRecipe extends ImageBuilderObjectBase {
  *
  * Each builder re-runs automatically at a set interval to make sure the images contain the latest versions of everything.
  *
- * You can create an instance of this construct to customize the image used to spin-up runners. Some runner providers may require custom components. Check the runner provider documentation. The default components work with CodeBuild.
+ * You can create an instance of this construct to customize the image used to spin-up runners. Some runner providers may require custom components. Check the runner provider documentation. The default components work with CodeBuild and Fargate.
  *
  * For example, to set a specific runner version, rebuild the image every 2 weeks, and add a few packages for the Fargate provider, use:
  *
@@ -393,7 +393,7 @@ class ContainerRecipe extends ImageBuilderObjectBase {
  *     runnerVersion: RunnerVersion.specific('2.293.0'),
  *     rebuildInterval: Duration.days(14),
  * });
- * new CodeBuildRunner(this, 'Fargate provider', {
+ * new CodeBuildRunner(this, 'CodeBuild provider', {
  *     label: 'windows-codebuild',
  *     imageBuilder: builder,
  * });
@@ -661,7 +661,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     });
     pipeline.node.addDependency(log);
 
-    return {
+    this.boundImage = {
       // There are simpler ways to get the ARN, but we want an image object that depends on the newly built image.
       // We want whoever is using this image to automatically wait for Image Builder to finish building before using the image.
       imageRepository: ecr.Repository.fromRepositoryName(
@@ -674,6 +674,8 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       architecture: this.architecture,
       logGroup: log,
     };
+
+    return this.boundImage;
   }
 
   private infrastructure(): imagebuilder.CfnInfrastructureConfiguration {
