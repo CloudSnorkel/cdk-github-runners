@@ -284,7 +284,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
     } else if (image.os.is(Os.WINDOWS)) {
       os = ecs.OperatingSystemFamily.WINDOWS_SERVER_2019_CORE;
       if (props.ephemeralStorageGiB) {
-        throw new Error(`Ephemeral storage is not supported on Fargate Windows`);
+        throw new Error('Ephemeral storage is not supported on Fargate Windows');
       }
     } else {
       throw new Error(`${image.os.name} is not supported on Fargate`);
