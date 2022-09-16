@@ -100,9 +100,9 @@ let bucket: s3.Bucket;
 
 // create a custom CodeBuild provider
 const myProvider = new CodeBuildRunner(this, 'codebuild runner', { 
-    label: 'my-codebuild',
-    vpc: vpc,
-    securityGroup: runnerSg,
+  label: 'my-codebuild',
+  vpc: vpc,
+  securityGroup: runnerSg,
 });
 // grant some permissions to the provider
 bucket.grantReadWrite(myProvider);
@@ -110,7 +110,7 @@ dbSg.connections.allowFrom(runnerSg, ec2.Port.tcp(3306), 'allow runners to conne
 
 // create the runner infrastructure
 new GitHubRunners(this, 'runners', {
-    providers: [myProvider],
+   providers: [myProvider],
 });
 ```
 
@@ -118,21 +118,22 @@ Another way to customize runners is by modifying the image used to spin them up.
 
 ```typescript
 const myBuilder = new CodeBuildImageBuilder(this, 'image builder', {
-   dockerfilePath: FargateProvider.LINUX_X64_DOCKERFILE_PATH,
-   runnerVersion: RunnerVersion.specific('2.291.0'),
-   rebuildInterval: Duration.days(14),    
+  dockerfilePath: FargateRunner.LINUX_X64_DOCKERFILE_PATH,
+  runnerVersion: RunnerVersion.specific('2.291.0'),
+  rebuildInterval: Duration.days(14),    
 });
 myBuilder.setBuildArg('EXTRA_PACKAGES', 'nginx xz-utils');
 
-const myProvider = new FargateProvider(this, 'fargate runner', {
-   label: 'customized-fargate',
-   vpc: vpc,
-   securityGroup: runnerSg,
+const myProvider = new FargateRunner(this, 'fargate runner', {
+  label: 'customized-fargate',
+  vpc: vpc,
+  securityGroup: runnerSg,
+  imageBuilder: myBuilder,
 });
 
 // create the runner infrastructure
 new GitHubRunners(stack, 'runners', {
-   providers: [myProvider],
+  providers: [myProvider],
 });
 ```
 
@@ -146,6 +147,41 @@ jobs:
     runs-on: [self-hosted, customized-fargate]
     steps:
       - run: echo hello world
+```
+
+Windows images must be built with AWS Image Builder.
+
+```typescript
+const myWindowsBuilder = new ContainerImageBuilder(this, 'Windows image builder', {
+  architecture: Architecture.X86_64,
+  os: Os.WINDOWS,
+  runnerVersion: RunnerVersion.specific('2.291.0'),
+  rebuildInterval: Duration.days(14),    
+});
+myWindowsBuilder.addComponent(new ImageBuilderComponent(this, 'Ninja Component',
+  {
+    displayName: 'Ninja',
+    description: 'Download and install Ninja build system',
+    platform: 'Windows',
+    commands: [
+      'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-win.zip" -OutFile ninja.zip',
+      'Expand-Archive ninja.zip -DestinationPath C:\\actions',
+      'del ninja.zip',
+    ],
+  }
+));
+
+const myProvider = new FargateRunner(this, 'fargate runner', {
+  label: 'customized-windows-fargate',
+  vpc: vpc,
+  securityGroup: runnerSg,
+  imageBuiler: myWindowsBuilder,
+});
+
+// create the runner infrastructure
+new GitHubRunners(stack, 'runners', {
+  providers: [myProvider],
+});
 ```
 
 ## Architecture
