@@ -278,7 +278,7 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
         detail: {
           'action-type': ['PUSH'],
           'repository-name': [image.imageRepository.repositoryName],
-          'image-tag': ['latest'],
+          'image-tag': [image.imageTag],
           'result': ['SUCCESS'],
         },
       },
