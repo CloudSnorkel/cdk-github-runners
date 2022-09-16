@@ -103,6 +103,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
       },
     },
   },
+  pullRequestTemplate: false,
 });
 
 // disable automatic releases, but keep workflow that can be triggered manually
