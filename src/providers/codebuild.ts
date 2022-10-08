@@ -164,7 +164,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
         },
         build: {
           commands: [
-            'sudo -Hu runner /home/runner/run.sh',
+            'sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh',
           ],
         },
       },
