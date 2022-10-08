@@ -67,7 +67,9 @@ jobs:
       - name: git
         run: git --version
       - name: aws
-        run: aws --version
+        run: |
+          aws --version
+          aws sts get-caller-identity
       - name: gh
         run: gh --version
       - name: docker
@@ -115,7 +117,9 @@ jobs:
       - name: git
         run: git --version
       - name: aws
-        run: aws --version
+        run: |
+          aws --version
+          aws sts get-caller-identity
       - name: gh
         run: gh --version
       - name: docker
