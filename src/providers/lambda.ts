@@ -240,21 +240,9 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
     // Lambda needs to be pointing to a specific image digest and not just a tag.
     // Whenever we update the tag to a new digest, we need to update the lambda.
 
-    let stack = cdk.Stack.of(this);
-
     const updater = BundledNodejsFunction.singleton(this, 'update-lambda', {
       description: 'Function that updates a GitHub Actions runner function with the latest image digest after the image has been rebuilt',
-      timeout: cdk.Duration.seconds(30),
-      initialPolicy: [
-        new iam.PolicyStatement({
-          actions: ['cloudformation:DescribeStacks'],
-          resources: [stack.formatArn({
-            service: 'cloudformation',
-            resource: 'stack',
-            resourceName: `${stack.stackName}/*`,
-          })],
-        }),
-      ],
+      timeout: cdk.Duration.minutes(15),
     });
 
     updater.addToRolePolicy(new iam.PolicyStatement({
@@ -267,7 +255,6 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
         lambdaName: this.function.functionName,
         repositoryUri: image.imageRepository.repositoryUri,
         repositoryTag: image.imageTag,
-        stackName: stack.stackName,
       }),
     });
 

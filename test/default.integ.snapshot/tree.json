@@ -2513,7 +2513,7 @@
                                           "Name"
                                         ]
                                       },
-                                      "\",\"repositoryTag\":\"latest\",\"stackName\":\"github-runners-test\"}"
+                                      "\",\"repositoryTag\":\"latest\"}"
                                     ]
                                   ]
                                 }
@@ -6563,30 +6563,6 @@
                             "policyDocument": {
                               "Statement": [
                                 {
-                                  "Action": "cloudformation:DescribeStacks",
-                                  "Effect": "Allow",
-                                  "Resource": {
-                                    "Fn::Join": [
-                                      "",
-                                      [
-                                        "arn:",
-                                        {
-                                          "Ref": "AWS::Partition"
-                                        },
-                                        ":cloudformation:",
-                                        {
-                                          "Ref": "AWS::Region"
-                                        },
-                                        ":",
-                                        {
-                                          "Ref": "AWS::AccountId"
-                                        },
-                                        ":stack/github-runners-test/*"
-                                      ]
-                                    ]
-                                  }
-                                },
-                                {
                                   "Action": "lambda:UpdateFunctionCode",
                                   "Effect": "Allow",
                                   "Resource": {
@@ -6670,7 +6646,7 @@
                       "s3Bucket": {
                         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                       },
-                      "s3Key": "35c99ca05f12b61868c715d657cd142b535de141a93e018fd30f8198753d147e.zip"
+                      "s3Key": "5bcb879a94b528d7a4ef5174a300894097368a4e7b02894f699e036231feee1e.zip"
                     },
                     "role": {
                       "Fn::GetAtt": [
@@ -6686,7 +6662,7 @@
                     },
                     "handler": "index.handler",
                     "runtime": "nodejs14.x",
-                    "timeout": 30
+                    "timeout": 900
                   }
                 },
                 "constructInfo": {
@@ -7501,7 +7477,7 @@
                                           "Name"
                                         ]
                                       },
-                                      "\",\"repositoryTag\":\"latest\",\"stackName\":\"github-runners-test\"}"
+                                      "\",\"repositoryTag\":\"latest\"}"
                                     ]
                                   ]
                                 }

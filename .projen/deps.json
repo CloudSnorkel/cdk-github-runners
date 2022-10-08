@@ -1,6 +1,10 @@
 {
   "dependencies": [
     {
+      "name": "@aws-sdk/client-lambda",
+      "type": "build"
+    },
+    {
       "name": "@aws-sdk/types",
       "type": "build"
     },

@@ -1773,7 +1773,7 @@
            "Name"
           ]
          },
-         "\",\"repositoryTag\":\"latest\",\"stackName\":\"github-runners-test\"}"
+         "\",\"repositoryTag\":\"latest\"}"
         ]
        ]
       }
@@ -4745,30 +4745,6 @@
     "PolicyDocument": {
      "Statement": [
       {
-       "Action": "cloudformation:DescribeStacks",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::Join": [
-         "",
-         [
-          "arn:",
-          {
-           "Ref": "AWS::Partition"
-          },
-          ":cloudformation:",
-          {
-           "Ref": "AWS::Region"
-          },
-          ":",
-          {
-           "Ref": "AWS::AccountId"
-          },
-          ":stack/github-runners-test/*"
-         ]
-        ]
-       }
-      },
-      {
        "Action": "lambda:UpdateFunctionCode",
        "Effect": "Allow",
        "Resource": {
@@ -4806,7 +4782,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "35c99ca05f12b61868c715d657cd142b535de141a93e018fd30f8198753d147e.zip"
+     "S3Key": "5bcb879a94b528d7a4ef5174a300894097368a4e7b02894f699e036231feee1e.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -4822,7 +4798,7 @@
     },
     "Handler": "index.handler",
     "Runtime": "nodejs14.x",
-    "Timeout": 30
+    "Timeout": 900
    },
    "DependsOn": [
     "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy1EF644A6",
@@ -5436,7 +5412,7 @@
            "Name"
           ]
          },
-         "\",\"repositoryTag\":\"latest\",\"stackName\":\"github-runners-test\"}"
+         "\",\"repositoryTag\":\"latest\"}"
         ]
        ]
       }
