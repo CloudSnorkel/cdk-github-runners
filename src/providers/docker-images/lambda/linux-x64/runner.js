@@ -4,6 +4,7 @@ exports.handler = async (event, context) => {
   await new Promise((resolve, reject) => {
     const shellScript = exec('sh runner.sh', {
       env: {
+        ...process.env,
         OWNER: event.owner,
         REPO: event.repo,
         GITHUB_DOMAIN: event.githubDomain,
