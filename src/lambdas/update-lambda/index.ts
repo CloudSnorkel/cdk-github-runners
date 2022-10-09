@@ -1,7 +1,7 @@
 /* eslint-disable-next-line import/no-extraneous-dependencies */
-import * as AWS from 'aws-sdk';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { ResourceConflictException } from '@aws-sdk/client-lambda';
+/* eslint-disable-next-line import/no-extraneous-dependencies */
+import * as AWS from 'aws-sdk';
 
 const lambda = new AWS.Lambda();
 
