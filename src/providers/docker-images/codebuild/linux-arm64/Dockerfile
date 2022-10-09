@@ -55,6 +55,7 @@ RUN curl -fsSL "https://download.docker.com/linux/static/${DOCKER_CHANNEL}/aarch
     curl -fsSL "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind" -o /usr/local/bin/dind && \
     curl -fsSL https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-linux-aarch64 -o /usr/local/bin/docker-compose && \
     mkdir -p /home/runner/.docker/cli-plugins && ln -s /usr/local/bin/docker-compose /home/runner/.docker/cli-plugins/docker-compose && \
+    chown -R runner /home/runner/.docker && \
     chmod +x /usr/local/bin/dind /usr/local/bin/docker-compose && \
     addgroup docker && usermod -aG docker runner
 
