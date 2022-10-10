@@ -21,16 +21,6 @@ export interface FargateRunnerProps extends RunnerProviderProps {
   /**
    * Provider running an image to run inside CodeBuild with GitHub runner pre-configured. A user named `runner` is expected to exist.
    *
-   * The entry point should start GitHub runner. For example:
-   *
-   * ```
-   * #!/bin/bash
-   * set -e -u -o pipefail
-   *
-   * /home/runner/config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" ${RUNNER_FLAGS} --name "${RUNNER_NAME}"
-   * /home/runner/run.sh
-   * ```
-   *
    * @default image builder with `FargateRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
    */
   readonly imageBuilder?: IImageBuilder;
