@@ -21,16 +21,6 @@ export interface FargateRunnerProps extends RunnerProviderProps {
   /**
    * Provider running an image to run inside CodeBuild with GitHub runner pre-configured. A user named `runner` is expected to exist.
    *
-   * The entry point should start GitHub runner. For example:
-   *
-   * ```
-   * #!/bin/bash
-   * set -e -u -o pipefail
-   *
-   * /home/runner/config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --disableupdate --name "${RUNNER_NAME}"
-   * /home/runner/run.sh
-   * ```
-   *
    * @default image builder with `FargateRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
    */
   readonly imageBuilder?: IImageBuilder;
@@ -381,12 +371,12 @@ export class FargateRunner extends Construct implements IRunnerProvider {
     if (this.image.os.is(Os.LINUX)) {
       return [
         'sh', '-c',
-        './config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --disableupdate --name "${RUNNER_NAME}" && ./run.sh',
+        'if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi && ./config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" ${RUNNER_FLAGS} --name "${RUNNER_NAME}" && ./run.sh',
       ];
     } else if (this.image.os.is(Os.WINDOWS)) {
       return [
         'powershell', '-Command',
-        'cd \\actions ; ./config.cmd --unattended --url "https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL}" --disableupdate --name "${Env:RUNNER_NAME}" ; ./run.cmd',
+        'if (${Env:RUNNER_VERSION} -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ; cd \\actions ; ./config.cmd --unattended --url "https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL}" ${RunnerFlags} --name "${Env:RUNNER_NAME}" ; ./run.cmd',
       ];
     } else {
       throw new Error(`Fargate runner doesn't support ${this.image.os.name}`);

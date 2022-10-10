@@ -2629,16 +2629,6 @@ Provider running an image to run inside CodeBuild with GitHub runner pre-configu
 
 A user named `runner` is expected to exist.
 
-The entry point should start GitHub runner. For example:
-
-```
-#!/bin/bash
-set -e -u -o pipefail
-
-/home/runner/config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --disableupdate --name "${RUNNER_NAME}"
-/home/runner/run.sh
-```
-
 ---
 
 ##### `label`<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.label"></a>

@@ -276,7 +276,7 @@
            {
             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
            },
-           "/f21a107de9aaed0625532057c2f8259320d99d5185adcaece346941d88d04250.zip"
+           "/ff33ef8c42c19a3b1919fad5b849b69b1979dcfaceb2eb58695b4f124e16a818.zip"
           ]
          ]
         }
@@ -523,7 +523,7 @@
         {
          "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
         },
-        "/f21a107de9aaed0625532057c2f8259320d99d5185adcaece346941d88d04250.zip"
+        "/ff33ef8c42c19a3b1919fad5b849b69b1979dcfaceb2eb58695b4f124e16a818.zip"
        ]
       ]
      },
@@ -642,7 +642,7 @@
     "ProjectName": {
      "Ref": "FargatebuilderCodeBuild4F182743"
     },
-    "BuildHash": "84e62f8c69563bae535b19891eb2d8d9"
+    "BuildHash": "8affc8f3de4718144ff0af63bd8dcf5f"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -772,7 +772,7 @@
            {
             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
            },
-           "/c7602b829f7a84e4b86e023a450c177a3e502b09bfabd905df981b666c626443.zip"
+           "/0b985e7436349a499cd2e6551aa8c08f3a42276bfdaf949f98be4d3af2c33de3.zip"
           ]
          ]
         }
@@ -1019,7 +1019,7 @@
         {
          "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
         },
-        "/c7602b829f7a84e4b86e023a450c177a3e502b09bfabd905df981b666c626443.zip"
+        "/0b985e7436349a499cd2e6551aa8c08f3a42276bfdaf949f98be4d3af2c33de3.zip"
        ]
       ]
      },
@@ -1138,7 +1138,7 @@
     "ProjectName": {
      "Ref": "FargatebuilderarmCodeBuild0D30679A"
     },
-    "BuildHash": "2d3997ab554ef29cf77733b310a789cc"
+    "BuildHash": "1171f8fa4f9411bb8697b12c1e9aef43"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -1268,7 +1268,7 @@
            {
             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
            },
-           "/7446727c79e655948a19c286c7344d79c1ab4a7b8906e31ab99cf2190c39ec8b.zip"
+           "/719a3a6918de22e066f2368ac5b23e039f9611031fab1754dfda06eff0c0d6bb.zip"
           ]
          ]
         }
@@ -1515,7 +1515,7 @@
         {
          "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
         },
-        "/7446727c79e655948a19c286c7344d79c1ab4a7b8906e31ab99cf2190c39ec8b.zip"
+        "/719a3a6918de22e066f2368ac5b23e039f9611031fab1754dfda06eff0c0d6bb.zip"
        ]
       ]
      },
@@ -1634,7 +1634,7 @@
     "ProjectName": {
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
-    "BuildHash": "eaa96ce15b72dc85f22384ecc97a4fe3"
+    "BuildHash": "e8d775eac5342969483f58e2360f7988"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -2184,7 +2184,8 @@
         ]
        }
       }
-     ]
+     ],
+     "dockerfileTemplate": "FROM {{{ imagebuilder:parentImage }}}\nENV RUNNER_VERSION=___RUNNER_VERSION___\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2239,7 +2240,7 @@
     "Version": {
      "Ref": "WindowsImageBuilderContainerRecipeVersion13A2E3FD"
     },
-    "DockerfileTemplateData": "FROM {{{ imagebuilder:parentImage }}}\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}"
+    "DockerfileTemplateData": "FROM {{{ imagebuilder:parentImage }}}\nENV RUNNER_VERSION=latest\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}"
    }
   },
   "WindowsImageBuilderLog0E03408E": {
@@ -2637,7 +2638,7 @@
            {
             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
            },
-           "/c4b5dd5601c4f93574b8d50cf9c3535d4790187c10d927aee7b842afa7dd78c0.zip"
+           "/5ddcf0270bec799efcd364faedadaa445365fef56d807626d8708ab83f24f7e2.zip"
           ]
          ]
         }
@@ -2884,7 +2885,7 @@
         {
          "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
         },
-        "/c4b5dd5601c4f93574b8d50cf9c3535d4790187c10d927aee7b842afa7dd78c0.zip"
+        "/5ddcf0270bec799efcd364faedadaa445365fef56d807626d8708ab83f24f7e2.zip"
        ]
       ]
      },
@@ -3003,7 +3004,7 @@
     "ProjectName": {
      "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
     },
-    "BuildHash": "0b4538e9f81f7be565dcc14e8d9262b6"
+    "BuildHash": "bcc37749b240f693243cc0c20ca90945"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -3280,7 +3281,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL}\\\" --disableupdate --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL}\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Cache": {
@@ -3461,7 +3462,7 @@
            {
             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
            },
-           "/a4439209261897e0fdef1079c134580fe74403f8f7f6254638ffa5ddc456e0a2.zip"
+           "/b26ba58062e07311ed57d94ceb9332e828312745abd3718f2d296206e9ec05c2.zip"
           ]
          ]
         }
@@ -3708,7 +3709,7 @@
         {
          "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
         },
-        "/a4439209261897e0fdef1079c134580fe74403f8f7f6254638ffa5ddc456e0a2.zip"
+        "/b26ba58062e07311ed57d94ceb9332e828312745abd3718f2d296206e9ec05c2.zip"
        ]
       ]
      },
@@ -3827,7 +3828,7 @@
     "ProjectName": {
      "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
     },
-    "BuildHash": "47a14734b6c82106bf93065189b63919"
+    "BuildHash": "3d283b75287ed60448084cdac876d376"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -4104,7 +4105,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL}\\\" --disableupdate --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL}\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Cache": {
@@ -4392,7 +4393,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"./config.cmd --unattended --url \\\"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\\\" --token \\\"${Env:RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${Env:RUNNER_LABEL}\\\" --disableupdate --name \\\"${Env:RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"./run.cmd\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"if (${Env:RUNNER_VERSION} -eq \\\"latest\\\") { $RunnerFlags = \\\"\\\" } else { $RunnerFlags = \\\"--disableupdate\\\" }\",\n        \"./config.cmd --unattended --url \\\"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\\\" --token \\\"${Env:RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${Env:RUNNER_LABEL}\\\" ${RunnerFlags} --name \\\"${Env:RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"./run.cmd\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Cache": {
@@ -4907,7 +4908,7 @@
            {
             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
            },
-           "/d5545963484b1928f0ce61ce92cbf507d5c906258787f5d1c662525f5b02f03a.zip"
+           "/fd74efb11a23e888bfdda26033271f933286246b5b17741e787125a962a76dcc.zip"
           ]
          ]
         }
@@ -5154,7 +5155,7 @@
         {
          "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
         },
-        "/d5545963484b1928f0ce61ce92cbf507d5c906258787f5d1c662525f5b02f03a.zip"
+        "/fd74efb11a23e888bfdda26033271f933286246b5b17741e787125a962a76dcc.zip"
        ]
       ]
      },
@@ -5273,7 +5274,7 @@
     "ProjectName": {
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
-    "BuildHash": "89d0e063b61fa8205d0feded9ad0a71a"
+    "BuildHash": "ebec5b5647daac71caebd61e9fb48bb5"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -5700,7 +5701,7 @@
       "Command": [
        "sh",
        "-c",
-       "./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" --disableupdate --name \"${RUNNER_NAME}\" && ./run.sh"
+       "if [ \"${RUNNER_VERSION}\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi && ./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" ${RUNNER_FLAGS} --name \"${RUNNER_NAME}\" && ./run.sh"
       ],
       "Essential": true,
       "Image": {
@@ -5903,7 +5904,7 @@
       "Command": [
        "sh",
        "-c",
-       "./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" --disableupdate --name \"${RUNNER_NAME}\" && ./run.sh"
+       "if [ \"${RUNNER_VERSION}\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi && ./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" ${RUNNER_FLAGS} --name \"${RUNNER_NAME}\" && ./run.sh"
       ],
       "Essential": true,
       "Image": {
@@ -6106,7 +6107,7 @@
       "Command": [
        "sh",
        "-c",
-       "./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" --disableupdate --name \"${RUNNER_NAME}\" && ./run.sh"
+       "if [ \"${RUNNER_VERSION}\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi && ./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" ${RUNNER_FLAGS} --name \"${RUNNER_NAME}\" && ./run.sh"
       ],
       "Essential": true,
       "Image": {
@@ -6309,7 +6310,7 @@
       "Command": [
        "sh",
        "-c",
-       "./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" --disableupdate --name \"${RUNNER_NAME}\" && ./run.sh"
+       "if [ \"${RUNNER_VERSION}\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi && ./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" ${RUNNER_FLAGS} --name \"${RUNNER_NAME}\" && ./run.sh"
       ],
       "Essential": true,
       "Image": {
@@ -6512,7 +6513,7 @@
       "Command": [
        "powershell",
        "-Command",
-       "cd \\actions ; ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL}\" --disableupdate --name \"${Env:RUNNER_NAME}\" ; ./run.cmd"
+       "if (${Env:RUNNER_VERSION} -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ; cd \\actions ; ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL}\" ${RunnerFlags} --name \"${Env:RUNNER_NAME}\" ; ./run.cmd"
       ],
       "Essential": true,
       "Image": {

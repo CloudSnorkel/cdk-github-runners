@@ -23,6 +23,7 @@ RUN curl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repo
 
 # add runner without github's api which is rate limited
 ARG RUNNER_VERSION=latest
+ENV RUNNER_VERSION=${RUNNER_VERSION}
 RUN if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_VERSION=`curl  -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest | grep -oE "[^/v]+$"`; fi && \
     curl -fsSLO  "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz" && \
     tar xzf "actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz" && \
