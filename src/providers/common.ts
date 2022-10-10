@@ -147,6 +147,13 @@ export interface RunnerProviderProps {
    * @default logs.RetentionDays.ONE_MONTH
    */
   readonly logRetention?: logs.RetentionDays;
+
+  /**
+   * Whether to add the `--disableupdate` flag to the runner command.
+   *
+   * @default true
+   */
+  readonly disableRunnerUpdate?: boolean;
 }
 
 /**

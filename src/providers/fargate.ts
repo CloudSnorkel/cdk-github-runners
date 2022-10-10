@@ -314,7 +314,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
           }),
           streamPrefix: 'runner',
         }),
-        command: this.runCommand(),
+        command: this.runCommand(props.disableRunnerUpdate),
       },
     );
 
@@ -377,16 +377,17 @@ export class FargateRunner extends Construct implements IRunnerProvider {
     );
   }
 
-  private runCommand(): string[] {
+  private runCommand(disableRunnerUpdate: boolean = true): string[] {
+    const disableUpdateFlag = disableRunnerUpdate ? '--disableupdate' : '';
     if (this.image.os.is(Os.LINUX)) {
       return [
         'sh', '-c',
-        './config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --disableupdate --name "${RUNNER_NAME}" && ./run.sh',
+        `./config.sh --unattended --url "https://$\{GITHUB_DOMAIN}/$\{OWNER}/$\{REPO}" --token "$\{RUNNER_TOKEN}" --ephemeral --work _work --labels "$\{RUNNER_LABEL}" ${disableUpdateFlag} --name "$\{RUNNER_NAME}" && ./run.sh`,
       ];
     } else if (this.image.os.is(Os.WINDOWS)) {
       return [
         'powershell', '-Command',
-        'cd \\actions ; ./config.cmd --unattended --url "https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL}" --disableupdate --name "${Env:RUNNER_NAME}" ; ./run.cmd',
+        `cd \\actions ; ./config.cmd --unattended --url "https://$\{Env:GITHUB_DOMAIN}/$\{Env:OWNER}/$\{Env:REPO}" --token "$\{Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "$\{Env:RUNNER_LABEL}" ${disableUpdateFlag} --name "$\{Env:RUNNER_NAME}" ; ./run.cmd`,
       ];
     } else {
       throw new Error(`Fargate runner doesn't support ${this.image.os.name}`);
