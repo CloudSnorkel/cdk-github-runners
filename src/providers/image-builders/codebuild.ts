@@ -482,6 +482,8 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
     }
     // buildspec.yml version
     components.push(`v${CodeBuildImageBuilder.BUILDSPEC_VERSION}`);
+    // runner version
+    components.push(this.props.runnerVersion?.version ?? RunnerVersion.latest().version);
     // user commands
     components = components.concat(this.preBuild);
     components = components.concat(this.postBuild);
