@@ -18,6 +18,7 @@ import { BundledNodejsFunction } from '../../utils';
 import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
 
 const dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
+ENV RUNNER_VERSION=___RUNNER_VERSION___
 {{{ imagebuilder:environments }}}
 {{{ imagebuilder:components }}}`;
 
@@ -335,6 +336,19 @@ interface ContainerRecipeProperties {
    * ECR repository where resulting conatiner image will be uploaded.
    */
   readonly targetRepository: ecr.IRepository;
+
+  /**
+   * Dockerfile template where all the components will be added.
+   *
+   * Must contain at least the following placeholders:
+   *
+   * ```
+   * FROM {{{ imagebuilder:parentImage }}}
+   * {{{ imagebuilder:environments }}}
+   * {{{ imagebuilder:components }}}
+   * ```
+   */
+  readonly dockerfileTemplate: string;
 }
 
 /**
@@ -360,6 +374,7 @@ class ContainerRecipe extends ImageBuilderObjectBase {
       version: this.version('ContainerRecipe', name, {
         platform: props.platform,
         components,
+        dockerfileTemplate,
       }),
       // TODO mcr.microsoft.com/windows/servercore:ltsc2019
       parentImage: 'arn:aws:imagebuilder:us-east-1:aws:image/windows-server-2019-x86-core-ltsc2019-amd64/2020.12.8',
@@ -369,7 +384,7 @@ class ContainerRecipe extends ImageBuilderObjectBase {
         service: 'ECR',
         repositoryName: props.targetRepository.repositoryName,
       },
-      dockerfileTemplateData: dockerfileTemplate,
+      dockerfileTemplateData: props.dockerfileTemplate,
     });
 
     this.arn = recipe.attrArn;
@@ -627,6 +642,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       platform: this.platform,
       components: this.components,
       targetRepository: this.repository,
+      dockerfileTemplate: dockerfileTemplate.replace('___RUNNER_VERSION___', this.runnerVersion.version),
     });
 
     const log = new logs.LogGroup(this, 'Log', {
