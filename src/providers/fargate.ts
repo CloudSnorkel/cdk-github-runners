@@ -40,6 +40,13 @@ export interface FargateRunnerProps extends RunnerProviderProps {
   readonly vpc?: ec2.IVpc;
 
   /**
+   * Subnets to run the runners in.
+   *
+   * @default Fargate default
+   */
+  readonly subnetSelection?: ec2.SubnetSelection;
+
+  /**
    * Security Group to assign to the task.
    *
    * @default a new security group
@@ -202,9 +209,14 @@ export class FargateRunner extends Construct implements IRunnerProvider {
   readonly label: string;
 
   /**
-   * VPC used for hosting the task.
+   * VPC used for hosting the runner task.
    */
   readonly vpc?: ec2.IVpc;
+
+  /**
+   * Subnets used for hosting the runner task.
+   */
+  readonly subnetSelection?: ec2.SubnetSelection;
 
   /**
    * Security group attached to the task.
@@ -212,7 +224,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
   readonly securityGroup?: ec2.ISecurityGroup;
 
   /**
-   * Whether task will have a public IP.
+   * Whether runner task will have a public IP.
    */
   readonly assignPublicIp: boolean;
 
@@ -241,6 +253,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
 
     this.label = props.label ?? 'fargate';
     this.vpc = props.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
+    this.subnetSelection = props.subnetSelection;
     this.securityGroup = props.securityGroup ?? new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc });
     this.connections = this.securityGroup.connections;
     this.assignPublicIp = props.assignPublicIp ?? true;
@@ -330,6 +343,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
           spot: this.spot,
           enableExecute: this.image.os.is(Os.LINUX),
         }),
+        subnets: this.subnetSelection,
         assignPublicIp: this.assignPublicIp,
         securityGroups: this.securityGroup ? [this.securityGroup] : undefined,
         containerOverrides: [
