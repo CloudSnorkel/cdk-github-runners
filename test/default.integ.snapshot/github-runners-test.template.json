@@ -2230,7 +2230,7 @@
     ],
     "ContainerType": "DOCKER",
     "Name": "github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
-    "ParentImage": "arn:aws:imagebuilder:us-east-1:aws:image/windows-server-2019-x86-core-ltsc2019-amd64/2020.12.8",
+    "ParentImage": "mcr.microsoft.com/windows/servercore:ltsc2019-amd64",
     "TargetRepository": {
      "RepositoryName": {
       "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
