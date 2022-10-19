@@ -41,6 +41,13 @@ export interface ContainerImageBuilderProps {
   readonly os?: Os;
 
   /**
+   * Parent image for the new Docker Image. You can use either Image Builder image ARN or public registry image.
+   *
+   * @default 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64'
+   */
+  readonly parentImage?: string;
+
+  /**
    * Version of GitHub Runners to install.
    *
    * @default latest version available
@@ -333,7 +340,7 @@ interface ContainerRecipeProperties {
   readonly components: ImageBuilderComponent[];
 
   /**
-   * ECR repository where resulting conatiner image will be uploaded.
+   * ECR repository where resulting container image will be uploaded.
    */
   readonly targetRepository: ecr.IRepository;
 
@@ -349,6 +356,13 @@ interface ContainerRecipeProperties {
    * ```
    */
   readonly dockerfileTemplate: string;
+
+  /**
+   * Parent image for the new Docker Image.
+   *
+   * @default 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64'
+   */
+  readonly parentImage?: string;
 }
 
 /**
@@ -376,8 +390,7 @@ class ContainerRecipe extends ImageBuilderObjectBase {
         components,
         dockerfileTemplate,
       }),
-      // TODO mcr.microsoft.com/windows/servercore:ltsc2019
-      parentImage: 'arn:aws:imagebuilder:us-east-1:aws:image/windows-server-2019-x86-core-ltsc2019-amd64/2020.12.8',
+      parentImage: props.parentImage ?? 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64',
       components,
       containerType: 'DOCKER',
       targetRepository: {
@@ -425,6 +438,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
 
   readonly repository: ecr.IRepository;
   private components: ImageBuilderComponent[] = [];
+  private parentImage: string | undefined;
   private boundImage?: RunnerImage;
 
   readonly subnetId: string | undefined;
@@ -449,6 +463,8 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     } else {
       throw new Error(`Unsupported OS: ${this.os}. Consider CodeBuild for faster image builds.`);
     }
+
+    this.parentImage = props?.parentImage;
 
     // set builder options
     this.rebuildInterval = props?.rebuildInterval ?? Duration.days(7);
@@ -643,6 +659,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       components: this.components,
       targetRepository: this.repository,
       dockerfileTemplate: dockerfileTemplate.replace('___RUNNER_VERSION___', this.runnerVersion.version),
+      parentImage: this.parentImage,
     });
 
     const log = new logs.LogGroup(this, 'Log', {
