@@ -2360,6 +2360,7 @@ const containerImageBuilderProps: ContainerImageBuilderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.logRemovalPolicy">logRemovalPolicy</a></code> | <code>aws-cdk-lib.RemovalPolicy</code> | Removal policy for logs of image builds. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.os">os</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Image OS. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.parentImage">parentImage</a></code> | <code>string</code> | Parent image for the new Docker Image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.rebuildInterval">rebuildInterval</a></code> | <code>aws-cdk-lib.Duration</code> | Schedule the image to be rebuilt every given interval. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.runnerVersion">runnerVersion</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion">RunnerVersion</a></code> | Version of GitHub Runners to install. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to this instance. |
@@ -2438,6 +2439,21 @@ public readonly os: Os;
 - *Default:* OS.LINUX
 
 Image OS.
+
+---
+
+##### `parentImage`<sup>Optional</sup> <a name="parentImage" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.parentImage"></a>
+
+```typescript
+public readonly parentImage: string;
+```
+
+- *Type:* string
+- *Default:* 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64'
+
+Parent image for the new Docker Image.
+
+You can use either Image Builder image ARN or public registry image.
 
 ---
 
