@@ -13,7 +13,17 @@ import {
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import { BundledNodejsFunction } from '../utils';
-import { Architecture, BaseProvider, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
+import {
+  Architecture,
+  BaseProvider,
+  IImageBuilder,
+  IRunnerProvider,
+  IRunnerProviderStatus,
+  Os,
+  RunnerImage,
+  RunnerProviderProps,
+  RunnerRuntimeParameters,
+} from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 export interface LambdaRunnerProps extends RunnerProviderProps {
@@ -146,7 +156,7 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
   readonly grantPrincipal: iam.IPrincipal;
 
   /**
-   * Docker image used to start Lambda function.
+   * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to Lambda.
    */
   readonly image: RunnerImage;
 
@@ -286,6 +296,23 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
 
     // the event never triggers without this - not sure why
     (rule.node.defaultChild as events.CfnRule).addDeletionOverride('Properties.EventPattern.resources');
+  }
+
+  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
+    this.image.imageRepository.grant(statusFunctionRole, 'ecr:DescribeImages');
+
+    return {
+      type: this.constructor.name,
+      labels: this.labels,
+      vpcArn: this.vpc?.vpcArn,
+      securityGroup: this.securityGroup?.securityGroupId,
+      roleArn: this.function.role?.roleArn,
+      image: {
+        imageRepository: this.image.imageRepository.repositoryUri,
+        imageTag: this.image.imageTag,
+        imageBuilderLogGroup: this.image.logGroup?.logGroupName,
+      },
+    };
   }
 
   private imageDigest(image: RunnerImage, variableSettings: any): string {

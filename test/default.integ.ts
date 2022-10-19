@@ -7,6 +7,8 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_codebuild as codebuild, aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
 import { Architecture, CodeBuildImageBuilder, CodeBuildRunner, ContainerImageBuilder, FargateRunner, GitHubRunners, LambdaRunner, Os } from '../src';
+import { Ec2Runner } from '../src/providers/ec2';
+import { AmiBuilder } from '../src/providers/image-builders/ami';
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
@@ -43,6 +45,7 @@ const windowsImageBuilder = new ContainerImageBuilder(stack, 'Windows Image Buil
   architecture: Architecture.X86_64,
   os: Os.WINDOWS,
 });
+const amiX64Builder = new AmiBuilder(stack, 'AMI Linux Builder');
 new GitHubRunners(stack, 'runners', {
   providers: [
     new CodeBuildRunner(stack, 'CodeBuildx64', {
@@ -122,6 +125,29 @@ new GitHubRunners(stack, 'runners', {
       cluster,
       vpc: cluster.vpc,
       assignPublicIp: true,
+    }),
+    new Ec2Runner(stack, 'EC2 Linux', {
+      labels: ['ec2', 'linux', 'x64'],
+      amiBuilder: amiX64Builder,
+    }),
+    new Ec2Runner(stack, 'EC2 Spot Linux', {
+      labels: ['ec2-spot', 'linux', 'x64'],
+      amiBuilder: amiX64Builder,
+      spot: true,
+    }),
+    new Ec2Runner(stack, 'EC2 Linux arm64', {
+      labels: ['ec2', 'linux', 'arm64'],
+      amiBuilder: new AmiBuilder(stack, 'AMI Linux arm64 Builder', {
+        architecture: Architecture.ARM64,
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
+      }),
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
+    }),
+    new Ec2Runner(stack, 'EC2 Windows', {
+      labels: ['ec2', 'windows', 'x64'],
+      amiBuilder: new AmiBuilder(stack, 'Windows EC2 Builder', {
+        os: Os.WINDOWS,
+      }),
     }),
   ],
 });

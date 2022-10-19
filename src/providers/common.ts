@@ -25,6 +25,15 @@ export class RunnerVersion {
 
   protected constructor(readonly version: string) {
   }
+
+  /**
+   * Check if two versions are the same.
+   *
+   * @param other version to compare
+   */
+  public is(other: RunnerVersion) {
+    return this.version == other.version;
+  }
 }
 
 /**
@@ -53,8 +62,23 @@ export class Architecture {
   *
   * @param arch architecture to compare
   */
-  public is(arch: Architecture) {
+  public is(arch: Architecture): boolean {
     return arch.name == this.name;
+  }
+
+  /**
+   * Checks if a given EC2 instance type matches this architecture.
+   *
+   * @param instanceType instance type to check
+   */
+  public instanceTypeMatch(instanceType: ec2.InstanceType): boolean {
+    if (instanceType.architecture == ec2.InstanceArchitecture.X86_64) {
+      return this.is(Architecture.X86_64);
+    }
+    if (instanceType.architecture == ec2.InstanceArchitecture.ARM_64) {
+      return this.is(Architecture.ARM64);
+    }
+    throw new Error('Unknown instance type architecture');
   }
 }
 
@@ -89,6 +113,9 @@ export class Os {
   }
 }
 
+/**
+ * Description of a Docker image built by {@link IImageBuilder}.
+ */
 export interface RunnerImage {
   /**
    * ECR repository containing the image.
@@ -114,6 +141,11 @@ export interface RunnerImage {
    * Log group where image builds are logged.
    */
   readonly logGroup?: logs.LogGroup;
+
+  /**
+   * Installed runner version.
+   */
+  readonly runnerVersion: RunnerVersion;
 }
 
 /**
@@ -127,13 +159,61 @@ export interface RunnerImage {
  */
 export interface IImageBuilder {
   /**
-   * ECR repository containing the image.
+   * Finalize and return all required information about the Docker image built by this builder.
    *
    * This method can be called multiple times if the image is bound to multiple providers. Make sure you cache the image when implementing or return an error if this builder doesn't support reusing images.
    *
    * @return image
    */
   bind(): RunnerImage;
+}
+
+/**
+ * Description of a AMI built by {@link IAmiBuilder}.
+ */
+export interface RunnerAmi {
+  /**
+   * Launch template pointing to the latest AMI.
+   */
+  readonly launchTemplate: ec2.ILaunchTemplate;
+
+  /**
+   * Architecture of the image.
+   */
+  readonly architecture: Architecture;
+
+  /**
+   * OS type of the image.
+   */
+  readonly os: Os;
+
+  /**
+   * Log group where image builds are logged.
+   */
+  readonly logGroup?: logs.LogGroup;
+
+  /**
+   * Installed runner version.
+   */
+  readonly runnerVersion: RunnerVersion;
+}
+
+/**
+ * Interface for constructs that build an AMI that can be used in {@link IRunnerProvider}.
+ *
+ * Anything that ends up with a launch template pointing to an AMI that runs GitHub self-hosted runners can be used. A simple implementation could even point to an existing AMI and nothing else.
+ *
+ * The AMI can be further updated over time manually or using a schedule as long as it is always written to the same launch template.
+ */
+export interface IAmiBuilder {
+  /**
+   * Finalize and return all required information about the AMI built by this builder.
+   *
+   * This method can be called multiple times if the image is bound to multiple providers. Make sure you cache the image when implementing or return an error if this builder doesn't support reusing images.
+   *
+   * @return ami
+   */
+  bind(): RunnerAmi;
 }
 
 /**
@@ -186,24 +266,73 @@ export interface RunnerRuntimeParameters {
   readonly repoPath: string;
 }
 
-/**
- * Interface for runner image status used by status.json.
- */
 export interface IRunnerImageStatus {
   /**
    * Image repository where runner image is pushed.
    */
-  readonly imageRepository?: string;
+  readonly imageRepository: string;
 
   /**
    * Tag of image that should be used.
    */
-  readonly imageTag?: string;
+  readonly imageTag: string;
 
   /**
    * Log group name for the image builder where history of image builds can be analyzed.
    */
   readonly imageBuilderLogGroup?: string;
+}
+
+export interface IRunnerAmiStatus {
+  /**
+   * Launch template id pointing to the latest AMI.
+   */
+  readonly launchTemplate: string;
+
+  /**
+   * Log group name for the AMI builder where history of builds can be analyzed.
+   */
+  readonly amiBuilderLogGroup?: string;
+}
+
+/**
+ * Interface for runner image status used by status.json.
+ */
+export interface IRunnerProviderStatus {
+  /**
+   * Runner provider type.
+   */
+  readonly type: string;
+
+  /**
+   * Labels associated with provider.
+   */
+  readonly labels: string[];
+
+  /**
+   * VPC where runners will be launched.
+   */
+  readonly vpcArn?: string;
+
+  /**
+   * Security group attached to runners.
+   */
+  readonly securityGroup?: string;
+
+  /**
+   * Role attached to runners.
+   */
+  readonly roleArn?: string;
+
+  /**
+   * Details about Docker image used by this runner provider.
+   */
+  readonly image?: IRunnerImageStatus;
+
+  /**
+   * Details about AMI used by this runner provider.
+   */
+  readonly ami?: IRunnerAmiStatus;
 }
 
 /**
@@ -230,11 +359,6 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
   readonly securityGroup?: ec2.ISecurityGroup;
 
   /**
-   * Image used to create a new resource compute. Can be Docker image, AMI, or something else.
-   */
-  readonly image: RunnerImage;
-
-  /**
    * Generate step function tasks that execute the runner.
    *
    * Called by GithubRunners and shouldn't be called manually.
@@ -242,6 +366,21 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
    * @param parameters specific build parameters
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable;
+
+  /**
+   * An optional method that modifies the state machine after all the tasks have been generated. This can be used to add additional policy statements
+   * to the state machine role.
+   *
+   * @param stateMachineRole role for the state machine that executes the task returned from {@link getStepFunctionTask}.
+   */
+  grantStateMachine?(stateMachineRole: iam.IGrantable): void;
+
+  /**
+   * Return status of the runner provider to be used in the main status function. Also gives the status function any needed permissions to query the Docker image or AMI.
+   *
+   * @param statusFunctionRole grantable for the status function
+   */
+  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus;
 }
 
 /**

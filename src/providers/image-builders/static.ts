@@ -1,7 +1,7 @@
 import { aws_ecr as ecr } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CodeBuildRunner } from '../codebuild';
-import { Architecture, IImageBuilder, Os, RunnerImage } from '../common';
+import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
 import { CodeBuildImageBuilder } from './codebuild';
 
 /**
@@ -24,6 +24,7 @@ export class StaticRunnerImage {
           imageTag: tag,
           architecture,
           os,
+          runnerVersion: RunnerVersion.latest(),
         };
       },
     };

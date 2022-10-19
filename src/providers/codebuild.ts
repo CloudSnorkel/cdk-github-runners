@@ -13,7 +13,17 @@ import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
-import { Architecture, BaseProvider, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
+import {
+  Architecture,
+  BaseProvider,
+  IImageBuilder,
+  IRunnerProvider,
+  IRunnerProviderStatus,
+  Os,
+  RunnerImage,
+  RunnerProviderProps,
+  RunnerRuntimeParameters,
+} from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 
@@ -143,7 +153,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
   readonly grantPrincipal: iam.IPrincipal;
 
   /**
-   * Docker image in CodeBuild project.
+   * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to CodeBuild.
    */
   readonly image: RunnerImage;
 
@@ -295,6 +305,23 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
         },
       },
     );
+  }
+
+  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
+    this.image.imageRepository.grant(statusFunctionRole, 'ecr:DescribeImages');
+
+    return {
+      type: this.constructor.name,
+      labels: this.labels,
+      vpcArn: this.vpc?.vpcArn,
+      securityGroup: this.securityGroup?.securityGroupId,
+      roleArn: this.project.role?.roleArn,
+      image: {
+        imageRepository: this.image.imageRepository.repositoryUri,
+        imageTag: this.image.imageTag,
+        imageBuilderLogGroup: this.image.logGroup?.logGroupName,
+      },
+    };
   }
 
   /**

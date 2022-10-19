@@ -1,33 +1,25 @@
 import * as cdk from 'aws-cdk-lib';
 import {
   aws_ec2 as ec2,
-  aws_ecr as ecr,
   aws_events as events,
   aws_iam as iam,
   aws_imagebuilder as imagebuilder,
   aws_logs as logs,
   aws_s3_assets as s3_assets,
-  CustomResource,
   Duration,
   RemovalPolicy,
   Stack,
 } from 'aws-cdk-lib';
-import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { Construct } from 'constructs';
-import { BundledNodejsFunction } from '../../utils';
-import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
+import { Architecture, IAmiBuilder, Os, RunnerAmi, RunnerVersion } from '../common';
 import { ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
+import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
 
-const dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
-ENV RUNNER_VERSION=___RUNNER_VERSION___
-{{{ imagebuilder:environments }}}
-{{{ imagebuilder:components }}}`;
-
 /**
- * Properties for ContainerImageBuilder construct.
+ * Properties for AmiBuilder construct.
  */
-export interface ContainerImageBuilderProps {
+export interface AmiBuilderProps {
   /**
    * Image architecture.
    *
@@ -41,13 +33,6 @@ export interface ContainerImageBuilderProps {
    * @default OS.LINUX
    */
   readonly os?: Os;
-
-  /**
-   * Parent image for the new Docker Image. You can use either Image Builder image ARN or public registry image.
-   *
-   * @default 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64'
-   */
-  readonly parentImage?: string;
 
   /**
    * Version of GitHub Runners to install.
@@ -113,53 +98,33 @@ export interface ContainerImageBuilderProps {
 }
 
 /**
- * Properties for ContainerRecipe construct.
+ * Properties for AmiRecipe construct.
  */
-interface ContainerRecipeProperties {
+interface AmiRecipeProperties {
   /**
    * Target platform. Must match builder platform.
    */
   readonly platform: 'Linux' | 'Windows';
 
   /**
+   * Target architecture. Must match builder platform.
+   */
+  readonly architecture: Architecture;
+
+  /**
    * Components to add to target container image.
    */
   readonly components: ImageBuilderComponent[];
-
-  /**
-   * ECR repository where resulting container image will be uploaded.
-   */
-  readonly targetRepository: ecr.IRepository;
-
-  /**
-   * Dockerfile template where all the components will be added.
-   *
-   * Must contain at least the following placeholders:
-   *
-   * ```
-   * FROM {{{ imagebuilder:parentImage }}}
-   * {{{ imagebuilder:environments }}}
-   * {{{ imagebuilder:components }}}
-   * ```
-   */
-  readonly dockerfileTemplate: string;
-
-  /**
-   * Parent image for the new Docker Image.
-   *
-   * @default 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64'
-   */
-  readonly parentImage?: string;
 }
 
 /**
- * Image builder recipe for a Docker container image.
+ * Image builder recipe for Amazon Machine Image (AMI).
  */
-class ContainerRecipe extends ImageBuilderObjectBase {
+class AmiRecipe extends ImageBuilderObjectBase {
   public readonly arn: string;
   public readonly name: string;
 
-  constructor(scope: Construct, id: string, props: ContainerRecipeProperties) {
+  constructor(scope: Construct, id: string, props: AmiRecipeProperties) {
     super(scope, id);
 
     const name = uniqueImageBuilderName(this);
@@ -170,21 +135,41 @@ class ContainerRecipe extends ImageBuilderObjectBase {
       };
     });
 
-    const recipe = new imagebuilder.CfnContainerRecipe(this, 'Recipe', {
+    let parentAmi;
+    let workingDirectory;
+    if (props.platform == 'Linux') {
+      let archUrl;
+      if (props.architecture.is(Architecture.X86_64)) {
+        archUrl = 'amd64';
+      } else if (props.architecture.is(Architecture.ARM64)) {
+        archUrl ='arm64';
+      } else {
+        throw new Error(`Unsupported architecture for parent AMI: ${props.architecture.name}`);
+      }
+      parentAmi = ec2.MachineImage.fromSsmParameter(
+        `/aws/service/canonical/ubuntu/server/focal/stable/current/${archUrl}/hvm/ebs-gp2/ami-id`,
+        {
+          os: ec2.OperatingSystemType.LINUX,
+        },
+      ).getImage(this).imageId;
+      workingDirectory = '/home/runner';
+    } else if (props.platform == 'Windows') {
+      parentAmi = ec2.MachineImage.latestWindows(ec2.WindowsVersion.WINDOWS_SERVER_2022_ENGLISH_FULL_CONTAINERSLATEST).getImage(this).imageId;
+      // workingDirectory = 'C:/Users/Administrator/Documents'; // must exist or Image Builder fails
+      workingDirectory = 'C:/'; // must exist or Image Builder fails and must not be empty or git will stall installing from the default windows\system32
+    } else {
+      throw new Error(`Unsupported AMI recipe platform: ${props.platform}`);
+    }
+
+    const recipe = new imagebuilder.CfnImageRecipe(this, 'Recipe', {
       name: name,
-      version: this.version('ContainerRecipe', name, {
+      version: this.version('ImageRecipe', name, {
         platform: props.platform,
         components,
-        dockerfileTemplate,
       }),
-      parentImage: props.parentImage ?? 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64',
+      parentImage: parentAmi,
       components,
-      containerType: 'DOCKER',
-      targetRepository: {
-        service: 'ECR',
-        repositoryName: props.targetRepository.repositoryName,
-      },
-      dockerfileTemplateData: props.dockerfileTemplate,
+      workingDirectory,
     });
 
     this.arn = recipe.attrArn;
@@ -193,28 +178,26 @@ class ContainerRecipe extends ImageBuilderObjectBase {
 }
 
 /**
- * An image builder that uses AWS Image Builder to build Docker images pre-baked with all the GitHub Actions runner requirements. Builders can be used with runner providers.
+ * An AMI builder that uses AWS Image Builder to build Docker images pre-baked with all the GitHub Actions runner requirements. Builders can be used with runner providers.
  *
- * The CodeBuild builder is better and faster. Only use this one if you have no choice. For example, if you need Windows containers.
+ * Each builder re-runs automatically at a set interval to make sure the AMIs contain the latest versions of everything.
  *
- * Each builder re-runs automatically at a set interval to make sure the images contain the latest versions of everything.
- *
- * You can create an instance of this construct to customize the image used to spin-up runners. Some runner providers may require custom components. Check the runner provider documentation. The default components work with CodeBuild and Fargate.
+ * You can create an instance of this construct to customize the AMI used to spin-up runners. Some runner providers may require custom components. Check the runner provider documentation.
  *
  * For example, to set a specific runner version, rebuild the image every 2 weeks, and add a few packages for the Fargate provider, use:
  *
  * ```
- * const builder = new ContainerImageBuilder(this, 'Builder', {
+ * const builder = new AmiBuilder(this, 'Builder', {
  *     runnerVersion: RunnerVersion.specific('2.293.0'),
  *     rebuildInterval: Duration.days(14),
  * });
- * new CodeBuildRunner(this, 'CodeBuild provider', {
- *     label: 'custom-codebuild',
- *     imageBuilder: builder,
+ * new Ec2Runner(this, 'EC2 provider', {
+ *     label: 'custom-ec2',
+ *     amiBuilder: builder,
  * });
  * ```
  */
-export class ContainerImageBuilder extends Construct implements IImageBuilder {
+export class AmiBuilder extends Construct implements IAmiBuilder {
   readonly architecture: Architecture;
   readonly os: Os;
   readonly platform: 'Windows' | 'Linux';
@@ -223,35 +206,33 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
 
   readonly runnerVersion: RunnerVersion;
 
-  readonly repository: ecr.IRepository;
   private components: ImageBuilderComponent[] = [];
-  private parentImage: string | undefined;
-  private boundImage?: RunnerImage;
+  private boundAmi?: RunnerAmi;
 
   readonly subnetId: string | undefined;
   readonly securityGroupIds: string[] | undefined;
-  readonly instanceTypes: string[];
+  readonly instanceType: ec2.InstanceType;
   readonly rebuildInterval: Duration;
   readonly logRetention: logs.RetentionDays;
   readonly logRemovalPolicy: cdk.RemovalPolicy;
 
-  constructor(scope: Construct, id: string, props?: ContainerImageBuilderProps) {
+  constructor(scope: Construct, id: string, props?: AmiBuilderProps) {
     super(scope, id);
 
     // set platform
     this.architecture = props?.architecture ?? Architecture.X86_64;
-    if (!this.architecture.is(Architecture.X86_64)) {
+    if (!this.architecture.is(Architecture.X86_64) && !this.architecture.is(Architecture.ARM64)) {
       throw new Error(`Unsupported architecture: ${this.architecture.name}. Consider CodeBuild for faster image builds.`);
     }
 
     this.os = props?.os ?? Os.LINUX;
     if (this.os.is(Os.WINDOWS)) {
       this.platform = 'Windows';
+    } else if (this.os.is(Os.LINUX)) {
+      this.platform = 'Linux';
     } else {
-      throw new Error(`Unsupported OS: ${this.os.name}. Consider CodeBuild for faster image builds.`);
+      throw new Error(`Unsupported OS: ${this.os.name}.`);
     }
-
-    this.parentImage = props?.parentImage;
 
     // set builder options
     this.rebuildInterval = props?.rebuildInterval ?? Duration.days(7);
@@ -263,9 +244,12 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       this.securityGroupIds = [props.securityGroup.securityGroupId];
     }
 
-    this.instanceTypes = [props?.instanceType?.toString() ?? 'm5.large'];
+    this.instanceType = props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
+    if (!this.architecture.instanceTypeMatch(this.instanceType)) {
+      throw new Error(`Builder architecture (${this.architecture.name}) doesn't match selected instance type (${this.instanceType} / ${this.instanceType.architecture})`);
+    }
 
-    this.description = `Build image for GitHub Actions runner ${this.node.path} (${this.os.name}/${this.architecture.name})`;
+    this.description = `Build AMI for GitHub Actions runner ${this.node.path} (${this.os.name}/${this.architecture.name})`;
 
     this.logRetention = props?.logRetention ?? logs.RetentionDays.ONE_MONTH;
     this.logRemovalPolicy = props?.logRemovalPolicy ?? RemovalPolicy.DESTROY;
@@ -273,29 +257,31 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     // runner version
     this.runnerVersion = props?.runnerVersion ?? RunnerVersion.latest();
 
-    // create repository that only keeps one tag
-    this.repository = new ecr.Repository(this, 'Repository', {
-      imageScanOnPush: true,
-      imageTagMutability: TagMutability.MUTABLE,
-      removalPolicy: RemovalPolicy.DESTROY,
-      lifecycleRules: [
-        {
-          description: 'Remove all but the latest image',
-          tagStatus: TagStatus.ANY,
-          maxImageCount: 1,
-        },
-      ],
-    });
-
     // add all basic components
-    this.addBaseWindowsComponents();
+    if (this.os.is(Os.WINDOWS)) {
+      this.addBaseWindowsComponents();
+    } else if (this.os.is(Os.LINUX)) {
+      this.addBaseLinuxComponents();
+    }
   }
 
   private addBaseWindowsComponents() {
+    this.addComponent(WindowsComponents.cloudwatchAgent(this, 'CloudWatch agent'));
     this.addComponent(WindowsComponents.awsCli(this, 'AWS CLI'));
     this.addComponent(WindowsComponents.githubCli(this, 'GitHub CLI'));
     this.addComponent(WindowsComponents.git(this, 'git'));
     this.addComponent(WindowsComponents.githubRunner(this, 'GitHub Actions Runner', this.runnerVersion));
+    this.addComponent(WindowsComponents.docker(this, 'Docker'));
+  }
+
+  private addBaseLinuxComponents() {
+    this.addComponent(LinuxUbuntuComponents.requiredPackages(this, 'Upgrade packages and install basics', this.architecture));
+    this.addComponent(LinuxUbuntuComponents.runnerUser(this, 'User', this.architecture));
+    this.addComponent(LinuxUbuntuComponents.awsCli(this, 'AWS CLI', this.architecture));
+    this.addComponent(LinuxUbuntuComponents.githubCli(this, 'GitHub CLI', this.architecture));
+    this.addComponent(LinuxUbuntuComponents.git(this, 'git', this.architecture));
+    this.addComponent(LinuxUbuntuComponents.githubRunner(this, 'GitHub Actions Runner', this.runnerVersion, this.architecture));
+    this.addComponent(LinuxUbuntuComponents.docker(this, 'Docker', this.architecture));
   }
 
   /**
@@ -303,8 +289,8 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
    * @param component
    */
   prependComponent(component: ImageBuilderComponent) {
-    if (this.boundImage) {
-      throw new Error('Image is already bound. Use this method before passing the builder to a runner provider.');
+    if (this.boundAmi) {
+      throw new Error('AMI is already bound. Use this method before passing the builder to a runner provider.');
     }
     if (component.platform != this.platform) {
       throw new Error('Component platform doesn\'t match builder platform');
@@ -317,8 +303,8 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
    * @param component
    */
   addComponent(component: ImageBuilderComponent) {
-    if (this.boundImage) {
-      throw new Error('Image is already bound. Use this method before passing the builder to a runner provider.');
+    if (this.boundAmi) {
+      throw new Error('AMI is already bound. Use this method before passing the builder to a runner provider.');
     }
     if (component.platform != this.platform) {
       throw new Error('Component platform doesn\'t match builder platform');
@@ -352,14 +338,16 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
   }
 
   /**
-   * Called by IRunnerProvider to finalize settings and create the image builder.
+   * Called by IRunnerProvider to finalize settings and create the AMIR builder.
    */
-  bind(): RunnerImage {
-    if (this.boundImage) {
-      return this.boundImage;
+  bind(): RunnerAmi {
+    if (this.boundAmi) {
+      return this.boundAmi;
     }
 
     const infra = this.infrastructure();
+
+    const launchTemplate = new ec2.LaunchTemplate(this, 'Launch template');
 
     const dist = new imagebuilder.CfnDistributionConfiguration(this, 'Distribution', {
       name: uniqueImageBuilderName(this),
@@ -367,23 +355,30 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       distributions: [
         {
           region: Stack.of(this).region,
-          containerDistributionConfiguration: {
-            ContainerTags: ['latest'],
-            TargetRepository: {
-              Service: 'ECR',
-              RepositoryName: this.repository.repositoryName,
+          amiDistributionConfiguration: {
+            Name: `${cdk.Names.uniqueResourceName(this, {
+              maxLength: 100,
+              separator: '-',
+              allowedSpecialCharacters: '_-',
+            })}-{{ imagebuilder:buildDate }}`,
+            AmiTags: {
+              'Name': this.node.path,
+              'GitHubRunners:Builder': this.node.path,
             },
           },
+          launchTemplateConfigurations: [
+            {
+              launchTemplateId: launchTemplate.launchTemplateId,
+            },
+          ],
         },
       ],
     });
 
-    const recipe = new ContainerRecipe(this, 'Container Recipe', {
+    const recipe = new AmiRecipe(this, 'Ami Recipe', {
       platform: this.platform,
       components: this.components,
-      targetRepository: this.repository,
-      dockerfileTemplate: dockerfileTemplate.replace('___RUNNER_VERSION___', this.runnerVersion.version),
-      parentImage: this.parentImage,
+      architecture: this.architecture,
     });
 
     const log = new logs.LogGroup(this, 'Log', {
@@ -395,7 +390,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     const image = new imagebuilder.CfnImage(this, 'Image', {
       infrastructureConfigurationArn: infra.attrArn,
       distributionConfigurationArn: dist.attrArn,
-      containerRecipeArn: recipe.arn,
+      imageRecipeArn: recipe.arn,
       imageTestsConfiguration: {
         imageTestsEnabled: false,
       },
@@ -403,7 +398,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     image.node.addDependency(infra);
     image.node.addDependency(log);
 
-    this.imageCleaner(image, recipe.name);
+    // TODO this.imageCleaner(image, recipe.name);
 
     let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
     if (this.rebuildInterval.toDays() > 0) {
@@ -415,7 +410,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     const pipeline = new imagebuilder.CfnImagePipeline(this, 'Pipeline', {
       name: uniqueImageBuilderName(this),
       description: this.description,
-      containerRecipeArn: recipe.arn,
+      imageRecipeArn: recipe.arn,
       infrastructureConfigurationArn: infra.attrArn,
       distributionConfigurationArn: dist.attrArn,
       schedule: scheduleOptions,
@@ -426,22 +421,15 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     pipeline.node.addDependency(infra);
     pipeline.node.addDependency(log);
 
-    this.boundImage = {
-      // There are simpler ways to get the ARN, but we want an image object that depends on the newly built image.
-      // We want whoever is using this image to automatically wait for Image Builder to finish building before using the image.
-      imageRepository: ecr.Repository.fromRepositoryName(
-        this, 'Dependable Image',
-        // we can't use image.attrName because it comes up with upper case
-        cdk.Fn.split(':', cdk.Fn.split('/', image.attrImageUri, 2)[1], 2)[0],
-      ),
-      imageTag: 'latest',
-      os: this.os,
+    this.boundAmi = {
+      launchTemplate: launchTemplate,
       architecture: this.architecture,
+      os: this.os,
       logGroup: log,
       runnerVersion: this.runnerVersion,
     };
 
-    return this.boundImage;
+    return this.boundAmi;
   }
 
   private infrastructure(): imagebuilder.CfnInfrastructureConfiguration {
@@ -449,7 +437,7 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
-        iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilderECRContainerBuilds'),
+        iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilder'),
       ],
     });
 
@@ -462,50 +450,12 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       description: this.description,
       subnetId: this.subnetId,
       securityGroupIds: this.securityGroupIds,
-      instanceTypes: this.instanceTypes,
+      instanceTypes: [this.instanceType.toString()],
       instanceProfileName: new iam.CfnInstanceProfile(this, 'Instance Profile', {
         roles: [
           role.roleName,
         ],
       }).ref,
     });
-  }
-
-  private imageCleaner(image: imagebuilder.CfnImage, recipeName: string) {
-    const crHandler = BundledNodejsFunction.singleton(this, 'build-image', {
-      description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
-      timeout: cdk.Duration.minutes(3),
-    });
-
-    const policy = new iam.Policy(this, 'CR Policy', {
-      statements: [
-        new iam.PolicyStatement({
-          actions: ['ecr:BatchDeleteImage', 'ecr:ListImages'],
-          resources: [this.repository.repositoryArn],
-        }),
-        new iam.PolicyStatement({
-          actions: ['imagebuilder:ListImages', 'imagebuilder:ListImageBuildVersions', 'imagebuilder:DeleteImage'],
-          resources: ['*'], // Image Builder doesn't support scoping this :(
-        }),
-      ],
-    });
-    crHandler.role?.attachInlinePolicy(policy);
-
-    const cr = new CustomResource(this, 'Deleter', {
-      serviceToken: crHandler.functionArn,
-      resourceType: 'Custom::ImageDeleter',
-      properties: {
-        RepoName: this.repository.repositoryName,
-        ImageBuilderName: recipeName, // we don't use image.name because CloudFormation complains if it was deleted already
-        DeleteOnly: true,
-      },
-    });
-
-    // add dependencies to make sure resources are there when we need them
-    cr.node.addDependency(image);
-    cr.node.addDependency(policy);
-    cr.node.addDependency(crHandler);
-
-    return cr;
   }
 }
