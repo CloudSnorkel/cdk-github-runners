@@ -56,10 +56,10 @@ jobs:
           fi
       - run: ls -lah
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - run: ls -lah
       - name: github script
-        uses: actions/github-script@0.3.0
+        uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -106,10 +106,10 @@ jobs:
           }
       - run: ls
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - run: ls
       - name: github script
-        uses: actions/github-script@0.3.0
+        uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
