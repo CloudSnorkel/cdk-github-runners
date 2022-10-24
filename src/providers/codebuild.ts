@@ -30,7 +30,7 @@ export interface CodeBuildRunnerProps extends RunnerProviderProps {
    *
    * @default 'codebuild'
    */
-  readonly label?: string;
+  readonly label?: string | string[];
 
   /**
    * VPC to launch the runners in.
@@ -111,9 +111,9 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
   readonly project: codebuild.Project;
 
   /**
-   * Label associated with this provider.
+   * Labels associated with this provider.
    */
-  readonly label: string;
+  readonly labels: string[];
 
   /**
    * VPC used for hosting the project.
@@ -138,7 +138,10 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
   constructor(scope: Construct, id: string, props: CodeBuildRunnerProps) {
     super(scope, id);
 
-    this.label = props.label ?? 'codebuild';
+    if (props.label? instanceof string) {
+
+    }
+    this.labels = props.label ? (props.label instanceof string ? [props.label] : props.label) : ['codebuild'];
     this.vpc = props.vpc;
     this.securityGroup = props.securityGroup;
 

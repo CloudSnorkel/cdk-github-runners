@@ -116,7 +116,7 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
   /**
    * Label associated with this provider.
    */
-  readonly label: string;
+  readonly label: string | string[];
 
   /**
    * VPC used for hosting the function.

@@ -210,9 +210,9 @@ export interface IRunnerImageStatus {
  */
 export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
   /**
-   * GitHub Actions label associated with this runner provider.
+   * GitHub Actions label associated with this runner provider. All labels must be present for this provider to be chosen.
    */
-  readonly label: string;
+  readonly labels: string[];
 
   /**
    * VPC network in which runners will be placed.
