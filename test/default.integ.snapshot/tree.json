@@ -10093,7 +10093,7 @@
                 "id": "Unknown label",
                 "path": "github-runners-test/runners/Unknown label",
                 "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_stepfunctions.Fail",
+                  "fqn": "aws-cdk-lib.aws_stepfunctions.Succeed",
                   "version": "2.29.0"
                 }
               },
@@ -11111,7 +11111,7 @@
                                   "Arn"
                                 ]
                               },
-                              "\"},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true,\"Next\":\"codebuild-x64\"},{\"Variable\":\"$.labels.codebuild-arm64\",\"IsPresent\":true,\"Next\":\"codebuild-arm64\"},{\"Variable\":\"$.labels.codebuild-windows-x64\",\"IsPresent\":true,\"Next\":\"codebuild-windows-x64\"},{\"Variable\":\"$.labels.lambda-x64\",\"IsPresent\":true,\"Next\":\"lambda-x64\"},{\"Variable\":\"$.labels.lambda-arm64\",\"IsPresent\":true,\"Next\":\"lambda-arm64\"},{\"Variable\":\"$.labels.fargate-x64\",\"IsPresent\":true,\"Next\":\"fargate-x64\"},{\"Variable\":\"$.labels.fargate-x64-spot\",\"IsPresent\":true,\"Next\":\"fargate-x64-spot\"},{\"Variable\":\"$.labels.fargate-arm64\",\"IsPresent\":true,\"Next\":\"fargate-arm64\"},{\"Variable\":\"$.labels.fargate-arm64-spot\",\"IsPresent\":true,\"Next\":\"fargate-arm64-spot\"},{\"Variable\":\"$.labels.fargate-windows-x64\",\"IsPresent\":true,\"Next\":\"fargate-windows-x64\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Fail\"},\"codebuild-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+                              "\"},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true,\"Next\":\"codebuild-x64\"},{\"Variable\":\"$.labels.codebuild-arm64\",\"IsPresent\":true,\"Next\":\"codebuild-arm64\"},{\"Variable\":\"$.labels.codebuild-windows-x64\",\"IsPresent\":true,\"Next\":\"codebuild-windows-x64\"},{\"Variable\":\"$.labels.lambda-x64\",\"IsPresent\":true,\"Next\":\"lambda-x64\"},{\"Variable\":\"$.labels.lambda-arm64\",\"IsPresent\":true,\"Next\":\"lambda-arm64\"},{\"Variable\":\"$.labels.fargate-x64\",\"IsPresent\":true,\"Next\":\"fargate-x64\"},{\"Variable\":\"$.labels.fargate-x64-spot\",\"IsPresent\":true,\"Next\":\"fargate-x64-spot\"},{\"Variable\":\"$.labels.fargate-arm64\",\"IsPresent\":true,\"Next\":\"fargate-arm64\"},{\"Variable\":\"$.labels.fargate-arm64-spot\",\"IsPresent\":true,\"Next\":\"fargate-arm64-spot\"},{\"Variable\":\"$.labels.fargate-windows-x64\",\"IsPresent\":true,\"Next\":\"fargate-windows-x64\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Succeed\"},\"codebuild-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
