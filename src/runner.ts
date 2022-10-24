@@ -221,7 +221,7 @@ export class GitHubRunners extends Construct {
       );
     }
 
-    providerChooser.otherwise(new stepfunctions.Fail(this, 'Unknown label'));
+    providerChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown label'));
 
     const work = tokenRetrieverTask.next(
       new stepfunctions.Parallel(this, 'Error Catcher', { resultPath: '$.result' })
