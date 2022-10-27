@@ -18,34 +18,34 @@ jobs:
             docker: true
           - os: linux
             arch: ARM64
-            label: codebuild-arm64
+            label: codebuild, arm64
             docker: true
           - os: linux
             arch: X64
-            label: lambda-x64
+            label: lambda, x64
             docker: false
           - os: linux
             arch: ARM64
-            label: lambda-arm64
+            label: lambda, arm64
             docker: false
           - os: linux
             arch: X64
-            label: fargate-x64
+            label: fargate, linux, x64
             docker: false
           - os: linux
             arch: ARM64
-            label: fargate-arm64
+            label: fargate, linux, arm64
             docker: false
           - os: linux
             arch: X64
-            label: fargate-x64-spot
+            label: fargate-spot, linux, x64
             docker: false
           - os: linux
             arch: ARM64
-            label: fargate-arm64-spot
+            label: fargate-spot, linux, arm64
             docker: false
 
-    runs-on: [self-hosted, "${{ matrix.os }}", "${{ matrix.arch }}", "${{ matrix.label }}"]
+    runs-on: [self-hosted, "${{ matrix.os }}", "${{ matrix.arch }}", ${{ matrix.label }}]
     steps:
       - run: export
       - name: Check arch
@@ -87,14 +87,14 @@ jobs:
         include:
           - os: windows
             arch: X64
-            label: codebuild-windows-x64
+            label: codebuild, windows, x64
             docker: false
           - os: windows
             arch: X64
-            label: fargate-windows-x64
+            label: fargate, windows, x64
             docker: false
 
-    runs-on: [self-hosted, "${{ matrix.os }}", "${{ matrix.arch }}", "${{ matrix.label }}"]
+    runs-on: [self-hosted, "${{ matrix.os }}", "${{ matrix.arch }}", ${{ matrix.label }}]
     steps:
       - run: |
           Get-ChildItem env:

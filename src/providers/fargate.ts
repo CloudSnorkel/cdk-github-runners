@@ -11,7 +11,7 @@ import {
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
-import { Architecture, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
+import { Architecture, BaseProvider, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 /**
@@ -26,11 +26,11 @@ export interface FargateRunnerProps extends RunnerProviderProps {
   readonly imageBuilder?: IImageBuilder;
 
   /**
-   * GitHub Actions label used for this provider.
+   * GitHub Actions label used for this provider. If multiple labels are specific, a workflow must specify all of them for this provider to be used.
    *
    * @default 'fargate'
    */
-  readonly label?: string;
+  readonly label?: string | string[];
 
   /**
    * VPC to launch the runners in.
@@ -169,7 +169,7 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
-export class FargateRunner extends Construct implements IRunnerProvider {
+export class FargateRunner extends BaseProvider implements IRunnerProvider {
   /**
    * Path to Dockerfile for Linux x64 with all the requirement for Fargate runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
@@ -204,9 +204,9 @@ export class FargateRunner extends Construct implements IRunnerProvider {
   readonly container: ecs.ContainerDefinition;
 
   /**
-   * Label associated with this provider.
+   * Labels associated with this provider.
    */
-  readonly label: string | string[];
+  readonly labels: string[];
 
   /**
    * VPC used for hosting the runner task.
@@ -251,7 +251,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
   constructor(scope: Construct, id: string, props: FargateRunnerProps) {
     super(scope, id);
 
-    this.label = props.label ?? 'fargate';
+    this.labels = this.labelsFromProperties(props.label, 'fargate');
     this.vpc = props.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
     this.subnetSelection = props.subnetSelection;
     this.securityGroup = props.securityGroup ?? new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc });
@@ -334,7 +334,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.EcsRunTask(
       this,
-      this.label,
+      this.labels.join(', '),
       {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,
@@ -360,7 +360,7 @@ export class FargateRunner extends Construct implements IRunnerProvider {
               },
               {
                 name: 'RUNNER_LABEL',
-                value: this.label,
+                value: this.labels.join(','),
               },
               {
                 name: 'GITHUB_DOMAIN',

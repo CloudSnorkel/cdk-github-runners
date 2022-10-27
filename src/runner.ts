@@ -216,7 +216,11 @@ export class GitHubRunners extends Construct {
         },
       );
       providerChooser.when(
-        stepfunctions.Condition.isPresent(`$.labels.${provider.label}`),
+        stepfunctions.Condition.and(
+          ...provider.labels.map(
+            label => stepfunctions.Condition.isPresent(`$.labels.${label}`),
+          ),
+        ),
         providerTask,
       );
     }
@@ -319,7 +323,7 @@ export class GitHubRunners extends Construct {
 
       return {
         type: provider.constructor.name,
-        label: provider.label,
+        labels: provider.labels,
         vpcArn: provider.vpc?.vpcArn,
         securityGroup: provider.securityGroup?.securityGroupId,
         roleArn: (provider.grantPrincipal.grantPrincipal as iam.Role).roleArn,

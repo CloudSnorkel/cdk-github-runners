@@ -1,4 +1,5 @@
 import { aws_ec2 as ec2, aws_ecr as ecr, aws_iam as iam, aws_logs as logs, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
 /**
  * Defines desired GitHub Actions runner version.
@@ -210,7 +211,7 @@ export interface IRunnerImageStatus {
  */
 export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
   /**
-   * GitHub Actions label associated with this runner provider. All labels must be present for this provider to be chosen.
+   * GitHub Actions label associated with this runner provider. All labels must be present for this provider to be chosen and for a runner to be launched.
    */
   readonly labels: string[];
 
@@ -237,4 +238,21 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
    * @param parameters specific build parameters
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable;
+}
+
+/**
+ * Base class for all providers with common methods used by all providers.
+ *
+ * @internal
+ */
+export abstract class BaseProvider extends Construct {
+  protected labelsFromProperties(propsLabel: string | string[] | undefined, defaultLabel: string): string[] {
+    if (typeof propsLabel === 'string') {
+      return [propsLabel];
+    } else if (typeof propsLabel === 'object') {
+      return propsLabel;
+    } else {
+      return [defaultLabel];
+    }
+  }
 }
