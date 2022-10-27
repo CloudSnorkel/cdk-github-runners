@@ -138,7 +138,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
   constructor(scope: Construct, id: string, props: CodeBuildRunnerProps) {
     super(scope, id);
 
-    this.labels = this.labelsFromProperties(props.label, 'codebuild');
+    this.labels = this.labelsFromProperties('codebuild', props.label);
     this.vpc = props.vpc;
     this.securityGroup = props.securityGroup;
 

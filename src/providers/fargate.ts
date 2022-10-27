@@ -251,7 +251,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
   constructor(scope: Construct, id: string, props: FargateRunnerProps) {
     super(scope, id);
 
-    this.labels = this.labelsFromProperties(props.label, 'fargate');
+    this.labels = this.labelsFromProperties('fargate', props.label);
     this.vpc = props.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
     this.subnetSelection = props.subnetSelection;
     this.securityGroup = props.securityGroup ?? new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc });

@@ -141,7 +141,7 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
   constructor(scope: Construct, id: string, props: LambdaRunnerProps) {
     super(scope, id);
 
-    this.labels = this.labelsFromProperties(props.label, 'lambda');
+    this.labels = this.labelsFromProperties('lambda', props.label);
     this.vpc = props.vpc;
     this.securityGroup = props.securityGroup;
 

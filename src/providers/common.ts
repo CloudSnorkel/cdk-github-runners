@@ -246,7 +246,7 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
  * @internal
  */
 export abstract class BaseProvider extends Construct {
-  protected labelsFromProperties(propsLabel: string | string[] | undefined, defaultLabel: string): string[] {
+  protected labelsFromProperties(defaultLabel: string, propsLabel?: string | string[]): string[] {
     if (typeof propsLabel === 'string') {
       return [propsLabel];
     } else if (typeof propsLabel === 'object') {
