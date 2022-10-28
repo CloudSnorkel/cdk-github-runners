@@ -94,7 +94,7 @@ jobs:
             runs-on: [self-hosted, windows, fargate, x64]
             docker: false
 
-    runs-on: ${{ matrix.run-on }}
+    runs-on: ${{ matrix.runs-on }}
     steps:
       - run: |
           Get-ChildItem env:
