@@ -1,0 +1,77 @@
+on:
+  workflow_run:
+    workflows: [build]
+    types: [completed]
+    branches: [github-actions/upgrade-main]
+
+jobs:
+  on-failure:
+    runs-on: ubuntu-latest
+    container:
+      image: jsii/superchain:1-buster-slim-node14
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: main
+      - name: Install dependencies
+        run: yarn install --check-files --frozen-lockfile
+      - name: Snapshot main
+        run: |
+          npm run compile
+          npm run integ:default:snapshot
+      - name: Switch to branch
+        run: git checkout ${{ github.event.workflow_run.head_branch }}
+      - name: Install dependencies
+        run: yarn install --check-files --frozen-lockfile
+      - name: Snapshot branch
+        run: |
+          npm run compile
+          npm run integ:default:snapshot
+      - name: Find mutations
+        id: create_patch
+        run: |-
+          git add .
+          git diff --staged --patch --exit-code > .repo.patch || echo "::set-output name=patch_created::true"
+      # upload snapshot (including assets from both main and branch) for easy diffing
+      - name: Upload snapshot
+        if: steps.create_patch.outputs.patch_created
+        uses: actions/upload-artifact@v2
+        with:
+          name: snapshot
+          path: test/default.integ.snapshot
+      - name: Set git identity
+        if: steps.create_patch.outputs.patch_created
+        run: |-
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+      # create a PR against the dependencies update PR for a proper snapshot
+      - name: Create Pull Request
+        if: steps.create_patch.outputs.patch_created
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.PROJEN_GITHUB_TOKEN }}
+          commit-message: |-
+            chore(deps): upgrade dependencies
+
+            Upgrades snapshot. See details in [workflow run].
+
+            [Workflow Run]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            ------
+
+            *Automatically created by projen via the "upgrade-snapshot" workflow*
+          branch: github-actions/upgrade-snapshot
+          title: "chore(deps): upgrade snapshot for dependencies upgrade"
+          body: |-
+            Upgrades snapshot. See details in [workflow run].
+
+            [Workflow Run]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            ------
+
+            *Automatically created by projen via the "upgrade-snapshot" workflow*
+          author: github-actions <github-actions@github.com>
+          committer: github-actions <github-actions@github.com>
+          signoff: true
