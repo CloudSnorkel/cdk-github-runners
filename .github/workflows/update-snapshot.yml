@@ -1,3 +1,5 @@
+name: Update snapshot
+
 on:
   workflow_run:
     workflows: [build]
@@ -22,7 +24,10 @@ jobs:
           npm run compile
           npm run integ:default:snapshot
       - name: Switch to branch
-        run: git checkout ${{ github.event.workflow_run.head_branch }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          clean: false
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
       - name: Snapshot branch
