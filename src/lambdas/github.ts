@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { createAppAuth } from '@octokit/auth-app';
-import { Octokit } from '@octokit/core';
+import { Octokit } from '@octokit/rest';
 import { getSecretValue, getSecretJsonValue } from './helpers';
 
 export function baseUrlFromDomain(domain: string): string {

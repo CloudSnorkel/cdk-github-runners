@@ -6836,7 +6836,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "3a48f2b55b764c585fa481c83e119860d9d64dd4655fa7ff6e45ae0e94cf91ed.zip"
+     "S3Key": "89fb355a5751903f14f49c4f49a73774f27c2a8caf67ae82f5900bec2207968f.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -6962,7 +6962,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "6e55d76fa08197b5d130bca3a8643a21da2d8e1f74f73aed49e52c25e2a2215c.zip"
+     "S3Key": "ac1208cbebd205ffd017f3b0f80e919958634e61c36f32b78cb3af4e012b9a94.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -8129,14 +8129,21 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-windows-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-windows-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}}}},{\"StartAt\":\"Wait\",\"States\":{\"Wait\":{\"Type\":\"Wait\",\"Seconds\":600,\"Next\":\"Delete Idle Runner\"},\"Delete Idle Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnersdeleterunner7F8D5293",
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"runId.$\":\"$.runId\",\"installationId.$\":\"$.installationId\"}},\"Runner Failed\":{\"Type\":\"Fail\"},\"No\":{\"Type\":\"Succeed\"}}}"
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"runId.$\":\"$.runId\",\"installationId.$\":\"$.installationId\",\"idleOnly\":true}}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       {
+        "Fn::GetAtt": [
+         "runnersdeleterunner7F8D5293",
+         "Arn"
+        ]
+       },
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"runId.$\":\"$.runId\",\"installationId.$\":\"$.installationId\",\"idleOnly\":false}},\"Runner Failed\":{\"Type\":\"Fail\"},\"No\":{\"Type\":\"Succeed\"}}}"
       ]
      ]
     }
@@ -8409,7 +8416,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "548e48d52cf7a8c7b238c646708f1549cb0bb88151b4ffa727612d23a34d0701.zip"
+     "S3Key": "f4a33003d7218cfbd37b7b92b417c1c1e422550c1f612cf8b5c727c8d94d35a3.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -8753,7 +8760,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "e41db675dd3aec882949c6d38560f47559abd70d4961d0afd1af5b0e8b2f5c1e.zip"
+     "S3Key": "94a34b46fc08e3882c9ca0796ed08bdb4041104e97b0838983f29ab8c255c4d7.zip"
     },
     "Role": {
      "Fn::GetAtt": [
