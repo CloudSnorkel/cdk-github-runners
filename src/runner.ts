@@ -75,6 +75,13 @@ export interface GitHubRunnersProps {
    * ```
    */
   readonly extraCertificates?: string;
+
+  /**
+   * Time to wait before stopping a runner that remains idle. If the user cancelled the job, or if another runner stole it, this stops the runner to avoid wasting resources.
+   *
+   * @default 10 minutes
+   */
+  readonly idleTimeout?: cdk.Duration;
 }
 
 /**
@@ -166,7 +173,7 @@ export class GitHubRunners extends Construct {
       ];
     }
 
-    this.orchestrator = this.stateMachine();
+    this.orchestrator = this.stateMachine(props);
     this.webhook = new GithubWebhookHandler(this, 'Webhook Handler', {
       orchestrator: this.orchestrator,
       secrets: this.secrets,
@@ -176,7 +183,7 @@ export class GitHubRunners extends Construct {
     this.statusFunction();
   }
 
-  private stateMachine() {
+  private stateMachine(props?: GitHubRunnersProps) {
     const tokenRetrieverTask = new stepfunctions_tasks.LambdaInvoke(
       this,
       'Get Runner Token',
@@ -187,11 +194,12 @@ export class GitHubRunners extends Construct {
       },
     );
 
+    let deleteRunnerFunction = this.deleteRunner();
     const deleteRunnerTask = new stepfunctions_tasks.LambdaInvoke(
       this,
       'Delete Runner',
       {
-        lambdaFunction: this.deleteRunner(),
+        lambdaFunction: deleteRunnerFunction,
         payloadResponseOnly: true,
         resultPath: '$.delete',
         payload: stepfunctions.TaskInput.fromObject({
@@ -200,6 +208,36 @@ export class GitHubRunners extends Construct {
           repo: stepfunctions.JsonPath.stringAt('$.repo'),
           runId: stepfunctions.JsonPath.stringAt('$.runId'),
           installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
+          idleOnly: false,
+        }),
+      },
+    );
+    deleteRunnerTask.addRetry({
+      errors: [
+        'RunnerBusy',
+      ],
+      interval: cdk.Duration.minutes(1),
+      backoffRate: 1,
+      maxAttempts: 60,
+    });
+
+    const waitForIdleRunner = new stepfunctions.Wait(this, 'Wait', {
+      time: stepfunctions.WaitTime.duration(props?.idleTimeout ?? cdk.Duration.minutes(10)),
+    });
+    const deleteIdleRunnerTask = new stepfunctions_tasks.LambdaInvoke(
+      this,
+      'Delete Idle Runner',
+      {
+        lambdaFunction: deleteRunnerFunction,
+        payloadResponseOnly: true,
+        resultPath: '$.delete',
+        payload: stepfunctions.TaskInput.fromObject({
+          runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+          owner: stepfunctions.JsonPath.stringAt('$.owner'),
+          repo: stepfunctions.JsonPath.stringAt('$.repo'),
+          runId: stepfunctions.JsonPath.stringAt('$.runId'),
+          installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
+          idleOnly: true,
         }),
       },
     );
@@ -226,6 +264,7 @@ export class GitHubRunners extends Construct {
     const work = tokenRetrieverTask.next(
       new stepfunctions.Parallel(this, 'Error Catcher', { resultPath: '$.result' })
         .branch(providerChooser)
+        .branch(waitForIdleRunner.next(deleteIdleRunnerTask))
         .addCatch(
           deleteRunnerTask
             .next(new stepfunctions.Fail(this, 'Runner Failed')),

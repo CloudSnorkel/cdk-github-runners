@@ -1563,7 +1563,7 @@
     deprecation "^2.0.0"
     once "^1.4.0"
 
-"@octokit/request-error@^3.0.0":
+"@octokit/request-error@^3.0.0", "@octokit/request-error@^3.0.2":
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@octokit/request-error/-/request-error-3.0.2.tgz#f74c0f163d19463b87528efe877216c41d6deb0a"
   integrity sha512-WMNOFYrSaX8zXWoJg9u/pKgWPo94JXilMLb2VManNOby9EZxrQaBe/QSC4a1TzpAlpxofg2X/jMnCyZgL6y7eg==

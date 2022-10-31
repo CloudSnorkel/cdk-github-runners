@@ -17,6 +17,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'esbuild', // for faster NodejsFunction bundling
     '@octokit/core',
     '@octokit/auth-app',
+    '@octokit/request-error',
     '@octokit/rest',
     'aws-sdk',
     '@aws-sdk/types',
