@@ -26,11 +26,23 @@ export interface FargateRunnerProps extends RunnerProviderProps {
   readonly imageBuilder?: IImageBuilder;
 
   /**
-   * GitHub Actions label used for this provider. If multiple labels are specific, a workflow must specify all of them for this provider to be used.
+   * GitHub Actions label used for this provider.
    *
-   * @default 'fargate'
+   * @default undefined
+   * @deprecated use {@link labels} instead
    */
-  readonly label?: string | string[];
+  readonly label?: string;
+
+  /**
+   * GitHub Actions labels used for this provider.
+   *
+   * These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+   * based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+   * job's labels, this provider will be chosen and spawn a new runner.
+   *
+   * @default ['fargate']
+   */
+  readonly labels?: string[];
 
   /**
    * VPC to launch the runners in.
@@ -251,7 +263,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
   constructor(scope: Construct, id: string, props: FargateRunnerProps) {
     super(scope, id);
 
-    this.labels = this.labelsFromProperties('fargate', props.label);
+    this.labels = this.labelsFromProperties('fargate', props.label, props.labels);
     this.vpc = props.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
     this.subnetSelection = props.subnetSelection;
     this.securityGroup = props.securityGroup ?? new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc });

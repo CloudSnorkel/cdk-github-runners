@@ -26,11 +26,23 @@ export interface CodeBuildRunnerProps extends RunnerProviderProps {
   readonly imageBuilder?: IImageBuilder;
 
   /**
-   * GitHub Actions label used for this provider. If multiple labels are specific, a workflow must specify all of them for this provider to be used.
+   * GitHub Actions label used for this provider.
    *
-   * @default 'codebuild'
+   * @default undefined
+   * @deprecated use {@link labels} instead
    */
-  readonly label?: string | string[];
+  readonly label?: string;
+
+  /**
+   * GitHub Actions labels used for this provider.
+   *
+   * These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+   * based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+   * job's labels, this provider will be chosen and spawn a new runner.
+   *
+   * @default ['codebuild']
+   */
+  readonly labels?: string[];
 
   /**
    * VPC to launch the runners in.
@@ -138,7 +150,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
   constructor(scope: Construct, id: string, props: CodeBuildRunnerProps) {
     super(scope, id);
 
-    this.labels = this.labelsFromProperties('codebuild', props.label);
+    this.labels = this.labelsFromProperties('codebuild', props.label, props.labels);
     this.vpc = props.vpc;
     this.securityGroup = props.securityGroup;
 
