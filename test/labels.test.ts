@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import { aws_ec2 as ec2 } from 'aws-cdk-lib';
 import { CodeBuildRunner, FargateRunner, LambdaRunner } from '../src';
 
 test('CodeBuild provider labels', () => {
@@ -45,16 +46,26 @@ test('Fargate provider labels', () => {
   const app = new cdk.App();
   const stack = new cdk.Stack(app, 'test');
 
-  const defaultLabel = new FargateRunner(stack, 'defaultLabel', {});
+  const vpc = new ec2.Vpc(stack, 'vpc');
+  const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+  const defaultLabel = new FargateRunner(stack, 'defaultLabel', {
+    vpc: vpc,
+    securityGroup: sg,
+  });
   expect(defaultLabel.labels).toStrictEqual(['fargate']);
 
   const deprecatedLabel = new FargateRunner(stack, 'deprecatedLabel', {
     label: 'hello',
+    vpc: vpc,
+    securityGroup: sg,
   });
   expect(deprecatedLabel.labels).toStrictEqual(['hello']);
 
   const labels = new FargateRunner(stack, 'labels', {
     labels: ['hello', 'world'],
+    vpc: vpc,
+    securityGroup: sg,
   });
   expect(labels.labels).toStrictEqual(['hello', 'world']);
 
