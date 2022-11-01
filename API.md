@@ -2216,7 +2216,8 @@ const codeBuildRunnerProps: CodeBuildRunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.label">label</a></code> | <code>string \| string[]</code> | GitHub Actions label used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to this instance. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The number of minutes after which AWS CodeBuild stops the build if it's not complete. |
@@ -2271,18 +2272,35 @@ A user named `runner` is expected to exist with access to Docker-in-Docker.
 
 ---
 
-##### `label`<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.label"></a>
+##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.label"></a>
+
+- *Deprecated:* use {@link labels} instead
 
 ```typescript
-public readonly label: string | string[];
+public readonly label: string;
 ```
 
-- *Type:* string | string[]
-- *Default:* 'codebuild'
+- *Type:* string
+- *Default:* undefined
 
 GitHub Actions label used for this provider.
 
-If multiple labels are specific, a workflow must specify all of them for this provider to be used.
+---
+
+##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+- *Default:* ['codebuild']
+
+GitHub Actions labels used for this provider.
+
+These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
@@ -2550,7 +2568,8 @@ const fargateRunnerProps: FargateRunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.cpu">cpu</a></code> | <code>number</code> | The number of cpu units used by the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.ephemeralStorageGiB">ephemeralStorageGiB</a></code> | <code>number</code> | The amount (in GiB) of ephemeral storage to be allocated to the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.label">label</a></code> | <code>string \| string[]</code> | GitHub Actions label used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | The amount (in MiB) of memory used by the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.spot">spot</a></code> | <code>boolean</code> | Use Fargate spot capacity provider to save money. |
@@ -2663,18 +2682,35 @@ A user named `runner` is expected to exist.
 
 ---
 
-##### `label`<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.label"></a>
+##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.label"></a>
+
+- *Deprecated:* use {@link labels} instead
 
 ```typescript
-public readonly label: string | string[];
+public readonly label: string;
 ```
 
-- *Type:* string | string[]
-- *Default:* 'fargate'
+- *Type:* string
+- *Default:* undefined
 
 GitHub Actions label used for this provider.
 
-If multiple labels are specific, a workflow must specify all of them for this provider to be used.
+---
+
+##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+- *Default:* ['fargate']
+
+GitHub Actions labels used for this provider.
+
+These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
@@ -3056,7 +3092,8 @@ const lambdaRunnerProps: LambdaRunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.ephemeralStorageSize">ephemeralStorageSize</a></code> | <code>aws-cdk-lib.Size</code> | The size of the function’s /tmp directory in MiB. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.label">label</a></code> | <code>string \| string[]</code> | GitHub Actions label used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.memorySize">memorySize</a></code> | <code>number</code> | The amount of memory, in MB, that is allocated to your Lambda function. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to this instance. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
@@ -3112,18 +3149,35 @@ The default command (`CMD`) should be `["runner.handler"]` which points to an in
 
 ---
 
-##### `label`<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.label"></a>
+##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.label"></a>
+
+- *Deprecated:* use {@link labels} instead
 
 ```typescript
-public readonly label: string | string[];
+public readonly label: string;
 ```
 
-- *Type:* string | string[]
-- *Default:* 'lambda'
+- *Type:* string
+- *Default:* undefined
 
 GitHub Actions label used for this provider.
 
-If multiple labels are specific, a workflow must specify all of them for this provider to be used.
+---
+
+##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+- *Default:* ['lambda']
+
+GitHub Actions labels used for this provider.
+
+These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
@@ -3909,7 +3963,7 @@ specific build parameters.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | The principal to grant permissions to. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Image used to create a new resource compute. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions label associated with this runner provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group associated with runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC network in which runners will be placed. |
 
@@ -3961,9 +4015,11 @@ public readonly labels: string[];
 
 - *Type:* string[]
 
-GitHub Actions label associated with this runner provider.
+GitHub Actions labels used for this provider.
 
-All labels must be present for this provider to be chosen and for a runner to be launched.
+These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
