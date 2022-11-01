@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: main
+          fetch-depth: 0
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
       - name: Snapshot main
@@ -24,10 +25,7 @@ jobs:
           npm run compile
           npm run integ:default:snapshot
       - name: Switch to branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.workflow_run.head_branch }}
-          clean: false
+        run: git checkout ${{ github.event.workflow_run.head_branch }}
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
       - name: Snapshot branch
@@ -38,11 +36,11 @@ jobs:
         id: create_patch
         run: |-
           git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo "::set-output name=patch_created::true"
+          git diff --staged --patch --exit-code || echo "patch_created=true" >> $GITHUB_OUTPUT
       # upload snapshot (including assets from both main and branch) for easy diffing
       - name: Upload snapshot
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: snapshot
           path: test/default.integ.snapshot
@@ -54,13 +52,13 @@ jobs:
       # create a PR against the dependencies update PR for a proper snapshot
       - name: Create Pull Request
         if: steps.create_patch.outputs.patch_created
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.PROJEN_GITHUB_TOKEN }}
           commit-message: |-
-            chore(deps): upgrade dependencies
+            chore(deps): update snapshot
 
-            Upgrades snapshot. See details in [workflow run].
+            Update snapshot. See details in [workflow run].
 
             [Workflow Run]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
@@ -68,9 +66,9 @@ jobs:
 
             *Automatically created by projen via the "upgrade-snapshot" workflow*
           branch: github-actions/upgrade-snapshot
-          title: "chore(deps): upgrade snapshot for dependencies upgrade"
+          title: "chore(deps): update snapshot for dependencies upgrade"
           body: |-
-            Upgrades snapshot. See details in [workflow run].
+            Update snapshot. See details in [workflow run].
 
             [Workflow Run]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
