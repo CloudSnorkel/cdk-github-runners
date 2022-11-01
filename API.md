@@ -2777,6 +2777,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.allowPublicSubnet">allowPublicSubnet</a></code> | <code>boolean</code> | Allow management functions to run in public subnets. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.extraCertificates">extraCertificates</a></code> | <code>string</code> | Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.idleTimeout">idleTimeout</a></code> | <code>aws-cdk-lib.Duration</code> | Time to wait before stopping a runner that remains idle. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | List of runner providers to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to all management functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for all management functions. |
@@ -2830,6 +2831,21 @@ new GitHubRunners(
    }
 );
 ```
+
+---
+
+##### `idleTimeout`<sup>Optional</sup> <a name="idleTimeout" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.idleTimeout"></a>
+
+```typescript
+public readonly idleTimeout: Duration;
+```
+
+- *Type:* aws-cdk-lib.Duration
+- *Default:* 10 minutes
+
+Time to wait before stopping a runner that remains idle.
+
+If the user cancelled the job, or if another runner stole it, this stops the runner to avoid wasting resources.
 
 ---
 

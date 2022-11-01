@@ -17,6 +17,10 @@
       "type": "build"
     },
     {
+      "name": "@octokit/request-error",
+      "type": "build"
+    },
+    {
       "name": "@octokit/rest",
       "type": "build"
     },
