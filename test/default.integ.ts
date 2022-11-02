@@ -53,7 +53,7 @@ new GitHubRunners(stack, 'runners', {
       }),
     }),
     new CodeBuildRunner(stack, 'CodeBuildARM', {
-      label: 'codebuild-arm64',
+      labels: ['codebuild', 'linux', 'arm64'],
       computeType: codebuild.ComputeType.SMALL,
       imageBuilder: new CodeBuildImageBuilder(stack, 'CodeBuild Image Builder arm', {
         dockerfilePath: CodeBuildRunner.LINUX_ARM64_DOCKERFILE_PATH,
@@ -61,23 +61,23 @@ new GitHubRunners(stack, 'runners', {
       }),
     }),
     new CodeBuildRunner(stack, 'CodeBuildWindows', {
-      label: 'codebuild-windows-x64',
+      labels: ['codebuild', 'windows', 'x64'],
       computeType: codebuild.ComputeType.MEDIUM,
       imageBuilder: windowsImageBuilder,
     }),
     new LambdaRunner(stack, 'Lambda', {
-      label: 'lambda-x64',
+      labels: ['lambda', 'x64'],
       imageBuilder: lambdaImageBuilder,
     }),
     new LambdaRunner(stack, 'LambdaARM', {
-      label: 'lambda-arm64',
+      labels: ['lambda', 'arm64'],
       imageBuilder: new CodeBuildImageBuilder(stack, 'Lambda Image Builderz', {
         dockerfilePath: LambdaRunner.LINUX_ARM64_DOCKERFILE_PATH,
         architecture: Architecture.ARM64,
       }),
     }),
     new FargateRunner(stack, 'Fargate', {
-      label: 'fargate-x64',
+      labels: ['fargate', 'linux', 'x64'],
       cpu: 256,
       memoryLimitMiB: 512,
       imageBuilder: fargateX64Builder,
@@ -86,7 +86,7 @@ new GitHubRunners(stack, 'runners', {
       assignPublicIp: true,
     }),
     new FargateRunner(stack, 'Fargate-x64-spot', {
-      label: 'fargate-x64-spot',
+      labels: ['fargate-spot', 'linux', 'x64'],
       spot: true,
       cpu: 256,
       memoryLimitMiB: 512,
@@ -96,7 +96,7 @@ new GitHubRunners(stack, 'runners', {
       assignPublicIp: true,
     }),
     new FargateRunner(stack, 'Fargate-arm64', {
-      label: 'fargate-arm64',
+      labels: ['fargate', 'linux', 'arm64'],
       cpu: 256,
       memoryLimitMiB: 512,
       imageBuilder: fargateArm64Builder,
@@ -105,7 +105,7 @@ new GitHubRunners(stack, 'runners', {
       assignPublicIp: true,
     }),
     new FargateRunner(stack, 'Fargate-arm64-spot', {
-      label: 'fargate-arm64-spot',
+      labels: ['fargate-spot', 'linux', 'arm64'],
       // TODO never available -- spot: true,
       cpu: 256,
       memoryLimitMiB: 512,
@@ -115,7 +115,7 @@ new GitHubRunners(stack, 'runners', {
       assignPublicIp: true,
     }),
     new FargateRunner(stack, 'Fargate-Windows', {
-      label: 'fargate-windows-x64',
+      labels: ['fargate', 'windows', 'x64'],
       cpu: 1024,
       memoryLimitMiB: 2048,
       imageBuilder: windowsImageBuilder,

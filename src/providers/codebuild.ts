@@ -13,7 +13,7 @@ import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
-import { Architecture, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
+import { Architecture, BaseProvider, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 
@@ -28,9 +28,21 @@ export interface CodeBuildRunnerProps extends RunnerProviderProps {
   /**
    * GitHub Actions label used for this provider.
    *
-   * @default 'codebuild'
+   * @default undefined
+   * @deprecated use {@link labels} instead
    */
   readonly label?: string;
+
+  /**
+   * GitHub Actions labels used for this provider.
+   *
+   * These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+   * based on runs-on. We match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+   * job's labels, this provider will be chosen and spawn a new runner.
+   *
+   * @default ['codebuild']
+   */
+  readonly labels?: string[];
 
   /**
    * VPC to launch the runners in.
@@ -78,14 +90,14 @@ export interface CodeBuildRunnerProps extends RunnerProviderProps {
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
-export class CodeBuildRunner extends Construct implements IRunnerProvider {
+export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
   /**
    * Path to Dockerfile for Linux x64 with all the requirements for CodeBuild runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
-   * * `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stsable"`.
+   * * `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stable"`.
    * * `DIND_COMMIT` overrides the commit where dind is found.
    * * `DOCKER_VERSION` overrides the installed Docker version.
    * * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
@@ -98,7 +110,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
-   * * `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stsable"`.
+   * * `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stable"`.
    * * `DIND_COMMIT` overrides the commit where dind is found.
    * * `DOCKER_VERSION` overrides the installed Docker version.
    * * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
@@ -111,9 +123,9 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
   readonly project: codebuild.Project;
 
   /**
-   * Label associated with this provider.
+   * Labels associated with this provider.
    */
-  readonly label: string;
+  readonly labels: string[];
 
   /**
    * VPC used for hosting the project.
@@ -138,7 +150,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
   constructor(scope: Construct, id: string, props: CodeBuildRunnerProps) {
     super(scope, id);
 
-    this.label = props.label ?? 'codebuild';
+    this.labels = this.labelsFromProperties('codebuild', props.label, props.labels);
     this.vpc = props.vpc;
     this.securityGroup = props.securityGroup;
 
@@ -212,7 +224,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
       this,
       'CodeBuild',
       {
-        description: `GitHub Actions self-hosted runner for label "${this.label}"`,
+        description: `GitHub Actions self-hosted runner for labels ${this.labels}`,
         buildSpec: codebuild.BuildSpec.fromObject(buildSpec),
         vpc: this.vpc,
         securityGroups: this.securityGroup ? [this.securityGroup] : undefined,
@@ -251,7 +263,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.CodeBuildStartBuild(
       this,
-      this.label,
+      this.labels.join(', '),
       {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         project: this.project,
@@ -266,7 +278,7 @@ export class CodeBuildRunner extends Construct implements IRunnerProvider {
           },
           RUNNER_LABEL: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: this.label,
+            value: this.labels.join(','),
           },
           GITHUB_DOMAIN: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,

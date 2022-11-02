@@ -381,7 +381,7 @@ Any object.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image in CodeBuild project. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.label">label</a></code> | <code>string</code> | Label associated with this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.project">project</a></code> | <code>aws-cdk-lib.aws_codebuild.Project</code> | CodeBuild project hosting the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for hosting the project. |
@@ -436,15 +436,15 @@ Docker image in CodeBuild project.
 
 ---
 
-##### `label`<sup>Required</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.label"></a>
+##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.labels"></a>
 
 ```typescript
-public readonly label: string;
+public readonly labels: string[];
 ```
 
-- *Type:* string
+- *Type:* string[]
 
-Label associated with this provider.
+Labels associated with this provider.
 
 ---
 
@@ -508,7 +508,7 @@ Use this Dockerfile unless you need to customize it further than allowed by hook
 Available build arguments that can be set in the image builder:
 * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
 * `EXTRA_PACKAGES` can be used to install additional packages.
-* `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stsable"`.
+* `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stable"`.
 * `DIND_COMMIT` overrides the commit where dind is found.
 * `DOCKER_VERSION` overrides the installed Docker version.
 * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
@@ -530,7 +530,7 @@ Use this Dockerfile unless you need to customize it further than allowed by hook
 Available build arguments that can be set in the image builder:
 * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
 * `EXTRA_PACKAGES` can be used to install additional packages.
-* `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stsable"`.
+* `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stable"`.
 * `DIND_COMMIT` overrides the commit where dind is found.
 * `DOCKER_VERSION` overrides the installed Docker version.
 * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
@@ -969,7 +969,7 @@ Any object.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.container">container</a></code> | <code>aws-cdk-lib.aws_ecs.ContainerDefinition</code> | Container definition hosting the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image used to start a new Fargate task. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.label">label</a></code> | <code>string</code> | Label associated with this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.spot">spot</a></code> | <code>boolean</code> | Use spot pricing for Fargate tasks. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.task">task</a></code> | <code>aws-cdk-lib.aws_ecs.FargateTaskDefinition</code> | Fargate task hosting the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to the task. |
@@ -1062,15 +1062,15 @@ Docker image used to start a new Fargate task.
 
 ---
 
-##### `label`<sup>Required</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.label"></a>
+##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.labels"></a>
 
 ```typescript
-public readonly label: string;
+public readonly labels: string[];
 ```
 
-- *Type:* string
+- *Type:* string[]
 
-Label associated with this provider.
+Labels associated with this provider.
 
 ---
 
@@ -1690,7 +1690,7 @@ Any object.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.function">function</a></code> | <code>aws-cdk-lib.aws_lambda.Function</code> | The function hosting the GitHub runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image used to start Lambda function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.label">label</a></code> | <code>string</code> | Label associated with this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to the function. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for hosting the function. |
 
@@ -1756,15 +1756,15 @@ Docker image used to start Lambda function.
 
 ---
 
-##### `label`<sup>Required</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.label"></a>
+##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.labels"></a>
 
 ```typescript
-public readonly label: string;
+public readonly labels: string[];
 ```
 
-- *Type:* string
+- *Type:* string[]
 
-Label associated with this provider.
+Labels associated with this provider.
 
 ---
 
@@ -2217,6 +2217,7 @@ const codeBuildRunnerProps: CodeBuildRunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to this instance. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The number of minutes after which AWS CodeBuild stops the build if it's not complete. |
@@ -2271,16 +2272,35 @@ A user named `runner` is expected to exist with access to Docker-in-Docker.
 
 ---
 
-##### `label`<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.label"></a>
+##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.label"></a>
+
+- *Deprecated:* use {@link labels} instead
 
 ```typescript
 public readonly label: string;
 ```
 
 - *Type:* string
-- *Default:* 'codebuild'
+- *Default:* undefined
 
 GitHub Actions label used for this provider.
+
+---
+
+##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+- *Default:* ['codebuild']
+
+GitHub Actions labels used for this provider.
+
+These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+based on runs-on. We match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
@@ -2549,6 +2569,7 @@ const fargateRunnerProps: FargateRunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.ephemeralStorageGiB">ephemeralStorageGiB</a></code> | <code>number</code> | The amount (in GiB) of ephemeral storage to be allocated to the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | The amount (in MiB) of memory used by the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.spot">spot</a></code> | <code>boolean</code> | Use Fargate spot capacity provider to save money. |
@@ -2661,16 +2682,35 @@ A user named `runner` is expected to exist.
 
 ---
 
-##### `label`<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.label"></a>
+##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.label"></a>
+
+- *Deprecated:* use {@link labels} instead
 
 ```typescript
 public readonly label: string;
 ```
 
 - *Type:* string
-- *Default:* 'fargate'
+- *Default:* undefined
 
 GitHub Actions label used for this provider.
+
+---
+
+##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+- *Default:* ['fargate']
+
+GitHub Actions labels used for this provider.
+
+These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+based on runs-on. We match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
@@ -3053,6 +3093,7 @@ const lambdaRunnerProps: LambdaRunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.ephemeralStorageSize">ephemeralStorageSize</a></code> | <code>aws-cdk-lib.Size</code> | The size of the function’s /tmp directory in MiB. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.memorySize">memorySize</a></code> | <code>number</code> | The amount of memory, in MB, that is allocated to your Lambda function. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to this instance. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
@@ -3108,16 +3149,35 @@ The default command (`CMD`) should be `["runner.handler"]` which points to an in
 
 ---
 
-##### `label`<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.label"></a>
+##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.label"></a>
+
+- *Deprecated:* use {@link labels} instead
 
 ```typescript
 public readonly label: string;
 ```
 
 - *Type:* string
-- *Default:* 'lambda'
+- *Default:* undefined
 
 GitHub Actions label used for this provider.
+
+---
+
+##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+- *Default:* ['lambda']
+
+GitHub Actions labels used for this provider.
+
+These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+based on runs-on. We match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
@@ -3903,7 +3963,7 @@ specific build parameters.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | The principal to grant permissions to. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Image used to create a new resource compute. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.label">label</a></code> | <code>string</code> | GitHub Actions label associated with this runner provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group associated with runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC network in which runners will be placed. |
 
@@ -3947,15 +4007,19 @@ Can be Docker image, AMI, or something else.
 
 ---
 
-##### `label`<sup>Required</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.label"></a>
+##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.labels"></a>
 
 ```typescript
-public readonly label: string;
+public readonly labels: string[];
 ```
 
-- *Type:* string
+- *Type:* string[]
 
-GitHub Actions label associated with this runner provider.
+GitHub Actions labels used for this provider.
+
+These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 

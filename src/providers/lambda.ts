@@ -13,7 +13,7 @@ import {
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import { BundledNodejsFunction } from '../utils';
-import { Architecture, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
+import { Architecture, BaseProvider, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 export interface LambdaRunnerProps extends RunnerProviderProps {
@@ -30,9 +30,21 @@ export interface LambdaRunnerProps extends RunnerProviderProps {
   /**
    * GitHub Actions label used for this provider.
    *
-   * @default 'lambda'
+   * @default undefined
+   * @deprecated use {@link labels} instead
    */
   readonly label?: string;
+
+  /**
+   * GitHub Actions labels used for this provider.
+   *
+   * These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+   * based on runs-on. We match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+   * job's labels, this provider will be chosen and spawn a new runner.
+   *
+   * @default ['lambda']
+   */
+  readonly labels?: string[];
 
   /**
    * The amount of memory, in MB, that is allocated to your Lambda function.
@@ -89,7 +101,7 @@ export interface LambdaRunnerProps extends RunnerProviderProps {
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
-export class LambdaRunner extends Construct implements IRunnerProvider {
+export class LambdaRunner extends BaseProvider implements IRunnerProvider {
   /**
    * Path to Dockerfile for Linux x64 with all the requirement for Lambda runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
@@ -114,9 +126,9 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
   readonly function: lambda.Function;
 
   /**
-   * Label associated with this provider.
+   * Labels associated with this provider.
    */
-  readonly label: string;
+  readonly labels: string[];
 
   /**
    * VPC used for hosting the function.
@@ -141,7 +153,7 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
   constructor(scope: Construct, id: string, props: LambdaRunnerProps) {
     super(scope, id);
 
-    this.label = props.label || 'lambda';
+    this.labels = this.labelsFromProperties('lambda', props.label, props.labels);
     this.vpc = props.vpc;
     this.securityGroup = props.securityGroup;
 
@@ -170,7 +182,7 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
     // we automatically delete old images, so we must always get the latest digest
     const imageDigest = this.imageDigest(image, {
       version: 1, // bump this for any non-user changes like description or defaults
-      label: this.label,
+      labels: this.labels,
       architecture: architecture.name,
       vpc: this.vpc?.vpcId,
       securityGroups: this.securityGroup?.securityGroupId,
@@ -185,7 +197,7 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
       this,
       'Function',
       {
-        description: `GitHub Actions runner for "${this.label}" label`,
+        description: `GitHub Actions runner for labels ${this.labels}`,
         // CDK requires "sha256:" literal prefix -- https://github.com/aws/aws-cdk/blob/ba91ca45ad759ab5db6da17a62333e2bc11e1075/packages/%40aws-cdk/aws-ecr/lib/repository.ts#L184
         code: lambda.DockerImageCode.fromEcr(image.imageRepository, { tagOrDigest: `sha256:${imageDigest}` }),
         architecture,
@@ -221,13 +233,13 @@ export class LambdaRunner extends Construct implements IRunnerProvider {
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.LambdaInvoke(
       this,
-      this.label,
+      this.labels.join(', '),
       {
         lambdaFunction: this.function,
         payload: stepfunctions.TaskInput.fromObject({
           token: parameters.runnerTokenPath,
           runnerName: parameters.runnerNamePath,
-          label: this.label,
+          label: this.labels.join(','),
           githubDomain: parameters.githubDomainPath,
           owner: parameters.ownerPath,
           repo: parameters.repoPath,

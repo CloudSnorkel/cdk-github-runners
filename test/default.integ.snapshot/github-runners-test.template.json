@@ -3287,7 +3287,7 @@
     "Cache": {
      "Type": "NO_CACHE"
     },
-    "Description": "GitHub Actions self-hosted runner for label \"codebuild-x64\"",
+    "Description": "GitHub Actions self-hosted runner for labels codebuild-x64",
     "EncryptionKey": "alias/aws/s3",
     "LogsConfig": {
      "CloudWatchLogs": {
@@ -4111,7 +4111,7 @@
     "Cache": {
      "Type": "NO_CACHE"
     },
-    "Description": "GitHub Actions self-hosted runner for label \"codebuild-arm64\"",
+    "Description": "GitHub Actions self-hosted runner for labels codebuild,linux,arm64",
     "EncryptionKey": "alias/aws/s3",
     "LogsConfig": {
      "CloudWatchLogs": {
@@ -4399,7 +4399,7 @@
     "Cache": {
      "Type": "NO_CACHE"
     },
-    "Description": "GitHub Actions self-hosted runner for label \"codebuild-windows-x64\"",
+    "Description": "GitHub Actions self-hosted runner for labels codebuild,windows,x64",
     "EncryptionKey": "alias/aws/s3",
     "LogsConfig": {
      "CloudWatchLogs": {
@@ -4481,7 +4481,7 @@
       ]
      ]
     },
-    "Delete": "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"label\":\"lambda-x64\",\"architecture\":\"x86_64\"}}",
+    "Delete": "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\"}}",
     "InstallLatestAwsSdk": false
    },
    "DependsOn": [
@@ -4597,7 +4597,7 @@
     "Architectures": [
      "x86_64"
     ],
-    "Description": "GitHub Actions runner for \"lambda-x64\" label",
+    "Description": "GitHub Actions runner for labels lambda,x64",
     "EphemeralStorage": {
      "Size": 10240
     },
@@ -5509,7 +5509,7 @@
       ]
      ]
     },
-    "Delete": "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"label\":\"lambda-arm64\",\"architecture\":\"arm64\"}}",
+    "Delete": "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\"}}",
     "InstallLatestAwsSdk": false
    },
    "DependsOn": [
@@ -5625,7 +5625,7 @@
     "Architectures": [
      "arm64"
     ],
-    "Description": "GitHub Actions runner for \"lambda-arm64\" label",
+    "Description": "GitHub Actions runner for labels lambda,arm64",
     "EphemeralStorage": {
      "Size": 10240
     },
@@ -7953,7 +7953,7 @@
          "Arn"
         ]
        },
-       "\"},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true,\"Next\":\"codebuild-x64\"},{\"Variable\":\"$.labels.codebuild-arm64\",\"IsPresent\":true,\"Next\":\"codebuild-arm64\"},{\"Variable\":\"$.labels.codebuild-windows-x64\",\"IsPresent\":true,\"Next\":\"codebuild-windows-x64\"},{\"Variable\":\"$.labels.lambda-x64\",\"IsPresent\":true,\"Next\":\"lambda-x64\"},{\"Variable\":\"$.labels.lambda-arm64\",\"IsPresent\":true,\"Next\":\"lambda-arm64\"},{\"Variable\":\"$.labels.fargate-x64\",\"IsPresent\":true,\"Next\":\"fargate-x64\"},{\"Variable\":\"$.labels.fargate-x64-spot\",\"IsPresent\":true,\"Next\":\"fargate-x64-spot\"},{\"Variable\":\"$.labels.fargate-arm64\",\"IsPresent\":true,\"Next\":\"fargate-arm64\"},{\"Variable\":\"$.labels.fargate-arm64-spot\",\"IsPresent\":true,\"Next\":\"fargate-arm64-spot\"},{\"Variable\":\"$.labels.fargate-windows-x64\",\"IsPresent\":true,\"Next\":\"fargate-windows-x64\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Succeed\"},\"codebuild-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"And\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true}],\"Next\":\"codebuild-x64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"codebuild, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"codebuild, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"lambda, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"lambda, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, windows, x64\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Succeed\"},\"codebuild-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -7961,7 +7961,7 @@
        {
         "Ref": "CodeBuildx64CodeBuild7DC01A1E"
        },
-       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"}]}},\"codebuild-arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"}]}},\"codebuild, linux, arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -7969,7 +7969,7 @@
        {
         "Ref": "CodeBuildARMCodeBuildC5F301F2"
        },
-       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild-arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"}]}},\"codebuild-windows-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"}]}},\"codebuild, windows, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -7977,7 +7977,7 @@
        {
         "Ref": "CodeBuildWindowsCodeBuildC39F35C1"
        },
-       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild-windows-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"}]}},\"lambda-x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"}]}},\"lambda, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -7988,7 +7988,7 @@
          "Arn"
         ]
        },
-       "\",\"Payload\":{\"token.$\":\"$.runner.token\",\"runnerName.$\":\"$$.Execution.Name\",\"label\":\"lambda-x64\",\"githubDomain.$\":\"$.runner.domain\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\"}}},\"lambda-arm64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"Payload\":{\"token.$\":\"$.runner.token\",\"runnerName.$\":\"$$.Execution.Name\",\"label\":\"lambda,x64\",\"githubDomain.$\":\"$.runner.domain\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\"}}},\"lambda, arm64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -7999,7 +7999,7 @@
          "Arn"
         ]
        },
-       "\",\"Payload\":{\"token.$\":\"$.runner.token\",\"runnerName.$\":\"$$.Execution.Name\",\"label\":\"lambda-arm64\",\"githubDomain.$\":\"$.runner.domain\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\"}}},\"fargate-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"Payload\":{\"token.$\":\"$.runner.token\",\"runnerName.$\":\"$$.Execution.Name\",\"label\":\"lambda,arm64\",\"githubDomain.$\":\"$.runner.domain\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\"}}},\"fargate, linux, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -8025,7 +8025,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-x64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-spot, linux, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -8051,7 +8051,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-x64-spot\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}]}},\"fargate-arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}]}},\"fargate, linux, arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -8077,7 +8077,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-arm64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-spot, linux, arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -8103,7 +8103,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-arm64-spot\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-windows-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate, windows, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -8129,7 +8129,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-windows-x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}}}},{\"StartAt\":\"Wait\",\"States\":{\"Wait\":{\"Type\":\"Wait\",\"Seconds\":600,\"Next\":\"Delete Idle Runner\"},\"Delete Idle Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}}}},{\"StartAt\":\"Wait\",\"States\":{\"Wait\":{\"Type\":\"Wait\",\"Seconds\":600,\"Next\":\"Delete Idle Runner\"},\"Delete Idle Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnersdeleterunner7F8D5293",
@@ -8829,7 +8829,9 @@
     "providers": [
      {
       "type": "CodeBuildRunner",
-      "label": "codebuild-x64",
+      "labels": [
+       "codebuild-x64"
+      ],
       "roleArn": {
        "Fn::GetAtt": [
         "CodeBuildx64CodeBuildRole32E5C764",
@@ -8890,7 +8892,11 @@
      },
      {
       "type": "CodeBuildRunner",
-      "label": "codebuild-arm64",
+      "labels": [
+       "codebuild",
+       "linux",
+       "arm64"
+      ],
       "roleArn": {
        "Fn::GetAtt": [
         "CodeBuildARMCodeBuildRole74DB4985",
@@ -8951,7 +8957,11 @@
      },
      {
       "type": "CodeBuildRunner",
-      "label": "codebuild-windows-x64",
+      "labels": [
+       "codebuild",
+       "windows",
+       "x64"
+      ],
       "roleArn": {
        "Fn::GetAtt": [
         "CodeBuildWindowsCodeBuildRoleDC93697E",
@@ -9012,7 +9022,10 @@
      },
      {
       "type": "LambdaRunner",
-      "label": "lambda-x64",
+      "labels": [
+       "lambda",
+       "x64"
+      ],
       "roleArn": {
        "Fn::GetAtt": [
         "LambdaFunctionServiceRoleB1826A50",
@@ -9073,7 +9086,10 @@
      },
      {
       "type": "LambdaRunner",
-      "label": "lambda-arm64",
+      "labels": [
+       "lambda",
+       "arm64"
+      ],
       "roleArn": {
        "Fn::GetAtt": [
         "LambdaARMFunctionServiceRole136069A0",
@@ -9134,7 +9150,11 @@
      },
      {
       "type": "FargateRunner",
-      "label": "fargate-x64",
+      "labels": [
+       "fargate",
+       "linux",
+       "x64"
+      ],
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -9218,7 +9238,11 @@
      },
      {
       "type": "FargateRunner",
-      "label": "fargate-x64-spot",
+      "labels": [
+       "fargate-spot",
+       "linux",
+       "x64"
+      ],
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -9302,7 +9326,11 @@
      },
      {
       "type": "FargateRunner",
-      "label": "fargate-arm64",
+      "labels": [
+       "fargate",
+       "linux",
+       "arm64"
+      ],
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -9386,7 +9414,11 @@
      },
      {
       "type": "FargateRunner",
-      "label": "fargate-arm64-spot",
+      "labels": [
+       "fargate-spot",
+       "linux",
+       "arm64"
+      ],
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -9470,7 +9502,11 @@
      },
      {
       "type": "FargateRunner",
-      "label": "fargate-windows-x64",
+      "labels": [
+       "fargate",
+       "windows",
+       "x64"
+      ],
       "vpcArn": {
        "Fn::Join": [
         "",

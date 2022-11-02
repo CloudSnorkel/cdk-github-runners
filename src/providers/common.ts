@@ -1,4 +1,5 @@
 import { aws_ec2 as ec2, aws_ecr as ecr, aws_iam as iam, aws_logs as logs, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
 /**
  * Defines desired GitHub Actions runner version.
@@ -210,9 +211,13 @@ export interface IRunnerImageStatus {
  */
 export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
   /**
-   * GitHub Actions label associated with this runner provider.
+   * GitHub Actions labels used for this provider.
+   *
+   * These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+   * based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+   * job's labels, this provider will be chosen and spawn a new runner.
    */
-  readonly label: string;
+  readonly labels: string[];
 
   /**
    * VPC network in which runners will be placed.
@@ -237,4 +242,25 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
    * @param parameters specific build parameters
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable;
+}
+
+/**
+ * Base class for all providers with common methods used by all providers.
+ *
+ * @internal
+ */
+export abstract class BaseProvider extends Construct {
+  protected labelsFromProperties(defaultLabel: string, propsLabel: string | undefined, propsLabels: string[] | undefined): string[] {
+    if (propsLabels && propsLabel) {
+      throw new Error('Must supply either `label` or `labels` in runner properties, but not both. Try removing the `label` property.');
+    }
+
+    if (propsLabels) {
+      return propsLabels;
+    }
+    if (propsLabel) {
+      return [propsLabel];
+    }
+    return [defaultLabel];
+  }
 }
