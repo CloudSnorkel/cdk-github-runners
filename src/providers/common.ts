@@ -253,10 +253,10 @@ export abstract class BaseProvider extends Construct {
   protected labelsFromProperties(defaultLabel: string, propsLabel: string | undefined, propsLabels: string[] | undefined): string[] {
     if (propsLabels) {
       return propsLabels;
-    } else if (propsLabel) {
-      return [propsLabel];
-    } else {
-      return [defaultLabel];
     }
+    if (propsLabel) {
+      return [propsLabel];
+    }
+    return [defaultLabel];
   }
 }
