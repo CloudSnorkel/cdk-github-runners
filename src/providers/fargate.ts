@@ -37,7 +37,7 @@ export interface FargateRunnerProps extends RunnerProviderProps {
    * GitHub Actions labels used for this provider.
    *
    * These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
-   * based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+   * based on runs-on. We match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
    * job's labels, this provider will be chosen and spawn a new runner.
    *
    * @default ['fargate']
