@@ -191,11 +191,14 @@ new GitHubRunners(stack, 'runners', {
 ## Troubleshooting
 
 1. Always start with the status function, make sure no errors are reported, and confirm all status codes are OK
-2. Confirm the webhook Lambda was called by visiting the URL in `troubleshooting.webhookHandlerUrl` from `status.json`
+2. If jobs are stuck on pending:
+   1. Make sure `runs-on` in the workflow matches the expected labels set in the runner provider
+   2. If it happens every time, cancel the job and start it again
+4. Confirm the webhook Lambda was called by visiting the URL in `troubleshooting.webhookHandlerUrl` from `status.json`
    1. If it's not called or logs errors, confirm the webhook settings on the GitHub side
    2. If you see too many errors, make sure you're only sending `workflow_job` events
-3. When using GitHub app, make sure there are active installation in `github.auth.app.installations`
-4. Check execution details of the orchestrator step function by visiting the URL in `troubleshooting.stepFunctionUrl` from `status.json`
+5. When using GitHub app, make sure there are active installation in `github.auth.app.installations`
+6. Check execution details of the orchestrator step function by visiting the URL in `troubleshooting.stepFunctionUrl` from `status.json`
    1. Use the details tab to find the specific execution of the provider (Lambda, CodeBuild, Fargate, etc.)
    2. Every step function execution should be successful, even if the runner action inside it failed
 
