@@ -1,4 +1,4 @@
-name: Update snapshot
+name: update snapshot
 
 on:
   workflow_run:
