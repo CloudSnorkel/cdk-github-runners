@@ -211,7 +211,7 @@
               <p class="pt-2">If multiple organizations under the same GitHub Enterprise Server need to use the runners,
                 you can make the app public.</p>
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" bind:value={manifest.public} id="public">
+                <input class="form-check-input" type="checkbox" bind:checked={manifest.public} id="public">
                 <label class="form-check-label" for="public">
                   Public app
                 </label>
