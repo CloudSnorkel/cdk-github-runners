@@ -272,7 +272,7 @@ public readonly props: CodeBuildImageBuilderProps;
 
 - *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
 
-GitHub Actions runner provider using CodeBuild to execute the actions.
+GitHub Actions runner provider using CodeBuild to execute jobs.
 
 Creates a project that gets started for each job.
 
@@ -318,7 +318,7 @@ new CodeBuildRunner(scope: Construct, id: string, props: CodeBuildRunnerProps)
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the state machine after all the tasks have been generated. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
 
 ---
@@ -355,10 +355,10 @@ workflow job details.
 public grantStateMachine(_: IGrantable): void
 ```
 
-An optional method that modifies the state machine after all the tasks have been generated.
+An optional method that modifies the role of the state machine after all the tasks have been generated.
 
-This can be used to add additional policy statements
-to the state machine role.
+This can be used to add additional policy
+statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
 
 ###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.grantStateMachine.parameter._"></a>
 
@@ -894,7 +894,7 @@ public readonly subnetId: string;
 
 - *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
 
-GitHub Actions runner provider using Fargate to execute the actions.
+GitHub Actions runner provider using Fargate to execute jobs.
 
 Creates a task definition with a single container that gets started for each job.
 
@@ -940,7 +940,7 @@ new FargateRunner(scope: Construct, id: string, props: FargateRunnerProps)
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the state machine after all the tasks have been generated. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
 
 ---
@@ -977,10 +977,10 @@ workflow job details.
 public grantStateMachine(_: IGrantable): void
 ```
 
-An optional method that modifies the state machine after all the tasks have been generated.
+An optional method that modifies the role of the state machine after all the tasks have been generated.
 
-This can be used to add additional policy statements
-to the state machine role.
+This can be used to add additional policy
+statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
 
 ###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.FargateRunner.grantStateMachine.parameter._"></a>
 
@@ -1671,7 +1671,7 @@ Supported platform for the component.
 
 - *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
 
-GitHub Actions runner provider using Lambda to execute the actions.
+GitHub Actions runner provider using Lambda to execute jobs.
 
 Creates a Docker-based function that gets executed for each job.
 
@@ -1717,7 +1717,7 @@ new LambdaRunner(scope: Construct, id: string, props: LambdaRunnerProps)
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the state machine after all the tasks have been generated. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
 
 ---
@@ -1754,10 +1754,10 @@ workflow job details.
 public grantStateMachine(_: IGrantable): void
 ```
 
-An optional method that modifies the state machine after all the tasks have been generated.
+An optional method that modifies the role of the state machine after all the tasks have been generated.
 
-This can be used to add additional policy statements
-to the state machine role.
+This can be used to add additional policy
+statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
 
 ###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.grantStateMachine.parameter._"></a>
 
@@ -2343,7 +2343,7 @@ const codeBuildRunnerProps: CodeBuildRunnerProps = { ... }
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Image builder for CodeBuild image with GitHub runner pre-configured. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to this instance. |
@@ -2394,7 +2394,7 @@ public readonly imageBuilder: IImageBuilder;
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a>
 - *Default:* image builder with `CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
 
-Provider running an image to run inside CodeBuild with GitHub runner pre-configured.
+Image builder for CodeBuild image with GitHub runner pre-configured.
 
 A user named `runner` is expected to exist with access to Docker-in-Docker.
 
@@ -3710,9 +3710,9 @@ X86_64.
 
 ### LinuxUbuntuComponents <a name="LinuxUbuntuComponents" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents"></a>
 
-Components for Ubuntu that can be used with AWS Image Builder based builders.
+Components for Ubuntu Linux that can be used with AWS Image Builder based builders.
 
-These cannot be used by CodeBuildImageBuilder.
+These cannot be used by {@link CodeBuildImageBuilder}.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.Initializer"></a>
 
@@ -3773,7 +3773,7 @@ LinuxUbuntuComponents.awsCli(scope: Construct, id: string, architecture: Archite
 ```typescript
 import { LinuxUbuntuComponents } from '@cloudsnorkel/cdk-github-runners'
 
-LinuxUbuntuComponents.docker(scope: Construct, id: string, _: Architecture)
+LinuxUbuntuComponents.docker(scope: Construct, id: string, _architecture: Architecture)
 ```
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.docker.parameter.scope"></a>
@@ -3788,7 +3788,7 @@ LinuxUbuntuComponents.docker(scope: Construct, id: string, _: Architecture)
 
 ---
 
-###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.docker.parameter._"></a>
+###### `_architecture`<sup>Required</sup> <a name="_architecture" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.docker.parameter._architecture"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
 
@@ -3799,7 +3799,7 @@ LinuxUbuntuComponents.docker(scope: Construct, id: string, _: Architecture)
 ```typescript
 import { LinuxUbuntuComponents } from '@cloudsnorkel/cdk-github-runners'
 
-LinuxUbuntuComponents.git(scope: Construct, id: string, _: Architecture)
+LinuxUbuntuComponents.git(scope: Construct, id: string, _architecture: Architecture)
 ```
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.git.parameter.scope"></a>
@@ -3814,7 +3814,7 @@ LinuxUbuntuComponents.git(scope: Construct, id: string, _: Architecture)
 
 ---
 
-###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.git.parameter._"></a>
+###### `_architecture`<sup>Required</sup> <a name="_architecture" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.git.parameter._architecture"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
 
@@ -3825,7 +3825,7 @@ LinuxUbuntuComponents.git(scope: Construct, id: string, _: Architecture)
 ```typescript
 import { LinuxUbuntuComponents } from '@cloudsnorkel/cdk-github-runners'
 
-LinuxUbuntuComponents.githubCli(scope: Construct, id: string, _: Architecture)
+LinuxUbuntuComponents.githubCli(scope: Construct, id: string, _architecture: Architecture)
 ```
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.githubCli.parameter.scope"></a>
@@ -3840,7 +3840,7 @@ LinuxUbuntuComponents.githubCli(scope: Construct, id: string, _: Architecture)
 
 ---
 
-###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.githubCli.parameter._"></a>
+###### `_architecture`<sup>Required</sup> <a name="_architecture" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.githubCli.parameter._architecture"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
 
@@ -3909,7 +3909,7 @@ LinuxUbuntuComponents.requiredPackages(scope: Construct, id: string, architectur
 ```typescript
 import { LinuxUbuntuComponents } from '@cloudsnorkel/cdk-github-runners'
 
-LinuxUbuntuComponents.runnerUser(scope: Construct, id: string, _: Architecture)
+LinuxUbuntuComponents.runnerUser(scope: Construct, id: string, _architecture: Architecture)
 ```
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.runnerUser.parameter.scope"></a>
@@ -3924,7 +3924,7 @@ LinuxUbuntuComponents.runnerUser(scope: Construct, id: string, _: Architecture)
 
 ---
 
-###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.runnerUser.parameter._"></a>
+###### `_architecture`<sup>Required</sup> <a name="_architecture" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.runnerUser.parameter._architecture"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
 
@@ -4245,7 +4245,7 @@ image OS.
 
 Components for Windows that can be used with AWS Image Builder based builders.
 
-These cannot be used by CodeBuildImageBuilder.
+These cannot be used by {@link CodeBuildImageBuilder}.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.WindowsComponents.Initializer"></a>
 
@@ -4439,12 +4439,14 @@ This method can be called multiple times if the image is bound to multiple provi
 
 - *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus">IRunnerAmiStatus</a>
 
+AMI status returned from runner providers to be displayed as output of status function.
+
 
 #### Properties <a name="Properties" id="Properties"></a>
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus.property.launchTemplate">launchTemplate</a></code> | <code>string</code> | Launch template id pointing to the latest AMI. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus.property.launchTemplate">launchTemplate</a></code> | <code>string</code> | Id of launch template pointing to the latest AMI built by the AMI builder. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus.property.amiBuilderLogGroup">amiBuilderLogGroup</a></code> | <code>string</code> | Log group name for the AMI builder where history of builds can be analyzed. |
 
 ---
@@ -4457,7 +4459,7 @@ public readonly launchTemplate: string;
 
 - *Type:* string
 
-Launch template id pointing to the latest AMI.
+Id of launch template pointing to the latest AMI built by the AMI builder.
 
 ---
 
@@ -4477,12 +4479,14 @@ Log group name for the AMI builder where history of builds can be analyzed.
 
 - *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageStatus">IRunnerImageStatus</a>
 
+Image status returned from runner providers to be displayed in status.json.
+
 
 #### Properties <a name="Properties" id="Properties"></a>
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageStatus.property.imageRepository">imageRepository</a></code> | <code>string</code> | Image repository where runner image is pushed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageStatus.property.imageRepository">imageRepository</a></code> | <code>string</code> | Image repository where image builder pushes runner images. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageStatus.property.imageTag">imageTag</a></code> | <code>string</code> | Tag of image that should be used. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageStatus.property.imageBuilderLogGroup">imageBuilderLogGroup</a></code> | <code>string</code> | Log group name for the image builder where history of image builds can be analyzed. |
 
@@ -4496,7 +4500,7 @@ public readonly imageRepository: string;
 
 - *Type:* string
 
-Image repository where runner image is pushed.
+Image repository where image builder pushes runner images.
 
 ---
 
@@ -4539,7 +4543,7 @@ Implementations create all required resources and return a step function task th
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function tasks that execute the runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the state machine after all the tasks have been generated. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
 
 ---
@@ -4568,10 +4572,10 @@ specific build parameters.
 public grantStateMachine(stateMachineRole: IGrantable): void
 ```
 
-An optional method that modifies the state machine after all the tasks have been generated.
+An optional method that modifies the role of the state machine after all the tasks have been generated.
 
-This can be used to add additional policy statements
-to the state machine role.
+This can be used to add additional policy
+statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
 
 ###### `stateMachineRole`<sup>Required</sup> <a name="stateMachineRole" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.grantStateMachine.parameter.stateMachineRole"></a>
 
