@@ -291,9 +291,7 @@ export class GitHubRunners extends Construct {
     );
 
     for (const provider of this.providers) {
-      if (provider.grantStateMachine) {
-        provider.grantStateMachine(stateMachine);
-      }
+      provider.grantStateMachine(stateMachine);
     }
 
     return stateMachine;
