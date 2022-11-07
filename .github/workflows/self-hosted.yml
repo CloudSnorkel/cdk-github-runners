@@ -49,7 +49,7 @@ jobs:
             runs-on: [self-hosted, linux, ec2, x64]
             docker: true
           - os: linux
-            arch: x64
+            arch: X64
             runs-on: [self-hosted, linux, ec2-spot, x64]
             docker: true
           - os: linux
