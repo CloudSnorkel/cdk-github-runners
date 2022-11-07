@@ -298,6 +298,9 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
     (rule.node.defaultChild as events.CfnRule).addDeletionOverride('Properties.EventPattern.resources');
   }
 
+  grantStateMachine(_: iam.IGrantable) {
+  }
+
   status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
     this.image.imageRepository.grant(statusFunctionRole, 'ecr:DescribeImages');
 

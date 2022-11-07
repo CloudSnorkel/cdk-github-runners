@@ -307,6 +307,9 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
     );
   }
 
+  grantStateMachine(_: iam.IGrantable) {
+  }
+
   status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
     this.image.imageRepository.grant(statusFunctionRole, 'ecr:DescribeImages');
 

@@ -373,7 +373,7 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
    *
    * @param stateMachineRole role for the state machine that executes the task returned from {@link getStepFunctionTask}.
    */
-  grantStateMachine?(stateMachineRole: iam.IGrantable): void;
+  grantStateMachine(stateMachineRole: iam.IGrantable): void;
 
   /**
    * Return status of the runner provider to be used in the main status function. Also gives the status function any needed permissions to query the Docker image or AMI.
