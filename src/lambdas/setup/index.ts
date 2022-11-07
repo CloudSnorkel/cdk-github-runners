@@ -25,7 +25,7 @@ function response(code: number, body: string): AWSLambda.APIGatewayProxyResultV2
     statusCode: code,
     headers: {
       'Content-Type': 'text/html',
-      'Content-Security-Policy': `default-src 'nonce-${nonce}'; img-src data:; connect-src 'self'; form-action https:; frame-ancestors 'none'`,
+      'Content-Security-Policy': `default-src 'unsafe-inline' 'nonce-${nonce}'; img-src data:; connect-src 'self'; form-action https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'`,
     },
     body: body,
   };
