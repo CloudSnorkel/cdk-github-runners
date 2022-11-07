@@ -17,7 +17,7 @@ import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
 
 /**
- * Properties for AmiBuilder construct.
+ * Properties for {@link AmiBuilder} construct.
  */
 export interface AmiBuilderProps {
   /**
@@ -42,7 +42,7 @@ export interface AmiBuilderProps {
   readonly runnerVersion?: RunnerVersion;
 
   /**
-   * Schedule the image to be rebuilt every given interval. Useful for keeping the image up-do-date with the latest GitHub runner version and latest OS updates.
+   * Schedule the AMI to be rebuilt every given interval. Useful for keeping the AMI up-do-date with the latest GitHub runner version and latest OS updates.
    *
    * Set to zero to disable.
    *
@@ -51,14 +51,14 @@ export interface AmiBuilderProps {
   readonly rebuildInterval?: Duration;
 
   /**
-   * VPC to launch the runners in.
+   * VPC where builder instances will be launched.
    *
    * @default default account VPC
    */
   readonly vpc?: ec2.IVpc;
 
   /**
-   * Security Group to assign to this instance.
+   * Security Group to assign to launched builder instances.
    *
    * @default default account security group
    */
@@ -88,7 +88,7 @@ export interface AmiBuilderProps {
   readonly logRetention?: logs.RetentionDays;
 
   /**
-   * Removal policy for logs of image builds. If deployment fails on the custom resource, try setting this to `RemovalPolicy.RETAIN`. This way the CodeBuild logs can still be viewed, and you can see why the build failed.
+   * Removal policy for logs of image builds. If deployment fails on the custom resource, try setting this to `RemovalPolicy.RETAIN`. This way the logs can still be viewed, and you can see why the build failed.
    *
    * We try to not leave anything behind when removed. But sometimes a log staying behind is useful.
    *
@@ -142,7 +142,7 @@ class AmiRecipe extends ImageBuilderObjectBase {
       if (props.architecture.is(Architecture.X86_64)) {
         archUrl = 'amd64';
       } else if (props.architecture.is(Architecture.ARM64)) {
-        archUrl ='arm64';
+        archUrl = 'arm64';
       } else {
         throw new Error(`Unsupported architecture for parent AMI: ${props.architecture.name}`);
       }
@@ -155,7 +155,6 @@ class AmiRecipe extends ImageBuilderObjectBase {
       workingDirectory = '/home/runner';
     } else if (props.platform == 'Windows') {
       parentAmi = ec2.MachineImage.latestWindows(ec2.WindowsVersion.WINDOWS_SERVER_2022_ENGLISH_FULL_CONTAINERSLATEST).getImage(this).imageId;
-      // workingDirectory = 'C:/Users/Administrator/Documents'; // must exist or Image Builder fails
       workingDirectory = 'C:/'; // must exist or Image Builder fails and must not be empty or git will stall installing from the default windows\system32
     } else {
       throw new Error(`Unsupported AMI recipe platform: ${props.platform}`);
@@ -178,19 +177,28 @@ class AmiRecipe extends ImageBuilderObjectBase {
 }
 
 /**
- * An AMI builder that uses AWS Image Builder to build Docker images pre-baked with all the GitHub Actions runner requirements. Builders can be used with runner providers.
+ * An AMI builder that uses AWS Image Builder to build AMIs pre-baked with all the GitHub Actions runner requirements. Builders can be used with {@link Ec2Runner}.
  *
  * Each builder re-runs automatically at a set interval to make sure the AMIs contain the latest versions of everything.
  *
  * You can create an instance of this construct to customize the AMI used to spin-up runners. Some runner providers may require custom components. Check the runner provider documentation.
  *
- * For example, to set a specific runner version, rebuild the image every 2 weeks, and add a few packages for the Fargate provider, use:
+ * For example, to set a specific runner version, rebuild the image every 2 weeks, and add a few packages for the EC2 provider, use:
  *
  * ```
  * const builder = new AmiBuilder(this, 'Builder', {
  *     runnerVersion: RunnerVersion.specific('2.293.0'),
  *     rebuildInterval: Duration.days(14),
  * });
+ * builder.addComponent(new ImageBuilderComponent(scope, id, {
+ *   platform: 'Linux',
+ *   displayName: 'p7zip',
+ *   description: 'Install some more packages',
+ *   commands: [
+ *     'set -ex',
+ *     'apt-get install p7zip',
+ *   ],
+ * }));
  * new Ec2Runner(this, 'EC2 provider', {
  *     label: 'custom-ec2',
  *     amiBuilder: builder,
@@ -198,23 +206,23 @@ class AmiRecipe extends ImageBuilderObjectBase {
  * ```
  */
 export class AmiBuilder extends Construct implements IAmiBuilder {
-  readonly architecture: Architecture;
-  readonly os: Os;
-  readonly platform: 'Windows' | 'Linux';
+  private readonly architecture: Architecture;
+  private readonly os: Os;
+  private readonly platform: 'Windows' | 'Linux';
 
-  readonly description: string;
+  private readonly description: string;
 
-  readonly runnerVersion: RunnerVersion;
+  private readonly runnerVersion: RunnerVersion;
 
   private components: ImageBuilderComponent[] = [];
   private boundAmi?: RunnerAmi;
 
-  readonly subnetId: string | undefined;
-  readonly securityGroupIds: string[] | undefined;
-  readonly instanceType: ec2.InstanceType;
-  readonly rebuildInterval: Duration;
-  readonly logRetention: logs.RetentionDays;
-  readonly logRemovalPolicy: cdk.RemovalPolicy;
+  private readonly subnetId: string | undefined;
+  private readonly securityGroupIds: string[] | undefined;
+  private readonly instanceType: ec2.InstanceType;
+  private readonly rebuildInterval: Duration;
+  private readonly logRetention: logs.RetentionDays;
+  private readonly logRemovalPolicy: cdk.RemovalPolicy;
 
   constructor(scope: Construct, id: string, props?: AmiBuilderProps) {
     super(scope, id);

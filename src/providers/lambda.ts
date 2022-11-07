@@ -105,7 +105,7 @@ export interface LambdaRunnerProps extends RunnerProviderProps {
 }
 
 /**
- * GitHub Actions runner provider using Lambda to execute the actions.
+ * GitHub Actions runner provider using Lambda to execute jobs.
  *
  * Creates a Docker-based function that gets executed for each job.
  *

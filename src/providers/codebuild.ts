@@ -29,7 +29,7 @@ import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 export interface CodeBuildRunnerProps extends RunnerProviderProps {
   /**
-   * Provider running an image to run inside CodeBuild with GitHub runner pre-configured. A user named `runner` is expected to exist with access to Docker-in-Docker.
+   * Image builder for CodeBuild image with GitHub runner pre-configured. A user named `runner` is expected to exist with access to Docker-in-Docker.
    *
    * @default image builder with `CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
    */
@@ -94,7 +94,7 @@ export interface CodeBuildRunnerProps extends RunnerProviderProps {
 }
 
 /**
- * GitHub Actions runner provider using CodeBuild to execute the actions.
+ * GitHub Actions runner provider using CodeBuild to execute jobs.
  *
  * Creates a project that gets started for each job.
  *

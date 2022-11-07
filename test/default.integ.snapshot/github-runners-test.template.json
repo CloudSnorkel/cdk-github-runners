@@ -1847,7 +1847,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of AWS CLI"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -1891,6 +1892,7 @@
           "inputs": {
            "commands": [
             "$ErrorActionPreference = 'Stop'",
+            "$ProgressPreference = 'SilentlyContinue'",
             "cmd /c curl -w \"%{redirect_url}\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh",
             "$LatestUrl = Get-Content $Env:TEMP\\latest-gh",
             "$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)",
@@ -1904,7 +1906,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of gh"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -1918,7 +1921,7 @@
     "Version": {
      "Ref": "WindowsImageBuilderGitHubCLIVersionBF0CA21E"
     },
-    "Data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$ProgressPreference = 'SilentlyContinue'\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}",
+    "Data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$ProgressPreference = 'SilentlyContinue'\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}",
     "Description": "Install latest version of gh"
    }
   },
@@ -1962,7 +1965,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of git"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2019,7 +2023,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of GitHub Actions Runner"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2605,7 +2610,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install packages required for GitHub Runner and upgrade all packages"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2657,7 +2663,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of AWS CLI"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2711,7 +2718,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of AWS CLI"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2765,7 +2773,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of gh"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2818,7 +2827,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of git"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2862,7 +2872,7 @@
           "inputs": {
            "commands": [
             "set -ex",
-            "RUNNER_VERSION=`curl  -w \"%{redirect_url}\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \"[^/v]+$\"`",
+            "RUNNER_VERSION=`curl -w \"%{redirect_url}\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \"[^/v]+$\"`",
             "curl -fsSLO \"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\"",
             "tar xzf \"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\"",
             "rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz",
@@ -2873,7 +2883,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of GitHub Actions Runner"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2887,7 +2898,7 @@
     "Version": {
      "Ref": "AMILinuxBuilderGitHubActionsRunnerVersion97672B31"
     },
-    "Data": "{\"name\":\"GitHub Actions Runner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl  -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\",\"./bin/installdependencies.sh\"]}}]}]}",
+    "Data": "{\"name\":\"GitHub Actions Runner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\",\"./bin/installdependencies.sh\"]}}]}]}",
     "Description": "Install latest version of GitHub Actions Runner"
    }
   },
@@ -2929,7 +2940,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of Docker"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7699,7 +7711,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install packages required for GitHub Runner and upgrade all packages"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7751,7 +7764,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of AWS CLI"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7805,7 +7819,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of AWS CLI"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7859,7 +7874,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of gh"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7912,7 +7928,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of git"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7956,7 +7973,7 @@
           "inputs": {
            "commands": [
             "set -ex",
-            "RUNNER_VERSION=`curl  -w \"%{redirect_url}\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \"[^/v]+$\"`",
+            "RUNNER_VERSION=`curl -w \"%{redirect_url}\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \"[^/v]+$\"`",
             "curl -fsSLO \"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\"",
             "tar xzf \"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\"",
             "rm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz",
@@ -7967,7 +7984,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of GitHub Actions Runner"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7981,7 +7999,7 @@
     "Version": {
      "Ref": "AMILinuxarm64BuilderGitHubActionsRunnerVersion208149D0"
     },
-    "Data": "{\"name\":\"GitHub Actions Runner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl  -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\",\"./bin/installdependencies.sh\"]}}]}]}",
+    "Data": "{\"name\":\"GitHub Actions Runner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\",\"./bin/installdependencies.sh\"]}}]}]}",
     "Description": "Install latest version of GitHub Actions Runner"
    }
   },
@@ -8023,7 +8041,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of Docker"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8535,7 +8554,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of CloudWatch agent for sending logs to CloudWatch"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8550,7 +8570,7 @@
      "Ref": "WindowsEC2BuilderCloudWatchagentVersion05F51F3E"
     },
     "Data": "{\"name\":\"CloudWatch agent\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn'\"]}}]}]}",
-    "Description": "Install latest version of CloduWatch agent for sending logs to CloudWatch"
+    "Description": "Install latest version of CloudWatch agent for sending logs to CloudWatch"
    }
   },
   "WindowsEC2BuilderAWSCLIVersion930FE37C": {
@@ -8586,7 +8606,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of AWS CLI"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8630,6 +8651,7 @@
           "inputs": {
            "commands": [
             "$ErrorActionPreference = 'Stop'",
+            "$ProgressPreference = 'SilentlyContinue'",
             "cmd /c curl -w \"%{redirect_url}\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh",
             "$LatestUrl = Get-Content $Env:TEMP\\latest-gh",
             "$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)",
@@ -8643,7 +8665,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of gh"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8657,7 +8680,7 @@
     "Version": {
      "Ref": "WindowsEC2BuilderGitHubCLIVersionF5632391"
     },
-    "Data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$ProgressPreference = 'SilentlyContinue'\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}",
+    "Data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$ProgressPreference = 'SilentlyContinue'\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}",
     "Description": "Install latest version of gh"
    }
   },
@@ -8701,7 +8724,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of git"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8758,7 +8782,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of GitHub Actions Runner"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8817,7 +8842,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of Docker"
     }
    },
    "UpdateReplacePolicy": "Retain",

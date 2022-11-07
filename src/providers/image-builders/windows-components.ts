@@ -3,14 +3,14 @@ import { RunnerVersion } from '../common';
 import { ImageBuilderComponent } from './common';
 
 /**
- * Components for Windows that can be used with AWS Image Builder based builders. These cannot be used by CodeBuildImageBuilder.
+ * Components for Windows that can be used with AWS Image Builder based builders. These cannot be used by {@link CodeBuildImageBuilder}.
  */
 export class WindowsComponents {
   public static cloudwatchAgent(scope: Construct, id: string) {
     return new ImageBuilderComponent(scope, id, {
       platform: 'Windows',
       displayName: 'CloudWatch agent',
-      description: 'Install latest version of CloduWatch agent for sending logs to CloudWatch',
+      description: 'Install latest version of CloudWatch agent for sending logs to CloudWatch',
       commands: [
         '$ErrorActionPreference = \'Stop\'',
         'Start-Process msiexec.exe -Wait -ArgumentList \'/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn\'',
@@ -37,6 +37,7 @@ export class WindowsComponents {
       description: 'Install latest version of gh',
       commands: [
         '$ErrorActionPreference = \'Stop\'',
+        '$ProgressPreference = \'SilentlyContinue\'',
         'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh',
         '$LatestUrl = Get-Content $Env:TEMP\\latest-gh',
         '$GH_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',

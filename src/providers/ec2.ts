@@ -120,9 +120,12 @@ Stop-Computer -ComputerName localhost -Force
 `.replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
 
 
+/**
+ * Properties for {@link Ec2Runner} construct.
+ */
 export interface Ec2RunnerProps extends RunnerProviderProps {
   /**
-   * Provider running an image to run inside CodeBuild with GitHub runner pre-configured. A user named `runner` is expected to exist with access to Docker-in-Docker.
+   * AMI builder that creates AMIs with GitHub runner pre-configured. On Linux, a user named `runner` is expected to exist with access to Docker.
    *
    * @default AMI builder for Ubuntu Linux
    */
@@ -147,14 +150,14 @@ export interface Ec2RunnerProps extends RunnerProviderProps {
   readonly instanceType?: ec2.InstanceType;
 
   /**
-   * Size of disk available for launched runner instances. This modifies the boot volume size and doesn't add any additional drives.
+   * Size of volume available for launched runner instances. This modifies the boot volume size and doesn't add any additional volumes.
    *
-   * @default 30GB (minimum for Windows)
+   * @default 30GB
    */
   readonly storageSize?: cdk.Size;
 
   /**
-   * Security Group to assign to this instance.
+   * Security Group to assign to launched runner instances.
    *
    * @default account's default security group
    */
@@ -183,9 +186,7 @@ export interface Ec2RunnerProps extends RunnerProviderProps {
 }
 
 /**
- * GitHub Actions runner provider using CodeBuild to execute the actions.
- *
- * Creates a project that gets started for each job.
+ * GitHub Actions runner provider using EC2 to execute jobs.
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
@@ -196,12 +197,12 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
   readonly labels: string[];
 
   /**
-   * VPC subnet used for hosting the instance.
+   * VPC subnet used for hosting launched instances.
    */
   readonly subnet?: ec2.ISubnet;
 
   /**
-   * Security group attached to the task.
+   * Security group attached to launched instances.
    */
   readonly securityGroup?: ec2.ISecurityGroup;
 
@@ -225,7 +226,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
     this.securityGroup = props.securityGroup;
     this.subnet = props.subnet;
     this.instanceType = props.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
-    this.storageSize = props.storageSize ?? cdk.Size.gibibytes(30);
+    this.storageSize = props.storageSize ?? cdk.Size.gibibytes(30); // 30 is the minimum for Windows
     this.spot = props.spot ?? false;
     this.spotMaxPrice = props.spotMaxPrice;
 
@@ -266,6 +267,8 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
    * @param parameters workflow job details
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
+    // we need to build user data in two steps because passing the template as the first parameter to stepfunctions.JsonPath.format fails on syntax
+
     const params = [
       stepfunctions.JsonPath.taskToken,
       this.logGroup.logGroupName,

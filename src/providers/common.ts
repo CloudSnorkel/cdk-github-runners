@@ -266,9 +266,12 @@ export interface RunnerRuntimeParameters {
   readonly repoPath: string;
 }
 
+/**
+ * Image status returned from runner providers to be displayed in status.json.
+ */
 export interface IRunnerImageStatus {
   /**
-   * Image repository where runner image is pushed.
+   * Image repository where image builder pushes runner images.
    */
   readonly imageRepository: string;
 
@@ -283,9 +286,12 @@ export interface IRunnerImageStatus {
   readonly imageBuilderLogGroup?: string;
 }
 
+/**
+ * AMI status returned from runner providers to be displayed as output of status function.
+ */
 export interface IRunnerAmiStatus {
   /**
-   * Launch template id pointing to the latest AMI.
+   * Id of launch template pointing to the latest AMI built by the AMI builder.
    */
   readonly launchTemplate: string;
 
@@ -368,8 +374,8 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable;
 
   /**
-   * An optional method that modifies the state machine after all the tasks have been generated. This can be used to add additional policy statements
-   * to the state machine role.
+   * An optional method that modifies the role of the state machine after all the tasks have been generated. This can be used to add additional policy
+   * statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
    *
    * @param stateMachineRole role for the state machine that executes the task returned from {@link getStepFunctionTask}.
    */

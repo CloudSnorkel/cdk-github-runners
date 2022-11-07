@@ -185,7 +185,7 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
 }
 
 /**
- * GitHub Actions runner provider using Fargate to execute the actions.
+ * GitHub Actions runner provider using Fargate to execute jobs.
  *
  * Creates a task definition with a single container that gets started for each job.
  *

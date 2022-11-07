@@ -205,6 +205,7 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
       version: this.version('Component', name, {
         platform: props.platform,
         data,
+        description: props.description,
       }),
       data: JSON.stringify(data),
     });

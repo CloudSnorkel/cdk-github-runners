@@ -3,7 +3,7 @@ import { Architecture, RunnerVersion } from '../common';
 import { ImageBuilderComponent } from './common';
 
 /**
- * Components for Ubuntu that can be used with AWS Image Builder based builders. These cannot be used by CodeBuildImageBuilder.
+ * Components for Ubuntu Linux that can be used with AWS Image Builder based builders. These cannot be used by {@link CodeBuildImageBuilder}.
  */
 export class LinuxUbuntuComponents {
   public static requiredPackages(scope: Construct, id: string, architecture: Architecture) {
@@ -11,7 +11,7 @@ export class LinuxUbuntuComponents {
     if (architecture.is(Architecture.X86_64)) {
       archUrl = 'amd64';
     } else if (architecture.is(Architecture.ARM64)) {
-      archUrl ='arm64';
+      archUrl = 'arm64';
     } else {
       throw new Error(`Unsupported architecture for required packages: ${architecture.name}`);
     }
@@ -32,7 +32,7 @@ export class LinuxUbuntuComponents {
     });
   }
 
-  public static runnerUser(scope: Construct, id: string, _: Architecture) {
+  public static runnerUser(scope: Construct, id: string, _architecture: Architecture) {
     return new ImageBuilderComponent(scope, id, {
       platform: 'Linux',
       displayName: 'GitHub Runner user',
@@ -50,7 +50,7 @@ export class LinuxUbuntuComponents {
     if (architecture.is(Architecture.X86_64)) {
       archUrl = 'x86_64';
     } else if (architecture.is(Architecture.ARM64)) {
-      archUrl ='aarch64';
+      archUrl = 'aarch64';
     } else {
       throw new Error(`Unsupported architecture for awscli: ${architecture.name}`);
     }
@@ -69,7 +69,7 @@ export class LinuxUbuntuComponents {
     });
   }
 
-  public static githubCli(scope: Construct, id: string, _: Architecture) {
+  public static githubCli(scope: Construct, id: string, _architecture: Architecture) {
     return new ImageBuilderComponent(scope, id, {
       platform: 'Linux',
       displayName: 'GitHub CLI',
@@ -85,7 +85,7 @@ export class LinuxUbuntuComponents {
     });
   }
 
-  public static git(scope: Construct, id: string, _: Architecture) {
+  public static git(scope: Construct, id: string, _architecture: Architecture) {
     return new ImageBuilderComponent(scope, id, {
       platform: 'Linux',
       displayName: 'Git',
@@ -102,7 +102,7 @@ export class LinuxUbuntuComponents {
   public static githubRunner(scope: Construct, id: string, runnerVersion: RunnerVersion, architecture: Architecture) {
     let versionCommand: string;
     if (runnerVersion.is(RunnerVersion.latest())) {
-      versionCommand = 'RUNNER_VERSION=`curl  -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest | grep -oE "[^/v]+$"`';
+      versionCommand = 'RUNNER_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest | grep -oE "[^/v]+$"`';
     } else {
       versionCommand = `RUNNER_VERSION='${runnerVersion.version}'`;
     }
@@ -111,7 +111,7 @@ export class LinuxUbuntuComponents {
     if (architecture.is(Architecture.X86_64)) {
       archUrl = 'x64';
     } else if (architecture.is(Architecture.ARM64)) {
-      archUrl ='arm64';
+      archUrl = 'arm64';
     } else {
       throw new Error(`Unsupported architecture for GitHub Runner: ${architecture.name}`);
     }
@@ -131,7 +131,7 @@ export class LinuxUbuntuComponents {
     });
   }
 
-  public static docker(scope: Construct, id: string, _: Architecture) {
+  public static docker(scope: Construct, id: string, _architecture: Architecture) {
     return new ImageBuilderComponent(scope, id, {
       platform: 'Linux',
       displayName: 'Docker',
