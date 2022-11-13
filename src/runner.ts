@@ -1,12 +1,12 @@
 import * as cdk from 'aws-cdk-lib';
 import {
   aws_ec2 as ec2,
-  aws_iam as iam,
-  aws_lambda as lambda,
-  aws_stepfunctions as stepfunctions,
+  aws_iam as iam, aws_lambda as lambda, aws_logs as logs, aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
+  RemovalPolicy,
 } from 'aws-cdk-lib';
 import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
+import { LogLevel } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import { CodeBuildRunner } from './providers/codebuild';
 import { IRunnerProvider } from './providers/common';
@@ -82,6 +82,41 @@ export interface GitHubRunnersProps {
    * @default 10 minutes
    */
   readonly idleTimeout?: cdk.Duration;
+
+  /**
+   * Logging options for the state machine that manages the runners.
+   */
+  readonly logOptions?: LogOptions;
+}
+
+/**
+ * Defines what execution history events are logged and where they are logged.
+ */
+export interface LogOptions {
+  /**
+   * The log group where the execution history events will be logged.
+   */
+  readonly logGroupName?: string;
+  /**
+   * Determines whether execution data is included in your log.
+   *
+   * @default false
+   */
+  readonly includeExecutionData?: boolean;
+  /**
+   * Defines which category of execution history events are logged.
+   *
+   * @default ERROR
+   */
+  readonly level?: LogLevel;
+  /**
+   * The number of days log events are kept in CloudWatch Logs. When updating
+   * this property, unsetting it doesn't remove the log retention policy. To
+   * remove the retention policy, set the value to `INFINITE`.
+   *
+   * @default logs.RetentionDays.ONE_MONTH
+   */
+  readonly logRetention?: logs.RetentionDays;
 }
 
 /**
@@ -138,7 +173,7 @@ export class GitHubRunners extends Construct {
   private readonly webhook: GithubWebhookHandler;
   private readonly orchestrator: stepfunctions.StateMachine;
   private readonly setupUrl: string;
-  private readonly extraLambdaEnv: {[p: string]: string} = {};
+  private readonly extraLambdaEnv: { [p: string]: string } = {};
   private readonly extraLambdaProps: lambda.FunctionOptions;
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
@@ -278,11 +313,30 @@ export class GitHubRunners extends Construct {
       .when(stepfunctions.Condition.isNotPresent('$.labels.self-hosted'), new stepfunctions.Succeed(this, 'No'))
       .otherwise(work);
 
+    let logOptions: cdk.aws_stepfunctions.LogOptions | undefined;
+    if (this.props?.logOptions) {
+      const logGroup = new logs.LogGroup(
+        this,
+        'Logs',
+        {
+          logGroupName: props?.logOptions?.logGroupName ?? undefined,
+          retention: props?.logOptions?.logRetention ?? logs.RetentionDays.ONE_MONTH,
+          removalPolicy: RemovalPolicy.DESTROY,
+        },
+      );
+
+      logOptions = {
+        destination: logGroup,
+        includeExecutionData: props?.logOptions?.includeExecutionData ?? true,
+        level: props?.logOptions?.level ?? stepfunctions.LogLevel.ALL,
+      };
+    }
     const stateMachine = new stepfunctions.StateMachine(
       this,
       'Runner Orchestrator',
       {
         definition: check,
+        logs: logOptions,
       },
     );
 
