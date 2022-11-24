@@ -23,8 +23,8 @@ export class LinuxUbuntuComponents {
       commands: [
         'set -ex',
         'apt-get update',
-        'apt-get upgrade -y',
-        'apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates',
+        'DEBIAN_FRONTEND=noninteractive apt-get upgrade -y',
+        'DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates',
         `curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/${archUrl}/latest/amazon-cloudwatch-agent.deb`,
         'dpkg -i -E /tmp/amazon-cloudwatch-agent.deb',
         'rm /tmp/amazon-cloudwatch-agent.deb',
@@ -80,7 +80,7 @@ export class LinuxUbuntuComponents {
         'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] ' +
         '  https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null',
         'apt-get update',
-        'apt-get install -y gh',
+        'DEBIAN_FRONTEND=noninteractive apt-get install -y gh',
       ],
     });
   }
@@ -94,7 +94,7 @@ export class LinuxUbuntuComponents {
         'set -ex',
         'add-apt-repository ppa:git-core/ppa',
         'apt-get update',
-        'apt-get install -y git',
+        'DEBIAN_FRONTEND=noninteractive apt-get install -y git',
       ],
     });
   }
@@ -143,7 +143,7 @@ export class LinuxUbuntuComponents {
         '  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ' +
         '  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null',
         'apt-get update',
-        'apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin',
+        'DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin',
         'usermod -aG docker runner',
         'ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose',
       ],
