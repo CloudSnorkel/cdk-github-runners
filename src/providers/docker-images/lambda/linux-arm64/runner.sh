@@ -4,6 +4,8 @@ set -e -u -o pipefail
 
 cp -r /runner /tmp/
 cd /tmp/runner
+mkdir /tmp/home
+export HOME=/tmp/home
 
 if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
 ./config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --name "${RUNNER_NAME}" ${RUNNER_FLAGS}
