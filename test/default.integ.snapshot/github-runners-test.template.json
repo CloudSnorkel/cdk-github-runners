@@ -2599,8 +2599,8 @@
            "commands": [
             "set -ex",
             "apt-get update",
-            "apt-get upgrade -y",
-            "apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates",
+            "DEBIAN_FRONTEND=noninteractive apt-get upgrade -y",
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates",
             "curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb",
             "dpkg -i -E /tmp/amazon-cloudwatch-agent.deb",
             "rm /tmp/amazon-cloudwatch-agent.deb"
@@ -2625,7 +2625,7 @@
     "Version": {
      "Ref": "AMILinuxBuilderUpgradepackagesandinstallbasicsVersionA685EC4B"
     },
-    "Data": "{\"name\":\"Required packages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get update\",\"apt-get upgrade -y\",\"apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\",\"curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
+    "Data": "{\"name\":\"Required packages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\",\"curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
     "Description": "Install packages required for GitHub Runner and upgrade all packages"
    }
   },
@@ -2766,7 +2766,7 @@
             "curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg",
             "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null",
             "apt-get update",
-            "apt-get install -y gh"
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y gh"
            ]
           }
          }
@@ -2788,7 +2788,7 @@
     "Version": {
      "Ref": "AMILinuxBuilderGitHubCLIVersionDC235969"
     },
-    "Data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get update\",\"apt-get install -y gh\"]}}]}]}",
+    "Data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y gh\"]}}]}]}",
     "Description": "Install latest version of gh"
    }
   },
@@ -2820,7 +2820,7 @@
             "set -ex",
             "add-apt-repository ppa:git-core/ppa",
             "apt-get update",
-            "apt-get install -y git"
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y git"
            ]
           }
          }
@@ -2842,7 +2842,7 @@
     "Version": {
      "Ref": "AMILinuxBuildergitVersionE19C42C8"
     },
-    "Data": "{\"name\":\"Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get update\",\"apt-get install -y git\"]}}]}]}",
+    "Data": "{\"name\":\"Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y git\"]}}]}]}",
     "Description": "Install latest version of git"
    }
   },
@@ -2931,7 +2931,7 @@
             "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg",
             "echo   \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
             "apt-get update",
-            "apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin",
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin",
             "usermod -aG docker runner",
             "ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose"
            ]
@@ -2955,7 +2955,7 @@
     "Version": {
      "Ref": "AMILinuxBuilderDockerVersion3F741AF0"
     },
-    "Data": "{\"name\":\"Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get update\",\"apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
+    "Data": "{\"name\":\"Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
     "Description": "Install latest version of Docker"
    }
   },
@@ -3081,7 +3081,8 @@
       "AmiDistributionConfiguration": {
        "Name": "github-runners-test-AMILinuxBuilder-67243E6D-{{ imagebuilder:buildDate }}",
        "AmiTags": {
-        "Name": "github-runners-test/AMI Linux Builder",
+        "Name": "AMI Linux Builder",
+        "GitHubRunners:Stack": "github-runners-test",
         "GitHubRunners:Builder": "github-runners-test/AMI Linux Builder"
        }
       },
@@ -3286,6 +3287,70 @@
     "AMILinuxBuilderInfrastructure6FCD154A",
     "AMILinuxBuilderLogAA902D79"
    ]
+  },
+  "AMILinuxBuilderDeleteAMISchedule0109DEF5": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": {
+       "Fn::Join": [
+        "",
+        [
+         "{\"RequestType\":\"Scheduled\",\"LaunchTemplateId\":\"",
+         {
+          "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+         },
+         "\",\"StackName\":\"github-runners-test\",\"BuilderName\":\"github-runners-test/AMI Linux Builder\"}"
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "AMILinuxBuilderDeleteAMIScheduleAllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88525B596C": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderDeleteAMISchedule0109DEF5",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "AMILinuxBuilderAMIDeleter58658716": {
+   "Type": "Custom::AmiDeleter",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+      "Arn"
+     ]
+    },
+    "StackName": "github-runners-test",
+    "BuilderName": "github-runners-test/AMI Linux Builder"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   },
   "AMILinuxBuilderPipelineA080CF10": {
    "Type": "AWS::ImageBuilder::ImagePipeline",
@@ -7576,6 +7641,114 @@
     ]
    }
   },
+  "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0C44BF83": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ec2:DescribeLaunchTemplateVersions",
+        "ec2:DescribeImages",
+        "ec2:DeregisterImage"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0C44BF83",
+    "Roles": [
+     {
+      "Ref": "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F"
+     }
+    ]
+   }
+  },
+  "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "2c96dbfaf75649542d8681744e77d3ef4a03a20df5e171ce2a0a72b0a18e5928.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F",
+      "Arn"
+     ]
+    },
+    "Environment": {
+     "Variables": {
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs14.x",
+    "Timeout": 300
+   },
+   "DependsOn": [
+    "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0C44BF83",
+    "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F"
+   ]
+  },
+  "deleteamidcc036c8876b451ea2c1552f9e06e9e1LogRetention85F808EB": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
   "EC2SpotLinuxRole86333E5D": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -7700,8 +7873,8 @@
            "commands": [
             "set -ex",
             "apt-get update",
-            "apt-get upgrade -y",
-            "apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates",
+            "DEBIAN_FRONTEND=noninteractive apt-get upgrade -y",
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates",
             "curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb",
             "dpkg -i -E /tmp/amazon-cloudwatch-agent.deb",
             "rm /tmp/amazon-cloudwatch-agent.deb"
@@ -7726,7 +7899,7 @@
     "Version": {
      "Ref": "AMILinuxarm64BuilderUpgradepackagesandinstallbasicsVersionCD58A101"
     },
-    "Data": "{\"name\":\"Required packages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get update\",\"apt-get upgrade -y\",\"apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\",\"curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
+    "Data": "{\"name\":\"Required packages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\",\"curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
     "Description": "Install packages required for GitHub Runner and upgrade all packages"
    }
   },
@@ -7867,7 +8040,7 @@
             "curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg",
             "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null",
             "apt-get update",
-            "apt-get install -y gh"
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y gh"
            ]
           }
          }
@@ -7889,7 +8062,7 @@
     "Version": {
      "Ref": "AMILinuxarm64BuilderGitHubCLIVersionDE6BF6E3"
     },
-    "Data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get update\",\"apt-get install -y gh\"]}}]}]}",
+    "Data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y gh\"]}}]}]}",
     "Description": "Install latest version of gh"
    }
   },
@@ -7921,7 +8094,7 @@
             "set -ex",
             "add-apt-repository ppa:git-core/ppa",
             "apt-get update",
-            "apt-get install -y git"
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y git"
            ]
           }
          }
@@ -7943,7 +8116,7 @@
     "Version": {
      "Ref": "AMILinuxarm64BuildergitVersion036A7A85"
     },
-    "Data": "{\"name\":\"Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get update\",\"apt-get install -y git\"]}}]}]}",
+    "Data": "{\"name\":\"Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y git\"]}}]}]}",
     "Description": "Install latest version of git"
    }
   },
@@ -8032,7 +8205,7 @@
             "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg",
             "echo   \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
             "apt-get update",
-            "apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin",
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin",
             "usermod -aG docker runner",
             "ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose"
            ]
@@ -8056,7 +8229,7 @@
     "Version": {
      "Ref": "AMILinuxarm64BuilderDockerVersionD5DFBE4A"
     },
-    "Data": "{\"name\":\"Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get update\",\"apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
+    "Data": "{\"name\":\"Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
     "Description": "Install latest version of Docker"
    }
   },
@@ -8182,7 +8355,8 @@
       "AmiDistributionConfiguration": {
        "Name": "github-runners-test-AMILinuxarm64Builder-3F449283-{{ imagebuilder:buildDate }}",
        "AmiTags": {
-        "Name": "github-runners-test/AMI Linux arm64 Builder",
+        "Name": "AMI Linux arm64 Builder",
+        "GitHubRunners:Stack": "github-runners-test",
         "GitHubRunners:Builder": "github-runners-test/AMI Linux arm64 Builder"
        }
       },
@@ -8387,6 +8561,70 @@
     "AMILinuxarm64BuilderInfrastructure80FA16D6",
     "AMILinuxarm64BuilderLog3F9BB6F0"
    ]
+  },
+  "AMILinuxarm64BuilderDeleteAMISchedule72E5EB47": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": {
+       "Fn::Join": [
+        "",
+        [
+         "{\"RequestType\":\"Scheduled\",\"LaunchTemplateId\":\"",
+         {
+          "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
+         },
+         "\",\"StackName\":\"github-runners-test\",\"BuilderName\":\"github-runners-test/AMI Linux arm64 Builder\"}"
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "AMILinuxarm64BuilderDeleteAMIScheduleAllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88A6D69EB4": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderDeleteAMISchedule72E5EB47",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "AMILinuxarm64BuilderAMIDeleter27E72E27": {
+   "Type": "Custom::AmiDeleter",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+      "Arn"
+     ]
+    },
+    "StackName": "github-runners-test",
+    "BuilderName": "github-runners-test/AMI Linux arm64 Builder"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   },
   "AMILinuxarm64BuilderPipelineECE006B6": {
    "Type": "AWS::ImageBuilder::ImagePipeline",
@@ -8983,7 +9221,8 @@
       "AmiDistributionConfiguration": {
        "Name": "github-runners-test-WindowsEC2Builder-5FAF8285-{{ imagebuilder:buildDate }}",
        "AmiTags": {
-        "Name": "github-runners-test/Windows EC2 Builder",
+        "Name": "Windows EC2 Builder",
+        "GitHubRunners:Stack": "github-runners-test",
         "GitHubRunners:Builder": "github-runners-test/Windows EC2 Builder"
        }
       },
@@ -9172,6 +9411,70 @@
     "WindowsEC2BuilderInfrastructure757D4FD7",
     "WindowsEC2BuilderLog486ECFAD"
    ]
+  },
+  "WindowsEC2BuilderDeleteAMISchedule52E66C5D": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": {
+       "Fn::Join": [
+        "",
+        [
+         "{\"RequestType\":\"Scheduled\",\"LaunchTemplateId\":\"",
+         {
+          "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
+         },
+         "\",\"StackName\":\"github-runners-test\",\"BuilderName\":\"github-runners-test/Windows EC2 Builder\"}"
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "WindowsEC2BuilderDeleteAMIScheduleAllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA882F03ABC6": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderDeleteAMISchedule52E66C5D",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "WindowsEC2BuilderAMIDeleterF9643905": {
+   "Type": "Custom::AmiDeleter",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+      "Arn"
+     ]
+    },
+    "StackName": "github-runners-test",
+    "BuilderName": "github-runners-test/Windows EC2 Builder"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   },
   "WindowsEC2BuilderPipelineC4625CBC": {
    "Type": "AWS::ImageBuilder::ImagePipeline",

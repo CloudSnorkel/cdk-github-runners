@@ -2,15 +2,17 @@ import * as cdk from 'aws-cdk-lib';
 import {
   aws_ec2 as ec2,
   aws_events as events,
+  aws_events_targets as events_targets,
   aws_iam as iam,
   aws_imagebuilder as imagebuilder,
   aws_logs as logs,
-  aws_s3_assets as s3_assets,
+  aws_s3_assets as s3_assets, CustomResource,
   Duration,
   RemovalPolicy,
   Stack,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { BundledNodejsFunction } from '../../utils';
 import { Architecture, IAmiBuilder, Os, RunnerAmi, RunnerVersion } from '../common';
 import { ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
@@ -357,6 +359,9 @@ export class AmiBuilder extends Construct implements IAmiBuilder {
 
     const launchTemplate = new ec2.LaunchTemplate(this, 'Launch template');
 
+    const stackName = cdk.Stack.of(this).stackName;
+    const builderName = this.node.path;
+
     const dist = new imagebuilder.CfnDistributionConfiguration(this, 'Distribution', {
       name: uniqueImageBuilderName(this),
       description: this.description,
@@ -370,8 +375,9 @@ export class AmiBuilder extends Construct implements IAmiBuilder {
               allowedSpecialCharacters: '_-',
             })}-{{ imagebuilder:buildDate }}`,
             AmiTags: {
-              'Name': this.node.path,
-              'GitHubRunners:Builder': this.node.path,
+              'Name': this.node.id,
+              'GitHubRunners:Stack': stackName,
+              'GitHubRunners:Builder': builderName,
             },
           },
           launchTemplateConfigurations: [
@@ -406,7 +412,7 @@ export class AmiBuilder extends Construct implements IAmiBuilder {
     image.node.addDependency(infra);
     image.node.addDependency(log);
 
-    // TODO this.imageCleaner(image, recipe.name);
+    this.imageCleaner(launchTemplate, stackName, builderName);
 
     let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
     if (this.rebuildInterval.toDays() > 0) {
@@ -464,6 +470,41 @@ export class AmiBuilder extends Construct implements IAmiBuilder {
           role.roleName,
         ],
       }).ref,
+    });
+  }
+
+  private imageCleaner(launchTemplate: ec2.LaunchTemplate, stackName: string, builderName: string) {
+    const deleter = BundledNodejsFunction.singleton(this, 'delete-ami', {
+      initialPolicy: [
+        new iam.PolicyStatement({
+          actions: ['ec2:DescribeLaunchTemplateVersions', 'ec2:DescribeImages', 'ec2:DeregisterImage'],
+          resources: ['*'],
+        }),
+      ],
+      timeout: cdk.Duration.minutes(5),
+    });
+
+    // delete old AMIs on schedule
+    const eventRule = new events.Rule(this, 'Delete AMI Schedule', {
+      schedule: events.Schedule.rate(cdk.Duration.days(1)),
+    });
+    eventRule.addTarget(new events_targets.LambdaFunction(deleter, {
+      event: events.RuleTargetInput.fromObject({
+        RequestType: 'Scheduled',
+        LaunchTemplateId: launchTemplate.launchTemplateId,
+        StackName: stackName,
+        BuilderName: builderName,
+      }),
+    }));
+
+    // delete all AMIs when this construct is removed
+    new CustomResource(this, 'AMI Deleter', {
+      serviceToken: deleter.functionArn,
+      resourceType: 'Custom::AmiDeleter',
+      properties: {
+        StackName: stackName,
+        BuilderName: builderName,
+      },
     });
   }
 }

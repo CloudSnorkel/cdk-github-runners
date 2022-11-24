@@ -3574,7 +3574,7 @@
                         "version": {
                           "Ref": "AMILinuxBuilderUpgradepackagesandinstallbasicsVersionA685EC4B"
                         },
-                        "data": "{\"name\":\"Required packages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get update\",\"apt-get upgrade -y\",\"apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\",\"curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
+                        "data": "{\"name\":\"Required packages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\",\"curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
                         "description": "Install packages required for GitHub Runner and upgrade all packages"
                       }
                     },
@@ -3718,7 +3718,7 @@
                         "version": {
                           "Ref": "AMILinuxBuilderGitHubCLIVersionDC235969"
                         },
-                        "data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get update\",\"apt-get install -y gh\"]}}]}]}",
+                        "data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y gh\"]}}]}]}",
                         "description": "Install latest version of gh"
                       }
                     },
@@ -3766,7 +3766,7 @@
                         "version": {
                           "Ref": "AMILinuxBuildergitVersionE19C42C8"
                         },
-                        "data": "{\"name\":\"Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get update\",\"apt-get install -y git\"]}}]}]}",
+                        "data": "{\"name\":\"Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y git\"]}}]}]}",
                         "description": "Install latest version of git"
                       }
                     },
@@ -3862,7 +3862,7 @@
                         "version": {
                           "Ref": "AMILinuxBuilderDockerVersion3F741AF0"
                         },
-                        "data": "{\"name\":\"Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get update\",\"apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
+                        "data": "{\"name\":\"Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
                         "description": "Install latest version of Docker"
                       }
                     },
@@ -4057,7 +4057,8 @@
                         "amiDistributionConfiguration": {
                           "Name": "github-runners-test-AMILinuxBuilder-67243E6D-{{ imagebuilder:buildDate }}",
                           "AmiTags": {
-                            "Name": "github-runners-test/AMI Linux Builder",
+                            "Name": "AMI Linux Builder",
+                            "GitHubRunners:Stack": "github-runners-test",
                             "GitHubRunners:Builder": "github-runners-test/AMI Linux Builder"
                           }
                         },
@@ -4242,6 +4243,99 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImage",
+                  "version": "2.50.0"
+                }
+              },
+              "Delete AMI Schedule": {
+                "id": "Delete AMI Schedule",
+                "path": "github-runners-test/AMI Linux Builder/Delete AMI Schedule",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/AMI Linux Builder/Delete AMI Schedule/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Events::Rule",
+                      "aws:cdk:cloudformation:props": {
+                        "scheduleExpression": "rate(1 day)",
+                        "state": "ENABLED",
+                        "targets": [
+                          {
+                            "id": "Target0",
+                            "arn": {
+                              "Fn::GetAtt": [
+                                "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+                                "Arn"
+                              ]
+                            },
+                            "input": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  "{\"RequestType\":\"Scheduled\",\"LaunchTemplateId\":\"",
+                                  {
+                                    "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+                                  },
+                                  "\",\"StackName\":\"github-runners-test\",\"BuilderName\":\"github-runners-test/AMI Linux Builder\"}"
+                                ]
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_events.CfnRule",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88": {
+                    "id": "AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88",
+                    "path": "github-runners-test/AMI Linux Builder/Delete AMI Schedule/AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                      "aws:cdk:cloudformation:props": {
+                        "action": "lambda:InvokeFunction",
+                        "functionName": {
+                          "Fn::GetAtt": [
+                            "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+                            "Arn"
+                          ]
+                        },
+                        "principal": "events.amazonaws.com",
+                        "sourceArn": {
+                          "Fn::GetAtt": [
+                            "AMILinuxBuilderDeleteAMISchedule0109DEF5",
+                            "Arn"
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_events.Rule",
+                  "version": "2.50.0"
+                }
+              },
+              "AMI Deleter": {
+                "id": "AMI Deleter",
+                "path": "github-runners-test/AMI Linux Builder/AMI Deleter",
+                "children": {
+                  "Default": {
+                    "id": "Default",
+                    "path": "github-runners-test/AMI Linux Builder/AMI Deleter/Default",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.CfnResource",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CustomResource",
                   "version": "2.50.0"
                 }
               },
@@ -10493,6 +10587,193 @@
               "version": "2.50.0"
             }
           },
+          "delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1": {
+            "id": "delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1",
+            "path": "github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1",
+            "children": {
+              "ServiceRole": {
+                "id": "ServiceRole",
+                "path": "github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "DefaultPolicy": {
+                    "id": "DefaultPolicy",
+                    "path": "github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/DefaultPolicy",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/DefaultPolicy/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                          "aws:cdk:cloudformation:props": {
+                            "policyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": [
+                                    "ec2:DescribeLaunchTemplateVersions",
+                                    "ec2:DescribeImages",
+                                    "ec2:DeregisterImage"
+                                  ],
+                                  "Effect": "Allow",
+                                  "Resource": "*"
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            },
+                            "policyName": "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0C44BF83",
+                            "roles": [
+                              {
+                                "Ref": "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F"
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Policy",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.50.0"
+                }
+              },
+              "Code": {
+                "id": "Code",
+                "path": "github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Code",
+                "children": {
+                  "Stage": {
+                    "id": "Stage",
+                    "path": "github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Code/Stage",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.AssetStaging",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "AssetBucket": {
+                    "id": "AssetBucket",
+                    "path": "github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Code/AssetBucket",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3.BucketBase",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
+                  "version": "2.50.0"
+                }
+              },
+              "Resource": {
+                "id": "Resource",
+                "path": "github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
+                  "aws:cdk:cloudformation:props": {
+                    "code": {
+                      "s3Bucket": {
+                        "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                      },
+                      "s3Key": "2c96dbfaf75649542d8681744e77d3ef4a03a20df5e171ce2a0a72b0a18e5928.zip"
+                    },
+                    "role": {
+                      "Fn::GetAtt": [
+                        "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F",
+                        "Arn"
+                      ]
+                    },
+                    "environment": {
+                      "variables": {
+                        "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+                      }
+                    },
+                    "handler": "index.handler",
+                    "runtime": "nodejs14.x",
+                    "timeout": 300
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+                  "version": "2.50.0"
+                }
+              },
+              "LogRetention": {
+                "id": "LogRetention",
+                "path": "github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogRetention",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogRetention/Resource",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.CfnResource",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.LogRetention",
+                  "version": "2.50.0"
+                }
+              },
+              "LogGroup": {
+                "id": "LogGroup",
+                "path": "github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogGroup",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.50.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_lambda.Function",
+              "version": "2.50.0"
+            }
+          },
           "EC2 Spot Linux": {
             "id": "EC2 Spot Linux",
             "path": "github-runners-test/EC2 Spot Linux",
@@ -10713,7 +10994,7 @@
                         "version": {
                           "Ref": "AMILinuxarm64BuilderUpgradepackagesandinstallbasicsVersionCD58A101"
                         },
-                        "data": "{\"name\":\"Required packages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get update\",\"apt-get upgrade -y\",\"apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\",\"curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
+                        "data": "{\"name\":\"Required packages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\",\"curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
                         "description": "Install packages required for GitHub Runner and upgrade all packages"
                       }
                     },
@@ -10857,7 +11138,7 @@
                         "version": {
                           "Ref": "AMILinuxarm64BuilderGitHubCLIVersionDE6BF6E3"
                         },
-                        "data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get update\",\"apt-get install -y gh\"]}}]}]}",
+                        "data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y gh\"]}}]}]}",
                         "description": "Install latest version of gh"
                       }
                     },
@@ -10905,7 +11186,7 @@
                         "version": {
                           "Ref": "AMILinuxarm64BuildergitVersion036A7A85"
                         },
-                        "data": "{\"name\":\"Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get update\",\"apt-get install -y git\"]}}]}]}",
+                        "data": "{\"name\":\"Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y git\"]}}]}]}",
                         "description": "Install latest version of git"
                       }
                     },
@@ -11001,7 +11282,7 @@
                         "version": {
                           "Ref": "AMILinuxarm64BuilderDockerVersionD5DFBE4A"
                         },
-                        "data": "{\"name\":\"Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get update\",\"apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
+                        "data": "{\"name\":\"Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
                         "description": "Install latest version of Docker"
                       }
                     },
@@ -11196,7 +11477,8 @@
                         "amiDistributionConfiguration": {
                           "Name": "github-runners-test-AMILinuxarm64Builder-3F449283-{{ imagebuilder:buildDate }}",
                           "AmiTags": {
-                            "Name": "github-runners-test/AMI Linux arm64 Builder",
+                            "Name": "AMI Linux arm64 Builder",
+                            "GitHubRunners:Stack": "github-runners-test",
                             "GitHubRunners:Builder": "github-runners-test/AMI Linux arm64 Builder"
                           }
                         },
@@ -11381,6 +11663,99 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImage",
+                  "version": "2.50.0"
+                }
+              },
+              "Delete AMI Schedule": {
+                "id": "Delete AMI Schedule",
+                "path": "github-runners-test/AMI Linux arm64 Builder/Delete AMI Schedule",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/AMI Linux arm64 Builder/Delete AMI Schedule/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Events::Rule",
+                      "aws:cdk:cloudformation:props": {
+                        "scheduleExpression": "rate(1 day)",
+                        "state": "ENABLED",
+                        "targets": [
+                          {
+                            "id": "Target0",
+                            "arn": {
+                              "Fn::GetAtt": [
+                                "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+                                "Arn"
+                              ]
+                            },
+                            "input": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  "{\"RequestType\":\"Scheduled\",\"LaunchTemplateId\":\"",
+                                  {
+                                    "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
+                                  },
+                                  "\",\"StackName\":\"github-runners-test\",\"BuilderName\":\"github-runners-test/AMI Linux arm64 Builder\"}"
+                                ]
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_events.CfnRule",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88": {
+                    "id": "AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88",
+                    "path": "github-runners-test/AMI Linux arm64 Builder/Delete AMI Schedule/AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                      "aws:cdk:cloudformation:props": {
+                        "action": "lambda:InvokeFunction",
+                        "functionName": {
+                          "Fn::GetAtt": [
+                            "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+                            "Arn"
+                          ]
+                        },
+                        "principal": "events.amazonaws.com",
+                        "sourceArn": {
+                          "Fn::GetAtt": [
+                            "AMILinuxarm64BuilderDeleteAMISchedule72E5EB47",
+                            "Arn"
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_events.Rule",
+                  "version": "2.50.0"
+                }
+              },
+              "AMI Deleter": {
+                "id": "AMI Deleter",
+                "path": "github-runners-test/AMI Linux arm64 Builder/AMI Deleter",
+                "children": {
+                  "Default": {
+                    "id": "Default",
+                    "path": "github-runners-test/AMI Linux arm64 Builder/AMI Deleter/Default",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.CfnResource",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CustomResource",
                   "version": "2.50.0"
                 }
               },
@@ -12101,7 +12476,8 @@
                         "amiDistributionConfiguration": {
                           "Name": "github-runners-test-WindowsEC2Builder-5FAF8285-{{ imagebuilder:buildDate }}",
                           "AmiTags": {
-                            "Name": "github-runners-test/Windows EC2 Builder",
+                            "Name": "Windows EC2 Builder",
+                            "GitHubRunners:Stack": "github-runners-test",
                             "GitHubRunners:Builder": "github-runners-test/Windows EC2 Builder"
                           }
                         },
@@ -12278,6 +12654,99 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImage",
+                  "version": "2.50.0"
+                }
+              },
+              "Delete AMI Schedule": {
+                "id": "Delete AMI Schedule",
+                "path": "github-runners-test/Windows EC2 Builder/Delete AMI Schedule",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Windows EC2 Builder/Delete AMI Schedule/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Events::Rule",
+                      "aws:cdk:cloudformation:props": {
+                        "scheduleExpression": "rate(1 day)",
+                        "state": "ENABLED",
+                        "targets": [
+                          {
+                            "id": "Target0",
+                            "arn": {
+                              "Fn::GetAtt": [
+                                "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+                                "Arn"
+                              ]
+                            },
+                            "input": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  "{\"RequestType\":\"Scheduled\",\"LaunchTemplateId\":\"",
+                                  {
+                                    "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
+                                  },
+                                  "\",\"StackName\":\"github-runners-test\",\"BuilderName\":\"github-runners-test/Windows EC2 Builder\"}"
+                                ]
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_events.CfnRule",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88": {
+                    "id": "AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88",
+                    "path": "github-runners-test/Windows EC2 Builder/Delete AMI Schedule/AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                      "aws:cdk:cloudformation:props": {
+                        "action": "lambda:InvokeFunction",
+                        "functionName": {
+                          "Fn::GetAtt": [
+                            "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+                            "Arn"
+                          ]
+                        },
+                        "principal": "events.amazonaws.com",
+                        "sourceArn": {
+                          "Fn::GetAtt": [
+                            "WindowsEC2BuilderDeleteAMISchedule52E66C5D",
+                            "Arn"
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_events.Rule",
+                  "version": "2.50.0"
+                }
+              },
+              "AMI Deleter": {
+                "id": "AMI Deleter",
+                "path": "github-runners-test/Windows EC2 Builder/AMI Deleter",
+                "children": {
+                  "Default": {
+                    "id": "Default",
+                    "path": "github-runners-test/Windows EC2 Builder/AMI Deleter/Default",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.CfnResource",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CustomResource",
                   "version": "2.50.0"
                 }
               },

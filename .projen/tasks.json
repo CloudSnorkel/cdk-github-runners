@@ -96,6 +96,9 @@
           "exec": "esbuild src/lambdas/build-image/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/build-image/index.js"
         },
         {
+          "exec": "esbuild src/lambdas/delete-ami/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/delete-ami/index.js"
+        },
+        {
           "exec": "esbuild src/lambdas/delete-runner/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/delete-runner/index.js"
         },
         {

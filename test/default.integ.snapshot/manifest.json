@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/5d5a931a82c0f238863be77e8e473387cf0aada03e0c5eaedad3ba1657af430f.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/52fbe49914343862da7cae8f6273fc004bbb36a40ebd491f395938478b52c32f.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -607,6 +607,24 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "AMILinuxBuilderImage1049E111"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Delete AMI Schedule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderDeleteAMISchedule0109DEF5"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Delete AMI Schedule/AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderDeleteAMIScheduleAllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88525B596C"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/AMI Deleter/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderAMIDeleter58658716"
           }
         ],
         "/github-runners-test/AMI Linux Builder/Pipeline": [
@@ -1209,6 +1227,30 @@
             "data": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentamd64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
           }
         ],
+        "/github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F"
+          }
+        ],
+        "/github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0C44BF83"
+          }
+        ],
+        "/github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303"
+          }
+        ],
+        "/github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogRetention/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "deleteamidcc036c8876b451ea2c1552f9e06e9e1LogRetention85F808EB"
+          }
+        ],
         "/github-runners-test/EC2 Spot Linux/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1371,6 +1413,24 @@
             "data": "AMILinuxarm64BuilderImageA637431C"
           }
         ],
+        "/github-runners-test/AMI Linux arm64 Builder/Delete AMI Schedule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderDeleteAMISchedule72E5EB47"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Delete AMI Schedule/AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderDeleteAMIScheduleAllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88A6D69EB4"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/AMI Deleter/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderAMIDeleter27E72E27"
+          }
+        ],
         "/github-runners-test/AMI Linux arm64 Builder/Pipeline": [
           {
             "type": "aws:cdk:logicalId",
@@ -1531,6 +1591,24 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "WindowsEC2BuilderImage6E6F4F1F"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Delete AMI Schedule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderDeleteAMISchedule52E66C5D"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Delete AMI Schedule/AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderDeleteAMIScheduleAllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA882F03ABC6"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/AMI Deleter/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderAMIDeleterF9643905"
           }
         ],
         "/github-runners-test/Windows EC2 Builder/Pipeline": [
