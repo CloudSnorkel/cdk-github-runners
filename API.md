@@ -742,18 +742,7 @@ Any object.
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.architecture">architecture</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.description">description</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.instanceTypes">instanceTypes</a></code> | <code>string[]</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.logRemovalPolicy">logRemovalPolicy</a></code> | <code>aws-cdk-lib.RemovalPolicy</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.os">os</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.platform">platform</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.rebuildInterval">rebuildInterval</a></code> | <code>aws-cdk-lib.Duration</code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.repository">repository</a></code> | <code>aws-cdk-lib.aws_ecr.IRepository</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.runnerVersion">runnerVersion</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion">RunnerVersion</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.securityGroupIds">securityGroupIds</a></code> | <code>string[]</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.subnetId">subnetId</a></code> | <code>string</code> | *No description.* |
 
 ---
 
@@ -769,86 +758,6 @@ The tree node.
 
 ---
 
-##### `architecture`<sup>Required</sup> <a name="architecture" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.architecture"></a>
-
-```typescript
-public readonly architecture: Architecture;
-```
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
-
----
-
-##### `description`<sup>Required</sup> <a name="description" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.description"></a>
-
-```typescript
-public readonly description: string;
-```
-
-- *Type:* string
-
----
-
-##### `instanceTypes`<sup>Required</sup> <a name="instanceTypes" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.instanceTypes"></a>
-
-```typescript
-public readonly instanceTypes: string[];
-```
-
-- *Type:* string[]
-
----
-
-##### `logRemovalPolicy`<sup>Required</sup> <a name="logRemovalPolicy" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.logRemovalPolicy"></a>
-
-```typescript
-public readonly logRemovalPolicy: RemovalPolicy;
-```
-
-- *Type:* aws-cdk-lib.RemovalPolicy
-
----
-
-##### `logRetention`<sup>Required</sup> <a name="logRetention" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.logRetention"></a>
-
-```typescript
-public readonly logRetention: RetentionDays;
-```
-
-- *Type:* aws-cdk-lib.aws_logs.RetentionDays
-
----
-
-##### `os`<sup>Required</sup> <a name="os" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.os"></a>
-
-```typescript
-public readonly os: Os;
-```
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
-
----
-
-##### `platform`<sup>Required</sup> <a name="platform" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.platform"></a>
-
-```typescript
-public readonly platform: string;
-```
-
-- *Type:* string
-
----
-
-##### `rebuildInterval`<sup>Required</sup> <a name="rebuildInterval" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.rebuildInterval"></a>
-
-```typescript
-public readonly rebuildInterval: Duration;
-```
-
-- *Type:* aws-cdk-lib.Duration
-
----
-
 ##### `repository`<sup>Required</sup> <a name="repository" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.repository"></a>
 
 ```typescript
@@ -856,36 +765,6 @@ public readonly repository: IRepository;
 ```
 
 - *Type:* aws-cdk-lib.aws_ecr.IRepository
-
----
-
-##### `runnerVersion`<sup>Required</sup> <a name="runnerVersion" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.runnerVersion"></a>
-
-```typescript
-public readonly runnerVersion: RunnerVersion;
-```
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion">RunnerVersion</a>
-
----
-
-##### `securityGroupIds`<sup>Optional</sup> <a name="securityGroupIds" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.securityGroupIds"></a>
-
-```typescript
-public readonly securityGroupIds: string[];
-```
-
-- *Type:* string[]
-
----
-
-##### `subnetId`<sup>Optional</sup> <a name="subnetId" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.subnetId"></a>
-
-```typescript
-public readonly subnetId: string;
-```
-
-- *Type:* string
 
 ---
 
@@ -3621,6 +3500,7 @@ CPU architecture enum for an image.
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Architecture.instanceTypeMatch">instanceTypeMatch</a></code> | Checks if a given EC2 instance type matches this architecture. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Architecture.is">is</a></code> | Checks if the given architecture is the same as this one. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Architecture.isIn">isIn</a></code> | Checks if this architecture is in a given list. |
 
 ---
 
@@ -3653,6 +3533,22 @@ Checks if the given architecture is the same as this one.
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
 
 architecture to compare.
+
+---
+
+##### `isIn` <a name="isIn" id="@cloudsnorkel/cdk-github-runners.Architecture.isIn"></a>
+
+```typescript
+public isIn(arches: Architecture[]): boolean
+```
+
+Checks if this architecture is in a given list.
+
+###### `arches`<sup>Required</sup> <a name="arches" id="@cloudsnorkel/cdk-github-runners.Architecture.isIn.parameter.arches"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>[]
+
+architectures to check.
 
 ---
 
@@ -3941,6 +3837,7 @@ OS enum for an image.
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Os.is">is</a></code> | Checks if the given OS is the same as this one. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Os.isIn">isIn</a></code> | Checks if this OS is in a given list. |
 
 ---
 
@@ -3957,6 +3854,22 @@ Checks if the given OS is the same as this one.
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
 
 OS to compare.
+
+---
+
+##### `isIn` <a name="isIn" id="@cloudsnorkel/cdk-github-runners.Os.isIn"></a>
+
+```typescript
+public isIn(oses: Os[]): boolean
+```
+
+Checks if this OS is in a given list.
+
+###### `oses`<sup>Required</sup> <a name="oses" id="@cloudsnorkel/cdk-github-runners.Os.isIn.parameter.oses"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>[]
+
+list of OS to check.
 
 ---
 
