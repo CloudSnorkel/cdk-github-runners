@@ -2042,82 +2042,6 @@
     "Description": "Install latest version of GitHub Actions Runner"
    }
   },
-  "WindowsImageBuilderRole717C46A6": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     },
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
-       ]
-      ]
-     }
-    ]
-   }
-  },
-  "WindowsImageBuilderInstanceProfileBFCCEC08": {
-   "Type": "AWS::IAM::InstanceProfile",
-   "Properties": {
-    "Roles": [
-     {
-      "Ref": "WindowsImageBuilderRole717C46A6"
-     }
-    ]
-   }
-  },
-  "WindowsImageBuilderInfrastructureFF99A30B": {
-   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
-   "Properties": {
-    "InstanceProfileName": {
-     "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
-    },
-    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
-    "Description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
-    "InstanceTypes": [
-     "m5.large"
-    ]
-   }
-  },
   "WindowsImageBuilderDistribution843AF65B": {
    "Type": "AWS::ImageBuilder::DistributionConfiguration",
    "Properties": {
@@ -2257,6 +2181,82 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "WindowsImageBuilderRole717C46A6": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "ec2.",
+           {
+            "Ref": "AWS::URLSuffix"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "WindowsImageBuilderInstanceProfileBFCCEC08": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "WindowsImageBuilderRole717C46A6"
+     }
+    ]
+   }
+  },
+  "WindowsImageBuilderInfrastructureFF99A30B": {
+   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
+   "Properties": {
+    "InstanceProfileName": {
+     "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
+    },
+    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "Description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
+    "InstanceTypes": [
+     "m5.large"
+    ]
+   }
+  },
   "WindowsImageBuilderImage7065BB07": {
    "Type": "AWS::ImageBuilder::Image",
    "Properties": {
@@ -2280,6 +2280,42 @@
     },
     "ImageTestsConfiguration": {
      "ImageTestsEnabled": false
+    }
+   },
+   "DependsOn": [
+    "WindowsImageBuilderInfrastructureFF99A30B",
+    "WindowsImageBuilderLog0E03408E"
+   ]
+  },
+  "WindowsImageBuilderPipeline29B7B6E1": {
+   "Type": "AWS::ImageBuilder::ImagePipeline",
+   "Properties": {
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderInfrastructureFF99A30B",
+      "Arn"
+     ]
+    },
+    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "ContainerRecipeArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderContainerRecipeB2A421D7",
+      "Arn"
+     ]
+    },
+    "Description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderDistribution843AF65B",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    },
+    "Schedule": {
+     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
+     "ScheduleExpression": "rate(7 days)"
     }
    },
    "DependsOn": [
@@ -2349,42 +2385,6 @@
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
-  },
-  "WindowsImageBuilderPipeline29B7B6E1": {
-   "Type": "AWS::ImageBuilder::ImagePipeline",
-   "Properties": {
-    "InfrastructureConfigurationArn": {
-     "Fn::GetAtt": [
-      "WindowsImageBuilderInfrastructureFF99A30B",
-      "Arn"
-     ]
-    },
-    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
-    "ContainerRecipeArn": {
-     "Fn::GetAtt": [
-      "WindowsImageBuilderContainerRecipeB2A421D7",
-      "Arn"
-     ]
-    },
-    "Description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
-    "DistributionConfigurationArn": {
-     "Fn::GetAtt": [
-      "WindowsImageBuilderDistribution843AF65B",
-      "Arn"
-     ]
-    },
-    "ImageTestsConfiguration": {
-     "ImageTestsEnabled": false
-    },
-    "Schedule": {
-     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
-     "ScheduleExpression": "rate(7 days)"
-    }
-   },
-   "DependsOn": [
-    "WindowsImageBuilderInfrastructureFF99A30B",
-    "WindowsImageBuilderLog0E03408E"
-   ]
   },
   "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58": {
    "Type": "AWS::IAM::Role",
@@ -2959,82 +2959,6 @@
     "Description": "Install latest version of Docker"
    }
   },
-  "AMILinuxBuilderRole0C42378A": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     },
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
-       ]
-      ]
-     }
-    ]
-   }
-  },
-  "AMILinuxBuilderInstanceProfile3CA638BE": {
-   "Type": "AWS::IAM::InstanceProfile",
-   "Properties": {
-    "Roles": [
-     {
-      "Ref": "AMILinuxBuilderRole0C42378A"
-     }
-    ]
-   }
-  },
-  "AMILinuxBuilderInfrastructure6FCD154A": {
-   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
-   "Properties": {
-    "InstanceProfileName": {
-     "Ref": "AMILinuxBuilderInstanceProfile3CA638BE"
-    },
-    "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
-    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux Builder (Linux/X86_64)",
-    "InstanceTypes": [
-     "m5.large"
-    ]
-   }
-  },
   "AMILinuxBuilderLaunchtemplateA29452C4": {
    "Type": "AWS::EC2::LaunchTemplate",
    "Properties": {
@@ -3258,6 +3182,82 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "AMILinuxBuilderRole0C42378A": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "ec2.",
+           {
+            "Ref": "AWS::URLSuffix"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "AMILinuxBuilderInstanceProfile3CA638BE": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "AMILinuxBuilderRole0C42378A"
+     }
+    ]
+   }
+  },
+  "AMILinuxBuilderInfrastructure6FCD154A": {
+   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
+   "Properties": {
+    "InstanceProfileName": {
+     "Ref": "AMILinuxBuilderInstanceProfile3CA638BE"
+    },
+    "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux Builder (Linux/X86_64)",
+    "InstanceTypes": [
+     "m5.large"
+    ]
+   }
+  },
   "AMILinuxBuilderImage1049E111": {
    "Type": "AWS::ImageBuilder::Image",
    "Properties": {
@@ -3281,6 +3281,42 @@
     },
     "ImageTestsConfiguration": {
      "ImageTestsEnabled": false
+    }
+   },
+   "DependsOn": [
+    "AMILinuxBuilderInfrastructure6FCD154A",
+    "AMILinuxBuilderLogAA902D79"
+   ]
+  },
+  "AMILinuxBuilderPipelineA080CF10": {
+   "Type": "AWS::ImageBuilder::ImagePipeline",
+   "Properties": {
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderInfrastructure6FCD154A",
+      "Arn"
+     ]
+    },
+    "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux Builder (Linux/X86_64)",
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderDistribution045596CF",
+      "Arn"
+     ]
+    },
+    "ImageRecipeArn": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderAmiRecipe7C7ED6C7",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    },
+    "Schedule": {
+     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
+     "ScheduleExpression": "rate(7 days)"
     }
    },
    "DependsOn": [
@@ -3351,42 +3387,6 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
-  },
-  "AMILinuxBuilderPipelineA080CF10": {
-   "Type": "AWS::ImageBuilder::ImagePipeline",
-   "Properties": {
-    "InfrastructureConfigurationArn": {
-     "Fn::GetAtt": [
-      "AMILinuxBuilderInfrastructure6FCD154A",
-      "Arn"
-     ]
-    },
-    "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
-    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux Builder (Linux/X86_64)",
-    "DistributionConfigurationArn": {
-     "Fn::GetAtt": [
-      "AMILinuxBuilderDistribution045596CF",
-      "Arn"
-     ]
-    },
-    "ImageRecipeArn": {
-     "Fn::GetAtt": [
-      "AMILinuxBuilderAmiRecipe7C7ED6C7",
-      "Arn"
-     ]
-    },
-    "ImageTestsConfiguration": {
-     "ImageTestsEnabled": false
-    },
-    "Schedule": {
-     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
-     "ScheduleExpression": "rate(7 days)"
-    }
-   },
-   "DependsOn": [
-    "AMILinuxBuilderInfrastructure6FCD154A",
-    "AMILinuxBuilderLogAA902D79"
-   ]
   },
   "CodeBuildImageBuilderRepository9DE3B6F0": {
    "Type": "AWS::ECR::Repository",
@@ -8233,82 +8233,6 @@
     "Description": "Install latest version of Docker"
    }
   },
-  "AMILinuxarm64BuilderRole40D54E29": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     },
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
-       ]
-      ]
-     }
-    ]
-   }
-  },
-  "AMILinuxarm64BuilderInstanceProfileCE3B6B09": {
-   "Type": "AWS::IAM::InstanceProfile",
-   "Properties": {
-    "Roles": [
-     {
-      "Ref": "AMILinuxarm64BuilderRole40D54E29"
-     }
-    ]
-   }
-  },
-  "AMILinuxarm64BuilderInfrastructure80FA16D6": {
-   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
-   "Properties": {
-    "InstanceProfileName": {
-     "Ref": "AMILinuxarm64BuilderInstanceProfileCE3B6B09"
-    },
-    "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
-    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux arm64 Builder (Linux/ARM64)",
-    "InstanceTypes": [
-     "m6g.large"
-    ]
-   }
-  },
   "AMILinuxarm64BuilderLaunchtemplate8F5EFF44": {
    "Type": "AWS::EC2::LaunchTemplate",
    "Properties": {
@@ -8532,6 +8456,82 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "AMILinuxarm64BuilderRole40D54E29": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "ec2.",
+           {
+            "Ref": "AWS::URLSuffix"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "AMILinuxarm64BuilderInstanceProfileCE3B6B09": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "AMILinuxarm64BuilderRole40D54E29"
+     }
+    ]
+   }
+  },
+  "AMILinuxarm64BuilderInfrastructure80FA16D6": {
+   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
+   "Properties": {
+    "InstanceProfileName": {
+     "Ref": "AMILinuxarm64BuilderInstanceProfileCE3B6B09"
+    },
+    "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux arm64 Builder (Linux/ARM64)",
+    "InstanceTypes": [
+     "m6g.large"
+    ]
+   }
+  },
   "AMILinuxarm64BuilderImageA637431C": {
    "Type": "AWS::ImageBuilder::Image",
    "Properties": {
@@ -8555,6 +8555,42 @@
     },
     "ImageTestsConfiguration": {
      "ImageTestsEnabled": false
+    }
+   },
+   "DependsOn": [
+    "AMILinuxarm64BuilderInfrastructure80FA16D6",
+    "AMILinuxarm64BuilderLog3F9BB6F0"
+   ]
+  },
+  "AMILinuxarm64BuilderPipelineECE006B6": {
+   "Type": "AWS::ImageBuilder::ImagePipeline",
+   "Properties": {
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderInfrastructure80FA16D6",
+      "Arn"
+     ]
+    },
+    "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux arm64 Builder (Linux/ARM64)",
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderDistribution77B3BD53",
+      "Arn"
+     ]
+    },
+    "ImageRecipeArn": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    },
+    "Schedule": {
+     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
+     "ScheduleExpression": "rate(7 days)"
     }
    },
    "DependsOn": [
@@ -8625,42 +8661,6 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
-  },
-  "AMILinuxarm64BuilderPipelineECE006B6": {
-   "Type": "AWS::ImageBuilder::ImagePipeline",
-   "Properties": {
-    "InfrastructureConfigurationArn": {
-     "Fn::GetAtt": [
-      "AMILinuxarm64BuilderInfrastructure80FA16D6",
-      "Arn"
-     ]
-    },
-    "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
-    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux arm64 Builder (Linux/ARM64)",
-    "DistributionConfigurationArn": {
-     "Fn::GetAtt": [
-      "AMILinuxarm64BuilderDistribution77B3BD53",
-      "Arn"
-     ]
-    },
-    "ImageRecipeArn": {
-     "Fn::GetAtt": [
-      "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
-      "Arn"
-     ]
-    },
-    "ImageTestsConfiguration": {
-     "ImageTestsEnabled": false
-    },
-    "Schedule": {
-     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
-     "ScheduleExpression": "rate(7 days)"
-    }
-   },
-   "DependsOn": [
-    "AMILinuxarm64BuilderInfrastructure80FA16D6",
-    "AMILinuxarm64BuilderLog3F9BB6F0"
-   ]
   },
   "EC2Linuxarm64Role242F68FF": {
    "Type": "AWS::IAM::Role",
@@ -9099,82 +9099,6 @@
     "Description": "Install latest version of Docker"
    }
   },
-  "WindowsEC2BuilderRole1BA7D3E7": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     },
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
-       ]
-      ]
-     }
-    ]
-   }
-  },
-  "WindowsEC2BuilderInstanceProfileA8DBA763": {
-   "Type": "AWS::IAM::InstanceProfile",
-   "Properties": {
-    "Roles": [
-     {
-      "Ref": "WindowsEC2BuilderRole1BA7D3E7"
-     }
-    ]
-   }
-  },
-  "WindowsEC2BuilderInfrastructure757D4FD7": {
-   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
-   "Properties": {
-    "InstanceProfileName": {
-     "Ref": "WindowsEC2BuilderInstanceProfileA8DBA763"
-    },
-    "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
-    "Description": "Build AMI for GitHub Actions runner github-runners-test/Windows EC2 Builder (Windows/X86_64)",
-    "InstanceTypes": [
-     "m5.large"
-    ]
-   }
-  },
   "WindowsEC2BuilderLaunchtemplate0A66E9C2": {
    "Type": "AWS::EC2::LaunchTemplate",
    "Properties": {
@@ -9382,6 +9306,82 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "WindowsEC2BuilderRole1BA7D3E7": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "ec2.",
+           {
+            "Ref": "AWS::URLSuffix"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "WindowsEC2BuilderInstanceProfileA8DBA763": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "WindowsEC2BuilderRole1BA7D3E7"
+     }
+    ]
+   }
+  },
+  "WindowsEC2BuilderInfrastructure757D4FD7": {
+   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
+   "Properties": {
+    "InstanceProfileName": {
+     "Ref": "WindowsEC2BuilderInstanceProfileA8DBA763"
+    },
+    "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/Windows EC2 Builder (Windows/X86_64)",
+    "InstanceTypes": [
+     "m5.large"
+    ]
+   }
+  },
   "WindowsEC2BuilderImage6E6F4F1F": {
    "Type": "AWS::ImageBuilder::Image",
    "Properties": {
@@ -9405,6 +9405,42 @@
     },
     "ImageTestsConfiguration": {
      "ImageTestsEnabled": false
+    }
+   },
+   "DependsOn": [
+    "WindowsEC2BuilderInfrastructure757D4FD7",
+    "WindowsEC2BuilderLog486ECFAD"
+   ]
+  },
+  "WindowsEC2BuilderPipelineC4625CBC": {
+   "Type": "AWS::ImageBuilder::ImagePipeline",
+   "Properties": {
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderInfrastructure757D4FD7",
+      "Arn"
+     ]
+    },
+    "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/Windows EC2 Builder (Windows/X86_64)",
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderDistributionC6CA152B",
+      "Arn"
+     ]
+    },
+    "ImageRecipeArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderAmiRecipe41A137FF",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    },
+    "Schedule": {
+     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
+     "ScheduleExpression": "rate(7 days)"
     }
    },
    "DependsOn": [
@@ -9475,42 +9511,6 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
-  },
-  "WindowsEC2BuilderPipelineC4625CBC": {
-   "Type": "AWS::ImageBuilder::ImagePipeline",
-   "Properties": {
-    "InfrastructureConfigurationArn": {
-     "Fn::GetAtt": [
-      "WindowsEC2BuilderInfrastructure757D4FD7",
-      "Arn"
-     ]
-    },
-    "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
-    "Description": "Build AMI for GitHub Actions runner github-runners-test/Windows EC2 Builder (Windows/X86_64)",
-    "DistributionConfigurationArn": {
-     "Fn::GetAtt": [
-      "WindowsEC2BuilderDistributionC6CA152B",
-      "Arn"
-     ]
-    },
-    "ImageRecipeArn": {
-     "Fn::GetAtt": [
-      "WindowsEC2BuilderAmiRecipe41A137FF",
-      "Arn"
-     ]
-    },
-    "ImageTestsConfiguration": {
-     "ImageTestsEnabled": false
-    },
-    "Schedule": {
-     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
-     "ScheduleExpression": "rate(7 days)"
-    }
-   },
-   "DependsOn": [
-    "WindowsEC2BuilderInfrastructure757D4FD7",
-    "WindowsEC2BuilderLog486ECFAD"
-   ]
   },
   "EC2WindowsRoleC0D850D2": {
    "Type": "AWS::IAM::Role",

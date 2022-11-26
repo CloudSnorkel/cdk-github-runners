@@ -2797,116 +2797,6 @@
                   "version": "2.50.0"
                 }
               },
-              "Role": {
-                "id": "Role",
-                "path": "github-runners-test/Windows Image Builder/Role",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/Windows Image Builder/Role/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
-                      "aws:cdk:cloudformation:props": {
-                        "assumeRolePolicyDocument": {
-                          "Statement": [
-                            {
-                              "Action": "sts:AssumeRole",
-                              "Effect": "Allow",
-                              "Principal": {
-                                "Service": {
-                                  "Fn::Join": [
-                                    "",
-                                    [
-                                      "ec2.",
-                                      {
-                                        "Ref": "AWS::URLSuffix"
-                                      }
-                                    ]
-                                  ]
-                                }
-                              }
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        },
-                        "managedPolicyArns": [
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-                              ]
-                            ]
-                          },
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
-                              ]
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                      "version": "2.50.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Role",
-                  "version": "2.50.0"
-                }
-              },
-              "Instance Profile": {
-                "id": "Instance Profile",
-                "path": "github-runners-test/Windows Image Builder/Instance Profile",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
-                  "aws:cdk:cloudformation:props": {
-                    "roles": [
-                      {
-                        "Ref": "WindowsImageBuilderRole717C46A6"
-                      }
-                    ]
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
-                  "version": "2.50.0"
-                }
-              },
-              "Infrastructure": {
-                "id": "Infrastructure",
-                "path": "github-runners-test/Windows Image Builder/Infrastructure",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::InfrastructureConfiguration",
-                  "aws:cdk:cloudformation:props": {
-                    "instanceProfileName": {
-                      "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
-                    },
-                    "name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
-                    "description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
-                    "instanceTypes": [
-                      "m5.large"
-                    ]
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnInfrastructureConfiguration",
-                  "version": "2.50.0"
-                }
-              },
               "Distribution": {
                 "id": "Distribution",
                 "path": "github-runners-test/Windows Image Builder/Distribution",
@@ -3053,6 +2943,116 @@
                   "version": "2.50.0"
                 }
               },
+              "Role": {
+                "id": "Role",
+                "path": "github-runners-test/Windows Image Builder/Role",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Windows Image Builder/Role/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": {
+                                  "Fn::Join": [
+                                    "",
+                                    [
+                                      "ec2.",
+                                      {
+                                        "Ref": "AWS::URLSuffix"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+                              ]
+                            ]
+                          },
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.50.0"
+                }
+              },
+              "Instance Profile": {
+                "id": "Instance Profile",
+                "path": "github-runners-test/Windows Image Builder/Instance Profile",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
+                  "aws:cdk:cloudformation:props": {
+                    "roles": [
+                      {
+                        "Ref": "WindowsImageBuilderRole717C46A6"
+                      }
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
+                  "version": "2.50.0"
+                }
+              },
+              "Infrastructure": {
+                "id": "Infrastructure",
+                "path": "github-runners-test/Windows Image Builder/Infrastructure",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::InfrastructureConfiguration",
+                  "aws:cdk:cloudformation:props": {
+                    "instanceProfileName": {
+                      "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
+                    },
+                    "name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+                    "description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
+                    "instanceTypes": [
+                      "m5.large"
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnInfrastructureConfiguration",
+                  "version": "2.50.0"
+                }
+              },
               "Image": {
                 "id": "Image",
                 "path": "github-runners-test/Windows Image Builder/Image",
@@ -3084,6 +3084,46 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImage",
+                  "version": "2.50.0"
+                }
+              },
+              "Pipeline": {
+                "id": "Pipeline",
+                "path": "github-runners-test/Windows Image Builder/Pipeline",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
+                  "aws:cdk:cloudformation:props": {
+                    "infrastructureConfigurationArn": {
+                      "Fn::GetAtt": [
+                        "WindowsImageBuilderInfrastructureFF99A30B",
+                        "Arn"
+                      ]
+                    },
+                    "name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+                    "containerRecipeArn": {
+                      "Fn::GetAtt": [
+                        "WindowsImageBuilderContainerRecipeB2A421D7",
+                        "Arn"
+                      ]
+                    },
+                    "description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
+                    "distributionConfigurationArn": {
+                      "Fn::GetAtt": [
+                        "WindowsImageBuilderDistribution843AF65B",
+                        "Arn"
+                      ]
+                    },
+                    "imageTestsConfiguration": {
+                      "imageTestsEnabled": false
+                    },
+                    "schedule": {
+                      "scheduleExpression": "rate(7 days)",
+                      "pipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImagePipeline",
                   "version": "2.50.0"
                 }
               },
@@ -3158,46 +3198,6 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.CustomResource",
-                  "version": "2.50.0"
-                }
-              },
-              "Pipeline": {
-                "id": "Pipeline",
-                "path": "github-runners-test/Windows Image Builder/Pipeline",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
-                  "aws:cdk:cloudformation:props": {
-                    "infrastructureConfigurationArn": {
-                      "Fn::GetAtt": [
-                        "WindowsImageBuilderInfrastructureFF99A30B",
-                        "Arn"
-                      ]
-                    },
-                    "name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
-                    "containerRecipeArn": {
-                      "Fn::GetAtt": [
-                        "WindowsImageBuilderContainerRecipeB2A421D7",
-                        "Arn"
-                      ]
-                    },
-                    "description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
-                    "distributionConfigurationArn": {
-                      "Fn::GetAtt": [
-                        "WindowsImageBuilderDistribution843AF65B",
-                        "Arn"
-                      ]
-                    },
-                    "imageTestsConfiguration": {
-                      "imageTestsEnabled": false
-                    },
-                    "schedule": {
-                      "scheduleExpression": "rate(7 days)",
-                      "pipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImagePipeline",
                   "version": "2.50.0"
                 }
               },
@@ -3877,116 +3877,6 @@
                   "version": "2.50.0"
                 }
               },
-              "Role": {
-                "id": "Role",
-                "path": "github-runners-test/AMI Linux Builder/Role",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/AMI Linux Builder/Role/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
-                      "aws:cdk:cloudformation:props": {
-                        "assumeRolePolicyDocument": {
-                          "Statement": [
-                            {
-                              "Action": "sts:AssumeRole",
-                              "Effect": "Allow",
-                              "Principal": {
-                                "Service": {
-                                  "Fn::Join": [
-                                    "",
-                                    [
-                                      "ec2.",
-                                      {
-                                        "Ref": "AWS::URLSuffix"
-                                      }
-                                    ]
-                                  ]
-                                }
-                              }
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        },
-                        "managedPolicyArns": [
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-                              ]
-                            ]
-                          },
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
-                              ]
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                      "version": "2.50.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Role",
-                  "version": "2.50.0"
-                }
-              },
-              "Instance Profile": {
-                "id": "Instance Profile",
-                "path": "github-runners-test/AMI Linux Builder/Instance Profile",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
-                  "aws:cdk:cloudformation:props": {
-                    "roles": [
-                      {
-                        "Ref": "AMILinuxBuilderRole0C42378A"
-                      }
-                    ]
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
-                  "version": "2.50.0"
-                }
-              },
-              "Infrastructure": {
-                "id": "Infrastructure",
-                "path": "github-runners-test/AMI Linux Builder/Infrastructure",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::InfrastructureConfiguration",
-                  "aws:cdk:cloudformation:props": {
-                    "instanceProfileName": {
-                      "Ref": "AMILinuxBuilderInstanceProfile3CA638BE"
-                    },
-                    "name": "github-runners-test-AMILinuxBuilder-67243E6D",
-                    "description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux Builder (Linux/X86_64)",
-                    "instanceTypes": [
-                      "m5.large"
-                    ]
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnInfrastructureConfiguration",
-                  "version": "2.50.0"
-                }
-              },
               "Launch template": {
                 "id": "Launch template",
                 "path": "github-runners-test/AMI Linux Builder/Launch template",
@@ -4212,6 +4102,116 @@
                   "version": "2.50.0"
                 }
               },
+              "Role": {
+                "id": "Role",
+                "path": "github-runners-test/AMI Linux Builder/Role",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/AMI Linux Builder/Role/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": {
+                                  "Fn::Join": [
+                                    "",
+                                    [
+                                      "ec2.",
+                                      {
+                                        "Ref": "AWS::URLSuffix"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+                              ]
+                            ]
+                          },
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.50.0"
+                }
+              },
+              "Instance Profile": {
+                "id": "Instance Profile",
+                "path": "github-runners-test/AMI Linux Builder/Instance Profile",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
+                  "aws:cdk:cloudformation:props": {
+                    "roles": [
+                      {
+                        "Ref": "AMILinuxBuilderRole0C42378A"
+                      }
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
+                  "version": "2.50.0"
+                }
+              },
+              "Infrastructure": {
+                "id": "Infrastructure",
+                "path": "github-runners-test/AMI Linux Builder/Infrastructure",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::InfrastructureConfiguration",
+                  "aws:cdk:cloudformation:props": {
+                    "instanceProfileName": {
+                      "Ref": "AMILinuxBuilderInstanceProfile3CA638BE"
+                    },
+                    "name": "github-runners-test-AMILinuxBuilder-67243E6D",
+                    "description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux Builder (Linux/X86_64)",
+                    "instanceTypes": [
+                      "m5.large"
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnInfrastructureConfiguration",
+                  "version": "2.50.0"
+                }
+              },
               "Image": {
                 "id": "Image",
                 "path": "github-runners-test/AMI Linux Builder/Image",
@@ -4243,6 +4243,46 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImage",
+                  "version": "2.50.0"
+                }
+              },
+              "Pipeline": {
+                "id": "Pipeline",
+                "path": "github-runners-test/AMI Linux Builder/Pipeline",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
+                  "aws:cdk:cloudformation:props": {
+                    "infrastructureConfigurationArn": {
+                      "Fn::GetAtt": [
+                        "AMILinuxBuilderInfrastructure6FCD154A",
+                        "Arn"
+                      ]
+                    },
+                    "name": "github-runners-test-AMILinuxBuilder-67243E6D",
+                    "description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux Builder (Linux/X86_64)",
+                    "distributionConfigurationArn": {
+                      "Fn::GetAtt": [
+                        "AMILinuxBuilderDistribution045596CF",
+                        "Arn"
+                      ]
+                    },
+                    "imageRecipeArn": {
+                      "Fn::GetAtt": [
+                        "AMILinuxBuilderAmiRecipe7C7ED6C7",
+                        "Arn"
+                      ]
+                    },
+                    "imageTestsConfiguration": {
+                      "imageTestsEnabled": false
+                    },
+                    "schedule": {
+                      "scheduleExpression": "rate(7 days)",
+                      "pipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImagePipeline",
                   "version": "2.50.0"
                 }
               },
@@ -4336,46 +4376,6 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.CustomResource",
-                  "version": "2.50.0"
-                }
-              },
-              "Pipeline": {
-                "id": "Pipeline",
-                "path": "github-runners-test/AMI Linux Builder/Pipeline",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
-                  "aws:cdk:cloudformation:props": {
-                    "infrastructureConfigurationArn": {
-                      "Fn::GetAtt": [
-                        "AMILinuxBuilderInfrastructure6FCD154A",
-                        "Arn"
-                      ]
-                    },
-                    "name": "github-runners-test-AMILinuxBuilder-67243E6D",
-                    "description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux Builder (Linux/X86_64)",
-                    "distributionConfigurationArn": {
-                      "Fn::GetAtt": [
-                        "AMILinuxBuilderDistribution045596CF",
-                        "Arn"
-                      ]
-                    },
-                    "imageRecipeArn": {
-                      "Fn::GetAtt": [
-                        "AMILinuxBuilderAmiRecipe7C7ED6C7",
-                        "Arn"
-                      ]
-                    },
-                    "imageTestsConfiguration": {
-                      "imageTestsEnabled": false
-                    },
-                    "schedule": {
-                      "scheduleExpression": "rate(7 days)",
-                      "pipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImagePipeline",
                   "version": "2.50.0"
                 }
               }
@@ -11297,116 +11297,6 @@
                   "version": "2.50.0"
                 }
               },
-              "Role": {
-                "id": "Role",
-                "path": "github-runners-test/AMI Linux arm64 Builder/Role",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/AMI Linux arm64 Builder/Role/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
-                      "aws:cdk:cloudformation:props": {
-                        "assumeRolePolicyDocument": {
-                          "Statement": [
-                            {
-                              "Action": "sts:AssumeRole",
-                              "Effect": "Allow",
-                              "Principal": {
-                                "Service": {
-                                  "Fn::Join": [
-                                    "",
-                                    [
-                                      "ec2.",
-                                      {
-                                        "Ref": "AWS::URLSuffix"
-                                      }
-                                    ]
-                                  ]
-                                }
-                              }
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        },
-                        "managedPolicyArns": [
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-                              ]
-                            ]
-                          },
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
-                              ]
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                      "version": "2.50.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Role",
-                  "version": "2.50.0"
-                }
-              },
-              "Instance Profile": {
-                "id": "Instance Profile",
-                "path": "github-runners-test/AMI Linux arm64 Builder/Instance Profile",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
-                  "aws:cdk:cloudformation:props": {
-                    "roles": [
-                      {
-                        "Ref": "AMILinuxarm64BuilderRole40D54E29"
-                      }
-                    ]
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
-                  "version": "2.50.0"
-                }
-              },
-              "Infrastructure": {
-                "id": "Infrastructure",
-                "path": "github-runners-test/AMI Linux arm64 Builder/Infrastructure",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::InfrastructureConfiguration",
-                  "aws:cdk:cloudformation:props": {
-                    "instanceProfileName": {
-                      "Ref": "AMILinuxarm64BuilderInstanceProfileCE3B6B09"
-                    },
-                    "name": "github-runners-test-AMILinuxarm64Builder-3F449283",
-                    "description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux arm64 Builder (Linux/ARM64)",
-                    "instanceTypes": [
-                      "m6g.large"
-                    ]
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnInfrastructureConfiguration",
-                  "version": "2.50.0"
-                }
-              },
               "Launch template": {
                 "id": "Launch template",
                 "path": "github-runners-test/AMI Linux arm64 Builder/Launch template",
@@ -11632,6 +11522,116 @@
                   "version": "2.50.0"
                 }
               },
+              "Role": {
+                "id": "Role",
+                "path": "github-runners-test/AMI Linux arm64 Builder/Role",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/AMI Linux arm64 Builder/Role/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": {
+                                  "Fn::Join": [
+                                    "",
+                                    [
+                                      "ec2.",
+                                      {
+                                        "Ref": "AWS::URLSuffix"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+                              ]
+                            ]
+                          },
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.50.0"
+                }
+              },
+              "Instance Profile": {
+                "id": "Instance Profile",
+                "path": "github-runners-test/AMI Linux arm64 Builder/Instance Profile",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
+                  "aws:cdk:cloudformation:props": {
+                    "roles": [
+                      {
+                        "Ref": "AMILinuxarm64BuilderRole40D54E29"
+                      }
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
+                  "version": "2.50.0"
+                }
+              },
+              "Infrastructure": {
+                "id": "Infrastructure",
+                "path": "github-runners-test/AMI Linux arm64 Builder/Infrastructure",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::InfrastructureConfiguration",
+                  "aws:cdk:cloudformation:props": {
+                    "instanceProfileName": {
+                      "Ref": "AMILinuxarm64BuilderInstanceProfileCE3B6B09"
+                    },
+                    "name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+                    "description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux arm64 Builder (Linux/ARM64)",
+                    "instanceTypes": [
+                      "m6g.large"
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnInfrastructureConfiguration",
+                  "version": "2.50.0"
+                }
+              },
               "Image": {
                 "id": "Image",
                 "path": "github-runners-test/AMI Linux arm64 Builder/Image",
@@ -11663,6 +11663,46 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImage",
+                  "version": "2.50.0"
+                }
+              },
+              "Pipeline": {
+                "id": "Pipeline",
+                "path": "github-runners-test/AMI Linux arm64 Builder/Pipeline",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
+                  "aws:cdk:cloudformation:props": {
+                    "infrastructureConfigurationArn": {
+                      "Fn::GetAtt": [
+                        "AMILinuxarm64BuilderInfrastructure80FA16D6",
+                        "Arn"
+                      ]
+                    },
+                    "name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+                    "description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux arm64 Builder (Linux/ARM64)",
+                    "distributionConfigurationArn": {
+                      "Fn::GetAtt": [
+                        "AMILinuxarm64BuilderDistribution77B3BD53",
+                        "Arn"
+                      ]
+                    },
+                    "imageRecipeArn": {
+                      "Fn::GetAtt": [
+                        "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
+                        "Arn"
+                      ]
+                    },
+                    "imageTestsConfiguration": {
+                      "imageTestsEnabled": false
+                    },
+                    "schedule": {
+                      "scheduleExpression": "rate(7 days)",
+                      "pipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImagePipeline",
                   "version": "2.50.0"
                 }
               },
@@ -11756,46 +11796,6 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.CustomResource",
-                  "version": "2.50.0"
-                }
-              },
-              "Pipeline": {
-                "id": "Pipeline",
-                "path": "github-runners-test/AMI Linux arm64 Builder/Pipeline",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
-                  "aws:cdk:cloudformation:props": {
-                    "infrastructureConfigurationArn": {
-                      "Fn::GetAtt": [
-                        "AMILinuxarm64BuilderInfrastructure80FA16D6",
-                        "Arn"
-                      ]
-                    },
-                    "name": "github-runners-test-AMILinuxarm64Builder-3F449283",
-                    "description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux arm64 Builder (Linux/ARM64)",
-                    "distributionConfigurationArn": {
-                      "Fn::GetAtt": [
-                        "AMILinuxarm64BuilderDistribution77B3BD53",
-                        "Arn"
-                      ]
-                    },
-                    "imageRecipeArn": {
-                      "Fn::GetAtt": [
-                        "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
-                        "Arn"
-                      ]
-                    },
-                    "imageTestsConfiguration": {
-                      "imageTestsEnabled": false
-                    },
-                    "schedule": {
-                      "scheduleExpression": "rate(7 days)",
-                      "pipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImagePipeline",
                   "version": "2.50.0"
                 }
               }
@@ -12296,116 +12296,6 @@
                   "version": "2.50.0"
                 }
               },
-              "Role": {
-                "id": "Role",
-                "path": "github-runners-test/Windows EC2 Builder/Role",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/Windows EC2 Builder/Role/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
-                      "aws:cdk:cloudformation:props": {
-                        "assumeRolePolicyDocument": {
-                          "Statement": [
-                            {
-                              "Action": "sts:AssumeRole",
-                              "Effect": "Allow",
-                              "Principal": {
-                                "Service": {
-                                  "Fn::Join": [
-                                    "",
-                                    [
-                                      "ec2.",
-                                      {
-                                        "Ref": "AWS::URLSuffix"
-                                      }
-                                    ]
-                                  ]
-                                }
-                              }
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        },
-                        "managedPolicyArns": [
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-                              ]
-                            ]
-                          },
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
-                              ]
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                      "version": "2.50.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Role",
-                  "version": "2.50.0"
-                }
-              },
-              "Instance Profile": {
-                "id": "Instance Profile",
-                "path": "github-runners-test/Windows EC2 Builder/Instance Profile",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
-                  "aws:cdk:cloudformation:props": {
-                    "roles": [
-                      {
-                        "Ref": "WindowsEC2BuilderRole1BA7D3E7"
-                      }
-                    ]
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
-                  "version": "2.50.0"
-                }
-              },
-              "Infrastructure": {
-                "id": "Infrastructure",
-                "path": "github-runners-test/Windows EC2 Builder/Infrastructure",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::InfrastructureConfiguration",
-                  "aws:cdk:cloudformation:props": {
-                    "instanceProfileName": {
-                      "Ref": "WindowsEC2BuilderInstanceProfileA8DBA763"
-                    },
-                    "name": "github-runners-test-WindowsEC2Builder-5FAF8285",
-                    "description": "Build AMI for GitHub Actions runner github-runners-test/Windows EC2 Builder (Windows/X86_64)",
-                    "instanceTypes": [
-                      "m5.large"
-                    ]
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnInfrastructureConfiguration",
-                  "version": "2.50.0"
-                }
-              },
               "Launch template": {
                 "id": "Launch template",
                 "path": "github-runners-test/Windows EC2 Builder/Launch template",
@@ -12623,6 +12513,116 @@
                   "version": "2.50.0"
                 }
               },
+              "Role": {
+                "id": "Role",
+                "path": "github-runners-test/Windows EC2 Builder/Role",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Windows EC2 Builder/Role/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": {
+                                  "Fn::Join": [
+                                    "",
+                                    [
+                                      "ec2.",
+                                      {
+                                        "Ref": "AWS::URLSuffix"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+                              ]
+                            ]
+                          },
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.50.0"
+                }
+              },
+              "Instance Profile": {
+                "id": "Instance Profile",
+                "path": "github-runners-test/Windows EC2 Builder/Instance Profile",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
+                  "aws:cdk:cloudformation:props": {
+                    "roles": [
+                      {
+                        "Ref": "WindowsEC2BuilderRole1BA7D3E7"
+                      }
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
+                  "version": "2.50.0"
+                }
+              },
+              "Infrastructure": {
+                "id": "Infrastructure",
+                "path": "github-runners-test/Windows EC2 Builder/Infrastructure",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::InfrastructureConfiguration",
+                  "aws:cdk:cloudformation:props": {
+                    "instanceProfileName": {
+                      "Ref": "WindowsEC2BuilderInstanceProfileA8DBA763"
+                    },
+                    "name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+                    "description": "Build AMI for GitHub Actions runner github-runners-test/Windows EC2 Builder (Windows/X86_64)",
+                    "instanceTypes": [
+                      "m5.large"
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnInfrastructureConfiguration",
+                  "version": "2.50.0"
+                }
+              },
               "Image": {
                 "id": "Image",
                 "path": "github-runners-test/Windows EC2 Builder/Image",
@@ -12654,6 +12654,46 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImage",
+                  "version": "2.50.0"
+                }
+              },
+              "Pipeline": {
+                "id": "Pipeline",
+                "path": "github-runners-test/Windows EC2 Builder/Pipeline",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
+                  "aws:cdk:cloudformation:props": {
+                    "infrastructureConfigurationArn": {
+                      "Fn::GetAtt": [
+                        "WindowsEC2BuilderInfrastructure757D4FD7",
+                        "Arn"
+                      ]
+                    },
+                    "name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+                    "description": "Build AMI for GitHub Actions runner github-runners-test/Windows EC2 Builder (Windows/X86_64)",
+                    "distributionConfigurationArn": {
+                      "Fn::GetAtt": [
+                        "WindowsEC2BuilderDistributionC6CA152B",
+                        "Arn"
+                      ]
+                    },
+                    "imageRecipeArn": {
+                      "Fn::GetAtt": [
+                        "WindowsEC2BuilderAmiRecipe41A137FF",
+                        "Arn"
+                      ]
+                    },
+                    "imageTestsConfiguration": {
+                      "imageTestsEnabled": false
+                    },
+                    "schedule": {
+                      "scheduleExpression": "rate(7 days)",
+                      "pipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImagePipeline",
                   "version": "2.50.0"
                 }
               },
@@ -12747,46 +12787,6 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.CustomResource",
-                  "version": "2.50.0"
-                }
-              },
-              "Pipeline": {
-                "id": "Pipeline",
-                "path": "github-runners-test/Windows EC2 Builder/Pipeline",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
-                  "aws:cdk:cloudformation:props": {
-                    "infrastructureConfigurationArn": {
-                      "Fn::GetAtt": [
-                        "WindowsEC2BuilderInfrastructure757D4FD7",
-                        "Arn"
-                      ]
-                    },
-                    "name": "github-runners-test-WindowsEC2Builder-5FAF8285",
-                    "description": "Build AMI for GitHub Actions runner github-runners-test/Windows EC2 Builder (Windows/X86_64)",
-                    "distributionConfigurationArn": {
-                      "Fn::GetAtt": [
-                        "WindowsEC2BuilderDistributionC6CA152B",
-                        "Arn"
-                      ]
-                    },
-                    "imageRecipeArn": {
-                      "Fn::GetAtt": [
-                        "WindowsEC2BuilderAmiRecipe41A137FF",
-                        "Arn"
-                      ]
-                    },
-                    "imageTestsConfiguration": {
-                      "imageTestsEnabled": false
-                    },
-                    "schedule": {
-                      "scheduleExpression": "rate(7 days)",
-                      "pipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_imagebuilder.CfnImagePipeline",
                   "version": "2.50.0"
                 }
               }

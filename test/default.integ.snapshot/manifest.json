@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/52fbe49914343862da7cae8f6273fc004bbb36a40ebd491f395938478b52c32f.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/825ded4cbc3111ab58b49f5f2e5902b56f01ab3a8e283a6954c5942940232115.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -363,24 +363,6 @@
             "data": "WindowsImageBuilderGitHubActionsRunnerComponent248E9189"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderRole717C46A6"
-          }
-        ],
-        "/github-runners-test/Windows Image Builder/Instance Profile": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderInstanceProfileBFCCEC08"
-          }
-        ],
-        "/github-runners-test/Windows Image Builder/Infrastructure": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderInfrastructureFF99A30B"
-          }
-        ],
         "/github-runners-test/Windows Image Builder/Distribution": [
           {
             "type": "aws:cdk:logicalId",
@@ -405,10 +387,34 @@
             "data": "WindowsImageBuilderLog0E03408E"
           }
         ],
+        "/github-runners-test/Windows Image Builder/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderRole717C46A6"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Instance Profile": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderInstanceProfileBFCCEC08"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Infrastructure": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderInfrastructureFF99A30B"
+          }
+        ],
         "/github-runners-test/Windows Image Builder/Image": [
           {
             "type": "aws:cdk:logicalId",
             "data": "WindowsImageBuilderImage7065BB07"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Pipeline": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderPipeline29B7B6E1"
           }
         ],
         "/github-runners-test/Windows Image Builder/CR Policy/Resource": [
@@ -421,12 +427,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "WindowsImageBuilderDeleterB5A108CD"
-          }
-        ],
-        "/github-runners-test/Windows Image Builder/Pipeline": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderPipeline29B7B6E1"
           }
         ],
         "/github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/Resource": [
@@ -555,24 +555,6 @@
             "data": "AMILinuxBuilderDockerComponentC4D1AB14"
           }
         ],
-        "/github-runners-test/AMI Linux Builder/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderRole0C42378A"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/Instance Profile": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderInstanceProfile3CA638BE"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/Infrastructure": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderInfrastructure6FCD154A"
-          }
-        ],
         "/github-runners-test/AMI Linux Builder/Launch template/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -603,10 +585,34 @@
             "data": "AMILinuxBuilderLogAA902D79"
           }
         ],
+        "/github-runners-test/AMI Linux Builder/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderRole0C42378A"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Instance Profile": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderInstanceProfile3CA638BE"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Infrastructure": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderInfrastructure6FCD154A"
+          }
+        ],
         "/github-runners-test/AMI Linux Builder/Image": [
           {
             "type": "aws:cdk:logicalId",
             "data": "AMILinuxBuilderImage1049E111"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Pipeline": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderPipelineA080CF10"
           }
         ],
         "/github-runners-test/AMI Linux Builder/Delete AMI Schedule/Resource": [
@@ -625,12 +631,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "AMILinuxBuilderAMIDeleter58658716"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/Pipeline": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderPipelineA080CF10"
           }
         ],
         "/github-runners-test/CodeBuild Image Builder/Repository/Resource": [
@@ -1359,24 +1359,6 @@
             "data": "AMILinuxarm64BuilderDockerComponent51BA7F92"
           }
         ],
-        "/github-runners-test/AMI Linux arm64 Builder/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderRole40D54E29"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Instance Profile": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderInstanceProfileCE3B6B09"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Infrastructure": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderInfrastructure80FA16D6"
-          }
-        ],
         "/github-runners-test/AMI Linux arm64 Builder/Launch template/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1407,10 +1389,34 @@
             "data": "AMILinuxarm64BuilderLog3F9BB6F0"
           }
         ],
+        "/github-runners-test/AMI Linux arm64 Builder/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderRole40D54E29"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Instance Profile": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderInstanceProfileCE3B6B09"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Infrastructure": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderInfrastructure80FA16D6"
+          }
+        ],
         "/github-runners-test/AMI Linux arm64 Builder/Image": [
           {
             "type": "aws:cdk:logicalId",
             "data": "AMILinuxarm64BuilderImageA637431C"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Pipeline": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderPipelineECE006B6"
           }
         ],
         "/github-runners-test/AMI Linux arm64 Builder/Delete AMI Schedule/Resource": [
@@ -1429,12 +1435,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "AMILinuxarm64BuilderAMIDeleter27E72E27"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Pipeline": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderPipelineECE006B6"
           }
         ],
         "/github-runners-test/EC2 Linux arm64/Role/Resource": [
@@ -1539,24 +1539,6 @@
             "data": "WindowsEC2BuilderDockerComponent0CDF16CB"
           }
         ],
-        "/github-runners-test/Windows EC2 Builder/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderRole1BA7D3E7"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Instance Profile": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderInstanceProfileA8DBA763"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Infrastructure": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderInfrastructure757D4FD7"
-          }
-        ],
         "/github-runners-test/Windows EC2 Builder/Launch template/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1587,10 +1569,34 @@
             "data": "WindowsEC2BuilderLog486ECFAD"
           }
         ],
+        "/github-runners-test/Windows EC2 Builder/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderRole1BA7D3E7"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Instance Profile": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderInstanceProfileA8DBA763"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Infrastructure": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderInfrastructure757D4FD7"
+          }
+        ],
         "/github-runners-test/Windows EC2 Builder/Image": [
           {
             "type": "aws:cdk:logicalId",
             "data": "WindowsEC2BuilderImage6E6F4F1F"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Pipeline": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderPipelineC4625CBC"
           }
         ],
         "/github-runners-test/Windows EC2 Builder/Delete AMI Schedule/Resource": [
@@ -1609,12 +1615,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "WindowsEC2BuilderAMIDeleterF9643905"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Pipeline": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderPipelineC4625CBC"
           }
         ],
         "/github-runners-test/EC2 Windows/Role/Resource": [
