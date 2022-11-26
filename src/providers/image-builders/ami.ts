@@ -14,7 +14,7 @@ import {
 import { Construct } from 'constructs';
 import { BundledNodejsFunction } from '../../utils';
 import { Architecture, IAmiBuilder, Os, RunnerAmi, RunnerVersion } from '../common';
-import { ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
+import { ImageBuilderBase, ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
 
@@ -207,65 +207,25 @@ class AmiRecipe extends ImageBuilderObjectBase {
  * });
  * ```
  */
-export class AmiBuilder extends Construct implements IAmiBuilder {
-  private readonly architecture: Architecture;
-  private readonly os: Os;
-  private readonly platform: 'Windows' | 'Linux';
-
-  private readonly description: string;
-
-  private readonly runnerVersion: RunnerVersion;
-
-  private components: ImageBuilderComponent[] = [];
+export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
   private boundAmi?: RunnerAmi;
 
-  private readonly subnetId: string | undefined;
-  private readonly securityGroupIds: string[] | undefined;
-  private readonly instanceType: ec2.InstanceType;
-  private readonly rebuildInterval: Duration;
-  private readonly logRetention: logs.RetentionDays;
-  private readonly logRemovalPolicy: cdk.RemovalPolicy;
-
   constructor(scope: Construct, id: string, props?: AmiBuilderProps) {
-    super(scope, id);
-
-    // set platform
-    this.architecture = props?.architecture ?? Architecture.X86_64;
-    if (!this.architecture.is(Architecture.X86_64) && !this.architecture.is(Architecture.ARM64)) {
-      throw new Error(`Unsupported architecture: ${this.architecture.name}. Consider CodeBuild for faster image builds.`);
-    }
-
-    this.os = props?.os ?? Os.LINUX;
-    if (this.os.is(Os.WINDOWS)) {
-      this.platform = 'Windows';
-    } else if (this.os.is(Os.LINUX)) {
-      this.platform = 'Linux';
-    } else {
-      throw new Error(`Unsupported OS: ${this.os.name}.`);
-    }
-
-    // set builder options
-    this.rebuildInterval = props?.rebuildInterval ?? Duration.days(7);
-    if (props?.vpc && props?.subnetSelection) {
-      this.subnetId = props.vpc.selectSubnets(props.subnetSelection).subnetIds[0];
-    }
-
-    if (props?.securityGroup) {
-      this.securityGroupIds = [props.securityGroup.securityGroupId];
-    }
-
-    this.instanceType = props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
-    if (!this.architecture.instanceTypeMatch(this.instanceType)) {
-      throw new Error(`Builder architecture (${this.architecture.name}) doesn't match selected instance type (${this.instanceType} / ${this.instanceType.architecture})`);
-    }
-
-    this.description = `Build AMI for GitHub Actions runner ${this.node.path} (${this.os.name}/${this.architecture.name})`;
-
-    this.logRetention = props?.logRetention ?? logs.RetentionDays.ONE_MONTH;
-    this.logRemovalPolicy = props?.logRemovalPolicy ?? RemovalPolicy.DESTROY;
-
-    // runner version
-    this.runnerVersion = props?.runnerVersion ?? RunnerVersion.latest();
+    super(scope, id, {
+      os: props?.os,
+      supportedOs: [Os.LINUX, Os.WINDOWS],
+      architecture: props?.architecture,
+      supportedArchitectures: [Architecture.X86_64, Architecture.ARM64],
+      instanceType: props?.instanceType,
+      vpc: props?.vpc,
+      securityGroup: props?.securityGroup,
+      subnetSelection: props?.subnetSelection,
+      logRemovalPolicy: props?.logRemovalPolicy,
+      logRetention: props?.logRetention,
+      runnerVersion: props?.runnerVersion,
+      rebuildInterval: props?.rebuildInterval,
+      imageTypeName: 'AMI',
+    });
 
     // add all basic components
     if (this.os.is(Os.WINDOWS)) {
@@ -325,8 +285,6 @@ export class AmiBuilder extends Construct implements IAmiBuilder {
   /**
    * Add extra trusted certificates. This helps deal with self-signed certificates for GitHub Enterprise Server.
    *
-   * All first party Dockerfiles support this. Others may not.
-   *
    * @param path path to directory containing a file called certs.pem containing all the required certificates
    */
   public addExtraCertificates(path: string) {
@@ -348,14 +306,12 @@ export class AmiBuilder extends Construct implements IAmiBuilder {
   }
 
   /**
-   * Called by IRunnerProvider to finalize settings and create the AMIR builder.
+   * Called by IRunnerProvider to finalize settings and create the AMI builder.
    */
   bind(): RunnerAmi {
     if (this.boundAmi) {
       return this.boundAmi;
     }
-
-    const infra = this.infrastructure();
 
     const launchTemplate = new ec2.LaunchTemplate(this, 'Launch template');
 
@@ -395,45 +351,13 @@ export class AmiBuilder extends Construct implements IAmiBuilder {
       architecture: this.architecture,
     });
 
-    const log = new logs.LogGroup(this, 'Log', {
-      logGroupName: `/aws/imagebuilder/${recipe.name}`,
-      retention: this.logRetention,
-      removalPolicy: this.logRemovalPolicy,
-    });
-
-    const image = new imagebuilder.CfnImage(this, 'Image', {
-      infrastructureConfigurationArn: infra.attrArn,
-      distributionConfigurationArn: dist.attrArn,
-      imageRecipeArn: recipe.arn,
-      imageTestsConfiguration: {
-        imageTestsEnabled: false,
-      },
-    });
-    image.node.addDependency(infra);
-    image.node.addDependency(log);
-
-    this.imageCleaner(launchTemplate, stackName, builderName);
-
-    let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
-    if (this.rebuildInterval.toDays() > 0) {
-      scheduleOptions = {
-        scheduleExpression: events.Schedule.rate(this.rebuildInterval).expressionString,
-        pipelineExecutionStartCondition: 'EXPRESSION_MATCH_ONLY',
-      };
-    }
-    const pipeline = new imagebuilder.CfnImagePipeline(this, 'Pipeline', {
-      name: uniqueImageBuilderName(this),
-      description: this.description,
-      imageRecipeArn: recipe.arn,
-      infrastructureConfigurationArn: infra.attrArn,
-      distributionConfigurationArn: dist.attrArn,
-      schedule: scheduleOptions,
-      imageTestsConfiguration: {
-        imageTestsEnabled: false,
-      },
-    });
-    pipeline.node.addDependency(infra);
-    pipeline.node.addDependency(log);
+    const log = this.createLog(recipe.name);
+    const infra = this.createInfrastructure([
+      iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
+      iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilder'),
+    ]);
+    this.createImage(infra, dist, log, recipe.arn, undefined);
+    this.createPipeline(infra, dist, log, recipe.arn, undefined);
 
     this.boundAmi = {
       launchTemplate: launchTemplate,
@@ -443,34 +367,9 @@ export class AmiBuilder extends Construct implements IAmiBuilder {
       runnerVersion: this.runnerVersion,
     };
 
+    this.imageCleaner(launchTemplate, stackName, builderName);
+
     return this.boundAmi;
-  }
-
-  private infrastructure(): imagebuilder.CfnInfrastructureConfiguration {
-    let role = new iam.Role(this, 'Role', {
-      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
-      managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
-        iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilder'),
-      ],
-    });
-
-    for (const component of this.components) {
-      component.grantAssetsRead(role);
-    }
-
-    return new imagebuilder.CfnInfrastructureConfiguration(this, 'Infrastructure', {
-      name: uniqueImageBuilderName(this),
-      description: this.description,
-      subnetId: this.subnetId,
-      securityGroupIds: this.securityGroupIds,
-      instanceTypes: [this.instanceType.toString()],
-      instanceProfileName: new iam.CfnInstanceProfile(this, 'Instance Profile', {
-        roles: [
-          role.roleName,
-        ],
-      }).ref,
-    });
   }
 
   private imageCleaner(launchTemplate: ec2.LaunchTemplate, stackName: string, builderName: string) {

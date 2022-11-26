@@ -67,6 +67,20 @@ export class Architecture {
   }
 
   /**
+   * Checks if this architecture is in a given list.
+   *
+   * @param arches architectures to check
+   */
+  public isIn(arches: Architecture[]): boolean {
+    for (const arch of arches) {
+      if (this.is(arch)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Checks if a given EC2 instance type matches this architecture.
    *
    * @param instanceType instance type to check
@@ -110,6 +124,20 @@ export class Os {
   */
   public is(os: Os) {
     return os.name == this.name;
+  }
+
+  /**
+   * Checks if this OS is in a given list.
+   *
+   * @param oses list of OS to check
+   */
+  public isIn(oses: Os[]): boolean {
+    for (const os of oses) {
+      if (this.is(os)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 

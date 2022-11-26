@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import {
   aws_ec2 as ec2,
   aws_ecr as ecr,
-  aws_events as events,
   aws_iam as iam,
   aws_imagebuilder as imagebuilder,
   aws_logs as logs,
@@ -16,7 +15,7 @@ import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { Construct } from 'constructs';
 import { BundledNodejsFunction } from '../../utils';
 import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
-import { ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
+import { ImageBuilderBase, ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
 import { WindowsComponents } from './windows-components';
 
 const dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
@@ -214,64 +213,29 @@ class ContainerRecipe extends ImageBuilderObjectBase {
  * });
  * ```
  */
-export class ContainerImageBuilder extends Construct implements IImageBuilder {
-  readonly architecture: Architecture;
-  readonly os: Os;
-  readonly platform: 'Windows' | 'Linux';
-
-  readonly description: string;
-
-  readonly runnerVersion: RunnerVersion;
-
+export class ContainerImageBuilder extends ImageBuilderBase implements IImageBuilder {
   readonly repository: ecr.IRepository;
-  private components: ImageBuilderComponent[] = [];
-  private parentImage: string | undefined;
+  private readonly parentImage: string | undefined;
   private boundImage?: RunnerImage;
 
-  readonly subnetId: string | undefined;
-  readonly securityGroupIds: string[] | undefined;
-  readonly instanceTypes: string[];
-  readonly rebuildInterval: Duration;
-  readonly logRetention: logs.RetentionDays;
-  readonly logRemovalPolicy: cdk.RemovalPolicy;
-
   constructor(scope: Construct, id: string, props?: ContainerImageBuilderProps) {
-    super(scope, id);
-
-    // set platform
-    this.architecture = props?.architecture ?? Architecture.X86_64;
-    if (!this.architecture.is(Architecture.X86_64)) {
-      throw new Error(`Unsupported architecture: ${this.architecture.name}. Consider CodeBuild for faster image builds.`);
-    }
-
-    this.os = props?.os ?? Os.LINUX;
-    if (this.os.is(Os.WINDOWS)) {
-      this.platform = 'Windows';
-    } else {
-      throw new Error(`Unsupported OS: ${this.os.name}. Consider CodeBuild for faster image builds.`);
-    }
+    super(scope, id, {
+      os: props?.os,
+      supportedOs: [Os.WINDOWS],
+      architecture: props?.architecture,
+      supportedArchitectures: [Architecture.X86_64],
+      instanceType: props?.instanceType,
+      vpc: props?.vpc,
+      securityGroup: props?.securityGroup,
+      subnetSelection: props?.subnetSelection,
+      logRemovalPolicy: props?.logRemovalPolicy,
+      logRetention: props?.logRetention,
+      runnerVersion: props?.runnerVersion,
+      rebuildInterval: props?.rebuildInterval,
+      imageTypeName: 'image',
+    });
 
     this.parentImage = props?.parentImage;
-
-    // set builder options
-    this.rebuildInterval = props?.rebuildInterval ?? Duration.days(7);
-    if (props?.vpc && props?.subnetSelection) {
-      this.subnetId = props.vpc.selectSubnets(props.subnetSelection).subnetIds[0];
-    }
-
-    if (props?.securityGroup) {
-      this.securityGroupIds = [props.securityGroup.securityGroupId];
-    }
-
-    this.instanceTypes = [props?.instanceType?.toString() ?? 'm5.large'];
-
-    this.description = `Build image for GitHub Actions runner ${this.node.path} (${this.os.name}/${this.architecture.name})`;
-
-    this.logRetention = props?.logRetention ?? logs.RetentionDays.ONE_MONTH;
-    this.logRemovalPolicy = props?.logRemovalPolicy ?? RemovalPolicy.DESTROY;
-
-    // runner version
-    this.runnerVersion = props?.runnerVersion ?? RunnerVersion.latest();
 
     // create repository that only keeps one tag
     this.repository = new ecr.Repository(this, 'Repository', {
@@ -359,8 +323,6 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       return this.boundImage;
     }
 
-    const infra = this.infrastructure();
-
     const dist = new imagebuilder.CfnDistributionConfiguration(this, 'Distribution', {
       name: uniqueImageBuilderName(this),
       description: this.description,
@@ -386,45 +348,15 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
       parentImage: this.parentImage,
     });
 
-    const log = new logs.LogGroup(this, 'Log', {
-      logGroupName: `/aws/imagebuilder/${recipe.name}`,
-      retention: this.logRetention,
-      removalPolicy: this.logRemovalPolicy,
-    });
-
-    const image = new imagebuilder.CfnImage(this, 'Image', {
-      infrastructureConfigurationArn: infra.attrArn,
-      distributionConfigurationArn: dist.attrArn,
-      containerRecipeArn: recipe.arn,
-      imageTestsConfiguration: {
-        imageTestsEnabled: false,
-      },
-    });
-    image.node.addDependency(infra);
-    image.node.addDependency(log);
+    const log = this.createLog(recipe.name);
+    const infra = this.createInfrastructure([
+      iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
+      iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilderECRContainerBuilds'),
+    ]);
+    const image = this.createImage(infra, dist, log, undefined, recipe.arn );
+    this.createPipeline(infra, dist, log, undefined, recipe.arn );
 
     this.imageCleaner(image, recipe.name);
-
-    let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
-    if (this.rebuildInterval.toDays() > 0) {
-      scheduleOptions = {
-        scheduleExpression: events.Schedule.rate(this.rebuildInterval).expressionString,
-        pipelineExecutionStartCondition: 'EXPRESSION_MATCH_ONLY',
-      };
-    }
-    const pipeline = new imagebuilder.CfnImagePipeline(this, 'Pipeline', {
-      name: uniqueImageBuilderName(this),
-      description: this.description,
-      containerRecipeArn: recipe.arn,
-      infrastructureConfigurationArn: infra.attrArn,
-      distributionConfigurationArn: dist.attrArn,
-      schedule: scheduleOptions,
-      imageTestsConfiguration: {
-        imageTestsEnabled: false,
-      },
-    });
-    pipeline.node.addDependency(infra);
-    pipeline.node.addDependency(log);
 
     this.boundImage = {
       // There are simpler ways to get the ARN, but we want an image object that depends on the newly built image.
@@ -442,33 +374,6 @@ export class ContainerImageBuilder extends Construct implements IImageBuilder {
     };
 
     return this.boundImage;
-  }
-
-  private infrastructure(): imagebuilder.CfnInfrastructureConfiguration {
-    let role = new iam.Role(this, 'Role', {
-      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
-      managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
-        iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilderECRContainerBuilds'),
-      ],
-    });
-
-    for (const component of this.components) {
-      component.grantAssetsRead(role);
-    }
-
-    return new imagebuilder.CfnInfrastructureConfiguration(this, 'Infrastructure', {
-      name: uniqueImageBuilderName(this),
-      description: this.description,
-      subnetId: this.subnetId,
-      securityGroupIds: this.securityGroupIds,
-      instanceTypes: this.instanceTypes,
-      instanceProfileName: new iam.CfnInstanceProfile(this, 'Instance Profile', {
-        roles: [
-          role.roleName,
-        ],
-      }).ref,
-    });
   }
 
   private imageCleaner(image: imagebuilder.CfnImage, recipeName: string) {
