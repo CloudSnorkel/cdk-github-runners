@@ -3327,6 +3327,7 @@
   "AMILinuxBuilderDeleteAMISchedule0109DEF5": {
    "Type": "AWS::Events::Rule",
    "Properties": {
+    "Description": "Delete old AMIs for github-runners-test/AMI Linux Builder",
     "ScheduleExpression": "rate(1 day)",
     "State": "ENABLED",
     "Targets": [
@@ -8601,6 +8602,7 @@
   "AMILinuxarm64BuilderDeleteAMISchedule72E5EB47": {
    "Type": "AWS::Events::Rule",
    "Properties": {
+    "Description": "Delete old AMIs for github-runners-test/AMI Linux arm64 Builder",
     "ScheduleExpression": "rate(1 day)",
     "State": "ENABLED",
     "Targets": [
@@ -9451,6 +9453,7 @@
   "WindowsEC2BuilderDeleteAMISchedule52E66C5D": {
    "Type": "AWS::Events::Rule",
    "Properties": {
+    "Description": "Delete old AMIs for github-runners-test/Windows EC2 Builder",
     "ScheduleExpression": "rate(1 day)",
     "State": "ENABLED",
     "Targets": [

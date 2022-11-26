@@ -386,6 +386,7 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
     // delete old AMIs on schedule
     const eventRule = new events.Rule(this, 'Delete AMI Schedule', {
       schedule: events.Schedule.rate(cdk.Duration.days(1)),
+      description: `Delete old AMIs for ${builderName}`,
     });
     eventRule.addTarget(new events_targets.LambdaFunction(deleter, {
       event: events.RuleTargetInput.fromObject({

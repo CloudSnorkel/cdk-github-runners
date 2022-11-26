@@ -4296,6 +4296,7 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::Events::Rule",
                       "aws:cdk:cloudformation:props": {
+                        "description": "Delete old AMIs for github-runners-test/AMI Linux Builder",
                         "scheduleExpression": "rate(1 day)",
                         "state": "ENABLED",
                         "targets": [
@@ -11716,6 +11717,7 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::Events::Rule",
                       "aws:cdk:cloudformation:props": {
+                        "description": "Delete old AMIs for github-runners-test/AMI Linux arm64 Builder",
                         "scheduleExpression": "rate(1 day)",
                         "state": "ENABLED",
                         "targets": [
@@ -12707,6 +12709,7 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::Events::Rule",
                       "aws:cdk:cloudformation:props": {
+                        "description": "Delete old AMIs for github-runners-test/Windows EC2 Builder",
                         "scheduleExpression": "rate(1 day)",
                         "state": "ENABLED",
                         "targets": [
