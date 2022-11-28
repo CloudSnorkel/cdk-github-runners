@@ -44,6 +44,18 @@ jobs:
             arch: ARM64
             runs-on: [self-hosted, linux, fargate-spot, arm64]
             docker: false
+          - os: linux
+            arch: X64
+            runs-on: [self-hosted, linux, ec2, x64]
+            docker: true
+          - os: linux
+            arch: X64
+            runs-on: [self-hosted, linux, ec2-spot, x64]
+            docker: true
+          - os: linux
+            arch: ARM64
+            runs-on: [self-hosted, linux, ec2, arm64]
+            docker: true
 
     runs-on: ${{ matrix.runs-on }}
     steps:
@@ -93,6 +105,10 @@ jobs:
             arch: X64
             runs-on: [self-hosted, windows, fargate, x64]
             docker: false
+          - os: windows
+            arch: X64
+            runs-on: [self-hosted, windows, ec2, x64]
+            docker: true
 
     runs-on: ${{ matrix.runs-on }}
     steps:

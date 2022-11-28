@@ -6,6 +6,7 @@ import { baseUrlFromDomain } from '../github';
 import { getSecretJsonValue, getSecretValue } from '../helpers';
 
 const cfn = new AWS.CloudFormation();
+const ec2 = new AWS.EC2();
 const ecr = new AWS.ECR();
 const sf = new AWS.StepFunctions();
 
@@ -57,6 +58,16 @@ async function generateProvidersStatus(stack: string, logicalId: string) {
           digest: tags.imageDetails[0].imageDigest,
           date: tags.imageDetails[0].imagePushedAt,
         };
+      }
+    }
+    // add AMI data, if image is AMI
+    if (p.ami?.launchTemplate) {
+      const versions = await ec2.describeLaunchTemplateVersions({
+        LaunchTemplateId: p.ami.launchTemplate,
+        Versions: ['$Default'],
+      }).promise();
+      if (versions.LaunchTemplateVersions?.length >= 1) {
+        p.ami.latestAmi = versions.LaunchTemplateVersions[0].LaunchTemplateData.ImageId;
       }
     }
     return p;

@@ -282,13 +282,19 @@ export class GitHubRunners extends Construct {
       .when(stepfunctions.Condition.isNotPresent('$.labels.self-hosted'), new stepfunctions.Succeed(this, 'No'))
       .otherwise(work);
 
-    return new stepfunctions.StateMachine(
+    const stateMachine = new stepfunctions.StateMachine(
       this,
       'Runner Orchestrator',
       {
         definition: check,
       },
     );
+
+    for (const provider of this.providers) {
+      provider.grantStateMachine(stateMachine);
+    }
+
+    return stateMachine;
   }
 
   private tokenRetriever() {
@@ -357,22 +363,7 @@ export class GitHubRunners extends Construct {
       },
     );
 
-    const providers = this.providers.map(provider => {
-      provider.image.imageRepository.grant(statusFunction, 'ecr:DescribeImages');
-
-      return {
-        type: provider.constructor.name,
-        labels: provider.labels,
-        vpcArn: provider.vpc?.vpcArn,
-        securityGroup: provider.securityGroup?.securityGroupId,
-        roleArn: (provider.grantPrincipal.grantPrincipal as iam.Role).roleArn,
-        image: {
-          imageRepository: provider.image.imageRepository.repositoryUri,
-          imageTag: provider.image.imageTag,
-          imageBuilderLogGroup: provider.image.logGroup?.logGroupName,
-        },
-      };
-    });
+    const providers = this.providers.map(provider => provider.status(statusFunction));
 
     // expose providers as stack metadata as it's too big for Lambda environment variables
     // specifically integration testing got an error because lambda update request was >5kb

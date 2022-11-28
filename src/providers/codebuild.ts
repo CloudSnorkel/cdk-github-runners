@@ -13,13 +13,23 @@ import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
-import { Architecture, BaseProvider, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
+import {
+  Architecture,
+  BaseProvider,
+  IImageBuilder,
+  IRunnerProvider,
+  IRunnerProviderStatus,
+  Os,
+  RunnerImage,
+  RunnerProviderProps,
+  RunnerRuntimeParameters,
+} from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 
 export interface CodeBuildRunnerProps extends RunnerProviderProps {
   /**
-   * Provider running an image to run inside CodeBuild with GitHub runner pre-configured. A user named `runner` is expected to exist with access to Docker-in-Docker.
+   * Image builder for CodeBuild image with GitHub runner pre-configured. A user named `runner` is expected to exist with access to Docker-in-Docker.
    *
    * @default image builder with `CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
    */
@@ -84,7 +94,7 @@ export interface CodeBuildRunnerProps extends RunnerProviderProps {
 }
 
 /**
- * GitHub Actions runner provider using CodeBuild to execute the actions.
+ * GitHub Actions runner provider using CodeBuild to execute jobs.
  *
  * Creates a project that gets started for each job.
  *
@@ -143,7 +153,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
   readonly grantPrincipal: iam.IPrincipal;
 
   /**
-   * Docker image in CodeBuild project.
+   * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to CodeBuild.
    */
   readonly image: RunnerImage;
 
@@ -295,6 +305,26 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
         },
       },
     );
+  }
+
+  grantStateMachine(_: iam.IGrantable) {
+  }
+
+  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
+    this.image.imageRepository.grant(statusFunctionRole, 'ecr:DescribeImages');
+
+    return {
+      type: this.constructor.name,
+      labels: this.labels,
+      vpcArn: this.vpc?.vpcArn,
+      securityGroup: this.securityGroup?.securityGroupId,
+      roleArn: this.project.role?.roleArn,
+      image: {
+        imageRepository: this.image.imageRepository.repositoryUri,
+        imageTag: this.image.imageTag,
+        imageBuilderLogGroup: this.image.logGroup?.logGroupName,
+      },
+    };
   }
 
   /**

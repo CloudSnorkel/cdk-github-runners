@@ -353,6 +353,7 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
       architecture: this.architecture,
       os: this.os,
       logGroup,
+      runnerVersion: this.props.runnerVersion ?? RunnerVersion.latest(),
     };
     return this.boundImage;
   }

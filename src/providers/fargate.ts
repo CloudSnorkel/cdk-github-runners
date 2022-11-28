@@ -11,7 +11,17 @@ import {
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
-import { Architecture, BaseProvider, IImageBuilder, IRunnerProvider, Os, RunnerImage, RunnerProviderProps, RunnerRuntimeParameters } from './common';
+import {
+  Architecture,
+  BaseProvider,
+  IImageBuilder,
+  IRunnerProvider,
+  IRunnerProviderStatus,
+  Os,
+  RunnerImage,
+  RunnerProviderProps,
+  RunnerRuntimeParameters, RunnerVersion,
+} from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 /**
@@ -175,7 +185,7 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
 }
 
 /**
- * GitHub Actions runner provider using Fargate to execute the actions.
+ * GitHub Actions runner provider using Fargate to execute jobs.
  *
  * Creates a task definition with a single container that gets started for each job.
  *
@@ -256,7 +266,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
   readonly spot: boolean;
 
   /**
-   * Docker image used to start a new Fargate task.
+   * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to Fargate tasks.
    */
   readonly image: RunnerImage;
 
@@ -393,16 +403,41 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
     );
   }
 
+  grantStateMachine(_: iam.IGrantable) {
+  }
+
+  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
+    this.image.imageRepository.grant(statusFunctionRole, 'ecr:DescribeImages');
+
+    return {
+      type: this.constructor.name,
+      labels: this.labels,
+      vpcArn: this.vpc?.vpcArn,
+      securityGroup: this.securityGroup?.securityGroupId,
+      roleArn: this.task.taskRole.roleArn,
+      image: {
+        imageRepository: this.image.imageRepository.repositoryUri,
+        imageTag: this.image.imageTag,
+        imageBuilderLogGroup: this.image.logGroup?.logGroupName,
+      },
+    };
+  }
+
   private runCommand(): string[] {
+    let runnerFlags = '';
+    if (this.image.runnerVersion.is(RunnerVersion.latest())) {
+      runnerFlags = '--disableupdate';
+    }
+
     if (this.image.os.is(Os.LINUX)) {
       return [
         'sh', '-c',
-        'if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi && ./config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" ${RUNNER_FLAGS} --name "${RUNNER_NAME}" && ./run.sh',
+        `./config.sh --unattended --url "https://$GITHUB_DOMAIN/$OWNER/$REPO" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL" ${runnerFlags} --name "$RUNNER_NAME" && ./run.sh`,
       ];
     } else if (this.image.os.is(Os.WINDOWS)) {
       return [
         'powershell', '-Command',
-        'if (${Env:RUNNER_VERSION} -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ; cd \\actions ; ./config.cmd --unattended --url "https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL}" ${RunnerFlags} --name "${Env:RUNNER_NAME}" ; ./run.cmd',
+        `cd \\actions ; ./config.cmd --unattended --url "https://\${Env:GITHUB_DOMAIN}/\${Env:OWNER}/\${Env:REPO}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL}" ${runnerFlags} --name "\${Env:RUNNER_NAME}" ; ./run.cmd`,
       ];
     } else {
       throw new Error(`Fargate runner doesn't support ${this.image.os.name}`);

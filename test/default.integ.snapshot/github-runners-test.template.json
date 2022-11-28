@@ -1829,7 +1829,6 @@
      "platform": "Windows",
      "data": {
       "name": "AWS CLI",
-      "description": "Install latest version of AWS CLI",
       "schemaVersion": "1.0",
       "phases": [
        {
@@ -1848,7 +1847,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of AWS CLI"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -1862,7 +1862,8 @@
     "Version": {
      "Ref": "WindowsImageBuilderAWSCLIVersion7C70BA9E"
     },
-    "Data": "{\"name\":\"AWS CLI\",\"description\":\"Install latest version of AWS CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn'\"]}}]}]}"
+    "Data": "{\"name\":\"AWS CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn'\"]}}]}]}",
+    "Description": "Install latest version of AWS CLI"
    }
   },
   "WindowsImageBuilderGitHubCLIVersionBF0CA21E": {
@@ -1880,7 +1881,6 @@
      "platform": "Windows",
      "data": {
       "name": "GitHub CLI",
-      "description": "Install latest version of gh",
       "schemaVersion": "1.0",
       "phases": [
        {
@@ -1892,6 +1892,7 @@
           "inputs": {
            "commands": [
             "$ErrorActionPreference = 'Stop'",
+            "$ProgressPreference = 'SilentlyContinue'",
             "cmd /c curl -w \"%{redirect_url}\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh",
             "$LatestUrl = Get-Content $Env:TEMP\\latest-gh",
             "$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)",
@@ -1905,7 +1906,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of gh"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -1919,7 +1921,8 @@
     "Version": {
      "Ref": "WindowsImageBuilderGitHubCLIVersionBF0CA21E"
     },
-    "Data": "{\"name\":\"GitHub CLI\",\"description\":\"Install latest version of gh\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$ProgressPreference = 'SilentlyContinue'\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}"
+    "Data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$ProgressPreference = 'SilentlyContinue'\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}",
+    "Description": "Install latest version of gh"
    }
   },
   "WindowsImageBuildergitVersion78548E80": {
@@ -1937,7 +1940,6 @@
      "platform": "Windows",
      "data": {
       "name": "Git",
-      "description": "Install latest version of git",
       "schemaVersion": "1.0",
       "phases": [
        {
@@ -1963,7 +1965,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of git"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -1977,7 +1980,8 @@
     "Version": {
      "Ref": "WindowsImageBuildergitVersion78548E80"
     },
-    "Data": "{\"name\":\"Git\",\"description\":\"Install latest version of git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'\",\"del git-setup.exe\"]}}]}]}"
+    "Data": "{\"name\":\"Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'\",\"del git-setup.exe\"]}}]}]}",
+    "Description": "Install latest version of git"
    }
   },
   "WindowsImageBuilderGitHubActionsRunnerVersion9E35A9C2": {
@@ -1995,7 +1999,6 @@
      "platform": "Windows",
      "data": {
       "name": "GitHub Actions Runner",
-      "description": "Install latest version of GitHub Actions Runner",
       "schemaVersion": "1.0",
       "phases": [
        {
@@ -2020,7 +2023,8 @@
         ]
        }
       ]
-     }
+     },
+     "description": "Install latest version of GitHub Actions Runner"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2034,83 +2038,8 @@
     "Version": {
      "Ref": "WindowsImageBuilderGitHubActionsRunnerVersion9E35A9C2"
     },
-    "Data": "{\"name\":\"GitHub Actions Runner\",\"description\":\"Install latest version of GitHub Actions Runner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\"]}}]}]}"
-   }
-  },
-  "WindowsImageBuilderRole717C46A6": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     },
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
-       ]
-      ]
-     }
-    ]
-   }
-  },
-  "WindowsImageBuilderInstanceProfileBFCCEC08": {
-   "Type": "AWS::IAM::InstanceProfile",
-   "Properties": {
-    "Roles": [
-     {
-      "Ref": "WindowsImageBuilderRole717C46A6"
-     }
-    ]
-   }
-  },
-  "WindowsImageBuilderInfrastructureFF99A30B": {
-   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
-   "Properties": {
-    "InstanceProfileName": {
-     "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
-    },
-    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
-    "Description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
-    "InstanceTypes": [
-     "m5.large"
-    ]
+    "Data": "{\"name\":\"GitHub Actions Runner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\"]}}]}]}",
+    "Description": "Install latest version of GitHub Actions Runner"
    }
   },
   "WindowsImageBuilderDistribution843AF65B": {
@@ -2252,6 +2181,82 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "WindowsImageBuilderRole717C46A6": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "ec2.",
+           {
+            "Ref": "AWS::URLSuffix"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "WindowsImageBuilderInstanceProfileBFCCEC08": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "WindowsImageBuilderRole717C46A6"
+     }
+    ]
+   }
+  },
+  "WindowsImageBuilderInfrastructureFF99A30B": {
+   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
+   "Properties": {
+    "InstanceProfileName": {
+     "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
+    },
+    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "Description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
+    "InstanceTypes": [
+     "m5.large"
+    ]
+   }
+  },
   "WindowsImageBuilderImage7065BB07": {
    "Type": "AWS::ImageBuilder::Image",
    "Properties": {
@@ -2272,9 +2277,49 @@
       "WindowsImageBuilderDistribution843AF65B",
       "Arn"
      ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
     }
    },
    "DependsOn": [
+    "WindowsImageBuilderInfrastructureFF99A30B",
+    "WindowsImageBuilderLog0E03408E"
+   ]
+  },
+  "WindowsImageBuilderPipeline29B7B6E1": {
+   "Type": "AWS::ImageBuilder::ImagePipeline",
+   "Properties": {
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderInfrastructureFF99A30B",
+      "Arn"
+     ]
+    },
+    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "ContainerRecipeArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderContainerRecipeB2A421D7",
+      "Arn"
+     ]
+    },
+    "Description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderDistribution843AF65B",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    },
+    "Schedule": {
+     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
+     "ScheduleExpression": "rate(7 days)"
+    }
+   },
+   "DependsOn": [
+    "WindowsImageBuilderInfrastructureFF99A30B",
     "WindowsImageBuilderLog0E03408E"
    ]
   },
@@ -2340,38 +2385,6 @@
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
-  },
-  "WindowsImageBuilderPipeline29B7B6E1": {
-   "Type": "AWS::ImageBuilder::ImagePipeline",
-   "Properties": {
-    "InfrastructureConfigurationArn": {
-     "Fn::GetAtt": [
-      "WindowsImageBuilderInfrastructureFF99A30B",
-      "Arn"
-     ]
-    },
-    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
-    "ContainerRecipeArn": {
-     "Fn::GetAtt": [
-      "WindowsImageBuilderContainerRecipeB2A421D7",
-      "Arn"
-     ]
-    },
-    "Description": "Build image for GitHub Actions runner github-runners-test/Windows Image Builder (Windows/X86_64)",
-    "DistributionConfigurationArn": {
-     "Fn::GetAtt": [
-      "WindowsImageBuilderDistribution843AF65B",
-      "Arn"
-     ]
-    },
-    "Schedule": {
-     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
-     "ScheduleExpression": "rate(7 days)"
-    }
-   },
-   "DependsOn": [
-    "WindowsImageBuilderLog0E03408E"
-   ]
   },
   "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58": {
    "Type": "AWS::IAM::Role",
@@ -2545,7 +2558,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "4cd567bf52e0f31674ae9e960efae8855b8b1249fa9997799ae47dc9f80e9ff8.zip"
+     "S3Key": "eb5b005c858404ea0c8f68098ed5dcdf5340e02461f149751d10f59c210d5ef8.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -2558,6 +2571,823 @@
     "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
     "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
    ]
+  },
+  "AMILinuxBuilderUpgradepackagesandinstallbasicsVersionA685EC4B": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxBuilder-Upgradepackagesandinstallbasics-EDE11EB9",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "Required packages",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "apt-get update",
+            "DEBIAN_FRONTEND=noninteractive apt-get upgrade -y",
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates",
+            "curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb",
+            "dpkg -i -E /tmp/amazon-cloudwatch-agent.deb",
+            "rm /tmp/amazon-cloudwatch-agent.deb"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install packages required for GitHub Runner and upgrade all packages"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxBuilderUpgradepackagesandinstallbasicsComponentE35966D5": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxBuilder-Upgradepackagesandinstallbasics-EDE11EB9",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxBuilderUpgradepackagesandinstallbasicsVersionA685EC4B"
+    },
+    "Data": "{\"name\":\"Required packages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\",\"curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
+    "Description": "Install packages required for GitHub Runner and upgrade all packages"
+   }
+  },
+  "AMILinuxBuilderUserVersion6E8E8CF9": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxBuilder-User-1E6E0B38",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "GitHub Runner user",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "addgroup runner",
+            "adduser --system --disabled-password --home /home/runner --ingroup runner runner"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of AWS CLI"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxBuilderUserComponent5AE6CCAD": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxBuilder-User-1E6E0B38",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxBuilderUserVersion6E8E8CF9"
+    },
+    "Data": "{\"name\":\"GitHub Runner user\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"addgroup runner\",\"adduser --system --disabled-password --home /home/runner --ingroup runner runner\"]}}]}]}",
+    "Description": "Install latest version of AWS CLI"
+   }
+  },
+  "AMILinuxBuilderAWSCLIVersion7E4EC258": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxBuilder-AWSCLI-29AF5A97",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "AWS CLI",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "curl -fsSL \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o awscliv2.zip",
+            "unzip -q awscliv2.zip",
+            "./aws/install",
+            "rm -rf awscliv2.zip aws"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of AWS CLI"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxBuilderAWSCLIComponent8161BB77": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxBuilder-AWSCLI-29AF5A97",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxBuilderAWSCLIVersion7E4EC258"
+    },
+    "Data": "{\"name\":\"AWS CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\",\"unzip -q awscliv2.zip\",\"./aws/install\",\"rm -rf awscliv2.zip aws\"]}}]}]}",
+    "Description": "Install latest version of AWS CLI"
+   }
+  },
+  "AMILinuxBuilderGitHubCLIVersionDC235969": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxBuilder-GitHubCLI-AA9081A6",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "GitHub CLI",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg",
+            "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null",
+            "apt-get update",
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y gh"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of gh"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxBuilderGitHubCLIComponentFCD1D3AD": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxBuilder-GitHubCLI-AA9081A6",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxBuilderGitHubCLIVersionDC235969"
+    },
+    "Data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y gh\"]}}]}]}",
+    "Description": "Install latest version of gh"
+   }
+  },
+  "AMILinuxBuildergitVersionE19C42C8": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxBuilder-git-D2E780A5",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "Git",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "add-apt-repository ppa:git-core/ppa",
+            "apt-get update",
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y git"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of git"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxBuildergitComponentE5675D45": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxBuilder-git-D2E780A5",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxBuildergitVersionE19C42C8"
+    },
+    "Data": "{\"name\":\"Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y git\"]}}]}]}",
+    "Description": "Install latest version of git"
+   }
+  },
+  "AMILinuxBuilderGitHubActionsRunnerVersion97672B31": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxBuilder-GitHubActionsRunner-1461A95B",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "GitHub Actions Runner",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "RUNNER_VERSION=`curl -w \"%{redirect_url}\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \"[^/v]+$\"`",
+            "curl -fsSLO \"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\"",
+            "tar xzf \"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\"",
+            "rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz",
+            "./bin/installdependencies.sh"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of GitHub Actions Runner"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxBuilderGitHubActionsRunnerComponent62D9BC91": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxBuilder-GitHubActionsRunner-1461A95B",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxBuilderGitHubActionsRunnerVersion97672B31"
+    },
+    "Data": "{\"name\":\"GitHub Actions Runner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\",\"./bin/installdependencies.sh\"]}}]}]}",
+    "Description": "Install latest version of GitHub Actions Runner"
+   }
+  },
+  "AMILinuxBuilderDockerVersion3F741AF0": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxBuilder-Docker-09E28BD3",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "Docker",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg",
+            "echo   \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
+            "apt-get update",
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin",
+            "usermod -aG docker runner",
+            "ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of Docker"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxBuilderDockerComponentC4D1AB14": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxBuilder-Docker-09E28BD3",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxBuilderDockerVersion3F741AF0"
+    },
+    "Data": "{\"name\":\"Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
+    "Description": "Install latest version of Docker"
+   }
+  },
+  "AMILinuxBuilderLaunchtemplateA29452C4": {
+   "Type": "AWS::EC2::LaunchTemplate",
+   "Properties": {
+    "LaunchTemplateData": {
+     "TagSpecifications": [
+      {
+       "ResourceType": "instance",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/AMI Linux Builder/Launch template"
+        }
+       ]
+      },
+      {
+       "ResourceType": "volume",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/AMI Linux Builder/Launch template"
+        }
+       ]
+      }
+     ]
+    },
+    "TagSpecifications": [
+     {
+      "ResourceType": "launch-template",
+      "Tags": [
+       {
+        "Key": "Name",
+        "Value": "github-runners-test/AMI Linux Builder/Launch template"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "AMILinuxBuilderDistribution045596CF": {
+   "Type": "AWS::ImageBuilder::DistributionConfiguration",
+   "Properties": {
+    "Distributions": [
+     {
+      "AmiDistributionConfiguration": {
+       "Name": "github-runners-test-AMILinuxBuilder-67243E6D-{{ imagebuilder:buildDate }}",
+       "AmiTags": {
+        "Name": "AMI Linux Builder",
+        "GitHubRunners:Stack": "github-runners-test",
+        "GitHubRunners:Builder": "github-runners-test/AMI Linux Builder"
+       }
+      },
+      "LaunchTemplateConfigurations": [
+       {
+        "LaunchTemplateId": {
+         "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+        }
+       }
+      ],
+      "Region": {
+       "Ref": "AWS::Region"
+      }
+     }
+    ],
+    "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux Builder (Linux/X86_64)"
+   }
+  },
+  "AMILinuxBuilderAmiRecipeVersionFBE9C9AE": {
+   "Type": "Custom::ImageBuilder-ImageRecipe-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "ImageRecipe",
+    "ObjectName": "github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
+    "VersionedData": {
+     "platform": "Linux",
+     "components": [
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxBuilderUpgradepackagesandinstallbasicsComponentE35966D5",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxBuilderUserComponent5AE6CCAD",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxBuilderAWSCLIComponent8161BB77",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxBuilderGitHubCLIComponentFCD1D3AD",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxBuildergitComponentE5675D45",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxBuilderGitHubActionsRunnerComponent62D9BC91",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxBuilderDockerComponentC4D1AB14",
+         "Arn"
+        ]
+       }
+      }
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxBuilderAmiRecipe7C7ED6C7": {
+   "Type": "AWS::ImageBuilder::ImageRecipe",
+   "Properties": {
+    "Components": [
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxBuilderUpgradepackagesandinstallbasicsComponentE35966D5",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxBuilderUserComponent5AE6CCAD",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxBuilderAWSCLIComponent8161BB77",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxBuilderGitHubCLIComponentFCD1D3AD",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxBuildergitComponentE5675D45",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxBuilderGitHubActionsRunnerComponent62D9BC91",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxBuilderDockerComponentC4D1AB14",
+        "Arn"
+       ]
+      }
+     }
+    ],
+    "Name": "github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
+    "ParentImage": {
+     "Ref": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentamd64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
+    },
+    "Version": {
+     "Ref": "AMILinuxBuilderAmiRecipeVersionFBE9C9AE"
+    },
+    "WorkingDirectory": "/home/runner"
+   }
+  },
+  "AMILinuxBuilderLogAA902D79": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/aws/imagebuilder/github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "AMILinuxBuilderRole0C42378A": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "ec2.",
+           {
+            "Ref": "AWS::URLSuffix"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "AMILinuxBuilderInstanceProfile3CA638BE": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "AMILinuxBuilderRole0C42378A"
+     }
+    ]
+   }
+  },
+  "AMILinuxBuilderInfrastructure6FCD154A": {
+   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
+   "Properties": {
+    "InstanceProfileName": {
+     "Ref": "AMILinuxBuilderInstanceProfile3CA638BE"
+    },
+    "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux Builder (Linux/X86_64)",
+    "InstanceTypes": [
+     "m5.large"
+    ]
+   }
+  },
+  "AMILinuxBuilderImage1049E111": {
+   "Type": "AWS::ImageBuilder::Image",
+   "Properties": {
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderInfrastructure6FCD154A",
+      "Arn"
+     ]
+    },
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderDistribution045596CF",
+      "Arn"
+     ]
+    },
+    "ImageRecipeArn": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderAmiRecipe7C7ED6C7",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    }
+   },
+   "DependsOn": [
+    "AMILinuxBuilderInfrastructure6FCD154A",
+    "AMILinuxBuilderLogAA902D79"
+   ]
+  },
+  "AMILinuxBuilderPipelineA080CF10": {
+   "Type": "AWS::ImageBuilder::ImagePipeline",
+   "Properties": {
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderInfrastructure6FCD154A",
+      "Arn"
+     ]
+    },
+    "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux Builder (Linux/X86_64)",
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderDistribution045596CF",
+      "Arn"
+     ]
+    },
+    "ImageRecipeArn": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderAmiRecipe7C7ED6C7",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    },
+    "Schedule": {
+     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
+     "ScheduleExpression": "rate(7 days)"
+    }
+   },
+   "DependsOn": [
+    "AMILinuxBuilderInfrastructure6FCD154A",
+    "AMILinuxBuilderLogAA902D79"
+   ]
+  },
+  "AMILinuxBuilderDeleteAMISchedule0109DEF5": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Delete old AMIs for github-runners-test/AMI Linux Builder",
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": {
+       "Fn::Join": [
+        "",
+        [
+         "{\"RequestType\":\"Scheduled\",\"LaunchTemplateId\":\"",
+         {
+          "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+         },
+         "\",\"StackName\":\"github-runners-test\",\"BuilderName\":\"github-runners-test/AMI Linux Builder\"}"
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "AMILinuxBuilderDeleteAMIScheduleAllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88525B596C": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderDeleteAMISchedule0109DEF5",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "AMILinuxBuilderAMIDeleter58658716": {
+   "Type": "Custom::AmiDeleter",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+      "Arn"
+     ]
+    },
+    "StackName": "github-runners-test",
+    "BuilderName": "github-runners-test/AMI Linux Builder"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   },
   "CodeBuildImageBuilderRepository9DE3B6F0": {
    "Type": "AWS::ECR::Repository",
@@ -4412,36 +5242,6 @@
     "TimeoutInMinutes": 60
    }
   },
-  "LambdaImageDigestReaderCustomResourcePolicyE8E146E6": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "ecr:DescribeImages",
-       "Effect": "Allow",
-       "Resource": {
-        "Ref": "LambdaImageBuilderx64Builder42F384AF"
-       }
-      },
-      {
-       "Action": "fake:Fake",
-       "Effect": "Allow",
-       "Resource": {
-        "Ref": "LambdaImageBuilderx64Builder42F384AF"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "LambdaImageDigestReaderCustomResourcePolicyE8E146E6",
-    "Roles": [
-     {
-      "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
-     }
-    ]
-   }
-  },
   "LambdaImageDigestReaderE0842577": {
    "Type": "Custom::EcrImageDigest",
    "Properties": {
@@ -4489,6 +5289,36 @@
    ],
    "UpdateReplacePolicy": "Retain",
    "DeletionPolicy": "Retain"
+  },
+  "LambdaImageDigestReaderCustomResourcePolicyE8E146E6": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "ecr:DescribeImages",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "LambdaImageBuilderx64Builder42F384AF"
+       }
+      },
+      {
+       "Action": "fake:Fake",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "LambdaImageBuilderx64Builder42F384AF"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LambdaImageDigestReaderCustomResourcePolicyE8E146E6",
+    "Roles": [
+     {
+      "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+     }
+    ]
+   }
   },
   "LambdaFunctionServiceRoleB1826A50": {
    "Type": "AWS::IAM::Role",
@@ -4670,7 +5500,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "864aa5eb2d6ca4e0d4d65c940bc9e4d5a29db1e4f3f3a098ddb56f76b2129ac4.zip"
+     "S3Key": "e845402ce43b66fc6f20df4a239f20f8662eb6c7f920b94cf6542dd0e64ce0f7.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -5440,36 +6270,6 @@
     }
    }
   },
-  "LambdaARMImageDigestReaderCustomResourcePolicy2980B36A": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "ecr:DescribeImages",
-       "Effect": "Allow",
-       "Resource": {
-        "Ref": "LambdaImageBuilderzBuilder235DD147"
-       }
-      },
-      {
-       "Action": "fake:Fake",
-       "Effect": "Allow",
-       "Resource": {
-        "Ref": "LambdaImageBuilderzBuilder235DD147"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "LambdaARMImageDigestReaderCustomResourcePolicy2980B36A",
-    "Roles": [
-     {
-      "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
-     }
-    ]
-   }
-  },
   "LambdaARMImageDigestReaderF3DD55C4": {
    "Type": "Custom::EcrImageDigest",
    "Properties": {
@@ -5517,6 +6317,36 @@
    ],
    "UpdateReplacePolicy": "Retain",
    "DeletionPolicy": "Retain"
+  },
+  "LambdaARMImageDigestReaderCustomResourcePolicy2980B36A": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "ecr:DescribeImages",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "LambdaImageBuilderzBuilder235DD147"
+       }
+      },
+      {
+       "Action": "fake:Fake",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "LambdaImageBuilderzBuilder235DD147"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LambdaARMImageDigestReaderCustomResourcePolicy2980B36A",
+    "Roles": [
+     {
+      "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+     }
+    ]
+   }
   },
   "LambdaARMFunctionServiceRole136069A0": {
    "Type": "AWS::IAM::Role",
@@ -5701,7 +6531,7 @@
       "Command": [
        "sh",
        "-c",
-       "if [ \"${RUNNER_VERSION}\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi && ./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" ${RUNNER_FLAGS} --name \"${RUNNER_NAME}\" && ./run.sh"
+       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && ./run.sh"
       ],
       "Essential": true,
       "Image": {
@@ -5904,7 +6734,7 @@
       "Command": [
        "sh",
        "-c",
-       "if [ \"${RUNNER_VERSION}\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi && ./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" ${RUNNER_FLAGS} --name \"${RUNNER_NAME}\" && ./run.sh"
+       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && ./run.sh"
       ],
       "Essential": true,
       "Image": {
@@ -6107,7 +6937,7 @@
       "Command": [
        "sh",
        "-c",
-       "if [ \"${RUNNER_VERSION}\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi && ./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" ${RUNNER_FLAGS} --name \"${RUNNER_NAME}\" && ./run.sh"
+       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && ./run.sh"
       ],
       "Essential": true,
       "Image": {
@@ -6310,7 +7140,7 @@
       "Command": [
        "sh",
        "-c",
-       "if [ \"${RUNNER_VERSION}\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi && ./config.sh --unattended --url \"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\" --token \"${RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${RUNNER_LABEL}\" ${RUNNER_FLAGS} --name \"${RUNNER_NAME}\" && ./run.sh"
+       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && ./run.sh"
       ],
       "Essential": true,
       "Image": {
@@ -6513,7 +7343,7 @@
       "Command": [
        "powershell",
        "-Command",
-       "if (${Env:RUNNER_VERSION} -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ; cd \\actions ; ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL}\" ${RunnerFlags} --name \"${Env:RUNNER_NAME}\" ; ./run.cmd"
+       "cd \\actions ; ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL}\" --disableupdate --name \"${Env:RUNNER_NAME}\" ; ./run.cmd"
       ],
       "Essential": true,
       "Image": {
@@ -6714,6 +7544,2073 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "EC2LinuxRole8B6519A2": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "ec2.",
+           {
+            "Ref": "AWS::URLSuffix"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "EC2LinuxRoleDefaultPolicy1369791B": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "states:SendTaskFailure",
+        "states:SendTaskSuccess",
+        "states:SendTaskHeartbeat"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "EC2LinuxLogsC4CD8F14",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "EC2LinuxRoleDefaultPolicy1369791B",
+    "Roles": [
+     {
+      "Ref": "EC2LinuxRole8B6519A2"
+     }
+    ]
+   }
+  },
+  "EC2LinuxLogsC4CD8F14": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "EC2LinuxInstanceProfile2D2BB473": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "EC2LinuxRole8B6519A2"
+     }
+    ]
+   }
+  },
+  "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0C44BF83": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ec2:DescribeLaunchTemplateVersions",
+        "ec2:DescribeImages",
+        "ec2:DeregisterImage"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0C44BF83",
+    "Roles": [
+     {
+      "Ref": "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F"
+     }
+    ]
+   }
+  },
+  "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "2c96dbfaf75649542d8681744e77d3ef4a03a20df5e171ce2a0a72b0a18e5928.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F",
+      "Arn"
+     ]
+    },
+    "Environment": {
+     "Variables": {
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs14.x",
+    "Timeout": 300
+   },
+   "DependsOn": [
+    "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0C44BF83",
+    "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F"
+   ]
+  },
+  "deleteamidcc036c8876b451ea2c1552f9e06e9e1LogRetention85F808EB": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "EC2SpotLinuxRole86333E5D": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "ec2.",
+           {
+            "Ref": "AWS::URLSuffix"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "EC2SpotLinuxRoleDefaultPolicy061AD1D0": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "states:SendTaskFailure",
+        "states:SendTaskSuccess",
+        "states:SendTaskHeartbeat"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "EC2SpotLinuxLogsF78D5F0E",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "EC2SpotLinuxRoleDefaultPolicy061AD1D0",
+    "Roles": [
+     {
+      "Ref": "EC2SpotLinuxRole86333E5D"
+     }
+    ]
+   }
+  },
+  "EC2SpotLinuxLogsF78D5F0E": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "EC2SpotLinuxInstanceProfileB12320D4": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "EC2SpotLinuxRole86333E5D"
+     }
+    ]
+   }
+  },
+  "AMILinuxarm64BuilderUpgradepackagesandinstallbasicsVersionCD58A101": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxarm64Builder-Upgradepackagesandinstallbasics-29D3C869",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "Required packages",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "apt-get update",
+            "DEBIAN_FRONTEND=noninteractive apt-get upgrade -y",
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates",
+            "curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb",
+            "dpkg -i -E /tmp/amazon-cloudwatch-agent.deb",
+            "rm /tmp/amazon-cloudwatch-agent.deb"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install packages required for GitHub Runner and upgrade all packages"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxarm64BuilderUpgradepackagesandinstallbasicsComponentBE33D1FC": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxarm64Builder-Upgradepackagesandinstallbasics-29D3C869",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxarm64BuilderUpgradepackagesandinstallbasicsVersionCD58A101"
+    },
+    "Data": "{\"name\":\"Required packages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\",\"curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
+    "Description": "Install packages required for GitHub Runner and upgrade all packages"
+   }
+  },
+  "AMILinuxarm64BuilderUserVersion39FD60DE": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxarm64Builder-User-93B25D03",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "GitHub Runner user",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "addgroup runner",
+            "adduser --system --disabled-password --home /home/runner --ingroup runner runner"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of AWS CLI"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxarm64BuilderUserComponent938F2367": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxarm64Builder-User-93B25D03",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxarm64BuilderUserVersion39FD60DE"
+    },
+    "Data": "{\"name\":\"GitHub Runner user\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"addgroup runner\",\"adduser --system --disabled-password --home /home/runner --ingroup runner runner\"]}}]}]}",
+    "Description": "Install latest version of AWS CLI"
+   }
+  },
+  "AMILinuxarm64BuilderAWSCLIVersion0F90337D": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxarm64Builder-AWSCLI-40A3A460",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "AWS CLI",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "curl -fsSL \"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\" -o awscliv2.zip",
+            "unzip -q awscliv2.zip",
+            "./aws/install",
+            "rm -rf awscliv2.zip aws"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of AWS CLI"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxarm64BuilderAWSCLIComponent597EC392": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxarm64Builder-AWSCLI-40A3A460",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxarm64BuilderAWSCLIVersion0F90337D"
+    },
+    "Data": "{\"name\":\"AWS CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\",\"unzip -q awscliv2.zip\",\"./aws/install\",\"rm -rf awscliv2.zip aws\"]}}]}]}",
+    "Description": "Install latest version of AWS CLI"
+   }
+  },
+  "AMILinuxarm64BuilderGitHubCLIVersionDE6BF6E3": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxarm64Builder-GitHubCLI-9616C810",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "GitHub CLI",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg",
+            "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null",
+            "apt-get update",
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y gh"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of gh"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxarm64BuilderGitHubCLIComponentD2BEF6D6": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxarm64Builder-GitHubCLI-9616C810",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxarm64BuilderGitHubCLIVersionDE6BF6E3"
+    },
+    "Data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y gh\"]}}]}]}",
+    "Description": "Install latest version of gh"
+   }
+  },
+  "AMILinuxarm64BuildergitVersion036A7A85": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxarm64Builder-git-9631389E",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "Git",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "add-apt-repository ppa:git-core/ppa",
+            "apt-get update",
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y git"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of git"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxarm64BuildergitComponent2DD770C7": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxarm64Builder-git-9631389E",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxarm64BuildergitVersion036A7A85"
+    },
+    "Data": "{\"name\":\"Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y git\"]}}]}]}",
+    "Description": "Install latest version of git"
+   }
+  },
+  "AMILinuxarm64BuilderGitHubActionsRunnerVersion208149D0": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxarm64Builder-GitHubActionsRunner-6B8B4FCE",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "GitHub Actions Runner",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "RUNNER_VERSION=`curl -w \"%{redirect_url}\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \"[^/v]+$\"`",
+            "curl -fsSLO \"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\"",
+            "tar xzf \"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\"",
+            "rm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz",
+            "./bin/installdependencies.sh"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of GitHub Actions Runner"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxarm64BuilderGitHubActionsRunnerComponent2D6B2EA8": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxarm64Builder-GitHubActionsRunner-6B8B4FCE",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxarm64BuilderGitHubActionsRunnerVersion208149D0"
+    },
+    "Data": "{\"name\":\"GitHub Actions Runner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\",\"./bin/installdependencies.sh\"]}}]}]}",
+    "Description": "Install latest version of GitHub Actions Runner"
+   }
+  },
+  "AMILinuxarm64BuilderDockerVersionD5DFBE4A": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxarm64Builder-Docker-9D417EF3",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "Docker",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg",
+            "echo   \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
+            "apt-get update",
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin",
+            "usermod -aG docker runner",
+            "ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of Docker"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxarm64BuilderDockerComponent51BA7F92": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-AMILinuxarm64Builder-Docker-9D417EF3",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxarm64BuilderDockerVersionD5DFBE4A"
+    },
+    "Data": "{\"name\":\"Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
+    "Description": "Install latest version of Docker"
+   }
+  },
+  "AMILinuxarm64BuilderLaunchtemplate8F5EFF44": {
+   "Type": "AWS::EC2::LaunchTemplate",
+   "Properties": {
+    "LaunchTemplateData": {
+     "TagSpecifications": [
+      {
+       "ResourceType": "instance",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/AMI Linux arm64 Builder/Launch template"
+        }
+       ]
+      },
+      {
+       "ResourceType": "volume",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/AMI Linux arm64 Builder/Launch template"
+        }
+       ]
+      }
+     ]
+    },
+    "TagSpecifications": [
+     {
+      "ResourceType": "launch-template",
+      "Tags": [
+       {
+        "Key": "Name",
+        "Value": "github-runners-test/AMI Linux arm64 Builder/Launch template"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "AMILinuxarm64BuilderDistribution77B3BD53": {
+   "Type": "AWS::ImageBuilder::DistributionConfiguration",
+   "Properties": {
+    "Distributions": [
+     {
+      "AmiDistributionConfiguration": {
+       "Name": "github-runners-test-AMILinuxarm64Builder-3F449283-{{ imagebuilder:buildDate }}",
+       "AmiTags": {
+        "Name": "AMI Linux arm64 Builder",
+        "GitHubRunners:Stack": "github-runners-test",
+        "GitHubRunners:Builder": "github-runners-test/AMI Linux arm64 Builder"
+       }
+      },
+      "LaunchTemplateConfigurations": [
+       {
+        "LaunchTemplateId": {
+         "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
+        }
+       }
+      ],
+      "Region": {
+       "Ref": "AWS::Region"
+      }
+     }
+    ],
+    "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux arm64 Builder (Linux/ARM64)"
+   }
+  },
+  "AMILinuxarm64BuilderAmiRecipeVersion429E7646": {
+   "Type": "Custom::ImageBuilder-ImageRecipe-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "ImageRecipe",
+    "ObjectName": "github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
+    "VersionedData": {
+     "platform": "Linux",
+     "components": [
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxarm64BuilderUpgradepackagesandinstallbasicsComponentBE33D1FC",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxarm64BuilderUserComponent938F2367",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxarm64BuilderAWSCLIComponent597EC392",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxarm64BuilderGitHubCLIComponentD2BEF6D6",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxarm64BuildergitComponent2DD770C7",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxarm64BuilderGitHubActionsRunnerComponent2D6B2EA8",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxarm64BuilderDockerComponent51BA7F92",
+         "Arn"
+        ]
+       }
+      }
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxarm64BuilderAmiRecipe6A6ED38F": {
+   "Type": "AWS::ImageBuilder::ImageRecipe",
+   "Properties": {
+    "Components": [
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxarm64BuilderUpgradepackagesandinstallbasicsComponentBE33D1FC",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxarm64BuilderUserComponent938F2367",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxarm64BuilderAWSCLIComponent597EC392",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxarm64BuilderGitHubCLIComponentD2BEF6D6",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxarm64BuildergitComponent2DD770C7",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxarm64BuilderGitHubActionsRunnerComponent2D6B2EA8",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxarm64BuilderDockerComponent51BA7F92",
+        "Arn"
+       ]
+      }
+     }
+    ],
+    "Name": "github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
+    "ParentImage": {
+     "Ref": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentarm64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
+    },
+    "Version": {
+     "Ref": "AMILinuxarm64BuilderAmiRecipeVersion429E7646"
+    },
+    "WorkingDirectory": "/home/runner"
+   }
+  },
+  "AMILinuxarm64BuilderLog3F9BB6F0": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/aws/imagebuilder/github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "AMILinuxarm64BuilderRole40D54E29": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "ec2.",
+           {
+            "Ref": "AWS::URLSuffix"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "AMILinuxarm64BuilderInstanceProfileCE3B6B09": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "AMILinuxarm64BuilderRole40D54E29"
+     }
+    ]
+   }
+  },
+  "AMILinuxarm64BuilderInfrastructure80FA16D6": {
+   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
+   "Properties": {
+    "InstanceProfileName": {
+     "Ref": "AMILinuxarm64BuilderInstanceProfileCE3B6B09"
+    },
+    "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux arm64 Builder (Linux/ARM64)",
+    "InstanceTypes": [
+     "m6g.large"
+    ]
+   }
+  },
+  "AMILinuxarm64BuilderImageA637431C": {
+   "Type": "AWS::ImageBuilder::Image",
+   "Properties": {
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderInfrastructure80FA16D6",
+      "Arn"
+     ]
+    },
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderDistribution77B3BD53",
+      "Arn"
+     ]
+    },
+    "ImageRecipeArn": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    }
+   },
+   "DependsOn": [
+    "AMILinuxarm64BuilderInfrastructure80FA16D6",
+    "AMILinuxarm64BuilderLog3F9BB6F0"
+   ]
+  },
+  "AMILinuxarm64BuilderPipelineECE006B6": {
+   "Type": "AWS::ImageBuilder::ImagePipeline",
+   "Properties": {
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderInfrastructure80FA16D6",
+      "Arn"
+     ]
+    },
+    "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/AMI Linux arm64 Builder (Linux/ARM64)",
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderDistribution77B3BD53",
+      "Arn"
+     ]
+    },
+    "ImageRecipeArn": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    },
+    "Schedule": {
+     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
+     "ScheduleExpression": "rate(7 days)"
+    }
+   },
+   "DependsOn": [
+    "AMILinuxarm64BuilderInfrastructure80FA16D6",
+    "AMILinuxarm64BuilderLog3F9BB6F0"
+   ]
+  },
+  "AMILinuxarm64BuilderDeleteAMISchedule72E5EB47": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Delete old AMIs for github-runners-test/AMI Linux arm64 Builder",
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": {
+       "Fn::Join": [
+        "",
+        [
+         "{\"RequestType\":\"Scheduled\",\"LaunchTemplateId\":\"",
+         {
+          "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
+         },
+         "\",\"StackName\":\"github-runners-test\",\"BuilderName\":\"github-runners-test/AMI Linux arm64 Builder\"}"
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "AMILinuxarm64BuilderDeleteAMIScheduleAllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88A6D69EB4": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderDeleteAMISchedule72E5EB47",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "AMILinuxarm64BuilderAMIDeleter27E72E27": {
+   "Type": "Custom::AmiDeleter",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+      "Arn"
+     ]
+    },
+    "StackName": "github-runners-test",
+    "BuilderName": "github-runners-test/AMI Linux arm64 Builder"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "EC2Linuxarm64Role242F68FF": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "ec2.",
+           {
+            "Ref": "AWS::URLSuffix"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "EC2Linuxarm64RoleDefaultPolicyDE9193C3": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "states:SendTaskFailure",
+        "states:SendTaskSuccess",
+        "states:SendTaskHeartbeat"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "EC2Linuxarm64Logs577E371E",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "EC2Linuxarm64RoleDefaultPolicyDE9193C3",
+    "Roles": [
+     {
+      "Ref": "EC2Linuxarm64Role242F68FF"
+     }
+    ]
+   }
+  },
+  "EC2Linuxarm64Logs577E371E": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "EC2Linuxarm64InstanceProfile1E6F8D53": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "EC2Linuxarm64Role242F68FF"
+     }
+    ]
+   }
+  },
+  "WindowsEC2BuilderCloudWatchagentVersion05F51F3E": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-WindowsEC2Builder-CloudWatchagent-E8246DA5",
+    "VersionedData": {
+     "platform": "Windows",
+     "data": {
+      "name": "CloudWatch agent",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecutePowerShell",
+          "inputs": {
+           "commands": [
+            "$ErrorActionPreference = 'Stop'",
+            "Start-Process msiexec.exe -Wait -ArgumentList '/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn'"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of CloudWatch agent for sending logs to CloudWatch"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "WindowsEC2BuilderCloudWatchagentComponent834C8193": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-WindowsEC2Builder-CloudWatchagent-E8246DA5",
+    "Platform": "Windows",
+    "Version": {
+     "Ref": "WindowsEC2BuilderCloudWatchagentVersion05F51F3E"
+    },
+    "Data": "{\"name\":\"CloudWatch agent\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn'\"]}}]}]}",
+    "Description": "Install latest version of CloudWatch agent for sending logs to CloudWatch"
+   }
+  },
+  "WindowsEC2BuilderAWSCLIVersion930FE37C": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-WindowsEC2Builder-AWSCLI-746065A3",
+    "VersionedData": {
+     "platform": "Windows",
+     "data": {
+      "name": "AWS CLI",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecutePowerShell",
+          "inputs": {
+           "commands": [
+            "$ErrorActionPreference = 'Stop'",
+            "Start-Process msiexec.exe -Wait -ArgumentList '/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn'"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of AWS CLI"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "WindowsEC2BuilderAWSCLIComponent074653A7": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-WindowsEC2Builder-AWSCLI-746065A3",
+    "Platform": "Windows",
+    "Version": {
+     "Ref": "WindowsEC2BuilderAWSCLIVersion930FE37C"
+    },
+    "Data": "{\"name\":\"AWS CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn'\"]}}]}]}",
+    "Description": "Install latest version of AWS CLI"
+   }
+  },
+  "WindowsEC2BuilderGitHubCLIVersionF5632391": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-WindowsEC2Builder-GitHubCLI-0934FC13",
+    "VersionedData": {
+     "platform": "Windows",
+     "data": {
+      "name": "GitHub CLI",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecutePowerShell",
+          "inputs": {
+           "commands": [
+            "$ErrorActionPreference = 'Stop'",
+            "$ProgressPreference = 'SilentlyContinue'",
+            "cmd /c curl -w \"%{redirect_url}\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh",
+            "$LatestUrl = Get-Content $Env:TEMP\\latest-gh",
+            "$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)",
+            "$ProgressPreference = 'SilentlyContinue'",
+            "Invoke-WebRequest -UseBasicParsing -Uri \"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\" -OutFile gh.msi",
+            "Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'",
+            "del gh.msi"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of gh"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "WindowsEC2BuilderGitHubCLIComponentF6EB908A": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-WindowsEC2Builder-GitHubCLI-0934FC13",
+    "Platform": "Windows",
+    "Version": {
+     "Ref": "WindowsEC2BuilderGitHubCLIVersionF5632391"
+    },
+    "Data": "{\"name\":\"GitHub CLI\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$ProgressPreference = 'SilentlyContinue'\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}",
+    "Description": "Install latest version of gh"
+   }
+  },
+  "WindowsEC2BuildergitVersion01214F59": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-WindowsEC2Builder-git-A42589DA",
+    "VersionedData": {
+     "platform": "Windows",
+     "data": {
+      "name": "Git",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecutePowerShell",
+          "inputs": {
+           "commands": [
+            "$ErrorActionPreference = 'Stop'",
+            "$ProgressPreference = 'SilentlyContinue'",
+            "cmd /c curl -w \"%{redirect_url}\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\latest-git",
+            "$LatestUrl = Get-Content $Env:TEMP\\latest-git",
+            "$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)",
+            "$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]",
+            "Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe",
+            "Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'",
+            "del git-setup.exe"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of git"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "WindowsEC2BuildergitComponentA98B99F3": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-WindowsEC2Builder-git-A42589DA",
+    "Platform": "Windows",
+    "Version": {
+     "Ref": "WindowsEC2BuildergitVersion01214F59"
+    },
+    "Data": "{\"name\":\"Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'\",\"del git-setup.exe\"]}}]}]}",
+    "Description": "Install latest version of git"
+   }
+  },
+  "WindowsEC2BuilderGitHubActionsRunnerVersionC3E347C0": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-WindowsEC2Builder-GitHubActionsRunner-8AAFE191",
+    "VersionedData": {
+     "platform": "Windows",
+     "data": {
+      "name": "GitHub Actions Runner",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecutePowerShell",
+          "inputs": {
+           "commands": [
+            "$ErrorActionPreference = 'Stop'",
+            "$ProgressPreference = 'SilentlyContinue'",
+            "cmd /c curl -w \"%{redirect_url}\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\latest-gha",
+            "$LatestUrl = Get-Content $Env:TEMP\\latest-gha",
+            "$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)",
+            "Invoke-WebRequest -UseBasicParsing -Uri \"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\" -OutFile actions.zip",
+            "Expand-Archive actions.zip -DestinationPath C:\\actions",
+            "del actions.zip"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of GitHub Actions Runner"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "WindowsEC2BuilderGitHubActionsRunnerComponent1741EAC0": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-WindowsEC2Builder-GitHubActionsRunner-8AAFE191",
+    "Platform": "Windows",
+    "Version": {
+     "Ref": "WindowsEC2BuilderGitHubActionsRunnerVersionC3E347C0"
+    },
+    "Data": "{\"name\":\"GitHub Actions Runner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\"]}}]}]}",
+    "Description": "Install latest version of GitHub Actions Runner"
+   }
+  },
+  "WindowsEC2BuilderDockerVersionB1C9C41B": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-WindowsEC2Builder-Docker-0AB6BE75",
+    "VersionedData": {
+     "platform": "Windows",
+     "data": {
+      "name": "Docker",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Run",
+          "action": "ExecutePowerShell",
+          "inputs": {
+           "commands": [
+            "$ErrorActionPreference = 'Stop'",
+            "$ProgressPreference = 'SilentlyContinue'",
+            "Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe -OutFile docker-setup.exe",
+            "Start-Process 'docker-setup.exe' -Wait -ArgumentList '/install --quiet --accept-license'",
+            "del docker-setup.exe",
+            "cmd /c curl -w \"%{redirect_url}\" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\latest-docker-compose",
+            "$LatestUrl = Get-Content $Env:TEMP\\latest-docker-compose",
+            "$LatestDockerCompose = ($LatestUrl -Split '/')[-1]",
+            "Invoke-WebRequest -UseBasicParsing -Uri  \"https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe\" -OutFile $Env:ProgramFiles\\Docker\\docker-compose.exe",
+            "copy $Env:ProgramFiles\\Docker\\docker-compose.exe $Env:ProgramFiles\\Docker\\cli-plugins\\docker-compose.exe"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Install latest version of Docker"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "WindowsEC2BuilderDockerComponent0CDF16CB": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-WindowsEC2Builder-Docker-0AB6BE75",
+    "Platform": "Windows",
+    "Version": {
+     "Ref": "WindowsEC2BuilderDockerVersionB1C9C41B"
+    },
+    "Data": "{\"name\":\"Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe -OutFile docker-setup.exe\",\"Start-Process 'docker-setup.exe' -Wait -ArgumentList '/install --quiet --accept-license'\",\"del docker-setup.exe\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\\\latest-docker-compose\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-docker-compose\",\"$LatestDockerCompose = ($LatestUrl -Split '/')[-1]\",\"Invoke-WebRequest -UseBasicParsing -Uri  \\\"https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe\\\" -OutFile $Env:ProgramFiles\\\\Docker\\\\docker-compose.exe\",\"copy $Env:ProgramFiles\\\\Docker\\\\docker-compose.exe $Env:ProgramFiles\\\\Docker\\\\cli-plugins\\\\docker-compose.exe\"]}}]}]}",
+    "Description": "Install latest version of Docker"
+   }
+  },
+  "WindowsEC2BuilderLaunchtemplate0A66E9C2": {
+   "Type": "AWS::EC2::LaunchTemplate",
+   "Properties": {
+    "LaunchTemplateData": {
+     "TagSpecifications": [
+      {
+       "ResourceType": "instance",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/Windows EC2 Builder/Launch template"
+        }
+       ]
+      },
+      {
+       "ResourceType": "volume",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/Windows EC2 Builder/Launch template"
+        }
+       ]
+      }
+     ]
+    },
+    "TagSpecifications": [
+     {
+      "ResourceType": "launch-template",
+      "Tags": [
+       {
+        "Key": "Name",
+        "Value": "github-runners-test/Windows EC2 Builder/Launch template"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "WindowsEC2BuilderDistributionC6CA152B": {
+   "Type": "AWS::ImageBuilder::DistributionConfiguration",
+   "Properties": {
+    "Distributions": [
+     {
+      "AmiDistributionConfiguration": {
+       "Name": "github-runners-test-WindowsEC2Builder-5FAF8285-{{ imagebuilder:buildDate }}",
+       "AmiTags": {
+        "Name": "Windows EC2 Builder",
+        "GitHubRunners:Stack": "github-runners-test",
+        "GitHubRunners:Builder": "github-runners-test/Windows EC2 Builder"
+       }
+      },
+      "LaunchTemplateConfigurations": [
+       {
+        "LaunchTemplateId": {
+         "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
+        }
+       }
+      ],
+      "Region": {
+       "Ref": "AWS::Region"
+      }
+     }
+    ],
+    "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/Windows EC2 Builder (Windows/X86_64)"
+   }
+  },
+  "WindowsEC2BuilderAmiRecipeVersionEE5C2F0C": {
+   "Type": "Custom::ImageBuilder-ImageRecipe-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "ImageRecipe",
+    "ObjectName": "github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
+    "VersionedData": {
+     "platform": "Windows",
+     "components": [
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "WindowsEC2BuilderCloudWatchagentComponent834C8193",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "WindowsEC2BuilderAWSCLIComponent074653A7",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "WindowsEC2BuilderGitHubCLIComponentF6EB908A",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "WindowsEC2BuildergitComponentA98B99F3",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "WindowsEC2BuilderGitHubActionsRunnerComponent1741EAC0",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "WindowsEC2BuilderDockerComponent0CDF16CB",
+         "Arn"
+        ]
+       }
+      }
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "WindowsEC2BuilderAmiRecipe41A137FF": {
+   "Type": "AWS::ImageBuilder::ImageRecipe",
+   "Properties": {
+    "Components": [
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "WindowsEC2BuilderCloudWatchagentComponent834C8193",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "WindowsEC2BuilderAWSCLIComponent074653A7",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "WindowsEC2BuilderGitHubCLIComponentF6EB908A",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "WindowsEC2BuildergitComponentA98B99F3",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "WindowsEC2BuilderGitHubActionsRunnerComponent1741EAC0",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "WindowsEC2BuilderDockerComponent0CDF16CB",
+        "Arn"
+       ]
+      }
+     }
+    ],
+    "Name": "github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
+    "ParentImage": {
+     "Ref": "SsmParameterValueawsserviceamiwindowslatestWindowsServer2022EnglishFullContainersLatestC96584B6F00A464EAD1953AFF4B05118Parameter"
+    },
+    "Version": {
+     "Ref": "WindowsEC2BuilderAmiRecipeVersionEE5C2F0C"
+    },
+    "WorkingDirectory": "C:/"
+   }
+  },
+  "WindowsEC2BuilderLog486ECFAD": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/aws/imagebuilder/github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "WindowsEC2BuilderRole1BA7D3E7": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "ec2.",
+           {
+            "Ref": "AWS::URLSuffix"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "WindowsEC2BuilderInstanceProfileA8DBA763": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "WindowsEC2BuilderRole1BA7D3E7"
+     }
+    ]
+   }
+  },
+  "WindowsEC2BuilderInfrastructure757D4FD7": {
+   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
+   "Properties": {
+    "InstanceProfileName": {
+     "Ref": "WindowsEC2BuilderInstanceProfileA8DBA763"
+    },
+    "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/Windows EC2 Builder (Windows/X86_64)",
+    "InstanceTypes": [
+     "m5.large"
+    ]
+   }
+  },
+  "WindowsEC2BuilderImage6E6F4F1F": {
+   "Type": "AWS::ImageBuilder::Image",
+   "Properties": {
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderInfrastructure757D4FD7",
+      "Arn"
+     ]
+    },
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderDistributionC6CA152B",
+      "Arn"
+     ]
+    },
+    "ImageRecipeArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderAmiRecipe41A137FF",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    }
+   },
+   "DependsOn": [
+    "WindowsEC2BuilderInfrastructure757D4FD7",
+    "WindowsEC2BuilderLog486ECFAD"
+   ]
+  },
+  "WindowsEC2BuilderPipelineC4625CBC": {
+   "Type": "AWS::ImageBuilder::ImagePipeline",
+   "Properties": {
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderInfrastructure757D4FD7",
+      "Arn"
+     ]
+    },
+    "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+    "Description": "Build AMI for GitHub Actions runner github-runners-test/Windows EC2 Builder (Windows/X86_64)",
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderDistributionC6CA152B",
+      "Arn"
+     ]
+    },
+    "ImageRecipeArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderAmiRecipe41A137FF",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    },
+    "Schedule": {
+     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
+     "ScheduleExpression": "rate(7 days)"
+    }
+   },
+   "DependsOn": [
+    "WindowsEC2BuilderInfrastructure757D4FD7",
+    "WindowsEC2BuilderLog486ECFAD"
+   ]
+  },
+  "WindowsEC2BuilderDeleteAMISchedule52E66C5D": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Delete old AMIs for github-runners-test/Windows EC2 Builder",
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": {
+       "Fn::Join": [
+        "",
+        [
+         "{\"RequestType\":\"Scheduled\",\"LaunchTemplateId\":\"",
+         {
+          "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
+         },
+         "\",\"StackName\":\"github-runners-test\",\"BuilderName\":\"github-runners-test/Windows EC2 Builder\"}"
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "WindowsEC2BuilderDeleteAMIScheduleAllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA882F03ABC6": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderDeleteAMISchedule52E66C5D",
+      "Arn"
+     ]
+    }
+   }
+  },
+  "WindowsEC2BuilderAMIDeleterF9643905": {
+   "Type": "Custom::AmiDeleter",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303",
+      "Arn"
+     ]
+    },
+    "StackName": "github-runners-test",
+    "BuilderName": "github-runners-test/Windows EC2 Builder"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "EC2WindowsRoleC0D850D2": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "ec2.",
+           {
+            "Ref": "AWS::URLSuffix"
+           }
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "EC2WindowsRoleDefaultPolicyB6A15409": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "states:SendTaskFailure",
+        "states:SendTaskSuccess",
+        "states:SendTaskHeartbeat"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "EC2WindowsLogsDC1F2ABF",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "EC2WindowsRoleDefaultPolicyB6A15409",
+    "Roles": [
+     {
+      "Ref": "EC2WindowsRoleC0D850D2"
+     }
+    ]
+   }
+  },
+  "EC2WindowsLogsDC1F2ABF": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "EC2WindowsInstanceProfileDCA59D9C": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "EC2WindowsRoleC0D850D2"
+     }
+    ]
+   }
   },
   "runnersSecretsWebhook7AF0D74E": {
    "Type": "AWS::SecretsManager::Secret",
@@ -7921,6 +10818,95 @@
          ]
         }
        ]
+      },
+      {
+       "Action": "ec2:runInstances",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": "iam:PassRole",
+       "Condition": {
+        "StringEquals": {
+         "iam:PassedToService": "ec2.amazonaws.com"
+        }
+       },
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "EC2LinuxRole8B6519A2",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ec2:createTags",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":ec2:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": "iam:PassRole",
+       "Condition": {
+        "StringEquals": {
+         "iam:PassedToService": "ec2.amazonaws.com"
+        }
+       },
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "EC2SpotLinuxRole86333E5D",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "iam:PassRole",
+       "Condition": {
+        "StringEquals": {
+         "iam:PassedToService": "ec2.amazonaws.com"
+        }
+       },
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "EC2Linuxarm64Role242F68FF",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "iam:PassRole",
+       "Condition": {
+        "StringEquals": {
+         "iam:PassedToService": "ec2.amazonaws.com"
+        }
+       },
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "EC2WindowsRoleC0D850D2",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -7953,7 +10939,7 @@
          "Arn"
         ]
        },
-       "\"},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"And\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true}],\"Next\":\"codebuild-x64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"codebuild, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"codebuild, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"lambda, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"lambda, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, windows, x64\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Succeed\"},\"codebuild-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"And\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true}],\"Next\":\"codebuild-x64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"codebuild, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"codebuild, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"lambda, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"lambda, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2-spot, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, arm64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, windows, x64 data\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Succeed\"},\"codebuild-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -8129,7 +11115,83 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}}}},{\"StartAt\":\"Wait\",\"States\":{\"Wait\":{\"Type\":\"Wait\",\"Seconds\":600,\"Next\":\"Delete Idle Runner\"},\"Delete Idle Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"ec2, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\npoweroff\\n\"},\"Next\":\"ec2, linux, x64\"},\"ec2, linux, x64\":{\"End\":true,\"Type\":\"Task\",\"HeartbeatSeconds\":300,\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::aws-sdk:ec2:runInstances.waitForTaskToken\",\"Parameters\":{\"LaunchTemplate\":{\"LaunchTemplateId\":\"",
+       {
+        "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+       },
+       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m5.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
+       {
+        "Ref": "EC2LinuxLogsC4CD8F14"
+       },
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,linux,x64', '', $$.Execution.Name))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       {
+        "Fn::GetAtt": [
+         "EC2LinuxInstanceProfile2D2BB473",
+         "Arn"
+        ]
+       },
+       "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2-spot, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\npoweroff\\n\"},\"Next\":\"ec2-spot, linux, x64\"},\"ec2-spot, linux, x64\":{\"End\":true,\"Type\":\"Task\",\"HeartbeatSeconds\":300,\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::aws-sdk:ec2:runInstances.waitForTaskToken\",\"Parameters\":{\"LaunchTemplate\":{\"LaunchTemplateId\":\"",
+       {
+        "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+       },
+       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m5.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
+       {
+        "Ref": "EC2SpotLinuxLogsF78D5F0E"
+       },
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2-spot,linux,x64', '', $$.Execution.Name))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       {
+        "Fn::GetAtt": [
+         "EC2SpotLinuxInstanceProfileB12320D4",
+         "Arn"
+        ]
+       },
+       "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}},\"ec2, linux, arm64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\npoweroff\\n\"},\"Next\":\"ec2, linux, arm64\"},\"ec2, linux, arm64\":{\"End\":true,\"Type\":\"Task\",\"HeartbeatSeconds\":300,\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::aws-sdk:ec2:runInstances.waitForTaskToken\",\"Parameters\":{\"LaunchTemplate\":{\"LaunchTemplateId\":\"",
+       {
+        "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
+       },
+       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m6g.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
+       {
+        "Ref": "EC2Linuxarm64Logs577E371E"
+       },
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,linux,arm64', '', $$.Execution.Name))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       {
+        "Fn::GetAtt": [
+         "EC2Linuxarm64InstanceProfile1E6F8D53",
+         "Arn"
+        ]
+       },
+       "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, windows, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\nStart-Job -ScriptBlock \\\\{\\n  while (1) \\\\{\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    sleep 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  echo '\\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n         \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/actions/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}' | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  ./config.cmd --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}'\\n\\\\} else \\\\{\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\n\\\\}\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"ec2, windows, x64\"},\"ec2, windows, x64\":{\"End\":true,\"Type\":\"Task\",\"HeartbeatSeconds\":300,\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::aws-sdk:ec2:runInstances.waitForTaskToken\",\"Parameters\":{\"LaunchTemplate\":{\"LaunchTemplateId\":\"",
+       {
+        "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
+       },
+       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m5.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
+       {
+        "Ref": "EC2WindowsLogsDC1F2ABF"
+       },
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,windows,x64', '', $$.Execution.Name))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       {
+        "Fn::GetAtt": [
+         "EC2WindowsInstanceProfileDCA59D9C",
+         "Arn"
+        ]
+       },
+       "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}},{\"StartAt\":\"Wait\",\"States\":{\"Wait\":{\"Type\":\"Wait\",\"Seconds\":600,\"Next\":\"Delete Idle Runner\"},\"Delete Idle Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnersdeleterunner7F8D5293",
@@ -8635,6 +11697,11 @@
        }
       },
       {
+       "Action": "ec2:DescribeLaunchTemplateVersions",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
        "Action": "cloudformation:DescribeStackResource",
        "Effect": "Allow",
        "Resource": {
@@ -8760,7 +11827,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "94a34b46fc08e3882c9ca0796ed08bdb4041104e97b0838983f29ab8c255c4d7.zip"
+     "S3Key": "364ea9fedf72057cb30dd1f6364bf00f40f8d46ae4ce4e3985a13fe220f1b9f8.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -9184,6 +12251,12 @@
         "GroupId"
        ]
       },
+      "roleArn": {
+       "Fn::GetAtt": [
+        "FargatetaskTaskRoleEFFCDAF8",
+        "Arn"
+       ]
+      },
       "image": {
        "imageRepository": {
         "Fn::Join": [
@@ -9270,6 +12343,12 @@
        "Fn::GetAtt": [
         "Fargatex64spotsecuritygroup2A9F4299",
         "GroupId"
+       ]
+      },
+      "roleArn": {
+       "Fn::GetAtt": [
+        "Fargatex64spottaskTaskRole02893C25",
+        "Arn"
        ]
       },
       "image": {
@@ -9360,6 +12439,12 @@
         "GroupId"
        ]
       },
+      "roleArn": {
+       "Fn::GetAtt": [
+        "Fargatearm64taskTaskRoleD3C2CD58",
+        "Arn"
+       ]
+      },
       "image": {
        "imageRepository": {
         "Fn::Join": [
@@ -9446,6 +12531,12 @@
        "Fn::GetAtt": [
         "Fargatearm64spotsecuritygroup20C885E4",
         "GroupId"
+       ]
+      },
+      "roleArn": {
+       "Fn::GetAtt": [
+        "Fargatearm64spottaskTaskRole0F078C81",
+        "Arn"
        ]
       },
       "image": {
@@ -9536,6 +12627,12 @@
         "GroupId"
        ]
       },
+      "roleArn": {
+       "Fn::GetAtt": [
+        "FargateWindowstaskTaskRole364508C8",
+        "Arn"
+       ]
+      },
       "image": {
        "imageRepository": {
         "Fn::Join": [
@@ -9587,6 +12684,94 @@
         "Ref": "WindowsImageBuilderLog0E03408E"
        }
       }
+     },
+     {
+      "type": "Ec2Runner",
+      "labels": [
+       "ec2",
+       "linux",
+       "x64"
+      ],
+      "roleArn": {
+       "Fn::GetAtt": [
+        "EC2LinuxRole8B6519A2",
+        "Arn"
+       ]
+      },
+      "ami": {
+       "launchTemplate": {
+        "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+       },
+       "amiBuilderLogGroup": {
+        "Ref": "AMILinuxBuilderLogAA902D79"
+       }
+      }
+     },
+     {
+      "type": "Ec2Runner",
+      "labels": [
+       "ec2-spot",
+       "linux",
+       "x64"
+      ],
+      "roleArn": {
+       "Fn::GetAtt": [
+        "EC2SpotLinuxRole86333E5D",
+        "Arn"
+       ]
+      },
+      "ami": {
+       "launchTemplate": {
+        "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+       },
+       "amiBuilderLogGroup": {
+        "Ref": "AMILinuxBuilderLogAA902D79"
+       }
+      }
+     },
+     {
+      "type": "Ec2Runner",
+      "labels": [
+       "ec2",
+       "linux",
+       "arm64"
+      ],
+      "roleArn": {
+       "Fn::GetAtt": [
+        "EC2Linuxarm64Role242F68FF",
+        "Arn"
+       ]
+      },
+      "ami": {
+       "launchTemplate": {
+        "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
+       },
+       "amiBuilderLogGroup": {
+        "Ref": "AMILinuxarm64BuilderLog3F9BB6F0"
+       }
+      }
+     },
+     {
+      "type": "Ec2Runner",
+      "labels": [
+       "ec2",
+       "windows",
+       "x64"
+      ],
+      "roleArn": {
+       "Fn::GetAtt": [
+        "EC2WindowsRoleC0D850D2",
+        "Arn"
+       ]
+      },
+      "ami": {
+       "launchTemplate": {
+        "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
+       },
+       "amiBuilderLogGroup": {
+        "Ref": "WindowsEC2BuilderLog486ECFAD"
+       }
+      }
      }
     ]
    }
@@ -9613,6 +12798,25 @@
     },
     "RetentionInDays": 30
    }
+  }
+ },
+ "Parameters": {
+  "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentamd64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter": {
+   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+   "Default": "/aws/service/canonical/ubuntu/server/focal/stable/current/amd64/hvm/ebs-gp2/ami-id"
+  },
+  "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentarm64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter": {
+   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+   "Default": "/aws/service/canonical/ubuntu/server/focal/stable/current/arm64/hvm/ebs-gp2/ami-id"
+  },
+  "SsmParameterValueawsserviceamiwindowslatestWindowsServer2022EnglishFullContainersLatestC96584B6F00A464EAD1953AFF4B05118Parameter": {
+   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+   "Default": "/aws/service/ami-windows-latest/Windows_Server-2022-English-Full-ContainersLatest"
+  },
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
   }
  },
  "Outputs": {
@@ -9727,13 +12931,6 @@
    "us-west-2": {
     "states": "states.us-west-2.amazonaws.com"
    }
-  }
- },
- "Parameters": {
-  "BootstrapVersion": {
-   "Type": "AWS::SSM::Parameter::Value<String>",
-   "Default": "/cdk-bootstrap/hnb659fds/version",
-   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
   }
  },
  "Rules": {
