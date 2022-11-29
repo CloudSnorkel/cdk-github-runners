@@ -1,6 +1,7 @@
 export { Secrets } from './secrets';
 export { GitHubRunners, GitHubRunnersProps } from './runner';
 export { CodeBuildRunner, CodeBuildRunnerProps } from './providers/codebuild';
+export { Ec2Runner, Ec2RunnerProps } from './providers/ec2';
 export { LambdaRunner, LambdaRunnerProps } from './providers/lambda';
 export { FargateRunner, FargateRunnerProps } from './providers/fargate';
 export { IRunnerProvider, RunnerProviderProps, RunnerVersion, RunnerRuntimeParameters, RunnerImage, IImageBuilder, IRunnerProviderStatus, IRunnerImageStatus, IRunnerAmiStatus, Architecture, Os } from './providers/common';
