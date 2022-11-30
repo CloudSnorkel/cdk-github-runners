@@ -386,7 +386,7 @@ export abstract class ImageBuilderBase extends Construct {
     this.rebuildInterval = props?.rebuildInterval ?? Duration.days(7);
 
     // vpc settings
-    if (props?.vpc && props?.subnetSelection) {
+    if (props?.vpc) {
       this.subnetId = props.vpc.selectSubnets(props.subnetSelection).subnetIds[0];
     }
 
