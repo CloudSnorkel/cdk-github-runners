@@ -916,7 +916,6 @@ Any object.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to launched instances. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.subnet">subnet</a></code> | <code>aws-cdk-lib.aws_ec2.ISubnet</code> | VPC subnet used for hosting launched instances. |
 
 ---
 
@@ -977,18 +976,6 @@ public readonly securityGroup: ISecurityGroup;
 - *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
 
 Security group attached to launched instances.
-
----
-
-##### `subnet`<sup>Optional</sup> <a name="subnet" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.subnet"></a>
-
-```typescript
-public readonly subnet: ISubnet;
-```
-
-- *Type:* aws-cdk-lib.aws_ec2.ISubnet
-
-VPC subnet used for hosting launched instances.
 
 ---
 
@@ -2802,6 +2789,8 @@ const ec2RunnerProps: Ec2RunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.spotMaxPrice">spotMaxPrice</a></code> | <code>string</code> | Set a maximum price for spot instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for launched runner instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.subnet">subnet</a></code> | <code>aws-cdk-lib.aws_ec2.ISubnet</code> | Subnet where the runner instances will be launched. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC where runner instances will be launched. |
 
 ---
 
@@ -2829,7 +2818,7 @@ public readonly amiBuilder: IAmiBuilder;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IAmiBuilder">IAmiBuilder</a>
-- *Default:* AMI builder for Ubuntu Linux
+- *Default:* AMI builder for Ubuntu Linux on the same subnet as configured by {@link vpc} and {@link subnetSelection}
 
 AMI builder that creates AMIs with GitHub runner pre-configured.
 
@@ -2923,7 +2912,9 @@ This modifies the boot volume size and doesn't add any additional volumes.
 
 ---
 
-##### `subnet`<sup>Optional</sup> <a name="subnet" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.subnet"></a>
+##### ~~`subnet`~~<sup>Optional</sup> <a name="subnet" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.subnet"></a>
+
+- *Deprecated:* use {@link vpc} and {@link subnetSelection}
 
 ```typescript
 public readonly subnet: ISubnet;
@@ -2933,6 +2924,34 @@ public readonly subnet: ISubnet;
 - *Default:* default subnet of account's default VPC
 
 Subnet where the runner instances will be launched.
+
+---
+
+##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.subnetSelection"></a>
+
+```typescript
+public readonly subnetSelection: SubnetSelection;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.SubnetSelection
+- *Default:* default VPC subnet
+
+Where to place the network interfaces within the VPC.
+
+Only the first matched subnet will be used.
+
+---
+
+##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.vpc"></a>
+
+```typescript
+public readonly vpc: IVpc;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.IVpc
+- *Default:* default account VPC
+
+VPC where runner instances will be launched.
 
 ---
 
