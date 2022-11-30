@@ -127,7 +127,7 @@ export interface Ec2RunnerProps extends RunnerProviderProps {
   /**
    * AMI builder that creates AMIs with GitHub runner pre-configured. On Linux, a user named `runner` is expected to exist with access to Docker.
    *
-   * @default AMI builder for Ubuntu Linux
+   * @default AMI builder for Ubuntu Linux on the same subnet as configured by {@link vpc} and {@link subnetSelection}
    */
   readonly amiBuilder?: IAmiBuilder;
 
@@ -167,8 +167,24 @@ export interface Ec2RunnerProps extends RunnerProviderProps {
    * Subnet where the runner instances will be launched.
    *
    * @default default subnet of account's default VPC
+   *
+   * @deprecated use {@link vpc} and {@link subnetSelection}
    */
   readonly subnet?: ec2.ISubnet;
+
+  /**
+   * VPC where runner instances will be launched.
+   *
+   * @default default account VPC
+   */
+  readonly vpc?: ec2.IVpc;
+
+  /**
+   * Where to place the network interfaces within the VPC. Only the first matched subnet will be used.
+   *
+   * @default default VPC subnet
+   */
+  readonly subnetSelection?: ec2.SubnetSelection;
 
   /**
    * Use spot instances to save money. Spot instances are cheaper but not always available and can be stopped prematurely.
@@ -197,11 +213,6 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
   readonly labels: string[];
 
   /**
-   * VPC subnet used for hosting launched instances.
-   */
-  readonly subnet?: ec2.ISubnet;
-
-  /**
    * Security group attached to launched instances.
    */
   readonly securityGroup?: ec2.ISecurityGroup;
@@ -218,19 +229,23 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
   private readonly storageSize: cdk.Size;
   private readonly spot: boolean;
   private readonly spotMaxPrice: string | undefined;
+  private readonly subnet?: ec2.ISubnet;
 
   constructor(scope: Construct, id: string, props: Ec2RunnerProps) {
     super(scope, id);
 
     this.labels = props.labels ?? ['ec2'];
     this.securityGroup = props.securityGroup;
-    this.subnet = props.subnet;
+    this.subnet = props.subnet ?? props.vpc?.selectSubnets(props.subnetSelection).subnets[0];
     this.instanceType = props.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
     this.storageSize = props.storageSize ?? cdk.Size.gibibytes(30); // 30 is the minimum for Windows
     this.spot = props.spot ?? false;
     this.spotMaxPrice = props.spotMaxPrice;
 
-    const amiBuilder = props.amiBuilder ?? new AmiBuilder(this, 'Image Builder');
+    const amiBuilder = props.amiBuilder ?? new AmiBuilder(this, 'Image Builder', {
+      vpc: props.vpc,
+      subnetSelection: props.subnetSelection,
+    });
     this.ami = amiBuilder.bind();
 
     if (!this.ami.architecture.instanceTypeMatch(this.instanceType)) {

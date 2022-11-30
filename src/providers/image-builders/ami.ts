@@ -67,7 +67,7 @@ export interface AmiBuilderProps {
   readonly securityGroup?: ec2.ISecurityGroup;
 
   /**
-   * Where to place the network interfaces within the VPC.
+   * Where to place the network interfaces within the VPC. Only the first matched subnet will be used.
    *
    * @default default VPC subnet
    */
