@@ -3096,7 +3096,10 @@
         ]
        }
       }
-     ]
+     ],
+     "parentAmi": {
+      "Ref": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentamd64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
+     }
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8371,7 +8374,10 @@
         ]
        }
       }
-     ]
+     ],
+     "parentAmi": {
+      "Ref": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentarm64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
+     }
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -9230,7 +9236,10 @@
         ]
        }
       }
-     ]
+     ],
+     "parentAmi": {
+      "Ref": "SsmParameterValueawsserviceamiwindowslatestWindowsServer2022EnglishFullContainersLatestC96584B6F00A464EAD1953AFF4B05118Parameter"
+     }
     }
    },
    "UpdateReplacePolicy": "Retain",
