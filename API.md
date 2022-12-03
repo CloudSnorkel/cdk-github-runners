@@ -418,8 +418,6 @@ Any object.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image loaded with GitHub Actions Runner and its prerequisites. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.project">project</a></code> | <code>aws-cdk-lib.aws_codebuild.Project</code> | CodeBuild project hosting the runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to the task. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for hosting the project. |
 
 ---
 
@@ -497,30 +495,6 @@ CodeBuild project hosting the runner.
 
 ---
 
-##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.securityGroup"></a>
-
-```typescript
-public readonly securityGroup: ISecurityGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
-
-Security group attached to the task.
-
----
-
-##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.vpc"></a>
-
-```typescript
-public readonly vpc: IVpc;
-```
-
-- *Type:* aws-cdk-lib.aws_ec2.IVpc
-
-VPC used for hosting the project.
-
----
-
 #### Constants <a name="Constants" id="Constants"></a>
 
 | **Name** | **Type** | **Description** |
@@ -576,7 +550,7 @@ Available build arguments that can be set in the image builder:
 
 ### ContainerImageBuilder <a name="ContainerImageBuilder" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder"></a>
 
-- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a>
+- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a>, aws-cdk-lib.aws_ec2.IConnectable
 
 An image builder that uses AWS Image Builder to build Docker images pre-baked with all the GitHub Actions runner requirements.
 
@@ -742,6 +716,7 @@ Any object.
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.repository">repository</a></code> | <code>aws-cdk-lib.aws_ecr.IRepository</code> | *No description.* |
 
 ---
@@ -755,6 +730,18 @@ public readonly node: Node;
 - *Type:* constructs.Node
 
 The tree node.
+
+---
+
+##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.property.connections"></a>
+
+```typescript
+public readonly connections: Connections;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.Connections
+
+The network connections associated with this resource.
 
 ---
 
@@ -915,7 +902,6 @@ Any object.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to launched instances. |
 
 ---
 
@@ -964,18 +950,6 @@ public readonly labels: string[];
 - *Type:* string[]
 
 Labels associated with this provider.
-
----
-
-##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.securityGroup"></a>
-
-```typescript
-public readonly securityGroup: ISecurityGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
-
-Security group attached to launched instances.
 
 ---
 
@@ -1134,7 +1108,6 @@ Any object.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.spot">spot</a></code> | <code>boolean</code> | Use spot pricing for Fargate tasks. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.task">task</a></code> | <code>aws-cdk-lib.aws_ecs.FargateTaskDefinition</code> | Fargate task hosting the runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets used for hosting the runner task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for hosting the runner task. |
 
@@ -1259,18 +1232,6 @@ public readonly task: FargateTaskDefinition;
 - *Type:* aws-cdk-lib.aws_ecs.FargateTaskDefinition
 
 Fargate task hosting the runner.
-
----
-
-##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.securityGroup"></a>
-
-```typescript
-public readonly securityGroup: ISecurityGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
-
-Security group attached to the task.
 
 ---
 
@@ -1907,8 +1868,6 @@ Any object.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image loaded with GitHub Actions Runner and its prerequisites. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to the function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for hosting the function. |
 
 ---
 
@@ -1983,30 +1942,6 @@ public readonly labels: string[];
 - *Type:* string[]
 
 Labels associated with this provider.
-
----
-
-##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.securityGroup"></a>
-
-```typescript
-public readonly securityGroup: ISecurityGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
-
-Security group attached to the function.
-
----
-
-##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.vpc"></a>
-
-```typescript
-public readonly vpc: IVpc;
-```
-
-- *Type:* aws-cdk-lib.aws_ec2.IVpc
-
-VPC used for hosting the function.
 
 ---
 
@@ -2436,7 +2371,8 @@ const codeBuildRunnerProps: CodeBuildRunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Image builder for CodeBuild image with GitHub runner pre-configured. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to this instance. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group to assign to this instance. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to this instance. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The number of minutes after which AWS CodeBuild stops the build if it's not complete. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
@@ -2522,7 +2458,9 @@ job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
-##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroup"></a>
+##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroup"></a>
+
+- *Deprecated:* use {@link securityGroups}
 
 ```typescript
 public readonly securityGroup: ISecurityGroup;
@@ -2531,7 +2469,20 @@ public readonly securityGroup: ISecurityGroup;
 - *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
 - *Default:* public project with no security group
 
-Security Group to assign to this instance.
+Security group to assign to this instance.
+
+---
+
+##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroups"></a>
+
+```typescript
+public readonly securityGroups: ISecurityGroup[];
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup[]
+- *Default:* a new security group, if {@link vpc} is used
+
+Security groups to assign to this instance.
 
 ---
 
@@ -2601,7 +2552,8 @@ const containerImageBuilderProps: ContainerImageBuilderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.parentImage">parentImage</a></code> | <code>string</code> | Parent image for the new Docker Image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.rebuildInterval">rebuildInterval</a></code> | <code>aws-cdk-lib.Duration</code> | Schedule the image to be rebuilt every given interval. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.runnerVersion">runnerVersion</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion">RunnerVersion</a></code> | Version of GitHub Runners to install. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to this instance. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group to assign to launched builder instances. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to launched builder instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
 
@@ -2725,16 +2677,31 @@ Version of GitHub Runners to install.
 
 ---
 
-##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.securityGroup"></a>
+##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.securityGroup"></a>
+
+- *Deprecated:* use {@link securityGroups}
 
 ```typescript
 public readonly securityGroup: ISecurityGroup;
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
-- *Default:* default account security group
+- *Default:* new security group
 
-Security Group to assign to this instance.
+Security group to assign to launched builder instances.
+
+---
+
+##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.securityGroups"></a>
+
+```typescript
+public readonly securityGroups: ISecurityGroup[];
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup[]
+- *Default:* new security group
+
+Security groups to assign to launched builder instances.
 
 ---
 
@@ -2785,6 +2752,7 @@ const ec2RunnerProps: Ec2RunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.instanceType">instanceType</a></code> | <code>aws-cdk-lib.aws_ec2.InstanceType</code> | Instance type for launched runner instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to launched runner instances. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to launched runner instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.spot">spot</a></code> | <code>boolean</code> | Use spot instances to save money. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.spotMaxPrice">spotMaxPrice</a></code> | <code>string</code> | Set a maximum price for spot instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for launched runner instances. |
@@ -2856,16 +2824,31 @@ job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
-##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.securityGroup"></a>
+##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.securityGroup"></a>
+
+- *Deprecated:* use {@link securityGroups}
 
 ```typescript
 public readonly securityGroup: ISecurityGroup;
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
-- *Default:* account's default security group
+- *Default:* a new security group
 
 Security Group to assign to launched runner instances.
+
+---
+
+##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.securityGroups"></a>
+
+```typescript
+public readonly securityGroups: ISecurityGroup[];
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup[]
+- *Default:* a new security group
+
+Security groups to assign to launched runner instances.
 
 ---
 
@@ -2980,7 +2963,8 @@ const fargateRunnerProps: FargateRunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | The amount (in MiB) of memory used by the task. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to the task. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group to assign to the task. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.spot">spot</a></code> | <code>boolean</code> | Use Fargate spot capacity provider to save money. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets to run the runners in. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
@@ -3149,7 +3133,9 @@ Between 8192 (8 GB) and 30720 (30 GB) in increments of 1024 (1 GB) - Available c
 
 ---
 
-##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.securityGroup"></a>
+##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.securityGroup"></a>
+
+- *Deprecated:* use {@link securityGroupss}
 
 ```typescript
 public readonly securityGroup: ISecurityGroup;
@@ -3158,7 +3144,20 @@ public readonly securityGroup: ISecurityGroup;
 - *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
 - *Default:* a new security group
 
-Security Group to assign to the task.
+Security group to assign to the task.
+
+---
+
+##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.securityGroups"></a>
+
+```typescript
+public readonly securityGroups: ISecurityGroup[];
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup[]
+- *Default:* a new security group
+
+Security groups to assign to the task.
 
 ---
 
@@ -3504,7 +3503,8 @@ const lambdaRunnerProps: LambdaRunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.memorySize">memorySize</a></code> | <code>number</code> | The amount of memory, in MB, that is allocated to your Lambda function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to this instance. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group to assign to this instance. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to this instance. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The function execution time (in seconds) after which Lambda terminates the function. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
@@ -3607,7 +3607,9 @@ Developer Guide.
 
 ---
 
-##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.securityGroup"></a>
+##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.securityGroup"></a>
+
+- *Deprecated:* use {@link securityGroups}
 
 ```typescript
 public readonly securityGroup: ISecurityGroup;
@@ -3616,7 +3618,20 @@ public readonly securityGroup: ISecurityGroup;
 - *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
 - *Default:* public lambda with no security group
 
-Security Group to assign to this instance.
+Security group to assign to this instance.
+
+---
+
+##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.securityGroups"></a>
+
+```typescript
+public readonly securityGroups: ISecurityGroup[];
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup[]
+- *Default:* public lambda with no security group
+
+Security groups to assign to this instance.
 
 ---
 
@@ -5038,8 +5053,6 @@ grantable for the status function.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | The principal to grant permissions to. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group associated with runners. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC network in which runners will be placed. |
 
 ---
 
@@ -5083,30 +5096,6 @@ job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
-##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.securityGroup"></a>
-
-```typescript
-public readonly securityGroup: ISecurityGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
-
-Security group associated with runners.
-
----
-
-##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.vpc"></a>
-
-```typescript
-public readonly vpc: IVpc;
-```
-
-- *Type:* aws-cdk-lib.aws_ec2.IVpc
-
-VPC network in which runners will be placed.
-
----
-
 ### IRunnerProviderStatus <a name="IRunnerProviderStatus" id="@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus"></a>
 
 - *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus">IRunnerProviderStatus</a>
@@ -5123,7 +5112,7 @@ Interface for runner image status used by status.json.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.ami">ami</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus">IRunnerAmiStatus</a></code> | Details about AMI used by this runner provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageStatus">IRunnerImageStatus</a></code> | Details about Docker image used by this runner provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.roleArn">roleArn</a></code> | <code>string</code> | Role attached to runners. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.securityGroup">securityGroup</a></code> | <code>string</code> | Security group attached to runners. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.securityGroups">securityGroups</a></code> | <code>string[]</code> | Security groups attached to runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.vpcArn">vpcArn</a></code> | <code>string</code> | VPC where runners will be launched. |
 
 ---
@@ -5188,15 +5177,15 @@ Role attached to runners.
 
 ---
 
-##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.securityGroup"></a>
+##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.securityGroups"></a>
 
 ```typescript
-public readonly securityGroup: string;
+public readonly securityGroups: string[];
 ```
 
-- *Type:* string
+- *Type:* string[]
 
-Security group attached to runners.
+Security groups attached to runners.
 
 ---
 
