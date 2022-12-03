@@ -60,11 +60,20 @@ export interface AmiBuilderProps {
   readonly vpc?: ec2.IVpc;
 
   /**
-   * Security Group to assign to launched builder instances.
+   * Security group to assign to launched builder instances.
    *
-   * @default default account security group
+   * @default new security group
+   *
+   * @deprecated use {@link securityGroups}
    */
   readonly securityGroup?: ec2.ISecurityGroup;
+
+  /**
+   * Security groups to assign to launched builder instances.
+   *
+   * @default new security group
+   */
+  readonly securityGroups?: ec2.ISecurityGroup[];
 
   /**
    * Where to place the network interfaces within the VPC. Only the first matched subnet will be used.
@@ -219,7 +228,7 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
       supportedArchitectures: [Architecture.X86_64, Architecture.ARM64],
       instanceType: props?.instanceType,
       vpc: props?.vpc,
-      securityGroup: props?.securityGroup,
+      securityGroups: props?.securityGroup ? [props.securityGroup] : props?.securityGroups,
       subnetSelection: props?.subnetSelection,
       logRemovalPolicy: props?.logRemovalPolicy,
       logRetention: props?.logRetention,

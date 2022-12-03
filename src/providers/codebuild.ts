@@ -62,11 +62,20 @@ export interface CodeBuildRunnerProps extends RunnerProviderProps {
   readonly vpc?: ec2.IVpc;
 
   /**
-   * Security Group to assign to this instance.
+   * Security group to assign to this instance.
    *
    * @default public project with no security group
+   *
+   * @deprecated use {@link securityGroups}
    */
   readonly securityGroup?: ec2.ISecurityGroup;
+
+  /**
+   * Security groups to assign to this instance.
+   *
+   * @default a new security group, if {@link vpc} is used
+   */
+  readonly securityGroups?: ec2.ISecurityGroup[];
 
   /**
    * Where to place the network interfaces within the VPC.
@@ -138,16 +147,6 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
   readonly labels: string[];
 
   /**
-   * VPC used for hosting the project.
-   */
-  readonly vpc?: ec2.IVpc;
-
-  /**
-   * Security group attached to the task.
-   */
-  readonly securityGroup?: ec2.ISecurityGroup;
-
-  /**
    * Grant principal used to add permissions to the runner role.
    */
   readonly grantPrincipal: iam.IPrincipal;
@@ -157,12 +156,25 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
    */
   readonly image: RunnerImage;
 
+  private readonly vpc?: ec2.IVpc;
+  private readonly securityGroups?: ec2.ISecurityGroup[];
+
   constructor(scope: Construct, id: string, props: CodeBuildRunnerProps) {
     super(scope, id);
 
     this.labels = this.labelsFromProperties('codebuild', props.label, props.labels);
     this.vpc = props.vpc;
-    this.securityGroup = props.securityGroup;
+    if (props.securityGroup) {
+      this.securityGroups = [props.securityGroup];
+    } else {
+      if (props.securityGroups) {
+        this.securityGroups = props.securityGroups;
+      } else {
+        if (this.vpc) {
+          this.securityGroups = [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })];
+        }
+      }
+    }
 
     let buildSpec = {
       version: '0.2',
@@ -237,7 +249,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
         description: `GitHub Actions self-hosted runner for labels ${this.labels}`,
         buildSpec: codebuild.BuildSpec.fromObject(buildSpec),
         vpc: this.vpc,
-        securityGroups: this.securityGroup ? [this.securityGroup] : undefined,
+        securityGroups: this.securityGroups,
         subnetSelection: props.subnetSelection,
         timeout: props.timeout ?? Duration.hours(1),
         environment: {
@@ -317,7 +329,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
       type: this.constructor.name,
       labels: this.labels,
       vpcArn: this.vpc?.vpcArn,
-      securityGroup: this.securityGroup?.securityGroupId,
+      securityGroups: this.securityGroups?.map(sg => sg.securityGroupId),
       roleArn: this.project.role?.roleArn,
       image: {
         imageRepository: this.image.imageRepository.repositoryUri,

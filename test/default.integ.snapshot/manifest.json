@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/4bf5f53a266310182b6e51e5351110c13fa926bac52054ae7c8b7c11d1bd523c.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/1c990875b20d2d8a7cc3881f49c75f2b3eb84e5ee3a8c40deda6d7baef3a177d.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -309,6 +309,12 @@
             "data": "LambdaImageBuilderx64DependableImagePushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98E7BC3031D"
           }
         ],
+        "/github-runners-test/Windows Image Builder/SG/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderSG5ACD1618"
+          }
+        ],
         "/github-runners-test/Windows Image Builder/Repository/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -469,6 +475,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/SG/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderSGEDC86329"
           }
         ],
         "/github-runners-test/AMI Linux Builder/Upgrade packages and install basics/Version/Default": [
@@ -1197,6 +1209,12 @@
             "data": "FargateWindowslogs52881DBF"
           }
         ],
+        "/github-runners-test/EC2 Linux/SG/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EC2LinuxSGF5B89300"
+          }
+        ],
         "/github-runners-test/EC2 Linux/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1251,6 +1269,12 @@
             "data": "deleteamidcc036c8876b451ea2c1552f9e06e9e1LogRetention85F808EB"
           }
         ],
+        "/github-runners-test/EC2 Spot Linux/SG/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EC2SpotLinuxSG8D846B64"
+          }
+        ],
         "/github-runners-test/EC2 Spot Linux/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1273,6 +1297,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "EC2SpotLinuxInstanceProfileB12320D4"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/SG/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderSG94315968"
           }
         ],
         "/github-runners-test/AMI Linux arm64 Builder/Upgrade packages and install basics/Version/Default": [
@@ -1437,6 +1467,12 @@
             "data": "AMILinuxarm64BuilderAMIDeleter27E72E27"
           }
         ],
+        "/github-runners-test/EC2 Linux arm64/SG/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EC2Linuxarm64SG550ECD6C"
+          }
+        ],
         "/github-runners-test/EC2 Linux arm64/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1465,6 +1501,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentarm64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/SG/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderSGE3F67842"
           }
         ],
         "/github-runners-test/Windows EC2 Builder/CloudWatch agent/Version/Default": [
@@ -1615,6 +1657,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "WindowsEC2BuilderAMIDeleterF9643905"
+          }
+        ],
+        "/github-runners-test/EC2 Windows/SG/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EC2WindowsSG13E24976"
           }
         ],
         "/github-runners-test/EC2 Windows/Role/Resource": [

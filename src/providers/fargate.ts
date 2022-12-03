@@ -20,7 +20,8 @@ import {
   Os,
   RunnerImage,
   RunnerProviderProps,
-  RunnerRuntimeParameters, RunnerVersion,
+  RunnerRuntimeParameters,
+  RunnerVersion,
 } from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
@@ -69,11 +70,20 @@ export interface FargateRunnerProps extends RunnerProviderProps {
   readonly subnetSelection?: ec2.SubnetSelection;
 
   /**
-   * Security Group to assign to the task.
+   * Security group to assign to the task.
+   *
+   * @default a new security group
+   *
+   * @deprecated use {@link securityGroupss}
+   */
+  readonly securityGroup?: ec2.ISecurityGroup;
+
+  /**
+   * Security groups to assign to the task.
    *
    * @default a new security group
    */
-  readonly securityGroup?: ec2.ISecurityGroup;
+  readonly securityGroups?: ec2.ISecurityGroup[];
 
   /**
    * Existing Fargate cluster to use.
@@ -160,7 +170,8 @@ interface EcsFargateLaunchTargetProps {
  * Our special launch target that can use spot instances and set EnableExecuteCommand.
  */
 class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
-  constructor(readonly props: EcsFargateLaunchTargetProps) {}
+  constructor(readonly props: EcsFargateLaunchTargetProps) {
+  }
 
   /**
    * Called when the Fargate launch type configured on RunTask
@@ -241,11 +252,6 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
   readonly subnetSelection?: ec2.SubnetSelection;
 
   /**
-   * Security group attached to the task.
-   */
-  readonly securityGroup?: ec2.ISecurityGroup;
-
-  /**
    * Whether runner task will have a public IP.
    */
   readonly assignPublicIp: boolean;
@@ -270,14 +276,16 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
    */
   readonly image: RunnerImage;
 
+  private readonly securityGroups: ec2.ISecurityGroup[];
+
   constructor(scope: Construct, id: string, props: FargateRunnerProps) {
     super(scope, id);
 
     this.labels = this.labelsFromProperties('fargate', props.label, props.labels);
     this.vpc = props.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
     this.subnetSelection = props.subnetSelection;
-    this.securityGroup = props.securityGroup ?? new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc });
-    this.connections = this.securityGroup.connections;
+    this.securityGroups = props.securityGroup ? [props.securityGroup] : (props.securityGroups ?? [new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc })]);
+    this.connections = new ec2.Connections({ securityGroups: this.securityGroups });
     this.assignPublicIp = props.assignPublicIp ?? true;
     this.cluster = props.cluster ? props.cluster : new ecs.Cluster(
       this,
@@ -367,7 +375,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
         }),
         subnets: this.subnetSelection,
         assignPublicIp: this.assignPublicIp,
-        securityGroups: this.securityGroup ? [this.securityGroup] : undefined,
+        securityGroups: this.securityGroups,
         containerOverrides: [
           {
             containerDefinition: this.container,
@@ -413,7 +421,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
       type: this.constructor.name,
       labels: this.labels,
       vpcArn: this.vpc?.vpcArn,
-      securityGroup: this.securityGroup?.securityGroupId,
+      securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
       roleArn: this.task.taskRole.roleArn,
       image: {
         imageRepository: this.image.imageRepository.repositoryUri,

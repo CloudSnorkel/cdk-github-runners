@@ -292,11 +292,11 @@ export interface ImageBuilderBaseProps {
   readonly vpc?: ec2.IVpc;
 
   /**
-   * Security Group to assign to launched builder instances.
+   * Security groups to assign to launched builder instances.
    *
-   * @default default account security group
+   * @default new security group
    */
-  readonly securityGroup?: ec2.ISecurityGroup;
+  readonly securityGroups?: ec2.ISecurityGroup[];
 
   /**
    * Where to place the network interfaces within the VPC.
@@ -339,7 +339,7 @@ export interface ImageBuilderBaseProps {
 /**
  * @internal
  */
-export abstract class ImageBuilderBase extends Construct {
+export abstract class ImageBuilderBase extends Construct implements ec2.IConnectable {
   protected readonly architecture: Architecture;
   protected readonly os: Os;
   protected readonly platform: 'Windows' | 'Linux';
@@ -350,8 +350,9 @@ export abstract class ImageBuilderBase extends Construct {
 
   protected components: ImageBuilderComponent[] = [];
 
+  private readonly vpc: ec2.IVpc;
   private readonly subnetId: string | undefined;
-  private readonly securityGroupIds: string[] | undefined;
+  private readonly securityGroups: ec2.ISecurityGroup[];
   private readonly instanceType: ec2.InstanceType;
 
   private readonly rebuildInterval: Duration;
@@ -387,11 +388,16 @@ export abstract class ImageBuilderBase extends Construct {
 
     // vpc settings
     if (props?.vpc) {
+      this.vpc = props.vpc;
       this.subnetId = props.vpc.selectSubnets(props.subnetSelection).subnetIds[0];
+    } else {
+      this.vpc = ec2.Vpc.fromLookup(this, 'Default VPC', { isDefault: true });
     }
 
-    if (props?.securityGroup) {
-      this.securityGroupIds = [props.securityGroup.securityGroupId];
+    if (props?.securityGroups) {
+      this.securityGroups = props.securityGroups;
+    } else {
+      this.securityGroups = [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })];
     }
 
     // instance type
@@ -433,7 +439,7 @@ export abstract class ImageBuilderBase extends Construct {
       name: uniqueImageBuilderName(this),
       description: this.description,
       subnetId: this.subnetId,
-      securityGroupIds: this.securityGroupIds,
+      securityGroupIds: this.securityGroups.map(sg => sg.securityGroupId),
       instanceTypes: [this.instanceType.toString()],
       instanceProfileName: new iam.CfnInstanceProfile(this, 'Instance Profile', {
         roles: [
@@ -485,5 +491,12 @@ export abstract class ImageBuilderBase extends Construct {
     pipeline.node.addDependency(log);
 
     return pipeline;
+  }
+
+  /**
+   * The network connections associated with this resource.
+   */
+  public get connections(): ec2.Connections {
+    return new ec2.Connections({ securityGroups: this.securityGroups });
   }
 }
