@@ -167,6 +167,7 @@ class AmiRecipe extends ImageBuilderObjectBase {
       version: this.version('ImageRecipe', name, {
         platform: props.platform,
         components,
+        parentAmi,
       }),
       parentImage: parentAmi,
       components,
