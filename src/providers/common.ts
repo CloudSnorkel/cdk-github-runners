@@ -349,9 +349,9 @@ export interface IRunnerProviderStatus {
   readonly vpcArn?: string;
 
   /**
-   * Security group attached to runners.
+   * Security groups attached to runners.
    */
-  readonly securityGroup?: string;
+  readonly securityGroups?: string[];
 
   /**
    * Role attached to runners.
@@ -381,16 +381,6 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
    * job's labels, this provider will be chosen and spawn a new runner.
    */
   readonly labels: string[];
-
-  /**
-   * VPC network in which runners will be placed.
-   */
-  readonly vpc?: ec2.IVpc;
-
-  /**
-   * Security group associated with runners.
-   */
-  readonly securityGroup?: ec2.ISecurityGroup;
 
   /**
    * Generate step function tasks that execute the runner.

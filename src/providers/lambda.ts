@@ -67,10 +67,10 @@ export interface LambdaRunnerProps extends RunnerProviderProps {
   readonly memorySize?: number;
 
   /**
-  * The size of the function’s /tmp directory in MiB.
-  *
-  * @default 10 GiB
-  */
+   * The size of the function’s /tmp directory in MiB.
+   *
+   * @default 10 GiB
+   */
   readonly ephemeralStorageSize?: cdk.Size;
 
   /**
@@ -83,24 +83,33 @@ export interface LambdaRunnerProps extends RunnerProviderProps {
   readonly timeout?: cdk.Duration;
 
   /**
-  * VPC to launch the runners in.
-  *
-  * @default no VPC
-  */
+   * VPC to launch the runners in.
+   *
+   * @default no VPC
+   */
   readonly vpc?: ec2.IVpc;
 
   /**
-  * Security Group to assign to this instance.
-  *
-  * @default public lambda with no security group
-  */
+   * Security group to assign to this instance.
+   *
+   * @default public lambda with no security group
+   *
+   * @deprecated use {@link securityGroups}
+   */
   readonly securityGroup?: ec2.ISecurityGroup;
 
   /**
-  * Where to place the network interfaces within the VPC.
-  *
-  * @default no subnet
-  */
+   * Security groups to assign to this instance.
+   *
+   * @default public lambda with no security group
+   */
+  readonly securityGroups?: ec2.ISecurityGroup[];
+
+  /**
+   * Where to place the network interfaces within the VPC.
+   *
+   * @default no subnet
+   */
   readonly subnetSelection?: ec2.SubnetSelection;
 }
 
@@ -141,16 +150,6 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
   readonly labels: string[];
 
   /**
-   * VPC used for hosting the function.
-   */
-  readonly vpc?: ec2.IVpc;
-
-  /**
-   * Security group attached to the function.
-   */
-  readonly securityGroup?: ec2.ISecurityGroup;
-
-  /**
    * Grant principal used to add permissions to the runner role.
    */
   readonly grantPrincipal: iam.IPrincipal;
@@ -160,12 +159,15 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
    */
   readonly image: RunnerImage;
 
+  private readonly vpc?: ec2.IVpc;
+  private readonly securityGroups?: ec2.ISecurityGroup[];
+
   constructor(scope: Construct, id: string, props: LambdaRunnerProps) {
     super(scope, id);
 
     this.labels = this.labelsFromProperties('lambda', props.label, props.labels);
     this.vpc = props.vpc;
-    this.securityGroup = props.securityGroup;
+    this.securityGroups = props.securityGroup ? [props.securityGroup] : props.securityGroups;
 
     const imageBuilder = props.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
       dockerfilePath: LambdaRunner.LINUX_X64_DOCKERFILE_PATH,
@@ -195,7 +197,7 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
       labels: this.labels,
       architecture: architecture.name,
       vpc: this.vpc?.vpcId,
-      securityGroups: this.securityGroup?.securityGroupId,
+      securityGroups: this.securityGroups?.map(sg => sg.securityGroupId),
       vpcSubnets: props.subnetSelection?.subnets?.map(s => s.subnetId),
       timeout: props.timeout?.toSeconds(),
       memorySize: props.memorySize,
@@ -212,7 +214,7 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
         code: lambda.DockerImageCode.fromEcr(image.imageRepository, { tagOrDigest: `sha256:${imageDigest}` }),
         architecture,
         vpc: this.vpc,
-        securityGroups: this.securityGroup && [this.securityGroup],
+        securityGroups: this.securityGroups,
         vpcSubnets: props.subnetSelection,
         timeout: props.timeout || cdk.Duration.minutes(15),
         memorySize: props.memorySize || 2048,
@@ -308,7 +310,7 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
       type: this.constructor.name,
       labels: this.labels,
       vpcArn: this.vpc?.vpcArn,
-      securityGroup: this.securityGroup?.securityGroupId,
+      securityGroups: this.securityGroups?.map(sg => sg.securityGroupId),
       roleArn: this.function.role?.roleArn,
       image: {
         imageRepository: this.image.imageRepository.repositoryUri,

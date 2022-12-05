@@ -159,9 +159,18 @@ export interface Ec2RunnerProps extends RunnerProviderProps {
   /**
    * Security Group to assign to launched runner instances.
    *
-   * @default account's default security group
+   * @default a new security group
+   *
+   * @deprecated use {@link securityGroups}
    */
   readonly securityGroup?: ec2.ISecurityGroup;
+
+  /**
+   * Security groups to assign to launched runner instances.
+   *
+   * @default a new security group
+   */
+  readonly securityGroups?: ec2.ISecurityGroup[];
 
   /**
    * Subnet where the runner instances will be launched.
@@ -213,11 +222,6 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
   readonly labels: string[];
 
   /**
-   * Security group attached to launched instances.
-   */
-  readonly securityGroup?: ec2.ISecurityGroup;
-
-  /**
    * Grant principal used to add permissions to the runner role.
    */
   readonly grantPrincipal: iam.IPrincipal;
@@ -229,13 +233,16 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
   private readonly storageSize: cdk.Size;
   private readonly spot: boolean;
   private readonly spotMaxPrice: string | undefined;
+  private readonly vpc: ec2.IVpc;
   private readonly subnet?: ec2.ISubnet;
+  private readonly securityGroups: ec2.ISecurityGroup[];
 
   constructor(scope: Construct, id: string, props: Ec2RunnerProps) {
     super(scope, id);
 
     this.labels = props.labels ?? ['ec2'];
-    this.securityGroup = props.securityGroup;
+    this.vpc = props.vpc ?? ec2.Vpc.fromLookup(this, 'Default VPC', { isDefault: true });
+    this.securityGroups = props.securityGroup ? [props.securityGroup] : (props.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })]);
     this.subnet = props.subnet ?? props.vpc?.selectSubnets(props.subnetSelection).subnets[0];
     this.instanceType = props.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
     this.storageSize = props.storageSize ?? cdk.Size.gibibytes(30); // 30 is the minimum for Windows
@@ -245,6 +252,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
     const amiBuilder = props.amiBuilder ?? new AmiBuilder(this, 'Image Builder', {
       vpc: props.vpc,
       subnetSelection: props.subnetSelection,
+      securityGroups: this.securityGroups,
     });
     this.ami = amiBuilder.bind();
 
@@ -334,7 +342,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
         MetadataOptions: {
           HttpTokens: 'required',
         },
-        SecurityGroupIds: this.securityGroup ? [this.securityGroup.securityGroupId] : undefined,
+        SecurityGroupIds: this.securityGroups.map(sg => sg.securityGroupId),
         SubnetId: this.subnet?.subnetId,
         BlockDeviceMappings: [{
           DeviceName: '/dev/sda1',
@@ -386,7 +394,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
     return {
       type: this.constructor.name,
       labels: this.labels,
-      securityGroup: this.securityGroup?.securityGroupId,
+      securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
       roleArn: this.role.roleArn,
       ami: {
         launchTemplate: this.ami.launchTemplate.launchTemplateId || 'unknown',
@@ -399,6 +407,6 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
    * The network connections associated with this resource.
    */
   public get connections(): ec2.Connections {
-    return this.securityGroup?.connections ?? new ec2.Connections();
+    return new ec2.Connections({ securityGroups: this.securityGroups });
   }
 }
