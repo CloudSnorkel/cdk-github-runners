@@ -283,7 +283,7 @@ This construct is not meant to be used by itself. It should be passed in the pro
 ```typescript
 import { CodeBuildRunner } from '@cloudsnorkel/cdk-github-runners'
 
-new CodeBuildRunner(scope: Construct, id: string, props: CodeBuildRunnerProps)
+new CodeBuildRunner(scope: Construct, id: string, props?: CodeBuildRunnerProps)
 ```
 
 | **Name** | **Type** | **Description** |
@@ -306,7 +306,7 @@ new CodeBuildRunner(scope: Construct, id: string, props: CodeBuildRunnerProps)
 
 ---
 
-##### `props`<sup>Required</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.Initializer.parameter.props"></a>
+##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.Initializer.parameter.props"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps">CodeBuildRunnerProps</a>
 
@@ -769,7 +769,7 @@ This construct is not meant to be used by itself. It should be passed in the pro
 ```typescript
 import { Ec2Runner } from '@cloudsnorkel/cdk-github-runners'
 
-new Ec2Runner(scope: Construct, id: string, props: Ec2RunnerProps)
+new Ec2Runner(scope: Construct, id: string, props?: Ec2RunnerProps)
 ```
 
 | **Name** | **Type** | **Description** |
@@ -792,7 +792,7 @@ new Ec2Runner(scope: Construct, id: string, props: Ec2RunnerProps)
 
 ---
 
-##### `props`<sup>Required</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.Initializer.parameter.props"></a>
+##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.Initializer.parameter.props"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps">Ec2RunnerProps</a>
 
@@ -969,7 +969,7 @@ This construct is not meant to be used by itself. It should be passed in the pro
 ```typescript
 import { FargateRunner } from '@cloudsnorkel/cdk-github-runners'
 
-new FargateRunner(scope: Construct, id: string, props: FargateRunnerProps)
+new FargateRunner(scope: Construct, id: string, props?: FargateRunnerProps)
 ```
 
 | **Name** | **Type** | **Description** |
@@ -992,7 +992,7 @@ new FargateRunner(scope: Construct, id: string, props: FargateRunnerProps)
 
 ---
 
-##### `props`<sup>Required</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.FargateRunner.Initializer.parameter.props"></a>
+##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.FargateRunner.Initializer.parameter.props"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps">FargateRunnerProps</a>
 
@@ -1430,6 +1430,7 @@ Any object.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | Configured runner providers. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.secrets">secrets</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets">Secrets</a></code> | Secrets for GitHub communication including webhook secret and runner authentication. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps">GitHubRunnersProps</a></code> | *No description.* |
 
 ---
 
@@ -1466,6 +1467,16 @@ public readonly secrets: Secrets;
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Secrets">Secrets</a>
 
 Secrets for GitHub communication including webhook secret and runner authentication.
+
+---
+
+##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.property.props"></a>
+
+```typescript
+public readonly props: GitHubRunnersProps;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps">GitHubRunnersProps</a>
 
 ---
 
@@ -1733,7 +1744,7 @@ This construct is not meant to be used by itself. It should be passed in the pro
 ```typescript
 import { LambdaRunner } from '@cloudsnorkel/cdk-github-runners'
 
-new LambdaRunner(scope: Construct, id: string, props: LambdaRunnerProps)
+new LambdaRunner(scope: Construct, id: string, props?: LambdaRunnerProps)
 ```
 
 | **Name** | **Type** | **Description** |
@@ -1756,7 +1767,7 @@ new LambdaRunner(scope: Construct, id: string, props: LambdaRunnerProps)
 
 ---
 
-##### `props`<sup>Required</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.Initializer.parameter.props"></a>
+##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.Initializer.parameter.props"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps">LambdaRunnerProps</a>
 
@@ -3135,7 +3146,7 @@ Between 8192 (8 GB) and 30720 (30 GB) in increments of 1024 (1 GB) - Available c
 
 ##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.securityGroup"></a>
 
-- *Deprecated:* use {@link securityGroupss}
+- *Deprecated:* use {@link securityGroups}
 
 ```typescript
 public readonly securityGroup: ISecurityGroup;
