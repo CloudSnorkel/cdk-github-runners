@@ -125,9 +125,6 @@ export interface GitHubRunnersProps {
  * ```
  */
 export class GitHubRunners extends Construct {
-
-  private readonly props: GitHubRunnersProps;
-
   /**
    * Configured runner providers.
    */
@@ -144,32 +141,31 @@ export class GitHubRunners extends Construct {
   private readonly extraLambdaEnv: {[p: string]: string} = {};
   private readonly extraLambdaProps: lambda.FunctionOptions;
 
-  constructor(scope: Construct, id: string, props?: GitHubRunnersProps) {
+  constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
 
-    this.props = props ?? {};
     this.secrets = new Secrets(this, 'Secrets');
     this.extraLambdaProps = {
-      vpc: this.props.vpc,
-      vpcSubnets: this.props.vpcSubnets,
-      allowPublicSubnet: this.props.allowPublicSubnet,
-      securityGroups: this.props.securityGroup ? [this.props.securityGroup] : undefined,
-      layers: this.props.extraCertificates ? [new lambda.LayerVersion(scope, 'Certificate Layer', {
+      vpc: this.props?.vpc,
+      vpcSubnets: this.props?.vpcSubnets,
+      allowPublicSubnet: this.props?.allowPublicSubnet,
+      securityGroups: this.props?.securityGroup ? [this.props.securityGroup] : undefined,
+      layers: this.props?.extraCertificates ? [new lambda.LayerVersion(scope, 'Certificate Layer', {
         description: 'Layer containing GitHub Enterprise Server certificate for cdk-github-runners',
         code: lambda.Code.fromAsset(this.props.extraCertificates),
       })] : undefined,
     };
-    if (this.props.extraCertificates) {
+    if (this.props?.extraCertificates) {
       this.extraLambdaEnv.NODE_EXTRA_CA_CERTS = '/opt/certs.pem';
     }
 
-    if (this.props.providers) {
+    if (this.props?.providers) {
       this.providers = this.props.providers;
     } else {
       this.providers = [
-        new CodeBuildRunner(this, 'CodeBuild', {}),
-        new LambdaRunner(this, 'Lambda', {}),
-        new FargateRunner(this, 'Fargate', {}),
+        new CodeBuildRunner(this, 'CodeBuild'),
+        new LambdaRunner(this, 'Lambda'),
+        new FargateRunner(this, 'Fargate'),
       ];
     }
 
