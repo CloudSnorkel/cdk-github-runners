@@ -237,21 +237,21 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
   private readonly subnet?: ec2.ISubnet;
   private readonly securityGroups: ec2.ISecurityGroup[];
 
-  constructor(scope: Construct, id: string, props: Ec2RunnerProps) {
+  constructor(scope: Construct, id: string, props?: Ec2RunnerProps) {
     super(scope, id);
 
-    this.labels = props.labels ?? ['ec2'];
-    this.vpc = props.vpc ?? ec2.Vpc.fromLookup(this, 'Default VPC', { isDefault: true });
-    this.securityGroups = props.securityGroup ? [props.securityGroup] : (props.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })]);
-    this.subnet = props.subnet ?? props.vpc?.selectSubnets(props.subnetSelection).subnets[0];
-    this.instanceType = props.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
-    this.storageSize = props.storageSize ?? cdk.Size.gibibytes(30); // 30 is the minimum for Windows
-    this.spot = props.spot ?? false;
-    this.spotMaxPrice = props.spotMaxPrice;
+    this.labels = props?.labels ?? ['ec2'];
+    this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'Default VPC', { isDefault: true });
+    this.securityGroups = props?.securityGroup ? [props.securityGroup] : (props?.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })]);
+    this.subnet = props?.subnet ?? this.vpc.selectSubnets(props?.subnetSelection).subnets[0];
+    this.instanceType = props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
+    this.storageSize = props?.storageSize ?? cdk.Size.gibibytes(30); // 30 is the minimum for Windows
+    this.spot = props?.spot ?? false;
+    this.spotMaxPrice = props?.spotMaxPrice;
 
-    const amiBuilder = props.amiBuilder ?? new AmiBuilder(this, 'Image Builder', {
-      vpc: props.vpc,
-      subnetSelection: props.subnetSelection,
+    const amiBuilder = props?.amiBuilder ?? new AmiBuilder(this, 'Image Builder', {
+      vpc: props?.vpc,
+      subnetSelection: props?.subnetSelection,
       securityGroups: this.securityGroups,
     });
     this.ami = amiBuilder.bind();
@@ -275,7 +275,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
       this,
       'Logs',
       {
-        retention: props.logRetention ?? RetentionDays.ONE_MONTH,
+        retention: props?.logRetention ?? RetentionDays.ONE_MONTH,
         removalPolicy: RemovalPolicy.DESTROY,
       },
     );

@@ -159,15 +159,15 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
   private readonly vpc?: ec2.IVpc;
   private readonly securityGroups?: ec2.ISecurityGroup[];
 
-  constructor(scope: Construct, id: string, props: CodeBuildRunnerProps) {
+  constructor(scope: Construct, id: string, props?: CodeBuildRunnerProps) {
     super(scope, id);
 
-    this.labels = this.labelsFromProperties('codebuild', props.label, props.labels);
-    this.vpc = props.vpc;
-    if (props.securityGroup) {
+    this.labels = this.labelsFromProperties('codebuild', props?.label, props?.labels);
+    this.vpc = props?.vpc;
+    if (props?.securityGroup) {
       this.securityGroups = [props.securityGroup];
     } else {
-      if (props.securityGroups) {
+      if (props?.securityGroups) {
         this.securityGroups = props.securityGroups;
       } else {
         if (this.vpc) {
@@ -205,7 +205,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
       },
     };
 
-    const imageBuilder = props.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
+    const imageBuilder = props?.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
       dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH,
     });
     const image = this.image = imageBuilder.bind();
@@ -250,11 +250,11 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
         buildSpec: codebuild.BuildSpec.fromObject(buildSpec),
         vpc: this.vpc,
         securityGroups: this.securityGroups,
-        subnetSelection: props.subnetSelection,
-        timeout: props.timeout ?? Duration.hours(1),
+        subnetSelection: props?.subnetSelection,
+        timeout: props?.timeout ?? Duration.hours(1),
         environment: {
           buildImage,
-          computeType: props.computeType ?? ComputeType.SMALL,
+          computeType: props?.computeType ?? ComputeType.SMALL,
           privileged: image.os.is(Os.LINUX),
         },
         logging: {
@@ -263,7 +263,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
               this,
               'Logs',
               {
-                retention: props.logRetention ?? RetentionDays.ONE_MONTH,
+                retention: props?.logRetention ?? RetentionDays.ONE_MONTH,
                 removalPolicy: RemovalPolicy.DESTROY,
               },
             ),

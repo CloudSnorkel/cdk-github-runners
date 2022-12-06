@@ -74,7 +74,7 @@ export interface FargateRunnerProps extends RunnerProviderProps {
    *
    * @default a new security group
    *
-   * @deprecated use {@link securityGroupss}
+   * @deprecated use {@link securityGroups}
    */
   readonly securityGroup?: ec2.ISecurityGroup;
 
@@ -278,16 +278,16 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
 
   private readonly securityGroups: ec2.ISecurityGroup[];
 
-  constructor(scope: Construct, id: string, props: FargateRunnerProps) {
+  constructor(scope: Construct, id: string, props?: FargateRunnerProps) {
     super(scope, id);
 
-    this.labels = this.labelsFromProperties('fargate', props.label, props.labels);
-    this.vpc = props.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
-    this.subnetSelection = props.subnetSelection;
-    this.securityGroups = props.securityGroup ? [props.securityGroup] : (props.securityGroups ?? [new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc })]);
+    this.labels = this.labelsFromProperties('fargate', props?.label, props?.labels);
+    this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
+    this.subnetSelection = props?.subnetSelection;
+    this.securityGroups = props?.securityGroup ? [props.securityGroup] : (props?.securityGroups ?? [new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc })]);
     this.connections = new ec2.Connections({ securityGroups: this.securityGroups });
-    this.assignPublicIp = props.assignPublicIp ?? true;
-    this.cluster = props.cluster ? props.cluster : new ecs.Cluster(
+    this.assignPublicIp = props?.assignPublicIp ?? true;
+    this.cluster = props?.cluster ? props.cluster : new ecs.Cluster(
       this,
       'cluster',
       {
@@ -295,9 +295,9 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
         enableFargateCapacityProviders: true,
       },
     );
-    this.spot = props.spot ?? false;
+    this.spot = props?.spot ?? false;
 
-    const imageBuilder = props.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
+    const imageBuilder = props?.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
       dockerfilePath: FargateRunner.LINUX_X64_DOCKERFILE_PATH,
     });
     const image = this.image = imageBuilder.bind();
@@ -316,7 +316,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
       os = ecs.OperatingSystemFamily.LINUX;
     } else if (image.os.is(Os.WINDOWS)) {
       os = ecs.OperatingSystemFamily.WINDOWS_SERVER_2019_CORE;
-      if (props.ephemeralStorageGiB) {
+      if (props?.ephemeralStorageGiB) {
         throw new Error('Ephemeral storage is not supported on Fargate Windows');
       }
     } else {
@@ -327,9 +327,9 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
       this,
       'task',
       {
-        cpu: props.cpu ?? 1024,
-        memoryLimitMiB: props.memoryLimitMiB ?? 2048,
-        ephemeralStorageGiB: props.ephemeralStorageGiB ?? !image.os.is(Os.WINDOWS) ? 25 : undefined,
+        cpu: props?.cpu ?? 1024,
+        memoryLimitMiB: props?.memoryLimitMiB ?? 2048,
+        ephemeralStorageGiB: props?.ephemeralStorageGiB ?? !image.os.is(Os.WINDOWS) ? 25 : undefined,
         runtimePlatform: {
           operatingSystemFamily: os,
           cpuArchitecture: arch,
@@ -342,7 +342,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
         image: ecs.AssetImage.fromEcrRepository(image.imageRepository, image.imageTag),
         logging: ecs.AwsLogDriver.awsLogs({
           logGroup: new logs.LogGroup(this, 'logs', {
-            retention: props.logRetention ?? RetentionDays.ONE_MONTH,
+            retention: props?.logRetention ?? RetentionDays.ONE_MONTH,
             removalPolicy: RemovalPolicy.DESTROY,
           }),
           streamPrefix: 'runner',

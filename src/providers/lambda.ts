@@ -162,14 +162,14 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
   private readonly vpc?: ec2.IVpc;
   private readonly securityGroups?: ec2.ISecurityGroup[];
 
-  constructor(scope: Construct, id: string, props: LambdaRunnerProps) {
+  constructor(scope: Construct, id: string, props?: LambdaRunnerProps) {
     super(scope, id);
 
-    this.labels = this.labelsFromProperties('lambda', props.label, props.labels);
-    this.vpc = props.vpc;
-    this.securityGroups = props.securityGroup ? [props.securityGroup] : props.securityGroups;
+    this.labels = this.labelsFromProperties('lambda', props?.label, props?.labels);
+    this.vpc = props?.vpc;
+    this.securityGroups = props?.securityGroup ? [props.securityGroup] : props?.securityGroups;
 
-    const imageBuilder = props.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
+    const imageBuilder = props?.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
       dockerfilePath: LambdaRunner.LINUX_X64_DOCKERFILE_PATH,
     });
     const image = this.image = imageBuilder.bind();
@@ -198,11 +198,11 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
       architecture: architecture.name,
       vpc: this.vpc?.vpcId,
       securityGroups: this.securityGroups?.map(sg => sg.securityGroupId),
-      vpcSubnets: props.subnetSelection?.subnets?.map(s => s.subnetId),
-      timeout: props.timeout?.toSeconds(),
-      memorySize: props.memorySize,
-      ephemeralStorageSize: props.ephemeralStorageSize?.toKibibytes(),
-      logRetention: props.logRetention?.toFixed(),
+      vpcSubnets: props?.subnetSelection?.subnets?.map(s => s.subnetId),
+      timeout: props?.timeout?.toSeconds(),
+      memorySize: props?.memorySize,
+      ephemeralStorageSize: props?.ephemeralStorageSize?.toKibibytes(),
+      logRetention: props?.logRetention?.toFixed(),
     });
 
     this.function = new lambda.DockerImageFunction(
@@ -215,11 +215,11 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
         architecture,
         vpc: this.vpc,
         securityGroups: this.securityGroups,
-        vpcSubnets: props.subnetSelection,
-        timeout: props.timeout || cdk.Duration.minutes(15),
-        memorySize: props.memorySize || 2048,
-        ephemeralStorageSize: props.ephemeralStorageSize || cdk.Size.gibibytes(10),
-        logRetention: props.logRetention || RetentionDays.ONE_MONTH,
+        vpcSubnets: props?.subnetSelection,
+        timeout: props?.timeout || cdk.Duration.minutes(15),
+        memorySize: props?.memorySize || 2048,
+        ephemeralStorageSize: props?.ephemeralStorageSize || cdk.Size.gibibytes(10),
+        logRetention: props?.logRetention || RetentionDays.ONE_MONTH,
       },
     );
 
