@@ -4142,6 +4142,7 @@ new LinuxUbuntuComponents()
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.awsCli">awsCli</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.docker">docker</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.extraCertificates">extraCertificates</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.git">git</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.githubCli">githubCli</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.githubRunner">githubRunner</a></code> | *No description.* |
@@ -4199,6 +4200,32 @@ LinuxUbuntuComponents.docker(scope: Construct, id: string, _architecture: Archit
 ###### `_architecture`<sup>Required</sup> <a name="_architecture" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.docker.parameter._architecture"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
+
+---
+
+##### `extraCertificates` <a name="extraCertificates" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.extraCertificates"></a>
+
+```typescript
+import { LinuxUbuntuComponents } from '@cloudsnorkel/cdk-github-runners'
+
+LinuxUbuntuComponents.extraCertificates(scope: Construct, id: string, path: string)
+```
+
+###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.extraCertificates.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+###### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.extraCertificates.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+###### `path`<sup>Required</sup> <a name="path" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.extraCertificates.parameter.path"></a>
+
+- *Type:* string
 
 ---
 
@@ -4693,6 +4720,7 @@ new WindowsComponents()
 | <code><a href="#@cloudsnorkel/cdk-github-runners.WindowsComponents.awsCli">awsCli</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.WindowsComponents.cloudwatchAgent">cloudwatchAgent</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.WindowsComponents.docker">docker</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.WindowsComponents.extraCertificates">extraCertificates</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.WindowsComponents.git">git</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.WindowsComponents.githubCli">githubCli</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.WindowsComponents.githubRunner">githubRunner</a></code> | *No description.* |
@@ -4754,6 +4782,32 @@ WindowsComponents.docker(scope: Construct, id: string)
 ---
 
 ###### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.WindowsComponents.docker.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `extraCertificates` <a name="extraCertificates" id="@cloudsnorkel/cdk-github-runners.WindowsComponents.extraCertificates"></a>
+
+```typescript
+import { WindowsComponents } from '@cloudsnorkel/cdk-github-runners'
+
+WindowsComponents.extraCertificates(scope: Construct, id: string, path: string)
+```
+
+###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.WindowsComponents.extraCertificates.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+###### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.WindowsComponents.extraCertificates.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+###### `path`<sup>Required</sup> <a name="path" id="@cloudsnorkel/cdk-github-runners.WindowsComponents.extraCertificates.parameter.path"></a>
 
 - *Type:* string
 
