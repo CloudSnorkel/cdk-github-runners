@@ -1,3 +1,4 @@
+export * from './ami';
 export * from './codebuild';
 export * from './common';
 export * from './container';
