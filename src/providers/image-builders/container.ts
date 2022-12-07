@@ -5,7 +5,6 @@ import {
   aws_iam as iam,
   aws_imagebuilder as imagebuilder,
   aws_logs as logs,
-  aws_s3_assets as s3_assets,
   CustomResource,
   Duration,
   RemovalPolicy,
@@ -16,6 +15,7 @@ import { Construct } from 'constructs';
 import { BundledNodejsFunction } from '../../utils';
 import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
 import { ImageBuilderBase, ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
+import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
 
 const dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
@@ -307,21 +307,13 @@ export class ContainerImageBuilder extends ImageBuilderBase implements IImageBui
    * @param path path to directory containing a file called certs.pem containing all the required certificates
    */
   public addExtraCertificates(path: string) {
-    this.prependComponent(new ImageBuilderComponent(this, 'Extra Certs', {
-      platform: this.platform,
-      displayName: 'GitHub Actions Runner',
-      description: 'Install latest version of GitHub Actions Runner',
-      commands: [
-        '$ErrorActionPreference = \'Stop\'',
-        'Import-Certificate -FilePath certs\\certs.pem -CertStoreLocation Cert:\\LocalMachine\\Root',
-      ],
-      assets: [
-        {
-          path: 'certs',
-          asset: new s3_assets.Asset(this, 'Extra Certs Asset', { path }),
-        },
-      ],
-    }));
+    if (this.platform == 'Linux') {
+      this.prependComponent(LinuxUbuntuComponents.extraCertificates(this, 'Extra Certs', path));
+    } else if (this.platform == 'Windows') {
+      this.prependComponent(WindowsComponents.extraCertificates(this, 'Extra Certs', path));
+    } else {
+      throw new Error(`Unknown platform: ${this.platform}`);
+    }
   }
 
   /**
@@ -362,8 +354,8 @@ export class ContainerImageBuilder extends ImageBuilderBase implements IImageBui
       iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilderECRContainerBuilds'),
     ]);
-    const image = this.createImage(infra, dist, log, undefined, recipe.arn );
-    this.createPipeline(infra, dist, log, undefined, recipe.arn );
+    const image = this.createImage(infra, dist, log, undefined, recipe.arn);
+    this.createPipeline(infra, dist, log, undefined, recipe.arn);
 
     this.imageCleaner(image, recipe.name);
 

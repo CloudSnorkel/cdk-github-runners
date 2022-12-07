@@ -6,7 +6,7 @@ import {
   aws_iam as iam,
   aws_imagebuilder as imagebuilder,
   aws_logs as logs,
-  aws_s3_assets as s3_assets, CustomResource,
+  CustomResource,
   Duration,
   RemovalPolicy,
   Stack,
@@ -298,21 +298,13 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
    * @param path path to directory containing a file called certs.pem containing all the required certificates
    */
   public addExtraCertificates(path: string) {
-    this.prependComponent(new ImageBuilderComponent(this, 'Extra Certs', {
-      platform: this.platform,
-      displayName: 'GitHub Actions Runner',
-      description: 'Install latest version of GitHub Actions Runner',
-      commands: [
-        '$ErrorActionPreference = \'Stop\'',
-        'Import-Certificate -FilePath certs\\certs.pem -CertStoreLocation Cert:\\LocalMachine\\Root',
-      ],
-      assets: [
-        {
-          path: 'certs',
-          asset: new s3_assets.Asset(this, 'Extra Certs Asset', { path }),
-        },
-      ],
-    }));
+    if (this.platform == 'Linux') {
+      this.prependComponent(LinuxUbuntuComponents.extraCertificates(this, 'Extra Certs', path));
+    } else if (this.platform == 'Windows') {
+      this.prependComponent(WindowsComponents.extraCertificates(this, 'Extra Certs', path));
+    } else {
+      throw new Error(`Unknown platform: ${this.platform}`);
+    }
   }
 
   /**

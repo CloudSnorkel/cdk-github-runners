@@ -1,3 +1,4 @@
+import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { RunnerVersion } from '../common';
 import { ImageBuilderComponent } from './common';
@@ -111,6 +112,24 @@ export class WindowsComponents {
         '$LatestDockerCompose = ($LatestUrl -Split \'/\')[-1]',
         'Invoke-WebRequest -UseBasicParsing -Uri  "https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe" -OutFile $Env:ProgramFiles\\Docker\\docker-compose.exe',
         'copy $Env:ProgramFiles\\Docker\\docker-compose.exe $Env:ProgramFiles\\Docker\\cli-plugins\\docker-compose.exe',
+      ],
+    });
+  }
+
+  public static extraCertificates(scope: Construct, id: string, path: string) {
+    return new ImageBuilderComponent(scope, id, {
+      platform: 'Windows',
+      displayName: 'Extra certificates',
+      description: 'Install self-signed certificates to provide access to GitHub Enterprise Server',
+      commands: [
+        '$ErrorActionPreference = \'Stop\'',
+        'Import-Certificate -FilePath certs\\certs.pem -CertStoreLocation Cert:\\LocalMachine\\Root',
+      ],
+      assets: [
+        {
+          path: 'certs',
+          asset: new s3_assets.Asset(scope, `${id} Asset`, { path }),
+        },
       ],
     });
   }
