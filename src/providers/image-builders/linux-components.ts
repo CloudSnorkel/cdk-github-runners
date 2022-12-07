@@ -1,3 +1,4 @@
+import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Architecture, RunnerVersion } from '../common';
 import { ImageBuilderComponent } from './common';
@@ -146,6 +147,25 @@ export class LinuxUbuntuComponents {
         'DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin',
         'usermod -aG docker runner',
         'ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose',
+      ],
+    });
+  }
+
+  public static extraCertificates(scope: Construct, id: string, path: string) {
+    return new ImageBuilderComponent(scope, id, {
+      platform: 'Linux',
+      displayName: 'Extra certificates',
+      description: 'Install self-signed certificates to provide access to GitHub Enterprise Server',
+      commands: [
+        'set -ex',
+        'cp certs/certs.pem /usr/local/share/ca-certificates/github-enterprise-server.crt',
+        'update-ca-certificates',
+      ],
+      assets: [
+        {
+          path: 'certs',
+          asset: new s3_assets.Asset(scope, `${id} Asset`, { path }),
+        },
       ],
     });
   }
