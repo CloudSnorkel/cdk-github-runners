@@ -2,6 +2,210 @@
 
 ## Constructs <a name="Constructs" id="Constructs"></a>
 
+### AmiBuilder <a name="AmiBuilder" id="@cloudsnorkel/cdk-github-runners.AmiBuilder"></a>
+
+- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IAmiBuilder">IAmiBuilder</a>, aws-cdk-lib.aws_ec2.IConnectable
+
+An AMI builder that uses AWS Image Builder to build AMIs pre-baked with all the GitHub Actions runner requirements.
+
+Builders can be used with {@link Ec2Runner}.
+
+Each builder re-runs automatically at a set interval to make sure the AMIs contain the latest versions of everything.
+
+You can create an instance of this construct to customize the AMI used to spin-up runners. Some runner providers may require custom components. Check the runner provider documentation.
+
+For example, to set a specific runner version, rebuild the image every 2 weeks, and add a few packages for the EC2 provider, use:
+
+```
+const builder = new AmiBuilder(this, 'Builder', {
+     runnerVersion: RunnerVersion.specific('2.293.0'),
+     rebuildInterval: Duration.days(14),
+});
+builder.addComponent(new ImageBuilderComponent(scope, id, {
+   platform: 'Linux',
+   displayName: 'p7zip',
+   description: 'Install some more packages',
+   commands: [
+     'set -ex',
+     'apt-get install p7zip',
+   ],
+}));
+new Ec2Runner(this, 'EC2 provider', {
+     label: 'custom-ec2',
+     amiBuilder: builder,
+});
+```
+
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.Initializer"></a>
+
+```typescript
+import { AmiBuilder } from '@cloudsnorkel/cdk-github-runners'
+
+new AmiBuilder(scope: Construct, id: string, props?: AmiBuilderProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps">AmiBuilderProps</a></code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps">AmiBuilderProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.addComponent">addComponent</a></code> | Add a component to be installed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.addExtraCertificates">addExtraCertificates</a></code> | Add extra trusted certificates. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.bind">bind</a></code> | Called by IRunnerProvider to finalize settings and create the AMI builder. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.prependComponent">prependComponent</a></code> | Add a component to be installed before any other components. |
+
+---
+
+##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `addComponent` <a name="addComponent" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.addComponent"></a>
+
+```typescript
+public addComponent(component: ImageBuilderComponent): void
+```
+
+Add a component to be installed.
+
+###### `component`<sup>Required</sup> <a name="component" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.addComponent.parameter.component"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent">ImageBuilderComponent</a>
+
+---
+
+##### `addExtraCertificates` <a name="addExtraCertificates" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.addExtraCertificates"></a>
+
+```typescript
+public addExtraCertificates(path: string): void
+```
+
+Add extra trusted certificates.
+
+This helps deal with self-signed certificates for GitHub Enterprise Server.
+
+###### `path`<sup>Required</sup> <a name="path" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.addExtraCertificates.parameter.path"></a>
+
+- *Type:* string
+
+path to directory containing a file called certs.pem containing all the required certificates.
+
+---
+
+##### `bind` <a name="bind" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.bind"></a>
+
+```typescript
+public bind(): RunnerAmi
+```
+
+Called by IRunnerProvider to finalize settings and create the AMI builder.
+
+##### `prependComponent` <a name="prependComponent" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.prependComponent"></a>
+
+```typescript
+public prependComponent(component: ImageBuilderComponent): void
+```
+
+Add a component to be installed before any other components.
+
+Useful for required system settings like certificates or proxy settings.
+
+###### `component`<sup>Required</sup> <a name="component" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.prependComponent.parameter.component"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent">ImageBuilderComponent</a>
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.isConstruct"></a>
+
+```typescript
+import { AmiBuilder } from '@cloudsnorkel/cdk-github-runners'
+
+AmiBuilder.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.property.connections"></a>
+
+```typescript
+public readonly connections: Connections;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.Connections
+
+The network connections associated with this resource.
+
+---
+
+
 ### CodeBuildImageBuilder <a name="CodeBuildImageBuilder" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder"></a>
 
 - *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a>
@@ -2157,6 +2361,195 @@ Webhook secret used to confirm events are coming from GitHub and nowhere else.
 
 
 ## Structs <a name="Structs" id="Structs"></a>
+
+### AmiBuilderProps <a name="AmiBuilderProps" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps"></a>
+
+Properties for {@link AmiBuilder} construct.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.Initializer"></a>
+
+```typescript
+import { AmiBuilderProps } from '@cloudsnorkel/cdk-github-runners'
+
+const amiBuilderProps: AmiBuilderProps = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.architecture">architecture</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a></code> | Image architecture. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.instanceType">instanceType</a></code> | <code>aws-cdk-lib.aws_ec2.InstanceType</code> | The instance type used to build the image. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.logRemovalPolicy">logRemovalPolicy</a></code> | <code>aws-cdk-lib.RemovalPolicy</code> | Removal policy for logs of image builds. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.os">os</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Image OS. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.rebuildInterval">rebuildInterval</a></code> | <code>aws-cdk-lib.Duration</code> | Schedule the AMI to be rebuilt every given interval. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.runnerVersion">runnerVersion</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion">RunnerVersion</a></code> | Version of GitHub Runners to install. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group to assign to launched builder instances. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to launched builder instances. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC where builder instances will be launched. |
+
+---
+
+##### `architecture`<sup>Optional</sup> <a name="architecture" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.architecture"></a>
+
+```typescript
+public readonly architecture: Architecture;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
+- *Default:* Architecture.X86_64
+
+Image architecture.
+
+---
+
+##### `instanceType`<sup>Optional</sup> <a name="instanceType" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.instanceType"></a>
+
+```typescript
+public readonly instanceType: InstanceType;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.InstanceType
+- *Default:* m5.large
+
+The instance type used to build the image.
+
+---
+
+##### `logRemovalPolicy`<sup>Optional</sup> <a name="logRemovalPolicy" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.logRemovalPolicy"></a>
+
+```typescript
+public readonly logRemovalPolicy: RemovalPolicy;
+```
+
+- *Type:* aws-cdk-lib.RemovalPolicy
+- *Default:* RemovalPolicy.DESTROY
+
+Removal policy for logs of image builds.
+
+If deployment fails on the custom resource, try setting this to `RemovalPolicy.RETAIN`. This way the logs can still be viewed, and you can see why the build failed.
+
+We try to not leave anything behind when removed. But sometimes a log staying behind is useful.
+
+---
+
+##### `logRetention`<sup>Optional</sup> <a name="logRetention" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.logRetention"></a>
+
+```typescript
+public readonly logRetention: RetentionDays;
+```
+
+- *Type:* aws-cdk-lib.aws_logs.RetentionDays
+- *Default:* logs.RetentionDays.ONE_MONTH
+
+The number of days log events are kept in CloudWatch Logs.
+
+When updating
+this property, unsetting it doesn't remove the log retention policy. To
+remove the retention policy, set the value to `INFINITE`.
+
+---
+
+##### `os`<sup>Optional</sup> <a name="os" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.os"></a>
+
+```typescript
+public readonly os: Os;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
+- *Default:* OS.LINUX
+
+Image OS.
+
+---
+
+##### `rebuildInterval`<sup>Optional</sup> <a name="rebuildInterval" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.rebuildInterval"></a>
+
+```typescript
+public readonly rebuildInterval: Duration;
+```
+
+- *Type:* aws-cdk-lib.Duration
+- *Default:* Duration.days(7)
+
+Schedule the AMI to be rebuilt every given interval.
+
+Useful for keeping the AMI up-do-date with the latest GitHub runner version and latest OS updates.
+
+Set to zero to disable.
+
+---
+
+##### `runnerVersion`<sup>Optional</sup> <a name="runnerVersion" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.runnerVersion"></a>
+
+```typescript
+public readonly runnerVersion: RunnerVersion;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion">RunnerVersion</a>
+- *Default:* latest version available
+
+Version of GitHub Runners to install.
+
+---
+
+##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.securityGroup"></a>
+
+- *Deprecated:* use {@link securityGroups}
+
+```typescript
+public readonly securityGroup: ISecurityGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
+- *Default:* new security group
+
+Security group to assign to launched builder instances.
+
+---
+
+##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.securityGroups"></a>
+
+```typescript
+public readonly securityGroups: ISecurityGroup[];
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup[]
+- *Default:* new security group
+
+Security groups to assign to launched builder instances.
+
+---
+
+##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.subnetSelection"></a>
+
+```typescript
+public readonly subnetSelection: SubnetSelection;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.SubnetSelection
+- *Default:* default VPC subnet
+
+Where to place the network interfaces within the VPC.
+
+Only the first matched subnet will be used.
+
+---
+
+##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.vpc"></a>
+
+```typescript
+public readonly vpc: IVpc;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.IVpc
+- *Default:* default account VPC
+
+VPC where builder instances will be launched.
+
+---
 
 ### CodeBuildImageBuilderProps <a name="CodeBuildImageBuilderProps" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilderProps"></a>
 
@@ -4885,7 +5278,7 @@ WindowsComponents.githubRunner(scope: Construct, id: string, runnerVersion: Runn
 
 ### IAmiBuilder <a name="IAmiBuilder" id="@cloudsnorkel/cdk-github-runners.IAmiBuilder"></a>
 
-- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.IAmiBuilder">IAmiBuilder</a>
+- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder">AmiBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.IAmiBuilder">IAmiBuilder</a>
 
 Interface for constructs that build an AMI that can be used in {@link IRunnerProvider}.
 
