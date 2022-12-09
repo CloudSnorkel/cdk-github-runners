@@ -14905,6 +14905,16 @@
                                       }
                                     },
                                     {
+                                      "Action": "iam:CreateServiceLinkedRole",
+                                      "Condition": {
+                                        "StringEquals": {
+                                          "iam:AWSServiceName": "spot.amazonaws.com"
+                                        }
+                                      },
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    },
+                                    {
                                       "Action": "iam:PassRole",
                                       "Condition": {
                                         "StringEquals": {

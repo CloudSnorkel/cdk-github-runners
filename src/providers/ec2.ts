@@ -383,6 +383,16 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
         resource: '*',
       })],
     }));
+
+    stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+      actions: ['iam:CreateServiceLinkedRole'],
+      resources: ['*'],
+      conditions: {
+        StringEquals: {
+          'iam:AWSServiceName': 'spot.amazonaws.com',
+        },
+      },
+    }));
   }
 
   status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
