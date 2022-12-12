@@ -211,7 +211,7 @@ new GitHubRunners(stack, 'runners', {
 [1]: https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners
 [2]: https://github.com/marketplace/actions/configure-aws-credentials-action-for-github-actions
 [3]: https://github.com/philips-labs/terraform-aws-github-runner
-[4]: https://github.com/actions-runner-controller/actions-runner-controller
+[4]: https://github.com/actions/actions-runner-controller
 [5]: https://github.com/actions/runner
 [6]: https://pypi.org/project/cloudsnorkel.cdk-github-runners
 [7]: https://www.npmjs.com/package/@cloudsnorkel/cdk-github-runners
