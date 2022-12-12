@@ -205,7 +205,7 @@ new GitHubRunners(stack, 'runners', {
 ## Other Options
 
 1. [philips-labs/terraform-aws-github-runner][3] if you're using Terraform
-2. [actions-runner-controller/actions-runner-controller][4] if you're using Kubernetes
+2. [actions/actions-runner-controller][4] if you're using Kubernetes
 
 
 [1]: https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners
