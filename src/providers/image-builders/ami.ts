@@ -378,7 +378,7 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
     const deleter = BundledNodejsFunction.singleton(this, 'delete-ami', {
       initialPolicy: [
         new iam.PolicyStatement({
-          actions: ['ec2:DescribeLaunchTemplateVersions', 'ec2:DescribeImages', 'ec2:DeregisterImage'],
+          actions: ['ec2:DescribeLaunchTemplateVersions', 'ec2:DescribeImages', 'ec2:DeregisterImage', 'ec2:DeleteSnapshot'],
           resources: ['*'],
         }),
       ],

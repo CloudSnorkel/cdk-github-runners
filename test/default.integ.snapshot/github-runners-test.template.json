@@ -7755,7 +7755,8 @@
        "Action": [
         "ec2:DescribeLaunchTemplateVersions",
         "ec2:DescribeImages",
-        "ec2:DeregisterImage"
+        "ec2:DeregisterImage",
+        "ec2:DeleteSnapshot"
        ],
        "Effect": "Allow",
        "Resource": "*"
@@ -7778,7 +7779,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "2c96dbfaf75649542d8681744e77d3ef4a03a20df5e171ce2a0a72b0a18e5928.zip"
+     "S3Key": "75363707e2756a09f31a94eec0a191c8f38b873bd96bf4fd5d21b6c6e7612ba4.zip"
     },
     "Role": {
      "Fn::GetAtt": [
