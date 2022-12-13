@@ -66,6 +66,16 @@ async function deleteAmis(launchTemplateId: string, stackName: string, builderNa
     await ec2.deregisterImage({
       ImageId: image.ImageId,
     }).promise();
+
+    for (const blockMapping of image.BlockDeviceMappings ?? []) {
+      if (blockMapping.Ebs?.SnapshotId) {
+        console.log(`Deleting ${blockMapping.Ebs.SnapshotId}`);
+
+        await ec2.deleteSnapshot({
+          SnapshotId: blockMapping.Ebs.SnapshotId,
+        }).promise();
+      }
+    }
   }
 }
 
