@@ -1,4 +1,4 @@
-import * as cdk from "aws-cdk-lib";
+import * as cdk from 'aws-cdk-lib';
 import {
   aws_ec2 as ec2,
   aws_iam as iam,
@@ -7,17 +7,17 @@ import {
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
   RemovalPolicy,
-} from "aws-cdk-lib";
-import { FunctionUrlAuthType } from "aws-cdk-lib/aws-lambda";
-import { LogLevel } from "aws-cdk-lib/aws-stepfunctions";
-import { Construct } from "constructs";
-import { CodeBuildRunner } from "./providers/codebuild";
-import { IRunnerProvider } from "./providers/common";
-import { FargateRunner } from "./providers/fargate";
-import { LambdaRunner } from "./providers/lambda";
-import { Secrets } from "./secrets";
-import { BundledNodejsFunction } from "./utils";
-import { GithubWebhookHandler } from "./webhook";
+} from 'aws-cdk-lib';
+import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
+import { LogLevel } from 'aws-cdk-lib/aws-stepfunctions';
+import { Construct } from 'constructs';
+import { CodeBuildRunner } from './providers/codebuild';
+import { IRunnerProvider } from './providers/common';
+import { FargateRunner } from './providers/fargate';
+import { LambdaRunner } from './providers/lambda';
+import { Secrets } from './secrets';
+import { BundledNodejsFunction } from './utils';
+import { GithubWebhookHandler } from './webhook';
 
 /**
  * Properties for GitHubRunners
@@ -182,11 +182,11 @@ export class GitHubRunners extends Construct {
   constructor(
     scope: Construct,
     id: string,
-    readonly props?: GitHubRunnersProps
+    readonly props?: GitHubRunnersProps,
   ) {
     super(scope, id);
 
-    this.secrets = new Secrets(this, "Secrets");
+    this.secrets = new Secrets(this, 'Secrets');
     this.extraLambdaProps = {
       vpc: this.props?.vpc,
       vpcSubnets: this.props?.vpcSubnets,
@@ -196,30 +196,30 @@ export class GitHubRunners extends Construct {
         : undefined,
       layers: this.props?.extraCertificates
         ? [
-            new lambda.LayerVersion(scope, "Certificate Layer", {
-              description:
-                "Layer containing GitHub Enterprise Server certificate for cdk-github-runners",
-              code: lambda.Code.fromAsset(this.props.extraCertificates),
-            }),
-          ]
+          new lambda.LayerVersion(scope, 'Certificate Layer', {
+            description:
+                'Layer containing GitHub Enterprise Server certificate for cdk-github-runners',
+            code: lambda.Code.fromAsset(this.props.extraCertificates),
+          }),
+        ]
         : undefined,
     };
     if (this.props?.extraCertificates) {
-      this.extraLambdaEnv.NODE_EXTRA_CA_CERTS = "/opt/certs.pem";
+      this.extraLambdaEnv.NODE_EXTRA_CA_CERTS = '/opt/certs.pem';
     }
 
     if (this.props?.providers) {
       this.providers = this.props.providers;
     } else {
       this.providers = [
-        new CodeBuildRunner(this, "CodeBuild"),
-        new LambdaRunner(this, "Lambda"),
-        new FargateRunner(this, "Fargate"),
+        new CodeBuildRunner(this, 'CodeBuild'),
+        new LambdaRunner(this, 'Lambda'),
+        new FargateRunner(this, 'Fargate'),
       ];
     }
 
     this.orchestrator = this.stateMachine(props);
-    this.webhook = new GithubWebhookHandler(this, "Webhook Handler", {
+    this.webhook = new GithubWebhookHandler(this, 'Webhook Handler', {
       orchestrator: this.orchestrator,
       secrets: this.secrets,
     });
@@ -231,107 +231,107 @@ export class GitHubRunners extends Construct {
   private stateMachine(props?: GitHubRunnersProps) {
     const tokenRetrieverTask = new stepfunctions_tasks.LambdaInvoke(
       this,
-      "Get Runner Token",
+      'Get Runner Token',
       {
         lambdaFunction: this.tokenRetriever(),
         payloadResponseOnly: true,
-        resultPath: "$.runner",
-      }
+        resultPath: '$.runner',
+      },
     );
 
     let deleteRunnerFunction = this.deleteRunner();
     const deleteRunnerTask = new stepfunctions_tasks.LambdaInvoke(
       this,
-      "Delete Runner",
+      'Delete Runner',
       {
         lambdaFunction: deleteRunnerFunction,
         payloadResponseOnly: true,
-        resultPath: "$.delete",
+        resultPath: '$.delete',
         payload: stepfunctions.TaskInput.fromObject({
-          runnerName: stepfunctions.JsonPath.stringAt("$$.Execution.Name"),
-          owner: stepfunctions.JsonPath.stringAt("$.owner"),
-          repo: stepfunctions.JsonPath.stringAt("$.repo"),
-          runId: stepfunctions.JsonPath.stringAt("$.runId"),
-          installationId: stepfunctions.JsonPath.stringAt("$.installationId"),
+          runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+          owner: stepfunctions.JsonPath.stringAt('$.owner'),
+          repo: stepfunctions.JsonPath.stringAt('$.repo'),
+          runId: stepfunctions.JsonPath.stringAt('$.runId'),
+          installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
           idleOnly: false,
         }),
-      }
+      },
     );
     deleteRunnerTask.addRetry({
-      errors: ["RunnerBusy"],
+      errors: ['RunnerBusy'],
       interval: cdk.Duration.minutes(1),
       backoffRate: 1,
       maxAttempts: 60,
     });
 
-    const waitForIdleRunner = new stepfunctions.Wait(this, "Wait", {
+    const waitForIdleRunner = new stepfunctions.Wait(this, 'Wait', {
       time: stepfunctions.WaitTime.duration(
-        props?.idleTimeout ?? cdk.Duration.minutes(10)
+        props?.idleTimeout ?? cdk.Duration.minutes(10),
       ),
     });
     const deleteIdleRunnerTask = new stepfunctions_tasks.LambdaInvoke(
       this,
-      "Delete Idle Runner",
+      'Delete Idle Runner',
       {
         lambdaFunction: deleteRunnerFunction,
         payloadResponseOnly: true,
-        resultPath: "$.delete",
+        resultPath: '$.delete',
         payload: stepfunctions.TaskInput.fromObject({
-          runnerName: stepfunctions.JsonPath.stringAt("$$.Execution.Name"),
-          owner: stepfunctions.JsonPath.stringAt("$.owner"),
-          repo: stepfunctions.JsonPath.stringAt("$.repo"),
-          runId: stepfunctions.JsonPath.stringAt("$.runId"),
-          installationId: stepfunctions.JsonPath.stringAt("$.installationId"),
+          runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+          owner: stepfunctions.JsonPath.stringAt('$.owner'),
+          repo: stepfunctions.JsonPath.stringAt('$.repo'),
+          runId: stepfunctions.JsonPath.stringAt('$.runId'),
+          installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
           idleOnly: true,
         }),
-      }
+      },
     );
 
-    const providerChooser = new stepfunctions.Choice(this, "Choose provider");
+    const providerChooser = new stepfunctions.Choice(this, 'Choose provider');
     for (const provider of this.providers) {
       const providerTask = provider.getStepFunctionTask({
-        runnerTokenPath: stepfunctions.JsonPath.stringAt("$.runner.token"),
-        runnerNamePath: stepfunctions.JsonPath.stringAt("$$.Execution.Name"),
-        githubDomainPath: stepfunctions.JsonPath.stringAt("$.runner.domain"),
-        ownerPath: stepfunctions.JsonPath.stringAt("$.owner"),
-        repoPath: stepfunctions.JsonPath.stringAt("$.repo"),
+        runnerTokenPath: stepfunctions.JsonPath.stringAt('$.runner.token'),
+        runnerNamePath: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+        githubDomainPath: stepfunctions.JsonPath.stringAt('$.runner.domain'),
+        ownerPath: stepfunctions.JsonPath.stringAt('$.owner'),
+        repoPath: stepfunctions.JsonPath.stringAt('$.repo'),
       });
       providerChooser.when(
         stepfunctions.Condition.and(
           ...provider.labels.map((label) =>
-            stepfunctions.Condition.isPresent(`$.labels.${label}`)
-          )
+            stepfunctions.Condition.isPresent(`$.labels.${label}`),
+          ),
         ),
-        providerTask
+        providerTask,
       );
     }
 
-    providerChooser.otherwise(new stepfunctions.Succeed(this, "Unknown label"));
+    providerChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown label'));
 
     const work = tokenRetrieverTask.next(
-      new stepfunctions.Parallel(this, "Error Catcher", {
-        resultPath: "$.result",
+      new stepfunctions.Parallel(this, 'Error Catcher', {
+        resultPath: '$.result',
       })
         .branch(providerChooser)
         .branch(waitForIdleRunner.next(deleteIdleRunnerTask))
         .addCatch(
-          deleteRunnerTask.next(new stepfunctions.Fail(this, "Runner Failed")),
+          deleteRunnerTask.next(new stepfunctions.Fail(this, 'Runner Failed')),
           {
-            resultPath: "$.error",
-          }
-        )
+            resultPath: '$.error',
+          },
+        ),
     );
 
-    const check = new stepfunctions.Choice(this, "Is self hosted?")
+    const check = new stepfunctions.Choice(this, 'Is self hosted?')
       .when(
-        stepfunctions.Condition.isNotPresent("$.labels.self-hosted"),
-        new stepfunctions.Succeed(this, "No")
+        stepfunctions.Condition.isNotPresent('$.labels.self-hosted'),
+        new stepfunctions.Succeed(this, 'No'),
       )
       .otherwise(work);
 
     let logOptions: cdk.aws_stepfunctions.LogOptions | undefined;
     if (this.props?.logOptions) {
-      const logGroup = new logs.LogGroup(this, "Logs", {
+      const logGroup = new logs.LogGroup(this, 'Logs', {
         logGroupName: props?.logOptions?.logGroupName ?? undefined,
         retention:
           props?.logOptions?.logRetention ?? logs.RetentionDays.ONE_MONTH,
@@ -346,11 +346,11 @@ export class GitHubRunners extends Construct {
     }
     const stateMachine = new stepfunctions.StateMachine(
       this,
-      "Runner Orchestrator",
+      'Runner Orchestrator',
       {
         definition: check,
         logs: logOptions,
-      }
+      },
     );
 
     for (const provider of this.providers) {
@@ -361,9 +361,9 @@ export class GitHubRunners extends Construct {
   }
 
   private tokenRetriever() {
-    const func = new BundledNodejsFunction(this, "token-retriever", {
+    const func = new BundledNodejsFunction(this, 'token-retriever', {
       description:
-        "Get token from GitHub Actions used to start new self-hosted runner",
+        'Get token from GitHub Actions used to start new self-hosted runner',
       environment: {
         GITHUB_SECRET_ARN: this.secrets.github.secretArn,
         GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
@@ -380,8 +380,8 @@ export class GitHubRunners extends Construct {
   }
 
   private deleteRunner() {
-    const func = new BundledNodejsFunction(this, "delete-runner", {
-      description: "Delete GitHub Actions runner on error",
+    const func = new BundledNodejsFunction(this, 'delete-runner', {
+      description: 'Delete GitHub Actions runner on error',
       environment: {
         GITHUB_SECRET_ARN: this.secrets.github.secretArn,
         GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
@@ -398,9 +398,9 @@ export class GitHubRunners extends Construct {
   }
 
   private statusFunction() {
-    const statusFunction = new BundledNodejsFunction(this, "status", {
+    const statusFunction = new BundledNodejsFunction(this, 'status', {
       description:
-        "Provide user with status about self-hosted GitHub Actions runners",
+        'Provide user with status about self-hosted GitHub Actions runners',
       environment: {
         WEBHOOK_SECRET_ARN: this.secrets.webhook.secretArn,
         GITHUB_SECRET_ARN: this.secrets.github.secretArn,
@@ -417,21 +417,21 @@ export class GitHubRunners extends Construct {
     });
 
     const providers = this.providers.map((provider) =>
-      provider.status(statusFunction)
+      provider.status(statusFunction),
     );
 
     // expose providers as stack metadata as it's too big for Lambda environment variables
     // specifically integration testing got an error because lambda update request was >5kb
     const stack = cdk.Stack.of(this);
     const f = statusFunction.node.defaultChild as lambda.CfnFunction;
-    f.addPropertyOverride("Environment.Variables.LOGICAL_ID", f.logicalId);
-    f.addPropertyOverride("Environment.Variables.STACK_NAME", stack.stackName);
-    f.addMetadata("providers", providers);
+    f.addPropertyOverride('Environment.Variables.LOGICAL_ID', f.logicalId);
+    f.addPropertyOverride('Environment.Variables.STACK_NAME', stack.stackName);
+    f.addMetadata('providers', providers);
     statusFunction.addToRolePolicy(
       new iam.PolicyStatement({
-        actions: ["cloudformation:DescribeStackResource"],
+        actions: ['cloudformation:DescribeStackResource'],
         resources: [stack.stackId],
-      })
+      }),
     );
 
     this.secrets.webhook.grantRead(statusFunction);
@@ -440,14 +440,14 @@ export class GitHubRunners extends Construct {
     this.secrets.setup.grantRead(statusFunction);
     this.orchestrator.grantRead(statusFunction);
 
-    new cdk.CfnOutput(this, "status command", {
+    new cdk.CfnOutput(this, 'status command', {
       value: `aws --region ${stack.region} lambda invoke --function-name ${statusFunction.functionName} status.json`,
     });
   }
 
   private setupFunction(): string {
-    const setupFunction = new BundledNodejsFunction(this, "setup", {
-      description: "Setup GitHub Actions integration with self-hosted runners",
+    const setupFunction = new BundledNodejsFunction(this, 'setup', {
+      description: 'Setup GitHub Actions integration with self-hosted runners',
       environment: {
         SETUP_SECRET_ARN: this.secrets.setup.secretArn,
         WEBHOOK_SECRET_ARN: this.secrets.webhook.secretArn,
