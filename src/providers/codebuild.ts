@@ -100,6 +100,14 @@ export interface CodeBuildRunnerProps extends RunnerProviderProps {
    * @default Duration.hours(1)
    */
   readonly timeout?: Duration;
+
+  /**
+   * Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. Disabling this can
+   * speed up provisioning of CodeBuild runners. If you don't intend on running or building Docker images, disable this for faster start-up times.
+   *
+   * @default true
+   */
+  readonly dockerInDocker?: boolean;
 }
 
 /**
