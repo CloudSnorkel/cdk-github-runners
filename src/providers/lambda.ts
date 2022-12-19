@@ -163,7 +163,7 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
   private readonly securityGroups?: ec2.ISecurityGroup[];
 
   constructor(scope: Construct, id: string, props?: LambdaRunnerProps) {
-    super(scope, id);
+    super(scope, id, props);
 
     this.labels = this.labelsFromProperties('lambda', props?.label, props?.labels);
     this.vpc = props?.vpc;
@@ -243,7 +243,7 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
    * @param parameters workflow job details
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    return new stepfunctions_tasks.LambdaInvoke(
+    const invoke = new stepfunctions_tasks.LambdaInvoke(
       this,
       this.labels.join(', '),
       {
@@ -258,6 +258,10 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
         }),
       },
     );
+
+    this.addRetry(invoke, ['Lambda.LambdaException', 'Lambda.Ec2ThrottledException', 'Lambda.Ec2UnexpectedException', 'Lambda.EniLimitReachedException', 'Lambda.TooManyRequestsException']);
+
+    return invoke;
   }
 
   private addImageUpdater(image: RunnerImage) {
