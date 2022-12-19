@@ -20,6 +20,35 @@ test('CodeBuild provider', () => {
   }));
 });
 
+test('CodeBuild provider privileged', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'test');
+
+  new CodeBuildRunner(stack, 'provider false', {
+    dockerInDocker: false,
+  });
+
+  new CodeBuildRunner(stack, 'provider true', {
+    dockerInDocker: true,
+  });
+
+  new CodeBuildRunner(stack, 'provider default');
+
+  const template = Template.fromStack(stack);
+
+  template.resourcePropertiesCountIs('AWS::CodeBuild::Project', Match.objectLike({
+    Environment: {
+      PrivilegedMode: true,
+    },
+  }), 2/*runners*/+3/*image builders*/);
+
+  template.hasResourceProperties('AWS::CodeBuild::Project', Match.objectLike({
+    Environment: {
+      PrivilegedMode: false,
+    },
+  }));
+});
+
 test('Lambda provider', () => {
   const app = new cdk.App();
   const stack = new cdk.Stack(app, 'test');
