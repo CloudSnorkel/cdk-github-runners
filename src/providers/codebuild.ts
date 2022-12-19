@@ -158,6 +158,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
 
   private readonly vpc?: ec2.IVpc;
   private readonly securityGroups?: ec2.ISecurityGroup[];
+  private readonly dind: boolean;
 
   constructor(scope: Construct, id: string, props?: CodeBuildRunnerProps) {
     super(scope, id);
@@ -176,6 +177,8 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
       }
     }
 
+    this.dind = props?.dockerInDocker ?? true;
+
     let buildSpec = {
       version: '0.2',
       env: {
@@ -191,8 +194,8 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
       phases: {
         install: {
           commands: [
-            'nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &',
-            'timeout 15 sh -c "until docker info; do echo .; sleep 1; done"',
+            this.dind ? 'nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &' : '',
+            this.dind ? 'timeout 15 sh -c "until docker info; do echo .; sleep 1; done"' : '',
             'if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi',
             'sudo -Hu runner /home/runner/config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" ${RUNNER_FLAGS} --name "${RUNNER_NAME}"',
           ],
@@ -255,7 +258,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
         environment: {
           buildImage,
           computeType: props?.computeType ?? ComputeType.SMALL,
-          privileged: image.os.is(Os.LINUX),
+          privileged: this.dind ? image.os.is(Os.LINUX) : false,
         },
         logging: {
           cloudWatch: {
