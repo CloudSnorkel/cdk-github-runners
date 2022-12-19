@@ -9,7 +9,6 @@ import {
   RemovalPolicy,
 } from 'aws-cdk-lib';
 import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
-import { LogLevel } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import { CodeBuildRunner } from './providers/codebuild';
 import { IRunnerProvider } from './providers/common';
@@ -88,6 +87,8 @@ export interface GitHubRunnersProps {
 
   /**
    * Logging options for the state machine that manages the runners.
+   *
+   * @default no logs
    */
   readonly logOptions?: LogOptions;
 }
@@ -100,18 +101,21 @@ export interface LogOptions {
    * The log group where the execution history events will be logged.
    */
   readonly logGroupName?: string;
+
   /**
    * Determines whether execution data is included in your log.
    *
    * @default false
    */
   readonly includeExecutionData?: boolean;
+
   /**
    * Defines which category of execution history events are logged.
    *
    * @default ERROR
    */
-  readonly level?: LogLevel;
+  readonly level?: stepfunctions.LogLevel;
+
   /**
    * The number of days log events are kept in CloudWatch Logs. When updating
    * this property, unsetting it doesn't remove the log retention policy. To
@@ -176,14 +180,10 @@ export class GitHubRunners extends Construct {
   private readonly webhook: GithubWebhookHandler;
   private readonly orchestrator: stepfunctions.StateMachine;
   private readonly setupUrl: string;
-  private readonly extraLambdaEnv: { [p: string]: string } = {};
+  private readonly extraLambdaEnv: {[p: string]: string} = {};
   private readonly extraLambdaProps: lambda.FunctionOptions;
 
-  constructor(
-    scope: Construct,
-    id: string,
-    readonly props?: GitHubRunnersProps,
-  ) {
+  constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
 
     this.secrets = new Secrets(this, 'Secrets');
@@ -191,18 +191,11 @@ export class GitHubRunners extends Construct {
       vpc: this.props?.vpc,
       vpcSubnets: this.props?.vpcSubnets,
       allowPublicSubnet: this.props?.allowPublicSubnet,
-      securityGroups: this.props?.securityGroup
-        ? [this.props.securityGroup]
-        : undefined,
-      layers: this.props?.extraCertificates
-        ? [
-          new lambda.LayerVersion(scope, 'Certificate Layer', {
-            description:
-                'Layer containing GitHub Enterprise Server certificate for cdk-github-runners',
-            code: lambda.Code.fromAsset(this.props.extraCertificates),
-          }),
-        ]
-        : undefined,
+      securityGroups: this.props?.securityGroup ? [this.props.securityGroup] : undefined,
+      layers: this.props?.extraCertificates ? [new lambda.LayerVersion(scope, 'Certificate Layer', {
+        description: 'Layer containing GitHub Enterprise Server certificate for cdk-github-runners',
+        code: lambda.Code.fromAsset(this.props.extraCertificates),
+      })] : undefined,
     };
     if (this.props?.extraCertificates) {
       this.extraLambdaEnv.NODE_EXTRA_CA_CERTS = '/opt/certs.pem';
@@ -258,16 +251,16 @@ export class GitHubRunners extends Construct {
       },
     );
     deleteRunnerTask.addRetry({
-      errors: ['RunnerBusy'],
+      errors: [
+        'RunnerBusy',
+      ],
       interval: cdk.Duration.minutes(1),
       backoffRate: 1,
       maxAttempts: 60,
     });
 
     const waitForIdleRunner = new stepfunctions.Wait(this, 'Wait', {
-      time: stepfunctions.WaitTime.duration(
-        props?.idleTimeout ?? cdk.Duration.minutes(10),
-      ),
+      time: stepfunctions.WaitTime.duration(props?.idleTimeout ?? cdk.Duration.minutes(10)),
     });
     const deleteIdleRunnerTask = new stepfunctions_tasks.LambdaInvoke(
       this,
@@ -289,17 +282,19 @@ export class GitHubRunners extends Construct {
 
     const providerChooser = new stepfunctions.Choice(this, 'Choose provider');
     for (const provider of this.providers) {
-      const providerTask = provider.getStepFunctionTask({
-        runnerTokenPath: stepfunctions.JsonPath.stringAt('$.runner.token'),
-        runnerNamePath: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
-        githubDomainPath: stepfunctions.JsonPath.stringAt('$.runner.domain'),
-        ownerPath: stepfunctions.JsonPath.stringAt('$.owner'),
-        repoPath: stepfunctions.JsonPath.stringAt('$.repo'),
-      });
+      const providerTask = provider.getStepFunctionTask(
+        {
+          runnerTokenPath: stepfunctions.JsonPath.stringAt('$.runner.token'),
+          runnerNamePath: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+          githubDomainPath: stepfunctions.JsonPath.stringAt('$.runner.domain'),
+          ownerPath: stepfunctions.JsonPath.stringAt('$.owner'),
+          repoPath: stepfunctions.JsonPath.stringAt('$.repo'),
+        },
+      );
       providerChooser.when(
         stepfunctions.Condition.and(
-          ...provider.labels.map((label) =>
-            stepfunctions.Condition.isPresent(`$.labels.${label}`),
+          ...provider.labels.map(
+            label => stepfunctions.Condition.isPresent(`$.labels.${label}`),
           ),
         ),
         providerTask,
@@ -309,13 +304,12 @@ export class GitHubRunners extends Construct {
     providerChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown label'));
 
     const work = tokenRetrieverTask.next(
-      new stepfunctions.Parallel(this, 'Error Catcher', {
-        resultPath: '$.result',
-      })
+      new stepfunctions.Parallel(this, 'Error Catcher', { resultPath: '$.result' })
         .branch(providerChooser)
         .branch(waitForIdleRunner.next(deleteIdleRunnerTask))
         .addCatch(
-          deleteRunnerTask.next(new stepfunctions.Fail(this, 'Runner Failed')),
+          deleteRunnerTask
+            .next(new stepfunctions.Fail(this, 'Runner Failed')),
           {
             resultPath: '$.error',
           },
@@ -323,18 +317,14 @@ export class GitHubRunners extends Construct {
     );
 
     const check = new stepfunctions.Choice(this, 'Is self hosted?')
-      .when(
-        stepfunctions.Condition.isNotPresent('$.labels.self-hosted'),
-        new stepfunctions.Succeed(this, 'No'),
-      )
+      .when(stepfunctions.Condition.isNotPresent('$.labels.self-hosted'), new stepfunctions.Succeed(this, 'No'))
       .otherwise(work);
 
     let logOptions: cdk.aws_stepfunctions.LogOptions | undefined;
     if (this.props?.logOptions) {
       const logGroup = new logs.LogGroup(this, 'Logs', {
-        logGroupName: props?.logOptions?.logGroupName ?? undefined,
-        retention:
-          props?.logOptions?.logRetention ?? logs.RetentionDays.ONE_MONTH,
+        logGroupName: props?.logOptions?.logGroupName,
+        retention: props?.logOptions?.logRetention ?? logs.RetentionDays.ONE_MONTH,
         removalPolicy: RemovalPolicy.DESTROY,
       });
 
@@ -344,6 +334,7 @@ export class GitHubRunners extends Construct {
         level: props?.logOptions?.level ?? stepfunctions.LogLevel.ALL,
       };
     }
+
     const stateMachine = new stepfunctions.StateMachine(
       this,
       'Runner Orchestrator',
@@ -361,17 +352,20 @@ export class GitHubRunners extends Construct {
   }
 
   private tokenRetriever() {
-    const func = new BundledNodejsFunction(this, 'token-retriever', {
-      description:
-        'Get token from GitHub Actions used to start new self-hosted runner',
-      environment: {
-        GITHUB_SECRET_ARN: this.secrets.github.secretArn,
-        GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
-        ...this.extraLambdaEnv,
+    const func = new BundledNodejsFunction(
+      this,
+      'token-retriever',
+      {
+        description: 'Get token from GitHub Actions used to start new self-hosted runner',
+        environment: {
+          GITHUB_SECRET_ARN: this.secrets.github.secretArn,
+          GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+          ...this.extraLambdaEnv,
+        },
+        timeout: cdk.Duration.seconds(30),
+        ...this.extraLambdaProps,
       },
-      timeout: cdk.Duration.seconds(30),
-      ...this.extraLambdaProps,
-    });
+    );
 
     this.secrets.github.grantRead(func);
     this.secrets.githubPrivateKey.grantRead(func);
@@ -380,16 +374,20 @@ export class GitHubRunners extends Construct {
   }
 
   private deleteRunner() {
-    const func = new BundledNodejsFunction(this, 'delete-runner', {
-      description: 'Delete GitHub Actions runner on error',
-      environment: {
-        GITHUB_SECRET_ARN: this.secrets.github.secretArn,
-        GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
-        ...this.extraLambdaEnv,
+    const func = new BundledNodejsFunction(
+      this,
+      'delete-runner',
+      {
+        description: 'Delete GitHub Actions runner on error',
+        environment: {
+          GITHUB_SECRET_ARN: this.secrets.github.secretArn,
+          GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+          ...this.extraLambdaEnv,
+        },
+        timeout: cdk.Duration.seconds(30),
+        ...this.extraLambdaProps,
       },
-      timeout: cdk.Duration.seconds(30),
-      ...this.extraLambdaProps,
-    });
+    );
 
     this.secrets.github.grantRead(func);
     this.secrets.githubPrivateKey.grantRead(func);
@@ -398,41 +396,40 @@ export class GitHubRunners extends Construct {
   }
 
   private statusFunction() {
-    const statusFunction = new BundledNodejsFunction(this, 'status', {
-      description:
-        'Provide user with status about self-hosted GitHub Actions runners',
-      environment: {
-        WEBHOOK_SECRET_ARN: this.secrets.webhook.secretArn,
-        GITHUB_SECRET_ARN: this.secrets.github.secretArn,
-        GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
-        SETUP_SECRET_ARN: this.secrets.setup.secretArn,
-        WEBHOOK_URL: this.webhook.url,
-        WEBHOOK_HANDLER_ARN: this.webhook.handler.latestVersion.functionArn,
-        STEP_FUNCTION_ARN: this.orchestrator.stateMachineArn,
-        SETUP_FUNCTION_URL: this.setupUrl,
-        ...this.extraLambdaEnv,
+    const statusFunction = new BundledNodejsFunction(
+      this,
+      'status',
+      {
+        description: 'Provide user with status about self-hosted GitHub Actions runners',
+        environment: {
+          WEBHOOK_SECRET_ARN: this.secrets.webhook.secretArn,
+          GITHUB_SECRET_ARN: this.secrets.github.secretArn,
+          GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+          SETUP_SECRET_ARN: this.secrets.setup.secretArn,
+          WEBHOOK_URL: this.webhook.url,
+          WEBHOOK_HANDLER_ARN: this.webhook.handler.latestVersion.functionArn,
+          STEP_FUNCTION_ARN: this.orchestrator.stateMachineArn,
+          SETUP_FUNCTION_URL: this.setupUrl,
+          ...this.extraLambdaEnv,
+        },
+        timeout: cdk.Duration.minutes(3),
+        ...this.extraLambdaProps,
       },
-      timeout: cdk.Duration.minutes(3),
-      ...this.extraLambdaProps,
-    });
-
-    const providers = this.providers.map((provider) =>
-      provider.status(statusFunction),
     );
+
+    const providers = this.providers.map(provider => provider.status(statusFunction));
 
     // expose providers as stack metadata as it's too big for Lambda environment variables
     // specifically integration testing got an error because lambda update request was >5kb
     const stack = cdk.Stack.of(this);
-    const f = statusFunction.node.defaultChild as lambda.CfnFunction;
+    const f = (statusFunction.node.defaultChild as lambda.CfnFunction);
     f.addPropertyOverride('Environment.Variables.LOGICAL_ID', f.logicalId);
     f.addPropertyOverride('Environment.Variables.STACK_NAME', stack.stackName);
     f.addMetadata('providers', providers);
-    statusFunction.addToRolePolicy(
-      new iam.PolicyStatement({
-        actions: ['cloudformation:DescribeStackResource'],
-        resources: [stack.stackId],
-      }),
-    );
+    statusFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['cloudformation:DescribeStackResource'],
+      resources: [stack.stackId],
+    }));
 
     this.secrets.webhook.grantRead(statusFunction);
     this.secrets.github.grantRead(statusFunction);
@@ -440,25 +437,33 @@ export class GitHubRunners extends Construct {
     this.secrets.setup.grantRead(statusFunction);
     this.orchestrator.grantRead(statusFunction);
 
-    new cdk.CfnOutput(this, 'status command', {
-      value: `aws --region ${stack.region} lambda invoke --function-name ${statusFunction.functionName} status.json`,
-    });
+    new cdk.CfnOutput(
+      this,
+      'status command',
+      {
+        value: `aws --region ${stack.region} lambda invoke --function-name ${statusFunction.functionName} status.json`,
+      },
+    );
   }
 
   private setupFunction(): string {
-    const setupFunction = new BundledNodejsFunction(this, 'setup', {
-      description: 'Setup GitHub Actions integration with self-hosted runners',
-      environment: {
-        SETUP_SECRET_ARN: this.secrets.setup.secretArn,
-        WEBHOOK_SECRET_ARN: this.secrets.webhook.secretArn,
-        GITHUB_SECRET_ARN: this.secrets.github.secretArn,
-        GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
-        WEBHOOK_URL: this.webhook.url,
-        ...this.extraLambdaEnv,
+    const setupFunction = new BundledNodejsFunction(
+      this,
+      'setup',
+      {
+        description: 'Setup GitHub Actions integration with self-hosted runners',
+        environment: {
+          SETUP_SECRET_ARN: this.secrets.setup.secretArn,
+          WEBHOOK_SECRET_ARN: this.secrets.webhook.secretArn,
+          GITHUB_SECRET_ARN: this.secrets.github.secretArn,
+          GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+          WEBHOOK_URL: this.webhook.url,
+          ...this.extraLambdaEnv,
+        },
+        timeout: cdk.Duration.minutes(3),
+        ...this.extraLambdaProps,
       },
-      timeout: cdk.Duration.minutes(3),
-      ...this.extraLambdaProps,
-    });
+    );
 
     // this.secrets.webhook.grantRead(setupFunction);
     this.secrets.webhook.grantWrite(setupFunction);
@@ -469,7 +474,6 @@ export class GitHubRunners extends Construct {
     this.secrets.setup.grantRead(setupFunction);
     this.secrets.setup.grantWrite(setupFunction);
 
-    return setupFunction.addFunctionUrl({ authType: FunctionUrlAuthType.NONE })
-      .url;
+    return setupFunction.addFunctionUrl({ authType: FunctionUrlAuthType.NONE }).url;
   }
 }
