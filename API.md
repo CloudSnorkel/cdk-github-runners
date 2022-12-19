@@ -2327,9 +2327,7 @@ public readonly githubPrivateKey: Secret;
 
 - *Type:* aws-cdk-lib.aws_secretsmanager.Secret
 
-GitHub app private key.
-
-Not needed when using personal authentication tokens.
+GitHub app private key. Not needed when using personal authentication tokens.
 
 This secret is meant to be edited by the user after being created. It is separate than the main GitHub secret because inserting private keys into JSON is hard.
 
