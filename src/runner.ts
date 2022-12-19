@@ -182,6 +182,7 @@ export class GitHubRunners extends Construct {
   private readonly setupUrl: string;
   private readonly extraLambdaEnv: {[p: string]: string} = {};
   private readonly extraLambdaProps: lambda.FunctionOptions;
+  private stateMachineLogGroup?: logs.LogGroup;
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
@@ -322,14 +323,14 @@ export class GitHubRunners extends Construct {
 
     let logOptions: cdk.aws_stepfunctions.LogOptions | undefined;
     if (this.props?.logOptions) {
-      const logGroup = new logs.LogGroup(this, 'Logs', {
+      this.stateMachineLogGroup = new logs.LogGroup(this, 'Logs', {
         logGroupName: props?.logOptions?.logGroupName,
         retention: props?.logOptions?.logRetention ?? logs.RetentionDays.ONE_MONTH,
         removalPolicy: RemovalPolicy.DESTROY,
       });
 
       logOptions = {
-        destination: logGroup,
+        destination: this.stateMachineLogGroup,
         includeExecutionData: props?.logOptions?.includeExecutionData ?? true,
         level: props?.logOptions?.level ?? stepfunctions.LogLevel.ALL,
       };
@@ -409,6 +410,7 @@ export class GitHubRunners extends Construct {
           WEBHOOK_URL: this.webhook.url,
           WEBHOOK_HANDLER_ARN: this.webhook.handler.latestVersion.functionArn,
           STEP_FUNCTION_ARN: this.orchestrator.stateMachineArn,
+          STEP_FUNCTION_LOG_GROUP: this.stateMachineLogGroup?.logGroupName ?? '',
           SETUP_FUNCTION_URL: this.setupUrl,
           ...this.extraLambdaEnv,
         },

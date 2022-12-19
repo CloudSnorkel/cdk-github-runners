@@ -134,6 +134,7 @@ exports.handler = async function () {
       webhookHandlerUrl: lambdaArnToUrl(process.env.WEBHOOK_HANDLER_ARN),
       stepFunctionArn: process.env.STEP_FUNCTION_ARN,
       stepFunctionUrl: stepFunctionArnToUrl(process.env.STEP_FUNCTION_ARN),
+      stepFunctionLogGroup: process.env.STEP_FUNCTION_LOG_GROUP,
       recentRuns: [] as RecentRun[],
     },
   };

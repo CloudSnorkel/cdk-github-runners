@@ -12063,7 +12063,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "1d1f025a6abc03af735a1d9f680134d3b9c44baf6899b8734486d8527d4f1a5b.zip"
+     "S3Key": "165e1c4dfb9c46dd1e0d52c192374a9a1c16c01851d1aee4b48b5dc58bf31df0.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -12109,6 +12109,7 @@
       "STEP_FUNCTION_ARN": {
        "Ref": "runnersRunnerOrchestratorF9B66EBA"
       },
+      "STEP_FUNCTION_LOG_GROUP": "",
       "SETUP_FUNCTION_URL": {
        "Fn::GetAtt": [
         "runnerssetupFunctionUrlB8BC43E8",
