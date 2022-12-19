@@ -3643,6 +3643,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.allowPublicSubnet">allowPublicSubnet</a></code> | <code>boolean</code> | Allow management functions to run in public subnets. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.extraCertificates">extraCertificates</a></code> | <code>string</code> | Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.idleTimeout">idleTimeout</a></code> | <code>aws-cdk-lib.Duration</code> | Time to wait before stopping a runner that remains idle. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.logOptions">logOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions">LogOptions</a></code> | Logging options for the state machine that manages the runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | List of runner providers to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to all management functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for all management functions. |
@@ -3711,6 +3712,19 @@ public readonly idleTimeout: Duration;
 Time to wait before stopping a runner that remains idle.
 
 If the user cancelled the job, or if another runner stole it, this stops the runner to avoid wasting resources.
+
+---
+
+##### `logOptions`<sup>Optional</sup> <a name="logOptions" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.logOptions"></a>
+
+```typescript
+public readonly logOptions: LogOptions;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.LogOptions">LogOptions</a>
+- *Default:* no logs
+
+Logging options for the state machine that manages the runners.
 
 ---
 
@@ -4095,6 +4109,84 @@ public readonly vpc: IVpc;
 - *Default:* no VPC
 
 VPC to launch the runners in.
+
+---
+
+### LogOptions <a name="LogOptions" id="@cloudsnorkel/cdk-github-runners.LogOptions"></a>
+
+Defines what execution history events are logged and where they are logged.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.LogOptions.Initializer"></a>
+
+```typescript
+import { LogOptions } from '@cloudsnorkel/cdk-github-runners'
+
+const logOptions: LogOptions = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions.property.includeExecutionData">includeExecutionData</a></code> | <code>boolean</code> | Determines whether execution data is included in your log. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions.property.level">level</a></code> | <code>aws-cdk-lib.aws_stepfunctions.LogLevel</code> | Defines which category of execution history events are logged. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions.property.logGroupName">logGroupName</a></code> | <code>string</code> | The log group where the execution history events will be logged. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
+
+---
+
+##### `includeExecutionData`<sup>Optional</sup> <a name="includeExecutionData" id="@cloudsnorkel/cdk-github-runners.LogOptions.property.includeExecutionData"></a>
+
+```typescript
+public readonly includeExecutionData: boolean;
+```
+
+- *Type:* boolean
+- *Default:* false
+
+Determines whether execution data is included in your log.
+
+---
+
+##### `level`<sup>Optional</sup> <a name="level" id="@cloudsnorkel/cdk-github-runners.LogOptions.property.level"></a>
+
+```typescript
+public readonly level: LogLevel;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.LogLevel
+- *Default:* ERROR
+
+Defines which category of execution history events are logged.
+
+---
+
+##### `logGroupName`<sup>Optional</sup> <a name="logGroupName" id="@cloudsnorkel/cdk-github-runners.LogOptions.property.logGroupName"></a>
+
+```typescript
+public readonly logGroupName: string;
+```
+
+- *Type:* string
+
+The log group where the execution history events will be logged.
+
+---
+
+##### `logRetention`<sup>Optional</sup> <a name="logRetention" id="@cloudsnorkel/cdk-github-runners.LogOptions.property.logRetention"></a>
+
+```typescript
+public readonly logRetention: RetentionDays;
+```
+
+- *Type:* aws-cdk-lib.aws_logs.RetentionDays
+- *Default:* logs.RetentionDays.ONE_MONTH
+
+The number of days log events are kept in CloudWatch Logs.
+
+When updating
+this property, unsetting it doesn't remove the log retention policy. To
+remove the retention policy, set the value to `INFINITE`.
 
 ---
 
