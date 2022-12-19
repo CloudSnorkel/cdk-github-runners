@@ -2774,6 +2774,7 @@ const codeBuildRunnerProps: CodeBuildRunnerProps = { ... }
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Image builder for CodeBuild image with GitHub runner pre-configured. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
@@ -2814,6 +2815,22 @@ public readonly computeType: ComputeType;
 The type of compute to use for this build.
 
 See the {@link ComputeType} enum for the possible values.
+
+---
+
+##### `dockerInDocker`<sup>Optional</sup> <a name="dockerInDocker" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.dockerInDocker"></a>
+
+```typescript
+public readonly dockerInDocker: boolean;
+```
+
+- *Type:* boolean
+- *Default:* true
+
+Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode.
+
+Disabling this can
+speed up provisioning of CodeBuild runners. If you don't intend on running or building Docker images, disable this for faster start-up times.
 
 ---
 
