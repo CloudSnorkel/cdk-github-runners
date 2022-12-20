@@ -66,8 +66,8 @@ async function generateProvidersStatus(stack: string, logicalId: string) {
         LaunchTemplateId: p.ami.launchTemplate,
         Versions: ['$Default'],
       }).promise();
-      if (versions.LaunchTemplateVersions?.length >= 1) {
-        p.ami.latestAmi = versions.LaunchTemplateVersions[0].LaunchTemplateData.ImageId;
+      if (versions.LaunchTemplateVersions && versions.LaunchTemplateVersions.length >= 1) {
+        p.ami.latestAmi = versions.LaunchTemplateVersions[0].LaunchTemplateData?.ImageId;
       }
     }
     return p;
