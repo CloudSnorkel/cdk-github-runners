@@ -169,7 +169,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
   private readonly dind: boolean;
 
   constructor(scope: Construct, id: string, props?: CodeBuildRunnerProps) {
-    super(scope, id);
+    super(scope, id, props);
 
     this.labels = this.labelsFromProperties('codebuild', props?.label, props?.labels);
     this.vpc = props?.vpc;
@@ -294,7 +294,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
    * @param parameters workflow job details
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    return new stepfunctions_tasks.CodeBuildStartBuild(
+    const step = new stepfunctions_tasks.CodeBuildStartBuild(
       this,
       this.labels.join(', '),
       {
@@ -328,6 +328,10 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
         },
       },
     );
+
+    this.addRetry(step, ['CodeBuild.CodeBuildException', 'CodeBuild.AccountLimitExceededException']);
+
+    return step;
   }
 
   grantStateMachine(_: iam.IGrantable) {

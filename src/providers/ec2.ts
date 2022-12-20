@@ -238,7 +238,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
   private readonly securityGroups: ec2.ISecurityGroup[];
 
   constructor(scope: Construct, id: string, props?: Ec2RunnerProps) {
-    super(scope, id);
+    super(scope, id, props);
 
     this.labels = props?.labels ?? ['ec2'];
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'Default VPC', { isDefault: true });
@@ -361,6 +361,8 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
       },
       iamResources: ['*'],
     });
+
+    this.addRetry(run, ['Ec2.Ec2Exception']);
 
     return passUserData.next(run);
   }

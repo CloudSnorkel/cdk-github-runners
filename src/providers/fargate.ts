@@ -279,7 +279,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
   private readonly securityGroups: ec2.ISecurityGroup[];
 
   constructor(scope: Construct, id: string, props?: FargateRunnerProps) {
-    super(scope, id);
+    super(scope, id, props);
 
     this.labels = this.labelsFromProperties('fargate', props?.label, props?.labels);
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
@@ -362,7 +362,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
    * @param parameters workflow job details
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    return new stepfunctions_tasks.EcsRunTask(
+    const task = new stepfunctions_tasks.EcsRunTask(
       this,
       this.labels.join(', '),
       {
@@ -409,6 +409,10 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
         ],
       },
     );
+
+    this.addRetry(task, ['Ecs.EcsException', 'Ecs.LimitExceededException', 'Ecs.UpdateInProgressException']);
+
+    return task;
   }
 
   grantStateMachine(_: iam.IGrantable) {

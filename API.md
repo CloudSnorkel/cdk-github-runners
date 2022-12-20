@@ -2771,6 +2771,7 @@ const codeBuildRunnerProps: CodeBuildRunnerProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Image builder for CodeBuild image with GitHub runner pre-configured. |
@@ -2798,6 +2799,19 @@ The number of days log events are kept in CloudWatch Logs.
 When updating
 this property, unsetting it doesn't remove the log retention policy. To
 remove the retention policy, set the value to `INFINITE`.
+
+---
+
+##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.retryOptions"></a>
+
+```typescript
+public readonly retryOptions: ProviderRetryOptions;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a>
+- *Default:* retry 10 times up to about 45 minutes
+
+Options to retry operation in case of failure like missing capacity, or API quota issues.
 
 ---
 
@@ -3169,6 +3183,7 @@ const ec2RunnerProps: Ec2RunnerProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.amiBuilder">amiBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IAmiBuilder">IAmiBuilder</a></code> | AMI builder that creates AMIs with GitHub runner pre-configured. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.instanceType">instanceType</a></code> | <code>aws-cdk-lib.aws_ec2.InstanceType</code> | Instance type for launched runner instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
@@ -3197,6 +3212,19 @@ The number of days log events are kept in CloudWatch Logs.
 When updating
 this property, unsetting it doesn't remove the log retention policy. To
 remove the retention policy, set the value to `INFINITE`.
+
+---
+
+##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.retryOptions"></a>
+
+```typescript
+public readonly retryOptions: ProviderRetryOptions;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a>
+- *Default:* retry 10 times up to about 45 minutes
+
+Options to retry operation in case of failure like missing capacity, or API quota issues.
 
 ---
 
@@ -3376,6 +3404,7 @@ const fargateRunnerProps: FargateRunnerProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.assignPublicIp">assignPublicIp</a></code> | <code>boolean</code> | Assign public IP to the runner task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_ecs.Cluster</code> | Existing Fargate cluster to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.cpu">cpu</a></code> | <code>number</code> | The number of cpu units used by the task. |
@@ -3406,6 +3435,19 @@ The number of days log events are kept in CloudWatch Logs.
 When updating
 this property, unsetting it doesn't remove the log retention policy. To
 remove the retention policy, set the value to `INFINITE`.
+
+---
+
+##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.retryOptions"></a>
+
+```typescript
+public readonly retryOptions: ProviderRetryOptions;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a>
+- *Default:* retry 10 times up to about 45 minutes
+
+Options to retry operation in case of failure like missing capacity, or API quota issues.
 
 ---
 
@@ -3933,6 +3975,7 @@ const lambdaRunnerProps: LambdaRunnerProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.ephemeralStorageSize">ephemeralStorageSize</a></code> | <code>aws-cdk-lib.Size</code> | The size of the function’s /tmp directory in MiB. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
@@ -3960,6 +4003,19 @@ The number of days log events are kept in CloudWatch Logs.
 When updating
 this property, unsetting it doesn't remove the log retention policy. To
 remove the retention policy, set the value to `INFINITE`.
+
+---
+
+##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.retryOptions"></a>
+
+```typescript
+public readonly retryOptions: ProviderRetryOptions;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a>
+- *Default:* retry 10 times up to about 45 minutes
+
+Options to retry operation in case of failure like missing capacity, or API quota issues.
 
 ---
 
@@ -4190,6 +4246,87 @@ remove the retention policy, set the value to `INFINITE`.
 
 ---
 
+### ProviderRetryOptions <a name="ProviderRetryOptions" id="@cloudsnorkel/cdk-github-runners.ProviderRetryOptions"></a>
+
+Retry options for providers.
+
+The default is to retry 10 times for about 45 minutes with increasing interval.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.Initializer"></a>
+
+```typescript
+import { ProviderRetryOptions } from '@cloudsnorkel/cdk-github-runners'
+
+const providerRetryOptions: ProviderRetryOptions = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.backoffRate">backoffRate</a></code> | <code>number</code> | Multiplication for how much longer the wait interval gets on every retry. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.interval">interval</a></code> | <code>aws-cdk-lib.Duration</code> | How much time to wait after first retryable failure. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.maxAttempts">maxAttempts</a></code> | <code>number</code> | How many times to retry. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.retry">retry</a></code> | <code>boolean</code> | Set to true to retry provider on supported failures. |
+
+---
+
+##### `backoffRate`<sup>Optional</sup> <a name="backoffRate" id="@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.backoffRate"></a>
+
+```typescript
+public readonly backoffRate: number;
+```
+
+- *Type:* number
+- *Default:* 1.3
+
+Multiplication for how much longer the wait interval gets on every retry.
+
+---
+
+##### `interval`<sup>Optional</sup> <a name="interval" id="@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.interval"></a>
+
+```typescript
+public readonly interval: Duration;
+```
+
+- *Type:* aws-cdk-lib.Duration
+- *Default:* 1 minute
+
+How much time to wait after first retryable failure.
+
+This interval will be multiplied by {@link backoffRate} each retry.
+
+---
+
+##### `maxAttempts`<sup>Optional</sup> <a name="maxAttempts" id="@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.maxAttempts"></a>
+
+```typescript
+public readonly maxAttempts: number;
+```
+
+- *Type:* number
+- *Default:* 10
+
+How many times to retry.
+
+---
+
+##### `retry`<sup>Optional</sup> <a name="retry" id="@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.retry"></a>
+
+```typescript
+public readonly retry: boolean;
+```
+
+- *Type:* boolean
+- *Default:* true
+
+Set to true to retry provider on supported failures.
+
+Which failures generate a retry depends on the specific provider.
+
+---
+
 ### RunnerAmi <a name="RunnerAmi" id="@cloudsnorkel/cdk-github-runners.RunnerAmi"></a>
 
 Description of a AMI built by {@link IAmiBuilder}.
@@ -4388,6 +4525,7 @@ const runnerProviderProps: RunnerProviderProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
 
 ---
 
@@ -4405,6 +4543,19 @@ The number of days log events are kept in CloudWatch Logs.
 When updating
 this property, unsetting it doesn't remove the log retention policy. To
 remove the retention policy, set the value to `INFINITE`.
+
+---
+
+##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.RunnerProviderProps.property.retryOptions"></a>
+
+```typescript
+public readonly retryOptions: ProviderRetryOptions;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a>
+- *Default:* retry 10 times up to about 45 minutes
+
+Options to retry operation in case of failure like missing capacity, or API quota issues.
 
 ---
 

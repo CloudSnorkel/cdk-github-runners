@@ -1,4 +1,4 @@
-import { aws_ec2 as ec2, aws_ecr as ecr, aws_iam as iam, aws_logs as logs, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_ecr as ecr, aws_iam as iam, aws_logs as logs, aws_stepfunctions as stepfunctions, Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 /**
@@ -245,6 +245,39 @@ export interface IAmiBuilder {
 }
 
 /**
+ * Retry options for providers. The default is to retry 10 times for about 45 minutes with increasing interval.
+ */
+export interface ProviderRetryOptions {
+  /**
+   * Set to true to retry provider on supported failures. Which failures generate a retry depends on the specific provider.
+   *
+   * @default true
+   */
+  readonly retry?: boolean;
+
+  /**
+   * How much time to wait after first retryable failure. This interval will be multiplied by {@link backoffRate} each retry.
+   *
+   * @default 1 minute
+   */
+  readonly interval?: Duration;
+
+  /**
+   * How many times to retry.
+   *
+   * @default 10
+   */
+  readonly maxAttempts?: number;
+
+  /**
+   * Multiplication for how much longer the wait interval gets on every retry.
+   *
+   * @default 1.3
+   */
+  readonly backoffRate?: number;
+}
+
+/**
  * Common properties for all runner providers.
  */
 export interface RunnerProviderProps {
@@ -256,6 +289,13 @@ export interface RunnerProviderProps {
    * @default logs.RetentionDays.ONE_MONTH
    */
   readonly logRetention?: logs.RetentionDays;
+
+  /**
+   * Options to retry operation in case of failure like missing capacity, or API quota issues.
+   *
+   * @default retry 10 times up to about 45 minutes
+   */
+  readonly retryOptions?: ProviderRetryOptions;
 }
 
 /**
@@ -413,6 +453,13 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
  * @internal
  */
 export abstract class BaseProvider extends Construct {
+  private readonly retryOptions?: ProviderRetryOptions;
+
+  protected constructor(scope: Construct, id: string, props?: RunnerProviderProps) {
+    super(scope, id);
+    this.retryOptions = props?.retryOptions;
+  }
+
   protected labelsFromProperties(defaultLabel: string, propsLabel: string | undefined, propsLabels: string[] | undefined): string[] {
     if (propsLabels && propsLabel) {
       throw new Error('Must supply either `label` or `labels` in runner properties, but not both. Try removing the `label` property.');
@@ -425,5 +472,16 @@ export abstract class BaseProvider extends Construct {
       return [propsLabel];
     }
     return [defaultLabel];
+  }
+
+  protected addRetry(task: stepfunctions.TaskStateBase, errors: string[]) {
+    if (this.retryOptions?.retry ?? true) {
+      task.addRetry({
+        errors,
+        interval: this.retryOptions?.interval ?? Duration.minutes(1),
+        maxAttempts: this.retryOptions?.maxAttempts ?? 10,
+        backoffRate: this.retryOptions?.backoffRate ?? 1.3,
+      });
+    }
   }
 }
