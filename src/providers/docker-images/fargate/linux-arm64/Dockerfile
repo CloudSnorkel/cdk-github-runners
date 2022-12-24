@@ -18,6 +18,9 @@ RUN if [ -f /tmp/certs/certs.pem ]; then cp /tmp/certs/certs.pem /usr/local/shar
 # add latest git
 RUN add-apt-repository ppa:git-core/ppa && apt update && apt-get install -y git
 
+ARG EXTRA_INSTALL_COMMANDS="echo 'no extra install commands'"
+RUN bash -c "${EXTRA_INSTALL_COMMANDS}"
+
 # add awscli
 RUN curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o awscliv2.zip && \
     unzip -q awscliv2.zip && ./aws/install && rm -rf awscliv2.zip aws
@@ -43,3 +46,5 @@ RUN if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_VERSION=`curl  -w "%{redi
 # configure runner
 USER runner
 
+ARG EXTRA_COMMANDS="echo 'no extra commands'"
+RUN bash -c "${EXTRA_COMMANDS}"

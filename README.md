@@ -123,6 +123,8 @@ const myBuilder = new CodeBuildImageBuilder(this, 'image builder', {
   rebuildInterval: Duration.days(14),    
 });
 myBuilder.setBuildArg('EXTRA_PACKAGES', 'nginx xz-utils');
+myBuilder.setBuildArg('EXTRA_INSTALL_COMMANDS', 'curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && apt-get install -y nodejs');
+myBuilder.setBuildArg('EXTRA_COMMANDS', `echo ${dockerPassword} | docker login --username ${dockerUser} --password-stdin`);
 
 const myProvider = new FargateRunner(this, 'fargate runner', {
   label: 'customized-fargate',

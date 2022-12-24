@@ -124,6 +124,8 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
+   * * `EXTRA_INSTALL_COMMANDS` can be used to install additional packages via shell.
+   * * `EXTRA_COMMANDS` can be used to apply additional configuration via shell.
    * * `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stable"`.
    * * `DIND_COMMIT` overrides the commit where dind is found.
    * * `DOCKER_VERSION` overrides the installed Docker version.
@@ -136,7 +138,8 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
    *
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
-   * * `EXTRA_PACKAGES` can be used to install additional packages.
+   * * `EXTRA_INSTALL_COMMANDS` can be used to install additional packages via shell.
+   * * `EXTRA_COMMANDS` can be used to apply additional configuration via shell.
    * * `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stable"`.
    * * `DIND_COMMIT` overrides the commit where dind is found.
    * * `DOCKER_VERSION` overrides the installed Docker version.

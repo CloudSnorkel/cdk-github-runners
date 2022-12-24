@@ -13,6 +13,9 @@ RUN if [ -f /tmp/certs/certs.pem ]; then cp /tmp/certs/certs.pem /etc/pki/ca-tru
 ARG EXTRA_PACKAGES=""
 RUN yum update -y && yum install -y jq tar gzip bzip2 which binutils git zip unzip $EXTRA_PACKAGES
 
+ARG EXTRA_INSTALL_COMMANDS="echo 'no extra install commands'"
+RUN bash -c "${EXTRA_INSTALL_COMMANDS}"
+
 # add awscli
 RUN curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o awscliv2.zip && \
     unzip -q awscliv2.zip && ./aws/install && rm -rf awscliv2.zip aws
@@ -30,6 +33,9 @@ RUN if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_VERSION=`curl  -w "%{redi
     rm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz && \
     yum install -y openssl-libs krb5-libs zlib libicu60
 # doesn't work on CentOS - RUN ./bin/installdependencies.sh
+
+ARG EXTRA_COMMANDS="echo 'no extra commands'"
+RUN bash -c "${EXTRA_COMMANDS}"
 
 # prepare for execution
 WORKDIR ${LAMBDA_TASK_ROOT}

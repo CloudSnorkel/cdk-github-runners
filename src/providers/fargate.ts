@@ -209,6 +209,8 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
+   * * `EXTRA_INSTALL_COMMANDS` can be used to install additional packages via shell.
+   * * `EXTRA_COMMANDS` can be used to apply additional configuration via shell.
    */
   public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'fargate', 'linux-x64');
 
@@ -218,6 +220,8 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
+   * * `EXTRA_INSTALL_COMMANDS` can be used to install additional packages via shell.
+   * * `EXTRA_COMMANDS` can be used to apply additional configuration via shell.
    */
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'fargate', 'linux-arm64');
 
