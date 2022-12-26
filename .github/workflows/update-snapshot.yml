@@ -43,7 +43,8 @@ jobs:
         working-directory: test/default.integ.snapshot
         continue-on-error: true
         run: |-
-          git diff -U0 | grep -Po '(?<="path": ")[^"]*' | xargs -rL 2 diff -ruN > assets.diff
+          git diff -U0 | grep '"path":' | cut -d '"' -f 4 | xargs -rL 2 diff -ruN > assets.diff
+          git update-index --skip-worktree assets.diff
       - name: Upload snapshot
         if: steps.create_patch.outputs.patch_created
         uses: actions/upload-artifact@v3
