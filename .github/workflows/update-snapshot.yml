@@ -40,10 +40,9 @@ jobs:
       # upload snapshot (including assets from both main and branch) for easy diffing
       - name: Diff
         if: steps.create_patch.outputs.patch_created
+        working-directory: test/default.integ.snapshot
         run: |-
-          pushd test/default.integ.snapshot
           git diff -U0 | grep -Po '(?<="path": ")[^"]*' | xargs -L 2 diff -ruN > assets.diff
-          popd
       - name: Upload snapshot
         if: steps.create_patch.outputs.patch_created
         uses: actions/upload-artifact@v3
