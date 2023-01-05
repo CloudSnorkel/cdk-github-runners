@@ -42,6 +42,8 @@ export class LinuxUbuntuComponents {
         'set -ex',
         'addgroup runner',
         'adduser --system --disabled-password --home /home/runner --ingroup runner runner',
+        'usermod -aG sudo runner',
+        'echo "%sudo   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner',
       ],
     });
   }
