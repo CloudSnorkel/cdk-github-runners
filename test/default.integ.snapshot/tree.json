@@ -3701,7 +3701,7 @@
                         "version": {
                           "Ref": "AMILinuxBuilderUserVersion6E8E8CF9"
                         },
-                        "data": "{\"name\":\"GitHub Runner user\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"addgroup runner\",\"adduser --system --disabled-password --home /home/runner --ingroup runner runner\"]}}]}]}",
+                        "data": "{\"name\":\"GitHub Runner user\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"addgroup runner\",\"adduser --system --disabled-password --home /home/runner --ingroup runner runner\",\"usermod -aG sudo runner\",\"echo \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\"]}}]}]}",
                         "description": "Install latest version of AWS CLI"
                       }
                     },
@@ -11236,7 +11236,7 @@
                         "version": {
                           "Ref": "AMILinuxarm64BuilderUserVersion39FD60DE"
                         },
-                        "data": "{\"name\":\"GitHub Runner user\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"addgroup runner\",\"adduser --system --disabled-password --home /home/runner --ingroup runner runner\"]}}]}]}",
+                        "data": "{\"name\":\"GitHub Runner user\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"addgroup runner\",\"adduser --system --disabled-password --home /home/runner --ingroup runner runner\",\"usermod -aG sudo runner\",\"echo \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\"]}}]}]}",
                         "description": "Install latest version of AWS CLI"
                       }
                     },

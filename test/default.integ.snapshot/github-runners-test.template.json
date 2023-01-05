@@ -2699,7 +2699,9 @@
            "commands": [
             "set -ex",
             "addgroup runner",
-            "adduser --system --disabled-password --home /home/runner --ingroup runner runner"
+            "adduser --system --disabled-password --home /home/runner --ingroup runner runner",
+            "usermod -aG sudo runner",
+            "echo \"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\" > /etc/sudoers.d/runner"
            ]
           }
          }
@@ -2721,7 +2723,7 @@
     "Version": {
      "Ref": "AMILinuxBuilderUserVersion6E8E8CF9"
     },
-    "Data": "{\"name\":\"GitHub Runner user\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"addgroup runner\",\"adduser --system --disabled-password --home /home/runner --ingroup runner runner\"]}}]}]}",
+    "Data": "{\"name\":\"GitHub Runner user\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"addgroup runner\",\"adduser --system --disabled-password --home /home/runner --ingroup runner runner\",\"usermod -aG sudo runner\",\"echo \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\"]}}]}]}",
     "Description": "Install latest version of AWS CLI"
    }
   },
@@ -8037,7 +8039,9 @@
            "commands": [
             "set -ex",
             "addgroup runner",
-            "adduser --system --disabled-password --home /home/runner --ingroup runner runner"
+            "adduser --system --disabled-password --home /home/runner --ingroup runner runner",
+            "usermod -aG sudo runner",
+            "echo \"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\" > /etc/sudoers.d/runner"
            ]
           }
          }
@@ -8059,7 +8063,7 @@
     "Version": {
      "Ref": "AMILinuxarm64BuilderUserVersion39FD60DE"
     },
-    "Data": "{\"name\":\"GitHub Runner user\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"addgroup runner\",\"adduser --system --disabled-password --home /home/runner --ingroup runner runner\"]}}]}]}",
+    "Data": "{\"name\":\"GitHub Runner user\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"addgroup runner\",\"adduser --system --disabled-password --home /home/runner --ingroup runner runner\",\"usermod -aG sudo runner\",\"echo \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\"]}}]}]}",
     "Description": "Install latest version of AWS CLI"
    }
   },
