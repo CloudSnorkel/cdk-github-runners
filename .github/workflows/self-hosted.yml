@@ -132,7 +132,6 @@ jobs:
             Write-Host "Expected RUNNER_ARCH to be ${{ matrix.arch }} but it's $Env:RUNNER_ARCH"
             exit 1
           }
-      - run: ls
       - name: Checkout
         uses: actions/checkout@v3
       - run: ls
