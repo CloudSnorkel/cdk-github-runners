@@ -16,46 +16,57 @@ jobs:
             arch: X64
             runs-on: [self-hosted, linux, X64, codebuild-x64]
             docker: true
+            sudo: true
           - os: linux
             arch: ARM64
             runs-on: [self-hosted, linux, codebuild, arm64]
             docker: true
+            sudo: true
           - os: linux
             arch: X64
             runs-on: [self-hosted, linux, lambda, x64]
             docker: false
+            sudo: false
           - os: linux
             arch: ARM64
             runs-on: [self-hosted, linux, lambda, arm64]
             docker: false
+            sudo: false
           - os: linux
             arch: X64
             runs-on: [self-hosted, linux, fargate, x64]
             docker: false
+            sudo: true
           - os: linux
             arch: ARM64
             runs-on: [self-hosted, linux, fargate, arm64]
             docker: false
+            sudo: true
           - os: linux
             arch: X64
             runs-on: [self-hosted, linux, fargate-spot, x64]
             docker: false
+            sudo: true
           - os: linux
             arch: ARM64
             runs-on: [self-hosted, linux, fargate-spot, arm64]
             docker: false
+            sudo: true
           - os: linux
             arch: X64
             runs-on: [self-hosted, linux, ec2, x64]
             docker: true
+            sudo: true
           - os: linux
             arch: X64
             runs-on: [self-hosted, linux, ec2-spot, x64]
             docker: true
+            sudo: true
           - os: linux
             arch: ARM64
             runs-on: [self-hosted, linux, ec2, arm64]
             docker: true
+            sudo: true
 
     runs-on: ${{ matrix.runs-on }}
     steps:
@@ -67,6 +78,8 @@ jobs:
             exit 1
           fi
       - run: ls -lah
+      - run: sudo ls -lah
+        if: ${{ matrix.sudo }}
       - name: Checkout
         uses: actions/checkout@v3
       - run: ls -lah
