@@ -62,6 +62,8 @@ export class WindowsComponents {
         '$LatestUrl = Get-Content $Env:TEMP\\latest-git',
         '$GIT_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
         '$GIT_VERSION_SHORT = ($GIT_VERSION -Split \'.windows.\')[0]',
+        '$GIT_REVISION = ($GIT_VERSION -Split \'.windows.\')[1]',
+        'If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = "$GIT_VERSION_SHORT.$GIT_REVISION"}',
         'Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe',
         'Start-Process git-setup.exe -Wait -ArgumentList \'/VERYSILENT\'',
         'del git-setup.exe',
