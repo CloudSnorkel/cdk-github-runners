@@ -234,7 +234,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
   private readonly spot: boolean;
   private readonly spotMaxPrice: string | undefined;
   private readonly vpc: ec2.IVpc;
-  private readonly subnet?: ec2.ISubnet;
+  private readonly subnets: ec2.ISubnet[];
   private readonly securityGroups: ec2.ISecurityGroup[];
 
   constructor(scope: Construct, id: string, props?: Ec2RunnerProps) {
@@ -243,7 +243,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
     this.labels = props?.labels ?? ['ec2'];
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'Default VPC', { isDefault: true });
     this.securityGroups = props?.securityGroup ? [props.securityGroup] : (props?.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })]);
-    this.subnet = props?.subnet ?? this.vpc.selectSubnets(props?.subnetSelection).subnets[0];
+    this.subnets = props?.subnet ? [props.subnet] : this.vpc.selectSubnets(props?.subnetSelection).subnets;
     this.instanceType = props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
     this.storageSize = props?.storageSize ?? cdk.Size.gibibytes(30); // 30 is the minimum for Windows
     this.spot = props?.spot ?? false;
@@ -312,59 +312,90 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
       resultPath: stepfunctions.JsonPath.stringAt('$.ec2'),
     });
 
+    // we use ec2:RunInstances because we must
     // we can't use fleets because they don't let us override user data, security groups or even disk size
     // we can't use requestSpotInstances because it doesn't support launch templates, and it's deprecated
+    // ec2:RunInstances also seemed like the only one to immediately return an error when spot capacity is not available
 
-    const run = new stepfunctions_tasks.CallAwsService(this, this.labels.join(', '), {
-      integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-      service: 'ec2',
-      action: 'runInstances',
-      heartbeat: Duration.minutes(5),
-      parameters: {
-        LaunchTemplate: {
-          LaunchTemplateId: this.ami.launchTemplate.launchTemplateId,
-        },
-        MinCount: 1,
-        MaxCount: 1,
-        InstanceType: this.instanceType.toString(),
-        UserData: stepfunctions.JsonPath.base64Encode(
-          stepfunctions.JsonPath.format(
-            stepfunctions.JsonPath.stringAt('$.ec2.userdataTemplate'),
-            ...params,
+    // we build a complicated chain of states here because ec2:RunInstances can only try one subnet at a time
+    // if someone can figure out a good way to use Map for this, please open a PR
+
+    // build a state for each subnet we want to try
+    const instanceProfile = new iam.CfnInstanceProfile(this, 'Instance Profile', {
+      roles: [this.role.roleName],
+    });
+    const subnetRunners = this.subnets.map(subnet => {
+      return new stepfunctions_tasks.CallAwsService(this, `${this.labels.join(', ')} ${subnet.subnetId}`, {
+        integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+        service: 'ec2',
+        action: 'runInstances',
+        heartbeat: Duration.minutes(5),
+        parameters: {
+          LaunchTemplate: {
+            LaunchTemplateId: this.ami.launchTemplate.launchTemplateId,
+          },
+          MinCount: 1,
+          MaxCount: 1,
+          InstanceType: this.instanceType.toString(),
+          UserData: stepfunctions.JsonPath.base64Encode(
+            stepfunctions.JsonPath.format(
+              stepfunctions.JsonPath.stringAt('$.ec2.userdataTemplate'),
+              ...params,
+            ),
           ),
-        ),
-        InstanceInitiatedShutdownBehavior: ec2.InstanceInitiatedShutdownBehavior.TERMINATE,
-        IamInstanceProfile: {
-          Arn: new iam.CfnInstanceProfile(this, 'Instance Profile', {
-            roles: [this.role.roleName],
-          }).attrArn,
-        },
-        MetadataOptions: {
-          HttpTokens: 'required',
-        },
-        SecurityGroupIds: this.securityGroups.map(sg => sg.securityGroupId),
-        SubnetId: this.subnet?.subnetId,
-        BlockDeviceMappings: [{
-          DeviceName: '/dev/sda1',
-          Ebs: {
-            DeleteOnTermination: true,
-            VolumeSize: this.storageSize.toGibibytes(),
+          InstanceInitiatedShutdownBehavior: ec2.InstanceInitiatedShutdownBehavior.TERMINATE,
+          IamInstanceProfile: {
+            Arn: instanceProfile.attrArn,
           },
-        }],
-        InstanceMarketOptions: this.spot ? {
-          MarketType: 'spot',
-          SpotOptions: {
-            MaxPrice: this.spotMaxPrice,
-            SpotInstanceType: 'one-time',
+          MetadataOptions: {
+            HttpTokens: 'required',
           },
-        } : undefined,
-      },
-      iamResources: ['*'],
+          SecurityGroupIds: this.securityGroups.map(sg => sg.securityGroupId),
+          SubnetId: subnet.subnetId,
+          BlockDeviceMappings: [{
+            DeviceName: '/dev/sda1',
+            Ebs: {
+              DeleteOnTermination: true,
+              VolumeSize: this.storageSize.toGibibytes(),
+            },
+          }],
+          InstanceMarketOptions: this.spot ? {
+            MarketType: 'spot',
+            SpotOptions: {
+              MaxPrice: this.spotMaxPrice,
+              SpotInstanceType: 'one-time',
+            },
+          } : undefined,
+        },
+        iamResources: ['*'],
+      });
     });
 
-    this.addRetry(run, ['Ec2.Ec2Exception']);
+    // use Parallel, so we can easily retry this whole block on failure (only 1 branch)
+    const subnetIterator = new stepfunctions.Parallel(this, `${this.labels.join(', ')} subnet iterator`);
 
-    return passUserData.next(run);
+    // start with the first subnet
+    subnetIterator.branch(subnetRunners[0]);
+
+    // chain up the rest of the subnets
+    for (let i = 1; i < subnetRunners.length; i++) {
+      subnetRunners[i-1].addCatch(subnetRunners[i], {
+        errors: ['Ec2.Ec2Exception'],
+        resultPath: stepfunctions.JsonPath.stringAt('$.lastSubnetError'),
+      });
+    }
+
+    // jump to the end state of the Parallel block when execution a runner succeeds
+    const subnetIterationDone = new stepfunctions.Succeed(this, `${this.labels.join(', ')} success`);
+    for (const runner of subnetRunners) {
+      runner.next(subnetIterationDone);
+    }
+
+    // retry the whole Parallel block if (only the last state) failed with an Ec2Exception or timed out
+    this.addRetry(subnetIterator, ['Ec2.Ec2Exception']);
+
+    // return Parallel block
+    return passUserData.next(subnetIterator);
   }
 
   grantStateMachine(stateMachineRole: iam.IGrantable) {

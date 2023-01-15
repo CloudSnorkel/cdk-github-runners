@@ -474,7 +474,7 @@ export abstract class BaseProvider extends Construct {
     return [defaultLabel];
   }
 
-  protected addRetry(task: stepfunctions.TaskStateBase, errors: string[]) {
+  protected addRetry(task: stepfunctions.TaskStateBase | stepfunctions.Parallel, errors: string[]) {
     if (this.retryOptions?.retry ?? true) {
       task.addRetry({
         errors,
