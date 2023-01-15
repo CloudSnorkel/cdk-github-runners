@@ -329,7 +329,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
         integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         service: 'ec2',
         action: 'runInstances',
-        heartbeat: Duration.minutes(5),
+        heartbeat: Duration.minutes(10),
         parameters: {
           LaunchTemplate: {
             LaunchTemplateId: this.ami.launchTemplate.launchTemplateId,
@@ -380,7 +380,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
     // chain up the rest of the subnets
     for (let i = 1; i < subnetRunners.length; i++) {
       subnetRunners[i-1].addCatch(subnetRunners[i], {
-        errors: ['Ec2.Ec2Exception'],
+        errors: ['Ec2.Ec2Exception', 'States.Timeout'],
         resultPath: stepfunctions.JsonPath.stringAt('$.lastSubnetError'),
       });
     }
@@ -392,7 +392,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
     }
 
     // retry the whole Parallel block if (only the last state) failed with an Ec2Exception or timed out
-    this.addRetry(subnetIterator, ['Ec2.Ec2Exception']);
+    this.addRetry(subnetIterator, ['Ec2.Ec2Exception', 'States.Timeout']);
 
     // return Parallel block
     return passUserData.next(subnetIterator);
