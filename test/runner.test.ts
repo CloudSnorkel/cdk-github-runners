@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
-import { Match, Template } from 'aws-cdk-lib/assertions';
-import { GitHubRunners } from '../src';
+import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
+import { CodeBuildRunner, GitHubRunners } from '../src';
 
 let app: cdk.App;
 let stack: cdk.Stack;
@@ -29,5 +29,56 @@ describe('GitHubRunners', () => {
         RetentionInDays: 1,
       }),
     );
+  });
+
+  test('Intersecting labels warning', () => {
+    new GitHubRunners(stack, 'runners', {
+      providers: [
+        new CodeBuildRunner(stack, 'p1', {
+          labels: ['a'],
+        }),
+        new CodeBuildRunner(stack, 'p2', {
+          labels: ['a', 'b'],
+        }),
+        new CodeBuildRunner(stack, 'p3', {
+          labels: ['c'],
+        }),
+        new CodeBuildRunner(stack, 'p4', {
+          labels: ['b'],
+        }),
+      ],
+    });
+
+    Annotations.fromStack(stack).hasWarning(
+      '/test/p1',
+      Match.stringLikeRegexp('Labels \\[a\\] intersect with another provider \\(test/p2 -- \\[a, b\\]\\).*'),
+    );
+    Annotations.fromStack(stack).hasNoWarning(
+      '/test/p2',
+      Match.anyValue(),
+    );
+    Annotations.fromStack(stack).hasNoWarning(
+      '/test/p3',
+      Match.anyValue(),
+    );
+    Annotations.fromStack(stack).hasWarning(
+      '/test/p4',
+      Match.stringLikeRegexp('Labels \\[b\\] intersect with another provider \\(test/p2 -- \\[a, b\\]\\).*'),
+    );
+  });
+
+  test('Duplicate labels error', () => {
+    expect(() => {
+      new GitHubRunners(stack, 'runners', {
+        providers: [
+          new CodeBuildRunner(stack, 'p1', {
+            labels: ['a'],
+          }),
+          new CodeBuildRunner(stack, 'p2', {
+            labels: ['a'],
+          }),
+        ],
+      });
+    }).toThrow('Both test/p1 and test/p2 use the same labels [a]');
   });
 });

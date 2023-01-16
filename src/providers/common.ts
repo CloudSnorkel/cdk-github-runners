@@ -1,5 +1,5 @@
 import { aws_ec2 as ec2, aws_ecr as ecr, aws_iam as iam, aws_logs as logs, aws_stepfunctions as stepfunctions, Duration } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
+import { Construct, IConstruct } from 'constructs';
 
 /**
  * Defines desired GitHub Actions runner version.
@@ -412,7 +412,7 @@ export interface IRunnerProviderStatus {
 /**
  * Interface for all runner providers. Implementations create all required resources and return a step function task that starts those resources from {@link getStepFunctionTask}.
  */
-export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable {
+export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, IConstruct {
   /**
    * GitHub Actions labels used for this provider.
    *

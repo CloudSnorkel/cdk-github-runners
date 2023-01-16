@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import {
+  Annotations,
   aws_ec2 as ec2,
   aws_iam as iam,
   aws_lambda as lambda,
@@ -211,6 +212,8 @@ export class GitHubRunners extends Construct {
         new FargateRunner(this, 'Fargate'),
       ];
     }
+
+    this.checkIntersectingLabels();
 
     this.orchestrator = this.stateMachine(props);
     this.webhook = new GithubWebhookHandler(this, 'Webhook Handler', {
@@ -477,5 +480,22 @@ export class GitHubRunners extends Construct {
     this.secrets.setup.grantWrite(setupFunction);
 
     return setupFunction.addFunctionUrl({ authType: FunctionUrlAuthType.NONE }).url;
+  }
+
+  private checkIntersectingLabels() {
+    // this "algorithm" is very inefficient, but good enough for the tiny datasets we expect
+    for (const p1 of this.providers) {
+      for (const p2 of this.providers) {
+        if (p1 == p2) {
+          continue;
+        }
+        if (p1.labels.every(l => p2.labels.includes(l))) {
+          if (p2.labels.every(l => p1.labels.includes(l))) {
+            throw new Error(`Both ${p1.node.path} and ${p2.node.path} use the same labels [${p1.labels.join(', ')}]`);
+          }
+          Annotations.of(p1).addWarning(`Labels [${p1.labels.join(', ')}] intersect with another provider (${p2.node.path} -- [${p2.labels.join(', ')}]). If a workflow specifies the labels [${p1.labels.join(', ')}], it is not guaranteed which provider will be used. It is recommended you do not use intersecting labels`);
+        }
+      }
+    }
   }
 }
