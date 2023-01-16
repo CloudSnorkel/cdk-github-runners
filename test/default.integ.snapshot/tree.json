@@ -10682,17 +10682,17 @@
                   "version": "2.50.0"
                 }
               },
-              "ec2, linux, x64 ${Token[TOKEN.372]}": {
-                "id": "ec2, linux, x64 ${Token[TOKEN.372]}",
-                "path": "github-runners-test/EC2 Linux/ec2, linux, x64 ${Token[TOKEN.372]}",
+              "ec2, linux, x64 subnet1": {
+                "id": "ec2, linux, x64 subnet1",
+                "path": "github-runners-test/EC2 Linux/ec2, linux, x64 subnet1",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
                 }
               },
-              "ec2, linux, x64 ${Token[TOKEN.388]}": {
-                "id": "ec2, linux, x64 ${Token[TOKEN.388]}",
-                "path": "github-runners-test/EC2 Linux/ec2, linux, x64 ${Token[TOKEN.388]}",
+              "ec2, linux, x64 subnet2": {
+                "id": "ec2, linux, x64 subnet2",
+                "path": "github-runners-test/EC2 Linux/ec2, linux, x64 subnet2",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
@@ -11127,17 +11127,17 @@
                   "version": "2.50.0"
                 }
               },
-              "ec2-spot, linux, x64 ${Token[TOKEN.372]}": {
-                "id": "ec2-spot, linux, x64 ${Token[TOKEN.372]}",
-                "path": "github-runners-test/EC2 Spot Linux/ec2-spot, linux, x64 ${Token[TOKEN.372]}",
+              "ec2-spot, linux, x64 subnet1": {
+                "id": "ec2-spot, linux, x64 subnet1",
+                "path": "github-runners-test/EC2 Spot Linux/ec2-spot, linux, x64 subnet1",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
                 }
               },
-              "ec2-spot, linux, x64 ${Token[TOKEN.388]}": {
-                "id": "ec2-spot, linux, x64 ${Token[TOKEN.388]}",
-                "path": "github-runners-test/EC2 Spot Linux/ec2-spot, linux, x64 ${Token[TOKEN.388]}",
+              "ec2-spot, linux, x64 subnet2": {
+                "id": "ec2-spot, linux, x64 subnet2",
+                "path": "github-runners-test/EC2 Spot Linux/ec2-spot, linux, x64 subnet2",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
@@ -12262,17 +12262,17 @@
                   "version": "2.50.0"
                 }
               },
-              "ec2, linux, arm64 ${Token[TOKEN.372]}": {
-                "id": "ec2, linux, arm64 ${Token[TOKEN.372]}",
-                "path": "github-runners-test/EC2 Linux arm64/ec2, linux, arm64 ${Token[TOKEN.372]}",
+              "ec2, linux, arm64 subnet1": {
+                "id": "ec2, linux, arm64 subnet1",
+                "path": "github-runners-test/EC2 Linux arm64/ec2, linux, arm64 subnet1",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
                 }
               },
-              "ec2, linux, arm64 ${Token[TOKEN.388]}": {
-                "id": "ec2, linux, arm64 ${Token[TOKEN.388]}",
-                "path": "github-runners-test/EC2 Linux arm64/ec2, linux, arm64 ${Token[TOKEN.388]}",
+              "ec2, linux, arm64 subnet2": {
+                "id": "ec2, linux, arm64 subnet2",
+                "path": "github-runners-test/EC2 Linux arm64/ec2, linux, arm64 subnet2",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
@@ -13357,17 +13357,17 @@
                   "version": "2.50.0"
                 }
               },
-              "ec2, windows, x64 ${Token[TOKEN.372]}": {
-                "id": "ec2, windows, x64 ${Token[TOKEN.372]}",
-                "path": "github-runners-test/EC2 Windows/ec2, windows, x64 ${Token[TOKEN.372]}",
+              "ec2, windows, x64 subnet1": {
+                "id": "ec2, windows, x64 subnet1",
+                "path": "github-runners-test/EC2 Windows/ec2, windows, x64 subnet1",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
                 }
               },
-              "ec2, windows, x64 ${Token[TOKEN.388]}": {
-                "id": "ec2, windows, x64 ${Token[TOKEN.388]}",
-                "path": "github-runners-test/EC2 Windows/ec2, windows, x64 ${Token[TOKEN.388]}",
+              "ec2, windows, x64 subnet2": {
+                "id": "ec2, windows, x64 subnet2",
+                "path": "github-runners-test/EC2 Windows/ec2, windows, x64 subnet2",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
@@ -15283,19 +15283,11 @@
                                   "GroupId"
                                 ]
                               },
-                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"ec2, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\npoweroff\\n\"},\"Next\":\"ec2, linux, x64 subnet iterator\"},\"ec2, linux, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, linux, x64 ",
+                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"ec2, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\npoweroff\\n\"},\"Next\":\"ec2, linux, x64 subnet iterator\"},\"ec2, linux, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, linux, x64 subnet1\",\"States\":{\"ec2, linux, x64 subnet1\":{\"Next\":\"ec2, linux, x64 success\",\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
                               {
                                 "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                               },
-                              "\",\"States\":{\"ec2, linux, x64 ",
-                              {
-                                "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
-                              },
-                              "\":{\"Next\":\"ec2, linux, x64 success\",\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, x64 ",
-                              {
-                                "Ref": "VpcPublicSubnet2Subnet691E08A3"
-                              },
-                              "\"}],\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+                              "\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -15325,11 +15317,11 @@
                               {
                                 "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                               },
-                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, linux, x64 success\":{\"Type\":\"Succeed\"},\"ec2, linux, x64 ",
+                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, linux, x64 success\":{\"Type\":\"Succeed\"},\"ec2, linux, x64 subnet2\":{\"Next\":\"ec2, linux, x64 success\",\"Type\":\"Task\",\"Comment\":\"",
                               {
                                 "Ref": "VpcPublicSubnet2Subnet691E08A3"
                               },
-                              "\":{\"Next\":\"ec2, linux, x64 success\",\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+                              "\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -15359,19 +15351,11 @@
                               {
                                 "Ref": "VpcPublicSubnet2Subnet691E08A3"
                               },
-                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"ec2-spot, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\npoweroff\\n\"},\"Next\":\"ec2-spot, linux, x64 subnet iterator\"},\"ec2-spot, linux, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2-spot, linux, x64 ",
+                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"ec2-spot, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\npoweroff\\n\"},\"Next\":\"ec2-spot, linux, x64 subnet iterator\"},\"ec2-spot, linux, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2-spot, linux, x64 subnet1\",\"States\":{\"ec2-spot, linux, x64 subnet1\":{\"Next\":\"ec2-spot, linux, x64 success\",\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2-spot, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
                               {
                                 "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                               },
-                              "\",\"States\":{\"ec2-spot, linux, x64 ",
-                              {
-                                "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
-                              },
-                              "\":{\"Next\":\"ec2-spot, linux, x64 success\",\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2-spot, linux, x64 ",
-                              {
-                                "Ref": "VpcPublicSubnet2Subnet691E08A3"
-                              },
-                              "\"}],\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+                              "\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -15401,11 +15385,11 @@
                               {
                                 "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                               },
-                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}},\"ec2-spot, linux, x64 success\":{\"Type\":\"Succeed\"},\"ec2-spot, linux, x64 ",
+                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}},\"ec2-spot, linux, x64 success\":{\"Type\":\"Succeed\"},\"ec2-spot, linux, x64 subnet2\":{\"Next\":\"ec2-spot, linux, x64 success\",\"Type\":\"Task\",\"Comment\":\"",
                               {
                                 "Ref": "VpcPublicSubnet2Subnet691E08A3"
                               },
-                              "\":{\"Next\":\"ec2-spot, linux, x64 success\",\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+                              "\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -15435,19 +15419,11 @@
                               {
                                 "Ref": "VpcPublicSubnet2Subnet691E08A3"
                               },
-                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}}}}]},\"ec2, linux, arm64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\npoweroff\\n\"},\"Next\":\"ec2, linux, arm64 subnet iterator\"},\"ec2, linux, arm64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, linux, arm64 ",
+                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}}}}]},\"ec2, linux, arm64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\npoweroff\\n\"},\"Next\":\"ec2, linux, arm64 subnet iterator\"},\"ec2, linux, arm64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, linux, arm64 subnet1\",\"States\":{\"ec2, linux, arm64 subnet1\":{\"Next\":\"ec2, linux, arm64 success\",\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, arm64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
                               {
                                 "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                               },
-                              "\",\"States\":{\"ec2, linux, arm64 ",
-                              {
-                                "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
-                              },
-                              "\":{\"Next\":\"ec2, linux, arm64 success\",\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, arm64 ",
-                              {
-                                "Ref": "VpcPublicSubnet2Subnet691E08A3"
-                              },
-                              "\"}],\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+                              "\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -15477,11 +15453,11 @@
                               {
                                 "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                               },
-                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, linux, arm64 success\":{\"Type\":\"Succeed\"},\"ec2, linux, arm64 ",
+                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, linux, arm64 success\":{\"Type\":\"Succeed\"},\"ec2, linux, arm64 subnet2\":{\"Next\":\"ec2, linux, arm64 success\",\"Type\":\"Task\",\"Comment\":\"",
                               {
                                 "Ref": "VpcPublicSubnet2Subnet691E08A3"
                               },
-                              "\":{\"Next\":\"ec2, linux, arm64 success\",\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+                              "\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -15511,19 +15487,11 @@
                               {
                                 "Ref": "VpcPublicSubnet2Subnet691E08A3"
                               },
-                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"ec2, windows, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\nStart-Job -ScriptBlock \\\\{\\n  while (1) \\\\{\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    sleep 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  echo '\\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n         \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/actions/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}' | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  ./config.cmd --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}'\\n\\\\} else \\\\{\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\n\\\\}\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"ec2, windows, x64 subnet iterator\"},\"ec2, windows, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, windows, x64 ",
+                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"ec2, windows, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\nStart-Job -ScriptBlock \\\\{\\n  while (1) \\\\{\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    sleep 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  echo '\\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n         \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/actions/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}' | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  ./config.cmd --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}'\\n\\\\} else \\\\{\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\n\\\\}\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"ec2, windows, x64 subnet iterator\"},\"ec2, windows, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, windows, x64 subnet1\",\"States\":{\"ec2, windows, x64 subnet1\":{\"Next\":\"ec2, windows, x64 success\",\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, windows, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
                               {
                                 "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                               },
-                              "\",\"States\":{\"ec2, windows, x64 ",
-                              {
-                                "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
-                              },
-                              "\":{\"Next\":\"ec2, windows, x64 success\",\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, windows, x64 ",
-                              {
-                                "Ref": "VpcPublicSubnet2Subnet691E08A3"
-                              },
-                              "\"}],\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+                              "\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -15553,11 +15521,11 @@
                               {
                                 "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                               },
-                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, windows, x64 success\":{\"Type\":\"Succeed\"},\"ec2, windows, x64 ",
+                              "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, windows, x64 success\":{\"Type\":\"Succeed\"},\"ec2, windows, x64 subnet2\":{\"Next\":\"ec2, windows, x64 success\",\"Type\":\"Task\",\"Comment\":\"",
                               {
                                 "Ref": "VpcPublicSubnet2Subnet691E08A3"
                               },
-                              "\":{\"Next\":\"ec2, windows, x64 success\",\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+                              "\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
