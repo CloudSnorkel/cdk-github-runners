@@ -167,6 +167,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
   private readonly vpc?: ec2.IVpc;
   private readonly securityGroups?: ec2.ISecurityGroup[];
   private readonly dind: boolean;
+  private readonly logGroup: logs.LogGroup;
 
   constructor(scope: Construct, id: string, props?: CodeBuildRunnerProps) {
     super(scope, id, props);
@@ -253,6 +254,14 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
     }
 
     // create project
+    this.logGroup = new logs.LogGroup(
+      this,
+      'Logs',
+      {
+        retention: props?.logRetention ?? RetentionDays.ONE_MONTH,
+        removalPolicy: RemovalPolicy.DESTROY,
+      },
+    );
     this.project = new codebuild.Project(
       this,
       'CodeBuild',
@@ -270,14 +279,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
         },
         logging: {
           cloudWatch: {
-            logGroup: new logs.LogGroup(
-              this,
-              'Logs',
-              {
-                retention: props?.logRetention ?? RetentionDays.ONE_MONTH,
-                removalPolicy: RemovalPolicy.DESTROY,
-              },
-            ),
+            logGroup: this.logGroup,
           },
         },
       },
@@ -346,6 +348,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
       vpcArn: this.vpc?.vpcArn,
       securityGroups: this.securityGroups?.map(sg => sg.securityGroupId),
       roleArn: this.project.role?.roleArn,
+      logGroup: this.logGroup.logGroupName,
       image: {
         imageRepository: this.image.imageRepository.repositoryUri,
         imageTag: this.image.imageTag,

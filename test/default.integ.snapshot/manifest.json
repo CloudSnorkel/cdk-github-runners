@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/2567c7b432257e53cc7e12fd84f98bda1f5a6b5ba40e1c5f3cec164029a6a85f.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/37a3f3d03466760ad21d19de1fcd95c5f524203082ee0ac5e67f7b06aea6c1fe.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -1035,6 +1035,12 @@
             "data": "FargatesecuritygroupAFCAFD34"
           }
         ],
+        "/github-runners-test/Fargate/logs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargatelogsCB753638"
+          }
+        ],
         "/github-runners-test/Fargate/task/TaskRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1059,16 +1065,16 @@
             "data": "FargatetaskExecutionRoleDefaultPolicy72A5073A"
           }
         ],
-        "/github-runners-test/Fargate/logs/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "FargatelogsCB753638"
-          }
-        ],
         "/github-runners-test/Fargate-x64-spot/security group/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "Fargatex64spotsecuritygroup2A9F4299"
+          }
+        ],
+        "/github-runners-test/Fargate-x64-spot/logs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Fargatex64spotlogs0BCF618B"
           }
         ],
         "/github-runners-test/Fargate-x64-spot/task/TaskRole/Resource": [
@@ -1095,16 +1101,16 @@
             "data": "Fargatex64spottaskExecutionRoleDefaultPolicyA51A696A"
           }
         ],
-        "/github-runners-test/Fargate-x64-spot/logs/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "Fargatex64spotlogs0BCF618B"
-          }
-        ],
         "/github-runners-test/Fargate-arm64/security group/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "Fargatearm64securitygroup08ABAD9E"
+          }
+        ],
+        "/github-runners-test/Fargate-arm64/logs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Fargatearm64logs00171A52"
           }
         ],
         "/github-runners-test/Fargate-arm64/task/TaskRole/Resource": [
@@ -1131,16 +1137,16 @@
             "data": "Fargatearm64taskExecutionRoleDefaultPolicy0E3D42DB"
           }
         ],
-        "/github-runners-test/Fargate-arm64/logs/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "Fargatearm64logs00171A52"
-          }
-        ],
         "/github-runners-test/Fargate-arm64-spot/security group/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "Fargatearm64spotsecuritygroup20C885E4"
+          }
+        ],
+        "/github-runners-test/Fargate-arm64-spot/logs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Fargatearm64spotlogsEFCCEC59"
           }
         ],
         "/github-runners-test/Fargate-arm64-spot/task/TaskRole/Resource": [
@@ -1167,16 +1173,16 @@
             "data": "Fargatearm64spottaskExecutionRoleDefaultPolicyB9BB282A"
           }
         ],
-        "/github-runners-test/Fargate-arm64-spot/logs/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "Fargatearm64spotlogsEFCCEC59"
-          }
-        ],
         "/github-runners-test/Fargate-Windows/security group/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "FargateWindowssecuritygroupE684A7B0"
+          }
+        ],
+        "/github-runners-test/Fargate-Windows/logs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargateWindowslogs52881DBF"
           }
         ],
         "/github-runners-test/Fargate-Windows/task/TaskRole/Resource": [
@@ -1201,12 +1207,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "FargateWindowstaskExecutionRoleDefaultPolicy2EF7D3FD"
-          }
-        ],
-        "/github-runners-test/Fargate-Windows/logs/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "FargateWindowslogs52881DBF"
           }
         ],
         "/github-runners-test/EC2 Linux/SG/Resource": [

@@ -316,6 +316,7 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
       vpcArn: this.vpc?.vpcArn,
       securityGroups: this.securityGroups?.map(sg => sg.securityGroupId),
       roleArn: this.function.role?.roleArn,
+      logGroup: this.function.logGroup.logGroupName,
       image: {
         imageRepository: this.image.imageRepository.repositoryUri,
         imageTag: this.image.imageTag,
