@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2 } from 'aws-cdk-lib';
+import { Match, Template } from 'aws-cdk-lib/assertions';
 import { Architecture, ContainerImageBuilder, Os } from '../src';
 import { AmiBuilder } from '../src/providers/image-builders/ami';
 
@@ -46,6 +47,51 @@ test('AMI builder supported OS', () => {
     instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
     vpc,
   });
+});
+
+test('AMI do not skip docker', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'test');
+
+  const vpc = new ec2.Vpc(stack, 'vpc');
+
+  new AmiBuilder(stack, 'windows', {
+    os: Os.WINDOWS,
+    vpc,
+    installDocker: true,
+  });
+
+  const template = Template.fromStack(stack);
+
+  template.hasResourceProperties(
+    'AWS::ImageBuilder::Component',
+    Match.objectLike({
+      Description: 'Install latest version of Docker',
+    }),
+  );
+});
+
+test('AMI skip docker', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'test');
+
+  const vpc = new ec2.Vpc(stack, 'vpc');
+
+  new AmiBuilder(stack, 'windows', {
+    os: Os.WINDOWS,
+    vpc,
+    installDocker: false,
+  });
+
+  const template = Template.fromStack(stack);
+
+  template.resourcePropertiesCountIs(
+    'AWS::ImageBuilder::Component',
+    Match.objectLike({
+      Description: 'Install latest version of Docker',
+    }),
+    0,
+  );
 });
 
 test('Container image builder supported OS', () => {

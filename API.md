@@ -2379,6 +2379,7 @@ const amiBuilderProps: AmiBuilderProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.architecture">architecture</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a></code> | Image architecture. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.installDocker">installDocker</a></code> | <code>boolean</code> | Install Docker inside the image, so it can be used by the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.instanceType">instanceType</a></code> | <code>aws-cdk-lib.aws_ec2.InstanceType</code> | The instance type used to build the image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.logRemovalPolicy">logRemovalPolicy</a></code> | <code>aws-cdk-lib.RemovalPolicy</code> | Removal policy for logs of image builds. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
@@ -2402,6 +2403,21 @@ public readonly architecture: Architecture;
 - *Default:* Architecture.X86_64
 
 Image architecture.
+
+---
+
+##### `installDocker`<sup>Optional</sup> <a name="installDocker" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.installDocker"></a>
+
+```typescript
+public readonly installDocker: boolean;
+```
+
+- *Type:* boolean
+- *Default:* true
+
+Install Docker inside the image, so it can be used by the runner.
+
+You may want to disable this if you are building a Windows image and don't have a Docker Desktop license.
 
 ---
 
