@@ -5858,6 +5858,7 @@ Interface for runner image status used by status.json.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.type">type</a></code> | <code>string</code> | Runner provider type. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.ami">ami</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus">IRunnerAmiStatus</a></code> | Details about AMI used by this runner provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageStatus">IRunnerImageStatus</a></code> | Details about Docker image used by this runner provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.logGroup">logGroup</a></code> | <code>string</code> | Log group for runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.roleArn">roleArn</a></code> | <code>string</code> | Role attached to runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.securityGroups">securityGroups</a></code> | <code>string[]</code> | Security groups attached to runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.vpcArn">vpcArn</a></code> | <code>string</code> | VPC where runners will be launched. |
@@ -5909,6 +5910,18 @@ public readonly image: IRunnerImageStatus;
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageStatus">IRunnerImageStatus</a>
 
 Details about Docker image used by this runner provider.
+
+---
+
+##### `logGroup`<sup>Optional</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.logGroup"></a>
+
+```typescript
+public readonly logGroup: string;
+```
+
+- *Type:* string
+
+Log group for runners.
 
 ---
 
