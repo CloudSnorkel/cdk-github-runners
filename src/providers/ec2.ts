@@ -324,8 +324,9 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
     const instanceProfile = new iam.CfnInstanceProfile(this, 'Instance Profile', {
       roles: [this.role.roleName],
     });
-    const subnetRunners = this.subnets.map(subnet => {
-      return new stepfunctions_tasks.CallAwsService(this, `${this.labels.join(', ')} ${subnet.subnetId}`, {
+    const subnetRunners = this.subnets.map((subnet, index) => {
+      return new stepfunctions_tasks.CallAwsService(this, `${this.labels.join(', ')} subnet${index+1}`, {
+        comment: subnet.subnetId,
         integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         service: 'ec2',
         action: 'runInstances',
