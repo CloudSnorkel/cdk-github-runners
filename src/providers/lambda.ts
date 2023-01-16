@@ -12,7 +12,6 @@ import {
 } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
-import { BundledNodejsFunction } from '../utils';
 import {
   Architecture,
   BaseProvider,
@@ -25,6 +24,7 @@ import {
   RunnerRuntimeParameters,
 } from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
+import { BundledNodejsFunction } from '../utils';
 
 export interface LambdaRunnerProps extends RunnerProviderProps {
   /**

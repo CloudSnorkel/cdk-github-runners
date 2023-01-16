@@ -12,11 +12,11 @@ import {
 } from 'aws-cdk-lib';
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { Construct } from 'constructs';
-import { BundledNodejsFunction } from '../../utils';
-import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
 import { ImageBuilderBase, ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
+import { BundledNodejsFunction } from '../../utils';
+import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
 
 const dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
 ENV RUNNER_VERSION=___RUNNER_VERSION___
