@@ -1,7 +1,7 @@
 import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { RunnerVersion } from '../common';
 import { ImageBuilderComponent } from './common';
+import { RunnerVersion } from '../common';
 
 /**
  * Components for Windows that can be used with AWS Image Builder based builders. These cannot be used by {@link CodeBuildImageBuilder}.
