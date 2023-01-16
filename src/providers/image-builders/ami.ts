@@ -106,6 +106,13 @@ export interface AmiBuilderProps {
    * @default RemovalPolicy.DESTROY
    */
   readonly logRemovalPolicy?: RemovalPolicy;
+
+  /**
+   * Install Docker inside the image, so it can be used by the runner. You may want to disable this if you are building a Windows image and don't have a Docker Desktop license.
+   *
+   * @default true
+   */
+  readonly installDocker?: boolean;
 }
 
 /**
@@ -239,29 +246,33 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
 
     // add all basic components
     if (this.os.is(Os.WINDOWS)) {
-      this.addBaseWindowsComponents();
+      this.addBaseWindowsComponents(props?.installDocker ?? true);
     } else if (this.os.is(Os.LINUX)) {
-      this.addBaseLinuxComponents();
+      this.addBaseLinuxComponents(props?.installDocker ?? true);
     }
   }
 
-  private addBaseWindowsComponents() {
+  private addBaseWindowsComponents(installDocker: boolean) {
     this.addComponent(WindowsComponents.cloudwatchAgent(this, 'CloudWatch agent'));
     this.addComponent(WindowsComponents.awsCli(this, 'AWS CLI'));
     this.addComponent(WindowsComponents.githubCli(this, 'GitHub CLI'));
     this.addComponent(WindowsComponents.git(this, 'git'));
     this.addComponent(WindowsComponents.githubRunner(this, 'GitHub Actions Runner', this.runnerVersion));
-    this.addComponent(WindowsComponents.docker(this, 'Docker'));
+    if (installDocker) {
+      this.addComponent(WindowsComponents.docker(this, 'Docker'));
+    }
   }
 
-  private addBaseLinuxComponents() {
+  private addBaseLinuxComponents(installDocker: boolean) {
     this.addComponent(LinuxUbuntuComponents.requiredPackages(this, 'Upgrade packages and install basics', this.architecture));
     this.addComponent(LinuxUbuntuComponents.runnerUser(this, 'User', this.architecture));
     this.addComponent(LinuxUbuntuComponents.awsCli(this, 'AWS CLI', this.architecture));
     this.addComponent(LinuxUbuntuComponents.githubCli(this, 'GitHub CLI', this.architecture));
     this.addComponent(LinuxUbuntuComponents.git(this, 'git', this.architecture));
     this.addComponent(LinuxUbuntuComponents.githubRunner(this, 'GitHub Actions Runner', this.runnerVersion, this.architecture));
-    this.addComponent(LinuxUbuntuComponents.docker(this, 'Docker', this.architecture));
+    if (installDocker) {
+      this.addComponent(LinuxUbuntuComponents.docker(this, 'Docker', this.architecture));
+    }
   }
 
   /**

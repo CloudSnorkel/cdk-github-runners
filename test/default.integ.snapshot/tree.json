@@ -10682,17 +10682,17 @@
                   "version": "2.50.0"
                 }
               },
-              "ec2, linux, x64 ${Token[TOKEN.369]}": {
-                "id": "ec2, linux, x64 ${Token[TOKEN.369]}",
-                "path": "github-runners-test/EC2 Linux/ec2, linux, x64 ${Token[TOKEN.369]}",
+              "ec2, linux, x64 ${Token[TOKEN.370]}": {
+                "id": "ec2, linux, x64 ${Token[TOKEN.370]}",
+                "path": "github-runners-test/EC2 Linux/ec2, linux, x64 ${Token[TOKEN.370]}",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
                 }
               },
-              "ec2, linux, x64 ${Token[TOKEN.385]}": {
-                "id": "ec2, linux, x64 ${Token[TOKEN.385]}",
-                "path": "github-runners-test/EC2 Linux/ec2, linux, x64 ${Token[TOKEN.385]}",
+              "ec2, linux, x64 ${Token[TOKEN.386]}": {
+                "id": "ec2, linux, x64 ${Token[TOKEN.386]}",
+                "path": "github-runners-test/EC2 Linux/ec2, linux, x64 ${Token[TOKEN.386]}",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
@@ -11127,17 +11127,17 @@
                   "version": "2.50.0"
                 }
               },
-              "ec2-spot, linux, x64 ${Token[TOKEN.369]}": {
-                "id": "ec2-spot, linux, x64 ${Token[TOKEN.369]}",
-                "path": "github-runners-test/EC2 Spot Linux/ec2-spot, linux, x64 ${Token[TOKEN.369]}",
+              "ec2-spot, linux, x64 ${Token[TOKEN.370]}": {
+                "id": "ec2-spot, linux, x64 ${Token[TOKEN.370]}",
+                "path": "github-runners-test/EC2 Spot Linux/ec2-spot, linux, x64 ${Token[TOKEN.370]}",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
                 }
               },
-              "ec2-spot, linux, x64 ${Token[TOKEN.385]}": {
-                "id": "ec2-spot, linux, x64 ${Token[TOKEN.385]}",
-                "path": "github-runners-test/EC2 Spot Linux/ec2-spot, linux, x64 ${Token[TOKEN.385]}",
+              "ec2-spot, linux, x64 ${Token[TOKEN.386]}": {
+                "id": "ec2-spot, linux, x64 ${Token[TOKEN.386]}",
+                "path": "github-runners-test/EC2 Spot Linux/ec2-spot, linux, x64 ${Token[TOKEN.386]}",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
@@ -12262,17 +12262,17 @@
                   "version": "2.50.0"
                 }
               },
-              "ec2, linux, arm64 ${Token[TOKEN.369]}": {
-                "id": "ec2, linux, arm64 ${Token[TOKEN.369]}",
-                "path": "github-runners-test/EC2 Linux arm64/ec2, linux, arm64 ${Token[TOKEN.369]}",
+              "ec2, linux, arm64 ${Token[TOKEN.370]}": {
+                "id": "ec2, linux, arm64 ${Token[TOKEN.370]}",
+                "path": "github-runners-test/EC2 Linux arm64/ec2, linux, arm64 ${Token[TOKEN.370]}",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
                 }
               },
-              "ec2, linux, arm64 ${Token[TOKEN.385]}": {
-                "id": "ec2, linux, arm64 ${Token[TOKEN.385]}",
-                "path": "github-runners-test/EC2 Linux arm64/ec2, linux, arm64 ${Token[TOKEN.385]}",
+              "ec2, linux, arm64 ${Token[TOKEN.386]}": {
+                "id": "ec2, linux, arm64 ${Token[TOKEN.386]}",
+                "path": "github-runners-test/EC2 Linux arm64/ec2, linux, arm64 ${Token[TOKEN.386]}",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
@@ -13357,17 +13357,17 @@
                   "version": "2.50.0"
                 }
               },
-              "ec2, windows, x64 ${Token[TOKEN.369]}": {
-                "id": "ec2, windows, x64 ${Token[TOKEN.369]}",
-                "path": "github-runners-test/EC2 Windows/ec2, windows, x64 ${Token[TOKEN.369]}",
+              "ec2, windows, x64 ${Token[TOKEN.370]}": {
+                "id": "ec2, windows, x64 ${Token[TOKEN.370]}",
+                "path": "github-runners-test/EC2 Windows/ec2, windows, x64 ${Token[TOKEN.370]}",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
                 }
               },
-              "ec2, windows, x64 ${Token[TOKEN.385]}": {
-                "id": "ec2, windows, x64 ${Token[TOKEN.385]}",
-                "path": "github-runners-test/EC2 Windows/ec2, windows, x64 ${Token[TOKEN.385]}",
+              "ec2, windows, x64 ${Token[TOKEN.386]}": {
+                "id": "ec2, windows, x64 ${Token[TOKEN.386]}",
+                "path": "github-runners-test/EC2 Windows/ec2, windows, x64 ${Token[TOKEN.386]}",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.CallAwsService",
                   "version": "2.50.0"
