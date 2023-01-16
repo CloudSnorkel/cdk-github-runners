@@ -6567,6 +6567,14 @@
     }
    }
   },
+  "FargatelogsCB753638": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
   "FargatetaskTaskRoleEFFCDAF8": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -6746,14 +6754,6 @@
     ]
    }
   },
-  "FargatelogsCB753638": {
-   "Type": "AWS::Logs::LogGroup",
-   "Properties": {
-    "RetentionInDays": 30
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
   "Fargatex64spotsecuritygroup2A9F4299": {
    "Type": "AWS::EC2::SecurityGroup",
    "Properties": {
@@ -6769,6 +6769,14 @@
      "Ref": "Vpc8378EB38"
     }
    }
+  },
+  "Fargatex64spotlogs0BCF618B": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   },
   "Fargatex64spottaskTaskRole02893C25": {
    "Type": "AWS::IAM::Role",
@@ -6949,14 +6957,6 @@
     ]
    }
   },
-  "Fargatex64spotlogs0BCF618B": {
-   "Type": "AWS::Logs::LogGroup",
-   "Properties": {
-    "RetentionInDays": 30
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
   "Fargatearm64securitygroup08ABAD9E": {
    "Type": "AWS::EC2::SecurityGroup",
    "Properties": {
@@ -6972,6 +6972,14 @@
      "Ref": "Vpc8378EB38"
     }
    }
+  },
+  "Fargatearm64logs00171A52": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   },
   "Fargatearm64taskTaskRoleD3C2CD58": {
    "Type": "AWS::IAM::Role",
@@ -7152,14 +7160,6 @@
     ]
    }
   },
-  "Fargatearm64logs00171A52": {
-   "Type": "AWS::Logs::LogGroup",
-   "Properties": {
-    "RetentionInDays": 30
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
   "Fargatearm64spotsecuritygroup20C885E4": {
    "Type": "AWS::EC2::SecurityGroup",
    "Properties": {
@@ -7175,6 +7175,14 @@
      "Ref": "Vpc8378EB38"
     }
    }
+  },
+  "Fargatearm64spotlogsEFCCEC59": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   },
   "Fargatearm64spottaskTaskRole0F078C81": {
    "Type": "AWS::IAM::Role",
@@ -7355,14 +7363,6 @@
     ]
    }
   },
-  "Fargatearm64spotlogsEFCCEC59": {
-   "Type": "AWS::Logs::LogGroup",
-   "Properties": {
-    "RetentionInDays": 30
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
   "FargateWindowssecuritygroupE684A7B0": {
    "Type": "AWS::EC2::SecurityGroup",
    "Properties": {
@@ -7378,6 +7378,14 @@
      "Ref": "Vpc8378EB38"
     }
    }
+  },
+  "FargateWindowslogs52881DBF": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   },
   "FargateWindowstaskTaskRole364508C8": {
    "Type": "AWS::IAM::Role",
@@ -7597,14 +7605,6 @@
      }
     ]
    }
-  },
-  "FargateWindowslogs52881DBF": {
-   "Type": "AWS::Logs::LogGroup",
-   "Properties": {
-    "RetentionInDays": 30
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
   },
   "EC2LinuxSGF5B89300": {
    "Type": "AWS::EC2::SecurityGroup",
@@ -12302,6 +12302,9 @@
         "Arn"
        ]
       },
+      "logGroup": {
+       "Ref": "CodeBuildx64LogsA21ECD59"
+      },
       "image": {
        "imageRepository": {
         "Fn::Join": [
@@ -12366,6 +12369,9 @@
         "CodeBuildARMCodeBuildRole74DB4985",
         "Arn"
        ]
+      },
+      "logGroup": {
+       "Ref": "CodeBuildARMLogs7C7FC5A7"
       },
       "image": {
        "imageRepository": {
@@ -12432,6 +12438,9 @@
         "Arn"
        ]
       },
+      "logGroup": {
+       "Ref": "CodeBuildWindowsLogsF4DD93A5"
+      },
       "image": {
        "imageRepository": {
         "Fn::Join": [
@@ -12496,6 +12505,12 @@
         "Arn"
        ]
       },
+      "logGroup": {
+       "Fn::GetAtt": [
+        "LambdaFunctionLogRetentionB6D78D6D",
+        "LogGroupName"
+       ]
+      },
       "image": {
        "imageRepository": {
         "Fn::Join": [
@@ -12558,6 +12573,12 @@
        "Fn::GetAtt": [
         "LambdaARMFunctionServiceRole136069A0",
         "Arn"
+       ]
+      },
+      "logGroup": {
+       "Fn::GetAtt": [
+        "LambdaARMFunctionLogRetention67E9FEF8",
+        "LogGroupName"
        ]
       },
       "image": {
@@ -12656,6 +12677,9 @@
         "Arn"
        ]
       },
+      "logGroup": {
+       "Ref": "FargatelogsCB753638"
+      },
       "image": {
        "imageRepository": {
         "Fn::Join": [
@@ -12751,6 +12775,9 @@
         "Fargatex64spottaskTaskRole02893C25",
         "Arn"
        ]
+      },
+      "logGroup": {
+       "Ref": "Fargatex64spotlogs0BCF618B"
       },
       "image": {
        "imageRepository": {
@@ -12848,6 +12875,9 @@
         "Arn"
        ]
       },
+      "logGroup": {
+       "Ref": "Fargatearm64logs00171A52"
+      },
       "image": {
        "imageRepository": {
         "Fn::Join": [
@@ -12943,6 +12973,9 @@
         "Fargatearm64spottaskTaskRole0F078C81",
         "Arn"
        ]
+      },
+      "logGroup": {
+       "Ref": "Fargatearm64spotlogsEFCCEC59"
       },
       "image": {
        "imageRepository": {
@@ -13040,6 +13073,9 @@
         "Arn"
        ]
       },
+      "logGroup": {
+       "Ref": "FargateWindowslogs52881DBF"
+      },
       "image": {
        "imageRepository": {
         "Fn::Join": [
@@ -13113,6 +13149,9 @@
         "Arn"
        ]
       },
+      "logGroup": {
+       "Ref": "EC2LinuxLogsC4CD8F14"
+      },
       "ami": {
        "launchTemplate": {
         "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
@@ -13142,6 +13181,9 @@
         "EC2SpotLinuxRole86333E5D",
         "Arn"
        ]
+      },
+      "logGroup": {
+       "Ref": "EC2SpotLinuxLogsF78D5F0E"
       },
       "ami": {
        "launchTemplate": {
@@ -13173,6 +13215,9 @@
         "Arn"
        ]
       },
+      "logGroup": {
+       "Ref": "EC2Linuxarm64Logs577E371E"
+      },
       "ami": {
        "launchTemplate": {
         "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
@@ -13202,6 +13247,9 @@
         "EC2WindowsRoleC0D850D2",
         "Arn"
        ]
+      },
+      "logGroup": {
+       "Ref": "EC2WindowsLogsDC1F2ABF"
       },
       "ami": {
        "launchTemplate": {

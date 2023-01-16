@@ -277,6 +277,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
   readonly image: RunnerImage;
 
   private readonly securityGroups: ec2.ISecurityGroup[];
+  private readonly logGroup: logs.LogGroup;
 
   constructor(scope: Construct, id: string, props?: FargateRunnerProps) {
     super(scope, id, props);
@@ -323,6 +324,11 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
       throw new Error(`${image.os.name} is not supported on Fargate`);
     }
 
+    this.logGroup = new logs.LogGroup(this, 'logs', {
+      retention: props?.logRetention ?? RetentionDays.ONE_MONTH,
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
+
     this.task = new ecs.FargateTaskDefinition(
       this,
       'task',
@@ -341,10 +347,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
       {
         image: ecs.AssetImage.fromEcrRepository(image.imageRepository, image.imageTag),
         logging: ecs.AwsLogDriver.awsLogs({
-          logGroup: new logs.LogGroup(this, 'logs', {
-            retention: props?.logRetention ?? RetentionDays.ONE_MONTH,
-            removalPolicy: RemovalPolicy.DESTROY,
-          }),
+          logGroup: this.logGroup,
           streamPrefix: 'runner',
         }),
         command: this.runCommand(),
@@ -427,6 +430,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
       vpcArn: this.vpc?.vpcArn,
       securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
       roleArn: this.task.taskRole.roleArn,
+      logGroup: this.logGroup.logGroupName,
       image: {
         imageRepository: this.image.imageRepository.repositoryUri,
         imageTag: this.image.imageTag,

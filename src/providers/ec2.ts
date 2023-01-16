@@ -440,6 +440,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
       labels: this.labels,
       securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
       roleArn: this.role.roleArn,
+      logGroup: this.logGroup.logGroupName,
       ami: {
         launchTemplate: this.ami.launchTemplate.launchTemplateId || 'unknown',
         amiBuilderLogGroup: this.ami.logGroup?.logGroupName,

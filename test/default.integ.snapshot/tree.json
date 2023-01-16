@@ -8802,6 +8802,30 @@
                   "version": "2.50.0"
                 }
               },
+              "logs": {
+                "id": "logs",
+                "path": "github-runners-test/Fargate/logs",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Fargate/logs/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "retentionInDays": 30
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
+                  "version": "2.50.0"
+                }
+              },
               "task": {
                 "id": "task",
                 "path": "github-runners-test/Fargate/task",
@@ -9061,30 +9085,6 @@
                   "version": "2.50.0"
                 }
               },
-              "logs": {
-                "id": "logs",
-                "path": "github-runners-test/Fargate/logs",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/Fargate/logs/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
-                      "aws:cdk:cloudformation:props": {
-                        "retentionInDays": 30
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
-                      "version": "2.50.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
-                  "version": "2.50.0"
-                }
-              },
               "fargate, linux, x64": {
                 "id": "fargate, linux, x64",
                 "path": "github-runners-test/Fargate/fargate, linux, x64",
@@ -9134,6 +9134,30 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                  "version": "2.50.0"
+                }
+              },
+              "logs": {
+                "id": "logs",
+                "path": "github-runners-test/Fargate-x64-spot/logs",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Fargate-x64-spot/logs/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "retentionInDays": 30
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
                   "version": "2.50.0"
                 }
               },
@@ -9396,30 +9420,6 @@
                   "version": "2.50.0"
                 }
               },
-              "logs": {
-                "id": "logs",
-                "path": "github-runners-test/Fargate-x64-spot/logs",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/Fargate-x64-spot/logs/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
-                      "aws:cdk:cloudformation:props": {
-                        "retentionInDays": 30
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
-                      "version": "2.50.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
-                  "version": "2.50.0"
-                }
-              },
               "fargate-spot, linux, x64": {
                 "id": "fargate-spot, linux, x64",
                 "path": "github-runners-test/Fargate-x64-spot/fargate-spot, linux, x64",
@@ -9469,6 +9469,30 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                  "version": "2.50.0"
+                }
+              },
+              "logs": {
+                "id": "logs",
+                "path": "github-runners-test/Fargate-arm64/logs",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Fargate-arm64/logs/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "retentionInDays": 30
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
                   "version": "2.50.0"
                 }
               },
@@ -9731,30 +9755,6 @@
                   "version": "2.50.0"
                 }
               },
-              "logs": {
-                "id": "logs",
-                "path": "github-runners-test/Fargate-arm64/logs",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/Fargate-arm64/logs/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
-                      "aws:cdk:cloudformation:props": {
-                        "retentionInDays": 30
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
-                      "version": "2.50.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
-                  "version": "2.50.0"
-                }
-              },
               "fargate, linux, arm64": {
                 "id": "fargate, linux, arm64",
                 "path": "github-runners-test/Fargate-arm64/fargate, linux, arm64",
@@ -9804,6 +9804,30 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                  "version": "2.50.0"
+                }
+              },
+              "logs": {
+                "id": "logs",
+                "path": "github-runners-test/Fargate-arm64-spot/logs",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Fargate-arm64-spot/logs/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "retentionInDays": 30
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
                   "version": "2.50.0"
                 }
               },
@@ -10066,30 +10090,6 @@
                   "version": "2.50.0"
                 }
               },
-              "logs": {
-                "id": "logs",
-                "path": "github-runners-test/Fargate-arm64-spot/logs",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/Fargate-arm64-spot/logs/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
-                      "aws:cdk:cloudformation:props": {
-                        "retentionInDays": 30
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
-                      "version": "2.50.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
-                  "version": "2.50.0"
-                }
-              },
               "fargate-spot, linux, arm64": {
                 "id": "fargate-spot, linux, arm64",
                 "path": "github-runners-test/Fargate-arm64-spot/fargate-spot, linux, arm64",
@@ -10139,6 +10139,30 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                  "version": "2.50.0"
+                }
+              },
+              "logs": {
+                "id": "logs",
+                "path": "github-runners-test/Fargate-Windows/logs",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/Fargate-Windows/logs/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "retentionInDays": 30
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
                   "version": "2.50.0"
                 }
               },
@@ -10438,30 +10462,6 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_ecs.FargateTaskDefinition",
-                  "version": "2.50.0"
-                }
-              },
-              "logs": {
-                "id": "logs",
-                "path": "github-runners-test/Fargate-Windows/logs",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "github-runners-test/Fargate-Windows/logs/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
-                      "aws:cdk:cloudformation:props": {
-                        "retentionInDays": 30
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
-                      "version": "2.50.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
                   "version": "2.50.0"
                 }
               },

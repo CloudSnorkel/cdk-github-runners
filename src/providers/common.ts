@@ -407,6 +407,11 @@ export interface IRunnerProviderStatus {
    * Details about AMI used by this runner provider.
    */
   readonly ami?: IRunnerAmiStatus;
+
+  /**
+   * Log group for runners.
+   */
+  readonly logGroup?: string;
 }
 
 /**
