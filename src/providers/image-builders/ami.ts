@@ -12,11 +12,11 @@ import {
   Stack,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { BundledNodejsFunction } from '../../utils';
-import { Architecture, IAmiBuilder, Os, RunnerAmi, RunnerVersion } from '../common';
 import { ImageBuilderBase, ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
+import { BundledNodejsFunction } from '../../utils';
+import { Architecture, IAmiBuilder, Os, RunnerAmi, RunnerVersion } from '../common';
 
 /**
  * Properties for {@link AmiBuilder} construct.
