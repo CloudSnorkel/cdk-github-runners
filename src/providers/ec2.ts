@@ -386,12 +386,6 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
       });
     }
 
-    // jump to the end state of the Parallel block when execution a runner succeeds
-    const subnetIterationDone = new stepfunctions.Succeed(this, `${this.labels.join(', ')} success`);
-    for (const runner of subnetRunners) {
-      runner.next(subnetIterationDone);
-    }
-
     // retry the whole Parallel block if (only the last state) failed with an Ec2Exception or timed out
     this.addRetry(subnetIterator, ['Ec2.Ec2Exception', 'States.Timeout']);
 
