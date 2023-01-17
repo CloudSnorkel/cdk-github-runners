@@ -505,13 +505,9 @@ export class GitHubRunners extends Construct {
   public metricJobCompleted(props?: cloudwatch.MetricProps): cloudwatch.Metric {
     if (!this.jobsCompletedMetricFilters) {
       // we can't use logs.FilterPattern.spaceDelimited() because it has no support for ||
-      // const pattern = logs.FilterPattern.spaceDelimited('...', 'w1', 'w2', 'w3', 'status')
-      //   .whereString('w1', '=', 'completed')
-      //   .whereString('w2', '=', 'with')
-      //   .whereString('w3', '=', 'result:');
-
       // status list taken from https://github.com/actions/runner/blob/be9632302ceef50bfb36ea998cea9c94c75e5d4d/src/Sdk/DTWebApi/WebApi/TaskResult.cs
-      const pattern = logs.FilterPattern.literal('[..., w1 = "completed", w2 = "with", w3 = "result:", status = "Succeeded" || status = "SucceededWithIssues" || status = "Failed" || status = "Canceled" || status = "Skipped" || status = "Abandoned"]');
+      // we need "..." for Lambda that prefixes some extra data to log lines
+      const pattern = logs.FilterPattern.literal('[..., marker = "CDKGHA", job = "JOB", done = "DONE", labels, status = "Succeeded" || status = "SucceededWithIssues" || status = "Failed" || status = "Canceled" || status = "Skipped" || status = "Abandoned"]');
 
       this.jobsCompletedMetricFilters = this.providers.map(p =>
         p.logGroup.addMetricFilter(`${p.logGroup.node.id} filter`, {
@@ -521,7 +517,7 @@ export class GitHubRunners extends Construct {
           metricValue: '1',
           // can't with dimensions -- defaultValue: 0,
           dimensions: {
-            // TODO figure out how to get provider dimension -- Provider: p.node.path,
+            ProviderLabels: '$labels',
             Status: '$status',
           },
         }),

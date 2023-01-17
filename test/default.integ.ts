@@ -160,6 +160,6 @@ new GitHubRunners(stack, 'runners', {
       vpc,
     }),
   ],
-});
+}).metricJobCompleted();
 
 app.synth();

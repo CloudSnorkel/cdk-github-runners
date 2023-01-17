@@ -454,12 +454,18 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
     if (this.image.os.is(Os.LINUX)) {
       return [
         'sh', '-c',
-        `./config.sh --unattended --url "https://$GITHUB_DOMAIN/$OWNER/$REPO" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL" ${runnerFlags} --name "$RUNNER_NAME" && ./run.sh`,
+        `./config.sh --unattended --url "https://$GITHUB_DOMAIN/$OWNER/$REPO" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL" ${runnerFlags} --name "$RUNNER_NAME" && 
+        ./run.sh &&
+        STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" _diag/ | tail -n1) &&
+        [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"`,
       ];
     } else if (this.image.os.is(Os.WINDOWS)) {
       return [
         'powershell', '-Command',
-        `cd \\actions ; ./config.cmd --unattended --url "https://\${Env:GITHUB_DOMAIN}/\${Env:OWNER}/\${Env:REPO}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL}" ${runnerFlags} --name "\${Env:RUNNER_NAME}" ; ./run.cmd`,
+        `cd \\actions ; ./config.cmd --unattended --url "https://\${Env:GITHUB_DOMAIN}/\${Env:OWNER}/\${Env:REPO}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL}" ${runnerFlags} --name "\${Env:RUNNER_NAME}" ; 
+        ./run.cmd ; 
+        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ; 
+        if ($STATUS) { echo "CDKGHA JOB DONE $\{Env:RUNNER_LABEL\} $STATUS" }`,
       ];
     } else {
       throw new Error(`Fargate runner doesn't support ${this.image.os.name}`);

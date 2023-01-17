@@ -218,6 +218,8 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
         build: {
           commands: [
             'sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh',
+            'STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" /home/runner/_diag/ | tail -n1)',
+            '[ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"',
           ],
         },
       },
@@ -237,6 +239,8 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
       buildSpec.phases.build.commands = [
         'cd \\actions',
         './run.cmd',
+        '$STATUS = Select-String -Path \'./_diag/*.log\' -Pattern \'finish job request for job [0-9a-f\\-]+ with result: (.*)\' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1',
+        'if ($STATUS) { echo "CDKGHA JOB DONE $\{Env:RUNNER_LABEL\} $STATUS" }',
       ];
     }
 

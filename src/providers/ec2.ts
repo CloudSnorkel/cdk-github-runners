@@ -60,6 +60,8 @@ EOF
 action () {
   sudo -Hu runner /home/runner/config.sh --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{}" {} --name "{}" || exit 1
   sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
+  STATUS=$(grep -Phors "finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*" /home/runner/_diag/ | tail -n1)
+  [ -n "$STATUS" ] && echo CDKGHA JOB DONE "{}" "$STATUS"
 }
 heartbeat &
 if setup_logs && action | tee /var/log/runner.log 2>&1; then
@@ -67,6 +69,7 @@ if setup_logs && action | tee /var/log/runner.log 2>&1; then
 else
   aws stepfunctions send-task-failure --task-token "$TASK_TOKEN"
 fi
+sleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
 poweroff
 `.replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
 
@@ -106,6 +109,8 @@ function action () {
   if ($LASTEXITCODE -ne 0) { return 1 }
   ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
   if ($LASTEXITCODE -ne 0) { return 2 }
+  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1
+  if ($STATUS) { echo "CDKGHA JOB DONE {} $STATUS" | Out-File -Encoding ASCII -Append /actions/runner.log }
   return 0
 }
 setup_logs
@@ -115,6 +120,7 @@ if ($r -eq 0) {
 } else {
   aws stepfunctions send-task-failure --task-token "$TASK_TOKEN"
 }
+Start-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
 Stop-Computer -ComputerName localhost -Force
 </powershell>
 `.replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
@@ -309,6 +315,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
       this.labels.join(','),
       this.ami.runnerVersion.is(RunnerVersion.latest()) ? '' : '--disableupdate',
       parameters.runnerNamePath,
+      this.labels.join(','),
     ];
 
     const passUserData = new stepfunctions.Pass(this, `${this.labels.join(', ')} data`, {

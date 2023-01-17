@@ -1268,7 +1268,7 @@
            {
             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
            },
-           "/c6586c763100b9311cadceb2a66b5cd94d96d0f4f402d8c4c26b09b74cb79712.zip"
+           "/35b43c1bd758381cc1156a4423ce9aa1cd1179195d173a9798caddab9ea9c1b9.zip"
           ]
          ]
         }
@@ -1515,7 +1515,7 @@
         {
          "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
         },
-        "/c6586c763100b9311cadceb2a66b5cd94d96d0f4f402d8c4c26b09b74cb79712.zip"
+        "/35b43c1bd758381cc1156a4423ce9aa1cd1179195d173a9798caddab9ea9c1b9.zip"
        ]
       ]
      },
@@ -1634,7 +1634,7 @@
     "ProjectName": {
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
-    "BuildHash": "616a9a0d9fd5bd03cbfa717386a62d88"
+    "BuildHash": "9929eb58cf629b06c71feb97d526c68a"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -3954,6 +3954,33 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "CodeBuildx64LogsLogsfilter915A4B6F": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "CodeBuildx64LogsA21ECD59"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
+  },
   "CodeBuildx64CodeBuildRole32E5C764": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -4172,7 +4199,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL}\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL}\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Cache": {
@@ -4778,6 +4805,33 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "CodeBuildARMLogsLogsfilter32B5122B": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "CodeBuildARMLogs7C7FC5A7"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
+  },
   "CodeBuildARMCodeBuildRole74DB4985": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -4996,7 +5050,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL}\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL}\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Cache": {
@@ -5022,6 +5076,33 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "CodeBuildWindowsLogsLogsfilterC0A33A89": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "CodeBuildWindowsLogsF4DD93A5"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
   },
   "CodeBuildWindowsCodeBuildRoleDC93697E": {
    "Type": "AWS::IAM::Role",
@@ -5284,7 +5365,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"if (${Env:RUNNER_VERSION} -eq \\\"latest\\\") { $RunnerFlags = \\\"\\\" } else { $RunnerFlags = \\\"--disableupdate\\\" }\",\n        \"./config.cmd --unattended --url \\\"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\\\" --token \\\"${Env:RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${Env:RUNNER_LABEL}\\\" ${RunnerFlags} --name \\\"${Env:RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"./run.cmd\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"if (${Env:RUNNER_VERSION} -eq \\\"latest\\\") { $RunnerFlags = \\\"\\\" } else { $RunnerFlags = \\\"--disableupdate\\\" }\",\n        \"./config.cmd --unattended --url \\\"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\\\" --token \\\"${Env:RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${Env:RUNNER_LABEL}\\\" ${RunnerFlags} --name \\\"${Env:RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"./run.cmd\",\n        \"$STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1\",\n        \"if ($STATUS) { echo \\\"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\\\" }\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Cache": {
@@ -5521,6 +5602,36 @@
      ]
     },
     "RetentionInDays": 30
+   }
+  },
+  "LambdaFunctionLogGroupLogGroupfilter60E487A5": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Fn::GetAtt": [
+      "LambdaFunctionLogRetentionB6D78D6D",
+      "LogGroupName"
+     ]
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
    }
   },
   "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2": {
@@ -5799,7 +5910,7 @@
            {
             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
            },
-           "/8c55ea107f6e2196a0031415c01f5379272fd74e2e444a90fee3c356b9ecf5a2.zip"
+           "/957afa1928595609e8a66240dc846b4e8fc1cf8ad1d4cfb76f4ec81853f2ae97.zip"
           ]
          ]
         }
@@ -6046,7 +6157,7 @@
         {
          "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
         },
-        "/8c55ea107f6e2196a0031415c01f5379272fd74e2e444a90fee3c356b9ecf5a2.zip"
+        "/957afa1928595609e8a66240dc846b4e8fc1cf8ad1d4cfb76f4ec81853f2ae97.zip"
        ]
       ]
      },
@@ -6165,7 +6276,7 @@
     "ProjectName": {
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
-    "BuildHash": "d6bdc06d728db2eea9d3dfc09adc2865"
+    "BuildHash": "f6743527e85fbde9ee36a21da05c4251"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -6551,6 +6662,36 @@
     "RetentionInDays": 30
    }
   },
+  "LambdaARMFunctionLogGroupLogGroupfilterD29D06B1": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Fn::GetAtt": [
+      "LambdaARMFunctionLogRetention67E9FEF8",
+      "LogGroupName"
+     ]
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
+  },
   "FargatesecuritygroupAFCAFD34": {
    "Type": "AWS::EC2::SecurityGroup",
    "Properties": {
@@ -6574,6 +6715,33 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "Fargatelogslogsfilter89D6A772": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "FargatelogsCB753638"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
   },
   "FargatetaskTaskRoleEFFCDAF8": {
    "Type": "AWS::IAM::Role",
@@ -6600,7 +6768,7 @@
       "Command": [
        "sh",
        "-c",
-       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && ./run.sh"
+       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -6778,6 +6946,33 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "Fargatex64spotlogslogsfilter6590358B": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "Fargatex64spotlogs0BCF618B"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
+  },
   "Fargatex64spottaskTaskRole02893C25": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -6803,7 +6998,7 @@
       "Command": [
        "sh",
        "-c",
-       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && ./run.sh"
+       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -6981,6 +7176,33 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "Fargatearm64logslogsfilter4A2869DC": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "Fargatearm64logs00171A52"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
+  },
   "Fargatearm64taskTaskRoleD3C2CD58": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -7006,7 +7228,7 @@
       "Command": [
        "sh",
        "-c",
-       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && ./run.sh"
+       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -7184,6 +7406,33 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "Fargatearm64spotlogslogsfilter7E2CFF7B": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "Fargatearm64spotlogsEFCCEC59"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
+  },
   "Fargatearm64spottaskTaskRole0F078C81": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -7209,7 +7458,7 @@
       "Command": [
        "sh",
        "-c",
-       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && ./run.sh"
+       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -7387,6 +7636,33 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "FargateWindowslogslogsfilterB5B72E7C": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "FargateWindowslogs52881DBF"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
+  },
   "FargateWindowstaskTaskRole364508C8": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -7412,7 +7688,7 @@
       "Command": [
        "powershell",
        "-Command",
-       "cd \\actions ; ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL}\" --disableupdate --name \"${Env:RUNNER_NAME}\" ; ./run.cmd"
+       "cd \\actions ; ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL}\" --disableupdate --name \"${Env:RUNNER_NAME}\" ; \n        ./run.cmd ; \n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ; \n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
       ],
       "Essential": true,
       "Image": {
@@ -7709,6 +7985,33 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "EC2LinuxLogsLogsfilter186C2AB7": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "EC2LinuxLogsC4CD8F14"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
+  },
   "EC2LinuxInstanceProfile2D2BB473": {
    "Type": "AWS::IAM::InstanceProfile",
    "Properties": {
@@ -7930,6 +8233,33 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "EC2SpotLinuxLogsLogsfilter89CE719F": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "EC2SpotLinuxLogsF78D5F0E"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
   },
   "EC2SpotLinuxInstanceProfileB12320D4": {
    "Type": "AWS::IAM::InstanceProfile",
@@ -8893,6 +9223,33 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "EC2Linuxarm64LogsLogsfilter0A247938": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "EC2Linuxarm64Logs577E371E"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
+  },
   "EC2Linuxarm64InstanceProfile1E6F8D53": {
    "Type": "AWS::IAM::InstanceProfile",
    "Properties": {
@@ -9791,6 +10148,33 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "EC2WindowsLogsLogsfilter253E4D4D": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "EC2WindowsLogsDC1F2ABF"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
   },
   "EC2WindowsInstanceProfileDCA59D9C": {
    "Type": "AWS::IAM::InstanceProfile",
@@ -11315,7 +11699,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"ec2, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\npoweroff\\n\"},\"Next\":\"ec2, linux, x64 subnet iterator\"},\"ec2, linux, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, linux, x64 subnet1\",\"States\":{\"ec2, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"ec2, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\\\\\-]+ with result: \\\\\\\\K.*\\\" /home/runner/_diag/ | tail -n1)\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"{}\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2, linux, x64 subnet iterator\"},\"ec2, linux, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, linux, x64 subnet1\",\"States\":{\"ec2, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -11331,7 +11715,7 @@
        {
         "Ref": "EC2LinuxLogsC4CD8F14"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,linux,x64', '', $$.Execution.Name))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,linux,x64', '', $$.Execution.Name, 'ec2,linux,x64'))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2LinuxInstanceProfile2D2BB473",
@@ -11365,7 +11749,7 @@
        {
         "Ref": "EC2LinuxLogsC4CD8F14"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,linux,x64', '', $$.Execution.Name))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,linux,x64', '', $$.Execution.Name, 'ec2,linux,x64'))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2LinuxInstanceProfile2D2BB473",
@@ -11383,7 +11767,7 @@
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"ec2-spot, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\npoweroff\\n\"},\"Next\":\"ec2-spot, linux, x64 subnet iterator\"},\"ec2-spot, linux, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2-spot, linux, x64 subnet1\",\"States\":{\"ec2-spot, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2-spot, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"ec2-spot, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\\\\\-]+ with result: \\\\\\\\K.*\\\" /home/runner/_diag/ | tail -n1)\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"{}\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2-spot, linux, x64 subnet iterator\"},\"ec2-spot, linux, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2-spot, linux, x64 subnet1\",\"States\":{\"ec2-spot, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2-spot, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -11399,7 +11783,7 @@
        {
         "Ref": "EC2SpotLinuxLogsF78D5F0E"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2-spot,linux,x64', '', $$.Execution.Name))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2-spot,linux,x64', '', $$.Execution.Name, 'ec2-spot,linux,x64'))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2SpotLinuxInstanceProfileB12320D4",
@@ -11433,7 +11817,7 @@
        {
         "Ref": "EC2SpotLinuxLogsF78D5F0E"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2-spot,linux,x64', '', $$.Execution.Name))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2-spot,linux,x64', '', $$.Execution.Name, 'ec2-spot,linux,x64'))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2SpotLinuxInstanceProfileB12320D4",
@@ -11451,7 +11835,7 @@
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}}}}]},\"ec2, linux, arm64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\npoweroff\\n\"},\"Next\":\"ec2, linux, arm64 subnet iterator\"},\"ec2, linux, arm64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, linux, arm64 subnet1\",\"States\":{\"ec2, linux, arm64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, arm64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}}}}]},\"ec2, linux, arm64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\\\\\-]+ with result: \\\\\\\\K.*\\\" /home/runner/_diag/ | tail -n1)\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"{}\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2, linux, arm64 subnet iterator\"},\"ec2, linux, arm64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, linux, arm64 subnet1\",\"States\":{\"ec2, linux, arm64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, arm64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -11467,7 +11851,7 @@
        {
         "Ref": "EC2Linuxarm64Logs577E371E"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,linux,arm64', '', $$.Execution.Name))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,linux,arm64', '', $$.Execution.Name, 'ec2,linux,arm64'))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2Linuxarm64InstanceProfile1E6F8D53",
@@ -11501,7 +11885,7 @@
        {
         "Ref": "EC2Linuxarm64Logs577E371E"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,linux,arm64', '', $$.Execution.Name))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,linux,arm64', '', $$.Execution.Name, 'ec2,linux,arm64'))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2Linuxarm64InstanceProfile1E6F8D53",
@@ -11519,7 +11903,7 @@
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"ec2, windows, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\nStart-Job -ScriptBlock \\\\{\\n  while (1) \\\\{\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    sleep 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  echo '\\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n         \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/actions/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}' | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  ./config.cmd --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}'\\n\\\\} else \\\\{\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\n\\\\}\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"ec2, windows, x64 subnet iterator\"},\"ec2, windows, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, windows, x64 subnet1\",\"States\":{\"ec2, windows, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, windows, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"ec2, windows, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\nStart-Job -ScriptBlock \\\\{\\n  while (1) \\\\{\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    sleep 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  echo '\\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n         \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/actions/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}' | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  ./config.cmd --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" {} --name \\\"{}\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\\\\\-]+ with result: (.*)' | %\\\\{$_.Matches.Groups[1].Value\\\\} | Select-Object -Last 1\\n  if ($STATUS) \\\\{ echo \\\"CDKGHA JOB DONE {} $STATUS\\\" | Out-File -Encoding ASCII -Append /actions/runner.log \\\\}\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}'\\n\\\\} else \\\\{\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\n\\\\}\\nStart-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"ec2, windows, x64 subnet iterator\"},\"ec2, windows, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, windows, x64 subnet1\",\"States\":{\"ec2, windows, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, windows, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -11535,7 +11919,7 @@
        {
         "Ref": "EC2WindowsLogsDC1F2ABF"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,windows,x64', '', $$.Execution.Name))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,windows,x64', '', $$.Execution.Name, 'ec2,windows,x64'))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2WindowsInstanceProfileDCA59D9C",
@@ -11569,7 +11953,7 @@
        {
         "Ref": "EC2WindowsLogsDC1F2ABF"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,windows,x64', '', $$.Execution.Name))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, 'ec2,windows,x64', '', $$.Execution.Name, 'ec2,windows,x64'))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2WindowsInstanceProfileDCA59D9C",
