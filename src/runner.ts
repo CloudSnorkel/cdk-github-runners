@@ -498,7 +498,7 @@ export class GitHubRunners extends Construct {
   }
 
   /**
-   * Metric for the number of GitHub Actions jobs completed. It is not unique to this instance and its only dimension is `Status`. The status can be one of "Succeeded", "SucceededWithIssues", "Failed", "Canceled", "Skipped", or "Abandoned".
+   * Metric for the number of GitHub Actions jobs completed. It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succeeded", "SucceededWithIssues", "Failed", "Canceled", "Skipped", or "Abandoned".
    *
    * **WARNING:** this method creates a metric filter for each provider. Each metric has a status dimension with six possible values. These resources may incur cost.
    */
