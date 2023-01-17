@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/74161b87dae2f1070e81ba5e4a1e06998638573df169d10d063588ada0934d59.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/e6e149362d295769a9c15b13bdbc9c297e0e0c52f0afd88785a62326dd37b86e.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -711,6 +711,12 @@
             "data": "CodeBuildx64LogsA21ECD59"
           }
         ],
+        "/github-runners-test/CodeBuildx64/Logs/Logs filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildx64LogsLogsfilter915A4B6F"
+          }
+        ],
         "/github-runners-test/CodeBuildx64/CodeBuild/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -813,6 +819,12 @@
             "data": "CodeBuildARMLogs7C7FC5A7"
           }
         ],
+        "/github-runners-test/CodeBuildARM/Logs/Logs filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildARMLogsLogsfilter32B5122B"
+          }
+        ],
         "/github-runners-test/CodeBuildARM/CodeBuild/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -835,6 +847,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "CodeBuildWindowsLogsF4DD93A5"
+          }
+        ],
+        "/github-runners-test/CodeBuildWindows/Logs/Logs filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildWindowsLogsLogsfilterC0A33A89"
           }
         ],
         "/github-runners-test/CodeBuildWindows/CodeBuild/Role/Resource": [
@@ -883,6 +901,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "LambdaFunctionLogRetentionB6D78D6D"
+          }
+        ],
+        "/github-runners-test/Lambda/Function/LogGroup/LogGroup filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaFunctionLogGroupLogGroupfilter60E487A5"
           }
         ],
         "/github-runners-test/AWS679f53fac002430cb0da5b7982bd2287/ServiceRole/Resource": [
@@ -1029,6 +1053,12 @@
             "data": "LambdaARMFunctionLogRetention67E9FEF8"
           }
         ],
+        "/github-runners-test/LambdaARM/Function/LogGroup/LogGroup filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaARMFunctionLogGroupLogGroupfilterD29D06B1"
+          }
+        ],
         "/github-runners-test/Fargate/security group/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1039,6 +1069,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "FargatelogsCB753638"
+          }
+        ],
+        "/github-runners-test/Fargate/logs/logs filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Fargatelogslogsfilter89D6A772"
           }
         ],
         "/github-runners-test/Fargate/task/TaskRole/Resource": [
@@ -1077,6 +1113,12 @@
             "data": "Fargatex64spotlogs0BCF618B"
           }
         ],
+        "/github-runners-test/Fargate-x64-spot/logs/logs filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Fargatex64spotlogslogsfilter6590358B"
+          }
+        ],
         "/github-runners-test/Fargate-x64-spot/task/TaskRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1111,6 +1153,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "Fargatearm64logs00171A52"
+          }
+        ],
+        "/github-runners-test/Fargate-arm64/logs/logs filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Fargatearm64logslogsfilter4A2869DC"
           }
         ],
         "/github-runners-test/Fargate-arm64/task/TaskRole/Resource": [
@@ -1149,6 +1197,12 @@
             "data": "Fargatearm64spotlogsEFCCEC59"
           }
         ],
+        "/github-runners-test/Fargate-arm64-spot/logs/logs filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Fargatearm64spotlogslogsfilter7E2CFF7B"
+          }
+        ],
         "/github-runners-test/Fargate-arm64-spot/task/TaskRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1183,6 +1237,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "FargateWindowslogs52881DBF"
+          }
+        ],
+        "/github-runners-test/Fargate-Windows/logs/logs filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargateWindowslogslogsfilterB5B72E7C"
           }
         ],
         "/github-runners-test/Fargate-Windows/task/TaskRole/Resource": [
@@ -1231,6 +1291,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "EC2LinuxLogsC4CD8F14"
+          }
+        ],
+        "/github-runners-test/EC2 Linux/Logs/Logs filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EC2LinuxLogsLogsfilter186C2AB7"
           }
         ],
         "/github-runners-test/EC2 Linux/Instance Profile": [
@@ -1291,6 +1357,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "EC2SpotLinuxLogsF78D5F0E"
+          }
+        ],
+        "/github-runners-test/EC2 Spot Linux/Logs/Logs filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EC2SpotLinuxLogsLogsfilter89CE719F"
           }
         ],
         "/github-runners-test/EC2 Spot Linux/Instance Profile": [
@@ -1491,6 +1563,12 @@
             "data": "EC2Linuxarm64Logs577E371E"
           }
         ],
+        "/github-runners-test/EC2 Linux arm64/Logs/Logs filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EC2Linuxarm64LogsLogsfilter0A247938"
+          }
+        ],
         "/github-runners-test/EC2 Linux arm64/Instance Profile": [
           {
             "type": "aws:cdk:logicalId",
@@ -1681,6 +1759,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "EC2WindowsLogsDC1F2ABF"
+          }
+        ],
+        "/github-runners-test/EC2 Windows/Logs/Logs filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EC2WindowsLogsLogsfilter253E4D4D"
           }
         ],
         "/github-runners-test/EC2 Windows/Instance Profile": [

@@ -6,6 +6,7 @@ import {
   aws_events_targets as events_targets,
   aws_iam as iam,
   aws_lambda as lambda,
+  aws_logs as logs,
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
   custom_resources as cr,
@@ -159,6 +160,13 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
    */
   readonly image: RunnerImage;
 
+  /**
+   * Log group where provided runners will save their logs.
+   *
+   * Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+   */
+  readonly logGroup: logs.ILogGroup;
+
   private readonly vpc?: ec2.IVpc;
   private readonly securityGroups?: ec2.ISecurityGroup[];
 
@@ -224,6 +232,7 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
     );
 
     this.grantPrincipal = this.function.grantPrincipal;
+    this.logGroup = this.function.logGroup;
 
     this.addImageUpdater(image);
   }
