@@ -276,8 +276,14 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
    */
   readonly image: RunnerImage;
 
+  /**
+   * Log group where provided runners will save their logs.
+   *
+   * Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+   */
+  readonly logGroup: logs.ILogGroup;
+
   private readonly securityGroups: ec2.ISecurityGroup[];
-  private readonly logGroup: logs.LogGroup;
 
   constructor(scope: Construct, id: string, props?: FargateRunnerProps) {
     super(scope, id, props);

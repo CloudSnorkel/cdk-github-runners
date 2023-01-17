@@ -428,6 +428,13 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, ICons
   readonly labels: string[];
 
   /**
+   * Log group where provided runners will save their logs.
+   *
+   * Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+   */
+  readonly logGroup: logs.ILogGroup;
+
+  /**
    * Generate step function tasks that execute the runner.
    *
    * Called by GithubRunners and shouldn't be called manually.

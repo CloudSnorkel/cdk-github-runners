@@ -226,8 +226,14 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
    */
   readonly grantPrincipal: iam.IPrincipal;
 
+  /**
+   * Log group where provided runners will save their logs.
+   *
+   * Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+   */
+  readonly logGroup: logs.ILogGroup;
+
   private readonly ami: RunnerAmi;
-  private readonly logGroup: logs.LogGroup;
   private readonly role: iam.Role;
   private readonly instanceType: ec2.InstanceType;
   private readonly storageSize: cdk.Size;

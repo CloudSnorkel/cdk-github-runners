@@ -81,4 +81,26 @@ describe('GitHubRunners', () => {
       });
     }).toThrow('Both test/p1 and test/p2 use the same labels [a]');
   });
+
+  test('Metrics', () => {
+    const runners = new GitHubRunners(stack, 'runners', {
+      providers: [new CodeBuildRunner(stack, 'p1')],
+    });
+
+    // second time shouldn't add more filters (tested below)
+    runners.metricJobCompleted();
+    runners.metricJobCompleted();
+
+    // just test these don't crash and burn
+    runners.metricFailed();
+    runners.metricSucceeded();
+    runners.metricTime();
+
+    const template = Template.fromStack(stack);
+
+    template.resourceCountIs(
+      'AWS::Logs::MetricFilter',
+      1,
+    );
+  });
 });

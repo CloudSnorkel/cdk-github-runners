@@ -164,10 +164,16 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
    */
   readonly image: RunnerImage;
 
+  /**
+   * Log group where provided runners will save their logs.
+   *
+   * Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+   */
+  readonly logGroup: logs.ILogGroup;
+
   private readonly vpc?: ec2.IVpc;
   private readonly securityGroups?: ec2.ISecurityGroup[];
   private readonly dind: boolean;
-  private readonly logGroup: logs.LogGroup;
 
   constructor(scope: Construct, id: string, props?: CodeBuildRunnerProps) {
     super(scope, id, props);

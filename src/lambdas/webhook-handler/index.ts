@@ -89,6 +89,14 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
     };
   }
 
+  if (!payload.workflow_job.labels.includes('self-hosted')) {
+    console.log(`Ignoring labels "${payload.workflow_job.labels}", expecting "self-hosted"`);
+    return {
+      statusCode: 200,
+      body: 'OK. No runner started.',
+    };
+  }
+
   // it's easier to deal with maps in step functions
   let labels: any = {};
   payload.workflow_job.labels.forEach((l: string) => labels[l] = true);

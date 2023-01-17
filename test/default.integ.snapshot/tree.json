@@ -14010,22 +14010,6 @@
                   "version": "2.50.0"
                 }
               },
-              "Is self hosted?": {
-                "id": "Is self hosted?",
-                "path": "github-runners-test/runners/Is self hosted?",
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_stepfunctions.Choice",
-                  "version": "2.50.0"
-                }
-              },
-              "No": {
-                "id": "No",
-                "path": "github-runners-test/runners/No",
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_stepfunctions.Succeed",
-                  "version": "2.50.0"
-                }
-              },
               "Runner Orchestrator": {
                 "id": "Runner Orchestrator",
                 "path": "github-runners-test/runners/Runner Orchestrator",
@@ -15100,7 +15084,7 @@
                           "Fn::Join": [
                             "",
                             [
-                              "{\"StartAt\":\"Is self hosted?\",\"States\":{\"Is self hosted?\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.labels.self-hosted\",\"IsPresent\":false,\"Next\":\"No\"}],\"Default\":\"Get Runner Token\"},\"Get Runner Token\":{\"Next\":\"Error Catcher\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
+                              "{\"StartAt\":\"Get Runner Token\",\"States\":{\"Get Runner Token\":{\"Next\":\"Error Catcher\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
                               {
                                 "Fn::GetAtt": [
                                   "runnerstokenretrieverD5E8392A",
@@ -15569,7 +15553,7 @@
                                   "Arn"
                                 ]
                               },
-                              "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"runId.$\":\"$.runId\",\"installationId.$\":\"$.installationId\",\"idleOnly\":false}},\"Runner Failed\":{\"Type\":\"Fail\"},\"No\":{\"Type\":\"Succeed\"}}}"
+                              "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"runId.$\":\"$.runId\",\"installationId.$\":\"$.installationId\",\"idleOnly\":false}},\"Runner Failed\":{\"Type\":\"Fail\"}}}"
                             ]
                           ]
                         }
@@ -15730,7 +15714,7 @@
                               "s3Bucket": {
                                 "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                               },
-                              "s3Key": "1e767d3591f00b05ef90c4d9c4a8cb3e869564005f7321ce92aaea681925076c.zip"
+                              "s3Key": "3ec70c05afdc8aed95a3a8d3557ff0b9f9a04b101dd6eed663a691db1c758092.zip"
                             },
                             "role": {
                               "Fn::GetAtt": [

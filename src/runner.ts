@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import {
   Annotations,
+  aws_cloudwatch as cloudwatch,
   aws_ec2 as ec2,
   aws_iam as iam,
   aws_lambda as lambda,
@@ -184,6 +185,7 @@ export class GitHubRunners extends Construct {
   private readonly extraLambdaEnv: {[p: string]: string} = {};
   private readonly extraLambdaProps: lambda.FunctionOptions;
   private stateMachineLogGroup?: logs.LogGroup;
+  private jobsCompletedMetricFilters?: logs.MetricFilter[];
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
@@ -320,10 +322,6 @@ export class GitHubRunners extends Construct {
         ),
     );
 
-    const check = new stepfunctions.Choice(this, 'Is self hosted?')
-      .when(stepfunctions.Condition.isNotPresent('$.labels.self-hosted'), new stepfunctions.Succeed(this, 'No'))
-      .otherwise(work);
-
     let logOptions: cdk.aws_stepfunctions.LogOptions | undefined;
     if (this.props?.logOptions) {
       this.stateMachineLogGroup = new logs.LogGroup(this, 'Logs', {
@@ -343,7 +341,7 @@ export class GitHubRunners extends Construct {
       this,
       'Runner Orchestrator',
       {
-        definition: check,
+        definition: work,
         logs: logOptions,
       },
     );
@@ -497,5 +495,80 @@ export class GitHubRunners extends Construct {
         }
       }
     }
+  }
+
+  /**
+   * Metric for the number of GitHub Actions jobs completed. It is not unique to this instance and its only dimension is `Status`. The status can be one of "Succeeded", "SucceededWithIssues", "Failed", "Canceled", "Skipped", or "Abandoned".
+   *
+   * **WARNING:** this method creates a metric filter for each provider. Each metric has a status dimension with six possible values. These resources may incur cost.
+   */
+  public metricJobCompleted(props?: cloudwatch.MetricProps): cloudwatch.Metric {
+    if (!this.jobsCompletedMetricFilters) {
+      // we can't use logs.FilterPattern.spaceDelimited() because it has no support for ||
+      // const pattern = logs.FilterPattern.spaceDelimited('...', 'w1', 'w2', 'w3', 'status')
+      //   .whereString('w1', '=', 'completed')
+      //   .whereString('w2', '=', 'with')
+      //   .whereString('w3', '=', 'result:');
+
+      // status list taken from https://github.com/actions/runner/blob/be9632302ceef50bfb36ea998cea9c94c75e5d4d/src/Sdk/DTWebApi/WebApi/TaskResult.cs
+      const pattern = logs.FilterPattern.literal('[..., w1 = "completed", w2 = "with", w3 = "result:", status = "Succeeded" || status = "SucceededWithIssues" || status = "Failed" || status = "Canceled" || status = "Skipped" || status = "Abandoned"]');
+
+      this.jobsCompletedMetricFilters = this.providers.map(p =>
+        p.logGroup.addMetricFilter(`${p.logGroup.node.id} filter`, {
+          metricNamespace: 'GitHubRunners',
+          metricName: 'JobCompleted',
+          filterPattern: pattern,
+          metricValue: '1',
+          // can't with dimensions -- defaultValue: 0,
+          dimensions: {
+            // TODO figure out how to get provider dimension -- Provider: p.node.path,
+            Status: '$status',
+          },
+        }),
+      );
+
+      for (const metricFilter of this.jobsCompletedMetricFilters) {
+        if (metricFilter.node.defaultChild instanceof logs.CfnMetricFilter) {
+          metricFilter.node.defaultChild.addPropertyOverride('MetricTransformations.0.Unit', 'Count');
+        } else {
+          Annotations.of(metricFilter).addWarning('Unable to set metric filter Unit to Count');
+        }
+      }
+    }
+
+    return new cloudwatch.Metric({
+      namespace: 'GitHubRunners',
+      metricName: 'JobsCompleted',
+      unit: cloudwatch.Unit.COUNT,
+      statistic: cloudwatch.Statistic.SUM,
+      ...props,
+    }).attachTo(this);
+  }
+
+  /**
+   * Metric for successful executions.
+   *
+   * A successful execution doesn't always mean a runner was started. It can be successful even without any label matches.
+   *
+   * A successful runner doesn't mean the job it executed was successful. For that, see {@link metricJobCompleted}.
+   */
+  public metricSucceeded(props?: cloudwatch.MetricProps): cloudwatch.Metric {
+    return this.orchestrator.metricSucceeded(props);
+  }
+
+  /**
+   * Metric for failed runner executions.
+   *
+   * A failed runner usually means the runner failed to start and so a job was never executed. It doesn't necessarily mean the job was executed and failed. For that, see {@link metricJobCompleted}.
+   */
+  public metricFailed(props?: cloudwatch.MetricProps): cloudwatch.Metric {
+    return this.orchestrator.metricFailed(props);
+  }
+
+  /**
+   * Metric for the interval, in milliseconds, between the time the execution starts and the time it closes. This time may be longer than the time the runner took.
+   */
+  public metricTime(props?: cloudwatch.MetricProps): cloudwatch.Metric {
+    return this.orchestrator.metricTime(props);
   }
 }
