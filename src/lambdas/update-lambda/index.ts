@@ -1,7 +1,7 @@
 /* eslint-disable-next-line import/no-extraneous-dependencies */
-import { ResourceConflictException } from '@aws-sdk/client-lambda';
-/* eslint-disable-next-line import/no-extraneous-dependencies */
 import * as AWS from 'aws-sdk';
+/* eslint-disable-next-line import/no-extraneous-dependencies */
+import { AWSError } from 'aws-sdk/lib/error';
 
 const lambda = new AWS.Lambda();
 
@@ -27,7 +27,7 @@ export async function handler(event: Input) {
       }).promise();
       break;
     } catch (e) {
-      if (e instanceof ResourceConflictException) {
+      if ((<AWSError>e).code == 'ResourceConflictException') {
         // keep trying if function is already being updated by CloudFormation
         // this can happen if we update some settings on the function and the image code at the same time
         await sleep(10000);
