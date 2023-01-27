@@ -21,7 +21,6 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@octokit/rest',
     'aws-sdk',
     '@aws-sdk/types',
-    '@aws-sdk/client-lambda',
     '@types/aws-lambda',
     'semver',
     '@types/semver',

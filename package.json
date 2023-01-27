@@ -45,7 +45,6 @@
     "organization": false
   },
   "devDependencies": {
-    "@aws-sdk/client-lambda": "^3.254.0",
     "@aws-sdk/types": "^3.254.0",
     "@octokit/auth-app": "^3.6.1",
     "@octokit/core": "^3.6.0",
