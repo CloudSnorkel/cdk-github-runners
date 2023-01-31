@@ -3836,8 +3836,10 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.logOptions">logOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions">LogOptions</a></code> | Logging options for the state machine that manages the runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | List of runner providers to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to all management functions. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.setupAccess">setupAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ILambdaAccess">ILambdaAccess</a></code> | Configuration for Lambda Access interface for runner initialization. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for all management functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpcSubnets">vpcSubnets</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | VPC subnets used for all management functions. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.webhookAccess">webhookAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ILambdaAccess">ILambdaAccess</a></code> | Configuration for function that allows communication from GH events. |
 
 ---
 
@@ -3947,6 +3949,18 @@ Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
 
 ---
 
+##### `setupAccess`<sup>Optional</sup> <a name="setupAccess" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.setupAccess"></a>
+
+```typescript
+public readonly setupAccess: ILambdaAccess;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ILambdaAccess">ILambdaAccess</a>
+
+Configuration for Lambda Access interface for runner initialization.
+
+---
+
 ##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpc"></a>
 
 ```typescript
@@ -3972,6 +3986,18 @@ public readonly vpcSubnets: SubnetSelection;
 VPC subnets used for all management functions.
 
 Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
+
+---
+
+##### `webhookAccess`<sup>Optional</sup> <a name="webhookAccess" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.webhookAccess"></a>
+
+```typescript
+public readonly webhookAccess: ILambdaAccess;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ILambdaAccess">ILambdaAccess</a>
+
+Configuration for function that allows communication from GH events.
 
 ---
 
@@ -5744,6 +5770,40 @@ Finalize and return all required information about the Docker image built by thi
 This method can be called multiple times if the image is bound to multiple providers. Make sure you cache the image when implementing or return an error if this builder doesn't support reusing images.
 
 
+### ILambdaAccess <a name="ILambdaAccess" id="@cloudsnorkel/cdk-github-runners.ILambdaAccess"></a>
+
+- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.ILambdaAccess">ILambdaAccess</a>
+
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ILambdaAccess.property.type">type</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccessType">LambdaAccessType</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ILambdaAccess.property.allowedIps">allowedIps</a></code> | <code>string[]</code> | *No description.* |
+
+---
+
+##### `type`<sup>Required</sup> <a name="type" id="@cloudsnorkel/cdk-github-runners.ILambdaAccess.property.type"></a>
+
+```typescript
+public readonly type: LambdaAccessType;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.LambdaAccessType">LambdaAccessType</a>
+
+---
+
+##### `allowedIps`<sup>Optional</sup> <a name="allowedIps" id="@cloudsnorkel/cdk-github-runners.ILambdaAccess.property.allowedIps"></a>
+
+```typescript
+public readonly allowedIps: string[];
+```
+
+- *Type:* string[]
+
+---
+
 ### IRunnerAmiStatus <a name="IRunnerAmiStatus" id="@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus"></a>
 
 - *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus">IRunnerAmiStatus</a>
@@ -6105,6 +6165,40 @@ public readonly vpcArn: string;
 - *Type:* string
 
 VPC where runners will be launched.
+
+---
+
+## Enums <a name="Enums" id="Enums"></a>
+
+### LambdaAccessType <a name="LambdaAccessType" id="@cloudsnorkel/cdk-github-runners.LambdaAccessType"></a>
+
+#### Members <a name="Members" id="Members"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccessType.NO_ACCESS">NO_ACCESS</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccessType.LAMBDA_URL">LAMBDA_URL</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccessType.API_GATEWAY">API_GATEWAY</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccessType.PRIVATE_API_GATEWAY">PRIVATE_API_GATEWAY</a></code> | *No description.* |
+
+---
+
+##### `NO_ACCESS` <a name="NO_ACCESS" id="@cloudsnorkel/cdk-github-runners.LambdaAccessType.NO_ACCESS"></a>
+
+---
+
+
+##### `LAMBDA_URL` <a name="LAMBDA_URL" id="@cloudsnorkel/cdk-github-runners.LambdaAccessType.LAMBDA_URL"></a>
+
+---
+
+
+##### `API_GATEWAY` <a name="API_GATEWAY" id="@cloudsnorkel/cdk-github-runners.LambdaAccessType.API_GATEWAY"></a>
+
+---
+
+
+##### `PRIVATE_API_GATEWAY` <a name="PRIVATE_API_GATEWAY" id="@cloudsnorkel/cdk-github-runners.LambdaAccessType.PRIVATE_API_GATEWAY"></a>
 
 ---
 

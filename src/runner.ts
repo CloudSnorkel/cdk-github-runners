@@ -20,6 +20,17 @@ import { Secrets } from './secrets';
 import { BundledNodejsFunction } from './utils';
 import { GithubWebhookHandler } from './webhook';
 
+export enum LambdaAccessType {
+  NO_ACCESS,
+  LAMBDA_URL,
+  API_GATEWAY,
+  PRIVATE_API_GATEWAY, // optional
+}
+export interface ILambdaAccess {
+  type: LambdaAccessType;
+  allowedIps?: string[];
+}
+
 /**
  * Properties for GitHubRunners
  */
@@ -93,6 +104,17 @@ export interface GitHubRunnersProps {
    * @default no logs
    */
   readonly logOptions?: LogOptions;
+
+  /**
+   * Configuration for Lambda Access interface for runner initialization
+   */
+  readonly setupAccess?: ILambdaAccess;
+
+
+  /**
+   * Configuration for function that allows communication from GH events
+   */
+  readonly webhookAccess?: ILambdaAccess;
 }
 
 /**
