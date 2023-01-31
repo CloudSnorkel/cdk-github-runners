@@ -472,6 +472,7 @@ export class GitHubRunners extends Construct {
   }
 
   private setupFunction(): string {
+    const access = this.props?.setupAccess?.type ?? LambdaAccessType.LAMBDA_URL;
     const setupFunction = new BundledNodejsFunction(
       this,
       'setup',
@@ -499,7 +500,13 @@ export class GitHubRunners extends Construct {
     this.secrets.setup.grantRead(setupFunction);
     this.secrets.setup.grantWrite(setupFunction);
 
-    return setupFunction.addFunctionUrl({ authType: FunctionUrlAuthType.NONE }).url;
+    if (access === LambdaAccessType?.LAMBDA_URL) {
+      return setupFunction.addFunctionUrl({ authType: FunctionUrlAuthType.NONE }).url;
+    } else if (access === LambdaAccessType.NO_ACCESS) {
+      return '';
+    } else {
+      throw new Error('Unknown LambdaAccessType');
+    }
   }
 
   private checkIntersectingLabels() {
