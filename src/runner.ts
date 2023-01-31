@@ -8,6 +8,7 @@ import {
   aws_logs as logs,
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
+  aws_apigateway as apigateway,
   RemovalPolicy,
 } from 'aws-cdk-lib';
 import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
@@ -502,6 +503,13 @@ export class GitHubRunners extends Construct {
 
     if (access === LambdaAccessType?.LAMBDA_URL) {
       return setupFunction.addFunctionUrl({ authType: FunctionUrlAuthType.NONE }).url;
+    } else if (access === LambdaAccessType?.API_GATEWAY) {
+      const api = new apigateway.LambdaRestApi(this, 'api', {
+        handler: setupFunction,
+        proxy: false,
+        cloudWatchRole: false,
+      });
+      return api.url;
     } else if (access === LambdaAccessType.NO_ACCESS) {
       return '';
     } else {
