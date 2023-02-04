@@ -509,6 +509,7 @@ export class GitHubRunners extends Construct {
         proxy: false,
         cloudWatchRole: false,
       });
+      api.root.resourceForPath('/').addMethod('GET');
       return api.url;
     } else if (access === LambdaAccessType.NO_ACCESS) {
       return '';
