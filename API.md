@@ -1674,7 +1674,7 @@ public metricJobCompleted(props?: MetricProps): Metric
 
 Metric for the number of GitHub Actions jobs completed.
 
-It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succeeded", "SucceededWithIssues", "Failed", "Canceled", "Skipped", or "Abandoned".
+It has `ProviderLabels` and `Status` dimensions. The status can be one of 'Succeeded', 'SucceededWithIssues', 'Failed', 'Canceled', 'Skipped', or 'Abandoned'.
 
 **WARNING:** this method creates a metric filter for each provider. Each metric has a status dimension with six possible values. These resources may incur cost.
 
