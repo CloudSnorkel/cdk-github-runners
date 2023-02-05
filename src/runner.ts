@@ -518,7 +518,7 @@ export class GitHubRunners extends Construct {
               Action: 'execute-api:Invoke',
               Resource: 'execute-api:/*/*/*',
               Condition: {
-                NotIpAddress: {
+                IpAddress: {
                   'aws:SourceIp': [
                     '192.30.252.0/22',
                     '185.199.108.0/22',
