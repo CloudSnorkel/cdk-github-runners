@@ -11,6 +11,7 @@ import {
   aws_apigateway as apigateway,
   RemovalPolicy,
 } from 'aws-cdk-lib';
+import { PolicyDocument } from 'aws-cdk-lib/aws-iam';
 import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { CodeBuildRunner } from './providers/codebuild';
@@ -508,6 +509,29 @@ export class GitHubRunners extends Construct {
         handler: setupFunction,
         proxy: false,
         cloudWatchRole: false,
+        policy: PolicyDocument.fromJson({
+          Version: '2012-10-17',
+          Statement: [
+            {
+              Effect: 'Allow',
+              Principal: '*',
+              Action: 'execute-api:Invoke',
+              Resource: 'execute-api:/*/*/*',
+              Condition: {
+                NotIpAddress: {
+                  'aws:SourceIp': [
+                    '192.30.252.0/22',
+                    '185.199.108.0/22',
+                    '140.82.112.0/20',
+                    '143.55.64.0/20',
+                    '2a0a:a440::/29',
+                    '2606:50c0::/32',
+                  ],
+                },
+              },
+            },
+          ],
+        }),
       });
       api.root.resourceForPath('/').addMethod('GET');
       return api.url;
@@ -519,7 +543,7 @@ export class GitHubRunners extends Construct {
   }
 
   private checkIntersectingLabels() {
-    // this "algorithm" is very inefficient, but good enough for the tiny datasets we expect
+    // this 'algorithm' is very inefficient, but good enough for the tiny datasets we expect
     for (const p1 of this.providers) {
       for (const p2 of this.providers) {
         if (p1 == p2) {
@@ -536,7 +560,7 @@ export class GitHubRunners extends Construct {
   }
 
   /**
-   * Metric for the number of GitHub Actions jobs completed. It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succeeded", "SucceededWithIssues", "Failed", "Canceled", "Skipped", or "Abandoned".
+   * Metric for the number of GitHub Actions jobs completed. It has `ProviderLabels` and `Status` dimensions. The status can be one of 'Succeeded', 'SucceededWithIssues', 'Failed', 'Canceled', 'Skipped', or 'Abandoned'.
    *
    * **WARNING:** this method creates a metric filter for each provider. Each metric has a status dimension with six possible values. These resources may incur cost.
    */
