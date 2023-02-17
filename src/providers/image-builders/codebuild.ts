@@ -97,6 +97,15 @@ export interface CodeBuildImageBuilderProps {
   readonly computeType?: codebuild.ComputeType;
 
   /**
+   * Build image to use in CodeBuild. This is the image that's going to run the code that builds the runner image.
+   *
+   * The only action taken in CodeBuild is running `docker build`. You would therefore not need to change this setting often.
+   *
+   * @default Ubuntu 20.04 for x64 and Amazon Linux 2 for ARM64
+   */
+  readonly buildImage?: codebuild.IBuildImage;
+
+  /**
    * The number of minutes after which AWS CodeBuild stops the build if it's
    * not complete. For valid values, see the timeoutInMinutes field in the AWS
    * CodeBuild User Guide.
@@ -197,7 +206,7 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
     });
 
     // choose build image
-    this.buildImage = this.getBuildImage();
+    this.buildImage = props?.buildImage ?? this.getBuildImage();
   }
 
   /**
