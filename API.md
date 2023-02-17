@@ -2717,6 +2717,7 @@ const codeBuildImageBuilderProps: CodeBuildImageBuilderProps = { ... }
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilderProps.property.dockerfilePath">dockerfilePath</a></code> | <code>string</code> | Path to Dockerfile to be built. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilderProps.property.architecture">architecture</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a></code> | Image architecture. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilderProps.property.buildImage">buildImage</a></code> | <code>aws-cdk-lib.aws_codebuild.IBuildImage</code> | Build image to use in CodeBuild. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilderProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilderProps.property.logRemovalPolicy">logRemovalPolicy</a></code> | <code>aws-cdk-lib.RemovalPolicy</code> | Removal policy for logs of image builds. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
@@ -2754,6 +2755,23 @@ public readonly architecture: Architecture;
 - *Default:* Architecture.X86_64
 
 Image architecture.
+
+---
+
+##### `buildImage`<sup>Optional</sup> <a name="buildImage" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilderProps.property.buildImage"></a>
+
+```typescript
+public readonly buildImage: IBuildImage;
+```
+
+- *Type:* aws-cdk-lib.aws_codebuild.IBuildImage
+- *Default:* Ubuntu 20.04 for x64 and Amazon Linux 2 for ARM64
+
+Build image to use in CodeBuild.
+
+This is the image that's going to run the code that builds the runner image.
+
+The only action taken in CodeBuild is running `docker build`. You would therefore not need to change this setting often.
 
 ---
 
