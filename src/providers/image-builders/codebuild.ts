@@ -370,7 +370,7 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
   private getBuildImage(): codebuild.IBuildImage {
     if (this.os.is(Os.LINUX)) {
       if (this.architecture.is(Architecture.X86_64)) {
-        return codebuild.LinuxBuildImage.STANDARD_4_0;
+        return codebuild.LinuxBuildImage.STANDARD_5_0;
       } else if (this.architecture.is(Architecture.ARM64)) {
         return codebuild.LinuxArmBuildImage.AMAZON_LINUX_2_STANDARD_2_0;
       }
@@ -390,6 +390,8 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
     }
     buildArgs += ` --build-arg RUNNER_VERSION="${runnerVersion ? runnerVersion.version : RunnerVersion.latest().version}"`;
 
+    const thisStack = cdk.Stack.of(this);
+
     return {
       version: '0.2',
       env: {
@@ -407,7 +409,7 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
         pre_build: {
           commands: this.preBuild.concat([
             'mkdir -p extra_certs',
-            '$(aws ecr get-login --no-include-email --region "$AWS_DEFAULT_REGION")',
+            `aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`,
           ]),
         },
         build: {
