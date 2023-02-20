@@ -38,10 +38,6 @@ const project = new awscdk.AwsCdkConstructLibrary({
   ],
   deps: [
   ],
-  excludeTypescript: [
-    // we build lambdas manually below
-    'src/lambdas',
-  ],
   releaseToNpm: true,
   publishToPypi: {
     distName: 'cloudsnorkel.cdk-github-runners',
