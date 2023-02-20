@@ -53,8 +53,8 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
               break;
             }
           }
-        } catch (e: any) {
-          if (e.code !== 'ResourceNotFoundException') {
+        } catch (e) {
+          if ((e as any).code !== 'ResourceNotFoundException') {
             throw e;
           }
         }

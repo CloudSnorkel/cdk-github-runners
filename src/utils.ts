@@ -5,7 +5,7 @@ import { Construct } from 'constructs';
 /**
  * @internal
  */
-export function singletonLambda<FunctionType>(
+export function singletonLambda<FunctionType extends lambda.Function>(
   functionType: new (s: Construct, i: string, p?: lambda.FunctionOptions) => FunctionType,
   scope: Construct, id: string, props?: lambda.FunctionOptions): FunctionType {
 
