@@ -210,7 +210,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
    * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
    */
-  public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'fargate', 'linux-x64');
+  public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-x64');
 
   /**
    * Path to Dockerfile for Linux ARM64 with all the requirement for Fargate runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
@@ -219,7 +219,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
    * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
    */
-  public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'fargate', 'linux-arm64');
+  public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-arm64');
 
   /**
    * Cluster hosting the task hosting the runner.

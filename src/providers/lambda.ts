@@ -130,7 +130,7 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
    * * `BASE_IMAGE` sets the `FROM` line. This should be similar to public.ecr.aws/lambda/nodejs:14.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
    */
-  public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'lambda', 'linux-x64');
+  public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-x64');
 
   /**
    * Path to Dockerfile for Linux ARM64 with all the requirement for Lambda runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
@@ -139,7 +139,7 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
    * * `BASE_IMAGE` sets the `FROM` line. This should be similar to public.ecr.aws/lambda/nodejs:14.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
    */
-  public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'lambda', 'linux-arm64');
+  public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-arm64');
 
   /**
    * The function hosting the GitHub runner.

@@ -71,6 +71,15 @@
         },
         {
           "spawn": "bundle:lambdas/webhook-handler.lambda"
+        },
+        {
+          "exec": "cp -r src/providers/docker-images assets"
+        },
+        {
+          "exec": "vite build setup"
+        },
+        {
+          "exec": "cp -r setup/dist/index.html assets/lambdas/setup.lambda/index.html"
         }
       ]
     },
@@ -283,15 +292,6 @@
       "steps": [
         {
           "exec": "jsii --silence-warnings=reserved-word"
-        },
-        {
-          "exec": "cp -r src/providers/docker-images lib/providers"
-        },
-        {
-          "exec": "vite build setup"
-        },
-        {
-          "exec": "cp -r setup/dist/index.html lib/lambdas/setup/index.html"
         }
       ]
     },

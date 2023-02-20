@@ -107,7 +107,7 @@ const releaseWorkflow = project.github.tryFindWorkflow('release');
 releaseWorkflow.file.addDeletionOverride('on.push');
 
 // bundle docker images
-project.bundler.bundleTask.exec('cp -r src/providers/docker-images lib/providers');
+project.bundler.bundleTask.exec('cp -r src/providers/docker-images assets');
 
 // set proper line endings
 project.gitattributes.addAttributes('*.js', 'eol=lf');
@@ -120,7 +120,7 @@ project.gitattributes.addAttributes('Dockerfile', 'eol=lf');
 
 // setup ui
 project.gitignore.addPatterns('/setup/dist');
-project.compileTask.exec('vite build setup');
-project.compileTask.exec('cp -r setup/dist/index.html lib/lambdas/setup/index.html');
+project.bundler.bundleTask.exec('vite build setup');
+project.bundler.bundleTask.exec('cp -r setup/dist/index.html assets/lambdas/setup.lambda/index.html');
 
 project.synth();
