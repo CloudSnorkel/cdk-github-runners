@@ -15,9 +15,9 @@ import { Construct } from 'constructs';
 import { ImageBuilderBase, ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
-import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
-import { singletonLambda } from '../../utils';
 import { BuildImageFunction } from '../../lambdas/build-image-function';
+import { singletonLambda } from '../../utils';
+import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
 
 const dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
 ENV RUNNER_VERSION=___RUNNER_VERSION___

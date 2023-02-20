@@ -18,9 +18,9 @@ import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
-import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
-import { singletonLambda } from '../../utils';
 import { BuildImageFunction } from '../../lambdas/build-image-function';
+import { singletonLambda } from '../../utils';
+import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
 
 /*
 AWS Image Builder was not used because:
