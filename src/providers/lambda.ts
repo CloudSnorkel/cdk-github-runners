@@ -25,7 +25,8 @@ import {
   RunnerRuntimeParameters,
 } from './common';
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
-import { BundledNodejsFunction } from '../utils';
+import { UpdateLambdaFunction } from '../lambdas/update-lambda-function';
+import { singletonLambda } from '../utils';
 
 export interface LambdaRunnerProps extends RunnerProviderProps {
   /**
@@ -277,9 +278,10 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
     // Lambda needs to be pointing to a specific image digest and not just a tag.
     // Whenever we update the tag to a new digest, we need to update the lambda.
 
-    const updater = BundledNodejsFunction.singleton(this, 'update-lambda', {
+    const updater = singletonLambda(UpdateLambdaFunction, this, 'update-lambda', {
       description: 'Function that updates a GitHub Actions runner function with the latest image digest after the image has been rebuilt',
       timeout: cdk.Duration.minutes(15),
+      logRetention: logs.RetentionDays.ONE_MONTH,
     });
 
     updater.addToRolePolicy(new iam.PolicyStatement({

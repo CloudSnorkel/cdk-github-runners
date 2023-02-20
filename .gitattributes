@@ -24,6 +24,15 @@
 /API.md linguist-generated
 /LICENSE linguist-generated
 /package.json linguist-generated
+/src/lambdas/aws-image-builder-versioner-function.ts linguist-generated
+/src/lambdas/build-image-function.ts linguist-generated
+/src/lambdas/delete-ami-function.ts linguist-generated
+/src/lambdas/delete-runner-function.ts linguist-generated
+/src/lambdas/setup-function.ts linguist-generated
+/src/lambdas/status-function.ts linguist-generated
+/src/lambdas/token-retriever-function.ts linguist-generated
+/src/lambdas/update-lambda-function.ts linguist-generated
+/src/lambdas/webhook-handler-function.ts linguist-generated
 /tsconfig.dev.json linguist-generated
 /yarn.lock linguist-generated
 Dockerfile eol=lf

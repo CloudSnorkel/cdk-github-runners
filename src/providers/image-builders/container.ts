@@ -15,8 +15,9 @@ import { Construct } from 'constructs';
 import { ImageBuilderBase, ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
-import { BundledNodejsFunction } from '../../utils';
 import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
+import { singletonLambda } from '../../utils';
+import { BuildImageFunction } from '../../lambdas/build-image-function';
 
 const dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
 ENV RUNNER_VERSION=___RUNNER_VERSION___
@@ -378,9 +379,10 @@ export class ContainerImageBuilder extends ImageBuilderBase implements IImageBui
   }
 
   private imageCleaner(image: imagebuilder.CfnImage, recipeName: string) {
-    const crHandler = BundledNodejsFunction.singleton(this, 'build-image', {
+    const crHandler = singletonLambda(BuildImageFunction, this, 'build-image', {
       description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
       timeout: cdk.Duration.minutes(3),
+      logRetention: logs.RetentionDays.ONE_MONTH,
     });
 
     const policy = new iam.Policy(this, 'CR Policy', {

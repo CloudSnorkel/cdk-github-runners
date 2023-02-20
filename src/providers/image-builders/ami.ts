@@ -15,7 +15,8 @@ import { Construct } from 'constructs';
 import { ImageBuilderBase, ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
-import { BundledNodejsFunction } from '../../utils';
+import { DeleteAmiFunction } from '../../lambdas/delete-ami-function';
+import { singletonLambda } from '../../utils';
 import { Architecture, IAmiBuilder, Os, RunnerAmi, RunnerVersion } from '../common';
 
 /**
@@ -386,7 +387,8 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
   }
 
   private imageCleaner(launchTemplate: ec2.LaunchTemplate, stackName: string, builderName: string) {
-    const deleter = BundledNodejsFunction.singleton(this, 'delete-ami', {
+    const deleter = singletonLambda(DeleteAmiFunction, this, 'delete-ami', {
+      description: 'Delete old GitHub Runner AMIs',
       initialPolicy: [
         new iam.PolicyStatement({
           actions: ['ec2:DescribeLaunchTemplateVersions', 'ec2:DescribeImages', 'ec2:DeregisterImage', 'ec2:DeleteSnapshot'],
@@ -394,6 +396,7 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
         }),
       ],
       timeout: cdk.Duration.minutes(5),
+      logRetention: logs.RetentionDays.ONE_MONTH,
     });
 
     // delete old AMIs on schedule

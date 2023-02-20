@@ -2,8 +2,8 @@
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/core';
 import * as AWS from 'aws-sdk';
-import { baseUrlFromDomain } from '../github';
-import { getSecretJsonValue, getSecretValue } from '../helpers';
+import { baseUrlFromDomain } from './github';
+import { getSecretJsonValue, getSecretValue } from './helpers';
 
 const cfn = new AWS.CloudFormation();
 const ec2 = new AWS.EC2();

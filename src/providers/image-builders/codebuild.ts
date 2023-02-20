@@ -18,8 +18,9 @@ import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
-import { BundledNodejsFunction } from '../../utils';
 import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
+import { singletonLambda } from '../../utils';
+import { BuildImageFunction } from '../../lambdas/build-image-function';
 
 /*
 AWS Image Builder was not used because:
@@ -441,9 +442,10 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
   }
 
   private customResource(project: codebuild.Project) {
-    const crHandler = BundledNodejsFunction.singleton(this, 'build-image', {
+    const crHandler = singletonLambda(BuildImageFunction, this, 'build-image', {
       description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
       timeout: cdk.Duration.minutes(3),
+      logRetention: logs.RetentionDays.ONE_MONTH,
     });
 
     const policy = new iam.Policy(this, 'CR Policy', {

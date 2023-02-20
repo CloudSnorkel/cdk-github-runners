@@ -1,4 +1,3 @@
-const fs = require('fs');
 const { awscdk } = require('projen');
 const { Stability } = require('projen/lib/cdk/jsii-project');
 
@@ -110,15 +109,6 @@ const project = new awscdk.AwsCdkConstructLibrary({
 // disable automatic releases, but keep workflow that can be triggered manually
 const releaseWorkflow = project.github.tryFindWorkflow('release');
 releaseWorkflow.file.addDeletionOverride('on.push');
-
-// bundle lambdas so user doesn't have to install dependencies like octokit locally
-const lambdas = fs.readdirSync('src/lambdas');
-for (const lambdaDir of lambdas) {
-  if (fs.lstatSync(`src/lambdas/${lambdaDir}`).isDirectory()) {
-    // we use tsconfig.dev.json because it has esModuleInterop=true and octokit fails without it
-    project.compileTask.exec(`esbuild src/lambdas/${lambdaDir}/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/${lambdaDir}/index.js`);
-  }
-}
 
 // bundle docker images
 project.compileTask.exec('cp -r src/providers/docker-images lib/providers');

@@ -41,6 +41,201 @@
       ],
       "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
     },
+    "bundle": {
+      "name": "bundle",
+      "description": "Prepare assets",
+      "steps": [
+        {
+          "spawn": "bundle:lambdas/aws-image-builder-versioner.lambda"
+        },
+        {
+          "spawn": "bundle:lambdas/build-image.lambda"
+        },
+        {
+          "spawn": "bundle:lambdas/delete-ami.lambda"
+        },
+        {
+          "spawn": "bundle:lambdas/delete-runner.lambda"
+        },
+        {
+          "spawn": "bundle:lambdas/setup.lambda"
+        },
+        {
+          "spawn": "bundle:lambdas/status.lambda"
+        },
+        {
+          "spawn": "bundle:lambdas/token-retriever.lambda"
+        },
+        {
+          "spawn": "bundle:lambdas/update-lambda.lambda"
+        },
+        {
+          "spawn": "bundle:lambdas/webhook-handler.lambda"
+        }
+      ]
+    },
+    "bundle:lambdas/aws-image-builder-versioner.lambda": {
+      "name": "bundle:lambdas/aws-image-builder-versioner.lambda",
+      "description": "Create a JavaScript bundle from src/lambdas/aws-image-builder-versioner.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/aws-image-builder-versioner.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/aws-image-builder-versioner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:lambdas/aws-image-builder-versioner.lambda:watch": {
+      "name": "bundle:lambdas/aws-image-builder-versioner.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/lambdas/aws-image-builder-versioner.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/aws-image-builder-versioner.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/aws-image-builder-versioner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:lambdas/build-image.lambda": {
+      "name": "bundle:lambdas/build-image.lambda",
+      "description": "Create a JavaScript bundle from src/lambdas/build-image.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/build-image.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/build-image.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:lambdas/build-image.lambda:watch": {
+      "name": "bundle:lambdas/build-image.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/lambdas/build-image.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/build-image.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/build-image.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:lambdas/delete-ami.lambda": {
+      "name": "bundle:lambdas/delete-ami.lambda",
+      "description": "Create a JavaScript bundle from src/lambdas/delete-ami.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/delete-ami.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/delete-ami.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:lambdas/delete-ami.lambda:watch": {
+      "name": "bundle:lambdas/delete-ami.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/lambdas/delete-ami.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/delete-ami.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/delete-ami.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:lambdas/delete-runner.lambda": {
+      "name": "bundle:lambdas/delete-runner.lambda",
+      "description": "Create a JavaScript bundle from src/lambdas/delete-runner.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/delete-runner.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/delete-runner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:lambdas/delete-runner.lambda:watch": {
+      "name": "bundle:lambdas/delete-runner.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/lambdas/delete-runner.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/delete-runner.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/delete-runner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:lambdas/setup.lambda": {
+      "name": "bundle:lambdas/setup.lambda",
+      "description": "Create a JavaScript bundle from src/lambdas/setup.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/setup.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/setup.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:lambdas/setup.lambda:watch": {
+      "name": "bundle:lambdas/setup.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/lambdas/setup.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/setup.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/setup.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:lambdas/status.lambda": {
+      "name": "bundle:lambdas/status.lambda",
+      "description": "Create a JavaScript bundle from src/lambdas/status.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/status.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/status.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:lambdas/status.lambda:watch": {
+      "name": "bundle:lambdas/status.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/lambdas/status.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/status.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/status.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:lambdas/token-retriever.lambda": {
+      "name": "bundle:lambdas/token-retriever.lambda",
+      "description": "Create a JavaScript bundle from src/lambdas/token-retriever.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/token-retriever.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/token-retriever.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:lambdas/token-retriever.lambda:watch": {
+      "name": "bundle:lambdas/token-retriever.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/lambdas/token-retriever.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/token-retriever.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/token-retriever.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:lambdas/update-lambda.lambda": {
+      "name": "bundle:lambdas/update-lambda.lambda",
+      "description": "Create a JavaScript bundle from src/lambdas/update-lambda.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/update-lambda.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/update-lambda.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:lambdas/update-lambda.lambda:watch": {
+      "name": "bundle:lambdas/update-lambda.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/lambdas/update-lambda.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/update-lambda.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/update-lambda.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:lambdas/webhook-handler.lambda": {
+      "name": "bundle:lambdas/webhook-handler.lambda",
+      "description": "Create a JavaScript bundle from src/lambdas/webhook-handler.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/webhook-handler.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/webhook-handler.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:lambdas/webhook-handler.lambda:watch": {
+      "name": "bundle:lambdas/webhook-handler.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/lambdas/webhook-handler.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambdas/webhook-handler.lambda.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lambdas/webhook-handler.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
     "clobber": {
       "name": "clobber",
       "description": "hard resets to HEAD of origin and cleans the local repo",
@@ -88,33 +283,6 @@
       "steps": [
         {
           "exec": "jsii --silence-warnings=reserved-word"
-        },
-        {
-          "exec": "esbuild src/lambdas/aws-image-builder-versioner/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/aws-image-builder-versioner/index.js"
-        },
-        {
-          "exec": "esbuild src/lambdas/build-image/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/build-image/index.js"
-        },
-        {
-          "exec": "esbuild src/lambdas/delete-ami/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/delete-ami/index.js"
-        },
-        {
-          "exec": "esbuild src/lambdas/delete-runner/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/delete-runner/index.js"
-        },
-        {
-          "exec": "esbuild src/lambdas/setup/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/setup/index.js"
-        },
-        {
-          "exec": "esbuild src/lambdas/status/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/status/index.js"
-        },
-        {
-          "exec": "esbuild src/lambdas/token-retriever/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/token-retriever/index.js"
-        },
-        {
-          "exec": "esbuild src/lambdas/update-lambda/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/update-lambda/index.js"
-        },
-        {
-          "exec": "esbuild src/lambdas/webhook-handler/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/webhook-handler/index.js"
         },
         {
           "exec": "cp -r src/providers/docker-images lib/providers"
@@ -328,7 +496,12 @@
     },
     "pre-compile": {
       "name": "pre-compile",
-      "description": "Prepare the project for compilation"
+      "description": "Prepare the project for compilation",
+      "steps": [
+        {
+          "spawn": "bundle"
+        }
+      ]
     },
     "release": {
       "name": "release",
