@@ -25,3 +25,4 @@ tsconfig.tsbuildinfo
 !/assets/
 test/.tmp
 test/default.integ.snapshot
+/setup

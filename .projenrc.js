@@ -120,6 +120,7 @@ project.gitattributes.addAttributes('Dockerfile', 'eol=lf');
 
 // setup ui
 project.gitignore.addPatterns('/setup/dist');
+project.addPackageIgnore('/setup');
 project.bundler.bundleTask.exec('vite build setup');
 project.bundler.bundleTask.exec('cp -r setup/dist/index.html assets/lambdas/setup.lambda/index.html');
 
