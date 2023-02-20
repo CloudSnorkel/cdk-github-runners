@@ -107,7 +107,7 @@ const releaseWorkflow = project.github.tryFindWorkflow('release');
 releaseWorkflow.file.addDeletionOverride('on.push');
 
 // bundle docker images
-project.compileTask.exec('cp -r src/providers/docker-images lib/providers');
+project.bundler.bundleTask.exec('cp -r src/providers/docker-images lib/providers');
 
 // set proper line endings
 project.gitattributes.addAttributes('*.js', 'eol=lf');
