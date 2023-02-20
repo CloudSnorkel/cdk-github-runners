@@ -8142,7 +8142,7 @@
       "Arn"
      ]
     },
-    "Description": "src/lambdas/delete-ami.lambda.ts",
+    "Description": "Delete old GitHub Runner AMIs",
     "Environment": {
      "Variables": {
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
@@ -12307,7 +12307,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "5d6f86c12de312f3255ac9739b1fca5aa251b05229d03846c07b2bc4e76e05af.zip"
+     "S3Key": "fe24ddf471a2570dd8daed26c8017a4ee3e7aaacea8a3f758c51f6835d193972.zip"
     },
     "Role": {
      "Fn::GetAtt": [
