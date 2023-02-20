@@ -1,9 +1,9 @@
-import { aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
+import { aws_logs as logs, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
 import * as cdk from 'aws-cdk-lib';
 import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
+import { WebhookHandlerFunction } from './lambdas/webhook-handler-function';
 import { Secrets } from './secrets';
-import { BundledNodejsFunction } from './utils';
 
 /**
  * Properties for GithubWebhookHandler
@@ -36,12 +36,12 @@ export class GithubWebhookHandler extends Construct {
   /**
    * Webhook event handler.
    */
-  readonly handler: BundledNodejsFunction;
+  readonly handler: WebhookHandlerFunction;
 
   constructor(scope: Construct, id: string, props: GithubWebhookHandlerProps) {
     super(scope, id);
 
-    this.handler = new BundledNodejsFunction(
+    this.handler = new WebhookHandlerFunction(
       this,
       'webhook-handler',
       {
@@ -51,6 +51,7 @@ export class GithubWebhookHandler extends Construct {
           WEBHOOK_SECRET_ARN: props.secrets.webhook.secretArn,
         },
         timeout: cdk.Duration.seconds(30),
+        logRetention: logs.RetentionDays.ONE_MONTH,
       },
     );
 

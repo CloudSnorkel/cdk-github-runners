@@ -3,7 +3,7 @@ import * as AWSLambda from 'aws-lambda';
 /* eslint-disable import/no-extraneous-dependencies */
 import * as AWS from 'aws-sdk';
 import { inc, maxSatisfying } from 'semver';
-import { customResourceRespond } from '../helpers';
+import { customResourceRespond } from './helpers';
 
 const ib = new AWS.Imagebuilder();
 
@@ -53,8 +53,8 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
               break;
             }
           }
-        } catch (e: any) {
-          if (e.code !== 'ResourceNotFoundException') {
+        } catch (e) {
+          if ((e as any).code !== 'ResourceNotFoundException') {
             throw e;
           }
         }

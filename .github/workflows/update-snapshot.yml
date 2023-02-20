@@ -22,7 +22,7 @@ jobs:
         run: yarn install --check-files --frozen-lockfile
       - name: Snapshot main
         run: |
-          npm run compile
+          npm run bundle
           npm run integ:default:snapshot
       - name: Switch to branch
         run: git checkout ${{ github.event.workflow_run.head_branch }}
@@ -30,7 +30,7 @@ jobs:
         run: yarn install --check-files --frozen-lockfile
       - name: Snapshot branch
         run: |
-          npm run compile
+          npm run bundle
           npm run integ:default:snapshot
       - name: Find mutations
         id: create_patch

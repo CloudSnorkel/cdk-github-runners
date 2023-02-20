@@ -12,12 +12,15 @@ import {
 } from 'aws-cdk-lib';
 import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
+import { DeleteRunnerFunction } from './lambdas/delete-runner-function';
+import { SetupFunction } from './lambdas/setup-function';
+import { StatusFunction } from './lambdas/status-function';
+import { TokenRetrieverFunction } from './lambdas/token-retriever-function';
 import { CodeBuildRunner } from './providers/codebuild';
 import { IRunnerProvider } from './providers/common';
 import { FargateRunner } from './providers/fargate';
 import { LambdaRunner } from './providers/lambda';
 import { Secrets } from './secrets';
-import { BundledNodejsFunction } from './utils';
 import { GithubWebhookHandler } from './webhook';
 
 /**
@@ -354,7 +357,7 @@ export class GitHubRunners extends Construct {
   }
 
   private tokenRetriever() {
-    const func = new BundledNodejsFunction(
+    const func = new TokenRetrieverFunction(
       this,
       'token-retriever',
       {
@@ -365,6 +368,7 @@ export class GitHubRunners extends Construct {
           ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.seconds(30),
+        logRetention: logs.RetentionDays.ONE_MONTH,
         ...this.extraLambdaProps,
       },
     );
@@ -376,7 +380,7 @@ export class GitHubRunners extends Construct {
   }
 
   private deleteRunner() {
-    const func = new BundledNodejsFunction(
+    const func = new DeleteRunnerFunction(
       this,
       'delete-runner',
       {
@@ -387,6 +391,7 @@ export class GitHubRunners extends Construct {
           ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.seconds(30),
+        logRetention: logs.RetentionDays.ONE_MONTH,
         ...this.extraLambdaProps,
       },
     );
@@ -398,7 +403,7 @@ export class GitHubRunners extends Construct {
   }
 
   private statusFunction() {
-    const statusFunction = new BundledNodejsFunction(
+    const statusFunction = new StatusFunction(
       this,
       'status',
       {
@@ -416,6 +421,7 @@ export class GitHubRunners extends Construct {
           ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.minutes(3),
+        logRetention: logs.RetentionDays.ONE_MONTH,
         ...this.extraLambdaProps,
       },
     );
@@ -450,7 +456,7 @@ export class GitHubRunners extends Construct {
   }
 
   private setupFunction(): string {
-    const setupFunction = new BundledNodejsFunction(
+    const setupFunction = new SetupFunction(
       this,
       'setup',
       {
@@ -464,6 +470,7 @@ export class GitHubRunners extends Construct {
           ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.minutes(3),
+        logRetention: logs.RetentionDays.ONE_MONTH,
         ...this.extraLambdaProps,
       },
     );

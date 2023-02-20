@@ -11,7 +11,8 @@ import {
   RemovalPolicy,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { BundledNodejsFunction } from '../../utils';
+import { AwsImageBuilderVersionerFunction } from '../../lambdas/aws-image-builder-versioner-function';
+import { singletonLambda } from '../../utils';
 import { Architecture, Os, RunnerVersion } from '../common';
 
 /**
@@ -46,8 +47,8 @@ export abstract class ImageBuilderObjectBase extends cdk.Resource {
     }).ref;
   }
 
-  private versionFunction(): BundledNodejsFunction {
-    return BundledNodejsFunction.singleton(this, 'aws-image-builder-versioner', {
+  private versionFunction(): AwsImageBuilderVersionerFunction {
+    return singletonLambda(AwsImageBuilderVersionerFunction, this, 'aws-image-builder-versioner', {
       description: 'Custom resource handler that bumps up Image Builder versions',
       initialPolicy: [
         new iam.PolicyStatement({
@@ -59,6 +60,7 @@ export abstract class ImageBuilderObjectBase extends cdk.Resource {
           resources: ['*'],
         }),
       ],
+      logRetention: logs.RetentionDays.ONE_MONTH,
     });
   }
 }

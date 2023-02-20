@@ -1,7 +1,7 @@
 /*
  * DEPLOY COMMANDS:
  * (if new lambdas are added) projen
- * npm run compile && npm run integ:default:deploy
+ * npm run bundle && npm run integ:default:deploy
  */
 
 import * as cdk from 'aws-cdk-lib';

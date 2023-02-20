@@ -1,4 +1,3 @@
-const fs = require('fs');
 const { awscdk } = require('projen');
 const { Stability } = require('projen/lib/cdk/jsii-project');
 
@@ -38,10 +37,6 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'vite-plugin-singlefile@^0.11.0',
   ],
   deps: [
-  ],
-  excludeTypescript: [
-    // we build lambdas manually below
-    'src/lambdas',
   ],
   releaseToNpm: true,
   publishToPypi: {
@@ -111,17 +106,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
 const releaseWorkflow = project.github.tryFindWorkflow('release');
 releaseWorkflow.file.addDeletionOverride('on.push');
 
-// bundle lambdas so user doesn't have to install dependencies like octokit locally
-const lambdas = fs.readdirSync('src/lambdas');
-for (const lambdaDir of lambdas) {
-  if (fs.lstatSync(`src/lambdas/${lambdaDir}`).isDirectory()) {
-    // we use tsconfig.dev.json because it has esModuleInterop=true and octokit fails without it
-    project.compileTask.exec(`esbuild src/lambdas/${lambdaDir}/index.ts --bundle --platform=node --target=node14 --external:aws-sdk --outfile=lib/lambdas/${lambdaDir}/index.js`);
-  }
-}
-
 // bundle docker images
-project.compileTask.exec('cp -r src/providers/docker-images lib/providers');
+project.bundler.bundleTask.exec('cp -r src/providers/docker-images assets');
 
 // set proper line endings
 project.gitattributes.addAttributes('*.js', 'eol=lf');
@@ -134,7 +120,8 @@ project.gitattributes.addAttributes('Dockerfile', 'eol=lf');
 
 // setup ui
 project.gitignore.addPatterns('/setup/dist');
-project.compileTask.exec('vite build setup');
-project.compileTask.exec('cp -r setup/dist/index.html lib/lambdas/setup/index.html');
+project.addPackageIgnore('/setup');
+project.bundler.bundleTask.exec('vite build setup');
+project.bundler.bundleTask.exec('cp -r setup/dist/index.html assets/lambdas/setup.lambda/index.html');
 
 project.synth();
