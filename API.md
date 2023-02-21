@@ -474,27 +474,19 @@ public readonly props: CodeBuildImageBuilderProps;
 
 ### CodeBuildRunner <a name="CodeBuildRunner" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner"></a>
 
-- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
-
-GitHub Actions runner provider using CodeBuild to execute jobs.
-
-Creates a project that gets started for each job.
-
-This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
-
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.Initializer"></a>
 
 ```typescript
 import { CodeBuildRunner } from '@cloudsnorkel/cdk-github-runners'
 
-new CodeBuildRunner(scope: Construct, id: string, props?: CodeBuildRunnerProps)
+new CodeBuildRunner(scope: Construct, id: string, props?: CodeBuildRunnerProviderProps)
 ```
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps">CodeBuildRunnerProps</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps">CodeBuildRunnerProviderProps</a></code> | *No description.* |
 
 ---
 
@@ -512,7 +504,7 @@ new CodeBuildRunner(scope: Construct, id: string, props?: CodeBuildRunnerProps)
 
 ##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.Initializer.parameter.props"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps">CodeBuildRunnerProps</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps">CodeBuildRunnerProviderProps</a>
 
 ---
 
@@ -527,7 +519,7 @@ new CodeBuildRunner(scope: Construct, id: string, props?: CodeBuildRunnerProps)
 
 ---
 
-##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.toString"></a>
+##### ~~`toString`~~ <a name="toString" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.toString"></a>
 
 ```typescript
 public toString(): string
@@ -535,7 +527,7 @@ public toString(): string
 
 Returns a string representation of this construct.
 
-##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.getStepFunctionTask"></a>
+##### ~~`getStepFunctionTask`~~ <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.getStepFunctionTask"></a>
 
 ```typescript
 public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
@@ -553,7 +545,7 @@ workflow job details.
 
 ---
 
-##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.grantStateMachine"></a>
+##### ~~`grantStateMachine`~~ <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.grantStateMachine"></a>
 
 ```typescript
 public grantStateMachine(_: IGrantable): void
@@ -570,7 +562,7 @@ statements to the state machine role that are not automatically added by the tas
 
 ---
 
-##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.status"></a>
+##### ~~`status`~~ <a name="status" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.status"></a>
 
 ```typescript
 public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
@@ -626,7 +618,9 @@ Any object.
 
 ---
 
-##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.node"></a>
+##### ~~`node`~~<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.node"></a>
+
+- *Deprecated:* use {@link CodeBuildRunnerProvider}
 
 ```typescript
 public readonly node: Node;
@@ -638,7 +632,9 @@ The tree node.
 
 ---
 
-##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.connections"></a>
+##### ~~`connections`~~<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.connections"></a>
+
+- *Deprecated:* use {@link CodeBuildRunnerProvider}
 
 ```typescript
 public readonly connections: Connections;
@@ -650,7 +646,9 @@ The network connections associated with this resource.
 
 ---
 
-##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.grantPrincipal"></a>
+##### ~~`grantPrincipal`~~<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.grantPrincipal"></a>
+
+- *Deprecated:* use {@link CodeBuildRunnerProvider}
 
 ```typescript
 public readonly grantPrincipal: IPrincipal;
@@ -662,7 +660,9 @@ Grant principal used to add permissions to the runner role.
 
 ---
 
-##### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.image"></a>
+##### ~~`image`~~<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.image"></a>
+
+- *Deprecated:* use {@link CodeBuildRunnerProvider}
 
 ```typescript
 public readonly image: RunnerImage;
@@ -676,7 +676,9 @@ The image is built by an image builder and is specific to CodeBuild.
 
 ---
 
-##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.labels"></a>
+##### ~~`labels`~~<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.labels"></a>
+
+- *Deprecated:* use {@link CodeBuildRunnerProvider}
 
 ```typescript
 public readonly labels: string[];
@@ -688,7 +690,9 @@ Labels associated with this provider.
 
 ---
 
-##### `logGroup`<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.logGroup"></a>
+##### ~~`logGroup`~~<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.logGroup"></a>
+
+- *Deprecated:* use {@link CodeBuildRunnerProvider}
 
 ```typescript
 public readonly logGroup: ILogGroup;
@@ -702,7 +706,9 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ---
 
-##### `project`<sup>Required</sup> <a name="project" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.project"></a>
+##### ~~`project`~~<sup>Required</sup> <a name="project" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.project"></a>
+
+- *Deprecated:* use {@link CodeBuildRunnerProvider}
 
 ```typescript
 public readonly project: Project;
@@ -723,7 +729,9 @@ CodeBuild project hosting the runner.
 
 ---
 
-##### `LINUX_ARM64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+##### ~~`LINUX_ARM64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+
+- *Deprecated:* use {@link CodeBuildRunnerProvider}
 
 ```typescript
 public readonly LINUX_ARM64_DOCKERFILE_PATH: string;
@@ -745,7 +753,304 @@ Available build arguments that can be set in the image builder:
 
 ---
 
-##### `LINUX_X64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.LINUX_X64_DOCKERFILE_PATH"></a>
+##### ~~`LINUX_X64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.LINUX_X64_DOCKERFILE_PATH"></a>
+
+- *Deprecated:* use {@link CodeBuildRunnerProvider}
+
+```typescript
+public readonly LINUX_X64_DOCKERFILE_PATH: string;
+```
+
+- *Type:* string
+
+Path to Dockerfile for Linux x64 with all the requirements for CodeBuild runner.
+
+Use this Dockerfile unless you need to customize it further than allowed by hooks.
+
+Available build arguments that can be set in the image builder:
+* `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
+* `EXTRA_PACKAGES` can be used to install additional packages.
+* `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stable"`.
+* `DIND_COMMIT` overrides the commit where dind is found.
+* `DOCKER_VERSION` overrides the installed Docker version.
+* `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
+
+---
+
+### CodeBuildRunnerProvider <a name="CodeBuildRunnerProvider" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider"></a>
+
+- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
+
+GitHub Actions runner provider using CodeBuild to execute jobs.
+
+Creates a project that gets started for each job.
+
+This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.Initializer"></a>
+
+```typescript
+import { CodeBuildRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
+
+new CodeBuildRunnerProvider(scope: Construct, id: string, props?: CodeBuildRunnerProviderProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps">CodeBuildRunnerProviderProps</a></code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps">CodeBuildRunnerProviderProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+
+---
+
+##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.getStepFunctionTask"></a>
+
+```typescript
+public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+```
+
+Generate step function task(s) to start a new runner.
+
+Called by GithubRunners and shouldn't be called manually.
+
+###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+
+workflow job details.
+
+---
+
+##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.grantStateMachine"></a>
+
+```typescript
+public grantStateMachine(_: IGrantable): void
+```
+
+An optional method that modifies the role of the state machine after all the tasks have been generated.
+
+This can be used to add additional policy
+statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
+
+###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.grantStateMachine.parameter._"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IGrantable
+
+---
+
+##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.status"></a>
+
+```typescript
+public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
+```
+
+Return status of the runner provider to be used in the main status function.
+
+Also gives the status function any needed permissions to query the Docker image or AMI.
+
+###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.status.parameter.statusFunctionRole"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IGrantable
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.isConstruct"></a>
+
+```typescript
+import { CodeBuildRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
+
+CodeBuildRunnerProvider.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image loaded with GitHub Actions Runner and its prerequisites. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.project">project</a></code> | <code>aws-cdk-lib.aws_codebuild.Project</code> | CodeBuild project hosting the runner. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.connections"></a>
+
+```typescript
+public readonly connections: Connections;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.Connections
+
+The network connections associated with this resource.
+
+---
+
+##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.grantPrincipal"></a>
+
+```typescript
+public readonly grantPrincipal: IPrincipal;
+```
+
+- *Type:* aws-cdk-lib.aws_iam.IPrincipal
+
+Grant principal used to add permissions to the runner role.
+
+---
+
+##### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.image"></a>
+
+```typescript
+public readonly image: RunnerImage;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a>
+
+Docker image loaded with GitHub Actions Runner and its prerequisites.
+
+The image is built by an image builder and is specific to CodeBuild.
+
+---
+
+##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+
+Labels associated with this provider.
+
+---
+
+##### `logGroup`<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.logGroup"></a>
+
+```typescript
+public readonly logGroup: ILogGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_logs.ILogGroup
+
+Log group where provided runners will save their logs.
+
+Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+##### `project`<sup>Required</sup> <a name="project" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.project"></a>
+
+```typescript
+public readonly project: Project;
+```
+
+- *Type:* aws-cdk-lib.aws_codebuild.Project
+
+CodeBuild project hosting the runner.
+
+---
+
+#### Constants <a name="Constants" id="Constants"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.LINUX_ARM64_DOCKERFILE_PATH">LINUX_ARM64_DOCKERFILE_PATH</a></code> | <code>string</code> | Path to Dockerfile for Linux ARM64 with all the requirements for CodeBuild runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.LINUX_X64_DOCKERFILE_PATH">LINUX_X64_DOCKERFILE_PATH</a></code> | <code>string</code> | Path to Dockerfile for Linux x64 with all the requirements for CodeBuild runner. |
+
+---
+
+##### `LINUX_ARM64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+
+```typescript
+public readonly LINUX_ARM64_DOCKERFILE_PATH: string;
+```
+
+- *Type:* string
+
+Path to Dockerfile for Linux ARM64 with all the requirements for CodeBuild runner.
+
+Use this Dockerfile unless you need to customize it further than allowed by hooks.
+
+Available build arguments that can be set in the image builder:
+* `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
+* `EXTRA_PACKAGES` can be used to install additional packages.
+* `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stable"`.
+* `DIND_COMMIT` overrides the commit where dind is found.
+* `DOCKER_VERSION` overrides the installed Docker version.
+* `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
+
+---
+
+##### `LINUX_X64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.LINUX_X64_DOCKERFILE_PATH"></a>
 
 ```typescript
 public readonly LINUX_X64_DOCKERFILE_PATH: string;
@@ -977,25 +1282,19 @@ public readonly repository: IRepository;
 
 ### Ec2Runner <a name="Ec2Runner" id="@cloudsnorkel/cdk-github-runners.Ec2Runner"></a>
 
-- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
-
-GitHub Actions runner provider using EC2 to execute jobs.
-
-This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
-
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.Initializer"></a>
 
 ```typescript
 import { Ec2Runner } from '@cloudsnorkel/cdk-github-runners'
 
-new Ec2Runner(scope: Construct, id: string, props?: Ec2RunnerProps)
+new Ec2Runner(scope: Construct, id: string, props?: Ec2RunnerProviderProps)
 ```
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps">Ec2RunnerProps</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps">Ec2RunnerProviderProps</a></code> | *No description.* |
 
 ---
 
@@ -1013,7 +1312,7 @@ new Ec2Runner(scope: Construct, id: string, props?: Ec2RunnerProps)
 
 ##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.Initializer.parameter.props"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps">Ec2RunnerProps</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps">Ec2RunnerProviderProps</a>
 
 ---
 
@@ -1028,7 +1327,7 @@ new Ec2Runner(scope: Construct, id: string, props?: Ec2RunnerProps)
 
 ---
 
-##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.toString"></a>
+##### ~~`toString`~~ <a name="toString" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.toString"></a>
 
 ```typescript
 public toString(): string
@@ -1036,7 +1335,7 @@ public toString(): string
 
 Returns a string representation of this construct.
 
-##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.getStepFunctionTask"></a>
+##### ~~`getStepFunctionTask`~~ <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.getStepFunctionTask"></a>
 
 ```typescript
 public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
@@ -1054,7 +1353,7 @@ workflow job details.
 
 ---
 
-##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.grantStateMachine"></a>
+##### ~~`grantStateMachine`~~ <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.grantStateMachine"></a>
 
 ```typescript
 public grantStateMachine(stateMachineRole: IGrantable): void
@@ -1071,7 +1370,7 @@ statements to the state machine role that are not automatically added by the tas
 
 ---
 
-##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.status"></a>
+##### ~~`status`~~ <a name="status" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.status"></a>
 
 ```typescript
 public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
@@ -1125,7 +1424,9 @@ Any object.
 
 ---
 
-##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.node"></a>
+##### ~~`node`~~<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.node"></a>
+
+- *Deprecated:* use {@link Ec2RunnerProvider}
 
 ```typescript
 public readonly node: Node;
@@ -1137,7 +1438,9 @@ The tree node.
 
 ---
 
-##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.connections"></a>
+##### ~~`connections`~~<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.connections"></a>
+
+- *Deprecated:* use {@link Ec2RunnerProvider}
 
 ```typescript
 public readonly connections: Connections;
@@ -1149,7 +1452,9 @@ The network connections associated with this resource.
 
 ---
 
-##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.grantPrincipal"></a>
+##### ~~`grantPrincipal`~~<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.grantPrincipal"></a>
+
+- *Deprecated:* use {@link Ec2RunnerProvider}
 
 ```typescript
 public readonly grantPrincipal: IPrincipal;
@@ -1161,7 +1466,9 @@ Grant principal used to add permissions to the runner role.
 
 ---
 
-##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.labels"></a>
+##### ~~`labels`~~<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.labels"></a>
+
+- *Deprecated:* use {@link Ec2RunnerProvider}
 
 ```typescript
 public readonly labels: string[];
@@ -1173,7 +1480,222 @@ Labels associated with this provider.
 
 ---
 
-##### `logGroup`<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.logGroup"></a>
+##### ~~`logGroup`~~<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.logGroup"></a>
+
+- *Deprecated:* use {@link Ec2RunnerProvider}
+
+```typescript
+public readonly logGroup: ILogGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_logs.ILogGroup
+
+Log group where provided runners will save their logs.
+
+Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+
+### Ec2RunnerProvider <a name="Ec2RunnerProvider" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider"></a>
+
+- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
+
+GitHub Actions runner provider using EC2 to execute jobs.
+
+This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.Initializer"></a>
+
+```typescript
+import { Ec2RunnerProvider } from '@cloudsnorkel/cdk-github-runners'
+
+new Ec2RunnerProvider(scope: Construct, id: string, props?: Ec2RunnerProviderProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps">Ec2RunnerProviderProps</a></code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps">Ec2RunnerProviderProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+
+---
+
+##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.getStepFunctionTask"></a>
+
+```typescript
+public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+```
+
+Generate step function task(s) to start a new runner.
+
+Called by GithubRunners and shouldn't be called manually.
+
+###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.getStepFunctionTask.parameter.parameters"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+
+workflow job details.
+
+---
+
+##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.grantStateMachine"></a>
+
+```typescript
+public grantStateMachine(stateMachineRole: IGrantable): void
+```
+
+An optional method that modifies the role of the state machine after all the tasks have been generated.
+
+This can be used to add additional policy
+statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
+
+###### `stateMachineRole`<sup>Required</sup> <a name="stateMachineRole" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.grantStateMachine.parameter.stateMachineRole"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IGrantable
+
+---
+
+##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.status"></a>
+
+```typescript
+public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
+```
+
+Return status of the runner provider to be used in the main status function.
+
+Also gives the status function any needed permissions to query the Docker image or AMI.
+
+###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.status.parameter.statusFunctionRole"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IGrantable
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.isConstruct"></a>
+
+```typescript
+import { Ec2RunnerProvider } from '@cloudsnorkel/cdk-github-runners'
+
+Ec2RunnerProvider.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.connections"></a>
+
+```typescript
+public readonly connections: Connections;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.Connections
+
+The network connections associated with this resource.
+
+---
+
+##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.grantPrincipal"></a>
+
+```typescript
+public readonly grantPrincipal: IPrincipal;
+```
+
+- *Type:* aws-cdk-lib.aws_iam.IPrincipal
+
+Grant principal used to add permissions to the runner role.
+
+---
+
+##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+
+Labels associated with this provider.
+
+---
+
+##### `logGroup`<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.logGroup"></a>
 
 ```typescript
 public readonly logGroup: ILogGroup;
@@ -1190,27 +1712,19 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ### FargateRunner <a name="FargateRunner" id="@cloudsnorkel/cdk-github-runners.FargateRunner"></a>
 
-- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
-
-GitHub Actions runner provider using Fargate to execute jobs.
-
-Creates a task definition with a single container that gets started for each job.
-
-This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
-
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.FargateRunner.Initializer"></a>
 
 ```typescript
 import { FargateRunner } from '@cloudsnorkel/cdk-github-runners'
 
-new FargateRunner(scope: Construct, id: string, props?: FargateRunnerProps)
+new FargateRunner(scope: Construct, id: string, props?: FargateRunnerProviderProps)
 ```
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps">FargateRunnerProps</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps">FargateRunnerProviderProps</a></code> | *No description.* |
 
 ---
 
@@ -1228,7 +1742,7 @@ new FargateRunner(scope: Construct, id: string, props?: FargateRunnerProps)
 
 ##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.FargateRunner.Initializer.parameter.props"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps">FargateRunnerProps</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps">FargateRunnerProviderProps</a>
 
 ---
 
@@ -1243,7 +1757,7 @@ new FargateRunner(scope: Construct, id: string, props?: FargateRunnerProps)
 
 ---
 
-##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.FargateRunner.toString"></a>
+##### ~~`toString`~~ <a name="toString" id="@cloudsnorkel/cdk-github-runners.FargateRunner.toString"></a>
 
 ```typescript
 public toString(): string
@@ -1251,7 +1765,7 @@ public toString(): string
 
 Returns a string representation of this construct.
 
-##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.FargateRunner.getStepFunctionTask"></a>
+##### ~~`getStepFunctionTask`~~ <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.FargateRunner.getStepFunctionTask"></a>
 
 ```typescript
 public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
@@ -1269,7 +1783,7 @@ workflow job details.
 
 ---
 
-##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.FargateRunner.grantStateMachine"></a>
+##### ~~`grantStateMachine`~~ <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.FargateRunner.grantStateMachine"></a>
 
 ```typescript
 public grantStateMachine(_: IGrantable): void
@@ -1286,7 +1800,7 @@ statements to the state machine role that are not automatically added by the tas
 
 ---
 
-##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.FargateRunner.status"></a>
+##### ~~`status`~~ <a name="status" id="@cloudsnorkel/cdk-github-runners.FargateRunner.status"></a>
 
 ```typescript
 public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
@@ -1348,7 +1862,9 @@ Any object.
 
 ---
 
-##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.node"></a>
+##### ~~`node`~~<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.node"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly node: Node;
@@ -1360,7 +1876,9 @@ The tree node.
 
 ---
 
-##### `assignPublicIp`<sup>Required</sup> <a name="assignPublicIp" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.assignPublicIp"></a>
+##### ~~`assignPublicIp`~~<sup>Required</sup> <a name="assignPublicIp" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.assignPublicIp"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly assignPublicIp: boolean;
@@ -1372,7 +1890,9 @@ Whether runner task will have a public IP.
 
 ---
 
-##### `cluster`<sup>Required</sup> <a name="cluster" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.cluster"></a>
+##### ~~`cluster`~~<sup>Required</sup> <a name="cluster" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.cluster"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly cluster: Cluster;
@@ -1384,7 +1904,9 @@ Cluster hosting the task hosting the runner.
 
 ---
 
-##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.connections"></a>
+##### ~~`connections`~~<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.connections"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly connections: Connections;
@@ -1396,7 +1918,9 @@ The network connections associated with this resource.
 
 ---
 
-##### `container`<sup>Required</sup> <a name="container" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.container"></a>
+##### ~~`container`~~<sup>Required</sup> <a name="container" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.container"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly container: ContainerDefinition;
@@ -1408,7 +1932,9 @@ Container definition hosting the runner.
 
 ---
 
-##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.grantPrincipal"></a>
+##### ~~`grantPrincipal`~~<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.grantPrincipal"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly grantPrincipal: IPrincipal;
@@ -1420,7 +1946,9 @@ Grant principal used to add permissions to the runner role.
 
 ---
 
-##### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.image"></a>
+##### ~~`image`~~<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.image"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly image: RunnerImage;
@@ -1434,7 +1962,9 @@ The image is built by an image builder and is specific to Fargate tasks.
 
 ---
 
-##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.labels"></a>
+##### ~~`labels`~~<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.labels"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly labels: string[];
@@ -1446,7 +1976,9 @@ Labels associated with this provider.
 
 ---
 
-##### `logGroup`<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.logGroup"></a>
+##### ~~`logGroup`~~<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.logGroup"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly logGroup: ILogGroup;
@@ -1460,7 +1992,9 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ---
 
-##### `spot`<sup>Required</sup> <a name="spot" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.spot"></a>
+##### ~~`spot`~~<sup>Required</sup> <a name="spot" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.spot"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly spot: boolean;
@@ -1472,7 +2006,9 @@ Use spot pricing for Fargate tasks.
 
 ---
 
-##### `task`<sup>Required</sup> <a name="task" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.task"></a>
+##### ~~`task`~~<sup>Required</sup> <a name="task" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.task"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly task: FargateTaskDefinition;
@@ -1484,7 +2020,9 @@ Fargate task hosting the runner.
 
 ---
 
-##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.subnetSelection"></a>
+##### ~~`subnetSelection`~~<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.subnetSelection"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly subnetSelection: SubnetSelection;
@@ -1496,7 +2034,9 @@ Subnets used for hosting the runner task.
 
 ---
 
-##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.vpc"></a>
+##### ~~`vpc`~~<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.vpc"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly vpc: IVpc;
@@ -1517,7 +2057,9 @@ VPC used for hosting the runner task.
 
 ---
 
-##### `LINUX_ARM64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+##### ~~`LINUX_ARM64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
 
 ```typescript
 public readonly LINUX_ARM64_DOCKERFILE_PATH: string;
@@ -1535,7 +2077,374 @@ Available build arguments that can be set in the image builder:
 
 ---
 
-##### `LINUX_X64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.LINUX_X64_DOCKERFILE_PATH"></a>
+##### ~~`LINUX_X64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.LINUX_X64_DOCKERFILE_PATH"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider}
+
+```typescript
+public readonly LINUX_X64_DOCKERFILE_PATH: string;
+```
+
+- *Type:* string
+
+Path to Dockerfile for Linux x64 with all the requirement for Fargate runner.
+
+Use this Dockerfile unless you need to customize it further than allowed by hooks.
+
+Available build arguments that can be set in the image builder:
+* `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
+* `EXTRA_PACKAGES` can be used to install additional packages.
+
+---
+
+### FargateRunnerProvider <a name="FargateRunnerProvider" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider"></a>
+
+- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
+
+GitHub Actions runner provider using Fargate to execute jobs.
+
+Creates a task definition with a single container that gets started for each job.
+
+This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.Initializer"></a>
+
+```typescript
+import { FargateRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
+
+new FargateRunnerProvider(scope: Construct, id: string, props?: FargateRunnerProviderProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps">FargateRunnerProviderProps</a></code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps">FargateRunnerProviderProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+
+---
+
+##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.getStepFunctionTask"></a>
+
+```typescript
+public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+```
+
+Generate step function task(s) to start a new runner.
+
+Called by GithubRunners and shouldn't be called manually.
+
+###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+
+workflow job details.
+
+---
+
+##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.grantStateMachine"></a>
+
+```typescript
+public grantStateMachine(_: IGrantable): void
+```
+
+An optional method that modifies the role of the state machine after all the tasks have been generated.
+
+This can be used to add additional policy
+statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
+
+###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.grantStateMachine.parameter._"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IGrantable
+
+---
+
+##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.status"></a>
+
+```typescript
+public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
+```
+
+Return status of the runner provider to be used in the main status function.
+
+Also gives the status function any needed permissions to query the Docker image or AMI.
+
+###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.status.parameter.statusFunctionRole"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IGrantable
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.isConstruct"></a>
+
+```typescript
+import { FargateRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
+
+FargateRunnerProvider.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.assignPublicIp">assignPublicIp</a></code> | <code>boolean</code> | Whether runner task will have a public IP. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_ecs.Cluster</code> | Cluster hosting the task hosting the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.container">container</a></code> | <code>aws-cdk-lib.aws_ecs.ContainerDefinition</code> | Container definition hosting the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image loaded with GitHub Actions Runner and its prerequisites. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.spot">spot</a></code> | <code>boolean</code> | Use spot pricing for Fargate tasks. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.task">task</a></code> | <code>aws-cdk-lib.aws_ecs.FargateTaskDefinition</code> | Fargate task hosting the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets used for hosting the runner task. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for hosting the runner task. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `assignPublicIp`<sup>Required</sup> <a name="assignPublicIp" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.assignPublicIp"></a>
+
+```typescript
+public readonly assignPublicIp: boolean;
+```
+
+- *Type:* boolean
+
+Whether runner task will have a public IP.
+
+---
+
+##### `cluster`<sup>Required</sup> <a name="cluster" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.cluster"></a>
+
+```typescript
+public readonly cluster: Cluster;
+```
+
+- *Type:* aws-cdk-lib.aws_ecs.Cluster
+
+Cluster hosting the task hosting the runner.
+
+---
+
+##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.connections"></a>
+
+```typescript
+public readonly connections: Connections;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.Connections
+
+The network connections associated with this resource.
+
+---
+
+##### `container`<sup>Required</sup> <a name="container" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.container"></a>
+
+```typescript
+public readonly container: ContainerDefinition;
+```
+
+- *Type:* aws-cdk-lib.aws_ecs.ContainerDefinition
+
+Container definition hosting the runner.
+
+---
+
+##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.grantPrincipal"></a>
+
+```typescript
+public readonly grantPrincipal: IPrincipal;
+```
+
+- *Type:* aws-cdk-lib.aws_iam.IPrincipal
+
+Grant principal used to add permissions to the runner role.
+
+---
+
+##### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.image"></a>
+
+```typescript
+public readonly image: RunnerImage;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a>
+
+Docker image loaded with GitHub Actions Runner and its prerequisites.
+
+The image is built by an image builder and is specific to Fargate tasks.
+
+---
+
+##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+
+Labels associated with this provider.
+
+---
+
+##### `logGroup`<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.logGroup"></a>
+
+```typescript
+public readonly logGroup: ILogGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_logs.ILogGroup
+
+Log group where provided runners will save their logs.
+
+Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+##### `spot`<sup>Required</sup> <a name="spot" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.spot"></a>
+
+```typescript
+public readonly spot: boolean;
+```
+
+- *Type:* boolean
+
+Use spot pricing for Fargate tasks.
+
+---
+
+##### `task`<sup>Required</sup> <a name="task" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.task"></a>
+
+```typescript
+public readonly task: FargateTaskDefinition;
+```
+
+- *Type:* aws-cdk-lib.aws_ecs.FargateTaskDefinition
+
+Fargate task hosting the runner.
+
+---
+
+##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.subnetSelection"></a>
+
+```typescript
+public readonly subnetSelection: SubnetSelection;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.SubnetSelection
+
+Subnets used for hosting the runner task.
+
+---
+
+##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.vpc"></a>
+
+```typescript
+public readonly vpc: IVpc;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.IVpc
+
+VPC used for hosting the runner task.
+
+---
+
+#### Constants <a name="Constants" id="Constants"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.LINUX_ARM64_DOCKERFILE_PATH">LINUX_ARM64_DOCKERFILE_PATH</a></code> | <code>string</code> | Path to Dockerfile for Linux ARM64 with all the requirement for Fargate runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.LINUX_X64_DOCKERFILE_PATH">LINUX_X64_DOCKERFILE_PATH</a></code> | <code>string</code> | Path to Dockerfile for Linux x64 with all the requirement for Fargate runner. |
+
+---
+
+##### `LINUX_ARM64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+
+```typescript
+public readonly LINUX_ARM64_DOCKERFILE_PATH: string;
+```
+
+- *Type:* string
+
+Path to Dockerfile for Linux ARM64 with all the requirement for Fargate runner.
+
+Use this Dockerfile unless you need to customize it further than allowed by hooks.
+
+Available build arguments that can be set in the image builder:
+* `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
+* `EXTRA_PACKAGES` can be used to install additional packages.
+
+---
+
+##### `LINUX_X64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.LINUX_X64_DOCKERFILE_PATH"></a>
 
 ```typescript
 public readonly LINUX_X64_DOCKERFILE_PATH: string;
@@ -2052,27 +2961,19 @@ Supported platform for the component.
 
 ### LambdaRunner <a name="LambdaRunner" id="@cloudsnorkel/cdk-github-runners.LambdaRunner"></a>
 
-- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
-
-GitHub Actions runner provider using Lambda to execute jobs.
-
-Creates a Docker-based function that gets executed for each job.
-
-This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
-
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.Initializer"></a>
 
 ```typescript
 import { LambdaRunner } from '@cloudsnorkel/cdk-github-runners'
 
-new LambdaRunner(scope: Construct, id: string, props?: LambdaRunnerProps)
+new LambdaRunner(scope: Construct, id: string, props?: LambdaRunnerProviderProps)
 ```
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps">LambdaRunnerProps</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps">LambdaRunnerProviderProps</a></code> | *No description.* |
 
 ---
 
@@ -2090,7 +2991,7 @@ new LambdaRunner(scope: Construct, id: string, props?: LambdaRunnerProps)
 
 ##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.Initializer.parameter.props"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps">LambdaRunnerProps</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps">LambdaRunnerProviderProps</a>
 
 ---
 
@@ -2105,7 +3006,7 @@ new LambdaRunner(scope: Construct, id: string, props?: LambdaRunnerProps)
 
 ---
 
-##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.toString"></a>
+##### ~~`toString`~~ <a name="toString" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.toString"></a>
 
 ```typescript
 public toString(): string
@@ -2113,7 +3014,7 @@ public toString(): string
 
 Returns a string representation of this construct.
 
-##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.getStepFunctionTask"></a>
+##### ~~`getStepFunctionTask`~~ <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.getStepFunctionTask"></a>
 
 ```typescript
 public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
@@ -2131,7 +3032,7 @@ workflow job details.
 
 ---
 
-##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.grantStateMachine"></a>
+##### ~~`grantStateMachine`~~ <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.grantStateMachine"></a>
 
 ```typescript
 public grantStateMachine(_: IGrantable): void
@@ -2148,7 +3049,7 @@ statements to the state machine role that are not automatically added by the tas
 
 ---
 
-##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.status"></a>
+##### ~~`status`~~ <a name="status" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.status"></a>
 
 ```typescript
 public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
@@ -2204,7 +3105,9 @@ Any object.
 
 ---
 
-##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.node"></a>
+##### ~~`node`~~<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.node"></a>
+
+- *Deprecated:* use {@link LambdaRunnerProvider}
 
 ```typescript
 public readonly node: Node;
@@ -2216,7 +3119,9 @@ The tree node.
 
 ---
 
-##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.connections"></a>
+##### ~~`connections`~~<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.connections"></a>
+
+- *Deprecated:* use {@link LambdaRunnerProvider}
 
 ```typescript
 public readonly connections: Connections;
@@ -2228,7 +3133,9 @@ The network connections associated with this resource.
 
 ---
 
-##### `function`<sup>Required</sup> <a name="function" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.function"></a>
+##### ~~`function`~~<sup>Required</sup> <a name="function" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.function"></a>
+
+- *Deprecated:* use {@link LambdaRunnerProvider}
 
 ```typescript
 public readonly function: Function;
@@ -2240,7 +3147,9 @@ The function hosting the GitHub runner.
 
 ---
 
-##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.grantPrincipal"></a>
+##### ~~`grantPrincipal`~~<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.grantPrincipal"></a>
+
+- *Deprecated:* use {@link LambdaRunnerProvider}
 
 ```typescript
 public readonly grantPrincipal: IPrincipal;
@@ -2252,7 +3161,9 @@ Grant principal used to add permissions to the runner role.
 
 ---
 
-##### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.image"></a>
+##### ~~`image`~~<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.image"></a>
+
+- *Deprecated:* use {@link LambdaRunnerProvider}
 
 ```typescript
 public readonly image: RunnerImage;
@@ -2266,7 +3177,9 @@ The image is built by an image builder and is specific to Lambda.
 
 ---
 
-##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.labels"></a>
+##### ~~`labels`~~<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.labels"></a>
+
+- *Deprecated:* use {@link LambdaRunnerProvider}
 
 ```typescript
 public readonly labels: string[];
@@ -2278,7 +3191,9 @@ Labels associated with this provider.
 
 ---
 
-##### `logGroup`<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.logGroup"></a>
+##### ~~`logGroup`~~<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.logGroup"></a>
+
+- *Deprecated:* use {@link LambdaRunnerProvider}
 
 ```typescript
 public readonly logGroup: ILogGroup;
@@ -2301,7 +3216,9 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ---
 
-##### `LINUX_ARM64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+##### ~~`LINUX_ARM64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+
+- *Deprecated:* use {@link LambdaRunnerProvider}
 
 ```typescript
 public readonly LINUX_ARM64_DOCKERFILE_PATH: string;
@@ -2319,7 +3236,296 @@ Available build arguments that can be set in the image builder:
 
 ---
 
-##### `LINUX_X64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.LINUX_X64_DOCKERFILE_PATH"></a>
+##### ~~`LINUX_X64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.LINUX_X64_DOCKERFILE_PATH"></a>
+
+- *Deprecated:* use {@link LambdaRunnerProvider}
+
+```typescript
+public readonly LINUX_X64_DOCKERFILE_PATH: string;
+```
+
+- *Type:* string
+
+Path to Dockerfile for Linux x64 with all the requirement for Lambda runner.
+
+Use this Dockerfile unless you need to customize it further than allowed by hooks.
+
+Available build arguments that can be set in the image builder:
+* `BASE_IMAGE` sets the `FROM` line. This should be similar to public.ecr.aws/lambda/nodejs:14.
+* `EXTRA_PACKAGES` can be used to install additional packages.
+
+---
+
+### LambdaRunnerProvider <a name="LambdaRunnerProvider" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider"></a>
+
+- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
+
+GitHub Actions runner provider using Lambda to execute jobs.
+
+Creates a Docker-based function that gets executed for each job.
+
+This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.Initializer"></a>
+
+```typescript
+import { LambdaRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
+
+new LambdaRunnerProvider(scope: Construct, id: string, props?: LambdaRunnerProviderProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps">LambdaRunnerProviderProps</a></code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps">LambdaRunnerProviderProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+
+---
+
+##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.getStepFunctionTask"></a>
+
+```typescript
+public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+```
+
+Generate step function task(s) to start a new runner.
+
+Called by GithubRunners and shouldn't be called manually.
+
+###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+
+workflow job details.
+
+---
+
+##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.grantStateMachine"></a>
+
+```typescript
+public grantStateMachine(_: IGrantable): void
+```
+
+An optional method that modifies the role of the state machine after all the tasks have been generated.
+
+This can be used to add additional policy
+statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
+
+###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.grantStateMachine.parameter._"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IGrantable
+
+---
+
+##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.status"></a>
+
+```typescript
+public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
+```
+
+Return status of the runner provider to be used in the main status function.
+
+Also gives the status function any needed permissions to query the Docker image or AMI.
+
+###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.status.parameter.statusFunctionRole"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IGrantable
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.isConstruct"></a>
+
+```typescript
+import { LambdaRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
+
+LambdaRunnerProvider.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.function">function</a></code> | <code>aws-cdk-lib.aws_lambda.Function</code> | The function hosting the GitHub runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image loaded with GitHub Actions Runner and its prerequisites. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.connections"></a>
+
+```typescript
+public readonly connections: Connections;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.Connections
+
+The network connections associated with this resource.
+
+---
+
+##### `function`<sup>Required</sup> <a name="function" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.function"></a>
+
+```typescript
+public readonly function: Function;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.Function
+
+The function hosting the GitHub runner.
+
+---
+
+##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.grantPrincipal"></a>
+
+```typescript
+public readonly grantPrincipal: IPrincipal;
+```
+
+- *Type:* aws-cdk-lib.aws_iam.IPrincipal
+
+Grant principal used to add permissions to the runner role.
+
+---
+
+##### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.image"></a>
+
+```typescript
+public readonly image: RunnerImage;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a>
+
+Docker image loaded with GitHub Actions Runner and its prerequisites.
+
+The image is built by an image builder and is specific to Lambda.
+
+---
+
+##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+
+Labels associated with this provider.
+
+---
+
+##### `logGroup`<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.logGroup"></a>
+
+```typescript
+public readonly logGroup: ILogGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_logs.ILogGroup
+
+Log group where provided runners will save their logs.
+
+Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+#### Constants <a name="Constants" id="Constants"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.LINUX_ARM64_DOCKERFILE_PATH">LINUX_ARM64_DOCKERFILE_PATH</a></code> | <code>string</code> | Path to Dockerfile for Linux ARM64 with all the requirement for Lambda runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.LINUX_X64_DOCKERFILE_PATH">LINUX_X64_DOCKERFILE_PATH</a></code> | <code>string</code> | Path to Dockerfile for Linux x64 with all the requirement for Lambda runner. |
+
+---
+
+##### `LINUX_ARM64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+
+```typescript
+public readonly LINUX_ARM64_DOCKERFILE_PATH: string;
+```
+
+- *Type:* string
+
+Path to Dockerfile for Linux ARM64 with all the requirement for Lambda runner.
+
+Use this Dockerfile unless you need to customize it further than allowed by hooks.
+
+Available build arguments that can be set in the image builder:
+* `BASE_IMAGE` sets the `FROM` line. This should be similar to public.ecr.aws/lambda/nodejs:14.
+* `EXTRA_PACKAGES` can be used to install additional packages.
+
+---
+
+##### `LINUX_X64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.LINUX_X64_DOCKERFILE_PATH"></a>
 
 ```typescript
 public readonly LINUX_X64_DOCKERFILE_PATH: string;
@@ -2922,36 +4128,36 @@ VPC to build the image in.
 
 ---
 
-### CodeBuildRunnerProps <a name="CodeBuildRunnerProps" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps"></a>
+### CodeBuildRunnerProviderProps <a name="CodeBuildRunnerProviderProps" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps"></a>
 
-#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.Initializer"></a>
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.Initializer"></a>
 
 ```typescript
-import { CodeBuildRunnerProps } from '@cloudsnorkel/cdk-github-runners'
+import { CodeBuildRunnerProviderProps } from '@cloudsnorkel/cdk-github-runners'
 
-const codeBuildRunnerProps: CodeBuildRunnerProps = { ... }
+const codeBuildRunnerProviderProps: CodeBuildRunnerProviderProps = { ... }
 ```
 
 #### Properties <a name="Properties" id="Properties"></a>
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Image builder for CodeBuild image with GitHub runner pre-configured. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group to assign to this instance. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to this instance. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The number of minutes after which AWS CodeBuild stops the build if it's not complete. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Image builder for CodeBuild image with GitHub runner pre-configured. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group to assign to this instance. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to this instance. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The number of minutes after which AWS CodeBuild stops the build if it's not complete. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
 
 ---
 
-##### `logRetention`<sup>Optional</sup> <a name="logRetention" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.logRetention"></a>
+##### `logRetention`<sup>Optional</sup> <a name="logRetention" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.logRetention"></a>
 
 ```typescript
 public readonly logRetention: RetentionDays;
@@ -2968,7 +4174,7 @@ remove the retention policy, set the value to `INFINITE`.
 
 ---
 
-##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.retryOptions"></a>
+##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.retryOptions"></a>
 
 ```typescript
 public readonly retryOptions: ProviderRetryOptions;
@@ -2981,7 +4187,7 @@ Options to retry operation in case of failure like missing capacity, or API quot
 
 ---
 
-##### `computeType`<sup>Optional</sup> <a name="computeType" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.computeType"></a>
+##### `computeType`<sup>Optional</sup> <a name="computeType" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.computeType"></a>
 
 ```typescript
 public readonly computeType: ComputeType;
@@ -2996,7 +4202,7 @@ See the {@link ComputeType} enum for the possible values.
 
 ---
 
-##### `dockerInDocker`<sup>Optional</sup> <a name="dockerInDocker" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.dockerInDocker"></a>
+##### `dockerInDocker`<sup>Optional</sup> <a name="dockerInDocker" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.dockerInDocker"></a>
 
 ```typescript
 public readonly dockerInDocker: boolean;
@@ -3012,7 +4218,7 @@ speed up provisioning of CodeBuild runners. If you don't intend on running or bu
 
 ---
 
-##### `imageBuilder`<sup>Optional</sup> <a name="imageBuilder" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.imageBuilder"></a>
+##### `imageBuilder`<sup>Optional</sup> <a name="imageBuilder" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.imageBuilder"></a>
 
 ```typescript
 public readonly imageBuilder: IImageBuilder;
@@ -3027,7 +4233,7 @@ A user named `runner` is expected to exist with access to Docker-in-Docker.
 
 ---
 
-##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.label"></a>
+##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.label"></a>
 
 - *Deprecated:* use {@link labels} instead
 
@@ -3042,7 +4248,7 @@ GitHub Actions label used for this provider.
 
 ---
 
-##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.labels"></a>
+##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.labels"></a>
 
 ```typescript
 public readonly labels: string[];
@@ -3059,7 +4265,7 @@ job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
-##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroup"></a>
+##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.securityGroup"></a>
 
 - *Deprecated:* use {@link securityGroups}
 
@@ -3074,7 +4280,7 @@ Security group to assign to this instance.
 
 ---
 
-##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.securityGroups"></a>
+##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.securityGroups"></a>
 
 ```typescript
 public readonly securityGroups: ISecurityGroup[];
@@ -3087,7 +4293,7 @@ Security groups to assign to this instance.
 
 ---
 
-##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.subnetSelection"></a>
+##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.subnetSelection"></a>
 
 ```typescript
 public readonly subnetSelection: SubnetSelection;
@@ -3100,7 +4306,7 @@ Where to place the network interfaces within the VPC.
 
 ---
 
-##### `timeout`<sup>Optional</sup> <a name="timeout" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.timeout"></a>
+##### `timeout`<sup>Optional</sup> <a name="timeout" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.timeout"></a>
 
 ```typescript
 public readonly timeout: Duration;
@@ -3116,7 +4322,7 @@ CodeBuild User Guide.
 
 ---
 
-##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProps.property.vpc"></a>
+##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.vpc"></a>
 
 ```typescript
 public readonly vpc: IVpc;
@@ -3332,39 +4538,39 @@ VPC to launch the runners in.
 
 ---
 
-### Ec2RunnerProps <a name="Ec2RunnerProps" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps"></a>
+### Ec2RunnerProviderProps <a name="Ec2RunnerProviderProps" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps"></a>
 
-Properties for {@link Ec2Runner} construct.
+Properties for {@link Ec2RunnerProvider} construct.
 
-#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.Initializer"></a>
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.Initializer"></a>
 
 ```typescript
-import { Ec2RunnerProps } from '@cloudsnorkel/cdk-github-runners'
+import { Ec2RunnerProviderProps } from '@cloudsnorkel/cdk-github-runners'
 
-const ec2RunnerProps: Ec2RunnerProps = { ... }
+const ec2RunnerProviderProps: Ec2RunnerProviderProps = { ... }
 ```
 
 #### Properties <a name="Properties" id="Properties"></a>
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.amiBuilder">amiBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IAmiBuilder">IAmiBuilder</a></code> | AMI builder that creates AMIs with GitHub runner pre-configured. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.instanceType">instanceType</a></code> | <code>aws-cdk-lib.aws_ec2.InstanceType</code> | Instance type for launched runner instances. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to launched runner instances. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to launched runner instances. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.spot">spot</a></code> | <code>boolean</code> | Use spot instances to save money. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.spotMaxPrice">spotMaxPrice</a></code> | <code>string</code> | Set a maximum price for spot instances. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for launched runner instances. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.subnet">subnet</a></code> | <code>aws-cdk-lib.aws_ec2.ISubnet</code> | Subnet where the runner instances will be launched. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC where runner instances will be launched. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.amiBuilder">amiBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IAmiBuilder">IAmiBuilder</a></code> | AMI builder that creates AMIs with GitHub runner pre-configured. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.instanceType">instanceType</a></code> | <code>aws-cdk-lib.aws_ec2.InstanceType</code> | Instance type for launched runner instances. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to launched runner instances. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to launched runner instances. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.spot">spot</a></code> | <code>boolean</code> | Use spot instances to save money. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.spotMaxPrice">spotMaxPrice</a></code> | <code>string</code> | Set a maximum price for spot instances. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for launched runner instances. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnet">subnet</a></code> | <code>aws-cdk-lib.aws_ec2.ISubnet</code> | Subnet where the runner instances will be launched. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC where runner instances will be launched. |
 
 ---
 
-##### `logRetention`<sup>Optional</sup> <a name="logRetention" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.logRetention"></a>
+##### `logRetention`<sup>Optional</sup> <a name="logRetention" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.logRetention"></a>
 
 ```typescript
 public readonly logRetention: RetentionDays;
@@ -3381,7 +4587,7 @@ remove the retention policy, set the value to `INFINITE`.
 
 ---
 
-##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.retryOptions"></a>
+##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.retryOptions"></a>
 
 ```typescript
 public readonly retryOptions: ProviderRetryOptions;
@@ -3394,7 +4600,7 @@ Options to retry operation in case of failure like missing capacity, or API quot
 
 ---
 
-##### `amiBuilder`<sup>Optional</sup> <a name="amiBuilder" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.amiBuilder"></a>
+##### `amiBuilder`<sup>Optional</sup> <a name="amiBuilder" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.amiBuilder"></a>
 
 ```typescript
 public readonly amiBuilder: IAmiBuilder;
@@ -3409,7 +4615,7 @@ On Linux, a user named `runner` is expected to exist with access to Docker.
 
 ---
 
-##### `instanceType`<sup>Optional</sup> <a name="instanceType" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.instanceType"></a>
+##### `instanceType`<sup>Optional</sup> <a name="instanceType" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.instanceType"></a>
 
 ```typescript
 public readonly instanceType: InstanceType;
@@ -3422,7 +4628,7 @@ Instance type for launched runner instances.
 
 ---
 
-##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.labels"></a>
+##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.labels"></a>
 
 ```typescript
 public readonly labels: string[];
@@ -3439,7 +4645,7 @@ job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
-##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.securityGroup"></a>
+##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.securityGroup"></a>
 
 - *Deprecated:* use {@link securityGroups}
 
@@ -3454,7 +4660,7 @@ Security Group to assign to launched runner instances.
 
 ---
 
-##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.securityGroups"></a>
+##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.securityGroups"></a>
 
 ```typescript
 public readonly securityGroups: ISecurityGroup[];
@@ -3467,7 +4673,7 @@ Security groups to assign to launched runner instances.
 
 ---
 
-##### `spot`<sup>Optional</sup> <a name="spot" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.spot"></a>
+##### `spot`<sup>Optional</sup> <a name="spot" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.spot"></a>
 
 ```typescript
 public readonly spot: boolean;
@@ -3482,7 +4688,7 @@ Spot instances are cheaper but not always available and can be stopped premature
 
 ---
 
-##### `spotMaxPrice`<sup>Optional</sup> <a name="spotMaxPrice" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.spotMaxPrice"></a>
+##### `spotMaxPrice`<sup>Optional</sup> <a name="spotMaxPrice" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.spotMaxPrice"></a>
 
 ```typescript
 public readonly spotMaxPrice: string;
@@ -3495,7 +4701,7 @@ Set a maximum price for spot instances.
 
 ---
 
-##### `storageSize`<sup>Optional</sup> <a name="storageSize" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.storageSize"></a>
+##### `storageSize`<sup>Optional</sup> <a name="storageSize" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.storageSize"></a>
 
 ```typescript
 public readonly storageSize: Size;
@@ -3510,7 +4716,7 @@ This modifies the boot volume size and doesn't add any additional volumes.
 
 ---
 
-##### ~~`subnet`~~<sup>Optional</sup> <a name="subnet" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.subnet"></a>
+##### ~~`subnet`~~<sup>Optional</sup> <a name="subnet" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnet"></a>
 
 - *Deprecated:* use {@link vpc} and {@link subnetSelection}
 
@@ -3525,7 +4731,7 @@ Subnet where the runner instances will be launched.
 
 ---
 
-##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.subnetSelection"></a>
+##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnetSelection"></a>
 
 ```typescript
 public readonly subnetSelection: SubnetSelection;
@@ -3540,7 +4746,7 @@ Only the first matched subnet will be used.
 
 ---
 
-##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProps.property.vpc"></a>
+##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.vpc"></a>
 
 ```typescript
 public readonly vpc: IVpc;
@@ -3553,41 +4759,41 @@ VPC where runner instances will be launched.
 
 ---
 
-### FargateRunnerProps <a name="FargateRunnerProps" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps"></a>
+### FargateRunnerProviderProps <a name="FargateRunnerProviderProps" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps"></a>
 
 Properties for FargateRunner.
 
-#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.Initializer"></a>
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.Initializer"></a>
 
 ```typescript
-import { FargateRunnerProps } from '@cloudsnorkel/cdk-github-runners'
+import { FargateRunnerProviderProps } from '@cloudsnorkel/cdk-github-runners'
 
-const fargateRunnerProps: FargateRunnerProps = { ... }
+const fargateRunnerProviderProps: FargateRunnerProviderProps = { ... }
 ```
 
 #### Properties <a name="Properties" id="Properties"></a>
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.assignPublicIp">assignPublicIp</a></code> | <code>boolean</code> | Assign public IP to the runner task. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_ecs.Cluster</code> | Existing Fargate cluster to use. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.cpu">cpu</a></code> | <code>number</code> | The number of cpu units used by the task. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.ephemeralStorageGiB">ephemeralStorageGiB</a></code> | <code>number</code> | The amount (in GiB) of ephemeral storage to be allocated to the task. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | The amount (in MiB) of memory used by the task. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group to assign to the task. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to the task. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.spot">spot</a></code> | <code>boolean</code> | Use Fargate spot capacity provider to save money. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets to run the runners in. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.assignPublicIp">assignPublicIp</a></code> | <code>boolean</code> | Assign public IP to the runner task. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_ecs.Cluster</code> | Existing Fargate cluster to use. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.cpu">cpu</a></code> | <code>number</code> | The number of cpu units used by the task. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.ephemeralStorageGiB">ephemeralStorageGiB</a></code> | <code>number</code> | The amount (in GiB) of ephemeral storage to be allocated to the task. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | The amount (in MiB) of memory used by the task. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group to assign to the task. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to the task. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.spot">spot</a></code> | <code>boolean</code> | Use Fargate spot capacity provider to save money. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets to run the runners in. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
 
 ---
 
-##### `logRetention`<sup>Optional</sup> <a name="logRetention" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.logRetention"></a>
+##### `logRetention`<sup>Optional</sup> <a name="logRetention" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.logRetention"></a>
 
 ```typescript
 public readonly logRetention: RetentionDays;
@@ -3604,7 +4810,7 @@ remove the retention policy, set the value to `INFINITE`.
 
 ---
 
-##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.retryOptions"></a>
+##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.retryOptions"></a>
 
 ```typescript
 public readonly retryOptions: ProviderRetryOptions;
@@ -3617,7 +4823,7 @@ Options to retry operation in case of failure like missing capacity, or API quot
 
 ---
 
-##### `assignPublicIp`<sup>Optional</sup> <a name="assignPublicIp" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.assignPublicIp"></a>
+##### `assignPublicIp`<sup>Optional</sup> <a name="assignPublicIp" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.assignPublicIp"></a>
 
 ```typescript
 public readonly assignPublicIp: boolean;
@@ -3632,7 +4838,7 @@ Make sure the task will have access to GitHub. A public IP might be required unl
 
 ---
 
-##### `cluster`<sup>Optional</sup> <a name="cluster" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.cluster"></a>
+##### `cluster`<sup>Optional</sup> <a name="cluster" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.cluster"></a>
 
 ```typescript
 public readonly cluster: Cluster;
@@ -3645,7 +4851,7 @@ Existing Fargate cluster to use.
 
 ---
 
-##### `cpu`<sup>Optional</sup> <a name="cpu" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.cpu"></a>
+##### `cpu`<sup>Optional</sup> <a name="cpu" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.cpu"></a>
 
 ```typescript
 public readonly cpu: number;
@@ -3672,7 +4878,7 @@ which determines your range of valid values for the memory parameter:
 
 ---
 
-##### `ephemeralStorageGiB`<sup>Optional</sup> <a name="ephemeralStorageGiB" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.ephemeralStorageGiB"></a>
+##### `ephemeralStorageGiB`<sup>Optional</sup> <a name="ephemeralStorageGiB" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.ephemeralStorageGiB"></a>
 
 ```typescript
 public readonly ephemeralStorageGiB: number;
@@ -3689,7 +4895,7 @@ NOTE: This parameter is only supported for tasks hosted on AWS Fargate using pla
 
 ---
 
-##### `imageBuilder`<sup>Optional</sup> <a name="imageBuilder" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.imageBuilder"></a>
+##### `imageBuilder`<sup>Optional</sup> <a name="imageBuilder" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.imageBuilder"></a>
 
 ```typescript
 public readonly imageBuilder: IImageBuilder;
@@ -3704,7 +4910,7 @@ A user named `runner` is expected to exist.
 
 ---
 
-##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.label"></a>
+##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.label"></a>
 
 - *Deprecated:* use {@link labels} instead
 
@@ -3719,7 +4925,7 @@ GitHub Actions label used for this provider.
 
 ---
 
-##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.labels"></a>
+##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.labels"></a>
 
 ```typescript
 public readonly labels: string[];
@@ -3736,7 +4942,7 @@ job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
-##### `memoryLimitMiB`<sup>Optional</sup> <a name="memoryLimitMiB" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.memoryLimitMiB"></a>
+##### `memoryLimitMiB`<sup>Optional</sup> <a name="memoryLimitMiB" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.memoryLimitMiB"></a>
 
 ```typescript
 public readonly memoryLimitMiB: number;
@@ -3762,7 +4968,7 @@ Between 8192 (8 GB) and 30720 (30 GB) in increments of 1024 (1 GB) - Available c
 
 ---
 
-##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.securityGroup"></a>
+##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.securityGroup"></a>
 
 - *Deprecated:* use {@link securityGroups}
 
@@ -3777,7 +4983,7 @@ Security group to assign to the task.
 
 ---
 
-##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.securityGroups"></a>
+##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.securityGroups"></a>
 
 ```typescript
 public readonly securityGroups: ISecurityGroup[];
@@ -3790,7 +4996,7 @@ Security groups to assign to the task.
 
 ---
 
-##### `spot`<sup>Optional</sup> <a name="spot" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.spot"></a>
+##### `spot`<sup>Optional</sup> <a name="spot" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.spot"></a>
 
 ```typescript
 public readonly spot: boolean;
@@ -3806,7 +5012,7 @@ Use Fargate spot capacity provider to save money.
 
 ---
 
-##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.subnetSelection"></a>
+##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.subnetSelection"></a>
 
 ```typescript
 public readonly subnetSelection: SubnetSelection;
@@ -3819,7 +5025,7 @@ Subnets to run the runners in.
 
 ---
 
-##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProps.property.vpc"></a>
+##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.vpc"></a>
 
 ```typescript
 public readonly vpc: IVpc;
@@ -4126,36 +5332,36 @@ Optional assets to add to the built image.
 
 ---
 
-### LambdaRunnerProps <a name="LambdaRunnerProps" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps"></a>
+### LambdaRunnerProviderProps <a name="LambdaRunnerProviderProps" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps"></a>
 
-#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.Initializer"></a>
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.Initializer"></a>
 
 ```typescript
-import { LambdaRunnerProps } from '@cloudsnorkel/cdk-github-runners'
+import { LambdaRunnerProviderProps } from '@cloudsnorkel/cdk-github-runners'
 
-const lambdaRunnerProps: LambdaRunnerProps = { ... }
+const lambdaRunnerProviderProps: LambdaRunnerProviderProps = { ... }
 ```
 
 #### Properties <a name="Properties" id="Properties"></a>
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.ephemeralStorageSize">ephemeralStorageSize</a></code> | <code>aws-cdk-lib.Size</code> | The size of the function’s /tmp directory in MiB. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.memorySize">memorySize</a></code> | <code>number</code> | The amount of memory, in MB, that is allocated to your Lambda function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group to assign to this instance. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to this instance. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The function execution time (in seconds) after which Lambda terminates the function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.ephemeralStorageSize">ephemeralStorageSize</a></code> | <code>aws-cdk-lib.Size</code> | The size of the function’s /tmp directory in MiB. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IImageBuilder">IImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.memorySize">memorySize</a></code> | <code>number</code> | The amount of memory, in MB, that is allocated to your Lambda function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group to assign to this instance. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to this instance. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The function execution time (in seconds) after which Lambda terminates the function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
 
 ---
 
-##### `logRetention`<sup>Optional</sup> <a name="logRetention" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.logRetention"></a>
+##### `logRetention`<sup>Optional</sup> <a name="logRetention" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.logRetention"></a>
 
 ```typescript
 public readonly logRetention: RetentionDays;
@@ -4172,7 +5378,7 @@ remove the retention policy, set the value to `INFINITE`.
 
 ---
 
-##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.retryOptions"></a>
+##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.retryOptions"></a>
 
 ```typescript
 public readonly retryOptions: ProviderRetryOptions;
@@ -4185,7 +5391,7 @@ Options to retry operation in case of failure like missing capacity, or API quot
 
 ---
 
-##### `ephemeralStorageSize`<sup>Optional</sup> <a name="ephemeralStorageSize" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.ephemeralStorageSize"></a>
+##### `ephemeralStorageSize`<sup>Optional</sup> <a name="ephemeralStorageSize" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.ephemeralStorageSize"></a>
 
 ```typescript
 public readonly ephemeralStorageSize: Size;
@@ -4198,7 +5404,7 @@ The size of the function’s /tmp directory in MiB.
 
 ---
 
-##### `imageBuilder`<sup>Optional</sup> <a name="imageBuilder" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.imageBuilder"></a>
+##### `imageBuilder`<sup>Optional</sup> <a name="imageBuilder" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.imageBuilder"></a>
 
 ```typescript
 public readonly imageBuilder: IImageBuilder;
@@ -4215,7 +5421,7 @@ The default command (`CMD`) should be `["runner.handler"]` which points to an in
 
 ---
 
-##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.label"></a>
+##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.label"></a>
 
 - *Deprecated:* use {@link labels} instead
 
@@ -4230,7 +5436,7 @@ GitHub Actions label used for this provider.
 
 ---
 
-##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.labels"></a>
+##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.labels"></a>
 
 ```typescript
 public readonly labels: string[];
@@ -4247,7 +5453,7 @@ job's labels, this provider will be chosen and spawn a new runner.
 
 ---
 
-##### `memorySize`<sup>Optional</sup> <a name="memorySize" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.memorySize"></a>
+##### `memorySize`<sup>Optional</sup> <a name="memorySize" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.memorySize"></a>
 
 ```typescript
 public readonly memorySize: number;
@@ -4264,7 +5470,7 @@ Developer Guide.
 
 ---
 
-##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.securityGroup"></a>
+##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.securityGroup"></a>
 
 - *Deprecated:* use {@link securityGroups}
 
@@ -4279,7 +5485,7 @@ Security group to assign to this instance.
 
 ---
 
-##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.securityGroups"></a>
+##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.securityGroups"></a>
 
 ```typescript
 public readonly securityGroups: ISecurityGroup[];
@@ -4292,7 +5498,7 @@ Security groups to assign to this instance.
 
 ---
 
-##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.subnetSelection"></a>
+##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.subnetSelection"></a>
 
 ```typescript
 public readonly subnetSelection: SubnetSelection;
@@ -4305,7 +5511,7 @@ Where to place the network interfaces within the VPC.
 
 ---
 
-##### `timeout`<sup>Optional</sup> <a name="timeout" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.timeout"></a>
+##### `timeout`<sup>Optional</sup> <a name="timeout" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.timeout"></a>
 
 ```typescript
 public readonly timeout: Duration;
@@ -4321,7 +5527,7 @@ based on the function's expected execution time.
 
 ---
 
-##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProps.property.vpc"></a>
+##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.vpc"></a>
 
 ```typescript
 public readonly vpc: IVpc;
@@ -5859,7 +7065,7 @@ Log group name for the image builder where history of image builds can be analyz
 
 - *Extends:* aws-cdk-lib.aws_ec2.IConnectable, aws-cdk-lib.aws_iam.IGrantable, constructs.IConstruct
 
-- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner">CodeBuildRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner">Ec2Runner</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunner">FargateRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner">LambdaRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
+- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner">CodeBuildRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider">CodeBuildRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner">Ec2Runner</a>, <a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider">Ec2RunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunner">FargateRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider">FargateRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner">LambdaRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider">LambdaRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
 
 Interface for all runner providers.
 
