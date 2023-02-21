@@ -16,10 +16,10 @@ import { DeleteRunnerFunction } from './lambdas/delete-runner-function';
 import { SetupFunction } from './lambdas/setup-function';
 import { StatusFunction } from './lambdas/status-function';
 import { TokenRetrieverFunction } from './lambdas/token-retriever-function';
-import { CodeBuildRunner } from './providers/codebuild';
+import { CodeBuildRunnerProvider } from './providers/codebuild';
 import { IRunnerProvider } from './providers/common';
-import { FargateRunner } from './providers/fargate';
-import { LambdaRunner } from './providers/lambda';
+import { FargateRunnerProvider } from './providers/fargate';
+import { LambdaRunnerProvider } from './providers/lambda';
 import { Secrets } from './secrets';
 import { GithubWebhookHandler } from './webhook';
 
@@ -212,9 +212,9 @@ export class GitHubRunners extends Construct {
       this.providers = this.props.providers;
     } else {
       this.providers = [
-        new CodeBuildRunner(this, 'CodeBuild'),
-        new LambdaRunner(this, 'Lambda'),
-        new FargateRunner(this, 'Fargate'),
+        new CodeBuildRunnerProvider(this, 'CodeBuild'),
+        new LambdaRunnerProvider(this, 'Lambda'),
+        new FargateRunnerProvider(this, 'Fargate'),
       ];
     }
 

@@ -28,7 +28,7 @@ import { CodeBuildImageBuilder } from './image-builders/codebuild';
 import { UpdateLambdaFunction } from '../lambdas/update-lambda-function';
 import { singletonLambda } from '../utils';
 
-export interface LambdaRunnerProps extends RunnerProviderProps {
+export interface LambdaRunnerProviderProps extends RunnerProviderProps {
   /**
    * Provider running an image to run inside CodeBuild with GitHub runner pre-configured.
    *
@@ -122,7 +122,7 @@ export interface LambdaRunnerProps extends RunnerProviderProps {
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
-export class LambdaRunner extends BaseProvider implements IRunnerProvider {
+export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvider {
   /**
    * Path to Dockerfile for Linux x64 with all the requirement for Lambda runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
@@ -171,7 +171,7 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
   private readonly vpc?: ec2.IVpc;
   private readonly securityGroups?: ec2.ISecurityGroup[];
 
-  constructor(scope: Construct, id: string, props?: LambdaRunnerProps) {
+  constructor(scope: Construct, id: string, props?: LambdaRunnerProviderProps) {
     super(scope, id, props);
 
     this.labels = this.labelsFromProperties('lambda', props?.label, props?.labels);
@@ -179,7 +179,7 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
     this.securityGroups = props?.securityGroup ? [props.securityGroup] : props?.securityGroups;
 
     const imageBuilder = props?.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
-      dockerfilePath: LambdaRunner.LINUX_X64_DOCKERFILE_PATH,
+      dockerfilePath: LambdaRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
     });
     const image = this.image = imageBuilder.bind();
 
@@ -392,4 +392,10 @@ export class LambdaRunner extends BaseProvider implements IRunnerProvider {
     // return only the digest because CDK expects 'sha256:' literal above
     return cdk.Fn.split(':', reader.getResponseField('imageDetails.0.imageDigest'), 2)[1];
   }
+}
+
+/**
+ * @deprecated use {@link LambdaRunnerProvider}
+ */
+export class LambdaRunner extends LambdaRunnerProvider {
 }

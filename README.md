@@ -124,7 +124,7 @@ const myBuilder = new CodeBuildImageBuilder(this, 'image builder', {
 });
 myBuilder.setBuildArg('EXTRA_PACKAGES', 'nginx xz-utils');
 
-const myProvider = new FargateRunner(this, 'fargate runner', {
+const myProvider = new FargateRunnerProvider(this, 'fargate runner', {
   label: 'customized-fargate',
   vpc: vpc,
   securityGroup: runnerSg,
@@ -171,7 +171,7 @@ myWindowsBuilder.addComponent(new ImageBuilderComponent(this, 'Ninja Component',
   }
 ));
 
-const myProvider = new FargateRunner(this, 'fargate runner', {
+const myProvider = new FargateRunnerProvider(this, 'fargate runner', {
   label: 'customized-windows-fargate',
   vpc: vpc,
   securityGroup: runnerSg,

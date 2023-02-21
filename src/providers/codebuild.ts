@@ -27,7 +27,7 @@ import {
 import { CodeBuildImageBuilder } from './image-builders/codebuild';
 
 
-export interface CodeBuildRunnerProps extends RunnerProviderProps {
+export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
   /**
    * Image builder for CodeBuild image with GitHub runner pre-configured. A user named `runner` is expected to exist with access to Docker-in-Docker.
    *
@@ -117,7 +117,7 @@ export interface CodeBuildRunnerProps extends RunnerProviderProps {
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
-export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
+export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProvider {
   /**
    * Path to Dockerfile for Linux x64 with all the requirements for CodeBuild runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
@@ -175,7 +175,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
   private readonly securityGroups?: ec2.ISecurityGroup[];
   private readonly dind: boolean;
 
-  constructor(scope: Construct, id: string, props?: CodeBuildRunnerProps) {
+  constructor(scope: Construct, id: string, props?: CodeBuildRunnerProviderProps) {
     super(scope, id, props);
 
     this.labels = this.labelsFromProperties('codebuild', props?.label, props?.labels);
@@ -226,7 +226,7 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
     };
 
     const imageBuilder = props?.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
-      dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH,
+      dockerfilePath: CodeBuildRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
     });
     const image = this.image = imageBuilder.bind();
 
@@ -373,4 +373,10 @@ export class CodeBuildRunner extends BaseProvider implements IRunnerProvider {
   public get connections(): ec2.Connections {
     return this.project.connections;
   }
+}
+
+/**
+ * @deprecated use {@link CodeBuildRunnerProvider}
+ */
+export class CodeBuildRunner extends CodeBuildRunnerProvider {
 }
