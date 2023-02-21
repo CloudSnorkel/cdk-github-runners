@@ -28,7 +28,7 @@ import { CodeBuildImageBuilder } from './image-builders/codebuild';
 /**
  * Properties for FargateRunner.
  */
-export interface FargateRunnerProps extends RunnerProviderProps {
+export interface FargateRunnerProviderProps extends RunnerProviderProps {
   /**
    * Provider running an image to run inside CodeBuild with GitHub runner pre-configured. A user named `runner` is expected to exist.
    *
@@ -202,7 +202,7 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
-export class FargateRunner extends BaseProvider implements IRunnerProvider {
+export class FargateRunnerProvider extends BaseProvider implements IRunnerProvider {
   /**
    * Path to Dockerfile for Linux x64 with all the requirement for Fargate runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
@@ -285,7 +285,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
 
   private readonly securityGroups: ec2.ISecurityGroup[];
 
-  constructor(scope: Construct, id: string, props?: FargateRunnerProps) {
+  constructor(scope: Construct, id: string, props?: FargateRunnerProviderProps) {
     super(scope, id, props);
 
     this.labels = this.labelsFromProperties('fargate', props?.label, props?.labels);
@@ -305,7 +305,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
     this.spot = props?.spot ?? false;
 
     const imageBuilder = props?.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
-      dockerfilePath: FargateRunner.LINUX_X64_DOCKERFILE_PATH,
+      dockerfilePath: FargateRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
     });
     const image = this.image = imageBuilder.bind();
 
@@ -471,4 +471,10 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
       throw new Error(`Fargate runner doesn't support ${this.image.os.name}`);
     }
   }
+}
+
+/**
+ * @deprecated use {@link FargateRunnerProvider}
+ */
+export class FargateRunner extends FargateRunnerProvider {
 }

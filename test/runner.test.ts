@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
-import { CodeBuildRunner, GitHubRunners } from '../src';
+import { CodeBuildRunnerProvider, GitHubRunners } from '../src';
 
 let app: cdk.App;
 let stack: cdk.Stack;
@@ -34,16 +34,16 @@ describe('GitHubRunners', () => {
   test('Intersecting labels warning', () => {
     new GitHubRunners(stack, 'runners', {
       providers: [
-        new CodeBuildRunner(stack, 'p1', {
+        new CodeBuildRunnerProvider(stack, 'p1', {
           labels: ['a'],
         }),
-        new CodeBuildRunner(stack, 'p2', {
+        new CodeBuildRunnerProvider(stack, 'p2', {
           labels: ['a', 'b'],
         }),
-        new CodeBuildRunner(stack, 'p3', {
+        new CodeBuildRunnerProvider(stack, 'p3', {
           labels: ['c'],
         }),
-        new CodeBuildRunner(stack, 'p4', {
+        new CodeBuildRunnerProvider(stack, 'p4', {
           labels: ['b'],
         }),
       ],
@@ -71,10 +71,10 @@ describe('GitHubRunners', () => {
     expect(() => {
       new GitHubRunners(stack, 'runners', {
         providers: [
-          new CodeBuildRunner(stack, 'p1', {
+          new CodeBuildRunnerProvider(stack, 'p1', {
             labels: ['a'],
           }),
-          new CodeBuildRunner(stack, 'p2', {
+          new CodeBuildRunnerProvider(stack, 'p2', {
             labels: ['a'],
           }),
         ],
@@ -84,7 +84,7 @@ describe('GitHubRunners', () => {
 
   test('Metrics', () => {
     const runners = new GitHubRunners(stack, 'runners', {
-      providers: [new CodeBuildRunner(stack, 'p1')],
+      providers: [new CodeBuildRunnerProvider(stack, 'p1')],
     });
 
     // second time shouldn't add more filters (tested below)

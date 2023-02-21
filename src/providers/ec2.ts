@@ -127,9 +127,9 @@ Stop-Computer -ComputerName localhost -Force
 
 
 /**
- * Properties for {@link Ec2Runner} construct.
+ * Properties for {@link Ec2RunnerProvider} construct.
  */
-export interface Ec2RunnerProps extends RunnerProviderProps {
+export interface Ec2RunnerProviderProps extends RunnerProviderProps {
   /**
    * AMI builder that creates AMIs with GitHub runner pre-configured. On Linux, a user named `runner` is expected to exist with access to Docker.
    *
@@ -221,7 +221,7 @@ export interface Ec2RunnerProps extends RunnerProviderProps {
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
-export class Ec2Runner extends BaseProvider implements IRunnerProvider {
+export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   /**
    * Labels associated with this provider.
    */
@@ -249,7 +249,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
   private readonly subnets: ec2.ISubnet[];
   private readonly securityGroups: ec2.ISecurityGroup[];
 
-  constructor(scope: Construct, id: string, props?: Ec2RunnerProps) {
+  constructor(scope: Construct, id: string, props?: Ec2RunnerProviderProps) {
     super(scope, id, props);
 
     this.labels = props?.labels ?? ['ec2'];
@@ -461,4 +461,10 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
   public get connections(): ec2.Connections {
     return new ec2.Connections({ securityGroups: this.securityGroups });
   }
+}
+
+/**
+ * @deprecated use {@link Ec2RunnerProvider}
+ */
+export class Ec2Runner extends Ec2RunnerProvider {
 }

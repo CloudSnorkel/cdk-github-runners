@@ -1,7 +1,7 @@
 import { aws_ecr as ecr } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CodeBuildImageBuilder } from './codebuild';
-import { CodeBuildRunner } from '../codebuild';
+import { CodeBuildRunnerProvider } from '../codebuild';
 import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
 
 /**
@@ -43,7 +43,7 @@ export class StaticRunnerImage {
    */
   public static fromDockerHub(scope: Construct, id: string, image: string, architecture = Architecture.X86_64, os = Os.LINUX): IImageBuilder {
     const builder = new CodeBuildImageBuilder(scope, id, {
-      dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH, // fake Dockerfile that gets overridden below
+      dockerfilePath: CodeBuildRunnerProvider.LINUX_X64_DOCKERFILE_PATH, // fake Dockerfile that gets overridden below
       architecture,
       os,
     });

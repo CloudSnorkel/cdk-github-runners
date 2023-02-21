@@ -12725,7 +12725,7 @@
    "Metadata": {
     "providers": [
      {
-      "type": "CodeBuildRunner",
+      "type": "CodeBuildRunnerProvider",
       "labels": [
        "codebuild-x64"
       ],
@@ -12791,7 +12791,7 @@
       }
      },
      {
-      "type": "CodeBuildRunner",
+      "type": "CodeBuildRunnerProvider",
       "labels": [
        "codebuild",
        "linux",
@@ -12859,7 +12859,7 @@
       }
      },
      {
-      "type": "CodeBuildRunner",
+      "type": "CodeBuildRunnerProvider",
       "labels": [
        "codebuild",
        "windows",
@@ -12927,7 +12927,7 @@
       }
      },
      {
-      "type": "LambdaRunner",
+      "type": "LambdaRunnerProvider",
       "labels": [
        "lambda",
        "x64"
@@ -12997,7 +12997,7 @@
       }
      },
      {
-      "type": "LambdaRunner",
+      "type": "LambdaRunnerProvider",
       "labels": [
        "lambda",
        "arm64"
@@ -13067,7 +13067,7 @@
       }
      },
      {
-      "type": "FargateRunner",
+      "type": "FargateRunnerProvider",
       "labels": [
        "fargate",
        "linux",
@@ -13166,7 +13166,7 @@
       }
      },
      {
-      "type": "FargateRunner",
+      "type": "FargateRunnerProvider",
       "labels": [
        "fargate-spot",
        "linux",
@@ -13265,7 +13265,7 @@
       }
      },
      {
-      "type": "FargateRunner",
+      "type": "FargateRunnerProvider",
       "labels": [
        "fargate",
        "linux",
@@ -13364,7 +13364,7 @@
       }
      },
      {
-      "type": "FargateRunner",
+      "type": "FargateRunnerProvider",
       "labels": [
        "fargate-spot",
        "linux",
@@ -13463,7 +13463,7 @@
       }
      },
      {
-      "type": "FargateRunner",
+      "type": "FargateRunnerProvider",
       "labels": [
        "fargate",
        "windows",
@@ -13562,7 +13562,7 @@
       }
      },
      {
-      "type": "Ec2Runner",
+      "type": "Ec2RunnerProvider",
       "labels": [
        "ec2",
        "linux",
@@ -13595,7 +13595,7 @@
       }
      },
      {
-      "type": "Ec2Runner",
+      "type": "Ec2RunnerProvider",
       "labels": [
        "ec2-spot",
        "linux",
@@ -13628,7 +13628,7 @@
       }
      },
      {
-      "type": "Ec2Runner",
+      "type": "Ec2RunnerProvider",
       "labels": [
        "ec2",
        "linux",
@@ -13661,7 +13661,7 @@
       }
      },
      {
-      "type": "Ec2Runner",
+      "type": "Ec2RunnerProvider",
       "labels": [
        "ec2",
        "windows",
