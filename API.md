@@ -4231,6 +4231,8 @@ Image builder for CodeBuild image with GitHub runner pre-configured.
 
 A user named `runner` is expected to exist with access to Docker-in-Docker.
 
+The image builder determines the OS and architecture of the runner.
+
 ---
 
 ##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.label"></a>
@@ -4613,6 +4615,8 @@ AMI builder that creates AMIs with GitHub runner pre-configured.
 
 On Linux, a user named `runner` is expected to exist with access to Docker.
 
+The AMI builder determines the OS and architecture of the runner.
+
 ---
 
 ##### `instanceType`<sup>Optional</sup> <a name="instanceType" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.instanceType"></a>
@@ -4907,6 +4911,8 @@ public readonly imageBuilder: IImageBuilder;
 Provider running an image to run inside CodeBuild with GitHub runner pre-configured.
 
 A user named `runner` is expected to exist.
+
+The image builder determines the OS and architecture of the runner.
 
 ---
 
@@ -5416,6 +5422,8 @@ public readonly imageBuilder: IImageBuilder;
 Provider running an image to run inside CodeBuild with GitHub runner pre-configured.
 
 The default command (`CMD`) should be `["runner.handler"]` which points to an included `runner.js` with a function named `handler`. The function should start the GitHub runner.
+
+The image builder determines the OS and architecture of the runner.
 
 > [https://github.com/CloudSnorkel/cdk-github-runners/tree/main/src/providers/docker-images/lambda](https://github.com/CloudSnorkel/cdk-github-runners/tree/main/src/providers/docker-images/lambda)
 
