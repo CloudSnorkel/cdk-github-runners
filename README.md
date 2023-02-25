@@ -184,6 +184,23 @@ new GitHubRunners(stack, 'runners', {
 });
 ```
 
+The runner OS and architecture is determined by the image it is set to use. For example, to create a CodeBuild runner provider for ARM64 set the `architecture` property for the image builder to `Architecture.ARM64` and use the `LINUX_ARM64_DOCKERFILE_PATH` constant.
+
+```typescript
+new GitHubRunners(stack, 'runners', {
+   providers: [
+      new FargateRunnerProvider(this, 'fargate runner', {
+         labels: ['arm64', 'fargate'],
+         imageBuiler: new CodeBuildImageBuilder(this, 'image builder', {
+            architecture: Architecture.ARM64,
+            os: Os.LINUX,
+            dockerfilePath: FargateRunner.LINUX_ARM64_DOCKERFILE_PATH,
+         }),
+      }),
+   ],
+});
+```
+
 ## Architecture
 
 ![Architecture diagram](architecture.svg)

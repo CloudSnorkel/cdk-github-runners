@@ -133,6 +133,8 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
   /**
    * AMI builder that creates AMIs with GitHub runner pre-configured. On Linux, a user named `runner` is expected to exist with access to Docker.
    *
+   * The AMI builder determines the OS and architecture of the runner.
+   *
    * @default AMI builder for Ubuntu Linux on the same subnet as configured by {@link vpc} and {@link subnetSelection}
    */
   readonly amiBuilder?: IAmiBuilder;
