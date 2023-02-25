@@ -4,7 +4,7 @@ set -e -u -o pipefail
 
 cp -r /runner /tmp/
 cd /tmp/runner
-mkdir /tmp/home
+mkdir /tmp/home || true
 export HOME=/tmp/home
 
 if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
