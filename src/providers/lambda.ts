@@ -34,6 +34,8 @@ export interface LambdaRunnerProviderProps extends RunnerProviderProps {
    *
    * The default command (`CMD`) should be `["runner.handler"]` which points to an included `runner.js` with a function named `handler`. The function should start the GitHub runner.
    *
+   * The image builder determines the OS and architecture of the runner.
+   *
    * @see https://github.com/CloudSnorkel/cdk-github-runners/tree/main/src/providers/docker-images/lambda
    * @default image builder with LambdaRunner.LINUX_X64_DOCKERFILE_PATH as Dockerfile
    */

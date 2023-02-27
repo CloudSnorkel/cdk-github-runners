@@ -32,6 +32,8 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
   /**
    * Provider running an image to run inside CodeBuild with GitHub runner pre-configured. A user named `runner` is expected to exist.
    *
+   * The image builder determines the OS and architecture of the runner.
+   *
    * @default image builder with `FargateRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
    */
   readonly imageBuilder?: IImageBuilder;

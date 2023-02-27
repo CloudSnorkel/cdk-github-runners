@@ -175,12 +175,29 @@ const myProvider = new FargateRunnerProvider(this, 'fargate runner', {
   label: 'customized-windows-fargate',
   vpc: vpc,
   securityGroup: runnerSg,
-  imageBuiler: myWindowsBuilder,
+  imageBuidler: myWindowsBuilder,
 });
 
 // create the runner infrastructure
 new GitHubRunners(stack, 'runners', {
   providers: [myProvider],
+});
+```
+
+The runner OS and architecture is determined by the image it is set to use. For example, to create a CodeBuild runner provider for ARM64 set the `architecture` property for the image builder to `Architecture.ARM64` and use the `LINUX_ARM64_DOCKERFILE_PATH` constant.
+
+```typescript
+new GitHubRunners(stack, 'runners', {
+   providers: [
+      new FargateRunnerProvider(this, 'fargate runner', {
+         labels: ['arm64', 'fargate'],
+         imageBuidler: new CodeBuildImageBuilder(this, 'image builder', {
+            architecture: Architecture.ARM64,
+            os: Os.LINUX,
+            dockerfilePath: FargateRunner.LINUX_ARM64_DOCKERFILE_PATH,
+         }),
+      }),
+   ],
 });
 ```
 

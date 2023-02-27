@@ -31,6 +31,8 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
   /**
    * Image builder for CodeBuild image with GitHub runner pre-configured. A user named `runner` is expected to exist with access to Docker-in-Docker.
    *
+   * The image builder determines the OS and architecture of the runner.
+   *
    * @default image builder with `CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
    */
   readonly imageBuilder?: IImageBuilder;
