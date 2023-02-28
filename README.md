@@ -132,7 +132,7 @@ const myProvider = new FargateRunnerProvider(this, 'fargate runner', {
 });
 
 // create the runner infrastructure
-new GitHubRunners(stack, 'runners', {
+new GitHubRunners(this, 'runners', {
   providers: [myProvider],
 });
 ```
@@ -179,7 +179,7 @@ const myProvider = new FargateRunnerProvider(this, 'fargate runner', {
 });
 
 // create the runner infrastructure
-new GitHubRunners(stack, 'runners', {
+new GitHubRunners(this, 'runners', {
   providers: [myProvider],
 });
 ```
@@ -187,7 +187,7 @@ new GitHubRunners(stack, 'runners', {
 The runner OS and architecture is determined by the image it is set to use. For example, to create a CodeBuild runner provider for ARM64 set the `architecture` property for the image builder to `Architecture.ARM64` and use the `LINUX_ARM64_DOCKERFILE_PATH` constant.
 
 ```typescript
-new GitHubRunners(stack, 'runners', {
+new GitHubRunners(this, 'runners', {
    providers: [
       new FargateRunnerProvider(this, 'fargate runner', {
          labels: ['arm64', 'fargate'],
