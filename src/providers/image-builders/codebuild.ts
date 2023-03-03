@@ -371,7 +371,7 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
   private getBuildImage(): codebuild.IBuildImage {
     if (this.os.is(Os.LINUX)) {
       if (this.architecture.is(Architecture.X86_64)) {
-        return codebuild.LinuxBuildImage.STANDARD_5_0;
+        return codebuild.LinuxBuildImage.STANDARD_6_0;
       } else if (this.architecture.is(Architecture.ARM64)) {
         return codebuild.LinuxArmBuildImage.AMAZON_LINUX_2_STANDARD_2_0;
       }
