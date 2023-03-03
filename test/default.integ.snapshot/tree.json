@@ -715,7 +715,7 @@
                         },
                         "environment": {
                           "type": "LINUX_CONTAINER",
-                          "image": "aws/codebuild/standard:5.0",
+                          "image": "aws/codebuild/standard:6.0",
                           "imagePullCredentialsType": "CODEBUILD",
                           "privilegedMode": true,
                           "computeType": "BUILD_GENERAL1_SMALL"
@@ -2101,7 +2101,7 @@
                         },
                         "environment": {
                           "type": "LINUX_CONTAINER",
-                          "image": "aws/codebuild/standard:5.0",
+                          "image": "aws/codebuild/standard:6.0",
                           "imagePullCredentialsType": "CODEBUILD",
                           "privilegedMode": true,
                           "computeType": "BUILD_GENERAL1_SMALL"
@@ -4780,7 +4780,7 @@
                         },
                         "environment": {
                           "type": "LINUX_CONTAINER",
-                          "image": "aws/codebuild/standard:5.0",
+                          "image": "aws/codebuild/standard:6.0",
                           "imagePullCredentialsType": "CODEBUILD",
                           "privilegedMode": true,
                           "computeType": "BUILD_GENERAL1_SMALL"
