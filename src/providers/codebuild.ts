@@ -248,7 +248,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
 
     // choose build image
     let buildImage: codebuild.IBuildImage | undefined;
-    if (image.os.is(Os.LINUX)) {
+    if (image.os.is(Os.LINUX) || image.os.is(Os.LINUX_UBUNTU) || image.os.is(Os.LINUX_AMAZON_2)) { // TODO
       if (image.architecture.is(Architecture.X86_64)) {
         buildImage = codebuild.LinuxBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);
       } else if (image.architecture.is(Architecture.ARM64)) {
@@ -287,7 +287,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
         environment: {
           buildImage,
           computeType: props?.computeType ?? ComputeType.SMALL,
-          privileged: this.dind ? image.os.is(Os.LINUX) : false,
+          privileged: this.dind ? !image.os.is(Os.WINDOWS) : false, // TODO
         },
         logging: {
           cloudWatch: {

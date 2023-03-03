@@ -106,6 +106,16 @@ export class Os {
   public static readonly LINUX = Os.of('Linux');
 
   /**
+   * Ubuntu Linux
+   */
+  public static readonly LINUX_UBUNTU = Os.of('Ubuntu Linux');
+
+  /**
+   * Amazon Linux 2
+   */
+  public static readonly LINUX_AMAZON_2 = Os.of('Amazon Linux 2');
+
+  /**
   * Windows
   */
   public static readonly WINDOWS = Os.of('Windows');

@@ -321,7 +321,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
     }
 
     let os: ecs.OperatingSystemFamily;
-    if (image.os.is(Os.LINUX)) {
+    if (image.os.is(Os.LINUX) || image.os.is(Os.LINUX_UBUNTU) || image.os.is(Os.LINUX_AMAZON_2)) {
       os = ecs.OperatingSystemFamily.LINUX;
     } else if (image.os.is(Os.WINDOWS)) {
       os = ecs.OperatingSystemFamily.WINDOWS_SERVER_2019_CORE;
@@ -359,6 +359,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
           streamPrefix: 'runner',
         }),
         command: this.runCommand(),
+        user: 'runner',
       },
     );
 
@@ -453,10 +454,11 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       runnerFlags = '--disableupdate';
     }
 
-    if (this.image.os.is(Os.LINUX)) {
+    if (this.image.os.is(Os.LINUX) || this.image.os.is(Os.LINUX_UBUNTU) || this.image.os.is(Os.LINUX_AMAZON_2)) { // TODO
       return [
         'sh', '-c',
-        `./config.sh --unattended --url "https://$GITHUB_DOMAIN/$OWNER/$REPO" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL" ${runnerFlags} --name "$RUNNER_NAME" && 
+        `cd /home/runner &&
+        ./config.sh --unattended --url "https://$GITHUB_DOMAIN/$OWNER/$REPO" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL" ${runnerFlags} --name "$RUNNER_NAME" && 
         ./run.sh &&
         STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" _diag/ | tail -n1) &&
         [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"`,

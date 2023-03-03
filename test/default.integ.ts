@@ -18,6 +18,7 @@ import {
   LambdaRunnerProvider,
   Os,
 } from '../src';
+import { RunnerImageBuilder } from '../src/providers/image-builders/ng';
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
@@ -59,14 +60,16 @@ const windowsImageBuilder = new ContainerImageBuilder(stack, 'Windows Image Buil
 const amiX64Builder = new AmiBuilder(stack, 'AMI Linux Builder', {
   vpc,
 });
+const testBuilder = new RunnerImageBuilder(stack, 'TEST');
 new GitHubRunners(stack, 'runners', {
   providers: [
     new CodeBuildRunnerProvider(stack, 'CodeBuildx64', {
       label: 'codebuild-x64',
-      imageBuilder: new CodeBuildImageBuilder(stack, 'CodeBuild Image Builder', {
-        dockerfilePath: CodeBuildRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
-        architecture: Architecture.X86_64,
-      }),
+      imageBuilder: testBuilder,
+      // imageBuilder: new CodeBuildImageBuilder(stack, 'CodeBuild Image Builder', {
+      //   dockerfilePath: CodeBuildRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
+      //   architecture: Architecture.X86_64,
+      // }),
     }),
     new CodeBuildRunnerProvider(stack, 'CodeBuildARM', {
       labels: ['codebuild', 'linux', 'arm64'],
@@ -96,7 +99,8 @@ new GitHubRunners(stack, 'runners', {
       labels: ['fargate', 'linux', 'x64'],
       cpu: 256,
       memoryLimitMiB: 512,
-      imageBuilder: fargateX64Builder,
+      // imageBuilder: fargateX64Builder,
+      imageBuilder: testBuilder,
       cluster,
       vpc: cluster.vpc,
       assignPublicIp: true,

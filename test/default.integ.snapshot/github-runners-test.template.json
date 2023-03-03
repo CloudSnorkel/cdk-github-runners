@@ -3474,7 +3474,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "CodeBuildImageBuilderRepository9DE3B6F0": {
+  "TESTRepository756D6FA1": {
    "Type": "AWS::ECR::Repository",
    "Properties": {
     "ImageScanningConfiguration": {
@@ -3488,7 +3488,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "CodeBuildImageBuilderLogsE4CADFCC": {
+  "TESTLogs60C87AA7": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
     "RetentionInDays": 30
@@ -3496,7 +3496,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "CodeBuildImageBuilderCodeBuildRoleF8F57ECB": {
+  "TESTCodeBuildRole33717A12": {
    "Type": "AWS::IAM::Role",
    "Properties": {
     "AssumeRolePolicyDocument": {
@@ -3513,52 +3513,11 @@
     }
    }
   },
-  "CodeBuildImageBuilderCodeBuildRoleDefaultPolicy1060FBF9": {
+  "TESTCodeBuildRoleDefaultPolicy8320FB87": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
     "PolicyDocument": {
      "Statement": [
-      {
-       "Action": [
-        "s3:GetObject*",
-        "s3:GetBucket*",
-        "s3:List*"
-       ],
-       "Effect": "Allow",
-       "Resource": [
-        {
-         "Fn::Join": [
-          "",
-          [
-           "arn:",
-           {
-            "Ref": "AWS::Partition"
-           },
-           ":s3:::",
-           {
-            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-           }
-          ]
-         ]
-        },
-        {
-         "Fn::Join": [
-          "",
-          [
-           "arn:",
-           {
-            "Ref": "AWS::Partition"
-           },
-           ":s3:::",
-           {
-            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-           },
-           "/cf6c81647b444e50910bbd38ad5bd5b74170fa75de8878c6b108a0be22fe8da2.zip"
-          ]
-         ]
-        }
-       ]
-      },
       {
        "Action": [
         "logs:CreateLogStream",
@@ -3567,7 +3526,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "CodeBuildImageBuilderLogsE4CADFCC",
+         "TESTLogs60C87AA7",
          "Arn"
         ]
        }
@@ -3598,7 +3557,7 @@
            },
            ":log-group:/aws/codebuild/",
            {
-            "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
+            "Ref": "TESTCodeBuild2B8513C3"
            }
           ]
          ]
@@ -3621,7 +3580,7 @@
            },
            ":log-group:/aws/codebuild/",
            {
-            "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
+            "Ref": "TESTCodeBuild2B8513C3"
            },
            ":*"
           ]
@@ -3656,7 +3615,7 @@
           },
           ":report-group/",
           {
-           "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
+           "Ref": "TESTCodeBuild2B8513C3"
           },
           "-*"
          ]
@@ -3672,7 +3631,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "CodeBuildImageBuilderRepository9DE3B6F0",
+         "TESTRepository756D6FA1",
          "Arn"
         ]
        }
@@ -3692,7 +3651,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "CodeBuildImageBuilderRepository9DE3B6F0",
+         "TESTRepository756D6FA1",
          "Arn"
         ]
        }
@@ -3700,15 +3659,15 @@
      ],
      "Version": "2012-10-17"
     },
-    "PolicyName": "CodeBuildImageBuilderCodeBuildRoleDefaultPolicy1060FBF9",
+    "PolicyName": "TESTCodeBuildRoleDefaultPolicy8320FB87",
     "Roles": [
      {
-      "Ref": "CodeBuildImageBuilderCodeBuildRoleF8F57ECB"
+      "Ref": "TESTCodeBuildRole33717A12"
      }
     ]
    }
   },
-  "CodeBuildImageBuilderCodeBuild38ECAA44": {
+  "TESTCodeBuild2B8513C3": {
    "Type": "AWS::CodeBuild::Project",
    "Properties": {
     "Artifacts": {
@@ -3723,7 +3682,7 @@
     },
     "ServiceRole": {
      "Fn::GetAtt": [
-      "CodeBuildImageBuilderCodeBuildRoleF8F57ECB",
+      "TESTCodeBuildRole33717A12",
       "Arn"
      ]
     },
@@ -3735,7 +3694,7 @@
         "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
         {
          "Fn::GetAtt": [
-          "CodeBuildImageBuilderRepository9DE3B6F0",
+          "TESTRepository756D6FA1",
           "Arn"
          ]
         },
@@ -3748,7 +3707,7 @@
             ":",
             {
              "Fn::GetAtt": [
-              "CodeBuildImageBuilderRepository9DE3B6F0",
+              "TESTRepository756D6FA1",
               "Arn"
              ]
             }
@@ -3765,7 +3724,7 @@
             ":",
             {
              "Fn::GetAtt": [
-              "CodeBuildImageBuilderRepository9DE3B6F0",
+              "TESTRepository756D6FA1",
               "Arn"
              ]
             }
@@ -3779,7 +3738,7 @@
         },
         "/",
         {
-         "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+         "Ref": "TESTRepository756D6FA1"
         },
         "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
         {
@@ -3789,40 +3748,29 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:20.04\\nCOPY build.sh /tmp/build.sh\\nRUN chmod +x /tmp/build.sh && /tmp/build.sh\\nVOLUME /var/lib/docker\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"cat > build.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\nusermod -aG sudo runner\\necho \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nDOCKER_CHANNEL=\\\"stable\\\"\\nDIND_COMMIT=\\\"42b1175eda071c0e9121e1d64345928384a93df1\\\"\\nDOCKER_VERSION=\\\"20.10.18\\\"\\nDOCKER_COMPOSE_VERSION=\\\"2.11.0\\\"\\ncurl -fsSL \\\"https://download.docker.com/linux/static/${DOCKER_CHANNEL}/x86_64/docker-${DOCKER_VERSION}.tgz\\\" -o docker.tgz\\ntar --strip-components 1 -C /usr/local/bin/ -xzf docker.tgz\\nrm docker.tgz\\n# set up subuid/subgid so that \\\"--userns-remap=default\\\" works out-of-the box\\naddgroup dockremap\\nuseradd -g dockremap dockremap\\necho 'dockremap:165536:65536' >> /etc/subuid\\necho 'dockremap:165536:65536' >> /etc/subgid\\ncurl -fsSL \\\"https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind\\\" -o /usr/local/bin/dind\\ncurl -fsSL https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose\\nmkdir -p /home/runner/.docker/cli-plugins && ln -s /usr/local/bin/docker-compose /home/runner/.docker/cli-plugins/docker-compose\\nchown -R runner /home/runner/.docker\\nchmod +x /usr/local/bin/dind /usr/local/bin/docker-compose\\naddgroup docker && usermod -aG docker runner\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\n/home/runner/bin/installdependencies.sh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"cat Dockerfile build.sh\",\n        \"docker build . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
-         "Ref": "CodeBuildImageBuilderLogsE4CADFCC"
+         "Ref": "TESTLogs60C87AA7"
         },
         "/$CODEBUILD_LOG_PATH (deploy again with 'cdk deploy -R' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)\\\",\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
         {
-         "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+         "Ref": "TESTRepository756D6FA1"
         },
         "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
-     "Location": {
-      "Fn::Join": [
-       "",
-       [
-        {
-         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-        },
-        "/cf6c81647b444e50910bbd38ad5bd5b74170fa75de8878c6b108a0be22fe8da2.zip"
-       ]
-      ]
-     },
-     "Type": "S3"
+     "Type": "NO_SOURCE"
     },
     "Cache": {
      "Type": "NO_CACHE"
     },
-    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/CodeBuild Image Builder (Linux/X86_64)",
+    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/TEST (Ubuntu Linux/X86_64)",
     "EncryptionKey": "alias/aws/s3",
     "LogsConfig": {
      "CloudWatchLogs": {
       "GroupName": {
-       "Ref": "CodeBuildImageBuilderLogsE4CADFCC"
+       "Ref": "TESTLogs60C87AA7"
       },
       "Status": "ENABLED"
      }
@@ -3830,7 +3778,7 @@
     "TimeoutInMinutes": 60
    }
   },
-  "CodeBuildImageBuilderCodeBuildEventsRole4277A55E": {
+  "TESTCodeBuildEventsRoleE23135F5": {
    "Type": "AWS::IAM::Role",
    "Properties": {
     "AssumeRolePolicyDocument": {
@@ -3847,7 +3795,7 @@
     }
    }
   },
-  "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D": {
+  "TESTCodeBuildEventsRoleDefaultPolicyFC31479C": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
     "PolicyDocument": {
@@ -3857,7 +3805,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "CodeBuildImageBuilderCodeBuild38ECAA44",
+         "TESTCodeBuild2B8513C3",
          "Arn"
         ]
        }
@@ -3865,15 +3813,15 @@
      ],
      "Version": "2012-10-17"
     },
-    "PolicyName": "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D",
+    "PolicyName": "TESTCodeBuildEventsRoleDefaultPolicyFC31479C",
     "Roles": [
      {
-      "Ref": "CodeBuildImageBuilderCodeBuildEventsRole4277A55E"
+      "Ref": "TESTCodeBuildEventsRoleE23135F5"
      }
     ]
    }
   },
-  "CodeBuildImageBuilderCRPolicyAFC63F28": {
+  "TESTCRPolicy7710CFB1": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
     "PolicyDocument": {
@@ -3883,7 +3831,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "CodeBuildImageBuilderCodeBuild38ECAA44",
+         "TESTCodeBuild2B8513C3",
          "Arn"
         ]
        }
@@ -3896,7 +3844,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "CodeBuildImageBuilderRepository9DE3B6F0",
+         "TESTRepository756D6FA1",
          "Arn"
         ]
        }
@@ -3904,7 +3852,7 @@
      ],
      "Version": "2012-10-17"
     },
-    "PolicyName": "CodeBuildImageBuilderCRPolicyAFC63F28",
+    "PolicyName": "TESTCRPolicy7710CFB1",
     "Roles": [
      {
       "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
@@ -3912,7 +3860,7 @@
     ]
    }
   },
-  "CodeBuildImageBuilderB8638EC8": {
+  "TESTBuilder562EB196": {
    "Type": "Custom::ImageBuilder",
    "Properties": {
     "ServiceToken": {
@@ -3922,28 +3870,28 @@
      ]
     },
     "RepoName": {
-     "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+     "Ref": "TESTRepository756D6FA1"
     },
     "ProjectName": {
-     "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
+     "Ref": "TESTCodeBuild2B8513C3"
     },
-    "BuildHash": "f84032774d6cd70e4b154460cac04f6b"
+    "BuildHash": "786a27fdfb8c836e50db3c5e70e3254e"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
-    "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D",
-    "CodeBuildImageBuilderCodeBuildEventsRole4277A55E",
-    "CodeBuildImageBuilderCodeBuild38ECAA44",
-    "CodeBuildImageBuilderCodeBuildRoleDefaultPolicy1060FBF9",
-    "CodeBuildImageBuilderCodeBuildRoleF8F57ECB",
-    "CodeBuildImageBuilderCRPolicyAFC63F28"
+    "TESTCodeBuildEventsRoleDefaultPolicyFC31479C",
+    "TESTCodeBuildEventsRoleE23135F5",
+    "TESTCodeBuild2B8513C3",
+    "TESTCodeBuildRoleDefaultPolicy8320FB87",
+    "TESTCodeBuildRole33717A12",
+    "TESTCRPolicy7710CFB1"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "CodeBuildImageBuilderBuildSchedule66D9D18A": {
+  "TESTBuildScheduleBFF32E41": {
    "Type": "AWS::Events::Rule",
    "Properties": {
     "Description": {
@@ -3952,7 +3900,7 @@
       [
        "Rebuild runner image for ",
        {
-        "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+        "Ref": "TESTRepository756D6FA1"
        }
       ]
      ]
@@ -3963,14 +3911,14 @@
      {
       "Arn": {
        "Fn::GetAtt": [
-        "CodeBuildImageBuilderCodeBuild38ECAA44",
+        "TESTCodeBuild2B8513C3",
         "Arn"
        ]
       },
       "Id": "Target0",
       "RoleArn": {
        "Fn::GetAtt": [
-        "CodeBuildImageBuilderCodeBuildEventsRole4277A55E",
+        "TESTCodeBuildEventsRoleE23135F5",
         "Arn"
        ]
       }
@@ -4043,7 +3991,7 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Ref": "CodeBuildImageBuilderB8638EC8"
+        "Ref": "TESTBuilder562EB196"
        }
       },
       {
@@ -4185,7 +4133,7 @@
            "Fn::Split": [
             ":",
             {
-             "Ref": "CodeBuildImageBuilderB8638EC8"
+             "Ref": "TESTBuilder562EB196"
             }
            ]
           }
@@ -4199,7 +4147,7 @@
            "Fn::Split": [
             ":",
             {
-             "Ref": "CodeBuildImageBuilderB8638EC8"
+             "Ref": "TESTBuilder562EB196"
             }
            ]
           }
@@ -4212,7 +4160,7 @@
         "/",
         {
          "Fn::GetAtt": [
-          "CodeBuildImageBuilderB8638EC8",
+          "TESTBuilder562EB196",
           "Name"
          ]
         },
@@ -4221,7 +4169,7 @@
       ]
      },
      "ImagePullCredentialsType": "SERVICE_ROLE",
-     "PrivilegedMode": true,
+     "PrivilegedMode": false,
      "Type": "LINUX_CONTAINER"
     },
     "ServiceRole": {
@@ -6816,7 +6764,7 @@
       "Command": [
        "sh",
        "-c",
-       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "cd /home/runner &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -6830,7 +6778,7 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "FargatebuilderBuilder0834CD0B"
+              "Ref": "TESTBuilder562EB196"
              }
             ]
            }
@@ -6844,7 +6792,7 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "FargatebuilderBuilder0834CD0B"
+              "Ref": "TESTBuilder562EB196"
              }
             ]
            }
@@ -6857,7 +6805,7 @@
          "/",
          {
           "Fn::GetAtt": [
-           "FargatebuilderBuilder0834CD0B",
+           "TESTBuilder562EB196",
            "Name"
           ]
          },
@@ -6877,7 +6825,8 @@
         }
        }
       },
-      "Name": "runner"
+      "Name": "runner",
+      "User": "runner"
      }
     ],
     "Cpu": "256",
@@ -6938,7 +6887,7 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Ref": "FargatebuilderBuilder0834CD0B"
+        "Ref": "TESTBuilder562EB196"
        }
       },
       {
@@ -7046,7 +6995,7 @@
       "Command": [
        "sh",
        "-c",
-       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "cd /home/runner &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -7107,7 +7056,8 @@
         }
        }
       },
-      "Name": "runner"
+      "Name": "runner",
+      "User": "runner"
      }
     ],
     "Cpu": "256",
@@ -7276,7 +7226,7 @@
       "Command": [
        "sh",
        "-c",
-       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "cd /home/runner &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -7337,7 +7287,8 @@
         }
        }
       },
-      "Name": "runner"
+      "Name": "runner",
+      "User": "runner"
      }
     ],
     "Cpu": "256",
@@ -7506,7 +7457,7 @@
       "Command": [
        "sh",
        "-c",
-       "./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "cd /home/runner &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" --disableupdate --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -7567,7 +7518,8 @@
         }
        }
       },
-      "Name": "runner"
+      "Name": "runner",
+      "User": "runner"
      }
     ],
     "Cpu": "256",
@@ -7797,7 +7749,8 @@
         }
        }
       },
-      "Name": "runner"
+      "Name": "runner",
+      "User": "runner"
      }
     ],
     "Cpu": "1024",
@@ -11644,7 +11597,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-spot, linux, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-spot, linux, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -12437,7 +12390,7 @@
        "Action": "ecr:DescribeImages",
        "Effect": "Allow",
        "Resource": {
-        "Ref": "CodeBuildImageBuilderB8638EC8"
+        "Ref": "TESTBuilder562EB196"
        }
       },
       {
@@ -12750,7 +12703,7 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "CodeBuildImageBuilderB8638EC8"
+               "Ref": "TESTBuilder562EB196"
               }
              ]
             }
@@ -12764,7 +12717,7 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "CodeBuildImageBuilderB8638EC8"
+               "Ref": "TESTBuilder562EB196"
               }
              ]
             }
@@ -12777,7 +12730,7 @@
           "/",
           {
            "Fn::GetAtt": [
-            "CodeBuildImageBuilderB8638EC8",
+            "TESTBuilder562EB196",
             "Name"
            ]
           }
@@ -12786,7 +12739,7 @@
        },
        "imageTag": "latest",
        "imageBuilderLogGroup": {
-        "Ref": "CodeBuildImageBuilderLogsE4CADFCC"
+        "Ref": "TESTLogs60C87AA7"
        }
       }
      },
@@ -13125,7 +13078,7 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "FargatebuilderBuilder0834CD0B"
+               "Ref": "TESTBuilder562EB196"
               }
              ]
             }
@@ -13139,7 +13092,7 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "FargatebuilderBuilder0834CD0B"
+               "Ref": "TESTBuilder562EB196"
               }
              ]
             }
@@ -13152,7 +13105,7 @@
           "/",
           {
            "Fn::GetAtt": [
-            "FargatebuilderBuilder0834CD0B",
+            "TESTBuilder562EB196",
             "Name"
            ]
           }
@@ -13161,7 +13114,7 @@
        },
        "imageTag": "latest",
        "imageBuilderLogGroup": {
-        "Ref": "FargatebuilderLogs2F794091"
+        "Ref": "TESTLogs60C87AA7"
        }
       }
      },
