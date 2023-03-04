@@ -18,7 +18,6 @@ import {
   LambdaRunnerProvider,
   Os,
 } from '../src';
-import { RunnerImageBuilder } from '../src/providers/image-builders/ng';
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
@@ -40,12 +39,10 @@ const cluster = new ecs.Cluster(
     vpc: vpc,
   },
 );
-const fargateX64Builder = new CodeBuildImageBuilder(stack, 'Fargate builder', {
-  dockerfilePath: FargateRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
+const fargateX64Builder = FargateRunnerProvider.imageBuilder(stack, 'Fargate builder', {
   architecture: Architecture.X86_64,
 });
-const fargateArm64Builder = new CodeBuildImageBuilder(stack, 'Fargate builder arm', {
-  dockerfilePath: FargateRunnerProvider.LINUX_ARM64_DOCKERFILE_PATH,
+const fargateArm64Builder = FargateRunnerProvider.imageBuilder(stack, 'Fargate builder arm', {
   architecture: Architecture.ARM64,
 });
 const lambdaImageBuilder = new CodeBuildImageBuilder(stack, 'Lambda Image Builder x64', {
@@ -60,22 +57,16 @@ const windowsImageBuilder = new ContainerImageBuilder(stack, 'Windows Image Buil
 const amiX64Builder = new AmiBuilder(stack, 'AMI Linux Builder', {
   vpc,
 });
-const testBuilder = new RunnerImageBuilder(stack, 'TEST');
 new GitHubRunners(stack, 'runners', {
   providers: [
     new CodeBuildRunnerProvider(stack, 'CodeBuildx64', {
       label: 'codebuild-x64',
-      imageBuilder: testBuilder,
-      // imageBuilder: new CodeBuildImageBuilder(stack, 'CodeBuild Image Builder', {
-      //   dockerfilePath: CodeBuildRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
-      //   architecture: Architecture.X86_64,
-      // }),
+      imageBuilder: CodeBuildRunnerProvider.imageBuilder(stack, 'CodeBuild Image Builder'),
     }),
     new CodeBuildRunnerProvider(stack, 'CodeBuildARM', {
       labels: ['codebuild', 'linux', 'arm64'],
       computeType: codebuild.ComputeType.SMALL,
-      imageBuilder: new CodeBuildImageBuilder(stack, 'CodeBuild Image Builder arm', {
-        dockerfilePath: CodeBuildRunnerProvider.LINUX_ARM64_DOCKERFILE_PATH,
+      imageBuilder: CodeBuildRunnerProvider.imageBuilder(stack, 'CodeBuild Image Builder arm', {
         architecture: Architecture.ARM64,
       }),
     }),
@@ -99,8 +90,7 @@ new GitHubRunners(stack, 'runners', {
       labels: ['fargate', 'linux', 'x64'],
       cpu: 256,
       memoryLimitMiB: 512,
-      // imageBuilder: fargateX64Builder,
-      imageBuilder: testBuilder,
+      imageBuilder: fargateX64Builder,
       cluster,
       vpc: cluster.vpc,
       assignPublicIp: true,

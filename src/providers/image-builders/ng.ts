@@ -25,7 +25,7 @@ import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../
 // TODO Docker specific things like VOLUME, ENV, etc.
 
 export abstract class RunnerImageComponent {
-  static custom(commands: string[], assets?: ImageBuilderAsset[]) {
+  static custom(commands: string[], assets?: ImageBuilderAsset[]): RunnerImageComponent {
     return new class extends RunnerImageComponent {
       getCommands(_os: Os, _architecture: Architecture) {
         return commands;
@@ -36,7 +36,7 @@ export abstract class RunnerImageComponent {
     }();
   }
 
-  static requiredPackages() {
+  static requiredPackages(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
       getCommands(os: Os, architecture: Architecture): string[] {
         if (os.is(Os.LINUX_UBUNTU)) {
@@ -73,7 +73,7 @@ export abstract class RunnerImageComponent {
     };
   }
 
-  static runnerUser() {
+  static runnerUser(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
       getCommands(os: Os, _architecture: Architecture): string[] {
         if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
@@ -93,7 +93,7 @@ export abstract class RunnerImageComponent {
     };
   }
 
-  static awsCli() {
+  static awsCli(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
       getCommands(os: Os, architecture: Architecture) {
         if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
@@ -123,7 +123,7 @@ export abstract class RunnerImageComponent {
     }();
   }
 
-  static githubCli() {
+  static githubCli(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
       getCommands(os: Os, architecture: Architecture) {
         if (os.is(Os.LINUX_UBUNTU)) {
@@ -156,7 +156,7 @@ export abstract class RunnerImageComponent {
     }();
   }
 
-  static git() {
+  static git(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
       getCommands(os: Os, architecture: Architecture) {
         if (os.is(Os.LINUX_UBUNTU)) {
@@ -188,7 +188,7 @@ export abstract class RunnerImageComponent {
     }();
   }
 
-  static githubRunner(runnerVersion: RunnerVersion) {
+  static githubRunner(runnerVersion: RunnerVersion): RunnerImageComponent {
     return new class extends RunnerImageComponent {
       getCommands(os: Os, architecture: Architecture) {
         if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
@@ -239,7 +239,7 @@ export abstract class RunnerImageComponent {
     }();
   }
 
-  static docker() {
+  static docker(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
       getCommands(os: Os, architecture: Architecture) {
         if (os.is(Os.LINUX_UBUNTU)) {
@@ -275,7 +275,7 @@ export abstract class RunnerImageComponent {
     }();
   }
 
-  static dockerInDocker() {
+  static dockerInDocker(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
       getCommands(os: Os, architecture: Architecture) {
         if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
@@ -315,7 +315,7 @@ export abstract class RunnerImageComponent {
     }();
   }
 
-  static extraCertificates(_path: string) {
+  static extraCertificates(_path: string): RunnerImageComponent {
     return new class extends RunnerImageComponent {
       getCommands(os: Os, architecture: Architecture) {
         if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
@@ -351,7 +351,7 @@ export abstract class RunnerImageComponent {
   }
 }
 
-interface RunnerImageBuilderProps {
+export interface RunnerImageBuilderProps {
   /**
    * Image architecture.
    *
@@ -367,9 +367,11 @@ interface RunnerImageBuilderProps {
   readonly os?: Os;
 
   /**
-   * Path to Dockerfile to be built. It can be a path to a Dockerfile, a folder containing a Dockerfile, or a zip file containing a Dockerfile.
+   * Base image from which the image will be built.
+   *
+   * @default public.ecr.aws/lts/ubuntu:20.04 for Os.LINUX_UBUNTU, public.ecr.aws/amazonlinux/amazonlinux:2 for Os.LINUX_AMAZON_2
    */
-  readonly dockerfilePath: string;
+  readonly baseImage?: string;
 
   /**
    * Version of GitHub Runners to install.
@@ -377,6 +379,13 @@ interface RunnerImageBuilderProps {
    * @default latest version available
    */
   readonly runnerVersion?: RunnerVersion;
+
+  /**
+   * Components to install on the image.
+   *
+   * @default none
+   */
+  readonly components?: RunnerImageComponent[];
 
   /**
    * Schedule the image to be rebuilt every given interval. Useful for keeping the image up-do-date with the latest GitHub runner version and latest OS updates.
@@ -460,6 +469,7 @@ export class RunnerImageBuilder extends Construct implements IImageBuilder/*, IA
   private boundImage?: RunnerImage;
   private readonly os: Os;
   private readonly architecture: Architecture;
+  private readonly baseImage: string;
   private readonly runnerVersion: RunnerVersion;
   private readonly logRetention: RetentionDays;
   private readonly logRemovalPolicy: RemovalPolicy;
@@ -487,6 +497,18 @@ export class RunnerImageBuilder extends Construct implements IImageBuilder/*, IA
     this.timeout = props?.timeout ?? Duration.hours(1);
     this.computeType = props?.computeType ?? ComputeType.SMALL;
 
+    // choose base image
+    if (props?.baseImage) {
+      this.baseImage = props.baseImage;
+    } else if (this.os.is(Os.LINUX_UBUNTU)) {
+      this.baseImage = 'public.ecr.aws/lts/ubuntu:20.04';
+    } else if (this.os.is(Os.LINUX_AMAZON_2)) {
+      this.baseImage = 'public.ecr.aws/amazonlinux/amazonlinux:2';
+    } else {
+      throw new Error(`No base image for OS ${this.os.name}`);
+    }
+
+    // warn against isolated networks
     if (props?.subnetSelection?.subnetType == ec2.SubnetType.PRIVATE_ISOLATED) {
       Annotations.of(this).addWarning('Private isolated subnets cannot pull from public ECR and VPC endpoint is not supported yet. ' +
         'See https://github.com/aws/containers-roadmap/issues/1160');
@@ -510,13 +532,9 @@ export class RunnerImageBuilder extends Construct implements IImageBuilder/*, IA
     this.buildImage = props?.buildImage ?? this.getBuildImage();
 
     // default component -- TODO let user pick these
-    this.addComponent(RunnerImageComponent.requiredPackages());
-    this.addComponent(RunnerImageComponent.runnerUser());
-    this.addComponent(RunnerImageComponent.git());
-    this.addComponent(RunnerImageComponent.githubCli());
-    this.addComponent(RunnerImageComponent.awsCli());
-    this.addComponent(RunnerImageComponent.dockerInDocker());
-    this.addComponent(RunnerImageComponent.githubRunner(this.runnerVersion));
+    if (props?.components) {
+      this.components = props.components;
+    }
   }
 
   public addComponent(component: RunnerImageComponent) {
@@ -600,9 +618,9 @@ export class RunnerImageBuilder extends Construct implements IImageBuilder/*, IA
   }
 
   private getBuildImage(): codebuild.IBuildImage {
-    if (this.os.is(Os.LINUX_UBUNTU) || this.os.is(Os.LINUX_AMAZON_2)) {
+    if (this.os.is(Os.LINUX_UBUNTU) || this.os.is(Os.LINUX_AMAZON_2)) { // TODO
       if (this.architecture.is(Architecture.X86_64)) {
-        return codebuild.LinuxBuildImage.STANDARD_5_0;
+        return codebuild.LinuxBuildImage.STANDARD_6_0;
       } else if (this.architecture.is(Architecture.ARM64)) {
         return codebuild.LinuxArmBuildImage.AMAZON_LINUX_2_STANDARD_2_0;
       }
@@ -615,7 +633,8 @@ export class RunnerImageBuilder extends Construct implements IImageBuilder/*, IA
   }
 
   private getBuildSpec(repository: ecr.Repository, logGroup: logs.LogGroup, runnerVersion: RunnerVersion): any {
-    const dockerfile = 'FROM public.ecr.aws/lts/ubuntu:20.04\nCOPY build.sh /tmp/build.sh\nRUN chmod +x /tmp/build.sh && /tmp/build.sh\nVOLUME /var/lib/docker'; // TODO configurable image
+    // TODO use RUN per component instead of a single script
+    const dockerfile = `FROM ${this.baseImage}\nCOPY build.sh /tmp/build.sh\nRUN chmod +x /tmp/build.sh && /tmp/build.sh\nVOLUME /var/lib/docker`;
     const script = '#!/bin/bash\nset -exuo pipefail\n' + this.components.map(c => c.getCommands(this.os, this.architecture)).flat().join('\n');
 
     // don't forget to change BUILDSPEC_VERSION when the buildSpec changes, and you want to trigger a rebuild on deploy
@@ -728,8 +747,9 @@ export class RunnerImageBuilder extends Construct implements IImageBuilder/*, IA
     // TODO replace with components
     let components: string[] = [];
     for (const component of this.components) {
-      components.push(component.getCommands(Os.LINUX_UBUNTU, Architecture.X86_64).join('\n')); // TODO
+      components.push(component.getCommands(Os.LINUX_UBUNTU, Architecture.X86_64).join('\n')); // TODO correct os/arch
     }
+    components.push(this.buildImage.imageId);
     // let components: string[] = [this.dockerfile.assetHash];
     // all additional files
     // TODO assets
