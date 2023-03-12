@@ -9,6 +9,7 @@ import {
   aws_events_targets as events_targets,
   aws_iam as iam,
   aws_logs as logs,
+  aws_s3_assets as s3_assets,
   CustomResource,
   Duration,
   RemovalPolicy,
@@ -17,15 +18,86 @@ import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
-import { ImageBuilderAsset } from './common';
+import { ImageBuilderComponent } from './common';
 import { BuildImageFunction } from '../../lambdas/build-image-function';
 import { singletonLambda } from '../../utils';
 import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
 
 // TODO Docker specific things like VOLUME, ENV, etc.
 
+export class RunnerImageAsset {
+  constructor(private readonly source: string, readonly target: string) {
+  }
+
+  asS3Asset(scope: Construct, id: string) {
+    return new s3_assets.Asset(scope, id, {
+      path: this.source,
+    });
+  }
+
+  // TODO static?
+  // TODO remove?
+  asAwsImageBuilderComponentSteps(asset: s3_assets.Asset, os: Os) {
+    let steps: any[] = [];
+
+    if (asset.isFile) {
+      steps.push({
+        name: 'Download',
+        action: 'S3Download',
+        inputs: [
+          {
+            source: asset.s3ObjectUrl,
+            destination: this.target,
+          },
+        ],
+      });
+    } else if (asset.isZipArchive) {
+      steps.push({
+        name: 'Download',
+        action: 'S3Download',
+        inputs: [
+          {
+            source: asset.s3ObjectUrl,
+            destination: `${this.target}.zip`,
+          },
+        ],
+      });
+      if (os.is(Os.WINDOWS)) {
+        steps.push({
+          name: 'Extract',
+          action: 'ExecutePowerShell',
+          inputs:
+            {
+              commands: [
+                '$ErrorActionPreference = \'Stop\'',
+                `Expand-Archive "${this.target}.zip" -DestinationPath "${this.target}"`,
+                `del "${this.target}.zip"`,
+              ],
+            },
+        });
+      } else {
+        steps.push({
+          name: 'Extract',
+          action: 'ExecuteBash',
+          inputs:
+            {
+              commands: [
+                `unzip "${this.target}.zip" -d "${this.target}"`,
+                `rm "${this.target}.zip"`,
+              ],
+            },
+        });
+      }
+    } else {
+      throw new Error(`Unknown asset type: ${asset}`);
+    }
+
+    return steps;
+  }
+}
+
 export abstract class RunnerImageComponent {
-  static custom(commands: string[], assets?: ImageBuilderAsset[]): RunnerImageComponent {
+  static custom(commands: string[], assets?: RunnerImageAsset[]): RunnerImageComponent {
     return new class extends RunnerImageComponent {
       getCommands(_os: Os, _architecture: Architecture) {
         return commands;
@@ -315,39 +387,78 @@ export abstract class RunnerImageComponent {
     }();
   }
 
-  static extraCertificates(_path: string): RunnerImageComponent {
+  /**
+   * Add a trusted certificate authority. This can be used to support GitHub Enterprise Server with self-signed certificate.
+   *
+   * @param path path to certificate file in PEM format
+   */
+  static extraCertificates(source: string, name: string): RunnerImageComponent {
     return new class extends RunnerImageComponent {
       getCommands(os: Os, architecture: Architecture) {
-        if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
+        if (os.is(Os.LINUX_UBUNTU)) {
           return [
-            'cp certs/certs.pem /usr/local/share/ca-certificates/github-enterprise-server.crt',
             'update-ca-certificates',
+          ];
+        } else if (os.is(Os.LINUX_AMAZON_2)) {
+          return [
+            'update-ca-trust',
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [
-            'Import-Certificate -FilePath certs\\certs.pem -CertStoreLocation Cert:\\LocalMachine\\Root',
+            `Import-Certificate -FilePath C:\\ghr-certs\\${name}.crt -CertStoreLocation Cert:\\LocalMachine\\Root`,
           ];
         }
 
         throw new Error(`Unknown os/architecture combo for extra certificates: ${os.name}/${architecture.name}`);
       }
 
-      getAssets(_os: Os, _architecture: Architecture): ImageBuilderAsset[] {
-        // TODO fix this to return path to asset so the user can put it in scope
-        // return [
-        //   {
-        //     path: 'certs',
-        //     asset: new s3_assets.Asset(scope, `${id} Asset`, { path }),
-        //   },
-        // ];
-        return [];
+      getAssets(os: Os, _architecture: Architecture): RunnerImageAsset[] {
+        if (os.is(Os.LINUX_UBUNTU)) {
+          return [
+            new RunnerImageAsset(source, `/usr/local/share/ca-certificates/${name}.crt`),
+          ];
+        } else if (os.is(Os.LINUX_AMAZON_2)) {
+          return [
+            new RunnerImageAsset(source, `/etc/pki/ca-trust/source/anchors/${name}.crt`),
+          ];
+        } else if (os.is(Os.WINDOWS)) {
+          return [
+            new RunnerImageAsset(source, `C:\\ghr-certs\\${name}.crt`),
+          ];
+        }
+
+        throw new Error(`Unsupported OS for extra certificates: ${os.name}`);
       }
     }();
   }
 
   abstract getCommands(_os: Os, _architecture: Architecture): string[];
-  getAssets(_os: Os, _architecture: Architecture): ImageBuilderAsset[] {
+  getAssets(_os: Os, _architecture: Architecture): RunnerImageAsset[] {
     return [];
+  }
+
+  asAwsImageBuilderComponent(scope: Construct, id: string, os: Os, architecture: Architecture) {
+    let platform: 'Linux' | 'Windows';
+    if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
+      platform = 'Linux';
+    } else if (os.is(Os.WINDOWS)) {
+      platform = 'Windows';
+    } else {
+      throw new Error(`Unknown os/architecture combo for image builder component: ${os.name}/${architecture.name}`);
+    }
+
+    return new ImageBuilderComponent(scope, id, {
+      platform: platform,
+      commands: this.getCommands(os, architecture),
+      assets: this.getAssets(os, architecture).map((asset, index) => {
+        return {
+          asset: asset.asS3Asset(scope, `${id} asset ${index}`),
+          path: asset.target,
+        };
+      }),
+      displayName: id,
+      description: id,
+    });
   }
 }
 
@@ -463,7 +574,7 @@ export interface RunnerImageBuilderProps {
 }
 
 export class RunnerImageBuilder extends Construct implements IImageBuilder/*, IAmiBuilder*/ {
-  private components: RunnerImageComponent[] = [];
+  private readonly components: RunnerImageComponent[] = [];
   private preBuild: string[] = [];
   private postBuild: string[] = [];
   private boundImage?: RunnerImage;
@@ -481,6 +592,7 @@ export class RunnerImageBuilder extends Construct implements IImageBuilder/*, IA
   private readonly timeout: cdk.Duration;
   private readonly computeType: codebuild.ComputeType;
   private readonly rebuildInterval: cdk.Duration;
+  private readonly assetsToGrant: s3_assets.Asset[] = [];
 
   constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     super(scope, id);
@@ -505,7 +617,7 @@ export class RunnerImageBuilder extends Construct implements IImageBuilder/*, IA
     } else if (this.os.is(Os.LINUX_AMAZON_2)) {
       this.baseImage = 'public.ecr.aws/amazonlinux/amazonlinux:2';
     } else {
-      throw new Error(`No base image for OS ${this.os.name}`);
+      throw new Error(`OS ${this.os.name} not supported to build runner images on CodeBuild`);
     }
 
     // warn against isolated networks
@@ -592,14 +704,10 @@ export class RunnerImageBuilder extends Construct implements IImageBuilder/*, IA
     // rebuild image on a schedule
     this.rebuildImageOnSchedule(project, this.rebuildInterval);
 
-    // TODO
-    // for (const [assetPath, asset] of this.secondaryAssets.entries()) {
-    //   project.addSecondarySource(codebuild.Source.s3({
-    //     identifier: assetPath,
-    //     bucket: asset.bucket,
-    //     path: asset.s3ObjectKey,
-    //   }));
-    // }
+    // asset permissions
+    for (const asset of this.assetsToGrant) {
+      asset.grantRead(project);
+    }
 
     this.boundImage = {
       imageRepository: ecr.Repository.fromRepositoryAttributes(this, 'Dependable Image', {
@@ -632,11 +740,43 @@ export class RunnerImageBuilder extends Construct implements IImageBuilder/*, IA
     throw new Error(`Unable to find CodeBuild image for ${this.os.name}/${this.architecture.name}`);
   }
 
-  private getBuildSpec(repository: ecr.Repository, logGroup: logs.LogGroup, runnerVersion: RunnerVersion): any {
-    // TODO use RUN per component instead of a single script
-    const dockerfile = `FROM ${this.baseImage}\nCOPY build.sh /tmp/build.sh\nRUN chmod +x /tmp/build.sh && /tmp/build.sh\nVOLUME /var/lib/docker`;
-    const script = '#!/bin/bash\nset -exuo pipefail\n' + this.components.map(c => c.getCommands(this.os, this.architecture)).flat().join('\n');
+  private getDockerfileGenerationCommands() {
+    let commands = [];
+    let dockerfile = `FROM ${this.baseImage}\nVOLUME /var/lib/docker\n`;
 
+    for (let i = 0; i < this.components.length; i++) {
+      const assetDescriptors = this.components[i].getAssets(this.os, this.architecture);
+      for (let j = 0; j < assetDescriptors.length; j++) {
+        const asset = assetDescriptors[j].asS3Asset(this, `Component ${i} Asset ${j}`);
+
+        if (asset.isFile) {
+          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}${j}`);
+        } else if (asset.isZipArchive) {
+          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}${j}.zip`);
+          commands.push(`unzip "${assetDescriptors[j].target}.zip" -d asset${i}${j}`);
+        } else {
+          throw new Error(`Unknown asset type: ${asset}`);
+        }
+
+        dockerfile += `COPY asset${i}${j} ${assetDescriptors[j].target}\n`;
+
+        this.assetsToGrant.push(asset);
+      }
+
+      const componentCommands = this.components[i].getCommands(this.os, this.architecture);
+      const script = '#!/bin/bash\nset -exuo pipefail\n' + componentCommands.join('\n');
+      commands.push(`cat > component${i}.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\n${script}\nEOFGITHUBRUNNERSDOCKERFILE`);
+      commands.push(`chmod +x component${i}.sh`);
+      dockerfile += `COPY component${i}.sh /tmp\n`;
+      dockerfile += `RUN /tmp/component${i}.sh\n`;
+    }
+
+    commands.push(`cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\n${dockerfile}\nEOFGITHUBRUNNERSDOCKERFILE`);
+
+    return commands;
+  }
+
+  private getBuildSpec(repository: ecr.Repository, logGroup: logs.LogGroup, runnerVersion: RunnerVersion): any {
     // don't forget to change BUILDSPEC_VERSION when the buildSpec changes, and you want to trigger a rebuild on deploy
     // let buildArgs = '';
     // for (const [name, value] of this.buildArgs.entries()) {
@@ -662,18 +802,14 @@ export class RunnerImageBuilder extends Construct implements IImageBuilder/*, IA
       phases: {
         pre_build: {
           commands: this.preBuild.concat([
-            'mkdir -p extra_certs',
             `aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`,
           ]),
         },
         build: {
-          commands: [
-            `cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\n${dockerfile}\nEOFGITHUBRUNNERSDOCKERFILE`,
-            `cat > build.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\n${script}\nEOFGITHUBRUNNERSDOCKERFILE`,
-            'cat Dockerfile build.sh', // TODO remove
-            'docker build . -t "$REPO_URI"',
+          commands: this.getDockerfileGenerationCommands().concat([
+            'docker build . -t "$REPO_URI" --build-arg AWS_DEFAULT_REGION --build-arg AWS_REGION',
             'docker push "$REPO_URI"',
-          ],
+          ]),
         },
         post_build: {
           commands: this.postBuild.concat([

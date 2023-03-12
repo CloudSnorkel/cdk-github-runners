@@ -16,7 +16,7 @@ import {
   FargateRunnerProvider,
   GitHubRunners,
   LambdaRunnerProvider,
-  Os,
+  Os, RunnerImageComponent,
 } from '../src';
 
 const app = new cdk.App();
@@ -42,6 +42,7 @@ const cluster = new ecs.Cluster(
 const fargateX64Builder = FargateRunnerProvider.imageBuilder(stack, 'Fargate builder', {
   architecture: Architecture.X86_64,
 });
+fargateX64Builder.addComponent(RunnerImageComponent.extraCertificates('certs/certs.pem', 'local'));
 const fargateArm64Builder = FargateRunnerProvider.imageBuilder(stack, 'Fargate builder arm', {
   architecture: Architecture.ARM64,
 });

@@ -121,23 +121,6 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProvider {
-  public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
-    return new RunnerImageBuilder(scope, id, {
-      os: Os.LINUX_UBUNTU,
-      architecture: Architecture.X86_64,
-      components: [
-        RunnerImageComponent.requiredPackages(),
-        RunnerImageComponent.runnerUser(),
-        RunnerImageComponent.git(),
-        RunnerImageComponent.githubCli(),
-        RunnerImageComponent.awsCli(),
-        RunnerImageComponent.dockerInDocker(),
-        RunnerImageComponent.githubRunner(RunnerVersion.latest()), // TODO we send this in props and here which is confusing
-      ],
-      ...props,
-    });
-  }
-
   /**
    * Path to Dockerfile for Linux x64 with all the requirements for CodeBuild runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
@@ -163,6 +146,23 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
    * * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
    */
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'codebuild', 'linux-arm64');
+
+  public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
+    return new RunnerImageBuilder(scope, id, {
+      os: Os.LINUX_UBUNTU,
+      architecture: Architecture.X86_64,
+      components: [
+        RunnerImageComponent.requiredPackages(),
+        RunnerImageComponent.runnerUser(),
+        RunnerImageComponent.git(),
+        RunnerImageComponent.githubCli(),
+        RunnerImageComponent.awsCli(),
+        RunnerImageComponent.dockerInDocker(),
+        RunnerImageComponent.githubRunner(RunnerVersion.latest()), // TODO we send this in props and here which is confusing
+      ],
+      ...props,
+    });
+  }
 
   /**
    * CodeBuild project hosting the runner.
