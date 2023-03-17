@@ -103,6 +103,10 @@ jobs:
           docker build  .
           docker-compose --version
           docker compose version
+      - name: custom files
+        run: |
+          ls /custom-file
+          ls /custom-dir/FUNDING.yml
 
   self-hosted-windows:
     strategy:
@@ -156,3 +160,7 @@ jobs:
           docker build  .
           docker-compose --version
           docker compose version
+      - name: custom files
+        run: |
+          ls /custom-file
+          ls /custom-dir/FUNDING.yml

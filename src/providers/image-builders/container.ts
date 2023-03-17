@@ -123,8 +123,10 @@ export interface ContainerImageBuilderProps {
 
 /**
  * Properties for ContainerRecipe construct.
+ *
+ * @internal
  */
-interface ContainerRecipeProperties {
+export interface ContainerRecipeProperties {
   /**
    * Target platform. Must match builder platform.
    */
@@ -163,8 +165,10 @@ interface ContainerRecipeProperties {
 
 /**
  * Image builder recipe for a Docker container image.
+ *
+ * @internal
  */
-class ContainerRecipe extends ImageBuilderObjectBase {
+export class ContainerRecipe extends ImageBuilderObjectBase {
   public readonly arn: string;
   public readonly name: string;
 

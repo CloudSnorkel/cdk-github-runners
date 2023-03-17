@@ -11,7 +11,6 @@ import {
   Architecture,
   CodeBuildImageBuilder,
   CodeBuildRunnerProvider,
-  ContainerImageBuilder,
   Ec2RunnerProvider,
   FargateRunnerProvider,
   GitHubRunners,
@@ -50,11 +49,12 @@ const lambdaImageBuilder = new CodeBuildImageBuilder(stack, 'Lambda Image Builde
   dockerfilePath: LambdaRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
   architecture: Architecture.X86_64,
 });
-const windowsImageBuilder = new ContainerImageBuilder(stack, 'Windows Image Builder', {
-  architecture: Architecture.X86_64,
+const windowsImageBuilder = FargateRunnerProvider.imageBuilder(stack, 'Windows Image Builder', {
   os: Os.WINDOWS,
   vpc,
+  subnetSelection: { subnetType: ec2.SubnetType.PUBLIC },
 });
+windowsImageBuilder.addComponent(RunnerImageComponent.extraCertificates('certs/certs.pem', 'local'));
 const amiX64Builder = new AmiBuilder(stack, 'AMI Linux Builder', {
   vpc,
 });
