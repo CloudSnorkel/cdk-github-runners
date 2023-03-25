@@ -18,9 +18,10 @@ import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
+import { RunnerImageBuilder } from './ng';
 import { BuildImageFunction } from '../../lambdas/build-image-function';
 import { singletonLambda } from '../../utils';
-import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../common';
 
 /*
 AWS Image Builder was not used because:
@@ -155,8 +156,10 @@ export interface CodeBuildImageBuilderProps {
  *     imageBuilder: builder,
  * });
  * ```
+ *
+ * @deprecated use RunnerImageBuilder
  */
-export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
+export class CodeBuildImageBuilder extends RunnerImageBuilder {
   /**
    * Bump this number every time the buildspec or any important setting of the project changes. It will force a rebuild of the image.
    * @private
@@ -292,7 +295,7 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
   /**
    * Called by IRunnerProvider to finalize settings and create the image builder.
    */
-  public bind(): RunnerImage {
+  public bindDockerImage(): RunnerImage {
     if (this.boundImage) {
       return this.boundImage;
     }
@@ -519,5 +522,15 @@ export class CodeBuildImageBuilder extends Construct implements IImageBuilder {
       });
       scheduleRule.addTarget(new events_targets.CodeBuildProject(project));
     }
+  }
+
+  get connections(): ec2.Connections {
+    return new ec2.Connections({
+      securityGroups: this.props.securityGroup ? [this.props.securityGroup] : [],
+    });
+  }
+
+  bindAmi(): RunnerAmi {
+    throw new Error('CodeBuildImageBuilder does not support building AMIs');
   }
 }

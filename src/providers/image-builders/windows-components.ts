@@ -5,6 +5,8 @@ import { RunnerVersion } from '../common';
 
 /**
  * Components for Windows that can be used with AWS Image Builder based builders. These cannot be used by {@link CodeBuildImageBuilder}.
+ *
+ * @deprecated Use `RunnerImageComponent` instead.
  */
 export class WindowsComponents {
   public static cloudwatchAgent(scope: Construct, id: string) {

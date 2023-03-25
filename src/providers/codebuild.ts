@@ -16,16 +16,15 @@ import { Construct } from 'constructs';
 import {
   Architecture,
   BaseProvider,
-  IImageBuilder,
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
   RunnerImage,
   RunnerProviderProps,
-  RunnerRuntimeParameters, RunnerVersion,
+  RunnerRuntimeParameters,
+  RunnerVersion,
 } from './common';
-import { CodeBuildImageBuilder } from './image-builders/codebuild';
-import { RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from './image-builders/ng';
+import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from './image-builders/ng';
 
 
 export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
@@ -36,7 +35,7 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
    *
    * @default image builder with `CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
    */
-  readonly imageBuilder?: IImageBuilder;
+  readonly imageBuilder?: IRunnerImageBuilder;
 
   /**
    * GitHub Actions label used for this provider.
@@ -148,7 +147,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'codebuild', 'linux-arm64');
 
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
-    return new RunnerImageBuilder(scope, id, {
+    return RunnerImageBuilder.new(scope, id, {
       os: Os.LINUX_UBUNTU,
       architecture: Architecture.X86_64,
       components: [
@@ -245,10 +244,8 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       },
     };
 
-    const imageBuilder = props?.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
-      dockerfilePath: CodeBuildRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
-    });
-    const image = this.image = imageBuilder.bind();
+    const imageBuilder = props?.imageBuilder ?? RunnerImageBuilder.new(this, 'Image Builder');
+    const image = this.image = imageBuilder.bindDockerImage();
 
     if (image.os.is(Os.WINDOWS)) {
       buildSpec.phases.install.commands = [

@@ -13,8 +13,8 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
+  Architecture,
   BaseProvider,
-  IAmiBuilder,
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
@@ -23,7 +23,7 @@ import {
   RunnerRuntimeParameters,
   RunnerVersion,
 } from './common';
-import { AmiBuilder } from './image-builders/ami';
+import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageBuilderType, RunnerImageComponent } from './image-builders';
 
 // this script is specifically made so `poweroff` is absolutely always called
 // each `{}` is a variable coming from `params` below
@@ -137,7 +137,12 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
    *
    * @default AMI builder for Ubuntu Linux on the same subnet as configured by {@link vpc} and {@link subnetSelection}
    */
-  readonly amiBuilder?: IAmiBuilder;
+  readonly imageBuilder?: IRunnerImageBuilder;
+
+  /**
+   * @deprecated use imageBuilder
+   */
+  readonly amiBuilder?: IRunnerImageBuilder;
 
   /**
    * GitHub Actions labels used for this provider.
@@ -224,6 +229,25 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
+  public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
+    return RunnerImageBuilder.new(scope, id, {
+      os: Os.LINUX_UBUNTU,
+      architecture: Architecture.X86_64,
+      builderType: RunnerImageBuilderType.AWS_IMAGE_BUILDER,
+      components: [
+        // TODO confirm
+        RunnerImageComponent.requiredPackages(),
+        RunnerImageComponent.runnerUser(),
+        RunnerImageComponent.git(),
+        RunnerImageComponent.githubCli(),
+        RunnerImageComponent.awsCli(),
+        RunnerImageComponent.docker(),
+        RunnerImageComponent.githubRunner(RunnerVersion.latest()), // TODO we send this in props and here which is confusing
+      ],
+      ...props,
+    });
+  }
+
   /**
    * Labels associated with this provider.
    */
@@ -263,12 +287,12 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;
 
-    const amiBuilder = props?.amiBuilder ?? new AmiBuilder(this, 'Image Builder', {
+    const amiBuilder = props?.imageBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Image Builder', {
       vpc: props?.vpc,
       subnetSelection: props?.subnetSelection,
       securityGroups: this.securityGroups,
     });
-    this.ami = amiBuilder.bind();
+    this.ami = amiBuilder.bindAmi();
 
     if (!this.ami.architecture.instanceTypeMatch(this.instanceType)) {
       throw new Error(`AMI architecture (${this.ami.architecture.name}) doesn't match runner instance type (${this.instanceType} / ${this.instanceType.architecture})`);

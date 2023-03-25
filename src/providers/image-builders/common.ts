@@ -11,9 +11,10 @@ import {
   RemovalPolicy,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { IRunnerImageBuilder } from './ng';
 import { AwsImageBuilderVersionerFunction } from '../../lambdas/aws-image-builder-versioner-function';
 import { singletonLambda } from '../../utils';
-import { Architecture, Os, RunnerVersion } from '../common';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../common';
 
 /**
  * @internal
@@ -128,6 +129,8 @@ export interface ImageBuilderComponentProperties {
  *   ],
  * }
  * ```
+ *
+ * @deprecated Use `RunnerImageComponent` instead.
  */
 export class ImageBuilderComponent extends ImageBuilderObjectBase {
   /**
@@ -341,7 +344,7 @@ export interface ImageBuilderBaseProps {
 /**
  * @internal
  */
-export abstract class ImageBuilderBase extends Construct implements ec2.IConnectable {
+export abstract class ImageBuilderBase extends Construct implements IRunnerImageBuilder {
   protected readonly architecture: Architecture;
   protected readonly os: Os;
   protected readonly platform: 'Windows' | 'Linux';
@@ -501,4 +504,7 @@ export abstract class ImageBuilderBase extends Construct implements ec2.IConnect
   public get connections(): ec2.Connections {
     return new ec2.Connections({ securityGroups: this.securityGroups });
   }
+
+  abstract bindDockerImage(): RunnerImage;
+  abstract bindAmi(): RunnerAmi;
 }

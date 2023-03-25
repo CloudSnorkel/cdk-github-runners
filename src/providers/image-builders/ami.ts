@@ -17,7 +17,7 @@ import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
 import { DeleteAmiFunction } from '../../lambdas/delete-ami-function';
 import { singletonLambda } from '../../utils';
-import { Architecture, IAmiBuilder, Os, RunnerAmi, RunnerVersion } from '../common';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../common';
 
 /**
  * Properties for {@link AmiBuilder} construct.
@@ -138,8 +138,10 @@ interface AmiRecipeProperties {
 
 /**
  * Image builder recipe for Amazon Machine Image (AMI).
+ *
+ * @internal
  */
-class AmiRecipe extends ImageBuilderObjectBase {
+export class AmiRecipe extends ImageBuilderObjectBase {
   public readonly arn: string;
   public readonly name: string;
 
@@ -224,8 +226,10 @@ class AmiRecipe extends ImageBuilderObjectBase {
  *     amiBuilder: builder,
  * });
  * ```
+ *
+ * @deprecated use RunnerImageBuilder
  */
-export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
+export class AmiBuilder extends ImageBuilderBase {
   private boundAmi?: RunnerAmi;
 
   constructor(scope: Construct, id: string, props?: AmiBuilderProps) {
@@ -294,7 +298,7 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
    * Add a component to be installed.
    * @param component
    */
-  addComponent(component: ImageBuilderComponent) {
+  addComponent(component: ImageBuilderComponent) { // TODO: rename to addComponent
     if (this.boundAmi) {
       throw new Error('AMI is already bound. Use this method before passing the builder to a runner provider.');
     }
@@ -322,7 +326,7 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
   /**
    * Called by IRunnerProvider to finalize settings and create the AMI builder.
    */
-  bind(): RunnerAmi {
+  bindAmi(): RunnerAmi {
     if (this.boundAmi) {
       return this.boundAmi;
     }
@@ -422,5 +426,9 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
         BuilderName: builderName,
       },
     });
+  }
+
+  bindDockerImage(): RunnerImage {
+    throw new Error('AmiBuilder cannot be used to build Docker images');
   }
 }

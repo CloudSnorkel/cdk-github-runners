@@ -17,7 +17,7 @@ import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
 import { BuildImageFunction } from '../../lambdas/build-image-function';
 import { singletonLambda } from '../../utils';
-import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../common';
 
 const dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
 ENV RUNNER_VERSION=___RUNNER_VERSION___
@@ -227,7 +227,7 @@ export class ContainerRecipe extends ImageBuilderObjectBase {
  * });
  * ```
  */
-export class ContainerImageBuilder extends ImageBuilderBase implements IImageBuilder {
+export class ContainerImageBuilder extends ImageBuilderBase {
   readonly repository: ecr.IRepository;
   private readonly parentImage: string | undefined;
   private boundImage?: RunnerImage;
@@ -324,7 +324,7 @@ export class ContainerImageBuilder extends ImageBuilderBase implements IImageBui
   /**
    * Called by IRunnerProvider to finalize settings and create the image builder.
    */
-  bind(): RunnerImage {
+  bindDockerImage(): RunnerImage {
     if (this.boundImage) {
       return this.boundImage;
     }
@@ -419,5 +419,9 @@ export class ContainerImageBuilder extends ImageBuilderBase implements IImageBui
     cr.node.addDependency(crHandler);
 
     return cr;
+  }
+
+  bindAmi(): RunnerAmi {
+    throw new Error('ContainerImageBuilder cannot be used to build AMIs');
   }
 }

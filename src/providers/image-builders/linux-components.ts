@@ -5,6 +5,8 @@ import { Architecture, RunnerVersion } from '../common';
 
 /**
  * Components for Ubuntu Linux that can be used with AWS Image Builder based builders. These cannot be used by {@link CodeBuildImageBuilder}.
+ *
+ * @deprecated Use `RunnerImageComponent` instead.
  */
 export class LinuxUbuntuComponents {
   public static requiredPackages(scope: Construct, id: string, architecture: Architecture) {

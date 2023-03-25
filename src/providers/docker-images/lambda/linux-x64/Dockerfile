@@ -1,3 +1,5 @@
+# DEPRECATED - use RunnerImageBuilder instead
+
 # https://docs.aws.amazon.com/lambda/latest/dg/images-create.html
 
 ARG BASE_IMAGE="public.ecr.aws/lambda/nodejs:14-x86_64"

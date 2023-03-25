@@ -7,7 +7,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_codebuild as codebuild, aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
 import {
-  AmiBuilder,
   Architecture,
   CodeBuildImageBuilder,
   CodeBuildRunnerProvider,
@@ -55,7 +54,7 @@ const windowsImageBuilder = FargateRunnerProvider.imageBuilder(stack, 'Windows I
   subnetSelection: { subnetType: ec2.SubnetType.PUBLIC },
 });
 windowsImageBuilder.addComponent(RunnerImageComponent.extraCertificates('certs/certs.pem', 'local'));
-const amiX64Builder = new AmiBuilder(stack, 'AMI Linux Builder', {
+const amiX64Builder = Ec2RunnerProvider.imageBuilder(stack, 'AMI Linux Builder', {
   vpc,
 });
 new GitHubRunners(stack, 'runners', {
@@ -136,20 +135,22 @@ new GitHubRunners(stack, 'runners', {
     }),
     new Ec2RunnerProvider(stack, 'EC2 Linux', {
       labels: ['ec2', 'linux', 'x64'],
-      amiBuilder: amiX64Builder,
+      imageBuilder: amiX64Builder,
       vpc,
     }),
     new Ec2RunnerProvider(stack, 'EC2 Spot Linux', {
       labels: ['ec2-spot', 'linux', 'x64'],
-      amiBuilder: amiX64Builder,
+      imageBuilder: amiX64Builder,
       spot: true,
       vpc,
     }),
     new Ec2RunnerProvider(stack, 'EC2 Linux arm64', {
       labels: ['ec2', 'linux', 'arm64'],
-      amiBuilder: new AmiBuilder(stack, 'AMI Linux arm64 Builder', {
+      imageBuilder: Ec2RunnerProvider.imageBuilder(stack, 'AMI Linux arm64 Builder', {
         architecture: Architecture.ARM64,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
+        awsImageBuilderOptions: {
+          instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
+        },
         vpc,
       }),
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
@@ -157,7 +158,7 @@ new GitHubRunners(stack, 'runners', {
     }),
     new Ec2RunnerProvider(stack, 'EC2 Windows', {
       labels: ['ec2', 'windows', 'x64'],
-      amiBuilder: new AmiBuilder(stack, 'Windows EC2 Builder', {
+      imageBuilder: Ec2RunnerProvider.imageBuilder(stack, 'Windows EC2 Builder', {
         os: Os.WINDOWS,
         vpc,
       }),

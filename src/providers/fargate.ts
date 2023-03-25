@@ -14,7 +14,6 @@ import { Construct } from 'constructs';
 import {
   Architecture,
   BaseProvider,
-  IImageBuilder,
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
@@ -23,8 +22,7 @@ import {
   RunnerRuntimeParameters,
   RunnerVersion,
 } from './common';
-import { CodeBuildImageBuilder } from './image-builders/codebuild';
-import { RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from './image-builders/ng';
+import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from './image-builders/ng';
 
 /**
  * Properties for FargateRunner.
@@ -37,7 +35,7 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    *
    * @default image builder with `FargateRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
    */
-  readonly imageBuilder?: IImageBuilder;
+  readonly imageBuilder?: IRunnerImageBuilder;
 
   /**
    * GitHub Actions label used for this provider.
@@ -225,7 +223,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-arm64');
 
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps): RunnerImageBuilder {
-    return new RunnerImageBuilder(scope, id, {
+    return RunnerImageBuilder.new(scope, id, {
       os: Os.LINUX_UBUNTU,
       architecture: Architecture.X86_64,
       components: [
@@ -234,7 +232,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
         RunnerImageComponent.git(),
         RunnerImageComponent.githubCli(),
         RunnerImageComponent.awsCli(),
-        RunnerImageComponent.githubRunner(RunnerVersion.latest()), // TODO we send this in props and here which is confusing
+        RunnerImageComponent.githubRunner(RunnerVersion.latest()), // TODO we send this BOTH in props and here which is confusing
       ],
       ...props,
     });
@@ -323,10 +321,8 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
     );
     this.spot = props?.spot ?? false;
 
-    const imageBuilder = props?.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
-      dockerfilePath: FargateRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
-    });
-    const image = this.image = imageBuilder.bind();
+    const imageBuilder = props?.imageBuilder ?? RunnerImageBuilder.new(this, 'Image Builder');
+    const image = this.image = imageBuilder.bindDockerImage();
 
     let arch: ecs.CpuArchitecture;
     if (image.architecture.is(Architecture.ARM64)) {
