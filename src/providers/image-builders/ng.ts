@@ -342,7 +342,8 @@ export abstract class RunnerImageComponent {
   /**
    * Add a trusted certificate authority. This can be used to support GitHub Enterprise Server with self-signed certificate.
    *
-   * @param path path to certificate file in PEM format
+   * @param source path to certificate file in PEM format
+   * @param name unique certificate name to be used on runner file system
    */
   static extraCertificates(source: string, name: string): RunnerImageComponent {
     return new class extends RunnerImageComponent {
@@ -441,7 +442,7 @@ export abstract class RunnerImageComponent {
     return [];
   }
 
-  getName(): string { // TODO use
+  get name(): string { // TODO use
     return '';
   }
 
@@ -450,7 +451,7 @@ export abstract class RunnerImageComponent {
    *
    * @internal
    */
-  asAwsImageBuilderComponent(scope: Construct, id: string, os: Os, architecture: Architecture) {
+  _asAwsImageBuilderComponent(scope: Construct, id: string, os: Os, architecture: Architecture) {
     let platform: 'Linux' | 'Windows';
     if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
       platform = 'Linux';
@@ -1126,7 +1127,7 @@ ENV RUNNER_VERSION=___RUNNER_VERSION___
 {{{ imagebuilder:components }}}`;
 
     if (this.boundComponents.length == 0) {
-      this.boundComponents.push(...this.components.map((c, i) => c.asAwsImageBuilderComponent(this, `Component ${i}`, this.os, this.architecture)));
+      this.boundComponents.push(...this.components.map((c, i) => c._asAwsImageBuilderComponent(this, `Component ${i}`, this.os, this.architecture)));
     }
 
     for (const c of this.components) {
@@ -1404,7 +1405,7 @@ ENV RUNNER_VERSION=___RUNNER_VERSION___
 
   private bindComponents(): ImageBuilderComponent[] {
     if (this.boundComponents.length == 0) {
-      this.boundComponents.push(...this.components.map((c, i) => c.asAwsImageBuilderComponent(this, `Component ${i}`, this.os, this.architecture)));
+      this.boundComponents.push(...this.components.map((c, i) => c._asAwsImageBuilderComponent(this, `Component ${i}`, this.os, this.architecture)));
     }
 
     return this.boundComponents;
