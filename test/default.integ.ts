@@ -8,13 +8,13 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_codebuild as codebuild, aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
 import {
   Architecture,
-  CodeBuildImageBuilder,
   CodeBuildRunnerProvider,
   Ec2RunnerProvider,
   FargateRunnerProvider,
   GitHubRunners,
   LambdaRunnerProvider,
-  Os, RunnerImageComponent,
+  Os,
+  RunnerImageComponent,
 } from '../src';
 
 const app = new cdk.App();
@@ -44,8 +44,7 @@ fargateX64Builder.addComponent(RunnerImageComponent.extraCertificates('certs/cer
 const fargateArm64Builder = FargateRunnerProvider.imageBuilder(stack, 'Fargate builder arm', {
   architecture: Architecture.ARM64,
 });
-const lambdaImageBuilder = new CodeBuildImageBuilder(stack, 'Lambda Image Builder x64', {
-  dockerfilePath: LambdaRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
+const lambdaImageBuilder = LambdaRunnerProvider.imageBuilder(stack, 'Lambda Image Builder x64', {
   architecture: Architecture.X86_64,
 });
 const windowsImageBuilder = FargateRunnerProvider.imageBuilder(stack, 'Windows Image Builder', {
@@ -81,8 +80,7 @@ new GitHubRunners(stack, 'runners', {
     }),
     new LambdaRunnerProvider(stack, 'LambdaARM', {
       labels: ['lambda', 'arm64'],
-      imageBuilder: new CodeBuildImageBuilder(stack, 'Lambda Image Builderz', {
-        dockerfilePath: LambdaRunnerProvider.LINUX_ARM64_DOCKERFILE_PATH,
+      imageBuilder: LambdaRunnerProvider.imageBuilder(stack, 'Lambda Image Builderz', {
         architecture: Architecture.ARM64,
       }),
     }),

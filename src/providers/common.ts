@@ -103,7 +103,7 @@ export class Os {
   /**
   * Linux
   */
-  public static readonly LINUX = Os.of('Linux');
+  public static readonly LINUX = Os.of('Linux'); // TODO remove
 
   /**
    * Ubuntu Linux

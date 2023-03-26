@@ -1,4 +1,5 @@
 import * as crypto from 'crypto';
+import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import {
   Annotations,
@@ -28,75 +29,10 @@ import { DeleteAmiFunction } from '../../lambdas/delete-ami-function';
 import { singletonLambda } from '../../utils';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../common';
 
-// TODO Docker specific things like VOLUME, ENV, etc.
-
 export interface RunnerImageAsset {
   readonly source: string;
   readonly target: string;
 }
-/*
-export class Blah {
-  // TODO static?
-  // TODO remove?
-  asAwsImageBuilderComponentSteps(asset: s3_assets.Asset, os: Os) {
-    let steps: any[] = [];
-
-    if (asset.isFile) {
-      steps.push({
-        name: 'Download',
-        action: 'S3Download',
-        inputs: [
-          {
-            source: asset.s3ObjectUrl,
-            destination: this.target,
-          },
-        ],
-      });
-    } else if (asset.isZipArchive) {
-      steps.push({
-        name: 'Download',
-        action: 'S3Download',
-        inputs: [
-          {
-            source: asset.s3ObjectUrl,
-            destination: `${this.target}.zip`,
-          },
-        ],
-      });
-      if (os.is(Os.WINDOWS)) {
-        steps.push({
-          name: 'Extract',
-          action: 'ExecutePowerShell',
-          inputs:
-            {
-              commands: [
-                '$ErrorActionPreference = \'Stop\'',
-                `Expand-Archive "${this.target}.zip" -DestinationPath "${this.target}"`,
-                `del "${this.target}.zip"`,
-              ],
-            },
-        });
-      } else {
-        steps.push({
-          name: 'Extract',
-          action: 'ExecuteBash',
-          inputs:
-            {
-              commands: [
-                `unzip "${this.target}.zip" -d "${this.target}"`,
-                `rm "${this.target}.zip"`,
-              ],
-            },
-        });
-      }
-    } else {
-      throw new Error(`Unknown asset type: ${asset}`);
-    }
-
-    return steps;
-  }
-}
-*/
 
 export abstract class RunnerImageComponent {
   static custom(commands: string[], assets?: RunnerImageAsset[]): RunnerImageComponent {
@@ -134,7 +70,7 @@ export abstract class RunnerImageComponent {
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [
             'yum update -y',
-            'yum install -y jq tar gzip bzip2 which binutils zip unzip',
+            'yum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils',
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [
@@ -150,12 +86,20 @@ export abstract class RunnerImageComponent {
   static runnerUser(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
       getCommands(os: Os, _architecture: Architecture): string[] {
-        if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
+        if (os.is(Os.LINUX_UBUNTU)) {
           return [
             'addgroup runner',
             'adduser --system --disabled-password --home /home/runner --ingroup runner runner',
             'usermod -aG sudo runner',
             'echo "%sudo   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner',
+          ];
+        } else if (os.is(Os.LINUX_AMAZON_2)) {
+          return [
+            '/usr/sbin/groupadd runner',
+            '/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner',
+            'mkdir -p /home/runner',
+            'chown runner /home/runner',
+            'echo "%runner   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner',
           ];
         } else if (os.is(Os.WINDOWS)) {
           return ['echo "No need for user"'];
@@ -281,13 +225,20 @@ export abstract class RunnerImageComponent {
             throw new Error(`Unsupported architecture for GitHub Runner: ${architecture.name}`);
           }
 
-          return [
+          let commands = [
             versionCommand,
             `curl -fsSLO "https://github.com/actions/runner/releases/download/v\${RUNNER_VERSION}/actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
             `tar -C /home/runner -xzf "actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
             `rm actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz`,
-            '/home/runner/bin/installdependencies.sh',
           ];
+
+          if (os.is(Os.LINUX_UBUNTU)) {
+            commands.push('/home/runner/bin/installdependencies.sh');
+          } else if (os.is(Os.LINUX_AMAZON_2)) {
+            commands.push('yum install -y openssl-libs krb5-libs zlib libicu60');
+          }
+
+          return commands;
         } else if (os.is(Os.WINDOWS)) {
           let runnerCommands: string[];
           if (runnerVersion.is(RunnerVersion.latest())) {
@@ -436,14 +387,69 @@ export abstract class RunnerImageComponent {
     }();
   }
 
+  static lambdaEntrypoint(): RunnerImageComponent {
+    return new class extends RunnerImageComponent {
+      getCommands(os: Os, _architecture: Architecture) {
+        if (!os.is(Os.LINUX_AMAZON_2) && !os.is(Os.LINUX_UBUNTU)) {
+          throw new Error(`Unsupported OS for Lambda entrypoint: ${os.name}`);
+        }
+
+        return [];
+      }
+
+      getAssets(_os: Os, _architecture: Architecture): RunnerImageAsset[] {
+        return [
+          {
+            source: path.join(__dirname, '..', 'docker-images', 'lambda', 'linux-x64', 'runner.js'),
+            target: '${LAMBDA_TASK_ROOT}/runner.js',
+          },
+          {
+            source: path.join(__dirname, '..', 'docker-images', 'lambda', 'linux-x64', 'runner.sh'),
+            target: '${LAMBDA_TASK_ROOT}/runner.sh',
+          },
+        ];
+      }
+
+      getDockerCommands(_os: Os, _architecture: Architecture): string[] {
+        return [
+          'WORKDIR ${LAMBDA_TASK_ROOT}',
+          'ENV RUNNER_VERSION=latest', // TODO
+          'CMD ["runner.handler"]',
+        ];
+      }
+    };
+  }
+
+  /**
+   * Returns commands to run to in built image. Can be used to install packages, setup build prerequisites, etc.
+   */
   abstract getCommands(_os: Os, _architecture: Architecture): string[];
+
+  /**
+   * Returns assets to copy into the built image. Can be used to copy files into the image.
+   */
   getAssets(_os: Os, _architecture: Architecture): RunnerImageAsset[] {
     return [];
   }
+
+  /**
+   * Returns Docker commands to run to in built image. Can be used to add commands like `VOLUME`, `ENTRYPOINT`, `CMD`, etc.
+   *
+   * Docker commands are added after assets and normal commands.
+   */
+  getDockerCommands(_os: Os, _architecture: Architecture): string[] {
+    return [];
+  }
+
   getName(): string { // TODO use
     return '';
   }
 
+  /**
+   * Convert component to an AWS Image Builder component.
+   *
+   * @internal
+   */
   asAwsImageBuilderComponent(scope: Construct, id: string, os: Os, architecture: Architecture) {
     let platform: 'Linux' | 'Windows';
     if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
@@ -868,6 +874,8 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
       commands.push(`chmod +x component${i}.sh`);
       dockerfile += `COPY component${i}.sh /tmp\n`;
       dockerfile += `RUN /tmp/component${i}.sh\n`;
+
+      dockerfile += this.components[i].getDockerCommands(this.os, this.architecture).join('\n') + '\n';
     }
 
     commands.push(`cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\n${dockerfile}\nEOFGITHUBRUNNERSDOCKERFILE`);
@@ -979,7 +987,7 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
     // TODO replace with components
     let components: string[] = [];
     for (const component of this.components) {
-      components.push(component.getCommands(Os.LINUX_UBUNTU, Architecture.X86_64).join('\n')); // TODO correct os/arch
+      components.push(component.getCommands(this.os, this.architecture).join('\n')); // TODO correct os/arch
     }
     components.push(this.buildImage.imageId);
     // let components: string[] = [this.dockerfile.assetHash];
@@ -1112,13 +1120,20 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
       ],
     });
 
-    const dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
+    let dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
 ENV RUNNER_VERSION=___RUNNER_VERSION___
 {{{ imagebuilder:environments }}}
 {{{ imagebuilder:components }}}`;
 
     if (this.boundComponents.length == 0) {
       this.boundComponents.push(...this.components.map((c, i) => c.asAwsImageBuilderComponent(this, `Component ${i}`, this.os, this.architecture)));
+    }
+
+    for (const c of this.components) {
+      const commands = c.getDockerCommands(this.os, this.architecture);
+      if (commands.length > 0) {
+        dockerfileTemplate += commands.join('\n') + '\n';
+      }
     }
 
     const recipe = new ContainerRecipe(this, 'Container Recipe', {

@@ -21,10 +21,10 @@ import {
   Os,
   RunnerImage,
   RunnerProviderProps,
-  RunnerRuntimeParameters, RunnerVersion,
+  RunnerRuntimeParameters,
+  RunnerVersion,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from './image-builders';
-import { CodeBuildImageBuilder } from './image-builders/codebuild';
 import { UpdateLambdaFunction } from '../lambdas/update-lambda-function';
 import { singletonLambda } from '../utils';
 
@@ -159,9 +159,8 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
         RunnerImageComponent.git(),
         RunnerImageComponent.githubCli(),
         RunnerImageComponent.awsCli(),
-        RunnerImageComponent.dockerInDocker(),
         RunnerImageComponent.githubRunner(RunnerVersion.latest()), // TODO we send this in props and here which is confusing
-        // TODO lambda shell script
+        RunnerImageComponent.lambdaEntrypoint(),
       ],
       ...props,
     });
@@ -204,13 +203,11 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     this.vpc = props?.vpc;
     this.securityGroups = props?.securityGroup ? [props.securityGroup] : props?.securityGroups;
 
-    const imageBuilder = props?.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
-      dockerfilePath: LambdaRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
-    });
+    const imageBuilder = props?.imageBuilder ?? LambdaRunnerProvider.imageBuilder(this, 'Image Builder');
     const image = this.image = imageBuilder.bindDockerImage();
 
     let architecture: lambda.Architecture | undefined;
-    if (image.os.is(Os.LINUX)) {
+    if (image.os.is(Os.LINUX_AMAZON_2) || image.os.is(Os.LINUX_UBUNTU)) {
       if (image.architecture.is(Architecture.X86_64)) {
         architecture = lambda.Architecture.X86_64;
       }
@@ -220,7 +217,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     }
 
     if (!architecture) {
-      throw new Error(`Unable to find support Lambda architecture for ${image.os.name}/${image.architecture.name}`);
+      throw new Error(`Unable to find supported Lambda architecture for ${image.os.name}/${image.architecture.name}`);
     }
 
     // get image digest and make sure to get it every time the lambda function might be updated

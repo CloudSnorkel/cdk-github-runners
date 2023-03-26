@@ -188,7 +188,7 @@ export class ContainerRecipe extends ImageBuilderObjectBase {
       version: this.version('ContainerRecipe', name, {
         platform: props.platform,
         components,
-        dockerfileTemplate,
+        dockerfileTemplate: props.dockerfileTemplate,
       }),
       parentImage: props.parentImage ?? 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64',
       components,

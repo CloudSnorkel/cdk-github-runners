@@ -516,7 +516,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/0de94b6948e1e3a5cbcb7c4fa476544f48a0bb7dfa2659bb4fcf997e7839e35a.pem"
         },
-        " asset60\",\n        \"cat > component6.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nupdate-ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0.sh /tmp\\nRUN /tmp/component0.sh\\nCOPY component1.sh /tmp\\nRUN /tmp/component1.sh\\nCOPY component2.sh /tmp\\nRUN /tmp/component2.sh\\nCOPY component3.sh /tmp\\nRUN /tmp/component3.sh\\nCOPY component4.sh /tmp\\nRUN /tmp/component4.sh\\nCOPY component5.sh /tmp\\nRUN /tmp/component5.sh\\nCOPY asset60 /usr/local/share/ca-certificates/local.crt\\nCOPY component6.sh /tmp\\nRUN /tmp/component6.sh\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        " asset60\",\n        \"cat > component6.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nupdate-ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0.sh /tmp\\nRUN /tmp/component0.sh\\n\\nCOPY component1.sh /tmp\\nRUN /tmp/component1.sh\\n\\nCOPY component2.sh /tmp\\nRUN /tmp/component2.sh\\n\\nCOPY component3.sh /tmp\\nRUN /tmp/component3.sh\\n\\nCOPY component4.sh /tmp\\nRUN /tmp/component4.sh\\n\\nCOPY component5.sh /tmp\\nRUN /tmp/component5.sh\\n\\nCOPY asset60 /usr/local/share/ca-certificates/local.crt\\nCOPY component6.sh /tmp\\nRUN /tmp/component6.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "FargatebuilderLogs2F794091"
         },
@@ -968,7 +968,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0.sh\",\n        \"cat > component1.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\nusermod -aG sudo runner\\necho \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1.sh\",\n        \"cat > component2.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2.sh\",\n        \"cat > component3.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3.sh\",\n        \"cat > component4.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4.sh\",\n        \"cat > component5.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\n/home/runner/bin/installdependencies.sh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0.sh /tmp\\nRUN /tmp/component0.sh\\nCOPY component1.sh /tmp\\nRUN /tmp/component1.sh\\nCOPY component2.sh /tmp\\nRUN /tmp/component2.sh\\nCOPY component3.sh /tmp\\nRUN /tmp/component3.sh\\nCOPY component4.sh /tmp\\nRUN /tmp/component4.sh\\nCOPY component5.sh /tmp\\nRUN /tmp/component5.sh\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0.sh\",\n        \"cat > component1.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\nusermod -aG sudo runner\\necho \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1.sh\",\n        \"cat > component2.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2.sh\",\n        \"cat > component3.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3.sh\",\n        \"cat > component4.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4.sh\",\n        \"cat > component5.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\n/home/runner/bin/installdependencies.sh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0.sh /tmp\\nRUN /tmp/component0.sh\\n\\nCOPY component1.sh /tmp\\nRUN /tmp/component1.sh\\n\\nCOPY component2.sh /tmp\\nRUN /tmp/component2.sh\\n\\nCOPY component3.sh /tmp\\nRUN /tmp/component3.sh\\n\\nCOPY component4.sh /tmp\\nRUN /tmp/component4.sh\\n\\nCOPY component5.sh /tmp\\nRUN /tmp/component5.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "FargatebuilderarmLogs63D60F4D"
         },
@@ -1095,7 +1095,7 @@
     "ProjectName": {
      "Ref": "FargatebuilderarmCodeBuild0D30679A"
     },
-    "BuildHash": "275f638665cac5da909112c849811299"
+    "BuildHash": "568a3f5b83920444ac03d07b785405bc"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -1190,47 +1190,6 @@
    "Properties": {
     "PolicyDocument": {
      "Statement": [
-      {
-       "Action": [
-        "s3:GetObject*",
-        "s3:GetBucket*",
-        "s3:List*"
-       ],
-       "Effect": "Allow",
-       "Resource": [
-        {
-         "Fn::Join": [
-          "",
-          [
-           "arn:",
-           {
-            "Ref": "AWS::Partition"
-           },
-           ":s3:::",
-           {
-            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-           }
-          ]
-         ]
-        },
-        {
-         "Fn::Join": [
-          "",
-          [
-           "arn:",
-           {
-            "Ref": "AWS::Partition"
-           },
-           ":s3:::",
-           {
-            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-           },
-           "/158ff92b94299ce18dc4a5e4517c0268704f340a879afbc807607fb9f55fc882.zip"
-          ]
-         ]
-        }
-       ]
-      },
       {
        "Action": [
         "logs:CreateLogStream",
@@ -1368,6 +1327,47 @@
          "Arn"
         ]
        }
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
       }
      ],
      "Version": "2012-10-17"
@@ -1453,7 +1453,7 @@
         {
          "Ref": "LambdaImageBuilderx64Repository57F632F1"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
         {
          "Ref": "AWS::AccountId"
         },
@@ -1461,7 +1461,15 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum update -y\\nyum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0.sh\",\n        \"cat > component1.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1.sh\",\n        \"cat > component2.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2.sh\",\n        \"cat > component3.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\nyum install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3.sh\",\n        \"cat > component4.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4.sh\",\n        \"cat > component5.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\nyum install -y openssl-libs krb5-libs zlib libicu60\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5.sh\",\n        \"aws s3 cp ",
+        {
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/2ed40b7362410e8fc94308e93208caeaba3457d493db292221633d84af7454fe.js"
+        },
+        " asset60\",\n        \"aws s3 cp ",
+        {
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/86dfcbcdb3c3fd028fb3abe4342e42137a2928bc0eb4842117b8ccc39447ef5b.sh"
+        },
+        " asset61\",\n        \"cat > component6.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:14-x86_64\\nVOLUME /var/lib/docker\\nCOPY component0.sh /tmp\\nRUN /tmp/component0.sh\\n\\nCOPY component1.sh /tmp\\nRUN /tmp/component1.sh\\n\\nCOPY component2.sh /tmp\\nRUN /tmp/component2.sh\\n\\nCOPY component3.sh /tmp\\nRUN /tmp/component3.sh\\n\\nCOPY component4.sh /tmp\\nRUN /tmp/component4.sh\\n\\nCOPY component5.sh /tmp\\nRUN /tmp/component5.sh\\n\\nCOPY asset60 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset61 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6.sh /tmp\\nRUN /tmp/component6.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nENV RUNNER_VERSION=latest\\nCMD [\\\"runner.handler\\\"]\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "LambdaImageBuilderx64Logs1C003BB4"
         },
@@ -1473,23 +1481,12 @@
        ]
       ]
      },
-     "Location": {
-      "Fn::Join": [
-       "",
-       [
-        {
-         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-        },
-        "/158ff92b94299ce18dc4a5e4517c0268704f340a879afbc807607fb9f55fc882.zip"
-       ]
-      ]
-     },
-     "Type": "S3"
+     "Type": "NO_SOURCE"
     },
     "Cache": {
      "Type": "NO_CACHE"
     },
-    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/Lambda Image Builder x64 (Linux/X86_64)",
+    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/Lambda Image Builder x64 (Amazon Linux 2/X86_64)",
     "EncryptionKey": "alias/aws/s3",
     "LogsConfig": {
      "CloudWatchLogs": {
@@ -1599,7 +1596,7 @@
     "ProjectName": {
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
-    "BuildHash": "c5d9cb955b58753215089e01261664bb"
+    "BuildHash": "9176600be976988d1ee3a38212c5cf92"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -2320,7 +2317,7 @@
        }
       }
      ],
-     "dockerfileTemplate": "FROM {{{ imagebuilder:parentImage }}}\nENV RUNNER_VERSION=___RUNNER_VERSION___\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}"
+     "dockerfileTemplate": "FROM {{{ imagebuilder:parentImage }}}\nENV RUNNER_VERSION=latest\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3844,7 +3841,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0.sh\",\n        \"cat > component1.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\nusermod -aG sudo runner\\necho \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1.sh\",\n        \"cat > component2.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2.sh\",\n        \"cat > component3.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3.sh\",\n        \"cat > component4.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4.sh\",\n        \"cat > component5.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nDOCKER_CHANNEL=\\\"stable\\\"\\nDIND_COMMIT=\\\"42b1175eda071c0e9121e1d64345928384a93df1\\\"\\nDOCKER_VERSION=\\\"20.10.18\\\"\\nDOCKER_COMPOSE_VERSION=\\\"2.11.0\\\"\\ncurl -fsSL \\\"https://download.docker.com/linux/static/${DOCKER_CHANNEL}/x86_64/docker-${DOCKER_VERSION}.tgz\\\" -o docker.tgz\\ntar --strip-components 1 -C /usr/local/bin/ -xzf docker.tgz\\nrm docker.tgz\\n# set up subuid/subgid so that \\\"--userns-remap=default\\\" works out-of-the box\\naddgroup dockremap\\nuseradd -g dockremap dockremap\\necho 'dockremap:165536:65536' >> /etc/subuid\\necho 'dockremap:165536:65536' >> /etc/subgid\\ncurl -fsSL \\\"https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind\\\" -o /usr/local/bin/dind\\ncurl -fsSL https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose\\nmkdir -p /home/runner/.docker/cli-plugins && ln -s /usr/local/bin/docker-compose /home/runner/.docker/cli-plugins/docker-compose\\nchown -R runner /home/runner/.docker\\nchmod +x /usr/local/bin/dind /usr/local/bin/docker-compose\\naddgroup docker && usermod -aG docker runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5.sh\",\n        \"cat > component6.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\n/home/runner/bin/installdependencies.sh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0.sh /tmp\\nRUN /tmp/component0.sh\\nCOPY component1.sh /tmp\\nRUN /tmp/component1.sh\\nCOPY component2.sh /tmp\\nRUN /tmp/component2.sh\\nCOPY component3.sh /tmp\\nRUN /tmp/component3.sh\\nCOPY component4.sh /tmp\\nRUN /tmp/component4.sh\\nCOPY component5.sh /tmp\\nRUN /tmp/component5.sh\\nCOPY component6.sh /tmp\\nRUN /tmp/component6.sh\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0.sh\",\n        \"cat > component1.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\nusermod -aG sudo runner\\necho \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1.sh\",\n        \"cat > component2.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2.sh\",\n        \"cat > component3.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3.sh\",\n        \"cat > component4.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4.sh\",\n        \"cat > component5.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nDOCKER_CHANNEL=\\\"stable\\\"\\nDIND_COMMIT=\\\"42b1175eda071c0e9121e1d64345928384a93df1\\\"\\nDOCKER_VERSION=\\\"20.10.18\\\"\\nDOCKER_COMPOSE_VERSION=\\\"2.11.0\\\"\\ncurl -fsSL \\\"https://download.docker.com/linux/static/${DOCKER_CHANNEL}/x86_64/docker-${DOCKER_VERSION}.tgz\\\" -o docker.tgz\\ntar --strip-components 1 -C /usr/local/bin/ -xzf docker.tgz\\nrm docker.tgz\\n# set up subuid/subgid so that \\\"--userns-remap=default\\\" works out-of-the box\\naddgroup dockremap\\nuseradd -g dockremap dockremap\\necho 'dockremap:165536:65536' >> /etc/subuid\\necho 'dockremap:165536:65536' >> /etc/subgid\\ncurl -fsSL \\\"https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind\\\" -o /usr/local/bin/dind\\ncurl -fsSL https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose\\nmkdir -p /home/runner/.docker/cli-plugins && ln -s /usr/local/bin/docker-compose /home/runner/.docker/cli-plugins/docker-compose\\nchown -R runner /home/runner/.docker\\nchmod +x /usr/local/bin/dind /usr/local/bin/docker-compose\\naddgroup docker && usermod -aG docker runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5.sh\",\n        \"cat > component6.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\n/home/runner/bin/installdependencies.sh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0.sh /tmp\\nRUN /tmp/component0.sh\\n\\nCOPY component1.sh /tmp\\nRUN /tmp/component1.sh\\n\\nCOPY component2.sh /tmp\\nRUN /tmp/component2.sh\\n\\nCOPY component3.sh /tmp\\nRUN /tmp/component3.sh\\n\\nCOPY component4.sh /tmp\\nRUN /tmp/component4.sh\\n\\nCOPY component5.sh /tmp\\nRUN /tmp/component5.sh\\n\\nCOPY component6.sh /tmp\\nRUN /tmp/component6.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "CodeBuildImageBuilderLogsE4CADFCC"
         },
@@ -4729,7 +4726,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0.sh\",\n        \"cat > component1.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\nusermod -aG sudo runner\\necho \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1.sh\",\n        \"cat > component2.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2.sh\",\n        \"cat > component3.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3.sh\",\n        \"cat > component4.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4.sh\",\n        \"cat > component5.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nDOCKER_CHANNEL=\\\"stable\\\"\\nDIND_COMMIT=\\\"42b1175eda071c0e9121e1d64345928384a93df1\\\"\\nDOCKER_VERSION=\\\"20.10.18\\\"\\nDOCKER_COMPOSE_VERSION=\\\"2.11.0\\\"\\ncurl -fsSL \\\"https://download.docker.com/linux/static/${DOCKER_CHANNEL}/aarch64/docker-${DOCKER_VERSION}.tgz\\\" -o docker.tgz\\ntar --strip-components 1 -C /usr/local/bin/ -xzf docker.tgz\\nrm docker.tgz\\n# set up subuid/subgid so that \\\"--userns-remap=default\\\" works out-of-the box\\naddgroup dockremap\\nuseradd -g dockremap dockremap\\necho 'dockremap:165536:65536' >> /etc/subuid\\necho 'dockremap:165536:65536' >> /etc/subgid\\ncurl -fsSL \\\"https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind\\\" -o /usr/local/bin/dind\\ncurl -fsSL https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-linux-aarch64 -o /usr/local/bin/docker-compose\\nmkdir -p /home/runner/.docker/cli-plugins && ln -s /usr/local/bin/docker-compose /home/runner/.docker/cli-plugins/docker-compose\\nchown -R runner /home/runner/.docker\\nchmod +x /usr/local/bin/dind /usr/local/bin/docker-compose\\naddgroup docker && usermod -aG docker runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5.sh\",\n        \"cat > component6.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\n/home/runner/bin/installdependencies.sh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0.sh /tmp\\nRUN /tmp/component0.sh\\nCOPY component1.sh /tmp\\nRUN /tmp/component1.sh\\nCOPY component2.sh /tmp\\nRUN /tmp/component2.sh\\nCOPY component3.sh /tmp\\nRUN /tmp/component3.sh\\nCOPY component4.sh /tmp\\nRUN /tmp/component4.sh\\nCOPY component5.sh /tmp\\nRUN /tmp/component5.sh\\nCOPY component6.sh /tmp\\nRUN /tmp/component6.sh\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0.sh\",\n        \"cat > component1.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\nusermod -aG sudo runner\\necho \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1.sh\",\n        \"cat > component2.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2.sh\",\n        \"cat > component3.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3.sh\",\n        \"cat > component4.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4.sh\",\n        \"cat > component5.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nDOCKER_CHANNEL=\\\"stable\\\"\\nDIND_COMMIT=\\\"42b1175eda071c0e9121e1d64345928384a93df1\\\"\\nDOCKER_VERSION=\\\"20.10.18\\\"\\nDOCKER_COMPOSE_VERSION=\\\"2.11.0\\\"\\ncurl -fsSL \\\"https://download.docker.com/linux/static/${DOCKER_CHANNEL}/aarch64/docker-${DOCKER_VERSION}.tgz\\\" -o docker.tgz\\ntar --strip-components 1 -C /usr/local/bin/ -xzf docker.tgz\\nrm docker.tgz\\n# set up subuid/subgid so that \\\"--userns-remap=default\\\" works out-of-the box\\naddgroup dockremap\\nuseradd -g dockremap dockremap\\necho 'dockremap:165536:65536' >> /etc/subuid\\necho 'dockremap:165536:65536' >> /etc/subgid\\ncurl -fsSL \\\"https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind\\\" -o /usr/local/bin/dind\\ncurl -fsSL https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-linux-aarch64 -o /usr/local/bin/docker-compose\\nmkdir -p /home/runner/.docker/cli-plugins && ln -s /usr/local/bin/docker-compose /home/runner/.docker/cli-plugins/docker-compose\\nchown -R runner /home/runner/.docker\\nchmod +x /usr/local/bin/dind /usr/local/bin/docker-compose\\naddgroup docker && usermod -aG docker runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5.sh\",\n        \"cat > component6.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\n/home/runner/bin/installdependencies.sh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0.sh /tmp\\nRUN /tmp/component0.sh\\n\\nCOPY component1.sh /tmp\\nRUN /tmp/component1.sh\\n\\nCOPY component2.sh /tmp\\nRUN /tmp/component2.sh\\n\\nCOPY component3.sh /tmp\\nRUN /tmp/component3.sh\\n\\nCOPY component4.sh /tmp\\nRUN /tmp/component4.sh\\n\\nCOPY component5.sh /tmp\\nRUN /tmp/component5.sh\\n\\nCOPY component6.sh /tmp\\nRUN /tmp/component6.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "CodeBuildImageBuilderarmLogs5A60CB81"
         },
@@ -4856,7 +4853,7 @@
     "ProjectName": {
      "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
     },
-    "BuildHash": "3bab9d0c22aee261f1041a0bbce02c78"
+    "BuildHash": "b5fde4d04a65a71b4e5d7145a979909d"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
@@ -6095,47 +6092,6 @@
      "Statement": [
       {
        "Action": [
-        "s3:GetObject*",
-        "s3:GetBucket*",
-        "s3:List*"
-       ],
-       "Effect": "Allow",
-       "Resource": [
-        {
-         "Fn::Join": [
-          "",
-          [
-           "arn:",
-           {
-            "Ref": "AWS::Partition"
-           },
-           ":s3:::",
-           {
-            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-           }
-          ]
-         ]
-        },
-        {
-         "Fn::Join": [
-          "",
-          [
-           "arn:",
-           {
-            "Ref": "AWS::Partition"
-           },
-           ":s3:::",
-           {
-            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-           },
-           "/c5b96e0328419d754ede72ebdfa2327073108069c6b1dbd2b465133e648bb9fa.zip"
-          ]
-         ]
-        }
-       ]
-      },
-      {
-       "Action": [
         "logs:CreateLogStream",
         "logs:PutLogEvents"
        ],
@@ -6271,6 +6227,47 @@
          "Arn"
         ]
        }
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
       }
      ],
      "Version": "2012-10-17"
@@ -6356,7 +6353,7 @@
         {
          "Ref": "LambdaImageBuilderzRepository7C7AD146"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"mkdir -p extra_certs\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
+        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"RUNNER_VERSION\": \"latest\"\n    }\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
         {
          "Ref": "AWS::AccountId"
         },
@@ -6364,7 +6361,15 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"docker build . -t \\\"$REPO_URI\\\"  --build-arg RUNNER_VERSION=\\\"latest\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
+        ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum update -y\\nyum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0.sh\",\n        \"cat > component1.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1.sh\",\n        \"cat > component2.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2.sh\",\n        \"cat > component3.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\nyum install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3.sh\",\n        \"cat > component4.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4.sh\",\n        \"cat > component5.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\nyum install -y openssl-libs krb5-libs zlib libicu60\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5.sh\",\n        \"aws s3 cp ",
+        {
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/2ed40b7362410e8fc94308e93208caeaba3457d493db292221633d84af7454fe.js"
+        },
+        " asset60\",\n        \"aws s3 cp ",
+        {
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/86dfcbcdb3c3fd028fb3abe4342e42137a2928bc0eb4842117b8ccc39447ef5b.sh"
+        },
+        " asset61\",\n        \"cat > component6.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:14-arm64\\nVOLUME /var/lib/docker\\nCOPY component0.sh /tmp\\nRUN /tmp/component0.sh\\n\\nCOPY component1.sh /tmp\\nRUN /tmp/component1.sh\\n\\nCOPY component2.sh /tmp\\nRUN /tmp/component2.sh\\n\\nCOPY component3.sh /tmp\\nRUN /tmp/component3.sh\\n\\nCOPY component4.sh /tmp\\nRUN /tmp/component4.sh\\n\\nCOPY component5.sh /tmp\\nRUN /tmp/component5.sh\\n\\nCOPY asset60 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset61 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6.sh /tmp\\nRUN /tmp/component6.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nENV RUNNER_VERSION=latest\\nCMD [\\\"runner.handler\\\"]\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": \\\"See logs in ",
         {
          "Ref": "LambdaImageBuilderzLogsC9FB42C8"
         },
@@ -6376,23 +6381,12 @@
        ]
       ]
      },
-     "Location": {
-      "Fn::Join": [
-       "",
-       [
-        {
-         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-        },
-        "/c5b96e0328419d754ede72ebdfa2327073108069c6b1dbd2b465133e648bb9fa.zip"
-       ]
-      ]
-     },
-     "Type": "S3"
+     "Type": "NO_SOURCE"
     },
     "Cache": {
      "Type": "NO_CACHE"
     },
-    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/Lambda Image Builderz (Linux/ARM64)",
+    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/Lambda Image Builderz (Amazon Linux 2/ARM64)",
     "EncryptionKey": "alias/aws/s3",
     "LogsConfig": {
      "CloudWatchLogs": {
@@ -6502,7 +6496,7 @@
     "ProjectName": {
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
-    "BuildHash": "34f8a24dad8d7e730c814c04537cb6e0"
+    "BuildHash": "329b4cdbf104dc135363cf2c92c59da5"
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",

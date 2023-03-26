@@ -5,7 +5,7 @@
 ARG BASE_IMAGE="public.ecr.aws/lambda/nodejs:14-arm64"
 FROM $BASE_IMAGE
 
-WORKDIR /runner
+WORKDIR /home/runner
 
 # install extra certificates
 COPY extra_certs/. /tmp/certs/
