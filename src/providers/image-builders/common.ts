@@ -62,6 +62,7 @@ export abstract class ImageBuilderObjectBase extends cdk.Resource {
         }),
       ],
       logRetention: logs.RetentionDays.ONE_MONTH,
+      timeout: cdk.Duration.minutes(5),
     });
   }
 }
@@ -169,7 +170,6 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
             destination: `${asset.path}.zip`,
           });
           if (props.platform === 'Windows') {
-            extractCommands.push('$ErrorActionPreference = \'Stop\'');
             extractCommands.push(`Expand-Archive "${asset.path}.zip" -DestinationPath "${asset.path}"`);
             extractCommands.push(`del "${asset.path}.zip"`);
           } else {
@@ -192,19 +192,21 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
           name: 'Extract',
           action: props.platform === 'Linux' ? 'ExecuteBash' : 'ExecutePowerShell',
           inputs: {
-            commands: extractCommands,
+            commands: this.prefixCommandsWithErrorHandling(props.platform, extractCommands),
           },
         });
       }
     }
 
-    steps.push({
-      name: 'Run',
-      action: props.platform === 'Linux' ? 'ExecuteBash' : 'ExecutePowerShell',
-      inputs: {
-        commands: props.commands,
-      },
-    });
+    if (props.commands.length > 0) {
+      steps.push({
+        name: 'Run',
+        action: props.platform === 'Linux' ? 'ExecuteBash' : 'ExecutePowerShell',
+        inputs: {
+          commands: this.prefixCommandsWithErrorHandling(props.platform, props.commands),
+        },
+      });
+    }
 
     const data = {
       name: props.displayName,
@@ -241,6 +243,19 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
   grantAssetsRead(grantee: iam.IGrantable) {
     for (const asset of this.assets) {
       asset.grantRead(grantee);
+    }
+  }
+
+  prefixCommandsWithErrorHandling(platform: 'Windows' | 'Linux', commands: string[]) {
+    if (platform == 'Windows') {
+      return [
+        '$ErrorActionPreference = \'Stop\'',
+        '$ProgressPreference = \'SilentlyContinue\'',
+      ].concat(commands);
+    } else {
+      return [
+        'set -ex',
+      ].concat(commands);
     }
   }
 }

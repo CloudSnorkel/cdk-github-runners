@@ -102,7 +102,7 @@ export abstract class RunnerImageComponent {
             'echo "%runner   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner',
           ];
         } else if (os.is(Os.WINDOWS)) {
-          return ['echo "No need for user"'];
+          return [];
         }
 
         throw new Error(`Unsupported OS for runner user: ${os.name}`);
@@ -161,7 +161,6 @@ export abstract class RunnerImageComponent {
             'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-gh',
             '$GH_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
-            '$ProgressPreference = \'SilentlyContinue\'',
             'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi" -OutFile gh.msi',
             'Start-Process msiexec.exe -Wait -ArgumentList \'/i gh.msi /qn\'',
             'del gh.msi',
