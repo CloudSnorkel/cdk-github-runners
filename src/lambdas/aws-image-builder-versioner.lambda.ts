@@ -23,39 +23,53 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
         try {
           switch (objectType) {
             case 'Component': {
-              const result = await ib.listComponents({
-                filters: [{
-                  name: 'name',
-                  values: [objectName],
-                }],
-              }).promise();
-              allVersions = result.componentVersionList!.map(i => i.version || '1.0.0');
+              let result: AWS.Imagebuilder.ListComponentsResponse = {};
+              do {
+                result = await ib.listComponents({
+                  filters: [{
+                    name: 'name',
+                    values: [objectName],
+                  }],
+                  nextToken: result.nextToken,
+                }).promise();
+                allVersions = allVersions.concat(result.componentVersionList!.map(i => i.version || '1.0.0'));
+              } while (result.nextToken);
               break;
             }
             case 'ImageRecipe': {
-              const result = await ib.listImageRecipes({
-                filters: [{
-                  name: 'name',
-                  values: [objectName],
-                }],
-              }).promise();
-              allVersions = result.imageRecipeSummaryList!.map(i => i.arn?.split('/').pop() || '1.0.0');
+              let result: AWS.Imagebuilder.ListImageRecipesResponse = {};
+              do {
+                result = await ib.listImageRecipes({
+                  filters: [{
+                    name: 'name',
+                    values: [objectName],
+                  }],
+                  nextToken: result.nextToken,
+                }).promise();
+                allVersions = allVersions.concat(result.imageRecipeSummaryList!.map(i => i.arn?.split('/').pop() || '1.0.0'));
+              } while (result.nextToken);
               break;
             }
             case 'ContainerRecipe': {
-              const result = await ib.listContainerRecipes({
-                filters: [{
-                  name: 'name',
-                  values: [objectName],
-                }],
-              }).promise();
-              allVersions = result.containerRecipeSummaryList!.map(i => i.arn?.split('/').pop() || '1.0.0');
+              let result: AWS.Imagebuilder.ListContainerRecipesResponse = {};
+              do {
+                result = await ib.listContainerRecipes({
+                  filters: [{
+                    name: 'name',
+                    values: [objectName],
+                  }],
+                  nextToken: result.nextToken,
+                }).promise();
+                allVersions = allVersions.concat(result.containerRecipeSummaryList!.map(i => i.arn?.split('/').pop() || '1.0.0'));
+              } while (result.nextToken);
               break;
             }
           }
         } catch (e) {
           if ((e as any).code !== 'ResourceNotFoundException') {
             throw e;
+          } else {
+            console.log('Resource not found, assuming first version');
           }
         }
 
@@ -63,6 +77,8 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
         if (version === null) {
           version = '1.0.0';
         }
+        console.log(`Found versions ${allVersions} -- latest is ${version}`);
+
         version = inc(version, 'patch');
         if (version === null) {
           throw new Error('Unable to bump version');
