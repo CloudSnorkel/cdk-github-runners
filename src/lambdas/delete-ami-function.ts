@@ -17,7 +17,7 @@ export class DeleteAmiFunction extends lambda.Function {
     super(scope, id, {
       description: 'src/lambdas/delete-ami.lambda.ts',
       ...props,
-      runtime: new lambda.Runtime('nodejs14.x', lambda.RuntimeFamily.NODEJS),
+      runtime: new lambda.Runtime('nodejs16.x', lambda.RuntimeFamily.NODEJS),
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../../assets/lambdas/delete-ami.lambda')),
     });

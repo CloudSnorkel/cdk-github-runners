@@ -9614,7 +9614,7 @@
                       }
                     },
                     "handler": "index.handler",
-                    "runtime": "nodejs14.x",
+                    "runtime": "nodejs16.x",
                     "timeout": 180
                   }
                 },
@@ -10734,7 +10734,7 @@
                       }
                     },
                     "handler": "index.handler",
-                    "runtime": "nodejs14.x",
+                    "runtime": "nodejs16.x",
                     "timeout": 300
                   }
                 },
@@ -11401,7 +11401,7 @@
                       }
                     },
                     "handler": "index.handler",
-                    "runtime": "nodejs14.x",
+                    "runtime": "nodejs16.x",
                     "timeout": 900
                   }
                 },
@@ -14152,7 +14152,7 @@
                       }
                     },
                     "handler": "index.handler",
-                    "runtime": "nodejs14.x",
+                    "runtime": "nodejs16.x",
                     "timeout": 300
                   }
                 },
@@ -15345,7 +15345,7 @@
                           }
                         },
                         "handler": "index.handler",
-                        "runtime": "nodejs14.x",
+                        "runtime": "nodejs16.x",
                         "timeout": 30
                       }
                     },
@@ -15558,7 +15558,7 @@
                           }
                         },
                         "handler": "index.handler",
-                        "runtime": "nodejs14.x",
+                        "runtime": "nodejs16.x",
                         "timeout": 30
                       }
                     },
@@ -17380,7 +17380,7 @@
                               }
                             },
                             "handler": "index.handler",
-                            "runtime": "nodejs14.x",
+                            "runtime": "nodejs16.x",
                             "timeout": 30
                           }
                         },
@@ -17703,7 +17703,7 @@
                           }
                         },
                         "handler": "index.handler",
-                        "runtime": "nodejs14.x",
+                        "runtime": "nodejs16.x",
                         "timeout": 180
                       }
                     },
@@ -18181,7 +18181,7 @@
                           }
                         },
                         "handler": "index.handler",
-                        "runtime": "nodejs14.x",
+                        "runtime": "nodejs16.x",
                         "timeout": 180
                       }
                     },
