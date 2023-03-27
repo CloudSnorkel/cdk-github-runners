@@ -133,7 +133,8 @@ jobs:
           }
       - name: Checkout
         uses: actions/checkout@v3
-      - run: |
+      - name: ls
+        run: |
           $ErrorActionPreference = 'Stop'
           ls
       - name: github script
