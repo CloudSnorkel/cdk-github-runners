@@ -396,7 +396,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
         cluster: this.cluster,
         launchTarget: new EcsFargateLaunchTarget({
           spot: this.spot,
-          enableExecute: this.image.os.is(Os.LINUX),
+          enableExecute: this.image.os.is(Os.LINUX) || this.image.os.is(Os.LINUX_UBUNTU) || this.image.os.is(Os.LINUX_AMAZON_2),
         }),
         subnets: this.subnetSelection,
         assignPublicIp: this.assignPublicIp,
@@ -462,7 +462,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   }
 
   private runCommand(): string[] {
-    if (this.image.os.is(Os.LINUX) || this.image.os.is(Os.LINUX_UBUNTU) || this.image.os.is(Os.LINUX_AMAZON_2)) { // TODO
+    if (this.image.os.is(Os.LINUX) || this.image.os.is(Os.LINUX_UBUNTU) || this.image.os.is(Os.LINUX_AMAZON_2)) {
       return [
         'sh', '-c',
         `cd /home/runner &&

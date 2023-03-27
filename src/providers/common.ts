@@ -102,8 +102,10 @@ export class Architecture {
 export class Os {
   /**
   * Linux
+  *
+  * @deprecated use {@link LINUX_UBUNTU} or {@link LINUX_AMAZON_2}
   */
-  public static readonly LINUX = Os.of('Linux'); // TODO remove
+  public static readonly LINUX = Os.of('Linux');
 
   /**
    * Ubuntu Linux
@@ -152,7 +154,7 @@ export class Os {
 }
 
 /**
- * Description of a Docker image built by {@link IImageBuilder}.
+ * Description of a Docker image built by {@link RunnerImageBuilder}.
  */
 export interface RunnerImage {
   /**
@@ -189,7 +191,7 @@ export interface RunnerImage {
 }
 
 /**
- * Description of a AMI built by {@link IAmiBuilder}.
+ * Description of a AMI built by {@link RunnerImageBuilder}.
  */
 export interface RunnerAmi {
   /**

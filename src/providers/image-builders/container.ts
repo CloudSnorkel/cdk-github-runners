@@ -226,6 +226,8 @@ export class ContainerRecipe extends ImageBuilderObjectBase {
  *     imageBuilder: builder,
  * });
  * ```
+ *
+ * @deprecated use RunnerImageBuilder
  */
 export class ContainerImageBuilder extends ImageBuilderBase {
   readonly repository: ecr.IRepository;
