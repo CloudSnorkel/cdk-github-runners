@@ -1,4 +1,3 @@
-import * as crypto from 'crypto';
 import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import {
@@ -705,8 +704,6 @@ export abstract class RunnerImageBuilder extends Construct implements ec2.IConne
  * @internal
  */
 class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
-  private static BUILDSPEC_VERSION = 1;
-
   private boundDockerImage?: RunnerImage;
   private readonly os: Os;
   private readonly architecture: Architecture;
@@ -785,7 +782,7 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
     // create CodeBuild project that builds Dockerfile and pushes to repository
     const project = new codebuild.Project(this, 'CodeBuild', {
       description: `Build docker image for self-hosted GitHub runner ${this.node.path} (${this.os.name}/${this.architecture.name})`,
-      buildSpec: codebuild.BuildSpec.fromObject(buildSpec),
+      buildSpec,
       vpc: this.vpc,
       securityGroups: this.securityGroups,
       subnetSelection: this.subnetSelection,
@@ -807,7 +804,7 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
     // TODO just define a role ahead of time?? -- this.policyStatements.forEach(project.addToRolePolicy);
 
     // call CodeBuild during deployment and delete all images from repository during destruction
-    const cr = this.customResource(project);
+    const cr = this.customResource(project, buildSpec.toBuildSpec());
 
     // rebuild image on a schedule
     this.rebuildImageOnSchedule(project, this.rebuildInterval);
@@ -892,13 +889,10 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
     return commands;
   }
 
-  private getBuildSpec(repository: ecr.Repository, logGroup: logs.LogGroup): any {
-    // TODO remove runnerVersion? it's already in components
-    // don't forget to change BUILDSPEC_VERSION when the buildSpec changes, and you want to trigger a rebuild on deploy
-
+  private getBuildSpec(repository: ecr.Repository, logGroup: logs.LogGroup): codebuild.BuildSpec {
     const thisStack = cdk.Stack.of(this);
 
-    return {
+    return codebuild.BuildSpec.fromObject({
       version: '0.2',
       env: {
         variables: {
@@ -941,10 +935,10 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
           ],
         },
       },
-    };
+    });
   }
 
-  private customResource(project: codebuild.Project) {
+  private customResource(project: codebuild.Project, buildSpec: string) {
     const crHandler = singletonLambda(BuildImageFunction, this, 'build-image', {
       description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
       timeout: cdk.Duration.minutes(3),
@@ -971,9 +965,9 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
       properties: {
         RepoName: this.repository.repositoryName,
         ProjectName: project.projectName,
-        // We include a hash so the image is built immediately on changes, and we don't have to wait for its scheduled build.
+        // We include the full buildSpec so the image is built immediately on changes, and we don't have to wait for its scheduled build.
         // This also helps make sure the changes are good. If they have a bug, the deployment will fail instead of just the scheduled build.
-        BuildHash: this.hashBuildSettings(),
+        BuildSpec: buildSpec,
       },
     });
 
@@ -984,32 +978,6 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
     cr.node.addDependency(crHandler);
 
     return cr;
-  }
-
-  /**
-   * Return hash of all settings that can affect the result image so we can trigger the build when it changes.
-   * @private
-   */
-  private hashBuildSettings(): string {
-    // main Dockerfile
-    // TODO replace with components
-    let components: string[] = [];
-    for (const component of this.components) {
-      components.push(component.getCommands(this.os, this.architecture).join('\n')); // TODO correct os/arch
-    }
-    components.push(this.buildImage.imageId);
-    // let components: string[] = [this.dockerfile.assetHash];
-    // all additional files
-    // TODO assets
-    // for (const [name, asset] of this.secondaryAssets.entries()) {
-    //   components.push(name);
-    //   components.push(asset.assetHash);
-    // }
-    // buildspec.yml version
-    components.push(`v${CodeBuildRunnerImageBuilder.BUILDSPEC_VERSION}`);
-    // hash it
-    const all = components.join('-');
-    return crypto.createHash('md5').update(all).digest('hex');
   }
 
   private rebuildImageOnSchedule(project: codebuild.Project, rebuildInterval?: Duration) {
