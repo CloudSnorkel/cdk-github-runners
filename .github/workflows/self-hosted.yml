@@ -83,8 +83,11 @@ jobs:
             docker: true
             sudo: false
 
+    defaults:
+      run:
+        shell: bash
+
     runs-on: ${{ matrix.runs-on }}
-    shell: bash
     steps:
       - run: export
       - name: Check arch
