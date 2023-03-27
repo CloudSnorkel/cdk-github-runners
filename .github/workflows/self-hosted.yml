@@ -103,7 +103,6 @@ jobs:
           docker build  .
           docker-compose --version
           docker compose version
-
   self-hosted-windows:
     strategy:
       fail-fast: false
@@ -134,7 +133,10 @@ jobs:
           }
       - name: Checkout
         uses: actions/checkout@v3
-      - run: ls
+      - name: ls
+        run: |
+          $ErrorActionPreference = 'Stop'
+          ls
       - name: github script
         uses: actions/github-script@v6
         with:
@@ -142,17 +144,23 @@ jobs:
           script: |
             console.log("hello world");
       - name: git
-        run: git --version
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git --version
       - name: aws
         run: |
+          $ErrorActionPreference = 'Stop'
           aws --version
           aws sts get-caller-identity
       - name: gh
-        run: gh --version
+        run: |
+          $ErrorActionPreference = 'Stop'
+          gh --version
       - name: docker
         if: ${{ matrix.docker }}
         run: |
-          echo FROM public.ecr.aws/docker/library/bash > Dockerfile
+          $ErrorActionPreference = 'Stop'
+          echo "FROM public.ecr.aws/docker/library/bash" | Out-File -encoding ASCII Dockerfile
           docker build  .
           docker-compose --version
           docker compose version
