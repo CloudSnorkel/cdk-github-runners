@@ -10364,8 +10364,7 @@
         }
        }
       },
-      "Name": "runner",
-      "User": "runner"
+      "Name": "runner"
      }
     ],
     "Cpu": "1024",

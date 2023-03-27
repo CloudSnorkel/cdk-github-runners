@@ -372,7 +372,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
           streamPrefix: 'runner',
         }),
         command: this.runCommand(),
-        user: 'runner',
+        user: image.os.is(Os.WINDOWS) ? undefined : 'runner',
       },
     );
 

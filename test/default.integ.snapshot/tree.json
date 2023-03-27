@@ -13497,7 +13497,6 @@
                               ]
                             },
                             "name": "runner",
-                            "user": "runner",
                             "logConfiguration": {
                               "logDriver": "awslogs",
                               "options": {
