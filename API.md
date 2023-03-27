@@ -6374,7 +6374,9 @@ OS type of the image.
 
 ---
 
-##### `runnerVersion`<sup>Required</sup> <a name="runnerVersion" id="@cloudsnorkel/cdk-github-runners.RunnerAmi.property.runnerVersion"></a>
+##### ~~`runnerVersion`~~<sup>Required</sup> <a name="runnerVersion" id="@cloudsnorkel/cdk-github-runners.RunnerAmi.property.runnerVersion"></a>
+
+- *Deprecated:* open a ticket if you need this
 
 ```typescript
 public readonly runnerVersion: RunnerVersion;
@@ -6471,7 +6473,9 @@ OS type of the image.
 
 ---
 
-##### `runnerVersion`<sup>Required</sup> <a name="runnerVersion" id="@cloudsnorkel/cdk-github-runners.RunnerImage.property.runnerVersion"></a>
+##### ~~`runnerVersion`~~<sup>Required</sup> <a name="runnerVersion" id="@cloudsnorkel/cdk-github-runners.RunnerImage.property.runnerVersion"></a>
+
+- *Deprecated:* open a ticket if you need this
 
 ```typescript
 public readonly runnerVersion: RunnerVersion;
