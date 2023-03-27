@@ -165,7 +165,7 @@ jobs:
         if: ${{ matrix.docker }}
         run: |
           $ErrorActionPreference = 'Stop'
-          echo "FROM public.ecr.aws/docker/library/bash" | Out-File -encoding ASCII Dockerfile
+          echo "FROM public.ecr.aws/docker/library/bash" | Out-File -Encoding ASCII Dockerfile
           docker build  .
           docker-compose --version
           docker compose version

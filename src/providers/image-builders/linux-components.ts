@@ -132,6 +132,7 @@ export class LinuxUbuntuComponents {
         `tar xzf "actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
         `rm actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz`,
         './bin/installdependencies.sh',
+        `echo -n ${runnerVersion.version} > RUNNER_VERSION`,
       ],
     });
   }

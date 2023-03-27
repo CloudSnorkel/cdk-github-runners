@@ -58,7 +58,8 @@ EOF
   /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2
 }
 action () {
-  sudo -Hu runner /home/runner/config.sh --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{}" {} --name "{}" || exit 1
+  if [ "$(< RUNNER_VERSION)" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
+  sudo -Hu runner /home/runner/config.sh --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{}" $RUNNER_FLAGS --name "{}" || exit 1
   sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
   STATUS=$(grep -Phors "finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*" /home/runner/_diag/ | tail -n1)
   [ -n "$STATUS" ] && echo CDKGHA JOB DONE "{}" "$STATUS"
@@ -105,7 +106,9 @@ function setup_logs () {
 }
 function action () {
   cd /actions
-  ./config.cmd --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{}" {} --name "{}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  $RunnerVersion = Get-Content RUNNER_VERSION -Raw 
+  if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
+  ./config.cmd --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{}" $RunnerFlags --name "{}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
   if ($LASTEXITCODE -ne 0) { return 1 }
   ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
   if ($LASTEXITCODE -ne 0) { return 2 }
@@ -242,7 +245,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
         RunnerImageComponent.githubCli(),
         RunnerImageComponent.awsCli(),
         RunnerImageComponent.docker(),
-        RunnerImageComponent.githubRunner(RunnerVersion.latest()), // TODO we send this in props and here which is confusing
+        RunnerImageComponent.githubRunner(props?.runnerVersion ?? RunnerVersion.latest()),
       ],
       ...props,
     });
@@ -339,7 +342,6 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       parameters.repoPath,
       parameters.runnerTokenPath,
       this.labels.join(','),
-      this.ami.runnerVersion.is(RunnerVersion.latest()) ? '' : '--disableupdate',
       parameters.runnerNamePath,
       this.labels.join(','),
     ];

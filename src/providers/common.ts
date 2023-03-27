@@ -182,6 +182,8 @@ export interface RunnerImage {
 
   /**
    * Installed runner version.
+   *
+   * @deprecated open a ticket if you need this
    */
   readonly runnerVersion: RunnerVersion;
 }
@@ -212,6 +214,8 @@ export interface RunnerAmi {
 
   /**
    * Installed runner version.
+   *
+   * @deprecated open a ticket if you need this
    */
   readonly runnerVersion: RunnerVersion;
 }

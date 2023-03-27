@@ -232,7 +232,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
         RunnerImageComponent.git(),
         RunnerImageComponent.githubCli(),
         RunnerImageComponent.awsCli(),
-        RunnerImageComponent.githubRunner(RunnerVersion.latest()), // TODO we send this BOTH in props and here which is confusing
+        RunnerImageComponent.githubRunner(props?.runnerVersion ?? RunnerVersion.latest()),
       ],
       ...props,
     });
@@ -462,16 +462,12 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   }
 
   private runCommand(): string[] {
-    let runnerFlags = '';
-    if (this.image.runnerVersion.is(RunnerVersion.latest())) {
-      runnerFlags = '--disableupdate';
-    }
-
     if (this.image.os.is(Os.LINUX) || this.image.os.is(Os.LINUX_UBUNTU) || this.image.os.is(Os.LINUX_AMAZON_2)) { // TODO
       return [
         'sh', '-c',
         `cd /home/runner &&
-        ./config.sh --unattended --url "https://$GITHUB_DOMAIN/$OWNER/$REPO" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL" ${runnerFlags} --name "$RUNNER_NAME" && 
+        if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
+        ./config.sh --unattended --url "https://$GITHUB_DOMAIN/$OWNER/$REPO" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL" $RUNNER_FLAGS --name "$RUNNER_NAME" && 
         ./run.sh &&
         STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" _diag/ | tail -n1) &&
         [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"`,
@@ -479,7 +475,9 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
     } else if (this.image.os.is(Os.WINDOWS)) {
       return [
         'powershell', '-Command',
-        `cd \\actions ; ./config.cmd --unattended --url "https://\${Env:GITHUB_DOMAIN}/\${Env:OWNER}/\${Env:REPO}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL}" ${runnerFlags} --name "\${Env:RUNNER_NAME}" ; 
+        `cd \\actions ;
+        if ($Env:RUNNER_VERSION -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ; 
+        ./config.cmd --unattended --url "https://\${Env:GITHUB_DOMAIN}/\${Env:OWNER}/\${Env:REPO}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL}" $RunnerFlags --name "\${Env:RUNNER_NAME}" ; 
         ./run.cmd ; 
         $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ; 
         if ($STATUS) { echo "CDKGHA JOB DONE $\{Env:RUNNER_LABEL\} $STATUS" }`,

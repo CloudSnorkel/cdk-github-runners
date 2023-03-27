@@ -229,6 +229,7 @@ export abstract class RunnerImageComponent {
             `curl -fsSLO "https://github.com/actions/runner/releases/download/v\${RUNNER_VERSION}/actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
             `tar -C /home/runner -xzf "actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
             `rm actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz`,
+            `echo -n ${runnerVersion.version} > /home/runner/RUNNER_VERSION`,
           ];
 
           if (os.is(Os.LINUX_UBUNTU)) {
@@ -254,10 +255,17 @@ export abstract class RunnerImageComponent {
             'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip" -OutFile actions.zip',
             'Expand-Archive actions.zip -DestinationPath C:\\actions',
             'del actions.zip',
+            `echo ${runnerVersion.version} | Out-File -Encoding ASCII -NoNewline C:\\actions\\RUNNER_VERSION`,
           ]);
         }
 
         throw new Error(`Unknown os/architecture combo for github runner: ${os.name}/${architecture.name}`);
+      }
+
+      getDockerCommands(_os: Os, _architecture: Architecture): string[] {
+        return [
+          `ENV RUNNER_VERSION=${runnerVersion.version}`,
+        ];
       }
     }();
   }
@@ -413,7 +421,6 @@ export abstract class RunnerImageComponent {
       getDockerCommands(_os: Os, _architecture: Architecture): string[] {
         return [
           'WORKDIR ${LAMBDA_TASK_ROOT}',
-          'ENV RUNNER_VERSION=latest', // TODO
           'CMD ["runner.handler"]',
         ];
       }
@@ -640,6 +647,10 @@ export interface IRunnerImageBuilder {
 
 export abstract class RunnerImageBuilder extends Construct implements ec2.IConnectable, IRunnerImageBuilder {
   static new(scope: Construct, id: string, props?: RunnerImageBuilderProps): RunnerImageBuilder {
+    if (props?.components && props.runnerVersion) {
+      Annotations.of(scope).addWarning('runnerVersion is ignored when components are specified. The runner version will be determined by the components.');
+    }
+
     if (props?.builderType === RunnerImageBuilderType.CODE_BUILD) {
       return new CodeBuildRunnerImageBuilder(scope, id, props);
     } else if (props?.builderType === RunnerImageBuilderType.AWS_IMAGE_BUILDER) {
@@ -700,7 +711,6 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
   private readonly os: Os;
   private readonly architecture: Architecture;
   private readonly baseImage: string;
-  private readonly runnerVersion: RunnerVersion;
   private readonly logRetention: RetentionDays;
   private readonly logRemovalPolicy: RemovalPolicy;
   private readonly vpc: ec2.IVpc | undefined;
@@ -718,7 +728,6 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
 
     this.os = props?.os ?? Os.LINUX_UBUNTU;
     this.architecture = props?.architecture ?? Architecture.X86_64;
-    this.runnerVersion = props?.runnerVersion ?? RunnerVersion.latest();
     this.rebuildInterval = props?.rebuildInterval ?? Duration.days(7);
     this.logRetention = props?.logRetention ?? RetentionDays.ONE_MONTH;
     this.logRemovalPolicy = props?.logRemovalPolicy ?? RemovalPolicy.DESTROY;
@@ -771,7 +780,7 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
     );
 
     // generate buildSpec
-    const buildSpec = this.getBuildSpec(this.repository, logGroup, this.runnerVersion);
+    const buildSpec = this.getBuildSpec(this.repository, logGroup);
 
     // create CodeBuild project that builds Dockerfile and pushes to repository
     const project = new codebuild.Project(this, 'CodeBuild', {
@@ -819,7 +828,7 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
       architecture: this.architecture,
       os: this.os,
       logGroup,
-      runnerVersion: this.runnerVersion,
+      runnerVersion: RunnerVersion.specific('unknown'),
     };
     return this.boundDockerImage;
   }
@@ -883,7 +892,7 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
     return commands;
   }
 
-  private getBuildSpec(repository: ecr.Repository, logGroup: logs.LogGroup, runnerVersion: RunnerVersion): any {
+  private getBuildSpec(repository: ecr.Repository, logGroup: logs.LogGroup): any {
     // TODO remove runnerVersion? it's already in components
     // don't forget to change BUILDSPEC_VERSION when the buildSpec changes, and you want to trigger a rebuild on deploy
 
@@ -899,7 +908,6 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
           REQUEST_ID: 'unspecified',
           LOGICAL_RESOURCE_ID: 'unspecified',
           RESPONSE_URL: 'unspecified',
-          RUNNER_VERSION: runnerVersion.version,
         },
       },
       phases: {
@@ -999,8 +1007,6 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
     // }
     // buildspec.yml version
     components.push(`v${CodeBuildRunnerImageBuilder.BUILDSPEC_VERSION}`);
-    // runner version
-    components.push(this.runnerVersion.version);
     // hash it
     const all = components.join('-');
     return crypto.createHash('md5').update(all).digest('hex');
@@ -1033,7 +1039,6 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
   private readonly os: Os;
   private readonly architecture: Architecture;
   private readonly baseImage: string;
-  private readonly runnerVersion: RunnerVersion;
   private readonly logRetention: RetentionDays;
   private readonly logRemovalPolicy: RemovalPolicy;
   private readonly vpc: ec2.IVpc;
@@ -1053,7 +1058,6 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
 
     this.os = props?.os ?? Os.LINUX_UBUNTU;
     this.architecture = props?.architecture ?? Architecture.X86_64;
-    this.runnerVersion = props?.runnerVersion ?? RunnerVersion.latest();
     this.rebuildInterval = props?.rebuildInterval ?? Duration.days(7);
     this.logRetention = props?.logRetention ?? RetentionDays.ONE_MONTH;
     this.logRemovalPolicy = props?.logRemovalPolicy ?? RemovalPolicy.DESTROY;
@@ -1121,7 +1125,6 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
     });
 
     let dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
-ENV RUNNER_VERSION=___RUNNER_VERSION___
 {{{ imagebuilder:environments }}}
 {{{ imagebuilder:components }}}`;
 
@@ -1132,7 +1135,7 @@ ENV RUNNER_VERSION=___RUNNER_VERSION___
     for (const c of this.components) {
       const commands = c.getDockerCommands(this.os, this.architecture);
       if (commands.length > 0) {
-        dockerfileTemplate += commands.join('\n') + '\n';
+        dockerfileTemplate += '\n' + commands.join('\n') + '\n';
       }
     }
 
@@ -1140,7 +1143,7 @@ ENV RUNNER_VERSION=___RUNNER_VERSION___
       platform: this.platform(),
       components: this.boundComponents,
       targetRepository: this.repository,
-      dockerfileTemplate: dockerfileTemplate.replace('___RUNNER_VERSION___', this.runnerVersion.version),
+      dockerfileTemplate: dockerfileTemplate,
       parentImage: this.baseImage,
     });
 
@@ -1166,7 +1169,7 @@ ENV RUNNER_VERSION=___RUNNER_VERSION___
       os: this.os,
       architecture: this.architecture,
       logGroup: log,
-      runnerVersion: this.runnerVersion,
+      runnerVersion: RunnerVersion.specific('unknown'),
     };
 
     return this.boundDockerImage;
@@ -1356,7 +1359,7 @@ ENV RUNNER_VERSION=___RUNNER_VERSION___
       architecture: this.architecture,
       os: this.os,
       logGroup: log,
-      runnerVersion: this.runnerVersion,
+      runnerVersion: RunnerVersion.specific('unknown'),
     };
 
     this.amiCleaner(launchTemplate, stackName, builderName);

@@ -96,6 +96,7 @@ export class WindowsComponents {
         'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip" -OutFile actions.zip',
         'Expand-Archive actions.zip -DestinationPath C:\\actions',
         'del actions.zip',
+        `echo ${runnerVersion.version} | Out-File -Encoding ASCII -NoNewline C:\\actions\\RUNNER_VERSION`,
       ]),
     });
   }

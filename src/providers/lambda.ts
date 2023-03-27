@@ -159,7 +159,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
         RunnerImageComponent.git(),
         RunnerImageComponent.githubCli(),
         RunnerImageComponent.awsCli(),
-        RunnerImageComponent.githubRunner(RunnerVersion.latest()), // TODO we send this in props and here which is confusing
+        RunnerImageComponent.githubRunner(props?.runnerVersion ?? RunnerVersion.latest()),
         RunnerImageComponent.lambdaEntrypoint(),
       ],
       ...props,
