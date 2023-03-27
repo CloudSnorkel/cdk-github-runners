@@ -171,5 +171,6 @@ jobs:
           docker compose version
       - name: custom files
         run: |
+          $ErrorActionPreference = 'Stop'
           ls /custom-file
           ls /custom-dir/FUNDING.yml
