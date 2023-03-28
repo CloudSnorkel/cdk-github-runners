@@ -1,8 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2 } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
-import { Architecture, ContainerImageBuilder, FargateRunnerProvider, Os, RunnerImageBuilder, RunnerImageBuilderType } from '../src';
-import { AmiBuilder } from '../src/providers/image-builders/ami';
+import { AmiBuilder, Architecture, ContainerImageBuilder, FargateRunnerProvider, Os, RunnerImageBuilder, RunnerImageBuilderType } from '../src';
 
 test('AMI builder matching instance type (DEPRECATED)', () => {
   const app = new cdk.App();

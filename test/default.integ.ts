@@ -38,32 +38,32 @@ const cluster = new ecs.Cluster(
   },
 );
 
-const extraFilesComponentLinux = RunnerImageComponent.custom(
-  [
+const extraFilesComponentLinux = RunnerImageComponent.custom({
+  commands: [
     'touch /custom-file',
     'mkdir /custom-dir',
     'mv FUNDING.yml /custom-dir',
   ],
-  [
+  assets: [
     {
       source: '.github/FUNDING.yml',
       target: 'FUNDING.yml',
     },
   ],
-);
-const extraFilesComponentWindows = RunnerImageComponent.custom(
-  [
+});
+const extraFilesComponentWindows = RunnerImageComponent.custom({
+  commands: [
     'New-Item -ItemType file -Path / -Name custom-file',
     'New-Item -ItemType directory -Path / -Name custom-dir',
     'Move-Item FUNDING.yml /custom-dir',
   ],
-  [
+  assets: [
     {
       source: '.github/FUNDING.yml',
       target: 'FUNDING.yml',
     },
   ],
-);
+});
 
 const fargateX64Builder = FargateRunnerProvider.imageBuilder(stack, 'Fargate builder', {
   architecture: Architecture.X86_64,
