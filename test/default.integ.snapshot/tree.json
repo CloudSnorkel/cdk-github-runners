@@ -3600,6 +3600,22 @@
               "version": "10.0.5"
             }
           },
+          "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
+            "id": "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnParameter",
+              "version": "2.50.0"
+            }
+          },
+          "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118": {
+            "id": "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.Resource",
+              "version": "2.50.0"
+            }
+          },
           "AMI Linux Builder": {
             "id": "AMI Linux Builder",
             "path": "github-runners-test/AMI Linux Builder",
@@ -4687,6 +4703,22 @@
             "constructInfo": {
               "fqn": "constructs.Construct",
               "version": "10.0.5"
+            }
+          },
+          "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
+            "id": "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnParameter",
+              "version": "2.50.0"
+            }
+          },
+          "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118": {
+            "id": "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.Resource",
+              "version": "2.50.0"
             }
           },
           "CodeBuild Image Builder": {
@@ -8042,6 +8074,22 @@
             "constructInfo": {
               "fqn": "constructs.Construct",
               "version": "10.0.5"
+            }
+          },
+          "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
+            "id": "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnParameter",
+              "version": "2.50.0"
+            }
+          },
+          "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118": {
+            "id": "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.Resource",
+              "version": "2.50.0"
             }
           },
           "Windows EC2 Builder": {
@@ -13987,22 +14035,6 @@
               "version": "10.0.5"
             }
           },
-          "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
-            "id": "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.CfnParameter",
-              "version": "2.50.0"
-            }
-          },
-          "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118": {
-            "id": "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.Resource",
-              "version": "2.50.0"
-            }
-          },
           "delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1": {
             "id": "delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1",
             "path": "github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1",
@@ -14746,22 +14778,6 @@
               "version": "10.0.5"
             }
           },
-          "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
-            "id": "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.CfnParameter",
-              "version": "2.50.0"
-            }
-          },
-          "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118": {
-            "id": "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.Resource",
-              "version": "2.50.0"
-            }
-          },
           "EC2 Windows": {
             "id": "EC2 Windows",
             "path": "github-runners-test/EC2 Windows",
@@ -15037,22 +15053,6 @@
             "constructInfo": {
               "fqn": "constructs.Construct",
               "version": "10.0.5"
-            }
-          },
-          "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
-            "id": "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.CfnParameter",
-              "version": "2.50.0"
-            }
-          },
-          "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118": {
-            "id": "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.Resource",
-              "version": "2.50.0"
             }
           },
           "runners": {

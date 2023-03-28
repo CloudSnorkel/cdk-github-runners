@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/ed3cd1f5c1e9832e67d3b12cfd984d41c5c445512b0bf73fe63dae97054359f0.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/d9fa3a7b3a7699fe568d23b59cb067b719c6278d293034767bced49643bcaab0.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -477,6 +477,12 @@
             "data": "WindowsImageBuilderDeleterB5A108CD"
           }
         ],
+        "/github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SsmParameterValueawsserviceamiwindowslatestWindowsServer2022EnglishFullContainersLatestC96584B6F00A464EAD1953AFF4B05118Parameter"
+          }
+        ],
         "/github-runners-test/AMI Linux Builder/SG/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -667,6 +673,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "AMILinuxBuilderAMIDeleter58658716"
+          }
+        ],
+        "/github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentamd64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
           }
         ],
         "/github-runners-test/CodeBuild Image Builder/Repository/Resource": [
@@ -1051,6 +1063,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "AMILinuxarm64BuilderAMIDeleter27E72E27"
+          }
+        ],
+        "/github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentarm64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
           }
         ],
         "/github-runners-test/Windows EC2 Builder/SG/Resource": [
@@ -1755,12 +1773,6 @@
             "data": "EC2LinuxInstanceProfile2D2BB473"
           }
         ],
-        "/github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentamd64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
-          }
-        ],
         "/github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1857,12 +1869,6 @@
             "data": "EC2Linuxarm64InstanceProfile1E6F8D53"
           }
         ],
-        "/github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentarm64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
-          }
-        ],
         "/github-runners-test/EC2 Windows/SG/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1897,12 +1903,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "EC2WindowsInstanceProfileDCA59D9C"
-          }
-        ],
-        "/github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "SsmParameterValueawsserviceamiwindowslatestWindowsServer2022EnglishFullContainersLatestC96584B6F00A464EAD1953AFF4B05118Parameter"
           }
         ],
         "/github-runners-test/runners/Secrets/Webhook/Resource": [
