@@ -206,6 +206,23 @@ export class ContainerRecipe extends ImageBuilderObjectBase {
 }
 
 /**
+ * Default base Docker image for given OS.
+ *
+ * @internal
+ */
+export function defaultBaseDockerImage(os: Os) {
+  if (os.is(Os.WINDOWS)) {
+    return 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64';
+  } else if (os.is(Os.LINUX_UBUNTU)) {
+    return 'public.ecr.aws/lts/ubuntu:22.04';
+  } else if (os.is(Os.LINUX_AMAZON_2)) {
+    return 'public.ecr.aws/amazonlinux/amazonlinux:2';
+  } else {
+    throw new Error(`OS ${os.name} not supported for Docker runner image`);
+  }
+}
+
+/**
  * An image builder that uses AWS Image Builder to build Docker images pre-baked with all the GitHub Actions runner requirements. Builders can be used with runner providers.
  *
  * The CodeBuild builder is better and faster. Only use this one if you have no choice. For example, if you need Windows containers.

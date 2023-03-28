@@ -131,6 +131,11 @@ interface AmiRecipeProperties {
   readonly architecture: Architecture;
 
   /**
+   * Base AMI to use for the new runner AMI.
+   */
+  readonly baseAmi: string;
+
+  /**
    * Components to add to target container image.
    */
   readonly components: ImageBuilderComponent[];
@@ -156,26 +161,10 @@ export class AmiRecipe extends ImageBuilderObjectBase {
       };
     });
 
-    let parentAmi;
     let workingDirectory;
     if (props.platform == 'Linux') {
-      let archUrl;
-      if (props.architecture.is(Architecture.X86_64)) {
-        archUrl = 'amd64';
-      } else if (props.architecture.is(Architecture.ARM64)) {
-        archUrl = 'arm64';
-      } else {
-        throw new Error(`Unsupported architecture for parent AMI: ${props.architecture.name}`);
-      }
-      parentAmi = ec2.MachineImage.fromSsmParameter(
-        `/aws/service/canonical/ubuntu/server/focal/stable/current/${archUrl}/hvm/ebs-gp2/ami-id`,
-        {
-          os: ec2.OperatingSystemType.LINUX,
-        },
-      ).getImage(this).imageId;
       workingDirectory = '/home/runner';
     } else if (props.platform == 'Windows') {
-      parentAmi = ec2.MachineImage.latestWindows(ec2.WindowsVersion.WINDOWS_SERVER_2022_ENGLISH_FULL_CONTAINERSLATEST).getImage(this).imageId;
       workingDirectory = 'C:/'; // must exist or Image Builder fails and must not be empty or git will stall installing from the default windows\system32
     } else {
       throw new Error(`Unsupported AMI recipe platform: ${props.platform}`);
@@ -186,9 +175,9 @@ export class AmiRecipe extends ImageBuilderObjectBase {
       version: this.version('ImageRecipe', name, {
         platform: props.platform,
         components,
-        parentAmi,
+        parentAmi: props.baseAmi,
       }),
-      parentImage: parentAmi,
+      parentImage: props.baseAmi,
       components,
       workingDirectory,
     });
@@ -196,6 +185,44 @@ export class AmiRecipe extends ImageBuilderObjectBase {
     this.arn = recipe.attrArn;
     this.name = name;
   }
+}
+
+/**
+ * Default base AMI for given OS and architecture.
+ *
+ * @internal
+ */
+export function defaultBaseAmi(os: Os, architecture: Architecture) {
+  let archUrl;
+  let cpuType;
+  if (architecture.is(Architecture.X86_64)) {
+    archUrl = 'amd64';
+    cpuType = ec2.AmazonLinuxCpuType.X86_64;
+  } else if (architecture.is(Architecture.ARM64)) {
+    archUrl = 'arm64';
+    cpuType = ec2.AmazonLinuxCpuType.ARM_64;
+  } else {
+    throw new Error(`Unsupported architecture for base AMI: ${architecture.name}`);
+  }
+
+  if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX)) {
+    return ec2.MachineImage.fromSsmParameter(
+      `/aws/service/canonical/ubuntu/server/focal/stable/current/${archUrl}/hvm/ebs-gp2/ami-id`,
+      {
+        os: ec2.OperatingSystemType.LINUX,
+      },
+    );
+  }
+
+  if (os.is(Os.LINUX_AMAZON_2)) {
+    return ec2.MachineImage.latestAmazonLinux({ cpuType });
+  }
+
+  if (os.is(Os.WINDOWS)) {
+    return ec2.MachineImage.latestWindows(ec2.WindowsVersion.WINDOWS_SERVER_2022_ENGLISH_FULL_CONTAINERSLATEST);
+  }
+
+  throw new Error(`OS ${os.name} not supported for AMI runner image`);
 }
 
 /**
@@ -300,7 +327,7 @@ export class AmiBuilder extends ImageBuilderBase {
    * Add a component to be installed.
    * @param component
    */
-  addComponent(component: ImageBuilderComponent) { // TODO: rename to addComponent
+  addComponent(component: ImageBuilderComponent) {
     if (this.boundAmi) {
       throw new Error('AMI is already bound. Use this method before passing the builder to a runner provider.');
     }
@@ -369,6 +396,7 @@ export class AmiBuilder extends ImageBuilderBase {
       platform: this.platform,
       components: this.components,
       architecture: this.architecture,
+      baseAmi: defaultBaseAmi(this.os, this.architecture).getImage(this).imageId,
     });
 
     const log = this.createLog(recipe.name);

@@ -20,9 +20,9 @@ import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
-import { AmiRecipe } from './ami';
+import { AmiRecipe, defaultBaseAmi } from './ami';
 import { ImageBuilderComponent, uniqueImageBuilderName } from './common';
-import { ContainerRecipe } from './container';
+import { ContainerRecipe, defaultBaseDockerImage } from './container';
 import { BuildImageFunction } from '../../lambdas/build-image-function';
 import { DeleteAmiFunction } from '../../lambdas/delete-ami-function';
 import { singletonLambda } from '../../utils';
@@ -364,7 +364,6 @@ export abstract class RunnerImageComponent {
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [
-            // TODO don't override stuff -- delete cert after import?
             `Import-Certificate -FilePath C:\\${name}.crt -CertStoreLocation Cert:\\LocalMachine\\Root`,
             `Remove-Item C:\\${name}.crt`,
           ];
@@ -384,7 +383,6 @@ export abstract class RunnerImageComponent {
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [
-            // TODO don't override stuff
             { source, target: `C:\\${name}.crt` },
           ];
         }
@@ -506,7 +504,7 @@ export interface RunnerImageBuilderProps {
   /**
    * Base AMI from which runner AMIs will be built.
    *
-   * @default TODO
+   * @default latest Ubuntu 20.04 AMI for Os.LINUX_UBUNTU, latest Amazon Linux 2 AMI for Os.LINUX_AMAZON_2, latest Windows Server 2022 AMI for Os.WINDOWS
    */
   readonly baseAmi?: string;
 
@@ -686,18 +684,6 @@ export abstract class RunnerImageBuilder extends Construct implements ec2.IConne
   }
 
   // TODO removeComponent #215
-
-  protected defaultBaseDockerImage(os: Os) {
-    if (os.is(Os.WINDOWS)) {
-      return 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64';
-    } else if (os.is(Os.LINUX_UBUNTU)) {
-      return 'public.ecr.aws/lts/ubuntu:22.04';
-    } else if (os.is(Os.LINUX_AMAZON_2)) {
-      return 'public.ecr.aws/amazonlinux/amazonlinux:2';
-    } else {
-      throw new Error(`OS ${os.name} not supported for Docker runner image`);
-    }
-  }
 }
 
 /**
@@ -733,7 +719,7 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
     this.subnetSelection = props?.subnetSelection;
     this.timeout = props?.codeBuildOptions?.timeout ?? Duration.hours(1);
     this.computeType = props?.codeBuildOptions?.computeType ?? ComputeType.SMALL;
-    this.baseImage = props?.baseDockerImage ?? this.defaultBaseDockerImage(this.os);
+    this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
     this.buildImage = props?.codeBuildOptions?.buildImage ?? this.getDefaultBuildImage();
 
     // warn against isolated networks
@@ -831,7 +817,8 @@ class CodeBuildRunnerImageBuilder extends RunnerImageBuilder {
   }
 
   private getDefaultBuildImage(): codebuild.IBuildImage {
-    if (this.os.is(Os.LINUX_UBUNTU) || this.os.is(Os.LINUX_AMAZON_2)) { // TODO
+    if (this.os.is(Os.LINUX_UBUNTU) || this.os.is(Os.LINUX_AMAZON_2) || this.os.is(Os.LINUX)) {
+      // CodeBuild just runs `docker build` so its OS doesn't really matter
       if (this.architecture.is(Architecture.X86_64)) {
         return codebuild.LinuxBuildImage.STANDARD_6_0;
       } else if (this.architecture.is(Architecture.ARM64)) {
@@ -1007,6 +994,7 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
   private readonly os: Os;
   private readonly architecture: Architecture;
   private readonly baseImage: string;
+  private readonly baseAmi: string;
   private readonly logRetention: RetentionDays;
   private readonly logRemovalPolicy: RemovalPolicy;
   private readonly vpc: ec2.IVpc;
@@ -1030,10 +1018,10 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
     this.logRetention = props?.logRetention ?? RetentionDays.ONE_MONTH;
     this.logRemovalPolicy = props?.logRemovalPolicy ?? RemovalPolicy.DESTROY;
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'VPC', { isDefault: true });
-    // TODO allow passing multiple security groups
     this.securityGroups = props?.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })];
     this.subnetSelection = props?.subnetSelection;
-    this.baseImage = props?.baseDockerImage ?? this.defaultBaseDockerImage(this.os);
+    this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
+    this.baseAmi = props?.baseAmi ?? defaultBaseAmi(this.os, this.architecture).getImage(this).imageId;
     this.instanceType = props?.awsImageBuilderOptions?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
 
     // confirm instance type
@@ -1327,6 +1315,7 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
       platform: this.platform(),
       components: this.bindComponents(),
       architecture: this.architecture,
+      baseAmi: this.baseAmi,
     });
 
     const log = this.createLog('Ami Log', recipe.name);

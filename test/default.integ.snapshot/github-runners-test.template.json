@@ -15129,6 +15129,10 @@
   }
  },
  "Parameters": {
+  "SsmParameterValueawsserviceamiwindowslatestWindowsServer2022EnglishFullContainersLatestC96584B6F00A464EAD1953AFF4B05118Parameter": {
+   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+   "Default": "/aws/service/ami-windows-latest/Windows_Server-2022-English-Full-ContainersLatest"
+  },
   "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentamd64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter": {
    "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
    "Default": "/aws/service/canonical/ubuntu/server/focal/stable/current/amd64/hvm/ebs-gp2/ami-id"
@@ -15136,10 +15140,6 @@
   "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentarm64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter": {
    "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
    "Default": "/aws/service/canonical/ubuntu/server/focal/stable/current/arm64/hvm/ebs-gp2/ami-id"
-  },
-  "SsmParameterValueawsserviceamiwindowslatestWindowsServer2022EnglishFullContainersLatestC96584B6F00A464EAD1953AFF4B05118Parameter": {
-   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
-   "Default": "/aws/service/ami-windows-latest/Windows_Server-2022-English-Full-ContainersLatest"
   },
   "BootstrapVersion": {
    "Type": "AWS::SSM::Parameter::Value<String>",
