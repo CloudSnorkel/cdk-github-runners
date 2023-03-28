@@ -2702,9 +2702,9 @@
                   "version": "2.50.0"
                 }
               },
-              "Distribution": {
-                "id": "Distribution",
-                "path": "github-runners-test/Windows Image Builder/Distribution",
+              "Docker Distribution": {
+                "id": "Docker Distribution",
+                "path": "github-runners-test/Windows Image Builder/Docker Distribution",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::ImageBuilder::DistributionConfiguration",
                   "aws:cdk:cloudformation:props": {
@@ -3219,13 +3219,13 @@
                   "version": "2.50.0"
                 }
               },
-              "Log": {
-                "id": "Log",
-                "path": "github-runners-test/Windows Image Builder/Log",
+              "Docker Log": {
+                "id": "Docker Log",
+                "path": "github-runners-test/Windows Image Builder/Docker Log",
                 "children": {
                   "Resource": {
                     "id": "Resource",
-                    "path": "github-runners-test/Windows Image Builder/Log/Resource",
+                    "path": "github-runners-test/Windows Image Builder/Docker Log/Resource",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
                       "aws:cdk:cloudformation:props": {
@@ -3439,9 +3439,9 @@
                   "version": "2.50.0"
                 }
               },
-              "Image": {
-                "id": "Image",
-                "path": "github-runners-test/Windows Image Builder/Image",
+              "Docker Image": {
+                "id": "Docker Image",
+                "path": "github-runners-test/Windows Image Builder/Docker Image",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Image",
                   "aws:cdk:cloudformation:props": {
@@ -3459,7 +3459,7 @@
                     },
                     "distributionConfigurationArn": {
                       "Fn::GetAtt": [
-                        "WindowsImageBuilderDistribution843AF65B",
+                        "WindowsImageBuilderDockerDistributionCDE69DC2",
                         "Arn"
                       ]
                     },
@@ -3473,9 +3473,9 @@
                   "version": "2.50.0"
                 }
               },
-              "Pipeline": {
-                "id": "Pipeline",
-                "path": "github-runners-test/Windows Image Builder/Pipeline",
+              "Docker Pipeline": {
+                "id": "Docker Pipeline",
+                "path": "github-runners-test/Windows Image Builder/Docker Pipeline",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
                   "aws:cdk:cloudformation:props": {
@@ -3494,7 +3494,7 @@
                     },
                     "distributionConfigurationArn": {
                       "Fn::GetAtt": [
-                        "WindowsImageBuilderDistribution843AF65B",
+                        "WindowsImageBuilderDockerDistributionCDE69DC2",
                         "Arn"
                       ]
                     },
@@ -3724,9 +3724,9 @@
                   "version": "2.50.0"
                 }
               },
-              "Distribution": {
-                "id": "Distribution",
-                "path": "github-runners-test/AMI Linux Builder/Distribution",
+              "AMI Distribution": {
+                "id": "AMI Distribution",
+                "path": "github-runners-test/AMI Linux Builder/AMI Distribution",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::ImageBuilder::DistributionConfiguration",
                   "aws:cdk:cloudformation:props": {
@@ -4296,13 +4296,13 @@
                   "version": "2.50.0"
                 }
               },
-              "Log": {
-                "id": "Log",
-                "path": "github-runners-test/AMI Linux Builder/Log",
+              "Ami Log": {
+                "id": "Ami Log",
+                "path": "github-runners-test/AMI Linux Builder/Ami Log",
                 "children": {
                   "Resource": {
                     "id": "Resource",
-                    "path": "github-runners-test/AMI Linux Builder/Log/Resource",
+                    "path": "github-runners-test/AMI Linux Builder/Ami Log/Resource",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
                       "aws:cdk:cloudformation:props": {
@@ -4516,9 +4516,9 @@
                   "version": "2.50.0"
                 }
               },
-              "Image": {
-                "id": "Image",
-                "path": "github-runners-test/AMI Linux Builder/Image",
+              "AMI Image": {
+                "id": "AMI Image",
+                "path": "github-runners-test/AMI Linux Builder/AMI Image",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Image",
                   "aws:cdk:cloudformation:props": {
@@ -4530,7 +4530,7 @@
                     },
                     "distributionConfigurationArn": {
                       "Fn::GetAtt": [
-                        "AMILinuxBuilderDistribution045596CF",
+                        "AMILinuxBuilderAMIDistribution46435AF5",
                         "Arn"
                       ]
                     },
@@ -4550,9 +4550,9 @@
                   "version": "2.50.0"
                 }
               },
-              "Pipeline": {
-                "id": "Pipeline",
-                "path": "github-runners-test/AMI Linux Builder/Pipeline",
+              "AMI Pipeline": {
+                "id": "AMI Pipeline",
+                "path": "github-runners-test/AMI Linux Builder/AMI Pipeline",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
                   "aws:cdk:cloudformation:props": {
@@ -4565,7 +4565,7 @@
                     "name": "github-runners-test-AMILinuxBuilder-67243E6D",
                     "distributionConfigurationArn": {
                       "Fn::GetAtt": [
-                        "AMILinuxBuilderDistribution045596CF",
+                        "AMILinuxBuilderAMIDistribution46435AF5",
                         "Arn"
                       ]
                     },
@@ -7079,9 +7079,9 @@
                   "version": "2.50.0"
                 }
               },
-              "Distribution": {
-                "id": "Distribution",
-                "path": "github-runners-test/AMI Linux arm64 Builder/Distribution",
+              "AMI Distribution": {
+                "id": "AMI Distribution",
+                "path": "github-runners-test/AMI Linux arm64 Builder/AMI Distribution",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::ImageBuilder::DistributionConfiguration",
                   "aws:cdk:cloudformation:props": {
@@ -7651,13 +7651,13 @@
                   "version": "2.50.0"
                 }
               },
-              "Log": {
-                "id": "Log",
-                "path": "github-runners-test/AMI Linux arm64 Builder/Log",
+              "Ami Log": {
+                "id": "Ami Log",
+                "path": "github-runners-test/AMI Linux arm64 Builder/Ami Log",
                 "children": {
                   "Resource": {
                     "id": "Resource",
-                    "path": "github-runners-test/AMI Linux arm64 Builder/Log/Resource",
+                    "path": "github-runners-test/AMI Linux arm64 Builder/Ami Log/Resource",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
                       "aws:cdk:cloudformation:props": {
@@ -7871,9 +7871,9 @@
                   "version": "2.50.0"
                 }
               },
-              "Image": {
-                "id": "Image",
-                "path": "github-runners-test/AMI Linux arm64 Builder/Image",
+              "AMI Image": {
+                "id": "AMI Image",
+                "path": "github-runners-test/AMI Linux arm64 Builder/AMI Image",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Image",
                   "aws:cdk:cloudformation:props": {
@@ -7885,7 +7885,7 @@
                     },
                     "distributionConfigurationArn": {
                       "Fn::GetAtt": [
-                        "AMILinuxarm64BuilderDistribution77B3BD53",
+                        "AMILinuxarm64BuilderAMIDistribution2BDAF717",
                         "Arn"
                       ]
                     },
@@ -7905,9 +7905,9 @@
                   "version": "2.50.0"
                 }
               },
-              "Pipeline": {
-                "id": "Pipeline",
-                "path": "github-runners-test/AMI Linux arm64 Builder/Pipeline",
+              "AMI Pipeline": {
+                "id": "AMI Pipeline",
+                "path": "github-runners-test/AMI Linux arm64 Builder/AMI Pipeline",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
                   "aws:cdk:cloudformation:props": {
@@ -7920,7 +7920,7 @@
                     "name": "github-runners-test-AMILinuxarm64Builder-3F449283",
                     "distributionConfigurationArn": {
                       "Fn::GetAtt": [
-                        "AMILinuxarm64BuilderDistribution77B3BD53",
+                        "AMILinuxarm64BuilderAMIDistribution2BDAF717",
                         "Arn"
                       ]
                     },
@@ -8168,9 +8168,9 @@
                   "version": "2.50.0"
                 }
               },
-              "Distribution": {
-                "id": "Distribution",
-                "path": "github-runners-test/Windows EC2 Builder/Distribution",
+              "AMI Distribution": {
+                "id": "AMI Distribution",
+                "path": "github-runners-test/Windows EC2 Builder/AMI Distribution",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::ImageBuilder::DistributionConfiguration",
                   "aws:cdk:cloudformation:props": {
@@ -8740,13 +8740,13 @@
                   "version": "2.50.0"
                 }
               },
-              "Log": {
-                "id": "Log",
-                "path": "github-runners-test/Windows EC2 Builder/Log",
+              "Ami Log": {
+                "id": "Ami Log",
+                "path": "github-runners-test/Windows EC2 Builder/Ami Log",
                 "children": {
                   "Resource": {
                     "id": "Resource",
-                    "path": "github-runners-test/Windows EC2 Builder/Log/Resource",
+                    "path": "github-runners-test/Windows EC2 Builder/Ami Log/Resource",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
                       "aws:cdk:cloudformation:props": {
@@ -8960,9 +8960,9 @@
                   "version": "2.50.0"
                 }
               },
-              "Image": {
-                "id": "Image",
-                "path": "github-runners-test/Windows EC2 Builder/Image",
+              "AMI Image": {
+                "id": "AMI Image",
+                "path": "github-runners-test/Windows EC2 Builder/AMI Image",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Image",
                   "aws:cdk:cloudformation:props": {
@@ -8974,7 +8974,7 @@
                     },
                     "distributionConfigurationArn": {
                       "Fn::GetAtt": [
-                        "WindowsEC2BuilderDistributionC6CA152B",
+                        "WindowsEC2BuilderAMIDistributionC7E428C1",
                         "Arn"
                       ]
                     },
@@ -8994,9 +8994,9 @@
                   "version": "2.50.0"
                 }
               },
-              "Pipeline": {
-                "id": "Pipeline",
-                "path": "github-runners-test/Windows EC2 Builder/Pipeline",
+              "AMI Pipeline": {
+                "id": "AMI Pipeline",
+                "path": "github-runners-test/Windows EC2 Builder/AMI Pipeline",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::ImageBuilder::ImagePipeline",
                   "aws:cdk:cloudformation:props": {
@@ -9009,7 +9009,7 @@
                     "name": "github-runners-test-WindowsEC2Builder-5FAF8285",
                     "distributionConfigurationArn": {
                       "Fn::GetAtt": [
-                        "WindowsEC2BuilderDistributionC6CA152B",
+                        "WindowsEC2BuilderAMIDistributionC7E428C1",
                         "Arn"
                       ]
                     },
@@ -10322,7 +10322,7 @@
                                                             "/",
                                                             {
                                                               "Fn::GetAtt": [
-                                                                "WindowsImageBuilderImage7065BB07",
+                                                                "WindowsImageBuilderDockerImage8672CA3E",
                                                                 "ImageUri"
                                                               ]
                                                             }
@@ -10516,7 +10516,7 @@
                                                 "/",
                                                 {
                                                   "Fn::GetAtt": [
-                                                    "WindowsImageBuilderImage7065BB07",
+                                                    "WindowsImageBuilderDockerImage8672CA3E",
                                                     "ImageUri"
                                                   ]
                                                 }
@@ -13480,7 +13480,7 @@
                                                   "/",
                                                   {
                                                     "Fn::GetAtt": [
-                                                      "WindowsImageBuilderImage7065BB07",
+                                                      "WindowsImageBuilderDockerImage8672CA3E",
                                                       "ImageUri"
                                                     ]
                                                   }
@@ -13628,7 +13628,7 @@
                                                             "/",
                                                             {
                                                               "Fn::GetAtt": [
-                                                                "WindowsImageBuilderImage7065BB07",
+                                                                "WindowsImageBuilderDockerImage8672CA3E",
                                                                 "ImageUri"
                                                               ]
                                                             }
@@ -16807,7 +16807,7 @@
                                   "GroupId"
                                 ]
                               },
-                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-spot, linux, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-spot, linux, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -16833,7 +16833,7 @@
                                   "GroupId"
                                 ]
                               },
-                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}]}},\"fargate, linux, arm64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}]}},\"fargate, linux, arm64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -16859,7 +16859,7 @@
                                   "GroupId"
                                 ]
                               },
-                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-spot, linux, arm64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-spot, linux, arm64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -16885,7 +16885,7 @@
                                   "GroupId"
                                 ]
                               },
-                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate, windows, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+                              "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate, windows, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -17902,7 +17902,7 @@
                                                             "/",
                                                             {
                                                               "Fn::GetAtt": [
-                                                                "WindowsImageBuilderImage7065BB07",
+                                                                "WindowsImageBuilderDockerImage8672CA3E",
                                                                 "ImageUri"
                                                               ]
                                                             }

@@ -2077,7 +2077,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "WindowsImageBuilderDistribution843AF65B": {
+  "WindowsImageBuilderDockerDistributionCDE69DC2": {
    "Type": "AWS::ImageBuilder::DistributionConfiguration",
    "Properties": {
     "Distributions": [
@@ -2688,7 +2688,7 @@
     "DockerfileTemplateData": "FROM {{{ imagebuilder:parentImage }}}\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}\nENV RUNNER_VERSION=latest\n"
    }
   },
-  "WindowsImageBuilderLog0E03408E": {
+  "WindowsImageBuilderDockerLogE660E23E": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
     "LogGroupName": "/aws/imagebuilder/github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
@@ -2840,7 +2840,7 @@
     }
    }
   },
-  "WindowsImageBuilderImage7065BB07": {
+  "WindowsImageBuilderDockerImage8672CA3E": {
    "Type": "AWS::ImageBuilder::Image",
    "Properties": {
     "InfrastructureConfigurationArn": {
@@ -2857,7 +2857,7 @@
     },
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "WindowsImageBuilderDistribution843AF65B",
+      "WindowsImageBuilderDockerDistributionCDE69DC2",
       "Arn"
      ]
     },
@@ -2866,11 +2866,11 @@
     }
    },
    "DependsOn": [
-    "WindowsImageBuilderInfrastructureFF99A30B",
-    "WindowsImageBuilderLog0E03408E"
+    "WindowsImageBuilderDockerLogE660E23E",
+    "WindowsImageBuilderInfrastructureFF99A30B"
    ]
   },
-  "WindowsImageBuilderPipeline29B7B6E1": {
+  "WindowsImageBuilderDockerPipeline3613721A": {
    "Type": "AWS::ImageBuilder::ImagePipeline",
    "Properties": {
     "InfrastructureConfigurationArn": {
@@ -2888,7 +2888,7 @@
     },
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "WindowsImageBuilderDistribution843AF65B",
+      "WindowsImageBuilderDockerDistributionCDE69DC2",
       "Arn"
      ]
     },
@@ -2901,8 +2901,8 @@
     }
    },
    "DependsOn": [
-    "WindowsImageBuilderInfrastructureFF99A30B",
-    "WindowsImageBuilderLog0E03408E"
+    "WindowsImageBuilderDockerLogE660E23E",
+    "WindowsImageBuilderInfrastructureFF99A30B"
    ]
   },
   "WindowsImageBuilderCRPolicy81A41F62": {
@@ -2963,7 +2963,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "WindowsImageBuilderCRPolicy81A41F62",
-    "WindowsImageBuilderImage7065BB07"
+    "WindowsImageBuilderDockerImage8672CA3E"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -3036,7 +3036,7 @@
     ]
    }
   },
-  "AMILinuxBuilderDistribution045596CF": {
+  "AMILinuxBuilderAMIDistribution46435AF5": {
    "Type": "AWS::ImageBuilder::DistributionConfiguration",
    "Properties": {
     "Distributions": [
@@ -3732,7 +3732,7 @@
     "WorkingDirectory": "/home/runner"
    }
   },
-  "AMILinuxBuilderLogAA902D79": {
+  "AMILinuxBuilderAmiLog0DB16E38": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
     "LogGroupName": "/aws/imagebuilder/github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
@@ -3884,7 +3884,7 @@
     }
    }
   },
-  "AMILinuxBuilderImage1049E111": {
+  "AMILinuxBuilderAMIImage93D83DE5": {
    "Type": "AWS::ImageBuilder::Image",
    "Properties": {
     "InfrastructureConfigurationArn": {
@@ -3895,7 +3895,7 @@
     },
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "AMILinuxBuilderDistribution045596CF",
+      "AMILinuxBuilderAMIDistribution46435AF5",
       "Arn"
      ]
     },
@@ -3910,11 +3910,11 @@
     }
    },
    "DependsOn": [
-    "AMILinuxBuilderInfrastructure6FCD154A",
-    "AMILinuxBuilderLogAA902D79"
+    "AMILinuxBuilderAmiLog0DB16E38",
+    "AMILinuxBuilderInfrastructure6FCD154A"
    ]
   },
-  "AMILinuxBuilderPipelineA080CF10": {
+  "AMILinuxBuilderAMIPipelineEC5051DF": {
    "Type": "AWS::ImageBuilder::ImagePipeline",
    "Properties": {
     "InfrastructureConfigurationArn": {
@@ -3926,7 +3926,7 @@
     "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "AMILinuxBuilderDistribution045596CF",
+      "AMILinuxBuilderAMIDistribution46435AF5",
       "Arn"
      ]
     },
@@ -3945,8 +3945,8 @@
     }
    },
    "DependsOn": [
-    "AMILinuxBuilderInfrastructure6FCD154A",
-    "AMILinuxBuilderLogAA902D79"
+    "AMILinuxBuilderAmiLog0DB16E38",
+    "AMILinuxBuilderInfrastructure6FCD154A"
    ]
   },
   "AMILinuxBuilderDeleteAMISchedule0109DEF5": {
@@ -5932,7 +5932,7 @@
     ]
    }
   },
-  "AMILinuxarm64BuilderDistribution77B3BD53": {
+  "AMILinuxarm64BuilderAMIDistribution2BDAF717": {
    "Type": "AWS::ImageBuilder::DistributionConfiguration",
    "Properties": {
     "Distributions": [
@@ -6628,7 +6628,7 @@
     "WorkingDirectory": "/home/runner"
    }
   },
-  "AMILinuxarm64BuilderLog3F9BB6F0": {
+  "AMILinuxarm64BuilderAmiLog84A9D94A": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
     "LogGroupName": "/aws/imagebuilder/github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
@@ -6780,7 +6780,7 @@
     }
    }
   },
-  "AMILinuxarm64BuilderImageA637431C": {
+  "AMILinuxarm64BuilderAMIImage40078F9E": {
    "Type": "AWS::ImageBuilder::Image",
    "Properties": {
     "InfrastructureConfigurationArn": {
@@ -6791,7 +6791,7 @@
     },
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "AMILinuxarm64BuilderDistribution77B3BD53",
+      "AMILinuxarm64BuilderAMIDistribution2BDAF717",
       "Arn"
      ]
     },
@@ -6806,11 +6806,11 @@
     }
    },
    "DependsOn": [
-    "AMILinuxarm64BuilderInfrastructure80FA16D6",
-    "AMILinuxarm64BuilderLog3F9BB6F0"
+    "AMILinuxarm64BuilderAmiLog84A9D94A",
+    "AMILinuxarm64BuilderInfrastructure80FA16D6"
    ]
   },
-  "AMILinuxarm64BuilderPipelineECE006B6": {
+  "AMILinuxarm64BuilderAMIPipeline9CC1354C": {
    "Type": "AWS::ImageBuilder::ImagePipeline",
    "Properties": {
     "InfrastructureConfigurationArn": {
@@ -6822,7 +6822,7 @@
     "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "AMILinuxarm64BuilderDistribution77B3BD53",
+      "AMILinuxarm64BuilderAMIDistribution2BDAF717",
       "Arn"
      ]
     },
@@ -6841,8 +6841,8 @@
     }
    },
    "DependsOn": [
-    "AMILinuxarm64BuilderInfrastructure80FA16D6",
-    "AMILinuxarm64BuilderLog3F9BB6F0"
+    "AMILinuxarm64BuilderAmiLog84A9D94A",
+    "AMILinuxarm64BuilderInfrastructure80FA16D6"
    ]
   },
   "AMILinuxarm64BuilderDeleteAMISchedule72E5EB47": {
@@ -6978,7 +6978,7 @@
     ]
    }
   },
-  "WindowsEC2BuilderDistributionC6CA152B": {
+  "WindowsEC2BuilderAMIDistributionC7E428C1": {
    "Type": "AWS::ImageBuilder::DistributionConfiguration",
    "Properties": {
     "Distributions": [
@@ -7671,7 +7671,7 @@
     "WorkingDirectory": "C:/"
    }
   },
-  "WindowsEC2BuilderLog486ECFAD": {
+  "WindowsEC2BuilderAmiLog126E54B2": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
     "LogGroupName": "/aws/imagebuilder/github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
@@ -7823,7 +7823,7 @@
     }
    }
   },
-  "WindowsEC2BuilderImage6E6F4F1F": {
+  "WindowsEC2BuilderAMIImage9D812188": {
    "Type": "AWS::ImageBuilder::Image",
    "Properties": {
     "InfrastructureConfigurationArn": {
@@ -7834,7 +7834,7 @@
     },
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "WindowsEC2BuilderDistributionC6CA152B",
+      "WindowsEC2BuilderAMIDistributionC7E428C1",
       "Arn"
      ]
     },
@@ -7849,11 +7849,11 @@
     }
    },
    "DependsOn": [
-    "WindowsEC2BuilderInfrastructure757D4FD7",
-    "WindowsEC2BuilderLog486ECFAD"
+    "WindowsEC2BuilderAmiLog126E54B2",
+    "WindowsEC2BuilderInfrastructure757D4FD7"
    ]
   },
-  "WindowsEC2BuilderPipelineC4625CBC": {
+  "WindowsEC2BuilderAMIPipelineE3836949": {
    "Type": "AWS::ImageBuilder::ImagePipeline",
    "Properties": {
     "InfrastructureConfigurationArn": {
@@ -7865,7 +7865,7 @@
     "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "WindowsEC2BuilderDistributionC6CA152B",
+      "WindowsEC2BuilderAMIDistributionC7E428C1",
       "Arn"
      ]
     },
@@ -7884,8 +7884,8 @@
     }
    },
    "DependsOn": [
-    "WindowsEC2BuilderInfrastructure757D4FD7",
-    "WindowsEC2BuilderLog486ECFAD"
+    "WindowsEC2BuilderAmiLog126E54B2",
+    "WindowsEC2BuilderInfrastructure757D4FD7"
    ]
   },
   "WindowsEC2BuilderDeleteAMISchedule52E66C5D": {
@@ -8753,7 +8753,7 @@
                   "/",
                   {
                    "Fn::GetAtt": [
-                    "WindowsImageBuilderImage7065BB07",
+                    "WindowsImageBuilderDockerImage8672CA3E",
                     "ImageUri"
                    ]
                   }
@@ -8927,7 +8927,7 @@
                 "/",
                 {
                  "Fn::GetAtt": [
-                  "WindowsImageBuilderImage7065BB07",
+                  "WindowsImageBuilderDockerImage8672CA3E",
                   "ImageUri"
                  ]
                 }
@@ -10812,7 +10812,7 @@
                  "/",
                  {
                   "Fn::GetAtt": [
-                   "WindowsImageBuilderImage7065BB07",
+                   "WindowsImageBuilderDockerImage8672CA3E",
                    "ImageUri"
                   ]
                  }
@@ -10928,7 +10928,7 @@
                   "/",
                   {
                    "Fn::GetAtt": [
-                    "WindowsImageBuilderImage7065BB07",
+                    "WindowsImageBuilderDockerImage8672CA3E",
                     "ImageUri"
                    ]
                   }
@@ -13052,7 +13052,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-spot, linux, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-spot, linux, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -13078,7 +13078,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}]}},\"fargate, linux, arm64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}]}},\"fargate, linux, arm64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -13104,7 +13104,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-spot, linux, arm64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate-spot, linux, arm64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -13130,7 +13130,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate, windows, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate, windows, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -13889,7 +13889,7 @@
                   "/",
                   {
                    "Fn::GetAtt": [
-                    "WindowsImageBuilderImage7065BB07",
+                    "WindowsImageBuilderDockerImage8672CA3E",
                     "ImageUri"
                    ]
                   }
@@ -14313,7 +14313,7 @@
                   "/",
                   {
                    "Fn::GetAtt": [
-                    "WindowsImageBuilderImage7065BB07",
+                    "WindowsImageBuilderDockerImage8672CA3E",
                     "ImageUri"
                    ]
                   }
@@ -14330,7 +14330,7 @@
        },
        "imageTag": "latest",
        "imageBuilderLogGroup": {
-        "Ref": "WindowsImageBuilderLog0E03408E"
+        "Ref": "WindowsImageBuilderDockerLogE660E23E"
        }
       }
      },
@@ -14948,7 +14948,7 @@
                   "/",
                   {
                    "Fn::GetAtt": [
-                    "WindowsImageBuilderImage7065BB07",
+                    "WindowsImageBuilderDockerImage8672CA3E",
                     "ImageUri"
                    ]
                   }
@@ -14965,7 +14965,7 @@
        },
        "imageTag": "latest",
        "imageBuilderLogGroup": {
-        "Ref": "WindowsImageBuilderLog0E03408E"
+        "Ref": "WindowsImageBuilderDockerLogE660E23E"
        }
       }
      },
@@ -14998,7 +14998,7 @@
         "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
        },
        "amiBuilderLogGroup": {
-        "Ref": "AMILinuxBuilderLogAA902D79"
+        "Ref": "AMILinuxBuilderAmiLog0DB16E38"
        }
       }
      },
@@ -15031,7 +15031,7 @@
         "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
        },
        "amiBuilderLogGroup": {
-        "Ref": "AMILinuxBuilderLogAA902D79"
+        "Ref": "AMILinuxBuilderAmiLog0DB16E38"
        }
       }
      },
@@ -15064,7 +15064,7 @@
         "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
        },
        "amiBuilderLogGroup": {
-        "Ref": "AMILinuxarm64BuilderLog3F9BB6F0"
+        "Ref": "AMILinuxarm64BuilderAmiLog84A9D94A"
        }
       }
      },
@@ -15097,7 +15097,7 @@
         "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
        },
        "amiBuilderLogGroup": {
-        "Ref": "WindowsEC2BuilderLog486ECFAD"
+        "Ref": "WindowsEC2BuilderAmiLog126E54B2"
        }
       }
      }

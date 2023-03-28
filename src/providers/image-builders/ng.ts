@@ -1036,6 +1036,11 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
     this.baseImage = props?.baseDockerImage ?? this.defaultBaseDockerImage(this.os);
     this.instanceType = props?.awsImageBuilderOptions?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
 
+    // confirm instance type
+    if (!this.architecture.instanceTypeMatch(this.instanceType)) {
+      throw new Error(`Builder architecture (${this.architecture.name}) doesn't match selected instance type (${this.instanceType} / ${this.instanceType.architecture})`);
+    }
+
     // warn against isolated networks
     if (props?.subnetSelection?.subnetType == ec2.SubnetType.PRIVATE_ISOLATED) {
       Annotations.of(this).addWarning('Private isolated subnets cannot pull from public ECR and VPC endpoint is not supported yet. ' +
@@ -1075,7 +1080,7 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
       return this.boundDockerImage;
     }
 
-    const dist = new imagebuilder.CfnDistributionConfiguration(this, 'Distribution', {
+    const dist = new imagebuilder.CfnDistributionConfiguration(this, 'Docker Distribution', {
       name: uniqueImageBuilderName(this),
       // description: this.description,
       distributions: [
@@ -1115,7 +1120,7 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
       parentImage: this.baseImage,
     });
 
-    const log = this.createLog(recipe.name);
+    const log = this.createLog('Docker Log', recipe.name);
     const infra = this.createInfrastructure([
       iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilderECRContainerBuilds'),
@@ -1182,8 +1187,8 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
     return cr;
   }
 
-  protected createLog(recipeName: string): logs.LogGroup {
-    return new logs.LogGroup(this, 'Log', {
+  protected createLog(id: string, recipeName: string): logs.LogGroup {
+    return new logs.LogGroup(this, id, {
       logGroupName: `/aws/imagebuilder/${recipeName}`,
       retention: this.logRetention,
       removalPolicy: this.logRemovalPolicy,
@@ -1222,7 +1227,7 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
 
   protected createImage(infra: imagebuilder.CfnInfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
     imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImage {
-    const image = new imagebuilder.CfnImage(this, 'Image', {
+    const image = new imagebuilder.CfnImage(this, this.amiOrContainerId('Image', imageRecipeArn, containerRecipeArn), {
       infrastructureConfigurationArn: infra.attrArn,
       distributionConfigurationArn: dist.attrArn,
       imageRecipeArn,
@@ -1237,6 +1242,16 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
     return image;
   }
 
+  private amiOrContainerId(baseId: string, imageRecipeArn?: string, containerRecipeArn?: string) {
+    if (imageRecipeArn) {
+      return `AMI ${baseId}`;
+    }
+    if (containerRecipeArn) {
+      return `Docker ${baseId}`;
+    }
+    throw new Error('Either imageRecipeArn or containerRecipeArn must be defined');
+  }
+
   protected createPipeline(infra: imagebuilder.CfnInfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
     imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImagePipeline {
     let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
@@ -1246,7 +1261,7 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
         pipelineExecutionStartCondition: 'EXPRESSION_MATCH_ONLY',
       };
     }
-    const pipeline = new imagebuilder.CfnImagePipeline(this, 'Pipeline', {
+    const pipeline = new imagebuilder.CfnImagePipeline(this, this.amiOrContainerId('Pipeline', imageRecipeArn, containerRecipeArn), {
       name: uniqueImageBuilderName(this),
       // description: this.description,
       infrastructureConfigurationArn: infra.attrArn,
@@ -1281,7 +1296,7 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
     const stackName = cdk.Stack.of(this).stackName;
     const builderName = this.node.path;
 
-    const dist = new imagebuilder.CfnDistributionConfiguration(this, 'Distribution', {
+    const dist = new imagebuilder.CfnDistributionConfiguration(this, 'AMI Distribution', {
       name: uniqueImageBuilderName(this),
       // description: this.description,
       distributions: [
@@ -1314,7 +1329,7 @@ class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilder {
       architecture: this.architecture,
     });
 
-    const log = this.createLog(recipe.name);
+    const log = this.createLog('Ami Log', recipe.name);
     const infra = this.createInfrastructure([
       iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilder'),
