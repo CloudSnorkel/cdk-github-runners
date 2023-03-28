@@ -238,7 +238,6 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       architecture: Architecture.X86_64,
       builderType: RunnerImageBuilderType.AWS_IMAGE_BUILDER,
       components: [
-        // TODO confirm
         RunnerImageComponent.requiredPackages(),
         RunnerImageComponent.runnerUser(),
         RunnerImageComponent.git(),
@@ -290,7 +289,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;
 
-    const amiBuilder = props?.imageBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Image Builder', {
+    const amiBuilder = props?.imageBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
       vpc: props?.vpc,
       subnetSelection: props?.subnetSelection,
       securityGroups: this.securityGroups,
