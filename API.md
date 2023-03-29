@@ -219,6 +219,8 @@ The network connections associated with this resource.
 
 ### CodeBuildImageBuilder <a name="CodeBuildImageBuilder" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder"></a>
 
+- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
+
 An image builder that uses CodeBuild to build Docker images pre-baked with all the GitHub Actions runner requirements.
 
 Builders can be used with runner providers.
@@ -281,14 +283,13 @@ new CodeBuildImageBuilder(scope: Construct, id: string, props: CodeBuildImageBui
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.toString">toString</a></code> | Returns a string representation of this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addComponent">addComponent</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.bindAmi">bindAmi</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.bindDockerImage">bindDockerImage</a></code> | Called by IRunnerProvider to finalize settings and create the image builder. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addExtraCertificates">addExtraCertificates</a></code> | Add extra trusted certificates. This helps deal with self-signed certificates for GitHub Enterprise Server. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addFiles">addFiles</a></code> | Uploads a folder to the build server at a given folder name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addPolicyStatement">addPolicyStatement</a></code> | Add a policy statement to the builder to access resources required to the image build. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addPostBuildCommand">addPostBuildCommand</a></code> | Adds a command that runs after `docker build` and `docker push`. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addPreBuildCommand">addPreBuildCommand</a></code> | Adds a command that runs before `docker build`. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.bindAmi">bindAmi</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.bindDockerImage">bindDockerImage</a></code> | Called by IRunnerProvider to finalize settings and create the image builder. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.setBuildArg">setBuildArg</a></code> | Adds a build argument for Docker. |
 
 ---
@@ -300,32 +301,6 @@ public toString(): string
 ```
 
 Returns a string representation of this construct.
-
-##### ~~`addComponent`~~ <a name="addComponent" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addComponent"></a>
-
-```typescript
-public addComponent(component: RunnerImageComponent): void
-```
-
-###### `component`<sup>Required</sup> <a name="component" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addComponent.parameter.component"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent">RunnerImageComponent</a>
-
----
-
-##### ~~`bindAmi`~~ <a name="bindAmi" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.bindAmi"></a>
-
-```typescript
-public bindAmi(): RunnerAmi
-```
-
-##### ~~`bindDockerImage`~~ <a name="bindDockerImage" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.bindDockerImage"></a>
-
-```typescript
-public bindDockerImage(): RunnerImage
-```
-
-Called by IRunnerProvider to finalize settings and create the image builder.
 
 ##### ~~`addExtraCertificates`~~ <a name="addExtraCertificates" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addExtraCertificates"></a>
 
@@ -417,6 +392,20 @@ command to add.
 
 ---
 
+##### ~~`bindAmi`~~ <a name="bindAmi" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.bindAmi"></a>
+
+```typescript
+public bindAmi(): RunnerAmi
+```
+
+##### ~~`bindDockerImage`~~ <a name="bindDockerImage" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.bindDockerImage"></a>
+
+```typescript
+public bindDockerImage(): RunnerImage
+```
+
+Called by IRunnerProvider to finalize settings and create the image builder.
+
 ##### ~~`setBuildArg`~~ <a name="setBuildArg" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.setBuildArg"></a>
 
 ```typescript
@@ -448,7 +437,6 @@ build argument value.
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.new">new</a></code> | *No description.* |
 
 ---
 
@@ -470,38 +458,12 @@ Any object.
 
 ---
 
-##### ~~`new`~~ <a name="new" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.new"></a>
-
-```typescript
-import { CodeBuildImageBuilder } from '@cloudsnorkel/cdk-github-runners'
-
-CodeBuildImageBuilder.new(scope: Construct, id: string, props?: RunnerImageBuilderProps)
-```
-
-###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.new.parameter.scope"></a>
-
-- *Type:* constructs.Construct
-
----
-
-###### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.new.parameter.id"></a>
-
-- *Type:* string
-
----
-
-###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.new.parameter.props"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps">RunnerImageBuilderProps</a>
-
----
-
 #### Properties <a name="Properties" id="Properties"></a>
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.property.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilderProps">CodeBuildImageBuilderProps</a></code> | *No description.* |
 
 ---
@@ -529,8 +491,6 @@ public readonly connections: Connections;
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.Connections
-
-The network connections associated with this resource.
 
 ---
 
@@ -3878,6 +3838,8 @@ Available build arguments that can be set in the image builder:
 
 ### RunnerImageBuilder <a name="RunnerImageBuilder" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilder"></a>
 
+- *Implements:* aws-cdk-lib.aws_ec2.IConnectable, aws-cdk-lib.aws_iam.IGrantable, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
+
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.Initializer"></a>
 
 ```typescript
@@ -4014,6 +3976,7 @@ RunnerImageBuilder.new(scope: Construct, id: string, props?: RunnerImageBuilderP
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | The principal to grant permissions to. |
 
 ---
 
@@ -4041,144 +4004,15 @@ The network connections associated with this resource.
 
 ---
 
-
-### RunnerImageBuilderBase <a name="RunnerImageBuilderBase" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase"></a>
-
-- *Implements:* aws-cdk-lib.aws_ec2.IConnectable, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
-
-#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.Initializer"></a>
+##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.property.grantPrincipal"></a>
 
 ```typescript
-import { RunnerImageBuilderBase } from '@cloudsnorkel/cdk-github-runners'
-
-new RunnerImageBuilderBase(scope: Construct, id: string, props?: RunnerImageBuilderProps)
+public readonly grantPrincipal: IPrincipal;
 ```
 
-| **Name** | **Type** | **Description** |
-| --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps">RunnerImageBuilderProps</a></code> | *No description.* |
+- *Type:* aws-cdk-lib.aws_iam.IPrincipal
 
----
-
-##### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.Initializer.parameter.scope"></a>
-
-- *Type:* constructs.Construct
-
----
-
-##### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.Initializer.parameter.id"></a>
-
-- *Type:* string
-
----
-
-##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.Initializer.parameter.props"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps">RunnerImageBuilderProps</a>
-
----
-
-#### Methods <a name="Methods" id="Methods"></a>
-
-| **Name** | **Description** |
-| --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.toString">toString</a></code> | Returns a string representation of this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.addComponent">addComponent</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.bindAmi">bindAmi</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.bindDockerImage">bindDockerImage</a></code> | *No description.* |
-
----
-
-##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.toString"></a>
-
-```typescript
-public toString(): string
-```
-
-Returns a string representation of this construct.
-
-##### `addComponent` <a name="addComponent" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.addComponent"></a>
-
-```typescript
-public addComponent(component: RunnerImageComponent): void
-```
-
-###### `component`<sup>Required</sup> <a name="component" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.addComponent.parameter.component"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent">RunnerImageComponent</a>
-
----
-
-##### `bindAmi` <a name="bindAmi" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.bindAmi"></a>
-
-```typescript
-public bindAmi(): RunnerAmi
-```
-
-##### `bindDockerImage` <a name="bindDockerImage" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.bindDockerImage"></a>
-
-```typescript
-public bindDockerImage(): RunnerImage
-```
-
-#### Static Functions <a name="Static Functions" id="Static Functions"></a>
-
-| **Name** | **Description** |
-| --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-
----
-
-##### ~~`isConstruct`~~ <a name="isConstruct" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.isConstruct"></a>
-
-```typescript
-import { RunnerImageBuilderBase } from '@cloudsnorkel/cdk-github-runners'
-
-RunnerImageBuilderBase.isConstruct(x: any)
-```
-
-Checks if `x` is a construct.
-
-###### `x`<sup>Required</sup> <a name="x" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.isConstruct.parameter.x"></a>
-
-- *Type:* any
-
-Any object.
-
----
-
-#### Properties <a name="Properties" id="Properties"></a>
-
-| **Name** | **Type** | **Description** |
-| --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
-
----
-
-##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.property.node"></a>
-
-```typescript
-public readonly node: Node;
-```
-
-- *Type:* constructs.Node
-
-The tree node.
-
----
-
-##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase.property.connections"></a>
-
-```typescript
-public readonly connections: Connections;
-```
-
-- *Type:* aws-cdk-lib.aws_ec2.Connections
-
-The network connections associated with this resource.
+The principal to grant permissions to.
 
 ---
 
@@ -7063,7 +6897,7 @@ const runnerRuntimeParameters: RunnerRuntimeParameters = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.githubDomainPath">githubDomainPath</a></code> | <code>string</code> | Path to GitHub domain. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.ownerPath">ownerPath</a></code> | <code>string</code> | Path to repostiroy owner name. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.ownerPath">ownerPath</a></code> | <code>string</code> | Path to repository owner name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.repoPath">repoPath</a></code> | <code>string</code> | Path to repository name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerNamePath">runnerNamePath</a></code> | <code>string</code> | Path to desired runner name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerTokenPath">runnerTokenPath</a></code> | <code>string</code> | Path to runner token used to register token. |
@@ -7092,7 +6926,7 @@ public readonly ownerPath: string;
 
 - *Type:* string
 
-Path to repostiroy owner name.
+Path to repository owner name.
 
 ---
 
@@ -8373,7 +8207,7 @@ Log group name for the AMI builder where history of builds can be analyzed.
 
 ### IRunnerImageBuilder <a name="IRunnerImageBuilder" id="@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder"></a>
 
-- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder">AmiBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder">CodeBuildImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder">ContainerImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder">RunnerImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderBase">RunnerImageBuilderBase</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
+- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder">AmiBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder">CodeBuildImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder">ContainerImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder">RunnerImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
 
 #### Methods <a name="Methods" id="Methods"></a>
 
