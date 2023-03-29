@@ -70,7 +70,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private readonly timeout: cdk.Duration;
   private readonly computeType: codebuild.ComputeType;
   private readonly rebuildInterval: cdk.Duration;
-  private readonly assetsToGrant: s3_assets.Asset[] = [];
+  private readonly role: iam.Role;
 
   constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     super(scope, id, props);
@@ -93,6 +93,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       Annotations.of(this).addWarning('Private isolated subnets cannot pull from public ECR and VPC endpoint is not supported yet. ' +
         'See https://github.com/aws/containers-roadmap/issues/1160');
     }
+
+    // create service role for CodeBuild
+    this.role = new iam.Role(this, 'Role', {
+      assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com'),
+    });
 
     // create repository that only keeps one tag
     this.repository = new ecr.Repository(this, 'Repository', {
@@ -138,6 +143,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       vpc: this.vpc,
       securityGroups: this.securityGroups,
       subnetSelection: this.subnetSelection,
+      role: this.role,
       timeout: this.timeout,
       environment: {
         buildImage: this.buildImage,
@@ -153,7 +159,6 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
     // permissions
     this.repository.grantPullPush(project);
-    // TODO just define a role ahead of time?? -- this.policyStatements.forEach(project.addToRolePolicy);
 
     // call CodeBuild during deployment and delete all images from repository during destruction
     const cr = this.customResource(project, buildSpec.toBuildSpec());
@@ -161,11 +166,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     // rebuild image on a schedule
     this.rebuildImageOnSchedule(project, this.rebuildInterval);
 
-    // asset permissions
-    for (const asset of this.assetsToGrant) {
-      asset.grantRead(project);
-    }
-
+    // return the image
     this.boundDockerImage = {
       imageRepository: ecr.Repository.fromRepositoryAttributes(this, 'Dependable Image', {
         // There are simpler ways to get name and ARN, but we want an image object that depends on the custom resource.
@@ -224,7 +225,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
         dockerfile += `COPY asset${i}${j} ${assetDescriptors[j].target}\n`;
 
-        this.assetsToGrant.push(asset);
+        asset.grantRead(this);
       }
 
       const componentCommands = this.components[i].getCommands(this.os, this.architecture);
@@ -348,5 +349,9 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     return new ec2.Connections({
       securityGroups: this.securityGroups,
     });
+  }
+
+  get grantPrincipal(): iam.IPrincipal {
+    return this.role;
   }
 }

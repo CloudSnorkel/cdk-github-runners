@@ -248,6 +248,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   private readonly boundComponents: ImageBuilderComponent[] = [];
   private readonly instanceType: ec2.InstanceType;
   private infrastructure: imagebuilder.CfnInfrastructureConfiguration | undefined;
+  private readonly role: iam.Role;
 
   constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     super(scope, id, props);
@@ -274,6 +275,11 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       Annotations.of(this).addWarning('Private isolated subnets cannot pull from public ECR and VPC endpoint is not supported yet. ' +
         'See https://github.com/aws/containers-roadmap/issues/1160');
     }
+
+    // role to be used by AWS Image Builder
+    this.role = new iam.Role(this, 'Role', {
+      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+    });
 
     // create repository that only keeps one tag
     this.repository = new ecr.Repository(this, 'Repository', {
@@ -428,13 +434,12 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       return this.infrastructure;
     }
 
-    let role = new iam.Role(this, 'Role', {
-      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
-      managedPolicies: managedPolicies,
-    });
+    for (const managedPolicy of managedPolicies) {
+      this.role.addManagedPolicy(managedPolicy);
+    }
 
     for (const component of this.boundComponents) {
-      component.grantAssetsRead(role);
+      component.grantAssetsRead(this.role);
     }
 
     this.infrastructure = new imagebuilder.CfnInfrastructureConfiguration(this, 'Infrastructure', {
@@ -445,7 +450,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       instanceTypes: [this.instanceType.toString()],
       instanceProfileName: new iam.CfnInstanceProfile(this, 'Instance Profile', {
         roles: [
-          role.roleName,
+          this.role.roleName,
         ],
       }).ref,
     });
@@ -512,6 +517,10 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
    */
   public get connections(): ec2.Connections {
     return new ec2.Connections({ securityGroups: this.securityGroups });
+  }
+
+  public get grantPrincipal(): iam.IPrincipal {
+    return this.role;
   }
 
   bindAmi(): RunnerAmi {

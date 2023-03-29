@@ -302,7 +302,7 @@ export interface RunnerRuntimeParameters {
   readonly githubDomainPath: string;
 
   /**
-   * Path to repostiroy owner name.
+   * Path to repository owner name.
    */
   readonly ownerPath: string;
 

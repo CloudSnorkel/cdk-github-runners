@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2, aws_logs as logs, Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_iam as iam, aws_logs as logs, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { AwsImageBuilderRunnerImageBuilderProps } from './aws-image-builder';
 import { CodeBuildRunnerImageBuilderProps } from './codebuild';
@@ -255,7 +255,10 @@ export interface IRunnerImageBuilder {
   bindAmi(): RunnerAmi;
 }
 
-export abstract class RunnerImageBuilderBase extends Construct implements ec2.IConnectable, IRunnerImageBuilder {
+/**
+ * @internal
+ */
+export abstract class RunnerImageBuilderBase extends Construct implements ec2.IConnectable, iam.IGrantable, IRunnerImageBuilder {
   protected readonly components: RunnerImageComponent[] = [];
 
   protected constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
@@ -271,6 +274,7 @@ export abstract class RunnerImageBuilderBase extends Construct implements ec2.IC
   abstract bindAmi(): RunnerAmi;
 
   abstract get connections(): ec2.Connections;
+  abstract get grantPrincipal(): iam.IPrincipal;
 
   public addComponent(component: RunnerImageComponent) {
     this.components.push(component);

@@ -376,7 +376,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       },
     );
 
-    this.grantPrincipal = new iam.UnknownPrincipal({ resource: this.task.taskRole });
+    this.grantPrincipal = this.task.taskRole;
   }
 
   /**

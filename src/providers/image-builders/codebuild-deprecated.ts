@@ -18,7 +18,7 @@ import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
-import { RunnerImageBuilder } from './api';
+import { IRunnerImageBuilder } from './common';
 import { BuildImageFunction } from '../../lambdas/build-image-function';
 import { singletonLambda } from '../../utils';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../common';
@@ -159,7 +159,7 @@ export interface CodeBuildImageBuilderProps {
  *
  * @deprecated use RunnerImageBuilder
  */
-export class CodeBuildImageBuilder extends RunnerImageBuilder {
+export class CodeBuildImageBuilder extends Construct implements IRunnerImageBuilder {
   /**
    * Bump this number every time the buildspec or any important setting of the project changes. It will force a rebuild of the image.
    * @private
