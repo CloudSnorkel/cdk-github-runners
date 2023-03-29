@@ -449,7 +449,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
 
   private runCommand(): string[] {
     let runnerFlags = '';
-    if (this.image.runnerVersion.is(RunnerVersion.latest())) {
+    if (!this.image.runnerVersion.is(RunnerVersion.latest())) {
       runnerFlags = '--disableupdate';
     }
 
