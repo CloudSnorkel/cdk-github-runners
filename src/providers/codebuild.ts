@@ -130,6 +130,8 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
    * * `DIND_COMMIT` overrides the commit where dind is found.
    * * `DOCKER_VERSION` overrides the installed Docker version.
    * * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
+   *
+   * @deprecated Use `imageBuilder()` instead.
    */
   public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'codebuild', 'linux-x64');
 
@@ -143,6 +145,8 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
    * * `DIND_COMMIT` overrides the commit where dind is found.
    * * `DOCKER_VERSION` overrides the installed Docker version.
    * * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
+   *
+   * @deprecated Use `imageBuilder()` instead.
    */
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'codebuild', 'linux-arm64');
 

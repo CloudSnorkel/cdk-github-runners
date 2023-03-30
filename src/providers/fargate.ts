@@ -210,6 +210,8 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
+   *
+   * @deprecated Use `imageBuilder()` instead.
    */
   public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-x64');
 
@@ -219,6 +221,8 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
+   *
+   * @deprecated Use `imageBuilder()` instead.
    */
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-arm64');
 

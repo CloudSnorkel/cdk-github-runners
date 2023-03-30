@@ -131,6 +131,8 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be similar to public.ecr.aws/lambda/nodejs:14.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
+   *
+   * @deprecated Use `imageBuilder()` instead.
    */
   public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-x64');
 
@@ -140,6 +142,8 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be similar to public.ecr.aws/lambda/nodejs:14.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
+   *
+   * @deprecated Use `imageBuilder()` instead.
    */
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-arm64');
 
