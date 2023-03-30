@@ -793,7 +793,7 @@ CodeBuild project hosting the runner.
 
 ##### ~~`LINUX_ARM64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
 
-- *Deprecated:* use {@link CodeBuildRunnerProvider}
+- *Deprecated:* Use `imageBuilder()` instead.
 
 ```typescript
 public readonly LINUX_ARM64_DOCKERFILE_PATH: string;
@@ -817,7 +817,7 @@ Available build arguments that can be set in the image builder:
 
 ##### ~~`LINUX_X64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.LINUX_X64_DOCKERFILE_PATH"></a>
 
-- *Deprecated:* use {@link CodeBuildRunnerProvider}
+- *Deprecated:* Use `imageBuilder()` instead.
 
 ```typescript
 public readonly LINUX_X64_DOCKERFILE_PATH: string;
@@ -1117,7 +1117,9 @@ CodeBuild project hosting the runner.
 
 ---
 
-##### `LINUX_ARM64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+##### ~~`LINUX_ARM64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+
+- *Deprecated:* Use `imageBuilder()` instead.
 
 ```typescript
 public readonly LINUX_ARM64_DOCKERFILE_PATH: string;
@@ -1139,7 +1141,9 @@ Available build arguments that can be set in the image builder:
 
 ---
 
-##### `LINUX_X64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.LINUX_X64_DOCKERFILE_PATH"></a>
+##### ~~`LINUX_X64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.LINUX_X64_DOCKERFILE_PATH"></a>
+
+- *Deprecated:* Use `imageBuilder()` instead.
 
 ```typescript
 public readonly LINUX_X64_DOCKERFILE_PATH: string;
@@ -2242,7 +2246,7 @@ VPC used for hosting the runner task.
 
 ##### ~~`LINUX_ARM64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* Use `imageBuilder()` instead.
 
 ```typescript
 public readonly LINUX_ARM64_DOCKERFILE_PATH: string;
@@ -2262,7 +2266,7 @@ Available build arguments that can be set in the image builder:
 
 ##### ~~`LINUX_X64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.LINUX_X64_DOCKERFILE_PATH"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* Use `imageBuilder()` instead.
 
 ```typescript
 public readonly LINUX_X64_DOCKERFILE_PATH: string;
@@ -2636,7 +2640,9 @@ VPC used for hosting the runner task.
 
 ---
 
-##### `LINUX_ARM64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+##### ~~`LINUX_ARM64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+
+- *Deprecated:* Use `imageBuilder()` instead.
 
 ```typescript
 public readonly LINUX_ARM64_DOCKERFILE_PATH: string;
@@ -2654,7 +2660,9 @@ Available build arguments that can be set in the image builder:
 
 ---
 
-##### `LINUX_X64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.LINUX_X64_DOCKERFILE_PATH"></a>
+##### ~~`LINUX_X64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.LINUX_X64_DOCKERFILE_PATH"></a>
+
+- *Deprecated:* Use `imageBuilder()` instead.
 
 ```typescript
 public readonly LINUX_X64_DOCKERFILE_PATH: string;
@@ -3484,7 +3492,7 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ##### ~~`LINUX_ARM64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
 
-- *Deprecated:* use {@link LambdaRunnerProvider}
+- *Deprecated:* Use `imageBuilder()` instead.
 
 ```typescript
 public readonly LINUX_ARM64_DOCKERFILE_PATH: string;
@@ -3504,7 +3512,7 @@ Available build arguments that can be set in the image builder:
 
 ##### ~~`LINUX_X64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.LINUX_X64_DOCKERFILE_PATH"></a>
 
-- *Deprecated:* use {@link LambdaRunnerProvider}
+- *Deprecated:* Use `imageBuilder()` instead.
 
 ```typescript
 public readonly LINUX_X64_DOCKERFILE_PATH: string;
@@ -3800,7 +3808,9 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ---
 
-##### `LINUX_ARM64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+##### ~~`LINUX_ARM64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_ARM64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.LINUX_ARM64_DOCKERFILE_PATH"></a>
+
+- *Deprecated:* Use `imageBuilder()` instead.
 
 ```typescript
 public readonly LINUX_ARM64_DOCKERFILE_PATH: string;
@@ -3818,7 +3828,9 @@ Available build arguments that can be set in the image builder:
 
 ---
 
-##### `LINUX_X64_DOCKERFILE_PATH`<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.LINUX_X64_DOCKERFILE_PATH"></a>
+##### ~~`LINUX_X64_DOCKERFILE_PATH`~~<sup>Required</sup> <a name="LINUX_X64_DOCKERFILE_PATH" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.LINUX_X64_DOCKERFILE_PATH"></a>
+
+- *Deprecated:* Use `imageBuilder()` instead.
 
 ```typescript
 public readonly LINUX_X64_DOCKERFILE_PATH: string;
@@ -3879,9 +3891,10 @@ new RunnerImageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderP
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.toString">toString</a></code> | Returns a string representation of this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.addComponent">addComponent</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.addComponent">addComponent</a></code> | Add a component to the image builder. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.bindAmi">bindAmi</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.bindDockerImage">bindDockerImage</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.removeComponent">removeComponent</a></code> | Remove a component from the image builder. |
 
 ---
 
@@ -3899,9 +3912,15 @@ Returns a string representation of this construct.
 public addComponent(component: RunnerImageComponent): void
 ```
 
+Add a component to the image builder.
+
+The component will be added to the end of the list of components.
+
 ###### `component`<sup>Required</sup> <a name="component" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.addComponent.parameter.component"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent">RunnerImageComponent</a>
+
+component to add.
 
 ---
 
@@ -3916,6 +3935,24 @@ public bindAmi(): RunnerAmi
 ```typescript
 public bindDockerImage(): RunnerImage
 ```
+
+##### `removeComponent` <a name="removeComponent" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.removeComponent"></a>
+
+```typescript
+public removeComponent(component: RunnerImageComponent): void
+```
+
+Remove a component from the image builder.
+
+Removal is done by component name. Multiple components with the same name will all be removed.
+
+###### `component`<sup>Required</sup> <a name="component" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.removeComponent.parameter.component"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent">RunnerImageComponent</a>
+
+component to remove.
+
+---
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -6780,6 +6817,7 @@ const runnerImageComponentCustomProps: RunnerImageComponentCustomProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.assets">assets</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageAsset">RunnerImageAsset</a>[]</code> | Assets to copy into the built image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.commands">commands</a></code> | <code>string[]</code> | Commands to run in the built image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.dockerCommands">dockerCommands</a></code> | <code>string[]</code> | Docker commands to run in the built image. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.name">name</a></code> | <code>string</code> | Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent}. |
 
 ---
 
@@ -6820,6 +6858,20 @@ Docker commands to run in the built image.
 For example: `['ENV foo=bar', 'RUN echo $foo']`
 
 These commands are ignored when building AMIs.
+
+---
+
+##### `name`<sup>Optional</sup> <a name="name" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.name"></a>
+
+```typescript
+public readonly name: string;
+```
+
+- *Type:* string
+
+Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent}.
+
+Name must only contain alphanumeric characters and dashes.
 
 ---
 
@@ -7731,7 +7783,7 @@ A component to prepare the required runner user.
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.property.name">name</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.property.name">name</a></code> | <code>string</code> | Component name. |
 
 ---
 
@@ -7742,6 +7794,10 @@ public readonly name: string;
 ```
 
 - *Type:* string
+
+Component name.
+
+Used to identify component in image build logs, and for {@link RunnerImageBuilder.removeComponent}
 
 ---
 
