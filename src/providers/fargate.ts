@@ -158,6 +158,12 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    * @default false
    */
   readonly spot?: boolean;
+
+  /**
+   * Propagate Tags from TASK_DEFINITION, SERVICE or NONE to the tasks.
+   * @default - No tags are propagated.
+   */
+  readonly propagatedTagSource?: ecs.PropagatedTagSource;
 }
 
 /**
@@ -166,6 +172,7 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
 interface EcsFargateLaunchTargetProps {
   readonly spot: boolean;
   readonly enableExecute: boolean;
+  readonly propagatedTagSource: ecs.PropagatedTagSource;
 }
 
 /**
@@ -186,6 +193,7 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
 
     return {
       parameters: {
+        PropagateTags: this.props.propagatedTagSource,
         EnableExecuteCommand: this.props.enableExecute,
         CapacityProviderStrategy: [
           {
@@ -274,6 +282,12 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   readonly spot: boolean;
 
   /**
+   * Propagate Tags from TASK_DEFINITION, SERVICE or NONE to the tasks.
+   * @default - No tags are propagated.
+   */
+  readonly propagatedTagSource: ecs.PropagatedTagSource;
+
+  /**
    * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to Fargate tasks.
    */
   readonly image: RunnerImage;
@@ -305,6 +319,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       },
     );
     this.spot = props?.spot ?? false;
+    this.propagatedTagSource = props?.propagatedTagSource ?? ecs.PropagatedTagSource.NONE;
 
     const imageBuilder = props?.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
       dockerfilePath: FargateRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
@@ -381,6 +396,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
         taskDefinition: this.task,
         cluster: this.cluster,
         launchTarget: new EcsFargateLaunchTarget({
+          propagatedTagSource: this.propagatedTagSource,
           spot: this.spot,
           enableExecute: this.image.os.is(Os.LINUX),
         }),
