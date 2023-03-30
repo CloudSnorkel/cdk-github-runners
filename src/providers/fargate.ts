@@ -185,6 +185,7 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
 
     return {
       parameters: {
+        PropagateTags: ecs.PropagatedTagSource.TASK_DEFINITION,
         EnableExecuteCommand: this.props.enableExecute,
         CapacityProviderStrategy: [
           {
