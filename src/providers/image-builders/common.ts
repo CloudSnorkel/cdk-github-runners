@@ -259,7 +259,7 @@ export interface IRunnerImageBuilder {
  * @internal
  */
 export abstract class RunnerImageBuilderBase extends Construct implements ec2.IConnectable, iam.IGrantable, IRunnerImageBuilder {
-  protected readonly components: RunnerImageComponent[] = [];
+  protected components: RunnerImageComponent[] = [];
 
   protected constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     super(scope, id);
@@ -276,10 +276,22 @@ export abstract class RunnerImageBuilderBase extends Construct implements ec2.IC
   abstract get connections(): ec2.Connections;
   abstract get grantPrincipal(): iam.IPrincipal;
 
+  /**
+   * Add a component to the image builder. The component will be added to the end of the list of components.
+   *
+   * @param component component to add
+   */
   public addComponent(component: RunnerImageComponent) {
     this.components.push(component);
   }
 
-  // TODO removeComponent #215
+  /**
+   * Remove a component from the image builder. Removal is done by component name. Multiple components with the same name will all be removed.
+   *
+   * @param component component to remove
+   */
+  public removeComponent(component: RunnerImageComponent) {
+    this.components = this.components.filter(c => c.name !== component.name);
+  }
 }
 

@@ -204,36 +204,38 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     let dockerfile = `FROM ${this.baseImage}\nVOLUME /var/lib/docker\n`;
 
     for (let i = 0; i < this.components.length; i++) {
+      const componentName = this.components[i].name;
       const assetDescriptors = this.components[i].getAssets(this.os, this.architecture);
+
       for (let j = 0; j < assetDescriptors.length; j++) {
         if (this.os.is(Os.WINDOWS)) {
           throw new Error("Can't add asset as we can't build Windows Docker images on CodeBuild");
         }
 
-        const asset = new s3_assets.Asset(this, `Component ${i} Asset ${j}`, {
+        const asset = new s3_assets.Asset(this, `Component ${i} ${componentName} Asset ${j}`, {
           path: assetDescriptors[j].source,
         });
 
         if (asset.isFile) {
-          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}${j}`);
+          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${componentName}-${j}`);
         } else if (asset.isZipArchive) {
-          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}${j}.zip`);
-          commands.push(`unzip asset${i}${j}.zip -d "asset${i}${j}"`);
+          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${componentName}-${j}.zip`);
+          commands.push(`unzip asset${i}-${componentName}-${j}.zip -d "asset${i}-${componentName}-${j}"`);
         } else {
           throw new Error(`Unknown asset type: ${asset}`);
         }
 
-        dockerfile += `COPY asset${i}${j} ${assetDescriptors[j].target}\n`;
+        dockerfile += `COPY asset${i}-${componentName}-${j} ${assetDescriptors[j].target}\n`;
 
         asset.grantRead(this);
       }
 
       const componentCommands = this.components[i].getCommands(this.os, this.architecture);
       const script = '#!/bin/bash\nset -exuo pipefail\n' + componentCommands.join('\n');
-      commands.push(`cat > component${i}.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\n${script}\nEOFGITHUBRUNNERSDOCKERFILE`);
-      commands.push(`chmod +x component${i}.sh`);
-      dockerfile += `COPY component${i}.sh /tmp\n`;
-      dockerfile += `RUN /tmp/component${i}.sh\n`;
+      commands.push(`cat > component${i}-${componentName}.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\n${script}\nEOFGITHUBRUNNERSDOCKERFILE`);
+      commands.push(`chmod +x component${i}-${componentName}.sh`);
+      dockerfile += `COPY component${i}-${componentName}.sh /tmp\n`;
+      dockerfile += `RUN /tmp/component${i}-${componentName}.sh\n`;
 
       dockerfile += this.components[i].getDockerCommands(this.os, this.architecture).join('\n') + '\n';
     }

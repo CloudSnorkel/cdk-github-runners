@@ -1,7 +1,16 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2 } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
-import { AmiBuilder, Architecture, ContainerImageBuilder, FargateRunnerProvider, Os, RunnerImageBuilder, RunnerImageBuilderType } from '../src';
+import {
+  AmiBuilder,
+  Architecture,
+  ContainerImageBuilder,
+  Ec2RunnerProvider,
+  FargateRunnerProvider,
+  Os,
+  RunnerImageBuilder,
+  RunnerImageBuilderType, RunnerImageComponent,
+} from '../src';
 
 test('AMI builder matching instance type (DEPRECATED)', () => {
   const app = new cdk.App();
@@ -157,4 +166,44 @@ test('AWS Image Builder reuse', () => {
   });
   builder.bindAmi();
   builder.bindDockerImage();
+});
+
+test('Docker component exists by default in image builder', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'test');
+
+  const vpc = new ec2.Vpc(stack, 'vpc');
+
+  const builder = Ec2RunnerProvider.imageBuilder(stack, 'builder', {
+    vpc,
+  });
+
+  builder.bindAmi();
+
+  const template = Template.fromStack(stack);
+
+  template.hasResourceProperties('AWS::ImageBuilder::Component', {
+    Description: Match.stringLikeRegexp('Component [0-9]+ Docker'),
+  });
+});
+
+
+test('User is able to remove Docker component from image builder', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'test');
+
+  const vpc = new ec2.Vpc(stack, 'vpc');
+
+  const builder = Ec2RunnerProvider.imageBuilder(stack, 'builder', {
+    vpc,
+  });
+
+  builder.removeComponent(RunnerImageComponent.docker());
+  builder.bindAmi();
+
+  const template = Template.fromStack(stack);
+
+  template.resourcePropertiesCountIs('AWS::ImageBuilder::Component', {
+    Description: Match.stringLikeRegexp('Component [0-9]+ Docker'),
+  }, 0);
 });

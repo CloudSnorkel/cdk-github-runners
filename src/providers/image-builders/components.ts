@@ -7,6 +7,13 @@ import { Architecture, Os, RunnerVersion } from '../common';
 
 export interface RunnerImageComponentCustomProps {
   /**
+   * Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent}.
+   *
+   * Name must only contain alphanumeric characters and dashes.
+   */
+  readonly name?: string;
+
+  /**
    * Commands to run in the built image.
    */
   readonly commands?: string[];
@@ -39,6 +46,13 @@ export abstract class RunnerImageComponent {
    */
   static custom(props: RunnerImageComponentCustomProps): RunnerImageComponent {
     return new class extends RunnerImageComponent {
+      get name() {
+        if (props.name && !props.name.match(/[a-zA-Z0-9\-]/)) {
+          throw new Error(`Invalid component name: ${props.name}. Name must only contain alphanumeric characters and dashes.`);
+        }
+        return `Custom-${props.name ?? 'Undefined'}`;
+      }
+
       getCommands(_os: Os, _architecture: Architecture) {
         return props.commands ?? [];
       }
@@ -57,6 +71,8 @@ export abstract class RunnerImageComponent {
    */
   static requiredPackages(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
+      name = 'RequiredPackages';
+
       getCommands(os: Os, architecture: Architecture): string[] {
         if (os.is(Os.LINUX_UBUNTU)) {
           let archUrl;
@@ -97,6 +113,8 @@ export abstract class RunnerImageComponent {
    */
   static runnerUser(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
+      name = 'RunnerUser';
+
       getCommands(os: Os, _architecture: Architecture): string[] {
         if (os.is(Os.LINUX_UBUNTU)) {
           return [
@@ -127,6 +145,8 @@ export abstract class RunnerImageComponent {
    */
   static awsCli(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
+      name = 'AwsCli';
+
       getCommands(os: Os, architecture: Architecture) {
         if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
           let archUrl: string;
@@ -160,6 +180,8 @@ export abstract class RunnerImageComponent {
    */
   static githubCli(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
+      name = 'GithubCli';
+
       getCommands(os: Os, architecture: Architecture) {
         if (os.is(Os.LINUX_UBUNTU)) {
           return [
@@ -195,6 +217,8 @@ export abstract class RunnerImageComponent {
    */
   static git(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
+      name = 'Git';
+
       getCommands(os: Os, architecture: Architecture) {
         if (os.is(Os.LINUX_UBUNTU)) {
           return [
@@ -232,6 +256,8 @@ export abstract class RunnerImageComponent {
    */
   static githubRunner(runnerVersion: RunnerVersion): RunnerImageComponent {
     return new class extends RunnerImageComponent {
+      name = 'GithubRunner';
+
       getCommands(os: Os, architecture: Architecture) {
         if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
           let versionCommand: string;
@@ -301,6 +327,8 @@ export abstract class RunnerImageComponent {
    */
   static docker(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
+      name = 'Docker';
+
       getCommands(os: Os, architecture: Architecture) {
         if (os.is(Os.LINUX_UBUNTU)) {
           return [
@@ -340,6 +368,8 @@ export abstract class RunnerImageComponent {
    */
   static dockerInDocker(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
+      name = 'Docker-in-Docker';
+
       getCommands(os: Os, architecture: Architecture) {
         if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
           let archUrl: string;
@@ -386,7 +416,13 @@ export abstract class RunnerImageComponent {
    */
   static extraCertificates(source: string, name: string): RunnerImageComponent {
     return new class extends RunnerImageComponent {
+      name = `Extra-Certificates-${name}`;
+
       getCommands(os: Os, architecture: Architecture) {
+        if (!name.match(/^[a-zA-Z0-9_-]+$/)) {
+          throw new Error(`Invalid certificate name: ${name}. Name must only contain alphanumeric characters, dashes and underscores.`);
+        }
+
         if (os.is(Os.LINUX_UBUNTU)) {
           return [
             'update-ca-certificates',
@@ -430,6 +466,8 @@ export abstract class RunnerImageComponent {
    */
   static lambdaEntrypoint(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
+      name = 'Lambda-Entrypoint';
+
       getCommands(os: Os, _architecture: Architecture) {
         if (!os.is(Os.LINUX_AMAZON_2) && !os.is(Os.LINUX_UBUNTU)) {
           throw new Error(`Unsupported OS for Lambda entrypoint: ${os.name}`);
@@ -461,6 +499,13 @@ export abstract class RunnerImageComponent {
   }
 
   /**
+   * Component name.
+   *
+   * Used to identify component in image build logs, and for {@link RunnerImageBuilder.removeComponent}
+   */
+  abstract readonly name: string;
+
+  /**
    * Returns commands to run to in built image. Can be used to install packages, setup build prerequisites, etc.
    */
   abstract getCommands(_os: Os, _architecture: Architecture): string[];
@@ -479,10 +524,6 @@ export abstract class RunnerImageComponent {
    */
   getDockerCommands(_os: Os, _architecture: Architecture): string[] {
     return [];
-  }
-
-  get name(): string { // TODO use
-    return '';
   }
 
   /**
