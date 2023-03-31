@@ -5,7 +5,17 @@ import { CodeBuildRunnerImageBuilder } from './codebuild';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps, RunnerImageBuilderType } from './common';
 import { Os } from '../common';
 
+/**
+ * GitHub Runner image builder. Builds a Docker image or AMI with GitHub Runner and other requirements installed.
+ *
+ * Images can be customized before passed into the provider by adding or removing components to be installed.
+ *
+ * Images are rebuilt every week by default to ensure that the latest security patches are applied.
+ */
 export abstract class RunnerImageBuilder extends RunnerImageBuilderBase {
+  /**
+   * Create a new image builder based on the provided properties. The implementation will differ based on the OS, architecture, and requested builder type.
+   */
   static new(scope: Construct, id: string, props?: RunnerImageBuilderProps): RunnerImageBuilder {
     if (props?.components && props.runnerVersion) {
       Annotations.of(scope).addWarning('runnerVersion is ignored when components are specified. The runner version will be determined by the components.');

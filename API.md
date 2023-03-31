@@ -78,7 +78,7 @@ new AmiBuilder(scope: Construct, id: string, props?: AmiBuilderProps)
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.addComponent">addComponent</a></code> | Add a component to be installed. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.addExtraCertificates">addExtraCertificates</a></code> | Add extra trusted certificates. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.bindAmi">bindAmi</a></code> | Called by IRunnerProvider to finalize settings and create the AMI builder. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.bindDockerImage">bindDockerImage</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.bindDockerImage">bindDockerImage</a></code> | Build and return a Docker image with GitHub Runner installed in it. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder.prependComponent">prependComponent</a></code> | Add a component to be installed before any other components. |
 
 ---
@@ -136,6 +136,14 @@ Called by IRunnerProvider to finalize settings and create the AMI builder.
 ```typescript
 public bindDockerImage(): RunnerImage
 ```
+
+Build and return a Docker image with GitHub Runner installed in it.
+
+Anything that ends up with an ECR repository containing a Docker image that runs GitHub self-hosted runners can be used. A simple implementation could even point to an existing image and nothing else.
+
+It's important that the specified image tag be available at the time the repository is available. Providers usually assume the image is ready and will fail if it's not.
+
+The image can be further updated over time manually or using a schedule as long as it is always written to the same tag.
 
 ##### ~~`prependComponent`~~ <a name="prependComponent" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.prependComponent"></a>
 
@@ -288,7 +296,7 @@ new CodeBuildImageBuilder(scope: Construct, id: string, props: CodeBuildImageBui
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addPolicyStatement">addPolicyStatement</a></code> | Add a policy statement to the builder to access resources required to the image build. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addPostBuildCommand">addPostBuildCommand</a></code> | Adds a command that runs after `docker build` and `docker push`. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.addPreBuildCommand">addPreBuildCommand</a></code> | Adds a command that runs before `docker build`. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.bindAmi">bindAmi</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.bindAmi">bindAmi</a></code> | Build and return an AMI with GitHub Runner installed in it. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.bindDockerImage">bindDockerImage</a></code> | Called by IRunnerProvider to finalize settings and create the image builder. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.setBuildArg">setBuildArg</a></code> | Adds a build argument for Docker. |
 
@@ -397,6 +405,12 @@ command to add.
 ```typescript
 public bindAmi(): RunnerAmi
 ```
+
+Build and return an AMI with GitHub Runner installed in it.
+
+Anything that ends up with a launch template pointing to an AMI that runs GitHub self-hosted runners can be used. A simple implementation could even point to an existing AMI and nothing else.
+
+The AMI can be further updated over time manually or using a schedule as long as it is always written to the same launch template.
 
 ##### ~~`bindDockerImage`~~ <a name="bindDockerImage" id="@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder.bindDockerImage"></a>
 
@@ -618,7 +632,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.imageBuilder">imageBuilder</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.imageBuilder">imageBuilder</a></code> | Create new image builder that builds CodeBuild specific runner images using Ubuntu. |
 
 ---
 
@@ -647,6 +661,17 @@ import { CodeBuildRunner } from '@cloudsnorkel/cdk-github-runners'
 
 CodeBuildRunner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
+
+Create new image builder that builds CodeBuild specific runner images using Ubuntu.
+
+Included components:
+  * `RunnerImageComponent.requiredPackages()`
+  * `RunnerImageComponent.runnerUser()`
+  * `RunnerImageComponent.git()`
+  * `RunnerImageComponent.githubCli()`
+  * `RunnerImageComponent.awsCli()`
+  * `RunnerImageComponent.dockerInDocker()`
+  * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.imageBuilder.parameter.scope"></a>
 
@@ -958,7 +983,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.imageBuilder">imageBuilder</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds CodeBuild specific runner images using Ubuntu. |
 
 ---
 
@@ -987,6 +1012,17 @@ import { CodeBuildRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
 
 CodeBuildRunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
+
+Create new image builder that builds CodeBuild specific runner images using Ubuntu.
+
+Included components:
+  * `RunnerImageComponent.requiredPackages()`
+  * `RunnerImageComponent.runnerUser()`
+  * `RunnerImageComponent.git()`
+  * `RunnerImageComponent.githubCli()`
+  * `RunnerImageComponent.awsCli()`
+  * `RunnerImageComponent.dockerInDocker()`
+  * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -1233,7 +1269,7 @@ new ContainerImageBuilder(scope: Construct, id: string, props?: ContainerImageBu
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.addComponent">addComponent</a></code> | Add a component to be installed. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.addExtraCertificates">addExtraCertificates</a></code> | Add extra trusted certificates. This helps deal with self-signed certificates for GitHub Enterprise Server. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.bindAmi">bindAmi</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.bindAmi">bindAmi</a></code> | Build and return an AMI with GitHub Runner installed in it. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.bindDockerImage">bindDockerImage</a></code> | Called by IRunnerProvider to finalize settings and create the image builder. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.prependComponent">prependComponent</a></code> | Add a component to be installed before any other components. |
 
@@ -1284,6 +1320,12 @@ path to directory containing a file called certs.pem containing all the required
 ```typescript
 public bindAmi(): RunnerAmi
 ```
+
+Build and return an AMI with GitHub Runner installed in it.
+
+Anything that ends up with a launch template pointing to an AMI that runs GitHub self-hosted runners can be used. A simple implementation could even point to an existing AMI and nothing else.
+
+The AMI can be further updated over time manually or using a schedule as long as it is always written to the same launch template.
 
 ##### ~~`bindDockerImage`~~ <a name="bindDockerImage" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilder.bindDockerImage"></a>
 
@@ -1497,7 +1539,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.imageBuilder">imageBuilder</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.imageBuilder">imageBuilder</a></code> | Create new image builder that builds EC2 specific runner images using Ubuntu. |
 
 ---
 
@@ -1526,6 +1568,17 @@ import { Ec2Runner } from '@cloudsnorkel/cdk-github-runners'
 
 Ec2Runner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
+
+Create new image builder that builds EC2 specific runner images using Ubuntu.
+
+Included components:
+  * `RunnerImageComponent.requiredPackages()`
+  * `RunnerImageComponent.runnerUser()`
+  * `RunnerImageComponent.git()`
+  * `RunnerImageComponent.githubCli()`
+  * `RunnerImageComponent.awsCli()`
+  * `RunnerImageComponent.docker()`
+  * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.imageBuilder.parameter.scope"></a>
 
@@ -1747,7 +1800,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.imageBuilder">imageBuilder</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds EC2 specific runner images using Ubuntu. |
 
 ---
 
@@ -1776,6 +1829,17 @@ import { Ec2RunnerProvider } from '@cloudsnorkel/cdk-github-runners'
 
 Ec2RunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
+
+Create new image builder that builds EC2 specific runner images using Ubuntu.
+
+Included components:
+  * `RunnerImageComponent.requiredPackages()`
+  * `RunnerImageComponent.runnerUser()`
+  * `RunnerImageComponent.git()`
+  * `RunnerImageComponent.githubCli()`
+  * `RunnerImageComponent.awsCli()`
+  * `RunnerImageComponent.docker()`
+  * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -1981,7 +2045,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.imageBuilder">imageBuilder</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.imageBuilder">imageBuilder</a></code> | Create new image builder that builds Fargate specific runner images using Ubuntu. |
 
 ---
 
@@ -2010,6 +2074,16 @@ import { FargateRunner } from '@cloudsnorkel/cdk-github-runners'
 
 FargateRunner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
+
+Create new image builder that builds Fargate specific runner images using Ubuntu.
+
+Included components:
+  * `RunnerImageComponent.requiredPackages()`
+  * `RunnerImageComponent.runnerUser()`
+  * `RunnerImageComponent.git()`
+  * `RunnerImageComponent.githubCli()`
+  * `RunnerImageComponent.awsCli()`
+  * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.FargateRunner.imageBuilder.parameter.scope"></a>
 
@@ -2403,7 +2477,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.imageBuilder">imageBuilder</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds Fargate specific runner images using Ubuntu. |
 
 ---
 
@@ -2432,6 +2506,16 @@ import { FargateRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
 
 FargateRunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
+
+Create new image builder that builds Fargate specific runner images using Ubuntu.
+
+Included components:
+  * `RunnerImageComponent.requiredPackages()`
+  * `RunnerImageComponent.runnerUser()`
+  * `RunnerImageComponent.git()`
+  * `RunnerImageComponent.githubCli()`
+  * `RunnerImageComponent.awsCli()`
+  * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -3317,7 +3401,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.imageBuilder">imageBuilder</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.imageBuilder">imageBuilder</a></code> | Create new image builder that builds Lambda specific runner images using Amazon Linux 2. |
 
 ---
 
@@ -3346,6 +3430,19 @@ import { LambdaRunner } from '@cloudsnorkel/cdk-github-runners'
 
 LambdaRunner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
+
+Create new image builder that builds Lambda specific runner images using Amazon Linux 2.
+
+Included components:
+  * `RunnerImageComponent.requiredPackages()`
+  * `RunnerImageComponent.runnerUser()`
+  * `RunnerImageComponent.git()`
+  * `RunnerImageComponent.githubCli()`
+  * `RunnerImageComponent.awsCli()`
+  * `RunnerImageComponent.githubRunner()`
+  * `RunnerImageComponent.lambdaEntrypoint()`
+
+  Base Docker image: `public.ecr.aws/lambda/nodejs:14-x86_64` or `public.ecr.aws/lambda/nodejs:14-arm64`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.imageBuilder.parameter.scope"></a>
 
@@ -3649,7 +3746,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.imageBuilder">imageBuilder</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds Lambda specific runner images using Amazon Linux 2. |
 
 ---
 
@@ -3678,6 +3775,19 @@ import { LambdaRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
 
 LambdaRunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
+
+Create new image builder that builds Lambda specific runner images using Amazon Linux 2.
+
+Included components:
+  * `RunnerImageComponent.requiredPackages()`
+  * `RunnerImageComponent.runnerUser()`
+  * `RunnerImageComponent.git()`
+  * `RunnerImageComponent.githubCli()`
+  * `RunnerImageComponent.awsCli()`
+  * `RunnerImageComponent.githubRunner()`
+  * `RunnerImageComponent.lambdaEntrypoint()`
+
+  Base Docker image: `public.ecr.aws/lambda/nodejs:14-x86_64` or `public.ecr.aws/lambda/nodejs:14-arm64`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -3852,6 +3962,12 @@ Available build arguments that can be set in the image builder:
 
 - *Implements:* aws-cdk-lib.aws_ec2.IConnectable, aws-cdk-lib.aws_iam.IGrantable, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
 
+GitHub Runner image builder. Builds a Docker image or AMI with GitHub Runner and other requirements installed.
+
+Images can be customized before passed into the provider by adding or removing components to be installed.
+
+Images are rebuilt every week by default to ensure that the latest security patches are applied.
+
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.Initializer"></a>
 
 ```typescript
@@ -3892,8 +4008,8 @@ new RunnerImageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderP
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.addComponent">addComponent</a></code> | Add a component to the image builder. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.bindAmi">bindAmi</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.bindDockerImage">bindDockerImage</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.bindAmi">bindAmi</a></code> | Build and return an AMI with GitHub Runner installed in it. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.bindDockerImage">bindDockerImage</a></code> | Build and return a Docker image with GitHub Runner installed in it. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.removeComponent">removeComponent</a></code> | Remove a component from the image builder. |
 
 ---
@@ -3930,11 +4046,25 @@ component to add.
 public bindAmi(): RunnerAmi
 ```
 
+Build and return an AMI with GitHub Runner installed in it.
+
+Anything that ends up with a launch template pointing to an AMI that runs GitHub self-hosted runners can be used. A simple implementation could even point to an existing AMI and nothing else.
+
+The AMI can be further updated over time manually or using a schedule as long as it is always written to the same launch template.
+
 ##### `bindDockerImage` <a name="bindDockerImage" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.bindDockerImage"></a>
 
 ```typescript
 public bindDockerImage(): RunnerImage
 ```
+
+Build and return a Docker image with GitHub Runner installed in it.
+
+Anything that ends up with an ECR repository containing a Docker image that runs GitHub self-hosted runners can be used. A simple implementation could even point to an existing image and nothing else.
+
+It's important that the specified image tag be available at the time the repository is available. Providers usually assume the image is ready and will fail if it's not.
+
+The image can be further updated over time manually or using a schedule as long as it is always written to the same tag.
 
 ##### `removeComponent` <a name="removeComponent" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.removeComponent"></a>
 
@@ -3959,7 +4089,7 @@ component to remove.
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.new">new</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.new">new</a></code> | Create a new image builder based on the provided properties. |
 
 ---
 
@@ -3988,6 +4118,10 @@ import { RunnerImageBuilder } from '@cloudsnorkel/cdk-github-runners'
 
 RunnerImageBuilder.new(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
+
+Create a new image builder based on the provided properties.
+
+The implementation will differ based on the OS, architecture, and requested builder type.
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilder.new.parameter.scope"></a>
 
@@ -4756,7 +4890,7 @@ const codeBuildRunnerProviderProps: CodeBuildRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Image builder for CodeBuild image with GitHub runner pre-configured. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build Docker images containing GitHub Runner and all requirements. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group to assign to this instance. |
@@ -4835,11 +4969,11 @@ public readonly imageBuilder: IRunnerImageBuilder;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
-- *Default:* image builder with `CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
+- *Default:* CodeBuildRunnerProviderProps.imageBuilder()
 
-Image builder for CodeBuild image with GitHub runner pre-configured.
+Runner image builder used to build Docker images containing GitHub Runner and all requirements.
 
-A user named `runner` is expected to exist with access to Docker-in-Docker.
+The image builder must contain the {@link RunnerImageComponent.dockerInDocker} component unless `dockerInDocker` is set to false.
 
 The image builder determines the OS and architecture of the runner.
 
@@ -5169,7 +5303,7 @@ const ec2RunnerProviderProps: Ec2RunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.amiBuilder">amiBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | AMI builder that creates AMIs with GitHub runner pre-configured. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build AMI containing GitHub Runner and all requirements. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.instanceType">instanceType</a></code> | <code>aws-cdk-lib.aws_ec2.InstanceType</code> | Instance type for launched runner instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to launched runner instances. |
@@ -5232,13 +5366,11 @@ public readonly imageBuilder: IRunnerImageBuilder;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
-- *Default:* AMI builder for Ubuntu Linux on the same subnet as configured by {@link vpc} and {@link subnetSelection}
+- *Default:* Ec2ProviderProps.imageBuilder()
 
-AMI builder that creates AMIs with GitHub runner pre-configured.
+Runner image builder used to build AMI containing GitHub Runner and all requirements.
 
-On Linux, a user named `runner` is expected to exist with access to Docker.
-
-The AMI builder determines the OS and architecture of the runner.
+The image builder determines the OS and architecture of the runner.
 
 ---
 
@@ -5408,7 +5540,7 @@ const fargateRunnerProviderProps: FargateRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_ecs.Cluster</code> | Existing Fargate cluster to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.cpu">cpu</a></code> | <code>number</code> | The number of cpu units used by the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.ephemeralStorageGiB">ephemeralStorageGiB</a></code> | <code>number</code> | The amount (in GiB) of ephemeral storage to be allocated to the task. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build Docker images containing GitHub Runner and all requirements. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | The amount (in MiB) of memory used by the task. |
@@ -5529,11 +5661,9 @@ public readonly imageBuilder: IRunnerImageBuilder;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
-- *Default:* image builder with `FargateRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
+- *Default:* FargateRunnerProviderProps.imageBuilder()
 
-Provider running an image to run inside CodeBuild with GitHub runner pre-configured.
-
-A user named `runner` is expected to exist.
+Runner image builder used to build Docker images containing GitHub Runner and all requirements.
 
 The image builder determines the OS and architecture of the runner.
 
@@ -5722,12 +5852,10 @@ Path to a directory containing a file named certs.pem containing any additional 
 You may also want to use custom images for your runner providers that contain the same certificates. See {@link CodeBuildImageBuilder.addCertificates}.
 
 ```typescript
-const imageBuilder = new CodeBuildImageBuilder(this, 'Image Builder with Certs', {
-     dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH,
-});
-imageBuilder.addExtraCertificates('path-to-my-extra-certs-folder');
+const imageBuilder = CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder with Certs');
+imageBuilder.addComponent(RunnerImageComponent.extraCertificates('path-to-my-extra-certs-folder/certs.pem', 'private-ca');
 
-const provider = new CodeBuildRunner(this, 'CodeBuild', {
+const provider = new CodeBuildRunnerProvider(this, 'CodeBuild', {
      imageBuilder: imageBuilder,
 });
 
@@ -5978,7 +6106,7 @@ const lambdaRunnerProviderProps: LambdaRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.ephemeralStorageSize">ephemeralStorageSize</a></code> | <code>aws-cdk-lib.Size</code> | The size of the function’s /tmp directory in MiB. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Provider running an image to run inside CodeBuild with GitHub runner pre-configured. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build Docker images containing GitHub Runner and all requirements. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.memorySize">memorySize</a></code> | <code>number</code> | The amount of memory, in MB, that is allocated to your Lambda function. |
@@ -6040,15 +6168,13 @@ public readonly imageBuilder: IRunnerImageBuilder;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
-- *Default:* image builder with LambdaRunner.LINUX_X64_DOCKERFILE_PATH as Dockerfile
+- *Default:* LambdaRunnerProviderProps.imageBuilder()
 
-Provider running an image to run inside CodeBuild with GitHub runner pre-configured.
+Runner image builder used to build Docker images containing GitHub Runner and all requirements.
 
-The default command (`CMD`) should be `["runner.handler"]` which points to an included `runner.js` with a function named `handler`. The function should start the GitHub runner.
+The image builder must contain the {@link RunnerImageComponent.lambdaEntrypoint} component.
 
 The image builder determines the OS and architecture of the runner.
-
-> [https://github.com/CloudSnorkel/cdk-github-runners/tree/main/src/providers/docker-images/lambda](https://github.com/CloudSnorkel/cdk-github-runners/tree/main/src/providers/docker-images/lambda)
 
 ---
 
@@ -7651,6 +7777,8 @@ The order of operations is (1) assets (2) commands (3) docker commands.
 
 Use this to customize the image for the runner.
 
+**WARNING:** Docker commands are not guaranteed to be included before the next component
+
 ###### `props`<sup>Required</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.custom.parameter.props"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps">RunnerImageComponentCustomProps</a>
@@ -8265,12 +8393,16 @@ Log group name for the AMI builder where history of builds can be analyzed.
 
 - *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder">AmiBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder">CodeBuildImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder">ContainerImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder">RunnerImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
 
+Interface for constructs that build an image that can be used in {@link IRunnerProvider}.
+
+An image can be a Docker image or AMI.
+
 #### Methods <a name="Methods" id="Methods"></a>
 
 | **Name** | **Description** |
 | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder.bindAmi">bindAmi</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder.bindDockerImage">bindDockerImage</a></code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder.bindAmi">bindAmi</a></code> | Build and return an AMI with GitHub Runner installed in it. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder.bindDockerImage">bindDockerImage</a></code> | Build and return a Docker image with GitHub Runner installed in it. |
 
 ---
 
@@ -8280,11 +8412,25 @@ Log group name for the AMI builder where history of builds can be analyzed.
 public bindAmi(): RunnerAmi
 ```
 
+Build and return an AMI with GitHub Runner installed in it.
+
+Anything that ends up with a launch template pointing to an AMI that runs GitHub self-hosted runners can be used. A simple implementation could even point to an existing AMI and nothing else.
+
+The AMI can be further updated over time manually or using a schedule as long as it is always written to the same launch template.
+
 ##### `bindDockerImage` <a name="bindDockerImage" id="@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder.bindDockerImage"></a>
 
 ```typescript
 public bindDockerImage(): RunnerImage
 ```
+
+Build and return a Docker image with GitHub Runner installed in it.
+
+Anything that ends up with an ECR repository containing a Docker image that runs GitHub self-hosted runners can be used. A simple implementation could even point to an existing image and nothing else.
+
+It's important that the specified image tag be available at the time the repository is available. Providers usually assume the image is ready and will fail if it's not.
+
+The image can be further updated over time manually or using a schedule as long as it is always written to the same tag.
 
 
 ### IRunnerImageStatus <a name="IRunnerImageStatus" id="@cloudsnorkel/cdk-github-runners.IRunnerImageStatus"></a>

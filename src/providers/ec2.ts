@@ -134,11 +134,11 @@ Stop-Computer -ComputerName localhost -Force
  */
 export interface Ec2RunnerProviderProps extends RunnerProviderProps {
   /**
-   * AMI builder that creates AMIs with GitHub runner pre-configured. On Linux, a user named `runner` is expected to exist with access to Docker.
+   * Runner image builder used to build AMI containing GitHub Runner and all requirements.
    *
-   * The AMI builder determines the OS and architecture of the runner.
+   * The image builder determines the OS and architecture of the runner.
    *
-   * @default AMI builder for Ubuntu Linux on the same subnet as configured by {@link vpc} and {@link subnetSelection}
+   * @default Ec2ProviderProps.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
 
@@ -232,6 +232,18 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
+  /**
+   * Create new image builder that builds EC2 specific runner images using Ubuntu.
+   *
+   * Included components:
+   *  * `RunnerImageComponent.requiredPackages()`
+   *  * `RunnerImageComponent.runnerUser()`
+   *  * `RunnerImageComponent.git()`
+   *  * `RunnerImageComponent.githubCli()`
+   *  * `RunnerImageComponent.awsCli()`
+   *  * `RunnerImageComponent.docker()`
+   *  * `RunnerImageComponent.githubRunner()`
+   */
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     return RunnerImageBuilder.new(scope, id, {
       os: Os.LINUX_UBUNTU,

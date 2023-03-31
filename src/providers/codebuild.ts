@@ -29,11 +29,13 @@ import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, Runne
 
 export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
   /**
-   * Image builder for CodeBuild image with GitHub runner pre-configured. A user named `runner` is expected to exist with access to Docker-in-Docker.
+   * Runner image builder used to build Docker images containing GitHub Runner and all requirements.
+   *
+   * The image builder must contain the {@link RunnerImageComponent.dockerInDocker} component unless `dockerInDocker` is set to false.
    *
    * The image builder determines the OS and architecture of the runner.
    *
-   * @default image builder with `CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
+   * @default CodeBuildRunnerProviderProps.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
 
@@ -150,6 +152,18 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
    */
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'codebuild', 'linux-arm64');
 
+  /**
+   * Create new image builder that builds CodeBuild specific runner images using Ubuntu.
+   *
+   * Included components:
+   *  * `RunnerImageComponent.requiredPackages()`
+   *  * `RunnerImageComponent.runnerUser()`
+   *  * `RunnerImageComponent.git()`
+   *  * `RunnerImageComponent.githubCli()`
+   *  * `RunnerImageComponent.awsCli()`
+   *  * `RunnerImageComponent.dockerInDocker()`
+   *  * `RunnerImageComponent.githubRunner()`
+   */
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     return RunnerImageBuilder.new(scope, id, {
       os: Os.LINUX_UBUNTU,
@@ -248,7 +262,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       },
     };
 
-    const imageBuilder = props?.imageBuilder ?? RunnerImageBuilder.new(this, 'Image Builder');
+    const imageBuilder = props?.imageBuilder ?? CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder');
     const image = this.image = imageBuilder.bindDockerImage();
 
     if (image.os.is(Os.WINDOWS)) {

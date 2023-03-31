@@ -3,10 +3,10 @@ import { aws_ec2 as ec2 } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import {
   AmiBuilder,
-  Architecture,
+  Architecture, CodeBuildRunnerProvider,
   ContainerImageBuilder,
   Ec2RunnerProvider,
-  FargateRunnerProvider,
+  FargateRunnerProvider, LambdaRunnerProvider,
   Os,
   RunnerImageBuilder,
   RunnerImageBuilderType, RunnerImageComponent,
@@ -187,7 +187,6 @@ test('Docker component exists by default in image builder', () => {
   });
 });
 
-
 test('User is able to remove Docker component from image builder', () => {
   const app = new cdk.App();
   const stack = new cdk.Stack(app, 'test');
@@ -206,4 +205,100 @@ test('User is able to remove Docker component from image builder', () => {
   template.resourcePropertiesCountIs('AWS::ImageBuilder::Component', {
     Description: Match.stringLikeRegexp('Component [0-9]+ Docker'),
   }, 0);
+});
+
+test('CodeBuild default image builder has GitHub Runner and Docker-in-Docker', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'test');
+
+  new CodeBuildRunnerProvider(stack, 'provider');
+
+  const template = Template.fromStack(stack);
+
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: {
+        'Fn::Join': [
+          '',
+          Match.arrayWith([
+            Match.stringLikeRegexp('component[0-9]+-Docker-in-Docker.sh'),
+          ]),
+        ],
+      },
+    },
+  });
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: {
+        'Fn::Join': [
+          '',
+          Match.arrayWith([
+            Match.stringLikeRegexp('component[0-9]+-GithubRunner.sh'),
+          ]),
+        ],
+      },
+    },
+  });
+});
+
+test('Fargate default image builder has GitHub Runner', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'test');
+
+  const vpc = new ec2.Vpc(stack, 'vpc');
+
+  new FargateRunnerProvider(stack, 'provider', { vpc });
+
+  const template = Template.fromStack(stack);
+
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: {
+        'Fn::Join': [
+          '',
+          Match.arrayWith([
+            Match.stringLikeRegexp('component[0-9]+-GithubRunner.sh'),
+          ]),
+        ],
+      },
+    },
+  });
+});
+
+test('EC2 default image builder has GitHub Runner', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'test');
+
+  const vpc = new ec2.Vpc(stack, 'vpc');
+
+  new Ec2RunnerProvider(stack, 'provider', { vpc });
+
+  const template = Template.fromStack(stack);
+
+  template.hasResourceProperties('AWS::ImageBuilder::Component', {
+    Description: Match.stringLikeRegexp('Component [0-9]+ GithubRunner'),
+  });
+});
+
+test('Lambda default image builder has GitHub Runner and Lambda entry point', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'test');
+
+  new LambdaRunnerProvider(stack, 'provider');
+
+  const template = Template.fromStack(stack);
+
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: {
+        'Fn::Join': [
+          '',
+          Match.arrayWith([
+            Match.stringLikeRegexp('component[0-9]+-GithubRunner.sh'),
+            Match.stringLikeRegexp('component[0-9]+-Lambda-Entrypoint.sh'),
+          ]),
+        ],
+      },
+    },
+  });
 });

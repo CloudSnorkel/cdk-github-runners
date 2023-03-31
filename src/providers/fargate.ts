@@ -29,11 +29,11 @@ import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, Runne
  */
 export interface FargateRunnerProviderProps extends RunnerProviderProps {
   /**
-   * Provider running an image to run inside CodeBuild with GitHub runner pre-configured. A user named `runner` is expected to exist.
+   * Runner image builder used to build Docker images containing GitHub Runner and all requirements.
    *
    * The image builder determines the OS and architecture of the runner.
    *
-   * @default image builder with `FargateRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
+   * @default FargateRunnerProviderProps.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
 
@@ -227,6 +227,17 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
    */
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-arm64');
 
+  /**
+   * Create new image builder that builds Fargate specific runner images using Ubuntu.
+   *
+   * Included components:
+   *  * `RunnerImageComponent.requiredPackages()`
+   *  * `RunnerImageComponent.runnerUser()`
+   *  * `RunnerImageComponent.git()`
+   *  * `RunnerImageComponent.githubCli()`
+   *  * `RunnerImageComponent.awsCli()`
+   *  * `RunnerImageComponent.githubRunner()`
+   */
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps): RunnerImageBuilder {
     return RunnerImageBuilder.new(scope, id, {
       os: Os.LINUX_UBUNTU,
@@ -326,7 +337,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
     );
     this.spot = props?.spot ?? false;
 
-    const imageBuilder = props?.imageBuilder ?? RunnerImageBuilder.new(this, 'Image Builder');
+    const imageBuilder = props?.imageBuilder ?? FargateRunnerProvider.imageBuilder(this, 'Image Builder');
     const image = this.image = imageBuilder.bindDockerImage();
 
     let arch: ecs.CpuArchitecture;

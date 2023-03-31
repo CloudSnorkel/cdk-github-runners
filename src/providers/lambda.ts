@@ -30,14 +30,13 @@ import { singletonLambda } from '../utils';
 
 export interface LambdaRunnerProviderProps extends RunnerProviderProps {
   /**
-   * Provider running an image to run inside CodeBuild with GitHub runner pre-configured.
+   * Runner image builder used to build Docker images containing GitHub Runner and all requirements.
    *
-   * The default command (`CMD`) should be `["runner.handler"]` which points to an included `runner.js` with a function named `handler`. The function should start the GitHub runner.
+   * The image builder must contain the {@link RunnerImageComponent.lambdaEntrypoint} component.
    *
    * The image builder determines the OS and architecture of the runner.
    *
-   * @see https://github.com/CloudSnorkel/cdk-github-runners/tree/main/src/providers/docker-images/lambda
-   * @default image builder with LambdaRunner.LINUX_X64_DOCKERFILE_PATH as Dockerfile
+   * @default LambdaRunnerProviderProps.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
 
@@ -147,6 +146,20 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    */
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-arm64');
 
+  /**
+   * Create new image builder that builds Lambda specific runner images using Amazon Linux 2.
+   *
+   * Included components:
+   *  * `RunnerImageComponent.requiredPackages()`
+   *  * `RunnerImageComponent.runnerUser()`
+   *  * `RunnerImageComponent.git()`
+   *  * `RunnerImageComponent.githubCli()`
+   *  * `RunnerImageComponent.awsCli()`
+   *  * `RunnerImageComponent.githubRunner()`
+   *  * `RunnerImageComponent.lambdaEntrypoint()`
+   *
+   *  Base Docker image: `public.ecr.aws/lambda/nodejs:14-x86_64` or `public.ecr.aws/lambda/nodejs:14-arm64`
+   */
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     let baseDockerImage = 'public.ecr.aws/lambda/nodejs:14-x86_64';
     if (props?.architecture === Architecture.ARM64) {

@@ -43,6 +43,8 @@ export abstract class RunnerImageComponent {
    * The order of operations is (1) assets (2) commands (3) docker commands.
    *
    * Use this to customize the image for the runner.
+   *
+   * **WARNING:** Docker commands are not guaranteed to be included before the next component
    */
   static custom(props: RunnerImageComponentCustomProps): RunnerImageComponent {
     return new class extends RunnerImageComponent {
