@@ -38,6 +38,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
   ],
   deps: [
   ],
+  jsiiVersion: '5.0.x',
+  typescriptVersion: '4.9.x',
   releaseToNpm: true,
   publishToPypi: {
     distName: 'cloudsnorkel.cdk-github-runners',
