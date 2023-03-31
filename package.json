@@ -64,7 +64,7 @@
     "organization": false
   },
   "devDependencies": {
-    "@aws-sdk/types": "^3.296.0",
+    "@aws-sdk/types": "^3.303.0",
     "@octokit/auth-app": "^3.6.1",
     "@octokit/core": "^3.6.0",
     "@octokit/request-error": "^3.0.3",
@@ -79,7 +79,7 @@
     "@typescript-eslint/parser": "^5",
     "aws-cdk": "^2",
     "aws-cdk-lib": "2.50.0",
-    "aws-sdk": "^2.1343.0",
+    "aws-sdk": "^2.1347.0",
     "bootstrap": "^5.2.0",
     "constructs": "10.0.5",
     "esbuild": "^0.17.14",
@@ -94,7 +94,7 @@
     "jsii-docgen": "^6.3.27",
     "jsii-pacmak": "^1.79.0",
     "npm-check-updates": "^16",
-    "projen": "^0.69.10",
+    "projen": "^0.70.4",
     "sass": "^1.54.0",
     "semver": "^7.3.8",
     "standard-version": "^9",
