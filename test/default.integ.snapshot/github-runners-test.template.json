@@ -728,7 +728,9 @@
     "FargatebuilderCodeBuildEventsRoleDefaultPolicyD2B048CD",
     "FargatebuilderCodeBuildEventsRole92F2259E",
     "FargatebuilderCodeBuild4F182743",
-    "FargatebuilderCRPolicy22FB4B05"
+    "FargatebuilderCRPolicy22FB4B05",
+    "FargatebuilderRoleDefaultPolicyE56CF8DA",
+    "FargatebuilderRoleDA300BCD"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -1299,7 +1301,9 @@
     "FargatebuilderarmCodeBuildEventsRoleDefaultPolicy39CAA8CB",
     "FargatebuilderarmCodeBuildEventsRole20E8CE66",
     "FargatebuilderarmCodeBuild0D30679A",
-    "FargatebuilderarmCRPolicyD241BB66"
+    "FargatebuilderarmCRPolicyD241BB66",
+    "FargatebuilderarmRoleDefaultPolicy89F1BA94",
+    "FargatebuilderarmRoleB6343E8F"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -1886,7 +1890,9 @@
     "LambdaImageBuilderx64CodeBuildEventsRoleDefaultPolicy2B894997",
     "LambdaImageBuilderx64CodeBuildEventsRoleF8B03C21",
     "LambdaImageBuilderx64CodeBuild67DE14C8",
-    "LambdaImageBuilderx64CRPolicy6DBE0D1F"
+    "LambdaImageBuilderx64CRPolicy6DBE0D1F",
+    "LambdaImageBuilderx64RoleDefaultPolicyC6AE2BE4",
+    "LambdaImageBuilderx64RoleEE3EE1CB"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -4539,7 +4545,9 @@
     "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D",
     "CodeBuildImageBuilderCodeBuildEventsRole4277A55E",
     "CodeBuildImageBuilderCodeBuild38ECAA44",
-    "CodeBuildImageBuilderCRPolicyAFC63F28"
+    "CodeBuildImageBuilderCRPolicyAFC63F28",
+    "CodeBuildImageBuilderRoleDefaultPolicy6982821E",
+    "CodeBuildImageBuilderRoleF1F34984"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -5110,7 +5118,9 @@
     "CodeBuildImageBuilderarmCodeBuildEventsRoleDefaultPolicyEA24770D",
     "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89",
     "CodeBuildImageBuilderarmCodeBuildBFF1CF57",
-    "CodeBuildImageBuilderarmCRPolicy75CB8D91"
+    "CodeBuildImageBuilderarmCRPolicy75CB8D91",
+    "CodeBuildImageBuilderarmRoleDefaultPolicy540A8CDE",
+    "CodeBuildImageBuilderarmRole96BC26FB"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -5697,7 +5707,9 @@
     "LambdaImageBuilderzCodeBuildEventsRoleDefaultPolicyE0DB8E23",
     "LambdaImageBuilderzCodeBuildEventsRoleE9E50664",
     "LambdaImageBuilderzCodeBuild73AB6718",
-    "LambdaImageBuilderzCRPolicyC9B09855"
+    "LambdaImageBuilderzCRPolicyC9B09855",
+    "LambdaImageBuilderzRoleDefaultPolicy06ABB0C7",
+    "LambdaImageBuilderzRole6F1A63E5"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"

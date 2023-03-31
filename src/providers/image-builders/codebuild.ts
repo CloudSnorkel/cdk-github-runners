@@ -329,6 +329,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
     // add dependencies to make sure resources are there when we need them
     cr.node.addDependency(project);
+    cr.node.addDependency(this.role);
     cr.node.addDependency(policy);
     cr.node.addDependency(crHandler.role!);
     cr.node.addDependency(crHandler);
