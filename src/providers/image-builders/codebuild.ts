@@ -75,6 +75,10 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     super(scope, id, props);
 
+    if (props?.awsImageBuilderOptions) {
+      Annotations.of(scope).addWarning('awsImageBuilderOptions are ignored when using CodeBuild runner image builder.');
+    }
+
     this.os = props?.os ?? Os.LINUX_UBUNTU;
     this.architecture = props?.architecture ?? Architecture.X86_64;
     this.rebuildInterval = props?.rebuildInterval ?? Duration.days(7);
