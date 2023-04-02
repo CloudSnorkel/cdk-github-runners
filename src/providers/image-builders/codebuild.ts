@@ -76,7 +76,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     super(scope, id, props);
 
     if (props?.awsImageBuilderOptions) {
-      Annotations.of(scope).addWarning('awsImageBuilderOptions are ignored when using CodeBuild runner image builder.');
+      Annotations.of(this).addWarning('awsImageBuilderOptions are ignored when using CodeBuild runner image builder.');
     }
 
     this.os = props?.os ?? Os.LINUX_UBUNTU;
