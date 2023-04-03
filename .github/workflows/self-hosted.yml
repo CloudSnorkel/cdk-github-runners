@@ -27,13 +27,13 @@ jobs:
           - name: ecs x64
             os: linux
             arch: X64
-            runs-on: [ self-hosted, linux, ecs, X64 ]
+            runs-on: [self-hosted, linux, ecs, X64]
             docker: true
             sudo: true
-          - name: codebuild arm64
+          - name: ecs arm64
             os: linux
             arch: ARM64
-            runs-on: [ self-hosted, linux, ecs, arm64 ]
+            runs-on: [self-hosted, linux, ecs, arm64]
             docker: true
             sudo: true
           - name: lambda x64
@@ -146,8 +146,8 @@ jobs:
           - name: ecs windows
             os: windows
             arch: X64
-            runs-on: [ self-hosted, windows, ecs, x64 ]
-            docker: true
+            runs-on: [self-hosted, windows, ecs, x64]
+            docker: false
           - name: fargate windows
             os: windows
             arch: X64
