@@ -99,7 +99,7 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
 
   // it's easier to deal with maps in step functions
   let labels: any = {};
-  payload.workflow_job.labels.forEach((l: string) => labels[l] = true);
+  payload.workflow_job.labels.forEach((l: string) => labels[l.toLowerCase()] = true);
 
   // set execution name which is also used as runner name which are limited to 64 characters
   let executionName = `${payload.repository.full_name.replace('/', '-')}-${event.headers['x-github-delivery']}`.slice(0, 64);
