@@ -8,7 +8,7 @@
 
 An AMI builder that uses AWS Image Builder to build AMIs pre-baked with all the GitHub Actions runner requirements.
 
-Builders can be used with {@link Ec2Runner}.
+Builders can be used with {@link Ec2Runner }.
 
 Each builder re-runs automatically at a set interval to make sure the AMIs contain the latest versions of everything.
 
@@ -18,21 +18,21 @@ For example, to set a specific runner version, rebuild the image every 2 weeks, 
 
 ```
 const builder = new AmiBuilder(this, 'Builder', {
-     runnerVersion: RunnerVersion.specific('2.293.0'),
-     rebuildInterval: Duration.days(14),
+    runnerVersion: RunnerVersion.specific('2.293.0'),
+    rebuildInterval: Duration.days(14),
 });
 builder.addComponent(new ImageBuilderComponent(scope, id, {
-   platform: 'Linux',
-   displayName: 'p7zip',
-   description: 'Install some more packages',
-   commands: [
-     'set -ex',
-     'apt-get install p7zip',
-   ],
+  platform: 'Linux',
+  displayName: 'p7zip',
+  description: 'Install some more packages',
+  commands: [
+    'set -ex',
+    'apt-get install p7zip',
+  ],
 }));
 new Ec2Runner(this, 'EC2 provider', {
-     label: 'custom-ec2',
-     amiBuilder: builder,
+    label: 'custom-ec2',
+    amiBuilder: builder,
 });
 ```
 
@@ -241,14 +241,14 @@ For example, to set a specific runner version, rebuild the image every 2 weeks, 
 
 ```
 const builder = new CodeBuildImageBuilder(this, 'Builder', {
-     dockerfilePath: FargateProvider.LINUX_X64_DOCKERFILE_PATH,
-     runnerVersion: RunnerVersion.specific('2.293.0'),
-     rebuildInterval: Duration.days(14),
+    dockerfilePath: FargateProvider.LINUX_X64_DOCKERFILE_PATH,
+    runnerVersion: RunnerVersion.specific('2.293.0'),
+    rebuildInterval: Duration.days(14),
 });
 builder.setBuildArg('EXTRA_PACKAGES', 'nginx xz-utils');
 new FargateRunner(this, 'Fargate provider', {
-     label: 'customized-fargate',
-     imageBuilder: builder,
+    label: 'customized-fargate',
+    imageBuilder: builder,
 });
 ```
 
@@ -665,13 +665,13 @@ CodeBuildRunner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBu
 Create new image builder that builds CodeBuild specific runner images using Ubuntu.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.dockerInDocker()`
-  * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.dockerInDocker()`
+ * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.imageBuilder.parameter.scope"></a>
 
@@ -707,7 +707,7 @@ Included components:
 
 ##### ~~`node`~~<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.node"></a>
 
-- *Deprecated:* use {@link CodeBuildRunnerProvider}
+- *Deprecated:* use {@link CodeBuildRunnerProvider }
 
 ```typescript
 public readonly node: Node;
@@ -721,7 +721,7 @@ The tree node.
 
 ##### ~~`connections`~~<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.connections"></a>
 
-- *Deprecated:* use {@link CodeBuildRunnerProvider}
+- *Deprecated:* use {@link CodeBuildRunnerProvider }
 
 ```typescript
 public readonly connections: Connections;
@@ -735,7 +735,7 @@ The network connections associated with this resource.
 
 ##### ~~`grantPrincipal`~~<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.grantPrincipal"></a>
 
-- *Deprecated:* use {@link CodeBuildRunnerProvider}
+- *Deprecated:* use {@link CodeBuildRunnerProvider }
 
 ```typescript
 public readonly grantPrincipal: IPrincipal;
@@ -749,7 +749,7 @@ Grant principal used to add permissions to the runner role.
 
 ##### ~~`image`~~<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.image"></a>
 
-- *Deprecated:* use {@link CodeBuildRunnerProvider}
+- *Deprecated:* use {@link CodeBuildRunnerProvider }
 
 ```typescript
 public readonly image: RunnerImage;
@@ -765,7 +765,7 @@ The image is built by an image builder and is specific to CodeBuild.
 
 ##### ~~`labels`~~<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.labels"></a>
 
-- *Deprecated:* use {@link CodeBuildRunnerProvider}
+- *Deprecated:* use {@link CodeBuildRunnerProvider }
 
 ```typescript
 public readonly labels: string[];
@@ -779,7 +779,7 @@ Labels associated with this provider.
 
 ##### ~~`logGroup`~~<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.logGroup"></a>
 
-- *Deprecated:* use {@link CodeBuildRunnerProvider}
+- *Deprecated:* use {@link CodeBuildRunnerProvider }
 
 ```typescript
 public readonly logGroup: ILogGroup;
@@ -795,7 +795,7 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ##### ~~`project`~~<sup>Required</sup> <a name="project" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.project"></a>
 
-- *Deprecated:* use {@link CodeBuildRunnerProvider}
+- *Deprecated:* use {@link CodeBuildRunnerProvider }
 
 ```typescript
 public readonly project: Project;
@@ -1016,13 +1016,13 @@ CodeBuildRunnerProvider.imageBuilder(scope: Construct, id: string, props?: Runne
 Create new image builder that builds CodeBuild specific runner images using Ubuntu.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.dockerInDocker()`
-  * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.dockerInDocker()`
+ * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -1219,12 +1219,12 @@ For example, to set a specific runner version, rebuild the image every 2 weeks, 
 
 ```
 const builder = new ContainerImageBuilder(this, 'Builder', {
-     runnerVersion: RunnerVersion.specific('2.293.0'),
-     rebuildInterval: Duration.days(14),
+    runnerVersion: RunnerVersion.specific('2.293.0'),
+    rebuildInterval: Duration.days(14),
 });
 new CodeBuildRunner(this, 'CodeBuild provider', {
-     label: 'custom-codebuild',
-     imageBuilder: builder,
+    label: 'custom-codebuild',
+    imageBuilder: builder,
 });
 ```
 
@@ -1572,13 +1572,13 @@ Ec2Runner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderP
 Create new image builder that builds EC2 specific runner images using Ubuntu.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.docker()`
-  * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.docker()`
+ * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.imageBuilder.parameter.scope"></a>
 
@@ -1612,7 +1612,7 @@ Included components:
 
 ##### ~~`node`~~<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.node"></a>
 
-- *Deprecated:* use {@link Ec2RunnerProvider}
+- *Deprecated:* use {@link Ec2RunnerProvider }
 
 ```typescript
 public readonly node: Node;
@@ -1626,7 +1626,7 @@ The tree node.
 
 ##### ~~`connections`~~<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.connections"></a>
 
-- *Deprecated:* use {@link Ec2RunnerProvider}
+- *Deprecated:* use {@link Ec2RunnerProvider }
 
 ```typescript
 public readonly connections: Connections;
@@ -1640,7 +1640,7 @@ The network connections associated with this resource.
 
 ##### ~~`grantPrincipal`~~<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.grantPrincipal"></a>
 
-- *Deprecated:* use {@link Ec2RunnerProvider}
+- *Deprecated:* use {@link Ec2RunnerProvider }
 
 ```typescript
 public readonly grantPrincipal: IPrincipal;
@@ -1654,7 +1654,7 @@ Grant principal used to add permissions to the runner role.
 
 ##### ~~`labels`~~<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.labels"></a>
 
-- *Deprecated:* use {@link Ec2RunnerProvider}
+- *Deprecated:* use {@link Ec2RunnerProvider }
 
 ```typescript
 public readonly labels: string[];
@@ -1668,7 +1668,7 @@ Labels associated with this provider.
 
 ##### ~~`logGroup`~~<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.logGroup"></a>
 
-- *Deprecated:* use {@link Ec2RunnerProvider}
+- *Deprecated:* use {@link Ec2RunnerProvider }
 
 ```typescript
 public readonly logGroup: ILogGroup;
@@ -1833,13 +1833,13 @@ Ec2RunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerImage
 Create new image builder that builds EC2 specific runner images using Ubuntu.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.docker()`
-  * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.docker()`
+ * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -2078,12 +2078,12 @@ FargateRunner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuil
 Create new image builder that builds Fargate specific runner images using Ubuntu.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.FargateRunner.imageBuilder.parameter.scope"></a>
 
@@ -2125,7 +2125,7 @@ Included components:
 
 ##### ~~`node`~~<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.node"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* use {@link FargateRunnerProvider }
 
 ```typescript
 public readonly node: Node;
@@ -2139,7 +2139,7 @@ The tree node.
 
 ##### ~~`assignPublicIp`~~<sup>Required</sup> <a name="assignPublicIp" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.assignPublicIp"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* use {@link FargateRunnerProvider }
 
 ```typescript
 public readonly assignPublicIp: boolean;
@@ -2153,7 +2153,7 @@ Whether runner task will have a public IP.
 
 ##### ~~`cluster`~~<sup>Required</sup> <a name="cluster" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.cluster"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* use {@link FargateRunnerProvider }
 
 ```typescript
 public readonly cluster: Cluster;
@@ -2167,7 +2167,7 @@ Cluster hosting the task hosting the runner.
 
 ##### ~~`connections`~~<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.connections"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* use {@link FargateRunnerProvider }
 
 ```typescript
 public readonly connections: Connections;
@@ -2181,7 +2181,7 @@ The network connections associated with this resource.
 
 ##### ~~`container`~~<sup>Required</sup> <a name="container" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.container"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* use {@link FargateRunnerProvider }
 
 ```typescript
 public readonly container: ContainerDefinition;
@@ -2195,7 +2195,7 @@ Container definition hosting the runner.
 
 ##### ~~`grantPrincipal`~~<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.grantPrincipal"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* use {@link FargateRunnerProvider }
 
 ```typescript
 public readonly grantPrincipal: IPrincipal;
@@ -2209,7 +2209,7 @@ Grant principal used to add permissions to the runner role.
 
 ##### ~~`image`~~<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.image"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* use {@link FargateRunnerProvider }
 
 ```typescript
 public readonly image: RunnerImage;
@@ -2225,7 +2225,7 @@ The image is built by an image builder and is specific to Fargate tasks.
 
 ##### ~~`labels`~~<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.labels"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* use {@link FargateRunnerProvider }
 
 ```typescript
 public readonly labels: string[];
@@ -2239,7 +2239,7 @@ Labels associated with this provider.
 
 ##### ~~`logGroup`~~<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.logGroup"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* use {@link FargateRunnerProvider }
 
 ```typescript
 public readonly logGroup: ILogGroup;
@@ -2255,7 +2255,7 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ##### ~~`spot`~~<sup>Required</sup> <a name="spot" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.spot"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* use {@link FargateRunnerProvider }
 
 ```typescript
 public readonly spot: boolean;
@@ -2269,7 +2269,7 @@ Use spot pricing for Fargate tasks.
 
 ##### ~~`task`~~<sup>Required</sup> <a name="task" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.task"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* use {@link FargateRunnerProvider }
 
 ```typescript
 public readonly task: FargateTaskDefinition;
@@ -2283,7 +2283,7 @@ Fargate task hosting the runner.
 
 ##### ~~`subnetSelection`~~<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.subnetSelection"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* use {@link FargateRunnerProvider }
 
 ```typescript
 public readonly subnetSelection: SubnetSelection;
@@ -2297,7 +2297,7 @@ Subnets used for hosting the runner task.
 
 ##### ~~`vpc`~~<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.vpc"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider}
+- *Deprecated:* use {@link FargateRunnerProvider }
 
 ```typescript
 public readonly vpc: IVpc;
@@ -2510,12 +2510,12 @@ FargateRunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerI
 Create new image builder that builds Fargate specific runner images using Ubuntu.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -2786,12 +2786,12 @@ const bucket = new s3.Bucket(this, 'runner bucket');
 
 // create a custom CodeBuild provider
 const myProvider = new CodeBuildRunner(
-   this, 'codebuild runner',
-   {
-      label: 'my-codebuild',
-      vpc: vpc,
-      securityGroup: runnerSg,
-   },
+  this, 'codebuild runner',
+  {
+     label: 'my-codebuild',
+     vpc: vpc,
+     securityGroup: runnerSg,
+  },
 );
 // grant some permissions to the provider
 bucket.grantReadWrite(myProvider);
@@ -2799,11 +2799,11 @@ dbSg.connections.allowFrom(runnerSg, ec2.Port.tcp(3306), 'allow runners to conne
 
 // create the runner infrastructure
 new GitHubRunners(
-   this,
-   'runners',
-   {
-     providers: [myProvider],
-   }
+  this,
+  'runners',
+  {
+    providers: [myProvider],
+  }
 );
 ```
 
@@ -3023,13 +3023,13 @@ Example:
 
 ```
 new ImageBuilderComponent(this, 'AWS CLI', {
-   platform: 'Windows',
-   displayName: 'AWS CLI',
-   description: 'Install latest version of AWS CLI',
-   commands: [
-     '$ErrorActionPreference = \'Stop\'',
-     'Start-Process msiexec.exe -Wait -ArgumentList \'/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn\'',
-   ],
+  platform: 'Windows',
+  displayName: 'AWS CLI',
+  description: 'Install latest version of AWS CLI',
+  commands: [
+    '$ErrorActionPreference = \'Stop\'',
+    'Start-Process msiexec.exe -Wait -ArgumentList \'/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn\'',
+  ],
 }
 ```
 
@@ -3434,15 +3434,15 @@ LambdaRunner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuild
 Create new image builder that builds Lambda specific runner images using Amazon Linux 2.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.githubRunner()`
-  * `RunnerImageComponent.lambdaEntrypoint()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.lambdaEntrypoint()`
 
-  Base Docker image: `public.ecr.aws/lambda/nodejs:14-x86_64` or `public.ecr.aws/lambda/nodejs:14-arm64`
+ Base Docker image: `public.ecr.aws/lambda/nodejs:14-x86_64` or `public.ecr.aws/lambda/nodejs:14-arm64`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.imageBuilder.parameter.scope"></a>
 
@@ -3478,7 +3478,7 @@ Included components:
 
 ##### ~~`node`~~<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.node"></a>
 
-- *Deprecated:* use {@link LambdaRunnerProvider}
+- *Deprecated:* use {@link LambdaRunnerProvider }
 
 ```typescript
 public readonly node: Node;
@@ -3492,7 +3492,7 @@ The tree node.
 
 ##### ~~`connections`~~<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.connections"></a>
 
-- *Deprecated:* use {@link LambdaRunnerProvider}
+- *Deprecated:* use {@link LambdaRunnerProvider }
 
 ```typescript
 public readonly connections: Connections;
@@ -3506,7 +3506,7 @@ The network connections associated with this resource.
 
 ##### ~~`function`~~<sup>Required</sup> <a name="function" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.function"></a>
 
-- *Deprecated:* use {@link LambdaRunnerProvider}
+- *Deprecated:* use {@link LambdaRunnerProvider }
 
 ```typescript
 public readonly function: Function;
@@ -3520,7 +3520,7 @@ The function hosting the GitHub runner.
 
 ##### ~~`grantPrincipal`~~<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.grantPrincipal"></a>
 
-- *Deprecated:* use {@link LambdaRunnerProvider}
+- *Deprecated:* use {@link LambdaRunnerProvider }
 
 ```typescript
 public readonly grantPrincipal: IPrincipal;
@@ -3534,7 +3534,7 @@ Grant principal used to add permissions to the runner role.
 
 ##### ~~`image`~~<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.image"></a>
 
-- *Deprecated:* use {@link LambdaRunnerProvider}
+- *Deprecated:* use {@link LambdaRunnerProvider }
 
 ```typescript
 public readonly image: RunnerImage;
@@ -3550,7 +3550,7 @@ The image is built by an image builder and is specific to Lambda.
 
 ##### ~~`labels`~~<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.labels"></a>
 
-- *Deprecated:* use {@link LambdaRunnerProvider}
+- *Deprecated:* use {@link LambdaRunnerProvider }
 
 ```typescript
 public readonly labels: string[];
@@ -3564,7 +3564,7 @@ Labels associated with this provider.
 
 ##### ~~`logGroup`~~<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.logGroup"></a>
 
-- *Deprecated:* use {@link LambdaRunnerProvider}
+- *Deprecated:* use {@link LambdaRunnerProvider }
 
 ```typescript
 public readonly logGroup: ILogGroup;
@@ -3779,15 +3779,15 @@ LambdaRunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerIm
 Create new image builder that builds Lambda specific runner images using Amazon Linux 2.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.githubRunner()`
-  * `RunnerImageComponent.lambdaEntrypoint()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.lambdaEntrypoint()`
 
-  Base Docker image: `public.ecr.aws/lambda/nodejs:14-x86_64` or `public.ecr.aws/lambda/nodejs:14-arm64`
+ Base Docker image: `public.ecr.aws/lambda/nodejs:14-x86_64` or `public.ecr.aws/lambda/nodejs:14-arm64`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -4496,7 +4496,7 @@ Version of GitHub Runners to install.
 
 ##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.securityGroup"></a>
 
-- *Deprecated:* use {@link securityGroups}
+- *Deprecated:* use {@link securityGroups }
 
 ```typescript
 public readonly securityGroup: ISecurityGroup;
@@ -4664,7 +4664,7 @@ public readonly computeType: ComputeType;
 ```
 
 - *Type:* aws-cdk-lib.aws_codebuild.ComputeType
-- *Default:* {@link ComputeType#SMALL}
+- *Default:* {@link ComputeType#SMALL }
 
 The type of compute to use for this build.
 
@@ -4848,7 +4848,7 @@ public readonly computeType: ComputeType;
 ```
 
 - *Type:* aws-cdk-lib.aws_codebuild.ComputeType
-- *Default:* {@link ComputeType#SMALL}
+- *Default:* {@link ComputeType#SMALL }
 
 The type of compute to use for this build.
 
@@ -4938,7 +4938,7 @@ public readonly computeType: ComputeType;
 ```
 
 - *Type:* aws-cdk-lib.aws_codebuild.ComputeType
-- *Default:* {@link ComputeType#SMALL}
+- *Default:* {@link ComputeType#SMALL }
 
 The type of compute to use for this build.
 
@@ -4981,7 +4981,7 @@ The image builder determines the OS and architecture of the runner.
 
 ##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.label"></a>
 
-- *Deprecated:* use {@link labels} instead
+- *Deprecated:* use {@link labels } instead
 
 ```typescript
 public readonly label: string;
@@ -5013,7 +5013,7 @@ job's labels, this provider will be chosen and spawn a new runner.
 
 ##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.securityGroup"></a>
 
-- *Deprecated:* use {@link securityGroups}
+- *Deprecated:* use {@link securityGroups }
 
 ```typescript
 public readonly securityGroup: ISecurityGroup;
@@ -5033,7 +5033,7 @@ public readonly securityGroups: ISecurityGroup[];
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup[]
-- *Default:* a new security group, if {@link vpc} is used
+- *Default:* a new security group, if {@link vpc } is used
 
 Security groups to assign to this instance.
 
@@ -5232,7 +5232,7 @@ Version of GitHub Runners to install.
 
 ##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.ContainerImageBuilderProps.property.securityGroup"></a>
 
-- *Deprecated:* use {@link securityGroups}
+- *Deprecated:* use {@link securityGroups }
 
 ```typescript
 public readonly securityGroup: ISecurityGroup;
@@ -5406,7 +5406,7 @@ job's labels, this provider will be chosen and spawn a new runner.
 
 ##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.securityGroup"></a>
 
-- *Deprecated:* use {@link securityGroups}
+- *Deprecated:* use {@link securityGroups }
 
 ```typescript
 public readonly securityGroup: ISecurityGroup;
@@ -5477,7 +5477,7 @@ This modifies the boot volume size and doesn't add any additional volumes.
 
 ##### ~~`subnet`~~<sup>Optional</sup> <a name="subnet" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnet"></a>
 
-- *Deprecated:* use {@link vpc} and {@link subnetSelection}
+- *Deprecated:* use {@link vpc } and {@link subnetSelection }
 
 ```typescript
 public readonly subnet: ISubnet;
@@ -5671,7 +5671,7 @@ The image builder determines the OS and architecture of the runner.
 
 ##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.label"></a>
 
-- *Deprecated:* use {@link labels} instead
+- *Deprecated:* use {@link labels } instead
 
 ```typescript
 public readonly label: string;
@@ -5729,7 +5729,7 @@ Between 8192 (8 GB) and 30720 (30 GB) in increments of 1024 (1 GB) - Available c
 
 ##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.securityGroup"></a>
 
-- *Deprecated:* use {@link securityGroups}
+- *Deprecated:* use {@link securityGroups }
 
 ```typescript
 public readonly securityGroup: ISecurityGroup;
@@ -5849,23 +5849,23 @@ public readonly extraCertificates: string;
 
 Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.
 
-You may also want to use custom images for your runner providers that contain the same certificates. See {@link CodeBuildImageBuilder.addCertificates}.
+You may also want to use custom images for your runner providers that contain the same certificates. See {@link CodeBuildImageBuilder.addCertificates }.
 
 ```typescript
 const imageBuilder = CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder with Certs');
 imageBuilder.addComponent(RunnerImageComponent.extraCertificates('path-to-my-extra-certs-folder/certs.pem', 'private-ca');
 
 const provider = new CodeBuildRunnerProvider(this, 'CodeBuild', {
-     imageBuilder: imageBuilder,
+    imageBuilder: imageBuilder,
 });
 
 new GitHubRunners(
-   this,
-   'runners',
-   {
-     providers: [provider],
-     extraCertificates: 'path-to-my-extra-certs-folder',
-   }
+  this,
+  'runners',
+  {
+    providers: [provider],
+    extraCertificates: 'path-to-my-extra-certs-folder',
+  }
 );
 ```
 
@@ -6180,7 +6180,7 @@ The image builder determines the OS and architecture of the runner.
 
 ##### ~~`label`~~<sup>Optional</sup> <a name="label" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.label"></a>
 
-- *Deprecated:* use {@link labels} instead
+- *Deprecated:* use {@link labels } instead
 
 ```typescript
 public readonly label: string;
@@ -6229,7 +6229,7 @@ Developer Guide.
 
 ##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.securityGroup"></a>
 
-- *Deprecated:* use {@link securityGroups}
+- *Deprecated:* use {@link securityGroups }
 
 ```typescript
 public readonly securityGroup: ISecurityGroup;
@@ -6458,7 +6458,7 @@ Which failures generate a retry depends on the specific provider.
 
 ### RunnerAmi <a name="RunnerAmi" id="@cloudsnorkel/cdk-github-runners.RunnerAmi"></a>
 
-Description of a AMI built by {@link RunnerImageBuilder}.
+Description of a AMI built by {@link RunnerImageBuilder }.
 
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.RunnerAmi.Initializer"></a>
 
@@ -6544,7 +6544,7 @@ Log group where image builds are logged.
 
 ### RunnerImage <a name="RunnerImage" id="@cloudsnorkel/cdk-github-runners.RunnerImage"></a>
 
-Description of a Docker image built by {@link RunnerImageBuilder}.
+Description of a Docker image built by {@link RunnerImageBuilder }.
 
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.RunnerImage.Initializer"></a>
 
@@ -6943,7 +6943,7 @@ const runnerImageComponentCustomProps: RunnerImageComponentCustomProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.assets">assets</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageAsset">RunnerImageAsset</a>[]</code> | Assets to copy into the built image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.commands">commands</a></code> | <code>string[]</code> | Commands to run in the built image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.dockerCommands">dockerCommands</a></code> | <code>string[]</code> | Docker commands to run in the built image. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.name">name</a></code> | <code>string</code> | Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent}. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.name">name</a></code> | <code>string</code> | Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent }. |
 
 ---
 
@@ -6995,7 +6995,7 @@ public readonly name: string;
 
 - *Type:* string
 
-Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent}.
+Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent }.
 
 Name must only contain alphanumeric characters and dashes.
 
@@ -7266,7 +7266,7 @@ X86_64.
 
 Components for Ubuntu Linux that can be used with AWS Image Builder based builders.
 
-These cannot be used by {@link CodeBuildImageBuilder}.
+These cannot be used by {@link CodeBuildImageBuilder }.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.Initializer"></a>
 
@@ -7590,7 +7590,7 @@ public readonly name: string;
 
 ##### ~~`LINUX`~~<sup>Required</sup> <a name="LINUX" id="@cloudsnorkel/cdk-github-runners.Os.property.LINUX"></a>
 
-- *Deprecated:* use {@link LINUX_UBUNTU} or {@link LINUX_AMAZON_2}
+- *Deprecated:* use {@link LINUX_UBUNTU } or {@link LINUX_AMAZON_2 }
 
 ```typescript
 public readonly LINUX: Os;
@@ -7925,7 +7925,7 @@ public readonly name: string;
 
 Component name.
 
-Used to identify component in image build logs, and for {@link RunnerImageBuilder.removeComponent}
+Used to identify component in image build logs, and for {@link RunnerImageBuilder.removeComponent }
 
 ---
 
@@ -8163,7 +8163,7 @@ image OS.
 
 Components for Windows that can be used with AWS Image Builder based builders.
 
-These cannot be used by {@link CodeBuildImageBuilder}.
+These cannot be used by {@link CodeBuildImageBuilder }.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.WindowsComponents.Initializer"></a>
 
@@ -8393,7 +8393,7 @@ Log group name for the AMI builder where history of builds can be analyzed.
 
 - *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder">AmiBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder">CodeBuildImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder">ContainerImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder">RunnerImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
 
-Interface for constructs that build an image that can be used in {@link IRunnerProvider}.
+Interface for constructs that build an image that can be used in {@link IRunnerProvider }.
 
 An image can be a Docker image or AMI.
 
