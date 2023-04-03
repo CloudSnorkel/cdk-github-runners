@@ -12,12 +12,15 @@ import {
   Stack,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { ImageBuilderBase, ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
+import { ImageBuilderBase } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
-import { DeleteAmiFunction } from '../../lambdas/delete-ami-function';
-import { singletonLambda } from '../../utils';
-import { Architecture, IAmiBuilder, Os, RunnerAmi, RunnerVersion } from '../common';
+import { DeleteAmiFunction } from '../../../../lambdas/delete-ami-function';
+import { singletonLambda } from '../../../../utils';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../common';
+import { uniqueImageBuilderName } from '../../common';
+import { AmiRecipe, defaultBaseAmi } from '../ami';
+import { ImageBuilderComponent } from '../builder';
 
 /**
  * Properties for {@link AmiBuilder} construct.
@@ -117,86 +120,6 @@ export interface AmiBuilderProps {
 }
 
 /**
- * Properties for AmiRecipe construct.
- */
-interface AmiRecipeProperties {
-  /**
-   * Target platform. Must match builder platform.
-   */
-  readonly platform: 'Linux' | 'Windows';
-
-  /**
-   * Target architecture. Must match builder platform.
-   */
-  readonly architecture: Architecture;
-
-  /**
-   * Components to add to target container image.
-   */
-  readonly components: ImageBuilderComponent[];
-}
-
-/**
- * Image builder recipe for Amazon Machine Image (AMI).
- */
-class AmiRecipe extends ImageBuilderObjectBase {
-  public readonly arn: string;
-  public readonly name: string;
-
-  constructor(scope: Construct, id: string, props: AmiRecipeProperties) {
-    super(scope, id);
-
-    const name = uniqueImageBuilderName(this);
-
-    let components = props.components.map(component => {
-      return {
-        componentArn: component.arn,
-      };
-    });
-
-    let parentAmi;
-    let workingDirectory;
-    if (props.platform == 'Linux') {
-      let archUrl;
-      if (props.architecture.is(Architecture.X86_64)) {
-        archUrl = 'amd64';
-      } else if (props.architecture.is(Architecture.ARM64)) {
-        archUrl = 'arm64';
-      } else {
-        throw new Error(`Unsupported architecture for parent AMI: ${props.architecture.name}`);
-      }
-      parentAmi = ec2.MachineImage.fromSsmParameter(
-        `/aws/service/canonical/ubuntu/server/focal/stable/current/${archUrl}/hvm/ebs-gp2/ami-id`,
-        {
-          os: ec2.OperatingSystemType.LINUX,
-        },
-      ).getImage(this).imageId;
-      workingDirectory = '/home/runner';
-    } else if (props.platform == 'Windows') {
-      parentAmi = ec2.MachineImage.latestWindows(ec2.WindowsVersion.WINDOWS_SERVER_2022_ENGLISH_FULL_CONTAINERSLATEST).getImage(this).imageId;
-      workingDirectory = 'C:/'; // must exist or Image Builder fails and must not be empty or git will stall installing from the default windows\system32
-    } else {
-      throw new Error(`Unsupported AMI recipe platform: ${props.platform}`);
-    }
-
-    const recipe = new imagebuilder.CfnImageRecipe(this, 'Recipe', {
-      name: name,
-      version: this.version('ImageRecipe', name, {
-        platform: props.platform,
-        components,
-        parentAmi,
-      }),
-      parentImage: parentAmi,
-      components,
-      workingDirectory,
-    });
-
-    this.arn = recipe.attrArn;
-    this.name = name;
-  }
-}
-
-/**
  * An AMI builder that uses AWS Image Builder to build AMIs pre-baked with all the GitHub Actions runner requirements. Builders can be used with {@link Ec2Runner}.
  *
  * Each builder re-runs automatically at a set interval to make sure the AMIs contain the latest versions of everything.
@@ -224,14 +147,16 @@ class AmiRecipe extends ImageBuilderObjectBase {
  *     amiBuilder: builder,
  * });
  * ```
+ *
+ * @deprecated use RunnerImageBuilder
  */
-export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
+export class AmiBuilder extends ImageBuilderBase {
   private boundAmi?: RunnerAmi;
 
   constructor(scope: Construct, id: string, props?: AmiBuilderProps) {
     super(scope, id, {
       os: props?.os,
-      supportedOs: [Os.LINUX, Os.WINDOWS],
+      supportedOs: [Os.LINUX, Os.LINUX_UBUNTU, Os.LINUX_AMAZON_2, Os.WINDOWS],
       architecture: props?.architecture,
       supportedArchitectures: [Architecture.X86_64, Architecture.ARM64],
       instanceType: props?.instanceType,
@@ -248,8 +173,10 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
     // add all basic components
     if (this.os.is(Os.WINDOWS)) {
       this.addBaseWindowsComponents(props?.installDocker ?? true);
-    } else if (this.os.is(Os.LINUX)) {
+    } else if (this.os.is(Os.LINUX) || this.os.is(Os.LINUX_UBUNTU)) {
       this.addBaseLinuxComponents(props?.installDocker ?? true);
+    } else {
+      throw new Error(`Unsupported OS for AMI builder: ${this.os.name}`);
     }
   }
 
@@ -322,7 +249,7 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
   /**
    * Called by IRunnerProvider to finalize settings and create the AMI builder.
    */
-  bind(): RunnerAmi {
+  bindAmi(): RunnerAmi {
     if (this.boundAmi) {
       return this.boundAmi;
     }
@@ -363,6 +290,7 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
       platform: this.platform,
       components: this.components,
       architecture: this.architecture,
+      baseAmi: defaultBaseAmi(this.os, this.architecture).getImage(this).imageId,
     });
 
     const log = this.createLog(recipe.name);
@@ -422,5 +350,9 @@ export class AmiBuilder extends ImageBuilderBase implements IAmiBuilder {
         BuilderName: builderName,
       },
     });
+  }
+
+  bindDockerImage(): RunnerImage {
+    throw new Error('AmiBuilder cannot be used to build Docker images');
   }
 }

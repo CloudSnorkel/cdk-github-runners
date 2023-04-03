@@ -16,30 +16,29 @@ import { Construct } from 'constructs';
 import {
   Architecture,
   BaseProvider,
-  IImageBuilder,
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
   RunnerImage,
   RunnerProviderProps,
   RunnerRuntimeParameters,
+  RunnerVersion,
 } from './common';
-import { CodeBuildImageBuilder } from './image-builders/codebuild';
+import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from './image-builders';
 import { UpdateLambdaFunction } from '../lambdas/update-lambda-function';
 import { singletonLambda } from '../utils';
 
 export interface LambdaRunnerProviderProps extends RunnerProviderProps {
   /**
-   * Provider running an image to run inside CodeBuild with GitHub runner pre-configured.
+   * Runner image builder used to build Docker images containing GitHub Runner and all requirements.
    *
-   * The default command (`CMD`) should be `["runner.handler"]` which points to an included `runner.js` with a function named `handler`. The function should start the GitHub runner.
+   * The image builder must contain the {@link RunnerImageComponent.lambdaEntrypoint} component.
    *
    * The image builder determines the OS and architecture of the runner.
    *
-   * @see https://github.com/CloudSnorkel/cdk-github-runners/tree/main/src/providers/docker-images/lambda
-   * @default image builder with LambdaRunner.LINUX_X64_DOCKERFILE_PATH as Dockerfile
+   * @default LambdaRunnerProviderProps.imageBuilder()
    */
-  readonly imageBuilder?: IImageBuilder;
+  readonly imageBuilder?: IRunnerImageBuilder;
 
   /**
    * GitHub Actions label used for this provider.
@@ -131,6 +130,8 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be similar to public.ecr.aws/lambda/nodejs:14.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
+   *
+   * @deprecated Use `imageBuilder()` instead.
    */
   public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-x64');
 
@@ -140,8 +141,47 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be similar to public.ecr.aws/lambda/nodejs:14.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
+   *
+   * @deprecated Use `imageBuilder()` instead.
    */
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-arm64');
+
+  /**
+   * Create new image builder that builds Lambda specific runner images using Amazon Linux 2.
+   *
+   * Included components:
+   *  * `RunnerImageComponent.requiredPackages()`
+   *  * `RunnerImageComponent.runnerUser()`
+   *  * `RunnerImageComponent.git()`
+   *  * `RunnerImageComponent.githubCli()`
+   *  * `RunnerImageComponent.awsCli()`
+   *  * `RunnerImageComponent.githubRunner()`
+   *  * `RunnerImageComponent.lambdaEntrypoint()`
+   *
+   *  Base Docker image: `public.ecr.aws/lambda/nodejs:14-x86_64` or `public.ecr.aws/lambda/nodejs:14-arm64`
+   */
+  public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
+    let baseDockerImage = 'public.ecr.aws/lambda/nodejs:14-x86_64';
+    if (props?.architecture === Architecture.ARM64) {
+      baseDockerImage = 'public.ecr.aws/lambda/nodejs:14-arm64';
+    }
+
+    return RunnerImageBuilder.new(scope, id, {
+      os: Os.LINUX_AMAZON_2,
+      architecture: props?.architecture ?? Architecture.X86_64,
+      baseDockerImage,
+      components: [
+        RunnerImageComponent.requiredPackages(),
+        RunnerImageComponent.runnerUser(),
+        RunnerImageComponent.git(),
+        RunnerImageComponent.githubCli(),
+        RunnerImageComponent.awsCli(),
+        RunnerImageComponent.githubRunner(props?.runnerVersion ?? RunnerVersion.latest()),
+        RunnerImageComponent.lambdaEntrypoint(),
+      ],
+      ...props,
+    });
+  }
 
   /**
    * The function hosting the GitHub runner.
@@ -180,13 +220,11 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     this.vpc = props?.vpc;
     this.securityGroups = props?.securityGroup ? [props.securityGroup] : props?.securityGroups;
 
-    const imageBuilder = props?.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
-      dockerfilePath: LambdaRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
-    });
-    const image = this.image = imageBuilder.bind();
+    const imageBuilder = props?.imageBuilder ?? LambdaRunnerProvider.imageBuilder(this, 'Image Builder');
+    const image = this.image = imageBuilder.bindDockerImage();
 
     let architecture: lambda.Architecture | undefined;
-    if (image.os.is(Os.LINUX)) {
+    if (image.os.is(Os.LINUX_AMAZON_2) || image.os.is(Os.LINUX_UBUNTU)) {
       if (image.architecture.is(Architecture.X86_64)) {
         architecture = lambda.Architecture.X86_64;
       }
@@ -196,7 +234,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     }
 
     if (!architecture) {
-      throw new Error(`Unable to find support Lambda architecture for ${image.os.name}/${image.architecture.name}`);
+      throw new Error(`Unable to find supported Lambda architecture for ${image.os.name}/${image.architecture.name}`);
     }
 
     // get image digest and make sure to get it every time the lambda function might be updated

@@ -5,7 +5,7 @@ set -e -u -o pipefail
 # cleanup
 find /tmp -mindepth 1 -maxdepth 1 -exec rm -rf '{}' \;
 # copy runner code (it needs a writable directory)
-cp -r /runner /tmp/
+cp -r /home/runner /tmp/
 cd /tmp/runner
 # setup home directory
 mkdir /tmp/home

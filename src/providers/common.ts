@@ -102,8 +102,20 @@ export class Architecture {
 export class Os {
   /**
   * Linux
+  *
+  * @deprecated use {@link LINUX_UBUNTU} or {@link LINUX_AMAZON_2}
   */
   public static readonly LINUX = Os.of('Linux');
+
+  /**
+   * Ubuntu Linux
+   */
+  public static readonly LINUX_UBUNTU = Os.of('Ubuntu Linux');
+
+  /**
+   * Amazon Linux 2
+   */
+  public static readonly LINUX_AMAZON_2 = Os.of('Amazon Linux 2');
 
   /**
   * Windows
@@ -142,7 +154,7 @@ export class Os {
 }
 
 /**
- * Description of a Docker image built by {@link IImageBuilder}.
+ * Description of a Docker image built by {@link RunnerImageBuilder}.
  */
 export interface RunnerImage {
   /**
@@ -172,32 +184,14 @@ export interface RunnerImage {
 
   /**
    * Installed runner version.
+   *
+   * @deprecated open a ticket if you need this
    */
   readonly runnerVersion: RunnerVersion;
 }
 
 /**
- * Interface for constructs that build an image that can be used in {@link IRunnerProvider}.
- *
- * Anything that ends up with an ECR repository containing a Docker image that runs GitHub self-hosted runners can be used. A simple implementation could even point to an existing image and nothing else.
- *
- * It's important that the specified image tag be available at the time the repository is available. Providers usually assume the image is ready and will fail if it's not.
- *
- * The image can be further updated over time manually or using a schedule as long as it is always written to the same tag.
- */
-export interface IImageBuilder {
-  /**
-   * Finalize and return all required information about the Docker image built by this builder.
-   *
-   * This method can be called multiple times if the image is bound to multiple providers. Make sure you cache the image when implementing or return an error if this builder doesn't support reusing images.
-   *
-   * @return image
-   */
-  bind(): RunnerImage;
-}
-
-/**
- * Description of a AMI built by {@link IAmiBuilder}.
+ * Description of a AMI built by {@link RunnerImageBuilder}.
  */
 export interface RunnerAmi {
   /**
@@ -222,26 +216,10 @@ export interface RunnerAmi {
 
   /**
    * Installed runner version.
+   *
+   * @deprecated open a ticket if you need this
    */
   readonly runnerVersion: RunnerVersion;
-}
-
-/**
- * Interface for constructs that build an AMI that can be used in {@link IRunnerProvider}.
- *
- * Anything that ends up with a launch template pointing to an AMI that runs GitHub self-hosted runners can be used. A simple implementation could even point to an existing AMI and nothing else.
- *
- * The AMI can be further updated over time manually or using a schedule as long as it is always written to the same launch template.
- */
-export interface IAmiBuilder {
-  /**
-   * Finalize and return all required information about the AMI built by this builder.
-   *
-   * This method can be called multiple times if the image is bound to multiple providers. Make sure you cache the image when implementing or return an error if this builder doesn't support reusing images.
-   *
-   * @return ami
-   */
-  bind(): RunnerAmi;
 }
 
 /**
@@ -324,7 +302,7 @@ export interface RunnerRuntimeParameters {
   readonly githubDomainPath: string;
 
   /**
-   * Path to repostiroy owner name.
+   * Path to repository owner name.
    */
   readonly ownerPath: string;
 

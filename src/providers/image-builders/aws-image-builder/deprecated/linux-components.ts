@@ -1,10 +1,12 @@
 import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { ImageBuilderComponent } from './common';
-import { Architecture, RunnerVersion } from '../common';
+import { Architecture, RunnerVersion } from '../../../common';
+import { ImageBuilderComponent } from '../index';
 
 /**
  * Components for Ubuntu Linux that can be used with AWS Image Builder based builders. These cannot be used by {@link CodeBuildImageBuilder}.
+ *
+ * @deprecated Use `RunnerImageComponent` instead.
  */
 export class LinuxUbuntuComponents {
   public static requiredPackages(scope: Construct, id: string, architecture: Architecture) {
@@ -130,6 +132,7 @@ export class LinuxUbuntuComponents {
         `tar xzf "actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
         `rm actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz`,
         './bin/installdependencies.sh',
+        `echo -n ${runnerVersion.version} > RUNNER_VERSION`,
       ],
     });
   }
