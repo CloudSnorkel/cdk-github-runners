@@ -301,7 +301,7 @@ export class GitHubRunners extends Construct {
       providerChooser.when(
         stepfunctions.Condition.and(
           ...provider.labels.map(
-            label => stepfunctions.Condition.isPresent(`$.labels.${label}`),
+            label => stepfunctions.Condition.isPresent(`$.labels.${label.toLowerCase()}`),
           ),
         ),
         providerTask,
