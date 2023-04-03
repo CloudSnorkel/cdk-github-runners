@@ -16,6 +16,7 @@ import {
   Os,
   RunnerImageComponent,
 } from '../src';
+import { EcsRunnerProvider } from '../src/providers/ecs';
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
@@ -135,6 +136,21 @@ new GitHubRunners(stack, 'runners', {
       labels: ['codebuild', 'windows', 'x64'],
       computeType: codebuild.ComputeType.MEDIUM,
       imageBuilder: windowsImageBuilder,
+    }),
+    new EcsRunnerProvider(stack, 'ECS', {
+      labels: ['ecs', 'linux', 'x64'],
+      imageBuilder: codeBuildImageBuilder, // codebuild has dind
+      vpc,
+    }),
+    new EcsRunnerProvider(stack, 'ECS ARM64', {
+      labels: ['ecs', 'linux', 'arm64'],
+      imageBuilder: codeBuildArm64ImageBuilder, // codebuild has dind
+      vpc,
+    }),
+    new EcsRunnerProvider(stack, 'ECS Windows', {
+      labels: ['ecs', 'windows', 'x64'],
+      imageBuilder: windowsImageBuilder,
+      vpc,
     }),
     new LambdaRunnerProvider(stack, 'Lambda', {
       labels: ['lambda', 'x64'],

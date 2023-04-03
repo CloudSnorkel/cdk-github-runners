@@ -198,6 +198,35 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
 }
 
 /**
+ * @internal
+ */
+export function ecsRunCommand(os: Os): string[] {
+  if (os.is(Os.LINUX) || os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
+    return [
+      'sh', '-c',
+      `cd /home/runner &&
+        if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
+        ./config.sh --unattended --url "https://$GITHUB_DOMAIN/$OWNER/$REPO" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL" $RUNNER_FLAGS --name "$RUNNER_NAME" && 
+        ./run.sh &&
+        STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" _diag/ | tail -n1) &&
+        [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"`,
+    ];
+  } else if (os.is(Os.WINDOWS)) {
+    return [
+      'powershell', '-Command',
+      `cd \\actions ;
+        if ($Env:RUNNER_VERSION -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ; 
+        ./config.cmd --unattended --url "https://\${Env:GITHUB_DOMAIN}/\${Env:OWNER}/\${Env:REPO}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL}" $RunnerFlags --name "\${Env:RUNNER_NAME}" ; 
+        ./run.cmd ; 
+        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ; 
+        if ($STATUS) { echo "CDKGHA JOB DONE $\{Env:RUNNER_LABEL\} $STATUS" }`,
+    ];
+  } else {
+    throw new Error(`Fargate runner doesn't support ${os.name}`);
+  }
+}
+
+/**
  * GitHub Actions runner provider using Fargate to execute jobs.
  *
  * Creates a task definition with a single container that gets started for each job.
@@ -387,7 +416,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
           logGroup: this.logGroup,
           streamPrefix: 'runner',
         }),
-        command: this.runCommand(),
+        command: ecsRunCommand(this.image.os),
         user: image.os.is(Os.WINDOWS) ? undefined : 'runner',
       },
     );
@@ -475,32 +504,6 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
         imageBuilderLogGroup: this.image.logGroup?.logGroupName,
       },
     };
-  }
-
-  private runCommand(): string[] {
-    if (this.image.os.is(Os.LINUX) || this.image.os.is(Os.LINUX_UBUNTU) || this.image.os.is(Os.LINUX_AMAZON_2)) {
-      return [
-        'sh', '-c',
-        `cd /home/runner &&
-        if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
-        ./config.sh --unattended --url "https://$GITHUB_DOMAIN/$OWNER/$REPO" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL" $RUNNER_FLAGS --name "$RUNNER_NAME" && 
-        ./run.sh &&
-        STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" _diag/ | tail -n1) &&
-        [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"`,
-      ];
-    } else if (this.image.os.is(Os.WINDOWS)) {
-      return [
-        'powershell', '-Command',
-        `cd \\actions ;
-        if ($Env:RUNNER_VERSION -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ; 
-        ./config.cmd --unattended --url "https://\${Env:GITHUB_DOMAIN}/\${Env:OWNER}/\${Env:REPO}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL}" $RunnerFlags --name "\${Env:RUNNER_NAME}" ; 
-        ./run.cmd ; 
-        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ; 
-        if ($STATUS) { echo "CDKGHA JOB DONE $\{Env:RUNNER_LABEL\} $STATUS" }`,
-      ];
-    } else {
-      throw new Error(`Fargate runner doesn't support ${this.image.os.name}`);
-    }
   }
 }
 
