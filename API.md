@@ -665,13 +665,13 @@ CodeBuildRunner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBu
 Create new image builder that builds CodeBuild specific runner images using Ubuntu.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.dockerInDocker()`
-  * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.dockerInDocker()`
+ * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.imageBuilder.parameter.scope"></a>
 
@@ -1016,13 +1016,13 @@ CodeBuildRunnerProvider.imageBuilder(scope: Construct, id: string, props?: Runne
 Create new image builder that builds CodeBuild specific runner images using Ubuntu.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.dockerInDocker()`
-  * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.dockerInDocker()`
+ * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -1572,13 +1572,13 @@ Ec2Runner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderP
 Create new image builder that builds EC2 specific runner images using Ubuntu.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.docker()`
-  * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.docker()`
+ * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.imageBuilder.parameter.scope"></a>
 
@@ -1833,13 +1833,13 @@ Ec2RunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerImage
 Create new image builder that builds EC2 specific runner images using Ubuntu.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.docker()`
-  * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.docker()`
+ * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -2078,12 +2078,12 @@ FargateRunner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuil
 Create new image builder that builds Fargate specific runner images using Ubuntu.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.FargateRunner.imageBuilder.parameter.scope"></a>
 
@@ -2510,12 +2510,12 @@ FargateRunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerI
 Create new image builder that builds Fargate specific runner images using Ubuntu.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -3434,15 +3434,15 @@ LambdaRunner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuild
 Create new image builder that builds Lambda specific runner images using Amazon Linux 2.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.githubRunner()`
-  * `RunnerImageComponent.lambdaEntrypoint()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.lambdaEntrypoint()`
 
-  Base Docker image: `public.ecr.aws/lambda/nodejs:14-x86_64` or `public.ecr.aws/lambda/nodejs:14-arm64`
+ Base Docker image: `public.ecr.aws/lambda/nodejs:14-x86_64` or `public.ecr.aws/lambda/nodejs:14-arm64`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.imageBuilder.parameter.scope"></a>
 
@@ -3779,15 +3779,15 @@ LambdaRunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerIm
 Create new image builder that builds Lambda specific runner images using Amazon Linux 2.
 
 Included components:
-  * `RunnerImageComponent.requiredPackages()`
-  * `RunnerImageComponent.runnerUser()`
-  * `RunnerImageComponent.git()`
-  * `RunnerImageComponent.githubCli()`
-  * `RunnerImageComponent.awsCli()`
-  * `RunnerImageComponent.githubRunner()`
-  * `RunnerImageComponent.lambdaEntrypoint()`
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.lambdaEntrypoint()`
 
-  Base Docker image: `public.ecr.aws/lambda/nodejs:14-x86_64` or `public.ecr.aws/lambda/nodejs:14-arm64`
+ Base Docker image: `public.ecr.aws/lambda/nodejs:14-x86_64` or `public.ecr.aws/lambda/nodejs:14-arm64`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -4848,7 +4848,7 @@ public readonly computeType: ComputeType;
 ```
 
 - *Type:* aws-cdk-lib.aws_codebuild.ComputeType
-- *Default:* {@link ComputeType#SMALL}
+- *Default:* {@link ComputeType#SMALL }
 
 The type of compute to use for this build.
 
@@ -5856,7 +5856,7 @@ const imageBuilder = CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder w
 imageBuilder.addComponent(RunnerImageComponent.extraCertificates('path-to-my-extra-certs-folder/certs.pem', 'private-ca');
 
 const provider = new CodeBuildRunnerProvider(this, 'CodeBuild', {
-     imageBuilder: imageBuilder,
+    imageBuilder: imageBuilder,
 });
 
 new GitHubRunners(
@@ -6458,7 +6458,7 @@ Which failures generate a retry depends on the specific provider.
 
 ### RunnerAmi <a name="RunnerAmi" id="@cloudsnorkel/cdk-github-runners.RunnerAmi"></a>
 
-Description of a AMI built by {@link RunnerImageBuilder}.
+Description of a AMI built by {@link RunnerImageBuilder }.
 
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.RunnerAmi.Initializer"></a>
 
@@ -6544,7 +6544,7 @@ Log group where image builds are logged.
 
 ### RunnerImage <a name="RunnerImage" id="@cloudsnorkel/cdk-github-runners.RunnerImage"></a>
 
-Description of a Docker image built by {@link RunnerImageBuilder}.
+Description of a Docker image built by {@link RunnerImageBuilder }.
 
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.RunnerImage.Initializer"></a>
 
@@ -6943,7 +6943,7 @@ const runnerImageComponentCustomProps: RunnerImageComponentCustomProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.assets">assets</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageAsset">RunnerImageAsset</a>[]</code> | Assets to copy into the built image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.commands">commands</a></code> | <code>string[]</code> | Commands to run in the built image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.dockerCommands">dockerCommands</a></code> | <code>string[]</code> | Docker commands to run in the built image. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.name">name</a></code> | <code>string</code> | Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent}. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.name">name</a></code> | <code>string</code> | Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent }. |
 
 ---
 
@@ -6995,7 +6995,7 @@ public readonly name: string;
 
 - *Type:* string
 
-Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent}.
+Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent }.
 
 Name must only contain alphanumeric characters and dashes.
 
@@ -7266,7 +7266,7 @@ X86_64.
 
 Components for Ubuntu Linux that can be used with AWS Image Builder based builders.
 
-These cannot be used by {@link CodeBuildImageBuilder}.
+These cannot be used by {@link CodeBuildImageBuilder }.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents.Initializer"></a>
 
@@ -7590,7 +7590,7 @@ public readonly name: string;
 
 ##### ~~`LINUX`~~<sup>Required</sup> <a name="LINUX" id="@cloudsnorkel/cdk-github-runners.Os.property.LINUX"></a>
 
-- *Deprecated:* use {@link LINUX_UBUNTU} or {@link LINUX_AMAZON_2}
+- *Deprecated:* use {@link LINUX_UBUNTU } or {@link LINUX_AMAZON_2 }
 
 ```typescript
 public readonly LINUX: Os;
@@ -7925,7 +7925,7 @@ public readonly name: string;
 
 Component name.
 
-Used to identify component in image build logs, and for {@link RunnerImageBuilder.removeComponent}
+Used to identify component in image build logs, and for {@link RunnerImageBuilder.removeComponent }
 
 ---
 
@@ -8393,7 +8393,7 @@ Log group name for the AMI builder where history of builds can be analyzed.
 
 - *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.AmiBuilder">AmiBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildImageBuilder">CodeBuildImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.ContainerImageBuilder">ContainerImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilder">RunnerImageBuilder</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
 
-Interface for constructs that build an image that can be used in {@link IRunnerProvider}.
+Interface for constructs that build an image that can be used in {@link IRunnerProvider }.
 
 An image can be a Docker image or AMI.
 
