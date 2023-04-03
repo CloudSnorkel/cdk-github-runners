@@ -14,12 +14,15 @@ import {
 import { PolicyDocument } from 'aws-cdk-lib/aws-iam';
 import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
-import { CodeBuildRunner } from './providers/codebuild';
+import { DeleteRunnerFunction } from './lambdas/delete-runner-function';
+import { SetupFunction } from './lambdas/setup-function';
+import { StatusFunction } from './lambdas/status-function';
+import { TokenRetrieverFunction } from './lambdas/token-retriever-function';
+import { CodeBuildRunnerProvider } from './providers/codebuild';
 import { IRunnerProvider } from './providers/common';
-import { FargateRunner } from './providers/fargate';
-import { LambdaRunner } from './providers/lambda';
+import { FargateRunnerProvider } from './providers/fargate';
+import { LambdaRunnerProvider } from './providers/lambda';
 import { Secrets } from './secrets';
-import { BundledNodejsFunction } from './utils';
 import { GithubWebhookHandler } from './webhook';
 
 export enum LambdaAccessType {
@@ -72,12 +75,10 @@ export interface GitHubRunnersProps {
    * You may also want to use custom images for your runner providers that contain the same certificates. See {@link CodeBuildImageBuilder.addCertificates}.
    *
    * ```typescript
-   * const imageBuilder = new CodeBuildImageBuilder(this, 'Image Builder with Certs', {
-   *     dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH,
-   * });
-   * imageBuilder.addExtraCertificates('path-to-my-extra-certs-folder');
+   * const imageBuilder = CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder with Certs');
+   * imageBuilder.addComponent(RunnerImageComponent.extraCertificates('path-to-my-extra-certs-folder/certs.pem', 'private-ca');
    *
-   * const provider = new CodeBuildRunner(this, 'CodeBuild', {
+   * const provider = new CodeBuildRunnerProvider(this, 'CodeBuild', {
    *     imageBuilder: imageBuilder,
    * });
    *
@@ -233,9 +234,9 @@ export class GitHubRunners extends Construct {
       this.providers = this.props.providers;
     } else {
       this.providers = [
-        new CodeBuildRunner(this, 'CodeBuild'),
-        new LambdaRunner(this, 'Lambda'),
-        new FargateRunner(this, 'Fargate'),
+        new CodeBuildRunnerProvider(this, 'CodeBuild'),
+        new LambdaRunnerProvider(this, 'Lambda'),
+        new FargateRunnerProvider(this, 'Fargate'),
       ];
     }
 
@@ -324,7 +325,7 @@ export class GitHubRunners extends Construct {
       providerChooser.when(
         stepfunctions.Condition.and(
           ...provider.labels.map(
-            label => stepfunctions.Condition.isPresent(`$.labels.${label}`),
+            label => stepfunctions.Condition.isPresent(`$.labels.${label.toLowerCase()}`),
           ),
         ),
         providerTask,
@@ -378,7 +379,7 @@ export class GitHubRunners extends Construct {
   }
 
   private tokenRetriever() {
-    const func = new BundledNodejsFunction(
+    const func = new TokenRetrieverFunction(
       this,
       'token-retriever',
       {
@@ -389,6 +390,7 @@ export class GitHubRunners extends Construct {
           ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.seconds(30),
+        logRetention: logs.RetentionDays.ONE_MONTH,
         ...this.extraLambdaProps,
       },
     );
@@ -400,7 +402,7 @@ export class GitHubRunners extends Construct {
   }
 
   private deleteRunner() {
-    const func = new BundledNodejsFunction(
+    const func = new DeleteRunnerFunction(
       this,
       'delete-runner',
       {
@@ -411,6 +413,7 @@ export class GitHubRunners extends Construct {
           ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.seconds(30),
+        logRetention: logs.RetentionDays.ONE_MONTH,
         ...this.extraLambdaProps,
       },
     );
@@ -422,7 +425,7 @@ export class GitHubRunners extends Construct {
   }
 
   private statusFunction() {
-    const statusFunction = new BundledNodejsFunction(
+    const statusFunction = new StatusFunction(
       this,
       'status',
       {
@@ -440,6 +443,7 @@ export class GitHubRunners extends Construct {
           ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.minutes(3),
+        logRetention: logs.RetentionDays.ONE_MONTH,
         ...this.extraLambdaProps,
       },
     );
@@ -475,7 +479,7 @@ export class GitHubRunners extends Construct {
 
   private setupFunction(): string {
     const access = this.props?.setupAccess?.type ?? LambdaAccessType.LAMBDA_URL;
-    const setupFunction = new BundledNodejsFunction(
+    const setupFunction = new SetupFunction(
       this,
       'setup',
       {
@@ -489,6 +493,7 @@ export class GitHubRunners extends Construct {
           ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.minutes(3),
+        logRetention: logs.RetentionDays.ONE_MONTH,
         ...this.extraLambdaProps,
       },
     );

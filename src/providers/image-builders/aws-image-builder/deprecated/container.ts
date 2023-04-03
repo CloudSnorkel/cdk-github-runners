@@ -12,11 +12,15 @@ import {
 } from 'aws-cdk-lib';
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { Construct } from 'constructs';
-import { ImageBuilderBase, ImageBuilderComponent, ImageBuilderObjectBase, uniqueImageBuilderName } from './common';
+import { ImageBuilderBase } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
-import { BundledNodejsFunction } from '../../utils';
-import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
+import { BuildImageFunction } from '../../../../lambdas/build-image-function';
+import { singletonLambda } from '../../../../utils';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../common';
+import { uniqueImageBuilderName } from '../../common';
+import { ImageBuilderComponent } from '../builder';
+import { ContainerRecipe } from '../container';
 
 const dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
 ENV RUNNER_VERSION=___RUNNER_VERSION___
@@ -121,86 +125,6 @@ export interface ContainerImageBuilderProps {
 }
 
 /**
- * Properties for ContainerRecipe construct.
- */
-interface ContainerRecipeProperties {
-  /**
-   * Target platform. Must match builder platform.
-   */
-  readonly platform: 'Linux' | 'Windows';
-
-  /**
-   * Components to add to target container image.
-   */
-  readonly components: ImageBuilderComponent[];
-
-  /**
-   * ECR repository where resulting container image will be uploaded.
-   */
-  readonly targetRepository: ecr.IRepository;
-
-  /**
-   * Dockerfile template where all the components will be added.
-   *
-   * Must contain at least the following placeholders:
-   *
-   * ```
-   * FROM {{{ imagebuilder:parentImage }}}
-   * {{{ imagebuilder:environments }}}
-   * {{{ imagebuilder:components }}}
-   * ```
-   */
-  readonly dockerfileTemplate: string;
-
-  /**
-   * Parent image for the new Docker Image.
-   *
-   * @default 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64'
-   */
-  readonly parentImage?: string;
-}
-
-/**
- * Image builder recipe for a Docker container image.
- */
-class ContainerRecipe extends ImageBuilderObjectBase {
-  public readonly arn: string;
-  public readonly name: string;
-
-  constructor(scope: Construct, id: string, props: ContainerRecipeProperties) {
-    super(scope, id);
-
-    const name = uniqueImageBuilderName(this);
-
-    let components = props.components.map(component => {
-      return {
-        componentArn: component.arn,
-      };
-    });
-
-    const recipe = new imagebuilder.CfnContainerRecipe(this, 'Recipe', {
-      name: name,
-      version: this.version('ContainerRecipe', name, {
-        platform: props.platform,
-        components,
-        dockerfileTemplate,
-      }),
-      parentImage: props.parentImage ?? 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64',
-      components,
-      containerType: 'DOCKER',
-      targetRepository: {
-        service: 'ECR',
-        repositoryName: props.targetRepository.repositoryName,
-      },
-      dockerfileTemplateData: props.dockerfileTemplate,
-    });
-
-    this.arn = recipe.attrArn;
-    this.name = name;
-  }
-}
-
-/**
  * An image builder that uses AWS Image Builder to build Docker images pre-baked with all the GitHub Actions runner requirements. Builders can be used with runner providers.
  *
  * The CodeBuild builder is better and faster. Only use this one if you have no choice. For example, if you need Windows containers.
@@ -221,8 +145,10 @@ class ContainerRecipe extends ImageBuilderObjectBase {
  *     imageBuilder: builder,
  * });
  * ```
+ *
+ * @deprecated use RunnerImageBuilder
  */
-export class ContainerImageBuilder extends ImageBuilderBase implements IImageBuilder {
+export class ContainerImageBuilder extends ImageBuilderBase {
   readonly repository: ecr.IRepository;
   private readonly parentImage: string | undefined;
   private boundImage?: RunnerImage;
@@ -319,7 +245,7 @@ export class ContainerImageBuilder extends ImageBuilderBase implements IImageBui
   /**
    * Called by IRunnerProvider to finalize settings and create the image builder.
    */
-  bind(): RunnerImage {
+  bindDockerImage(): RunnerImage {
     if (this.boundImage) {
       return this.boundImage;
     }
@@ -378,9 +304,10 @@ export class ContainerImageBuilder extends ImageBuilderBase implements IImageBui
   }
 
   private imageCleaner(image: imagebuilder.CfnImage, recipeName: string) {
-    const crHandler = BundledNodejsFunction.singleton(this, 'build-image', {
+    const crHandler = singletonLambda(BuildImageFunction, this, 'build-image', {
       description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
       timeout: cdk.Duration.minutes(3),
+      logRetention: logs.RetentionDays.ONE_MONTH,
     });
 
     const policy = new iam.Policy(this, 'CR Policy', {
@@ -413,5 +340,9 @@ export class ContainerImageBuilder extends ImageBuilderBase implements IImageBui
     cr.node.addDependency(crHandler);
 
     return cr;
+  }
+
+  bindAmi(): RunnerAmi {
+    throw new Error('ContainerImageBuilder cannot be used to build AMIs');
   }
 }

@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 /* eslint-disable-next-line import/no-extraneous-dependencies,import/no-unresolved */
 import * as AWSLambda from 'aws-lambda';
 import * as AWS from 'aws-sdk';
-import { getSecretJsonValue } from '../helpers';
+import { getSecretJsonValue } from './helpers';
 
 const sf = new AWS.StepFunctions();
 
@@ -99,7 +99,7 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
 
   // it's easier to deal with maps in step functions
   let labels: any = {};
-  payload.workflow_job.labels.forEach((l: string) => labels[l] = true);
+  payload.workflow_job.labels.forEach((l: string) => labels[l.toLowerCase()] = true);
 
   // set execution name which is also used as runner name which are limited to 64 characters
   let executionName = `${payload.repository.full_name.replace('/', '-')}-${event.headers['x-github-delivery']}`.slice(0, 64);

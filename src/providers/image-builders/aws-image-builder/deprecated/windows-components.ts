@@ -1,10 +1,12 @@
 import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { ImageBuilderComponent } from './common';
-import { RunnerVersion } from '../common';
+import { RunnerVersion } from '../../../common';
+import { ImageBuilderComponent } from '../builder';
 
 /**
  * Components for Windows that can be used with AWS Image Builder based builders. These cannot be used by {@link CodeBuildImageBuilder}.
+ *
+ * @deprecated Use `RunnerImageComponent` instead.
  */
 export class WindowsComponents {
   public static cloudwatchAgent(scope: Construct, id: string) {
@@ -94,6 +96,7 @@ export class WindowsComponents {
         'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip" -OutFile actions.zip',
         'Expand-Archive actions.zip -DestinationPath C:\\actions',
         'del actions.zip',
+        `echo ${runnerVersion.version} | Out-File -Encoding ASCII -NoNewline C:\\actions\\RUNNER_VERSION`,
       ]),
     });
   }

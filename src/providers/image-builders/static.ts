@@ -1,8 +1,8 @@
 import { aws_ecr as ecr } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { CodeBuildImageBuilder } from './codebuild';
-import { CodeBuildRunner } from '../codebuild';
-import { Architecture, IImageBuilder, Os, RunnerImage, RunnerVersion } from '../common';
+import { CodeBuildRunnerImageBuilder } from './codebuild';
+import { IRunnerImageBuilder } from './common';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../common';
 
 /**
  * Helper class with methods to use static images that are built outside the context of this project.
@@ -16,9 +16,9 @@ export class StaticRunnerImage {
    * @param architecture image architecture
    * @param os image OS
    */
-  public static fromEcrRepository(repository: ecr.IRepository, tag: string = 'latest', architecture = Architecture.X86_64, os = Os.LINUX): IImageBuilder {
+  public static fromEcrRepository(repository: ecr.IRepository, tag: string = 'latest', architecture = Architecture.X86_64, os = Os.LINUX): IRunnerImageBuilder {
     return {
-      bind(): RunnerImage {
+      bindDockerImage(): RunnerImage {
         return {
           imageRepository: repository,
           imageTag: tag,
@@ -26,6 +26,10 @@ export class StaticRunnerImage {
           os,
           runnerVersion: RunnerVersion.latest(),
         };
+      },
+
+      bindAmi(): RunnerAmi {
+        throw new Error('fromEcrRepository() cannot be used to build AMIs');
       },
     };
   }
@@ -41,15 +45,11 @@ export class StaticRunnerImage {
    * @param architecture image architecture
    * @param os image OS
    */
-  public static fromDockerHub(scope: Construct, id: string, image: string, architecture = Architecture.X86_64, os = Os.LINUX): IImageBuilder {
-    const builder = new CodeBuildImageBuilder(scope, id, {
-      dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH, // fake Dockerfile that gets overridden below
-      architecture,
+  public static fromDockerHub(scope: Construct, id: string, image: string, architecture = Architecture.X86_64, os = Os.LINUX): IRunnerImageBuilder {
+    return new CodeBuildRunnerImageBuilder(scope, id, {
       os,
+      architecture,
+      baseDockerImage: image,
     });
-
-    builder.addPreBuildCommand(`echo "FROM ${image}" > Dockerfile`);
-
-    return builder;
   }
 }

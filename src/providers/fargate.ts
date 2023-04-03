@@ -14,7 +14,6 @@ import { Construct } from 'constructs';
 import {
   Architecture,
   BaseProvider,
-  IImageBuilder,
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
@@ -23,18 +22,20 @@ import {
   RunnerRuntimeParameters,
   RunnerVersion,
 } from './common';
-import { CodeBuildImageBuilder } from './image-builders/codebuild';
+import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from './image-builders';
 
 /**
  * Properties for FargateRunner.
  */
-export interface FargateRunnerProps extends RunnerProviderProps {
+export interface FargateRunnerProviderProps extends RunnerProviderProps {
   /**
-   * Provider running an image to run inside CodeBuild with GitHub runner pre-configured. A user named `runner` is expected to exist.
+   * Runner image builder used to build Docker images containing GitHub Runner and all requirements.
    *
-   * @default image builder with `FargateRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
+   * The image builder determines the OS and architecture of the runner.
+   *
+   * @default FargateRunnerProviderProps.imageBuilder()
    */
-  readonly imageBuilder?: IImageBuilder;
+  readonly imageBuilder?: IRunnerImageBuilder;
 
   /**
    * GitHub Actions label used for this provider.
@@ -184,6 +185,7 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
 
     return {
       parameters: {
+        PropagateTags: ecs.PropagatedTagSource.TASK_DEFINITION,
         EnableExecuteCommand: this.props.enableExecute,
         CapacityProviderStrategy: [
           {
@@ -202,15 +204,17 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
-export class FargateRunner extends BaseProvider implements IRunnerProvider {
+export class FargateRunnerProvider extends BaseProvider implements IRunnerProvider {
   /**
    * Path to Dockerfile for Linux x64 with all the requirement for Fargate runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
+   *
+   * @deprecated Use `imageBuilder()` instead.
    */
-  public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'fargate', 'linux-x64');
+  public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-x64');
 
   /**
    * Path to Dockerfile for Linux ARM64 with all the requirement for Fargate runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
@@ -218,8 +222,37 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
    * Available build arguments that can be set in the image builder:
    * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
    * * `EXTRA_PACKAGES` can be used to install additional packages.
+   *
+   * @deprecated Use `imageBuilder()` instead.
    */
-  public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, 'docker-images', 'fargate', 'linux-arm64');
+  public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-arm64');
+
+  /**
+   * Create new image builder that builds Fargate specific runner images using Ubuntu.
+   *
+   * Included components:
+   *  * `RunnerImageComponent.requiredPackages()`
+   *  * `RunnerImageComponent.runnerUser()`
+   *  * `RunnerImageComponent.git()`
+   *  * `RunnerImageComponent.githubCli()`
+   *  * `RunnerImageComponent.awsCli()`
+   *  * `RunnerImageComponent.githubRunner()`
+   */
+  public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps): RunnerImageBuilder {
+    return RunnerImageBuilder.new(scope, id, {
+      os: Os.LINUX_UBUNTU,
+      architecture: Architecture.X86_64,
+      components: [
+        RunnerImageComponent.requiredPackages(),
+        RunnerImageComponent.runnerUser(),
+        RunnerImageComponent.git(),
+        RunnerImageComponent.githubCli(),
+        RunnerImageComponent.awsCli(),
+        RunnerImageComponent.githubRunner(props?.runnerVersion ?? RunnerVersion.latest()),
+      ],
+      ...props,
+    });
+  }
 
   /**
    * Cluster hosting the task hosting the runner.
@@ -285,7 +318,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
 
   private readonly securityGroups: ec2.ISecurityGroup[];
 
-  constructor(scope: Construct, id: string, props?: FargateRunnerProps) {
+  constructor(scope: Construct, id: string, props?: FargateRunnerProviderProps) {
     super(scope, id, props);
 
     this.labels = this.labelsFromProperties('fargate', props?.label, props?.labels);
@@ -304,10 +337,8 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
     );
     this.spot = props?.spot ?? false;
 
-    const imageBuilder = props?.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
-      dockerfilePath: FargateRunner.LINUX_X64_DOCKERFILE_PATH,
-    });
-    const image = this.image = imageBuilder.bind();
+    const imageBuilder = props?.imageBuilder ?? FargateRunnerProvider.imageBuilder(this, 'Image Builder');
+    const image = this.image = imageBuilder.bindDockerImage();
 
     let arch: ecs.CpuArchitecture;
     if (image.architecture.is(Architecture.ARM64)) {
@@ -319,7 +350,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
     }
 
     let os: ecs.OperatingSystemFamily;
-    if (image.os.is(Os.LINUX)) {
+    if (image.os.is(Os.LINUX) || image.os.is(Os.LINUX_UBUNTU) || image.os.is(Os.LINUX_AMAZON_2)) {
       os = ecs.OperatingSystemFamily.LINUX;
     } else if (image.os.is(Os.WINDOWS)) {
       os = ecs.OperatingSystemFamily.WINDOWS_SERVER_2019_CORE;
@@ -357,10 +388,11 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
           streamPrefix: 'runner',
         }),
         command: this.runCommand(),
+        user: image.os.is(Os.WINDOWS) ? undefined : 'runner',
       },
     );
 
-    this.grantPrincipal = new iam.UnknownPrincipal({ resource: this.task.taskRole });
+    this.grantPrincipal = this.task.taskRole;
   }
 
   /**
@@ -380,7 +412,7 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
         cluster: this.cluster,
         launchTarget: new EcsFargateLaunchTarget({
           spot: this.spot,
-          enableExecute: this.image.os.is(Os.LINUX),
+          enableExecute: this.image.os.is(Os.LINUX) || this.image.os.is(Os.LINUX_UBUNTU) || this.image.os.is(Os.LINUX_AMAZON_2),
         }),
         subnets: this.subnetSelection,
         assignPublicIp: this.assignPublicIp,
@@ -446,15 +478,12 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
   }
 
   private runCommand(): string[] {
-    let runnerFlags = '';
-    if (this.image.runnerVersion.is(RunnerVersion.latest())) {
-      runnerFlags = '--disableupdate';
-    }
-
-    if (this.image.os.is(Os.LINUX)) {
+    if (this.image.os.is(Os.LINUX) || this.image.os.is(Os.LINUX_UBUNTU) || this.image.os.is(Os.LINUX_AMAZON_2)) {
       return [
         'sh', '-c',
-        `./config.sh --unattended --url "https://$GITHUB_DOMAIN/$OWNER/$REPO" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL" ${runnerFlags} --name "$RUNNER_NAME" && 
+        `cd /home/runner &&
+        if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
+        ./config.sh --unattended --url "https://$GITHUB_DOMAIN/$OWNER/$REPO" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL" $RUNNER_FLAGS --name "$RUNNER_NAME" && 
         ./run.sh &&
         STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" _diag/ | tail -n1) &&
         [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"`,
@@ -462,7 +491,9 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
     } else if (this.image.os.is(Os.WINDOWS)) {
       return [
         'powershell', '-Command',
-        `cd \\actions ; ./config.cmd --unattended --url "https://\${Env:GITHUB_DOMAIN}/\${Env:OWNER}/\${Env:REPO}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL}" ${runnerFlags} --name "\${Env:RUNNER_NAME}" ; 
+        `cd \\actions ;
+        if ($Env:RUNNER_VERSION -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ; 
+        ./config.cmd --unattended --url "https://\${Env:GITHUB_DOMAIN}/\${Env:OWNER}/\${Env:REPO}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL}" $RunnerFlags --name "\${Env:RUNNER_NAME}" ; 
         ./run.cmd ; 
         $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ; 
         if ($STATUS) { echo "CDKGHA JOB DONE $\{Env:RUNNER_LABEL\} $STATUS" }`,
@@ -471,4 +502,10 @@ export class FargateRunner extends BaseProvider implements IRunnerProvider {
       throw new Error(`Fargate runner doesn't support ${this.image.os.name}`);
     }
   }
+}
+
+/**
+ * @deprecated use {@link FargateRunnerProvider}
+ */
+export class FargateRunner extends FargateRunnerProvider {
 }

@@ -1,14 +1,21 @@
 /*
  * DEPLOY COMMANDS:
  * (if new lambdas are added) projen
- * npm run compile && npm run integ:default:deploy
+ * npm run bundle && npm run integ:default:deploy
  */
 
 import * as cdk from 'aws-cdk-lib';
 import { aws_codebuild as codebuild, aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
-import { Architecture, CodeBuildImageBuilder, CodeBuildRunner, ContainerImageBuilder, FargateRunner, GitHubRunners, LambdaRunner, Os } from '../src';
-import { Ec2Runner } from '../src/providers/ec2';
-import { AmiBuilder } from '../src/providers/image-builders/ami';
+import {
+  Architecture,
+  CodeBuildRunnerProvider,
+  Ec2RunnerProvider,
+  FargateRunnerProvider,
+  GitHubRunners,
+  LambdaRunnerProvider,
+  Os,
+  RunnerImageComponent,
+} from '../src';
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
@@ -30,60 +37,114 @@ const cluster = new ecs.Cluster(
     vpc: vpc,
   },
 );
-const fargateX64Builder = new CodeBuildImageBuilder(stack, 'Fargate builder', {
-  dockerfilePath: FargateRunner.LINUX_X64_DOCKERFILE_PATH,
+
+const extraFilesComponentLinux = RunnerImageComponent.custom({
+  commands: [
+    'touch /custom-file',
+    'mkdir /custom-dir',
+    'mv FUNDING.yml /custom-dir',
+  ],
+  assets: [
+    {
+      source: '.github/FUNDING.yml',
+      target: 'FUNDING.yml',
+    },
+  ],
+});
+const extraFilesComponentWindows = RunnerImageComponent.custom({
+  commands: [
+    'New-Item -ItemType file -Path / -Name custom-file',
+    'New-Item -ItemType directory -Path / -Name custom-dir',
+    'Move-Item FUNDING.yml /custom-dir',
+  ],
+  assets: [
+    {
+      source: '.github/FUNDING.yml',
+      target: 'FUNDING.yml',
+    },
+  ],
+});
+
+const fargateX64Builder = FargateRunnerProvider.imageBuilder(stack, 'Fargate builder', {
   architecture: Architecture.X86_64,
 });
-const fargateArm64Builder = new CodeBuildImageBuilder(stack, 'Fargate builder arm', {
-  dockerfilePath: FargateRunner.LINUX_ARM64_DOCKERFILE_PATH,
+fargateX64Builder.addComponent(extraFilesComponentLinux);
+
+const fargateArm64Builder = FargateRunnerProvider.imageBuilder(stack, 'Fargate builder arm', {
   architecture: Architecture.ARM64,
 });
-const lambdaImageBuilder = new CodeBuildImageBuilder(stack, 'Lambda Image Builder x64', {
-  dockerfilePath: LambdaRunner.LINUX_X64_DOCKERFILE_PATH,
+fargateArm64Builder.addComponent(extraFilesComponentLinux);
+
+const lambdaImageBuilder = LambdaRunnerProvider.imageBuilder(stack, 'Lambda Image Builder x64', {
   architecture: Architecture.X86_64,
 });
-const windowsImageBuilder = new ContainerImageBuilder(stack, 'Windows Image Builder', {
-  architecture: Architecture.X86_64,
+lambdaImageBuilder.addComponent(extraFilesComponentLinux);
+
+const windowsImageBuilder = FargateRunnerProvider.imageBuilder(stack, 'Windows Image Builder', {
+  os: Os.WINDOWS,
+  vpc,
+  subnetSelection: { subnetType: ec2.SubnetType.PUBLIC },
+});
+windowsImageBuilder.addComponent(extraFilesComponentWindows);
+
+const amiX64Builder = Ec2RunnerProvider.imageBuilder(stack, 'AMI Linux Builder', {
+  vpc,
+});
+amiX64Builder.addComponent(extraFilesComponentLinux);
+
+const codeBuildImageBuilder = CodeBuildRunnerProvider.imageBuilder(stack, 'CodeBuild Image Builder');
+codeBuildImageBuilder.addComponent(extraFilesComponentLinux);
+
+const codeBuildArm64ImageBuilder = CodeBuildRunnerProvider.imageBuilder(stack, 'CodeBuild Image Builder arm', {
+  architecture: Architecture.ARM64,
+});
+codeBuildArm64ImageBuilder.addComponent(extraFilesComponentLinux);
+
+const lambdaArm64ImageBuilder = LambdaRunnerProvider.imageBuilder(stack, 'Lambda Image Builderz', {
+  architecture: Architecture.ARM64,
+});
+lambdaArm64ImageBuilder.addComponent(extraFilesComponentLinux);
+
+const ec2ImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'AMI Linux arm64 Builder', {
+  architecture: Architecture.ARM64,
+  awsImageBuilderOptions: {
+    instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
+  },
+  vpc,
+});
+ec2ImageBuilder.addComponent(extraFilesComponentLinux);
+
+const ec2WindowsImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'Windows EC2 Builder', {
   os: Os.WINDOWS,
   vpc,
 });
-const amiX64Builder = new AmiBuilder(stack, 'AMI Linux Builder', {
-  vpc,
-});
+ec2WindowsImageBuilder.addComponent(extraFilesComponentWindows);
+
 new GitHubRunners(stack, 'runners', {
   providers: [
-    new CodeBuildRunner(stack, 'CodeBuildx64', {
+    new CodeBuildRunnerProvider(stack, 'CodeBuildx64', {
       label: 'codebuild-x64',
-      imageBuilder: new CodeBuildImageBuilder(stack, 'CodeBuild Image Builder', {
-        dockerfilePath: CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH,
-        architecture: Architecture.X86_64,
-      }),
+      imageBuilder: codeBuildImageBuilder,
     }),
-    new CodeBuildRunner(stack, 'CodeBuildARM', {
+    new CodeBuildRunnerProvider(stack, 'CodeBuildARM', {
       labels: ['codebuild', 'linux', 'arm64'],
       computeType: codebuild.ComputeType.SMALL,
-      imageBuilder: new CodeBuildImageBuilder(stack, 'CodeBuild Image Builder arm', {
-        dockerfilePath: CodeBuildRunner.LINUX_ARM64_DOCKERFILE_PATH,
-        architecture: Architecture.ARM64,
-      }),
+      imageBuilder: codeBuildArm64ImageBuilder,
     }),
-    new CodeBuildRunner(stack, 'CodeBuildWindows', {
+    new CodeBuildRunnerProvider(stack, 'CodeBuildWindows', {
       labels: ['codebuild', 'windows', 'x64'],
       computeType: codebuild.ComputeType.MEDIUM,
       imageBuilder: windowsImageBuilder,
     }),
-    new LambdaRunner(stack, 'Lambda', {
+    new LambdaRunnerProvider(stack, 'Lambda', {
       labels: ['lambda', 'x64'],
       imageBuilder: lambdaImageBuilder,
     }),
-    new LambdaRunner(stack, 'LambdaARM', {
+    new LambdaRunnerProvider(stack, 'LambdaARM', {
       labels: ['lambda', 'arm64'],
-      imageBuilder: new CodeBuildImageBuilder(stack, 'Lambda Image Builderz', {
-        dockerfilePath: LambdaRunner.LINUX_ARM64_DOCKERFILE_PATH,
-        architecture: Architecture.ARM64,
-      }),
+      imageBuilder: lambdaArm64ImageBuilder,
     }),
-    new FargateRunner(stack, 'Fargate', {
+    new FargateRunnerProvider(stack, 'Fargate', {
       labels: ['fargate', 'linux', 'x64'],
       cpu: 256,
       memoryLimitMiB: 512,
@@ -92,7 +153,7 @@ new GitHubRunners(stack, 'runners', {
       vpc: cluster.vpc,
       assignPublicIp: true,
     }),
-    new FargateRunner(stack, 'Fargate-x64-spot', {
+    new FargateRunnerProvider(stack, 'Fargate-x64-spot', {
       labels: ['fargate-spot', 'linux', 'x64'],
       spot: true,
       cpu: 256,
@@ -102,7 +163,7 @@ new GitHubRunners(stack, 'runners', {
       vpc: cluster.vpc,
       assignPublicIp: true,
     }),
-    new FargateRunner(stack, 'Fargate-arm64', {
+    new FargateRunnerProvider(stack, 'Fargate-arm64', {
       labels: ['fargate', 'linux', 'arm64'],
       cpu: 256,
       memoryLimitMiB: 512,
@@ -111,7 +172,7 @@ new GitHubRunners(stack, 'runners', {
       vpc: cluster.vpc,
       assignPublicIp: true,
     }),
-    new FargateRunner(stack, 'Fargate-arm64-spot', {
+    new FargateRunnerProvider(stack, 'Fargate-arm64-spot', {
       labels: ['fargate-spot', 'linux', 'arm64'],
       // TODO never available -- spot: true,
       cpu: 256,
@@ -121,7 +182,7 @@ new GitHubRunners(stack, 'runners', {
       vpc: cluster.vpc,
       assignPublicIp: true,
     }),
-    new FargateRunner(stack, 'Fargate-Windows', {
+    new FargateRunnerProvider(stack, 'Fargate-Windows', {
       labels: ['fargate', 'windows', 'x64'],
       cpu: 1024,
       memoryLimitMiB: 2048,
@@ -130,33 +191,26 @@ new GitHubRunners(stack, 'runners', {
       vpc: cluster.vpc,
       assignPublicIp: true,
     }),
-    new Ec2Runner(stack, 'EC2 Linux', {
+    new Ec2RunnerProvider(stack, 'EC2 Linux', {
       labels: ['ec2', 'linux', 'x64'],
-      amiBuilder: amiX64Builder,
+      imageBuilder: amiX64Builder,
       vpc,
     }),
-    new Ec2Runner(stack, 'EC2 Spot Linux', {
+    new Ec2RunnerProvider(stack, 'EC2 Spot Linux', {
       labels: ['ec2-spot', 'linux', 'x64'],
-      amiBuilder: amiX64Builder,
+      imageBuilder: amiX64Builder,
       spot: true,
       vpc,
     }),
-    new Ec2Runner(stack, 'EC2 Linux arm64', {
+    new Ec2RunnerProvider(stack, 'EC2 Linux arm64', {
       labels: ['ec2', 'linux', 'arm64'],
-      amiBuilder: new AmiBuilder(stack, 'AMI Linux arm64 Builder', {
-        architecture: Architecture.ARM64,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
-        vpc,
-      }),
+      imageBuilder: ec2ImageBuilder,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
       vpc,
     }),
-    new Ec2Runner(stack, 'EC2 Windows', {
+    new Ec2RunnerProvider(stack, 'EC2 Windows', {
       labels: ['ec2', 'windows', 'x64'],
-      amiBuilder: new AmiBuilder(stack, 'Windows EC2 Builder', {
-        os: Os.WINDOWS,
-        vpc,
-      }),
+      imageBuilder: ec2WindowsImageBuilder,
       vpc,
     }),
   ],

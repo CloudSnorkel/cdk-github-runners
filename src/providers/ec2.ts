@@ -13,8 +13,8 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
+  Architecture,
   BaseProvider,
-  IAmiBuilder,
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
@@ -23,7 +23,7 @@ import {
   RunnerRuntimeParameters,
   RunnerVersion,
 } from './common';
-import { AmiBuilder } from './image-builders/ami';
+import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageBuilderType, RunnerImageComponent } from './image-builders';
 
 // this script is specifically made so `poweroff` is absolutely always called
 // each `{}` is a variable coming from `params` below
@@ -58,7 +58,8 @@ EOF
   /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2
 }
 action () {
-  sudo -Hu runner /home/runner/config.sh --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{}" {} --name "{}" || exit 1
+  if [ "$(< RUNNER_VERSION)" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
+  sudo -Hu runner /home/runner/config.sh --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{}" $RUNNER_FLAGS --name "{}" || exit 1
   sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
   STATUS=$(grep -Phors "finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*" /home/runner/_diag/ | tail -n1)
   [ -n "$STATUS" ] && echo CDKGHA JOB DONE "{}" "$STATUS"
@@ -105,7 +106,9 @@ function setup_logs () {
 }
 function action () {
   cd /actions
-  ./config.cmd --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{}" {} --name "{}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  $RunnerVersion = Get-Content RUNNER_VERSION -Raw 
+  if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
+  ./config.cmd --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{}" $RunnerFlags --name "{}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
   if ($LASTEXITCODE -ne 0) { return 1 }
   ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
   if ($LASTEXITCODE -ne 0) { return 2 }
@@ -127,15 +130,22 @@ Stop-Computer -ComputerName localhost -Force
 
 
 /**
- * Properties for {@link Ec2Runner} construct.
+ * Properties for {@link Ec2RunnerProvider} construct.
  */
-export interface Ec2RunnerProps extends RunnerProviderProps {
+export interface Ec2RunnerProviderProps extends RunnerProviderProps {
   /**
-   * AMI builder that creates AMIs with GitHub runner pre-configured. On Linux, a user named `runner` is expected to exist with access to Docker.
+   * Runner image builder used to build AMI containing GitHub Runner and all requirements.
    *
-   * @default AMI builder for Ubuntu Linux on the same subnet as configured by {@link vpc} and {@link subnetSelection}
+   * The image builder determines the OS and architecture of the runner.
+   *
+   * @default Ec2ProviderProps.imageBuilder()
    */
-  readonly amiBuilder?: IAmiBuilder;
+  readonly imageBuilder?: IRunnerImageBuilder;
+
+  /**
+   * @deprecated use imageBuilder
+   */
+  readonly amiBuilder?: IRunnerImageBuilder;
 
   /**
    * GitHub Actions labels used for this provider.
@@ -221,7 +231,37 @@ export interface Ec2RunnerProps extends RunnerProviderProps {
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
-export class Ec2Runner extends BaseProvider implements IRunnerProvider {
+export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
+  /**
+   * Create new image builder that builds EC2 specific runner images using Ubuntu.
+   *
+   * Included components:
+   *  * `RunnerImageComponent.requiredPackages()`
+   *  * `RunnerImageComponent.runnerUser()`
+   *  * `RunnerImageComponent.git()`
+   *  * `RunnerImageComponent.githubCli()`
+   *  * `RunnerImageComponent.awsCli()`
+   *  * `RunnerImageComponent.docker()`
+   *  * `RunnerImageComponent.githubRunner()`
+   */
+  public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
+    return RunnerImageBuilder.new(scope, id, {
+      os: Os.LINUX_UBUNTU,
+      architecture: Architecture.X86_64,
+      builderType: RunnerImageBuilderType.AWS_IMAGE_BUILDER,
+      components: [
+        RunnerImageComponent.requiredPackages(),
+        RunnerImageComponent.runnerUser(),
+        RunnerImageComponent.git(),
+        RunnerImageComponent.githubCli(),
+        RunnerImageComponent.awsCli(),
+        RunnerImageComponent.docker(),
+        RunnerImageComponent.githubRunner(props?.runnerVersion ?? RunnerVersion.latest()),
+      ],
+      ...props,
+    });
+  }
+
   /**
    * Labels associated with this provider.
    */
@@ -249,7 +289,7 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
   private readonly subnets: ec2.ISubnet[];
   private readonly securityGroups: ec2.ISecurityGroup[];
 
-  constructor(scope: Construct, id: string, props?: Ec2RunnerProps) {
+  constructor(scope: Construct, id: string, props?: Ec2RunnerProviderProps) {
     super(scope, id, props);
 
     this.labels = props?.labels ?? ['ec2'];
@@ -261,12 +301,12 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;
 
-    const amiBuilder = props?.amiBuilder ?? new AmiBuilder(this, 'Image Builder', {
+    const amiBuilder = props?.imageBuilder ?? props?.amiBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
       vpc: props?.vpc,
       subnetSelection: props?.subnetSelection,
       securityGroups: this.securityGroups,
     });
-    this.ami = amiBuilder.bind();
+    this.ami = amiBuilder.bindAmi();
 
     if (!this.ami.architecture.instanceTypeMatch(this.instanceType)) {
       throw new Error(`AMI architecture (${this.ami.architecture.name}) doesn't match runner instance type (${this.instanceType} / ${this.instanceType.architecture})`);
@@ -313,7 +353,6 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
       parameters.repoPath,
       parameters.runnerTokenPath,
       this.labels.join(','),
-      this.ami.runnerVersion.is(RunnerVersion.latest()) ? '' : '--disableupdate',
       parameters.runnerNamePath,
       this.labels.join(','),
     ];
@@ -461,4 +500,10 @@ export class Ec2Runner extends BaseProvider implements IRunnerProvider {
   public get connections(): ec2.Connections {
     return new ec2.Connections({ securityGroups: this.securityGroups });
   }
+}
+
+/**
+ * @deprecated use {@link Ec2RunnerProvider}
+ */
+export class Ec2Runner extends Ec2RunnerProvider {
 }

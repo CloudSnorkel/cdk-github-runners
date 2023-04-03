@@ -99,7 +99,7 @@ let dbSg: ec2.SecurityGroup;
 let bucket: s3.Bucket;
 
 // create a custom CodeBuild provider
-const myProvider = new CodeBuildRunner(this, 'codebuild runner', { 
+const myProvider = new CodeBuildRunnerProvider(this, 'codebuild runner', { 
   label: 'my-codebuild',
   vpc: vpc,
   securityGroup: runnerSg,
@@ -117,23 +117,25 @@ new GitHubRunners(this, 'runners', {
 Another way to customize runners is by modifying the image used to spin them up. The image contains the [runner][5], any required dependencies, and integration code with the provider. You may choose to customize this image by adding more packages, for example.
 
 ```typescript
-const myBuilder = new CodeBuildImageBuilder(this, 'image builder', {
-  dockerfilePath: FargateRunner.LINUX_X64_DOCKERFILE_PATH,
-  runnerVersion: RunnerVersion.specific('2.291.0'),
-  rebuildInterval: Duration.days(14),    
+const myBuilder = CodeBuildRunnerProvider.imageBuilder(this, 'image builder', {
+   dockerfilePath: FargateRunner.LINUX_X64_DOCKERFILE_PATH,
+   runnerVersion: RunnerVersion.specific('2.291.0'),
+   rebuildInterval: Duration.days(14),
 });
-myBuilder.setBuildArg('EXTRA_PACKAGES', 'nginx xz-utils');
+myBuilder.addComponent(
+  RunnerImageComponent.custom({ commands: ['apt install -y nginx xz-utils'] })
+);
 
-const myProvider = new FargateRunner(this, 'fargate runner', {
-  label: 'customized-fargate',
-  vpc: vpc,
-  securityGroup: runnerSg,
-  imageBuilder: myBuilder,
+const myProvider = new FargateRunnerProvider(this, 'fargate runner', {
+   label: 'customized-fargate',
+   vpc: vpc,
+   securityGroup: runnerSg,
+   imageBuilder: myBuilder,
 });
 
 // create the runner infrastructure
-new GitHubRunners(stack, 'runners', {
-  providers: [myProvider],
+new GitHubRunners(this, 'runners', {
+   providers: [myProvider],
 });
 ```
 
@@ -149,38 +151,51 @@ jobs:
       - run: echo hello world
 ```
 
-Windows images must be built with AWS Image Builder.
+Windows images can also be customized the same way.
 
 ```typescript
-const myWindowsBuilder = new ContainerImageBuilder(this, 'Windows image builder', {
+const myWindowsBuilder = FargateRunnerProvider.imageBuilder(this, 'Windows image builder', {
   architecture: Architecture.X86_64,
   os: Os.WINDOWS,
   runnerVersion: RunnerVersion.specific('2.291.0'),
   rebuildInterval: Duration.days(14),    
 });
-myWindowsBuilder.addComponent(new ImageBuilderComponent(this, 'Ninja Component',
-  {
-    displayName: 'Ninja',
-    description: 'Download and install Ninja build system',
-    platform: 'Windows',
+myWindowsBuilder.addComponent(
+  RunnerImageComponent.custom({
+    name: 'Ninja',
     commands: [
       'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-win.zip" -OutFile ninja.zip',
       'Expand-Archive ninja.zip -DestinationPath C:\\actions',
       'del ninja.zip',
     ],
-  }
-));
+  })
+);
 
-const myProvider = new FargateRunner(this, 'fargate runner', {
+const myProvider = new FargateRunnerProvider(this, 'fargate runner', {
   label: 'customized-windows-fargate',
   vpc: vpc,
   securityGroup: runnerSg,
-  imageBuiler: myWindowsBuilder,
+  imageBuidler: myWindowsBuilder,
 });
 
-// create the runner infrastructure
-new GitHubRunners(stack, 'runners', {
+new GitHubRunners(this, 'runners', {
   providers: [myProvider],
+});
+```
+
+The runner OS and architecture is determined by the image it is set to use. For example, to create a Fargate runner provider for ARM64 set the `architecture` property for the image builder to `Architecture.ARM64` in the image builder properties.
+
+```typescript
+new GitHubRunners(this, 'runners', {
+  providers: [
+    new FargateRunnerProvider(this, 'fargate runner', {
+      labels: ['arm64', 'fargate'],
+      imageBuidler: FargateRunnerProvider.imageBuilder(this, 'image builder', {
+        architecture: Architecture.ARM64,
+        os: Os.LINUX,
+      }),
+    }),
+  ],
 });
 ```
 
