@@ -1,3 +1,5 @@
+# DEPRECATED - use RunnerImageBuilder instead
+
 ARG BASE_IMAGE="public.ecr.aws/lts/ubuntu:20.04"
 FROM $BASE_IMAGE
 

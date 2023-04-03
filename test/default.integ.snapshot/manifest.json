@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/d45a7f3ef3a3b0e6845efb50176d241f0eb4e8690af03f6a8dd8a8ed6881a47f.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/84e2ff4297b23e3e6424bc089be97d55ed8b808a8c163f687a1313ffe1303781.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -117,6 +117,18 @@
             "data": "clusterA4C38409"
           }
         ],
+        "/github-runners-test/Fargate builder/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargatebuilderRoleDA300BCD"
+          }
+        ],
+        "/github-runners-test/Fargate builder/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargatebuilderRoleDefaultPolicyE56CF8DA"
+          }
+        ],
         "/github-runners-test/Fargate builder/Repository/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -127,18 +139,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "FargatebuilderLogs2F794091"
-          }
-        ],
-        "/github-runners-test/Fargate builder/CodeBuild/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "FargatebuilderCodeBuildRole814DF0A3"
-          }
-        ],
-        "/github-runners-test/Fargate builder/CodeBuild/Role/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "FargatebuilderCodeBuildRoleDefaultPolicy154A06CC"
           }
         ],
         "/github-runners-test/Fargate builder/CodeBuild/Resource": [
@@ -177,6 +177,18 @@
             "data": "FargatebuilderBuildSchedule0B083A73"
           }
         ],
+        "/github-runners-test/Fargate builder arm/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargatebuilderarmRoleB6343E8F"
+          }
+        ],
+        "/github-runners-test/Fargate builder arm/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargatebuilderarmRoleDefaultPolicy89F1BA94"
+          }
+        ],
         "/github-runners-test/Fargate builder arm/Repository/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -187,18 +199,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "FargatebuilderarmLogs63D60F4D"
-          }
-        ],
-        "/github-runners-test/Fargate builder arm/CodeBuild/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "FargatebuilderarmCodeBuildRole10194D7D"
-          }
-        ],
-        "/github-runners-test/Fargate builder arm/CodeBuild/Role/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "FargatebuilderarmCodeBuildRoleDefaultPolicy43BE6861"
           }
         ],
         "/github-runners-test/Fargate builder arm/CodeBuild/Resource": [
@@ -237,6 +237,18 @@
             "data": "FargatebuilderarmBuildSchedule854B2895"
           }
         ],
+        "/github-runners-test/Lambda Image Builder x64/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderx64RoleEE3EE1CB"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builder x64/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderx64RoleDefaultPolicyC6AE2BE4"
+          }
+        ],
         "/github-runners-test/Lambda Image Builder x64/Repository/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -247,18 +259,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "LambdaImageBuilderx64Logs1C003BB4"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builder x64/CodeBuild/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderx64CodeBuildRole144A321F"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builder x64/CodeBuild/Role/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderx64CodeBuildRoleDefaultPolicy3268409C"
           }
         ],
         "/github-runners-test/Lambda Image Builder x64/CodeBuild/Resource": [
@@ -315,64 +315,112 @@
             "data": "WindowsImageBuilderSG5ACD1618"
           }
         ],
+        "/github-runners-test/Windows Image Builder/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderRole717C46A6"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderRoleDefaultPolicy8BEB7BE3"
+          }
+        ],
         "/github-runners-test/Windows Image Builder/Repository/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "WindowsImageBuilderRepositoryA4CBB6D8"
           }
         ],
-        "/github-runners-test/Windows Image Builder/AWS CLI/Version/Default": [
+        "/github-runners-test/Windows Image Builder/Docker Distribution": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderAWSCLIVersion7C70BA9E"
+            "data": "WindowsImageBuilderDockerDistributionCDE69DC2"
           }
         ],
-        "/github-runners-test/Windows Image Builder/AWS CLI/Component": [
+        "/github-runners-test/Windows Image Builder/Component 0/Version/Default": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderAWSCLIComponentC38DBB5C"
+            "data": "WindowsImageBuilderComponent0VersionE91A6DEE"
           }
         ],
-        "/github-runners-test/Windows Image Builder/GitHub CLI/Version/Default": [
+        "/github-runners-test/Windows Image Builder/Component 0/Component": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderGitHubCLIVersionBF0CA21E"
+            "data": "WindowsImageBuilderComponent0Component1BAC2114"
           }
         ],
-        "/github-runners-test/Windows Image Builder/GitHub CLI/Component": [
+        "/github-runners-test/Windows Image Builder/Component 1/Version/Default": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderGitHubCLIComponent01DB322F"
+            "data": "WindowsImageBuilderComponent1Version2EE9CF79"
           }
         ],
-        "/github-runners-test/Windows Image Builder/git/Version/Default": [
+        "/github-runners-test/Windows Image Builder/Component 1/Component": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuildergitVersion78548E80"
+            "data": "WindowsImageBuilderComponent1Component69BC8752"
           }
         ],
-        "/github-runners-test/Windows Image Builder/git/Component": [
+        "/github-runners-test/Windows Image Builder/Component 2/Version/Default": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuildergitComponent39E4D9CB"
+            "data": "WindowsImageBuilderComponent2Version1E3B418C"
           }
         ],
-        "/github-runners-test/Windows Image Builder/GitHub Actions Runner/Version/Default": [
+        "/github-runners-test/Windows Image Builder/Component 2/Component": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderGitHubActionsRunnerVersion9E35A9C2"
+            "data": "WindowsImageBuilderComponent2ComponentC3C8B164"
           }
         ],
-        "/github-runners-test/Windows Image Builder/GitHub Actions Runner/Component": [
+        "/github-runners-test/Windows Image Builder/Component 3/Version/Default": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderGitHubActionsRunnerComponent248E9189"
+            "data": "WindowsImageBuilderComponent3Version715094B2"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Distribution": [
+        "/github-runners-test/Windows Image Builder/Component 3/Component": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderDistribution843AF65B"
+            "data": "WindowsImageBuilderComponent3Component0F5BE877"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Component 4/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderComponent4Version369F5E8C"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Component 4/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderComponent4Component9A9E3E83"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Component 5/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderComponent5Version1B413E7D"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Component 5/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderComponent5ComponentAA1F708B"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Component 6/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderComponent6Version5FF30FC9"
+          }
+        ],
+        "/github-runners-test/Windows Image Builder/Component 6/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsImageBuilderComponent6Component161DD9F3"
           }
         ],
         "/github-runners-test/Windows Image Builder/Container Recipe/Version/Default": [
@@ -387,16 +435,10 @@
             "data": "WindowsImageBuilderContainerRecipeB2A421D7"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Log/Resource": [
+        "/github-runners-test/Windows Image Builder/Docker Log/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderLog0E03408E"
-          }
-        ],
-        "/github-runners-test/Windows Image Builder/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderRole717C46A6"
+            "data": "WindowsImageBuilderDockerLogE660E23E"
           }
         ],
         "/github-runners-test/Windows Image Builder/Instance Profile": [
@@ -411,16 +453,16 @@
             "data": "WindowsImageBuilderInfrastructureFF99A30B"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Image": [
+        "/github-runners-test/Windows Image Builder/Docker Image": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderImage7065BB07"
+            "data": "WindowsImageBuilderDockerImage8672CA3E"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Pipeline": [
+        "/github-runners-test/Windows Image Builder/Docker Pipeline": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderPipeline29B7B6E1"
+            "data": "WindowsImageBuilderDockerPipeline3613721A"
           }
         ],
         "/github-runners-test/Windows Image Builder/CR Policy/Resource": [
@@ -435,46 +477,10 @@
             "data": "WindowsImageBuilderDeleterB5A108CD"
           }
         ],
-        "/github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/Resource": [
+        "/github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58"
-          }
-        ],
-        "/github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy93D80BBD"
-          }
-        ],
-        "/github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E"
-          }
-        ],
-        "/github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogRetention/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1LogRetentionA8337CBD"
-          }
-        ],
-        "/github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
-          }
-        ],
-        "/github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB"
-          }
-        ],
-        "/github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A"
+            "data": "SsmParameterValueawsserviceamiwindowslatestWindowsServer2022EnglishFullContainersLatestC96584B6F00A464EAD1953AFF4B05118Parameter"
           }
         ],
         "/github-runners-test/AMI Linux Builder/SG/Resource": [
@@ -483,88 +489,22 @@
             "data": "AMILinuxBuilderSGEDC86329"
           }
         ],
-        "/github-runners-test/AMI Linux Builder/Upgrade packages and install basics/Version/Default": [
+        "/github-runners-test/AMI Linux Builder/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderUpgradepackagesandinstallbasicsVersionA685EC4B"
+            "data": "AMILinuxBuilderRole0C42378A"
           }
         ],
-        "/github-runners-test/AMI Linux Builder/Upgrade packages and install basics/Component": [
+        "/github-runners-test/AMI Linux Builder/Role/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderUpgradepackagesandinstallbasicsComponentE35966D5"
+            "data": "AMILinuxBuilderRoleDefaultPolicy69ED051F"
           }
         ],
-        "/github-runners-test/AMI Linux Builder/User/Version/Default": [
+        "/github-runners-test/AMI Linux Builder/Repository/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderUserVersion6E8E8CF9"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/User/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderUserComponent5AE6CCAD"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/AWS CLI/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderAWSCLIVersion7E4EC258"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/AWS CLI/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderAWSCLIComponent8161BB77"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/GitHub CLI/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderGitHubCLIVersionDC235969"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/GitHub CLI/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderGitHubCLIComponentFCD1D3AD"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/git/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuildergitVersionE19C42C8"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/git/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuildergitComponentE5675D45"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/GitHub Actions Runner/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderGitHubActionsRunnerVersion97672B31"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/GitHub Actions Runner/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderGitHubActionsRunnerComponent62D9BC91"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/Docker/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderDockerVersion3F741AF0"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/Docker/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderDockerComponentC4D1AB14"
+            "data": "AMILinuxBuilderRepositoryAE4287AE"
           }
         ],
         "/github-runners-test/AMI Linux Builder/Launch template/Resource": [
@@ -573,10 +513,106 @@
             "data": "AMILinuxBuilderLaunchtemplateA29452C4"
           }
         ],
-        "/github-runners-test/AMI Linux Builder/Distribution": [
+        "/github-runners-test/AMI Linux Builder/AMI Distribution": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderDistribution045596CF"
+            "data": "AMILinuxBuilderAMIDistribution46435AF5"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 0 RequiredPackages/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent0RequiredPackagesVersion1DA9F296"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 0 RequiredPackages/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent0RequiredPackagesComponent6D0029EE"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 1 RunnerUser/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent1RunnerUserVersionCA41D9C8"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 1 RunnerUser/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent1RunnerUserComponent2EBE4EAD"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 2 Git/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent2GitVersion82679172"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 2 Git/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent2GitComponentF2C8CE06"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 3 GithubCli/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent3GithubCliVersionC0E82894"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 3 GithubCli/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent3GithubCliComponent170A927E"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 4 AwsCli/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent4AwsCliVersion0C5F8836"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 4 AwsCli/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent4AwsCliComponent4DEACF99"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 5 Docker/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent5DockerVersion5018BF22"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 5 Docker/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent5DockerComponent6FEDF0C9"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 6 GithubRunner/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent6GithubRunnerVersionBF146628"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 6 GithubRunner/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent6GithubRunnerComponent921D60D9"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 7 Custom-Undefined/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent7CustomUndefinedVersion691E056E"
+          }
+        ],
+        "/github-runners-test/AMI Linux Builder/Component 7 Custom-Undefined/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxBuilderComponent7CustomUndefinedComponent90421257"
           }
         ],
         "/github-runners-test/AMI Linux Builder/Ami Recipe/Version/Default": [
@@ -591,16 +627,10 @@
             "data": "AMILinuxBuilderAmiRecipe7C7ED6C7"
           }
         ],
-        "/github-runners-test/AMI Linux Builder/Log/Resource": [
+        "/github-runners-test/AMI Linux Builder/Ami Log/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderLogAA902D79"
-          }
-        ],
-        "/github-runners-test/AMI Linux Builder/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderRole0C42378A"
+            "data": "AMILinuxBuilderAmiLog0DB16E38"
           }
         ],
         "/github-runners-test/AMI Linux Builder/Instance Profile": [
@@ -615,16 +645,16 @@
             "data": "AMILinuxBuilderInfrastructure6FCD154A"
           }
         ],
-        "/github-runners-test/AMI Linux Builder/Image": [
+        "/github-runners-test/AMI Linux Builder/AMI Image": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderImage1049E111"
+            "data": "AMILinuxBuilderAMIImage93D83DE5"
           }
         ],
-        "/github-runners-test/AMI Linux Builder/Pipeline": [
+        "/github-runners-test/AMI Linux Builder/AMI Pipeline": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "AMILinuxBuilderPipelineA080CF10"
+            "data": "AMILinuxBuilderAMIPipelineEC5051DF"
           }
         ],
         "/github-runners-test/AMI Linux Builder/Delete AMI Schedule/Resource": [
@@ -645,6 +675,24 @@
             "data": "AMILinuxBuilderAMIDeleter58658716"
           }
         ],
+        "/github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentamd64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderRoleF1F34984"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderRoleDefaultPolicy6982821E"
+          }
+        ],
         "/github-runners-test/CodeBuild Image Builder/Repository/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -655,18 +703,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "CodeBuildImageBuilderLogsE4CADFCC"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder/CodeBuild/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderCodeBuildRoleF8F57ECB"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder/CodeBuild/Role/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderCodeBuildRoleDefaultPolicy1060FBF9"
           }
         ],
         "/github-runners-test/CodeBuild Image Builder/CodeBuild/Resource": [
@@ -703,6 +739,528 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "CodeBuildImageBuilderBuildSchedule66D9D18A"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmRole96BC26FB"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmRoleDefaultPolicy540A8CDE"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/Repository/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmRepositoryE967421B"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/Logs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmLogs5A60CB81"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/EventsRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/EventsRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmCodeBuildEventsRoleDefaultPolicyEA24770D"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/CR Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmCRPolicy75CB8D91"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/Builder/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmBuilder755EB37D"
+          }
+        ],
+        "/github-runners-test/CodeBuild Image Builder arm/Build Schedule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmBuildSchedule909D75E9"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builderz/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderzRole6F1A63E5"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builderz/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderzRoleDefaultPolicy06ABB0C7"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builderz/Repository/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderzRepository7C7AD146"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builderz/Logs/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderzLogsC9FB42C8"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builderz/CodeBuild/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderzCodeBuild73AB6718"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builderz/CodeBuild/EventsRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderzCodeBuildEventsRoleE9E50664"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builderz/CodeBuild/EventsRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderzCodeBuildEventsRoleDefaultPolicyE0DB8E23"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builderz/CR Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderzCRPolicyC9B09855"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builderz/Builder/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderzBuilder235DD147"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builderz/Build Schedule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderzBuildSchedule81F79A6A"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builderz/Dependable Image/Push rule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderzDependableImagePushrule2E3269CC"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builderz/Dependable Image/Push rule/AllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98E": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderzDependableImagePushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98ECD865F34"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/SG/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderSG94315968"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderRole40D54E29"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderRoleDefaultPolicy113305EE"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Repository/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderRepository31842F89"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Launch template/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/AMI Distribution": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderAMIDistribution2BDAF717"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 0 RequiredPackages/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent0RequiredPackagesVersion7CCB5268"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 0 RequiredPackages/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent0RequiredPackagesComponent2ABFFC8F"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 1 RunnerUser/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent1RunnerUserVersion7CC2642F"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 1 RunnerUser/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent1RunnerUserComponent4BA674F3"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 2 Git/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent2GitVersion6653A045"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 2 Git/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent2GitComponent4229D34D"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 3 GithubCli/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent3GithubCliVersion0BCEFC78"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 3 GithubCli/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent3GithubCliComponentF183CE19"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 4 AwsCli/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent4AwsCliVersion78036929"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 4 AwsCli/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent4AwsCliComponent48566B83"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 5 Docker/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent5DockerVersion844A4107"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 5 Docker/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent5DockerComponent9F2EEB10"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 6 GithubRunner/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent6GithubRunnerVersionC728248D"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 6 GithubRunner/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent6GithubRunnerComponentF4B81DE9"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 7 Custom-Undefined/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent7CustomUndefinedVersion5AA71C6E"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Component 7 Custom-Undefined/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderComponent7CustomUndefinedComponent6F6F62D0"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Ami Recipe/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderAmiRecipeVersion429E7646"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Ami Recipe/Recipe": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderAmiRecipe6A6ED38F"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Ami Log/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderAmiLog84A9D94A"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Instance Profile": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderInstanceProfileCE3B6B09"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Infrastructure": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderInfrastructure80FA16D6"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/AMI Image": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderAMIImage40078F9E"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/AMI Pipeline": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderAMIPipeline9CC1354C"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Delete AMI Schedule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderDeleteAMISchedule72E5EB47"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/Delete AMI Schedule/AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderDeleteAMIScheduleAllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88A6D69EB4"
+          }
+        ],
+        "/github-runners-test/AMI Linux arm64 Builder/AMI Deleter/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AMILinuxarm64BuilderAMIDeleter27E72E27"
+          }
+        ],
+        "/github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentarm64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/SG/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderSGE3F67842"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderRole1BA7D3E7"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderRoleDefaultPolicy8A5B4E85"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Repository/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderRepository6AF0EAB4"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Launch template/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/AMI Distribution": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderAMIDistributionC7E428C1"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 0 RequiredPackages/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent0RequiredPackagesVersion08C0B23D"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 0 RequiredPackages/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent0RequiredPackagesComponent42A20182"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 1 RunnerUser/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent1RunnerUserVersionBB304040"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 1 RunnerUser/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent1RunnerUserComponent90CB91A0"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 2 Git/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent2GitVersion6AACF128"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 2 Git/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent2GitComponentBDE86E60"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 3 GithubCli/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent3GithubCliVersion1BB3282E"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 3 GithubCli/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent3GithubCliComponent44942D8F"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 4 AwsCli/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent4AwsCliVersion235F6DDE"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 4 AwsCli/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent4AwsCliComponent2112B01A"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 5 Docker/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent5DockerVersion40844B58"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 5 Docker/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent5DockerComponent043F7B9D"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 6 GithubRunner/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent6GithubRunnerVersion068CC361"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 6 GithubRunner/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent6GithubRunnerComponent6342E200"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 7 Custom-Undefined/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent7CustomUndefinedVersion96AF0127"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Component 7 Custom-Undefined/Component": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderComponent7CustomUndefinedComponent83F7C59D"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Ami Recipe/Version/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderAmiRecipeVersionEE5C2F0C"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Ami Recipe/Recipe": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderAmiRecipe41A137FF"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Ami Log/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderAmiLog126E54B2"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Instance Profile": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderInstanceProfileA8DBA763"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Infrastructure": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderInfrastructure757D4FD7"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/AMI Image": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderAMIImage9D812188"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/AMI Pipeline": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderAMIPipelineE3836949"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Delete AMI Schedule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderDeleteAMISchedule52E66C5D"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/Delete AMI Schedule/AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderDeleteAMIScheduleAllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA882F03ABC6"
+          }
+        ],
+        "/github-runners-test/Windows EC2 Builder/AMI Deleter/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WindowsEC2BuilderAMIDeleterF9643905"
           }
         ],
         "/github-runners-test/CodeBuildx64/Logs/Resource": [
@@ -753,64 +1311,22 @@
             "data": "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB"
           }
         ],
-        "/github-runners-test/CodeBuild Image Builder arm/Repository/Resource": [
+        "/github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmRepositoryE967421B"
+            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
           }
         ],
-        "/github-runners-test/CodeBuild Image Builder arm/Logs/Resource": [
+        "/github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmLogs5A60CB81"
+            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB"
           }
         ],
-        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/Role/Resource": [
+        "/github-runners-test/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmCodeBuildRoleEF082AD2"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/Role/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmCodeBuildRoleDefaultPolicyB642F141"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/EventsRole/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/EventsRole/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmCodeBuildEventsRoleDefaultPolicyEA24770D"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/CR Policy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmCRPolicy75CB8D91"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/Builder/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmBuilder755EB37D"
-          }
-        ],
-        "/github-runners-test/CodeBuild Image Builder arm/Build Schedule/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CodeBuildImageBuilderarmBuildSchedule909D75E9"
+            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A"
           }
         ],
         "/github-runners-test/CodeBuildARM/Logs/Resource": [
@@ -871,6 +1387,30 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "CodeBuildWindowsCodeBuildC39F35C1"
+          }
+        ],
+        "/github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58"
+          }
+        ],
+        "/github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy93D80BBD"
+          }
+        ],
+        "/github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E"
+          }
+        ],
+        "/github-runners-test/aws-image-builder-versioner-dcc036c8-876b-451e-a2c1-552f9e06e9e1/LogRetention/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1LogRetentionA8337CBD"
           }
         ],
         "/github-runners-test/Lambda/Image Digest Reader/Resource/Default": [
@@ -949,78 +1489,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "updatelambdadcc036c8876b451ea2c1552f9e06e9e1LogRetentionEF9C436F"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builderz/Repository/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderzRepository7C7AD146"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builderz/Logs/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderzLogsC9FB42C8"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builderz/CodeBuild/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderzCodeBuildRole2CC96DA0"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builderz/CodeBuild/Role/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderzCodeBuildRoleDefaultPolicy30B67E5A"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builderz/CodeBuild/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderzCodeBuild73AB6718"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builderz/CodeBuild/EventsRole/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderzCodeBuildEventsRoleE9E50664"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builderz/CodeBuild/EventsRole/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderzCodeBuildEventsRoleDefaultPolicyE0DB8E23"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builderz/CR Policy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderzCRPolicyC9B09855"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builderz/Builder/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderzBuilder235DD147"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builderz/Build Schedule/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderzBuildSchedule81F79A6A"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builderz/Dependable Image/Push rule/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderzDependableImagePushrule2E3269CC"
-          }
-        ],
-        "/github-runners-test/Lambda Image Builderz/Dependable Image/Push rule/AllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98E": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "LambdaImageBuilderzDependableImagePushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98ECD865F34"
           }
         ],
         "/github-runners-test/LambdaARM/Image Digest Reader/Resource/Default": [
@@ -1305,12 +1773,6 @@
             "data": "EC2LinuxInstanceProfile2D2BB473"
           }
         ],
-        "/github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentamd64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
-          }
-        ],
         "/github-runners-test/delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1/ServiceRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1371,174 +1833,6 @@
             "data": "EC2SpotLinuxInstanceProfileB12320D4"
           }
         ],
-        "/github-runners-test/AMI Linux arm64 Builder/SG/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderSG94315968"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Upgrade packages and install basics/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderUpgradepackagesandinstallbasicsVersionCD58A101"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Upgrade packages and install basics/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderUpgradepackagesandinstallbasicsComponentBE33D1FC"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/User/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderUserVersion39FD60DE"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/User/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderUserComponent938F2367"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/AWS CLI/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderAWSCLIVersion0F90337D"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/AWS CLI/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderAWSCLIComponent597EC392"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/GitHub CLI/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderGitHubCLIVersionDE6BF6E3"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/GitHub CLI/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderGitHubCLIComponentD2BEF6D6"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/git/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuildergitVersion036A7A85"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/git/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuildergitComponent2DD770C7"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/GitHub Actions Runner/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderGitHubActionsRunnerVersion208149D0"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/GitHub Actions Runner/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderGitHubActionsRunnerComponent2D6B2EA8"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Docker/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderDockerVersionD5DFBE4A"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Docker/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderDockerComponent51BA7F92"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Launch template/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Distribution": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderDistribution77B3BD53"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Ami Recipe/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderAmiRecipeVersion429E7646"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Ami Recipe/Recipe": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderAmiRecipe6A6ED38F"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Log/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderLog3F9BB6F0"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderRole40D54E29"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Instance Profile": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderInstanceProfileCE3B6B09"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Infrastructure": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderInfrastructure80FA16D6"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Image": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderImageA637431C"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Pipeline": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderPipelineECE006B6"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Delete AMI Schedule/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderDeleteAMISchedule72E5EB47"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/Delete AMI Schedule/AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderDeleteAMIScheduleAllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88A6D69EB4"
-          }
-        ],
-        "/github-runners-test/AMI Linux arm64 Builder/AMI Deleter/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AMILinuxarm64BuilderAMIDeleter27E72E27"
-          }
-        ],
         "/github-runners-test/EC2 Linux arm64/SG/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1575,168 +1869,6 @@
             "data": "EC2Linuxarm64InstanceProfile1E6F8D53"
           }
         ],
-        "/github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentarm64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/SG/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderSGE3F67842"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/CloudWatch agent/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderCloudWatchagentVersion05F51F3E"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/CloudWatch agent/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderCloudWatchagentComponent834C8193"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/AWS CLI/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderAWSCLIVersion930FE37C"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/AWS CLI/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderAWSCLIComponent074653A7"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/GitHub CLI/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderGitHubCLIVersionF5632391"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/GitHub CLI/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderGitHubCLIComponentF6EB908A"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/git/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuildergitVersion01214F59"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/git/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuildergitComponentA98B99F3"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/GitHub Actions Runner/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderGitHubActionsRunnerVersionC3E347C0"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/GitHub Actions Runner/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderGitHubActionsRunnerComponent1741EAC0"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Docker/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderDockerVersionB1C9C41B"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Docker/Component": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderDockerComponent0CDF16CB"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Launch template/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Distribution": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderDistributionC6CA152B"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Ami Recipe/Version/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderAmiRecipeVersionEE5C2F0C"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Ami Recipe/Recipe": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderAmiRecipe41A137FF"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Log/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderLog486ECFAD"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderRole1BA7D3E7"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Instance Profile": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderInstanceProfileA8DBA763"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Infrastructure": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderInfrastructure757D4FD7"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Image": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderImage6E6F4F1F"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Pipeline": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderPipelineC4625CBC"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Delete AMI Schedule/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderDeleteAMISchedule52E66C5D"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/Delete AMI Schedule/AllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA88": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderDeleteAMIScheduleAllowEventRulegithubrunnerstestdeleteamidcc036c8876b451ea2c1552f9e06e9e147BECA882F03ABC6"
-          }
-        ],
-        "/github-runners-test/Windows EC2 Builder/AMI Deleter/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WindowsEC2BuilderAMIDeleterF9643905"
-          }
-        ],
         "/github-runners-test/EC2 Windows/SG/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -1771,12 +1903,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "EC2WindowsInstanceProfileDCA59D9C"
-          }
-        ],
-        "/github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "SsmParameterValueawsserviceamiwindowslatestWindowsServer2022EnglishFullContainersLatestC96584B6F00A464EAD1953AFF4B05118Parameter"
           }
         ],
         "/github-runners-test/runners/Secrets/Webhook/Resource": [

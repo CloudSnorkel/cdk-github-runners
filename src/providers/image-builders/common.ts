@@ -1,19 +1,10 @@
 import * as cdk from 'aws-cdk-lib';
-import {
-  aws_ec2 as ec2,
-  aws_events as events,
-  aws_iam as iam,
-  aws_imagebuilder as imagebuilder,
-  aws_logs as logs,
-  aws_s3_assets as s3_assets,
-  CustomResource,
-  Duration,
-  RemovalPolicy,
-} from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_iam as iam, aws_logs as logs, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { AwsImageBuilderVersionerFunction } from '../../lambdas/aws-image-builder-versioner-function';
-import { singletonLambda } from '../../utils';
-import { Architecture, Os, RunnerVersion } from '../common';
+import { AwsImageBuilderRunnerImageBuilderProps } from './aws-image-builder';
+import { CodeBuildRunnerImageBuilderProps } from './codebuild';
+import { RunnerImageComponent } from './components';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../common';
 
 /**
  * @internal
@@ -24,222 +15,6 @@ export function uniqueImageBuilderName(scope: Construct): string {
     separator: '-',
     allowedSpecialCharacters: '_-',
   });
-}
-
-/**
- * @internal
- */
-export abstract class ImageBuilderObjectBase extends cdk.Resource {
-  protected constructor(scope: Construct, id: string) {
-    super(scope, id);
-  }
-
-  protected version(type: 'Component' | 'ImageRecipe' | 'ContainerRecipe', name: string, data: any): string {
-    return new CustomResource(this, 'Version', {
-      serviceToken: this.versionFunction().functionArn,
-      resourceType: `Custom::ImageBuilder-${type}-Version`,
-      removalPolicy: cdk.RemovalPolicy.RETAIN, // no point in deleting as it doesn't even create anything
-      properties: {
-        ObjectType: type,
-        ObjectName: name,
-        VersionedData: data, // get a new version every time something changes, like Image Builder wants
-      },
-    }).ref;
-  }
-
-  private versionFunction(): AwsImageBuilderVersionerFunction {
-    return singletonLambda(AwsImageBuilderVersionerFunction, this, 'aws-image-builder-versioner', {
-      description: 'Custom resource handler that bumps up Image Builder versions',
-      initialPolicy: [
-        new iam.PolicyStatement({
-          actions: [
-            'imagebuilder:ListComponents',
-            'imagebuilder:ListContainerRecipes',
-            'imagebuilder:ListImageRecipes',
-          ],
-          resources: ['*'],
-        }),
-      ],
-      logRetention: logs.RetentionDays.ONE_MONTH,
-    });
-  }
-}
-
-/**
- * An asset including file or directory to place inside the built image.
- */
-export interface ImageBuilderAsset {
-  /**
-   * Path to place asset in the image.
-   */
-  readonly path: string;
-
-  /**
-   * Asset to place in the image.
-   */
-  readonly asset: s3_assets.Asset;
-}
-
-/**
- * Properties for ImageBuilderComponent construct.
- */
-export interface ImageBuilderComponentProperties {
-  /**
-   * Component platform. Must match the builder platform.
-   */
-  readonly platform: 'Linux' | 'Windows';
-
-  /**
-   * Component display name.
-   */
-  readonly displayName: string;
-
-  /**
-   * Component description.
-   */
-  readonly description: string;
-
-  /**
-   * Shell commands to run when adding this component to the image.
-   *
-   * On Linux, these are bash commands. On Windows, there are PowerShell commands.
-   */
-  readonly commands: string[];
-
-  /**
-   * Optional assets to add to the built image.
-   */
-  readonly assets?: ImageBuilderAsset[];
-}
-
-/**
- * Components are a set of commands to run and optional files to add to an image. Components are the building blocks of images built by Image Builder.
- *
- * Example:
- *
- * ```
- * new ImageBuilderComponent(this, 'AWS CLI', {
- *   platform: 'Windows',
- *   displayName: 'AWS CLI',
- *   description: 'Install latest version of AWS CLI',
- *   commands: [
- *     '$ErrorActionPreference = \'Stop\'',
- *     'Start-Process msiexec.exe -Wait -ArgumentList \'/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn\'',
- *   ],
- * }
- * ```
- */
-export class ImageBuilderComponent extends ImageBuilderObjectBase {
-  /**
-   * Component ARN.
-   */
-  public readonly arn: string;
-
-  /**
-   * Supported platform for the component.
-   */
-  public readonly platform: 'Windows' | 'Linux';
-
-  private readonly assets: s3_assets.Asset[] = [];
-
-  constructor(scope: Construct, id: string, props: ImageBuilderComponentProperties) {
-    super(scope, id);
-
-    this.platform = props.platform;
-
-    let steps: any[] = [];
-
-    if (props.assets) {
-      let inputs: any[] = [];
-      let extractCommands: string[] = [];
-      for (const asset of props.assets) {
-        this.assets.push(asset.asset);
-
-        if (asset.asset.isFile) {
-          inputs.push({
-            source: asset.asset.s3ObjectUrl,
-            destination: asset.path,
-          });
-        } else if (asset.asset.isZipArchive) {
-          inputs.push({
-            source: asset.asset.s3ObjectUrl,
-            destination: `${asset.path}.zip`,
-          });
-          if (props.platform === 'Windows') {
-            extractCommands.push('$ErrorActionPreference = \'Stop\'');
-            extractCommands.push(`Expand-Archive "${asset.path}.zip" -DestinationPath "${asset.path}"`);
-            extractCommands.push(`del "${asset.path}.zip"`);
-          } else {
-            extractCommands.push(`unzip "${asset.path}.zip" -d "${asset.path}"`);
-            extractCommands.push(`rm "${asset.path}.zip"`);
-          }
-        } else {
-          throw new Error(`Unknown asset type: ${asset.asset}`);
-        }
-      }
-
-      steps.push({
-        name: 'Download',
-        action: 'S3Download',
-        inputs,
-      });
-
-      if (extractCommands.length > 0) {
-        steps.push({
-          name: 'Extract',
-          action: props.platform === 'Linux' ? 'ExecuteBash' : 'ExecutePowerShell',
-          inputs: {
-            commands: extractCommands,
-          },
-        });
-      }
-    }
-
-    steps.push({
-      name: 'Run',
-      action: props.platform === 'Linux' ? 'ExecuteBash' : 'ExecutePowerShell',
-      inputs: {
-        commands: props.commands,
-      },
-    });
-
-    const data = {
-      name: props.displayName,
-      schemaVersion: '1.0',
-      phases: [
-        {
-          name: 'build',
-          steps,
-        },
-      ],
-    };
-
-    const name = uniqueImageBuilderName(this);
-    const component = new imagebuilder.CfnComponent(this, 'Component', {
-      name: name,
-      description: props.description,
-      platform: props.platform,
-      version: this.version('Component', name, {
-        platform: props.platform,
-        data,
-        description: props.description,
-      }),
-      data: JSON.stringify(data),
-    });
-
-    this.arn = component.attrArn;
-  }
-
-  /**
-   * Grants read permissions to the principal on the assets buckets.
-   *
-   * @param grantee
-   */
-  grantAssetsRead(grantee: iam.IGrantable) {
-    for (const asset of this.assets) {
-      asset.grantRead(grantee);
-    }
-  }
 }
 
 /**
@@ -339,166 +114,205 @@ export interface ImageBuilderBaseProps {
 }
 
 /**
+ * Asset to copy into a built image.
+ */
+export interface RunnerImageAsset {
+  /**
+   * Path on local system to copy into the image. Can be a file or a directory.
+   */
+  readonly source: string;
+
+  /**
+   * Target path in the built image.
+   */
+  readonly target: string;
+}
+
+export interface RunnerImageBuilderProps {
+  /**
+   * Image architecture.
+   *
+   * @default Architecture.X86_64
+   */
+  readonly architecture?: Architecture;
+
+  /**
+   * Image OS.
+   *
+   * @default OS.LINUX
+   */
+  readonly os?: Os;
+
+  /**
+   * Base image from which Docker runner images will be built.
+   *
+   * @default public.ecr.aws/lts/ubuntu:22.04 for Os.LINUX_UBUNTU, public.ecr.aws/amazonlinux/amazonlinux:2 for Os.LINUX_AMAZON_2, mcr.microsoft.com/windows/servercore:ltsc2019-amd64 for Os.WINDOWS
+   */
+  readonly baseDockerImage?: string;
+
+  /**
+   * Base AMI from which runner AMIs will be built.
+   *
+   * @default latest Ubuntu 20.04 AMI for Os.LINUX_UBUNTU, latest Amazon Linux 2 AMI for Os.LINUX_AMAZON_2, latest Windows Server 2022 AMI for Os.WINDOWS
+   */
+  readonly baseAmi?: string;
+
+  /**
+   * Version of GitHub Runners to install.
+   *
+   * @default latest version available
+   */
+  readonly runnerVersion?: RunnerVersion;
+
+  /**
+   * Components to install on the image.
+   *
+   * @default none
+   */
+  readonly components?: RunnerImageComponent[];
+
+  /**
+   * Schedule the image to be rebuilt every given interval. Useful for keeping the image up-do-date with the latest GitHub runner version and latest OS updates.
+   *
+   * Set to zero to disable.
+   *
+   * @default Duration.days(7)
+   */
+  readonly rebuildInterval?: Duration;
+
+  /**
+   * VPC to build the image in.
+   *
+   * @default no VPC
+   */
+  readonly vpc?: ec2.IVpc;
+
+  /**
+   * Security Groups to assign to this instance.
+   */
+  readonly securityGroups?: ec2.ISecurityGroup[];
+
+  /**
+   * Where to place the network interfaces within the VPC.
+   *
+   * @default no subnet
+   */
+  readonly subnetSelection?: ec2.SubnetSelection;
+
+  /**
+   * The number of days log events are kept in CloudWatch Logs. When updating
+   * this property, unsetting it doesn't remove the log retention policy. To
+   * remove the retention policy, set the value to `INFINITE`.
+   *
+   * @default logs.RetentionDays.ONE_MONTH
+   */
+  readonly logRetention?: logs.RetentionDays;
+
+  /**
+   * Removal policy for logs of image builds. If deployment fails on the custom resource, try setting this to `RemovalPolicy.RETAIN`. This way the CodeBuild logs can still be viewed, and you can see why the build failed.
+   *
+   * We try to not leave anything behind when removed. But sometimes a log staying behind is useful.
+   *
+   * @default RemovalPolicy.DESTROY
+   */
+  readonly logRemovalPolicy?: RemovalPolicy;
+
+  /**
+   * @default CodeBuild for Linux Docker image, AWS Image Builder for Windows Docker image and any AMI
+   */
+  readonly builderType?: RunnerImageBuilderType;
+
+  /**
+   * Options specific to CodeBuild image builder. Only used when builderType is RunnerImageBuilderType.CODE_BUILD.
+   */
+  readonly codeBuildOptions?: CodeBuildRunnerImageBuilderProps;
+
+  /**
+   * Options specific to AWS Image Builder. Only used when builderType is RunnerImageBuilderType.AWS_IMAGE_BUILDER.
+   */
+  readonly awsImageBuilderOptions?: AwsImageBuilderRunnerImageBuilderProps;
+}
+
+export enum RunnerImageBuilderType {
+  /**
+   * Build runner images using AWS CodeBuild.
+   *
+   * Faster than AWS Image Builder, but can only be used to build Linux Docker images.
+   */
+  CODE_BUILD = 'CodeBuild',
+
+  /**
+   * Build runner images using AWS Image Builder.
+   *
+   * Slower than CodeBuild, but can be used to build any type of image including AMIs and Windows images.
+   */
+  AWS_IMAGE_BUILDER = 'AwsImageBuilder',
+}
+
+/**
+ * Interface for constructs that build an image that can be used in {@link IRunnerProvider}.
+ *
+ * An image can be a Docker image or AMI.
+ */
+export interface IRunnerImageBuilder {
+  /**
+   * Build and return a Docker image with GitHub Runner installed in it.
+   *
+   * Anything that ends up with an ECR repository containing a Docker image that runs GitHub self-hosted runners can be used. A simple implementation could even point to an existing image and nothing else.
+   *
+   * It's important that the specified image tag be available at the time the repository is available. Providers usually assume the image is ready and will fail if it's not.
+   *
+   * The image can be further updated over time manually or using a schedule as long as it is always written to the same tag.
+   */
+  bindDockerImage(): RunnerImage;
+
+  /**
+   * Build and return an AMI with GitHub Runner installed in it.
+   *
+   * Anything that ends up with a launch template pointing to an AMI that runs GitHub self-hosted runners can be used. A simple implementation could even point to an existing AMI and nothing else.
+   *
+   * The AMI can be further updated over time manually or using a schedule as long as it is always written to the same launch template.
+   */
+  bindAmi(): RunnerAmi;
+}
+
+/**
  * @internal
  */
-export abstract class ImageBuilderBase extends Construct implements ec2.IConnectable {
-  protected readonly architecture: Architecture;
-  protected readonly os: Os;
-  protected readonly platform: 'Windows' | 'Linux';
+export abstract class RunnerImageBuilderBase extends Construct implements ec2.IConnectable, iam.IGrantable, IRunnerImageBuilder {
+  protected components: RunnerImageComponent[] = [];
 
-  protected readonly description: string;
-
-  protected readonly runnerVersion: RunnerVersion;
-
-  protected components: ImageBuilderComponent[] = [];
-
-  private readonly vpc: ec2.IVpc;
-  private readonly subnetId: string | undefined;
-  private readonly securityGroups: ec2.ISecurityGroup[];
-  private readonly instanceType: ec2.InstanceType;
-
-  private readonly rebuildInterval: Duration;
-  private readonly logRetention: logs.RetentionDays;
-  private readonly logRemovalPolicy: cdk.RemovalPolicy;
-
-  protected constructor(scope: Construct, id: string, props: ImageBuilderBaseProps) {
+  protected constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     super(scope, id);
 
-    // arch
-    this.architecture = props?.architecture ?? Architecture.X86_64;
-    if (!this.architecture.isIn(props.supportedArchitectures)) {
-      throw new Error(`Unsupported architecture: ${this.architecture.name}. Consider CodeBuild for faster image builds.`);
+    if (props?.components) {
+      this.components.push(...props.components);
     }
-
-    // os
-    this.os = props?.os ?? Os.LINUX;
-    if (!this.os.isIn(props.supportedOs)) {
-      throw new Error(`Unsupported OS: ${this.os.name}.`);
-    }
-
-    // platform
-    if (this.os.is(Os.WINDOWS)) {
-      this.platform = 'Windows';
-    } else if (this.os.is(Os.LINUX)) {
-      this.platform = 'Linux';
-    } else {
-      throw new Error(`Unsupported OS: ${this.os.name}.`);
-    }
-
-    // builder options
-    this.rebuildInterval = props?.rebuildInterval ?? Duration.days(7);
-
-    // vpc settings
-    if (props?.vpc) {
-      this.vpc = props.vpc;
-      this.subnetId = props.vpc.selectSubnets(props.subnetSelection).subnetIds[0];
-    } else {
-      this.vpc = ec2.Vpc.fromLookup(this, 'Default VPC', { isDefault: true });
-    }
-
-    if (props?.securityGroups) {
-      this.securityGroups = props.securityGroups;
-    } else {
-      this.securityGroups = [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })];
-    }
-
-    // instance type
-    this.instanceType = props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
-    if (!this.architecture.instanceTypeMatch(this.instanceType)) {
-      throw new Error(`Builder architecture (${this.architecture.name}) doesn't match selected instance type (${this.instanceType} / ${this.instanceType.architecture})`);
-    }
-
-    // log settings
-    this.logRetention = props?.logRetention ?? logs.RetentionDays.ONE_MONTH;
-    this.logRemovalPolicy = props?.logRemovalPolicy ?? RemovalPolicy.DESTROY;
-
-    // runner version
-    this.runnerVersion = props?.runnerVersion ?? RunnerVersion.latest();
-
-    // description
-    this.description = `Build ${props.imageTypeName} for GitHub Actions runner ${this.node.path} (${this.os.name}/${this.architecture.name})`;
   }
 
-  protected createLog(recipeName: string): logs.LogGroup {
-    return new logs.LogGroup(this, 'Log', {
-      logGroupName: `/aws/imagebuilder/${recipeName}`,
-      retention: this.logRetention,
-      removalPolicy: this.logRemovalPolicy,
-    });
-  }
+  abstract bindDockerImage(): RunnerImage;
 
-  protected createInfrastructure(managedPolicies: iam.IManagedPolicy[]): imagebuilder.CfnInfrastructureConfiguration {
-    let role = new iam.Role(this, 'Role', {
-      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
-      managedPolicies: managedPolicies,
-    });
+  abstract bindAmi(): RunnerAmi;
 
-    for (const component of this.components) {
-      component.grantAssetsRead(role);
-    }
+  abstract get connections(): ec2.Connections;
+  abstract get grantPrincipal(): iam.IPrincipal;
 
-    return new imagebuilder.CfnInfrastructureConfiguration(this, 'Infrastructure', {
-      name: uniqueImageBuilderName(this),
-      description: this.description,
-      subnetId: this.subnetId,
-      securityGroupIds: this.securityGroups.map(sg => sg.securityGroupId),
-      instanceTypes: [this.instanceType.toString()],
-      instanceProfileName: new iam.CfnInstanceProfile(this, 'Instance Profile', {
-        roles: [
-          role.roleName,
-        ],
-      }).ref,
-    });
-  }
-
-  protected createImage(infra: imagebuilder.CfnInfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
-    imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImage {
-    const image = new imagebuilder.CfnImage(this, 'Image', {
-      infrastructureConfigurationArn: infra.attrArn,
-      distributionConfigurationArn: dist.attrArn,
-      imageRecipeArn,
-      containerRecipeArn,
-      imageTestsConfiguration: {
-        imageTestsEnabled: false,
-      },
-    });
-    image.node.addDependency(infra);
-    image.node.addDependency(log);
-
-    return image;
-  }
-
-  protected createPipeline(infra: imagebuilder.CfnInfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
-    imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImagePipeline {
-    let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
-    if (this.rebuildInterval.toDays() > 0) {
-      scheduleOptions = {
-        scheduleExpression: events.Schedule.rate(this.rebuildInterval).expressionString,
-        pipelineExecutionStartCondition: 'EXPRESSION_MATCH_ONLY',
-      };
-    }
-    const pipeline = new imagebuilder.CfnImagePipeline(this, 'Pipeline', {
-      name: uniqueImageBuilderName(this),
-      description: this.description,
-      infrastructureConfigurationArn: infra.attrArn,
-      distributionConfigurationArn: dist.attrArn,
-      imageRecipeArn,
-      containerRecipeArn,
-      schedule: scheduleOptions,
-      imageTestsConfiguration: {
-        imageTestsEnabled: false,
-      },
-    });
-    pipeline.node.addDependency(infra);
-    pipeline.node.addDependency(log);
-
-    return pipeline;
+  /**
+   * Add a component to the image builder. The component will be added to the end of the list of components.
+   *
+   * @param component component to add
+   */
+  public addComponent(component: RunnerImageComponent) {
+    this.components.push(component);
   }
 
   /**
-   * The network connections associated with this resource.
+   * Remove a component from the image builder. Removal is done by component name. Multiple components with the same name will all be removed.
+   *
+   * @param component component to remove
    */
-  public get connections(): ec2.Connections {
-    return new ec2.Connections({ securityGroups: this.securityGroups });
+  public removeComponent(component: RunnerImageComponent) {
+    this.components = this.components.filter(c => c.name !== component.name);
   }
 }
+

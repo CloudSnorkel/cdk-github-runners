@@ -16,26 +16,28 @@ import { Construct } from 'constructs';
 import {
   Architecture,
   BaseProvider,
-  IImageBuilder,
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
   RunnerImage,
   RunnerProviderProps,
   RunnerRuntimeParameters,
+  RunnerVersion,
 } from './common';
-import { CodeBuildImageBuilder } from './image-builders/codebuild';
+import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from './image-builders';
 
 
 export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
   /**
-   * Image builder for CodeBuild image with GitHub runner pre-configured. A user named `runner` is expected to exist with access to Docker-in-Docker.
+   * Runner image builder used to build Docker images containing GitHub Runner and all requirements.
+   *
+   * The image builder must contain the {@link RunnerImageComponent.dockerInDocker} component unless `dockerInDocker` is set to false.
    *
    * The image builder determines the OS and architecture of the runner.
    *
-   * @default image builder with `CodeBuildRunner.LINUX_X64_DOCKERFILE_PATH` as Dockerfile
+   * @default CodeBuildRunnerProviderProps.imageBuilder()
    */
-  readonly imageBuilder?: IImageBuilder;
+  readonly imageBuilder?: IRunnerImageBuilder;
 
   /**
    * GitHub Actions label used for this provider.
@@ -130,6 +132,8 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
    * * `DIND_COMMIT` overrides the commit where dind is found.
    * * `DOCKER_VERSION` overrides the installed Docker version.
    * * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
+   *
+   * @deprecated Use `imageBuilder()` instead.
    */
   public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'codebuild', 'linux-x64');
 
@@ -143,8 +147,39 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
    * * `DIND_COMMIT` overrides the commit where dind is found.
    * * `DOCKER_VERSION` overrides the installed Docker version.
    * * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
+   *
+   * @deprecated Use `imageBuilder()` instead.
    */
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'codebuild', 'linux-arm64');
+
+  /**
+   * Create new image builder that builds CodeBuild specific runner images using Ubuntu.
+   *
+   * Included components:
+   *  * `RunnerImageComponent.requiredPackages()`
+   *  * `RunnerImageComponent.runnerUser()`
+   *  * `RunnerImageComponent.git()`
+   *  * `RunnerImageComponent.githubCli()`
+   *  * `RunnerImageComponent.awsCli()`
+   *  * `RunnerImageComponent.dockerInDocker()`
+   *  * `RunnerImageComponent.githubRunner()`
+   */
+  public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
+    return RunnerImageBuilder.new(scope, id, {
+      os: Os.LINUX_UBUNTU,
+      architecture: Architecture.X86_64,
+      components: [
+        RunnerImageComponent.requiredPackages(),
+        RunnerImageComponent.runnerUser(),
+        RunnerImageComponent.git(),
+        RunnerImageComponent.githubCli(),
+        RunnerImageComponent.awsCli(),
+        RunnerImageComponent.dockerInDocker(),
+        RunnerImageComponent.githubRunner(props?.runnerVersion ?? RunnerVersion.latest()),
+      ],
+      ...props,
+    });
+  }
 
   /**
    * CodeBuild project hosting the runner.
@@ -227,10 +262,8 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       },
     };
 
-    const imageBuilder = props?.imageBuilder ?? new CodeBuildImageBuilder(this, 'Image Builder', {
-      dockerfilePath: CodeBuildRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
-    });
-    const image = this.image = imageBuilder.bind();
+    const imageBuilder = props?.imageBuilder ?? CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder');
+    const image = this.image = imageBuilder.bindDockerImage();
 
     if (image.os.is(Os.WINDOWS)) {
       buildSpec.phases.install.commands = [
@@ -248,7 +281,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
 
     // choose build image
     let buildImage: codebuild.IBuildImage | undefined;
-    if (image.os.is(Os.LINUX)) {
+    if (image.os.is(Os.LINUX) || image.os.is(Os.LINUX_UBUNTU) || image.os.is(Os.LINUX_AMAZON_2)) {
       if (image.architecture.is(Architecture.X86_64)) {
         buildImage = codebuild.LinuxBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);
       } else if (image.architecture.is(Architecture.ARM64)) {
@@ -287,7 +320,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
         environment: {
           buildImage,
           computeType: props?.computeType ?? ComputeType.SMALL,
-          privileged: this.dind ? image.os.is(Os.LINUX) : false,
+          privileged: this.dind && !image.os.is(Os.WINDOWS),
         },
         logging: {
           cloudWatch: {
