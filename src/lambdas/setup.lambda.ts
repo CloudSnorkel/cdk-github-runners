@@ -34,7 +34,8 @@ function response(code: number, body: string): AWSLambda.APIGatewayProxyResultV2
 }
 
 async function handleRoot(event: ApiGatewayEvent, setupToken: string): Promise<AWSLambda.APIGatewayProxyResultV2> {
-  const setupBaseUrl = `https://${event.requestContext.domainName}/${event.requestContext.stage}`;
+  const stage = event.requestContext.stage == '$default' ? '' : `/${event.requestContext.stage}`;
+  const setupBaseUrl = `https://${event.requestContext.domainName}${stage}`;
   const githubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
 
   return response(200, getHtml(setupBaseUrl, setupToken, githubSecrets.domain));
