@@ -298,7 +298,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     const thisStack = Stack.of(this);
     this.capacityProvider.autoScalingGroup.addUserData(
       `aws ecr get-login-password --region ${thisStack.region} | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`,
-      `docker pull ${image.imageRepository.repositoryUri}:${image.imageTag}`,
+      `docker pull ${image.imageRepository.repositoryUri}:${image.imageTag} &`, // TODO windows?
     );
     image.imageRepository.grantPull(this.capacityProvider.autoScalingGroup);
 
