@@ -9,8 +9,19 @@ const sf = new AWS.StepFunctions();
 
 // TODO use @octokit/webhooks?
 
+function getHeader(event: AWSLambda.APIGatewayProxyEventV2, header: string): string | undefined {
+  // API Gateway doesn't lowercase headers (V1 event) but Lambda URLs do (V2 event) :(
+  for (const headerName of Object.keys(event.headers)) {
+    if (headerName.toLowerCase() === header.toLowerCase()) {
+      return event.headers[headerName];
+    }
+  }
+
+  return undefined;
+}
+
 function verifyBody(event: AWSLambda.APIGatewayProxyEventV2, secret: any): string {
-  const sig = Buffer.from(event.headers['x-hub-signature-256'] || '', 'utf8');
+  const sig = Buffer.from(getHeader(event, 'x-hub-signature-256') || '', 'utf8');
 
   if (!event.body) {
     throw new Error('No body');
@@ -54,25 +65,25 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
     };
   }
 
-  if (event.headers['content-type'] !== 'application/json') {
-    console.error(`This webhook only accepts JSON payloads, got ${event.headers['content-type']}`);
+  if (getHeader(event, 'content-type') !== 'application/json') {
+    console.error(`This webhook only accepts JSON payloads, got ${getHeader(event, 'content-type')}`);
     return {
       statusCode: 400,
       body: 'Expecting JSON payload',
     };
   }
 
-  if (event.headers['x-github-event'] === 'ping') {
+  if (getHeader(event, 'x-github-event') === 'ping') {
     return {
       statusCode: 200,
       body: 'Pong',
     };
   }
 
-  // if (event.headers['x-github-event'] !== 'workflow_job' && event.headers['x-github-event'] !== 'workflow_run') {
-  //     console.error(`This webhook only accepts workflow_job and workflow_run, got ${event.headers['x-github-event']}`);
-  if (event.headers['x-github-event'] !== 'workflow_job') {
-    console.error(`This webhook only accepts workflow_job, got ${event.headers['x-github-event']}`);
+  // if (getHeader(event, 'x-github-event') !== 'workflow_job' && getHeader(event, 'x-github-event') !== 'workflow_run') {
+  //     console.error(`This webhook only accepts workflow_job and workflow_run, got ${getHeader(event, 'x-github-event')}`);
+  if (getHeader(event, 'x-github-event') !== 'workflow_job') {
+    console.error(`This webhook only accepts workflow_job, got ${getHeader(event, 'x-github-event')}`);
     return {
       statusCode: 400,
       body: 'Expecting workflow_job',
@@ -102,7 +113,7 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
   payload.workflow_job.labels.forEach((l: string) => labels[l.toLowerCase()] = true);
 
   // set execution name which is also used as runner name which are limited to 64 characters
-  let executionName = `${payload.repository.full_name.replace('/', '-')}-${event.headers['x-github-delivery']}`.slice(0, 64);
+  let executionName = `${payload.repository.full_name.replace('/', '-')}-${getHeader(event, 'x-github-delivery')}`.slice(0, 64);
   // start execution
   const execution = await sf.startExecution({
     stateMachineArn: process.env.STEP_FUNCTION_ARN,
