@@ -17,19 +17,21 @@ export interface ApiGatewayAccessProps {
   readonly allowedVpcs?: ec2.IVpc[];
 }
 
-
+/**
+ * Access configuration options for Lambda functions like setup and webhook function. Use this to limit access to these functions.
+ */
 export abstract class LambdaAccess {
   /**
    * Disables access to the configured Lambda function. This is useful for the setup function after setup is done.
    */
-  static noAccess() {
+  static noAccess(): LambdaAccess {
     return new NoAccess();
   }
 
   /**
    * Provide access using Lambda URL. This is the default and simplest option. It puts no limits on the requester, but the Lambda functions themselves authenticate every request.
    */
-  static lambdaUrl() {
+  static lambdaUrl(): LambdaAccess {
     return new LambdaUrl();
   }
 
@@ -50,7 +52,7 @@ export abstract class LambdaAccess {
    * curl https://api.github.com/meta | jq .hooks
    * ```
    */
-  static apiGateway(props?: ApiGatewayAccessProps) {
+  static apiGateway(props?: ApiGatewayAccessProps): LambdaAccess {
     return new ApiGateway(props);
   }
 
@@ -73,12 +75,18 @@ export abstract class LambdaAccess {
   public abstract _bind(construct: Construct, id: string, lambdaFunction: lambda.Function): string;
 }
 
+/**
+ * @internal
+ */
 class NoAccess extends LambdaAccess {
   public _bind(_construct: Construct, _id: string, _lambdaFunction: lambda.Function): string {
     return '';
   }
 }
 
+/**
+ * @internal
+ */
 class LambdaUrl extends LambdaAccess {
   public _bind(_construct: Construct, _id: string, lambdaFunction: lambda.Function): string {
     return lambdaFunction.addFunctionUrl({
@@ -86,6 +94,10 @@ class LambdaUrl extends LambdaAccess {
     }).url;
   }
 }
+
+/**
+ * @internal
+ */
 class ApiGateway {
   constructor(private readonly props?: ApiGatewayAccessProps) {}
 
@@ -117,5 +129,3 @@ class ApiGateway {
     return api.url;
   }
 }
-
-
