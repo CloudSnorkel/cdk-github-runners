@@ -8,12 +8,10 @@ import {
   aws_logs as logs,
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
-  aws_apigateway as apigateway,
   RemovalPolicy,
 } from 'aws-cdk-lib';
-import { PolicyDocument } from 'aws-cdk-lib/aws-iam';
-import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
+import { LambdaAccess } from './access';
 import { DeleteRunnerFunction } from './lambdas/delete-runner-function';
 import { SetupFunction } from './lambdas/setup-function';
 import { StatusFunction } from './lambdas/status-function';
@@ -25,16 +23,6 @@ import { LambdaRunnerProvider } from './providers/lambda';
 import { Secrets } from './secrets';
 import { GithubWebhookHandler } from './webhook';
 
-export enum LambdaAccessType {
-  NO_ACCESS,
-  LAMBDA_URL,
-  API_GATEWAY,
-  PRIVATE_API_GATEWAY, // optional
-}
-export interface ILambdaAccess {
-  type: LambdaAccessType;
-  allowedIps?: string[];
-}
 
 /**
  * Properties for GitHubRunners
@@ -109,15 +97,21 @@ export interface GitHubRunnersProps {
   readonly logOptions?: LogOptions;
 
   /**
-   * Configuration for Lambda Access interface for runner initialization
+   * Access configuration for the setup function. Once you finish the setup process, you can set this to `LambdaAccess.noAccess()` to remove access to the setup function. You can also use `LambdaAccess.apiGateway({ allowedIps: ['my-ip/0']})` to limit access to your IP only.
+   *
+   * @default LambdaAccess.lambdaUrl()
    */
-  readonly setupAccess?: ILambdaAccess;
+  readonly setupAccess?: LambdaAccess;
 
 
   /**
-   * Configuration for function that allows communication from GH events
+   * Access configuration for the webhook function. This function is called by GitHub when a new workflow job is scheduled. For an extra layer of security, you can set this to `LambdaAccess.apiGateway({ allowedIps: LambdaAccess.githubWebhookIps() })`.
+   *
+   * You can also set this to `LambdaAccess.privateApiGateway()` if your GitHub Enterprise Server is hosted in a VPC. This will create an API Gateway endpoint that's only accessible from within the VPC.
+   *
+   * @default LambdaAccess.lambdaUrl()
    */
-  readonly webhookAccess?: ILambdaAccess;
+  readonly webhookAccess?: LambdaAccess;
 }
 
 /**
@@ -246,6 +240,7 @@ export class GitHubRunners extends Construct {
     this.webhook = new GithubWebhookHandler(this, 'Webhook Handler', {
       orchestrator: this.orchestrator,
       secrets: this.secrets,
+      access: this.props?.webhookAccess ?? LambdaAccess.lambdaUrl(),
     });
 
     this.setupUrl = this.setupFunction();
@@ -478,7 +473,6 @@ export class GitHubRunners extends Construct {
   }
 
   private setupFunction(): string {
-    const access = this.props?.setupAccess?.type ?? LambdaAccessType.LAMBDA_URL;
     const setupFunction = new SetupFunction(
       this,
       'setup',
@@ -507,48 +501,12 @@ export class GitHubRunners extends Construct {
     this.secrets.setup.grantRead(setupFunction);
     this.secrets.setup.grantWrite(setupFunction);
 
-    if (access === LambdaAccessType?.LAMBDA_URL) {
-      return setupFunction.addFunctionUrl({ authType: FunctionUrlAuthType.NONE }).url;
-    } else if (access === LambdaAccessType?.API_GATEWAY) {
-      const api = new apigateway.LambdaRestApi(this, 'api', {
-        handler: setupFunction,
-        proxy: false,
-        cloudWatchRole: false,
-        policy: PolicyDocument.fromJson({
-          Version: '2012-10-17',
-          Statement: [
-            {
-              Effect: 'Allow',
-              Principal: '*',
-              Action: 'execute-api:Invoke',
-              Resource: 'execute-api:/*/*/*',
-              Condition: {
-                IpAddress: {
-                  'aws:SourceIp': [
-                    '192.30.252.0/22',
-                    '185.199.108.0/22',
-                    '140.82.112.0/20',
-                    '143.55.64.0/20',
-                    '2a0a:a440::/29',
-                    '2606:50c0::/32',
-                  ],
-                },
-              },
-            },
-          ],
-        }),
-      });
-      api.root.resourceForPath('/').addMethod('GET');
-      return api.url;
-    } else if (access === LambdaAccessType.NO_ACCESS) {
-      return '';
-    } else {
-      throw new Error('Unknown LambdaAccessType');
-    }
+    const access = this.props?.setupAccess ?? LambdaAccess.lambdaUrl();
+    return access._bind(this, 'setup access', setupFunction);
   }
 
   private checkIntersectingLabels() {
-    // this 'algorithm' is very inefficient, but good enough for the tiny datasets we expect
+    // this "algorithm" is very inefficient, but good enough for the tiny datasets we expect
     for (const p1 of this.providers) {
       for (const p2 of this.providers) {
         if (p1 == p2) {
@@ -565,7 +523,7 @@ export class GitHubRunners extends Construct {
   }
 
   /**
-   * Metric for the number of GitHub Actions jobs completed. It has `ProviderLabels` and `Status` dimensions. The status can be one of 'Succeeded', 'SucceededWithIssues', 'Failed', 'Canceled', 'Skipped', or 'Abandoned'.
+   * Metric for the number of GitHub Actions jobs completed. It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succeeded", "SucceededWithIssues", "Failed", "Canceled", "Skipped", or "Abandoned".
    *
    * **WARNING:** this method creates a metric filter for each provider. Each metric has a status dimension with six possible values. These resources may incur cost.
    */
