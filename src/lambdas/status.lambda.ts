@@ -1,9 +1,11 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/core';
+import * as AWSLambda from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { baseUrlFromDomain } from './github';
 import { getSecretJsonValue, getSecretValue } from './helpers';
+/* eslint-disable-next-line import/no-extraneous-dependencies,import/no-unresolved */
 
 const cfn = new AWS.CloudFormation();
 const ec2 = new AWS.EC2();
@@ -89,7 +91,21 @@ interface RecentRun {
   readonly status: string;
 }
 
-exports.handler = async function () {
+function safeReturnValue(event: Partial<AWSLambda.APIGatewayProxyEvent>, status: any) {
+  if (event.path) {
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(status),
+    };
+  }
+
+  return status;
+}
+
+exports.handler = async function (event: Partial<AWSLambda.APIGatewayProxyEvent>) {
   // confirm required environment variables
   if (!process.env.WEBHOOK_SECRET_ARN || !process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN || !process.env.LOGICAL_ID ||
       !process.env.WEBHOOK_HANDLER_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SETUP_SECRET_ARN || !process.env.SETUP_FUNCTION_URL ||
@@ -178,7 +194,7 @@ exports.handler = async function () {
     githubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   } catch (e) {
     status.github.auth.status = `Unable to read secret: ${e}`;
-    return status;
+    return safeReturnValue(event, status);
   }
 
   let privateKey;
@@ -186,7 +202,7 @@ exports.handler = async function () {
     privateKey = await getSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN);
   } catch (e) {
     status.github.auth.status = `Unable to read private key secret: ${e}`;
-    return status;
+    return safeReturnValue(event, status);
   }
 
   // calculate base url
@@ -203,7 +219,7 @@ exports.handler = async function () {
       octokit = new Octokit({ baseUrl, auth: githubSecrets.personalAuthToken });
     } catch (e) {
       status.github.auth.status = `Unable to authenticate using personal auth token: ${e}`;
-      return status;
+      return safeReturnValue(event, status);
     }
 
     try {
@@ -211,7 +227,7 @@ exports.handler = async function () {
       status.github.auth.personalAuthToken = `username: ${user.data.login}`;
     } catch (e) {
       status.github.auth.status = `Unable to call /user with personal auth token: ${e}`;
-      return status;
+      return safeReturnValue(event, status);
     }
 
     status.github.auth.status = 'OK';
@@ -233,7 +249,7 @@ exports.handler = async function () {
       });
     } catch (e) {
       status.github.auth.status = `Unable to authenticate app: ${e}`;
-      return status;
+      return safeReturnValue(event, status);
     }
 
     // get app url
@@ -242,7 +258,7 @@ exports.handler = async function () {
       status.github.auth.app.url = app.html_url;
     } catch (e) {
       status.github.auth.status = `Unable to get app details: ${e}`;
-      return status;
+      return safeReturnValue(event, status);
     }
 
     // list all app installations
@@ -290,7 +306,7 @@ exports.handler = async function () {
       }
     } catch (e) {
       status.github.auth.status = 'Unable to list app installations';
-      return status;
+      return safeReturnValue(event, status);
     }
 
     status.github.auth.status = 'OK';
@@ -307,9 +323,9 @@ exports.handler = async function () {
       }
     } catch (e) {
       status.github.webhook.status = `Unable to check app configuration: ${e}`;
-      return status;
+      return safeReturnValue(event, status);
     }
   }
 
-  return status;
+  return safeReturnValue(event, status);
 };

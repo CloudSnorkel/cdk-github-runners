@@ -11,6 +11,7 @@ test('Default access', () => {
   const template = Template.fromStack(stack);
 
   template.resourceCountIs('AWS::Lambda::Url', 2);
+  template.resourceCountIs('AWS::ApiGateway::RestApi', 0);
 });
 
 test('No access', () => {
@@ -20,6 +21,7 @@ test('No access', () => {
   new GitHubRunners(stack, 'runners', {
     setupAccess: LambdaAccess.noAccess(),
     webhookAccess: LambdaAccess.noAccess(),
+    statusAccess: LambdaAccess.noAccess(),
     providers: [new LambdaRunnerProvider(stack, 'lambda')],
   });
 
@@ -36,12 +38,13 @@ test('Lamnda URL access', () => {
   new GitHubRunners(stack, 'runners', {
     setupAccess: LambdaAccess.lambdaUrl(),
     webhookAccess: LambdaAccess.lambdaUrl(),
+    statusAccess: LambdaAccess.lambdaUrl(),
     providers: [new LambdaRunnerProvider(stack, 'lambda')],
   });
 
   const template = Template.fromStack(stack);
 
-  template.resourceCountIs('AWS::Lambda::Url', 2);
+  template.resourceCountIs('AWS::Lambda::Url', 3);
   template.resourceCountIs('AWS::ApiGateway::RestApi', 0);
 });
 
@@ -52,11 +55,12 @@ test('API Gateway access', () => {
   new GitHubRunners(stack, 'runners', {
     setupAccess: LambdaAccess.apiGateway(),
     webhookAccess: LambdaAccess.apiGateway(),
+    statusAccess: LambdaAccess.apiGateway(),
     providers: [new LambdaRunnerProvider(stack, 'lambda')],
   });
 
   const template = Template.fromStack(stack);
 
   template.resourceCountIs('AWS::Lambda::Url', 0);
-  template.resourceCountIs('AWS::ApiGateway::RestApi', 2);
+  template.resourceCountIs('AWS::ApiGateway::RestApi', 3);
 });

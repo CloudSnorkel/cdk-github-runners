@@ -109,9 +109,18 @@ export interface GitHubRunnersProps {
    *
    * You can also set this to `LambdaAccess.privateApiGateway()` if your GitHub Enterprise Server is hosted in a VPC. This will create an API Gateway endpoint that's only accessible from within the VPC.
    *
+   * *WARNING*: changing access type may change the URL. When the URL changes, you must update GitHub as well.
+   *
    * @default LambdaAccess.lambdaUrl()
    */
   readonly webhookAccess?: LambdaAccess;
+
+  /**
+   * Access configuration for the status function. This function returns a lot of sensitive information about the runner, so you should only allow access to it from trusted IPs, if at all.
+   *
+   * @default LambdaAccess.noAccess()
+   */
+  readonly statusAccess?: LambdaAccess;
 }
 
 /**
@@ -470,6 +479,19 @@ export class GitHubRunners extends Construct {
         value: `aws --region ${stack.region} lambda invoke --function-name ${statusFunction.functionName} status.json`,
       },
     );
+
+    const access = this.props?.statusAccess ?? LambdaAccess.noAccess();
+    const url = access._bind(this, 'status access', statusFunction);
+
+    if (url !== '') {
+      new cdk.CfnOutput(
+        this,
+        'status url',
+        {
+          value: url,
+        },
+      );
+    }
   }
 
   private setupFunction(): string {
