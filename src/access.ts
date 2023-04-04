@@ -62,7 +62,7 @@ export abstract class LambdaAccess {
    * Note that downloading dynamic data during deployment is not recommended in CDK. This is a workaround for the lack of a better solution.
    */
   static githubWebhookIps(): string[] {
-    const githubMeta = execFileSync('curl', ['https://api.github.com/meta']).toString();
+    const githubMeta = execFileSync('curl', ['-fsSL', 'https://api.github.com/meta']).toString();
     const githubMetaJson = JSON.parse(githubMeta);
     return githubMetaJson.hooks;
   }

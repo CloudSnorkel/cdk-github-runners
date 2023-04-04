@@ -7,6 +7,8 @@ import * as AWSLambda from 'aws-lambda';
 import { baseUrlFromDomain } from './github';
 import { getSecretJsonValue, updateSecretValue } from './helpers';
 
+type ApiGatewayEvent = AWSLambda.APIGatewayProxyEvent | AWSLambda.APIGatewayProxyEventV2;
+
 const nonce = crypto.randomBytes(64).toString('hex');
 
 function getHtml(baseUrl: string, token: string, domain: string): string {
@@ -31,14 +33,14 @@ function response(code: number, body: string): AWSLambda.APIGatewayProxyResultV2
   };
 }
 
-async function handleRoot(event: AWSLambda.APIGatewayProxyEventV2, setupToken: string): Promise<AWSLambda.APIGatewayProxyResultV2> {
-  const setupBaseUrl = `https://${event.requestContext.domainName}`;
+async function handleRoot(event: ApiGatewayEvent, setupToken: string): Promise<AWSLambda.APIGatewayProxyResultV2> {
+  const setupBaseUrl = `https://${event.requestContext.domainName}/${event.requestContext.stage}`;
   const githubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
 
   return response(200, getHtml(setupBaseUrl, setupToken, githubSecrets.domain));
 }
 
-function decodeBody(event: AWSLambda.APIGatewayProxyEventV2) {
+function decodeBody(event: ApiGatewayEvent) {
   let body = event.body;
   if (!body) {
     throw new Error('No body found');
@@ -49,7 +51,7 @@ function decodeBody(event: AWSLambda.APIGatewayProxyEventV2) {
   return JSON.parse(body);
 }
 
-async function handleDomain(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
+async function handleDomain(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayProxyResultV2> {
   const body = decodeBody(event);
   if (!body.domain) {
     return response(400, 'Invalid domain');
@@ -62,7 +64,7 @@ async function handleDomain(event: AWSLambda.APIGatewayProxyEventV2): Promise<AW
   return response(200, 'Domain set');
 }
 
-async function handlePat(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
+async function handlePat(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayProxyResultV2> {
   const body = decodeBody(event);
   if (!body.pat || !body.domain) {
     return response(400, 'Invalid personal access token');
@@ -78,7 +80,7 @@ async function handlePat(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLa
   return response( 200, 'Personal access token set');
 }
 
-async function handleNewApp(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
+async function handleNewApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayProxyResultV2> {
   if (!event.queryStringParameters) {
     return response( 400, 'Invalid code');
   }
@@ -107,7 +109,7 @@ async function handleNewApp(event: AWSLambda.APIGatewayProxyEventV2): Promise<AW
   return response( 200, `New app set. <a href="${newApp.data.html_url}/installations/new">Install it</a> for your repositories.`);
 }
 
-async function handleExistingApp(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
+async function handleExistingApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayProxyResultV2> {
   const body = decodeBody(event);
 
   if (!body.appid || !body.pk || !body.domain) {
@@ -125,7 +127,7 @@ async function handleExistingApp(event: AWSLambda.APIGatewayProxyEventV2): Promi
   return response( 200, 'Existing app set. Don\'t forget to set up the webhook.');
 }
 
-exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
+exports.handler = async function (event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayProxyResultV2> {
   // confirm required environment variables
   if (!process.env.WEBHOOK_URL) {
     throw new Error('Missing environment variables');
@@ -150,20 +152,23 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
 
   // handle requests
   try {
-    if (event.requestContext.http.path == '/') {
+    const path = (event as AWSLambda.APIGatewayProxyEvent).path ?? (event as AWSLambda.APIGatewayProxyEventV2).rawPath;
+    const method = (event as AWSLambda.APIGatewayProxyEvent).httpMethod ?? (event as AWSLambda.APIGatewayProxyEventV2).requestContext.http.method;
+    if (path == '/') {
       return await handleRoot(event, setupToken);
-    } else if (event.requestContext.http.path == '/domain' && event.requestContext.http.method == 'POST') {
+    } else if (path == '/domain' && method == 'POST') {
       return await handleDomain(event);
-    } else if (event.requestContext.http.path == '/pat' && event.requestContext.http.method == 'POST') {
+    } else if (path == '/pat' && method == 'POST') {
       return await handlePat(event);
-    } else if (event.requestContext.http.path == '/complete-new-app' && event.requestContext.http.method == 'GET') {
+    } else if (path == '/complete-new-app' && method == 'GET') {
       return await handleNewApp(event);
-    } else if (event.requestContext.http.path == '/app' && event.requestContext.http.method == 'POST') {
+    } else if (path == '/app' && method == 'POST') {
       return await handleExistingApp(event);
     } else {
       return response(404, 'Not found');
     }
   } catch (e) {
+    console.error(e);
     return response(500, `<b>Error:</b> ${e}`);
   }
 };
