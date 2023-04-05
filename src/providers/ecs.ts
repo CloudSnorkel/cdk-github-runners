@@ -298,7 +298,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     const thisStack = Stack.of(this);
     this.capacityProvider.autoScalingGroup.addUserData(
       `aws ecr get-login-password --region ${thisStack.region} | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`,
-      `docker pull ${image.imageRepository.repositoryUri}:${image.imageTag} &`, // TODO windows?
+      this.pullCommand(),
     );
     image.imageRepository.grantPull(this.capacityProvider.autoScalingGroup);
 
@@ -360,6 +360,13 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     }
 
     throw new Error(`Unable to find AMI for ECS instances for ${this.image.os.name}/${this.image.architecture.name}`);
+  }
+
+  private pullCommand() {
+    if (this.image.os.is(Os.WINDOWS)) {
+      return `Start-Job -ScriptBlock { docker pull ${this.image.imageRepository.repositoryUri}:${this.image.imageTag} }`;
+    }
+    return `docker pull ${this.image.imageRepository.repositoryUri}:${this.image.imageTag} &`;
   }
 
   /**

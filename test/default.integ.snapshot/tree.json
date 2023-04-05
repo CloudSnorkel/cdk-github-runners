@@ -12859,7 +12859,7 @@
                                 {
                                   "Ref": "AWS::Region"
                                 },
-                                ".amazonaws.com\ndocker pull ",
+                                ".amazonaws.com\nStart-Job -ScriptBlock { docker pull ",
                                 {
                                   "Ref": "AWS::AccountId"
                                 },
@@ -12898,7 +12898,7 @@
                                     }
                                   ]
                                 },
-                                ":latest &\nRemove-Item -Recurse C:\\ProgramData\\Amazon\\ECS\\Cache\nImport-Module ECSTools\n[Environment]::SetEnvironmentVariable(\"ECS_CLUSTER\", \"",
+                                ":latest }\nRemove-Item -Recurse C:\\ProgramData\\Amazon\\ECS\\Cache\nImport-Module ECSTools\n[Environment]::SetEnvironmentVariable(\"ECS_CLUSTER\", \"",
                                 {
                                   "Ref": "ECSWindowscluster14061F74"
                                 },
