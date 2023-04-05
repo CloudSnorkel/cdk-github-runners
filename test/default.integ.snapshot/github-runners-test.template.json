@@ -9348,7 +9348,7 @@
           "Name"
          ]
         },
-        ":latest\necho ECS_CLUSTER=",
+        ":latest &\necho ECS_CLUSTER=",
         {
          "Ref": "ECScluster20BC0B82"
         },
@@ -9883,7 +9883,7 @@
           "Name"
          ]
         },
-        ":latest\necho ECS_CLUSTER=",
+        ":latest &\necho ECS_CLUSTER=",
         {
          "Ref": "ECSARM64cluster4ECAA083"
         },
@@ -10461,7 +10461,7 @@
           }
          ]
         },
-        ":latest\nRemove-Item -Recurse C:\\ProgramData\\Amazon\\ECS\\Cache\nImport-Module ECSTools\n[Environment]::SetEnvironmentVariable(\"ECS_CLUSTER\", \"",
+        ":latest &\nRemove-Item -Recurse C:\\ProgramData\\Amazon\\ECS\\Cache\nImport-Module ECSTools\n[Environment]::SetEnvironmentVariable(\"ECS_CLUSTER\", \"",
         {
          "Ref": "ECSWindowscluster14061F74"
         },
@@ -15661,7 +15661,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "36f617ce2a1658e69c5535f2b9e4b5f0fe86996a4ba34071705ddd7d154294ef.zip"
+     "S3Key": "b7572ab826555781f7894eb11dec3d12d3b68d1aeb1536a2c08f7be4aa38cc71.zip"
     },
     "Role": {
      "Fn::GetAtt": [
