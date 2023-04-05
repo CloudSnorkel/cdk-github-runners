@@ -200,11 +200,17 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
 /**
  * @internal
  */
-export function ecsRunCommand(os: Os): string[] {
+export function ecsRunCommand(os: Os, dind: boolean): string[] {
   if (os.is(Os.LINUX) || os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
+    let dindCommand = '';
+    if (dind) {
+      dindCommand = 'sudo socat UNIX-LISTEN:/var/run/docker.sock,group=docker,mode=770,fork UNIX-CONNECT:/var/run/docker.sock.host &';
+    }
+
     return [
       'sh', '-c',
-      `cd /home/runner &&
+      `${dindCommand}
+        cd /home/runner &&
         if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
         ./config.sh --unattended --url "https://$GITHUB_DOMAIN/$OWNER/$REPO" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL" $RUNNER_FLAGS --name "$RUNNER_NAME" && 
         ./run.sh &&
@@ -416,7 +422,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
           logGroup: this.logGroup,
           streamPrefix: 'runner',
         }),
-        command: ecsRunCommand(this.image.os),
+        command: ecsRunCommand(this.image.os, false),
         user: image.os.is(Os.WINDOWS) ? undefined : 'runner',
       },
     );

@@ -129,6 +129,14 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    * @default 5
    */
   readonly maxInstances?: number;
+
+  /**
+   * Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. Disabling this can
+   * speed up provisioning of CodeBuild runners. If you don't intend on running or building Docker images, disable this for faster start-up times.
+   *
+   * @default true
+   */
+  readonly dockerInDocker?: boolean;
 }
 
 interface EcsEc2LaunchTargetProps {
@@ -261,6 +269,11 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    */
   private readonly securityGroups: ec2.ISecurityGroup[];
 
+  /**
+   * Run docker in docker.
+   */
+  private readonly dind: boolean;
+
   constructor(scope: Construct, id: string, props?: FargateRunnerProviderProps) {
     super(scope, id, props);
 
@@ -289,7 +302,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         minCapacity: props?.minInstances ?? 0,
         maxCapacity: props?.maxInstances ?? 5,
         machineImage: this.defaultClusterInstanceAmi(),
-        instanceType: props?.instanceType ?? this.defaultClusterInstaceType(),
+        instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
       }),
       spotInstanceDraining: false, // waste of money to restart jobs as the restarted job won't have a token
     });
@@ -315,6 +328,8 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
+    this.dind = (props?.dockerInDocker ?? true) && !image.os.is(Os.WINDOWS);
+
     this.task = new ecs.Ec2TaskDefinition(this, 'task');
     this.container = this.task.addContainer(
       'runner',
@@ -326,15 +341,31 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
           logGroup: this.logGroup,
           streamPrefix: 'runner',
         }),
-        command: ecsRunCommand(this.image.os),
+        command: ecsRunCommand(this.image.os, this.dind),
         user: image.os.is(Os.WINDOWS) ? undefined : 'runner',
+        privileged: this.dind,
       },
     );
+
+    // docker-in-docker
+    if (this.dind) {
+      this.task.addVolume({
+        name: 'docker',
+        host: {
+          sourcePath: '/var/run/docker.sock',
+        },
+      });
+      this.container.addMountPoints({
+        sourceVolume: 'docker',
+        containerPath: '/var/run/docker.sock.host',
+        readOnly: false,
+      });
+    }
 
     this.grantPrincipal = this.task.taskRole;
   }
 
-  private defaultClusterInstaceType() {
+  private defaultClusterInstanceType() {
     if (this.image.architecture.is(Architecture.X86_64)) {
       return ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
     }
