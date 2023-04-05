@@ -1,3 +1,4 @@
+import * as cdk from 'aws-cdk-lib';
 import {
   aws_ec2 as ec2,
   aws_ecs as ecs,
@@ -129,6 +130,15 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    * @default 5
    */
   readonly maxInstances?: number;
+
+  /**
+   * Size of volume available for launched cluster instances. This modifies the boot volume size and doesn't add any additional volumes.
+   *
+   * Each instance can be used by multiple runners, so make sure there is enough space for all of them.
+   *
+   * @default 30GB
+   */
+  readonly storageSize?: cdk.Size;
 
   /**
    * Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. Disabling this can
@@ -303,6 +313,17 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         maxCapacity: props?.maxInstances ?? 5,
         machineImage: this.defaultClusterInstanceAmi(),
         instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
+        blockDevices: [
+          {
+            deviceName: '/dev/sda1',
+            volume: {
+              ebsDevice: {
+                volumeSize: props?.storageSize?.toGibibytes() ?? 30,
+                deleteOnTermination: true,
+              },
+            },
+          },
+        ],
       }),
       spotInstanceDraining: false, // waste of money to restart jobs as the restarted job won't have a token
     });
