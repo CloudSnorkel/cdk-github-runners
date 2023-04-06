@@ -11134,15 +11134,6 @@
                           "Ref": "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
                         },
                         "instanceType": "m5.large",
-                        "blockDeviceMappings": [
-                          {
-                            "deviceName": "/dev/sda1",
-                            "ebs": {
-                              "volumeSize": 30,
-                              "deleteOnTermination": true
-                            }
-                          }
-                        ],
                         "iamInstanceProfile": {
                           "Ref": "ECSAutoScalingGroupInstanceProfile288AC654"
                         },
@@ -11238,7 +11229,7 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::AutoScaling::AutoScalingGroup",
                       "aws:cdk:cloudformation:props": {
-                        "maxSize": "5",
+                        "maxSize": "1",
                         "minSize": "0",
                         "launchConfigurationName": {
                           "Ref": "ECSAutoScalingGroupLaunchConfigC22C3413"
@@ -11983,15 +11974,6 @@
                           "Ref": "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2arm64recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
                         },
                         "instanceType": "m6g.large",
-                        "blockDeviceMappings": [
-                          {
-                            "deviceName": "/dev/sda1",
-                            "ebs": {
-                              "volumeSize": 30,
-                              "deleteOnTermination": true
-                            }
-                          }
-                        ],
                         "iamInstanceProfile": {
                           "Ref": "ECSARM64AutoScalingGroupInstanceProfile768645E6"
                         },
@@ -12087,7 +12069,7 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::AutoScaling::AutoScalingGroup",
                       "aws:cdk:cloudformation:props": {
-                        "maxSize": "5",
+                        "maxSize": "1",
                         "minSize": "0",
                         "launchConfigurationName": {
                           "Ref": "ECSARM64AutoScalingGroupLaunchConfig9B8B62ED"
@@ -12875,15 +12857,6 @@
                           "Ref": "SsmParameterValueawsserviceecsoptimizedamiwindowsserver2019englishfullrecommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
                         },
                         "instanceType": "m5.large",
-                        "blockDeviceMappings": [
-                          {
-                            "deviceName": "/dev/sda1",
-                            "ebs": {
-                              "volumeSize": 30,
-                              "deleteOnTermination": true
-                            }
-                          }
-                        ],
                         "iamInstanceProfile": {
                           "Ref": "ECSWindowsAutoScalingGroupInstanceProfileD8019407"
                         },
@@ -12906,11 +12879,7 @@
                             "Fn::Join": [
                               "",
                               [
-                                "<powershell>aws ecr get-login-password --region ",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                " | docker login --username AWS --password-stdin ",
+                                "<powershell>(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin ",
                                 {
                                   "Ref": "AWS::AccountId"
                                 },
@@ -12983,7 +12952,7 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::AutoScaling::AutoScalingGroup",
                       "aws:cdk:cloudformation:props": {
-                        "maxSize": "5",
+                        "maxSize": "1",
                         "minSize": "0",
                         "launchConfigurationName": {
                           "Ref": "ECSWindowsAutoScalingGroupLaunchConfigAD09CF33"

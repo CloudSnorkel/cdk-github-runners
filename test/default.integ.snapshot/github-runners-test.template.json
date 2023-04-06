@@ -9275,15 +9275,6 @@
      "Ref": "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
     },
     "InstanceType": "m5.large",
-    "BlockDeviceMappings": [
-     {
-      "DeviceName": "/dev/sda1",
-      "Ebs": {
-       "DeleteOnTermination": true,
-       "VolumeSize": 30
-      }
-     }
-    ],
     "IamInstanceProfile": {
      "Ref": "ECSAutoScalingGroupInstanceProfile288AC654"
     },
@@ -9375,7 +9366,7 @@
   "ECSAutoScalingGroupASG88763D9A": {
    "Type": "AWS::AutoScaling::AutoScalingGroup",
    "Properties": {
-    "MaxSize": "5",
+    "MaxSize": "1",
     "MinSize": "0",
     "LaunchConfigurationName": {
      "Ref": "ECSAutoScalingGroupLaunchConfigC22C3413"
@@ -9835,15 +9826,6 @@
      "Ref": "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2arm64recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
     },
     "InstanceType": "m6g.large",
-    "BlockDeviceMappings": [
-     {
-      "DeviceName": "/dev/sda1",
-      "Ebs": {
-       "DeleteOnTermination": true,
-       "VolumeSize": 30
-      }
-     }
-    ],
     "IamInstanceProfile": {
      "Ref": "ECSARM64AutoScalingGroupInstanceProfile768645E6"
     },
@@ -9935,7 +9917,7 @@
   "ECSARM64AutoScalingGroupASGA19FC118": {
    "Type": "AWS::AutoScaling::AutoScalingGroup",
    "Properties": {
-    "MaxSize": "5",
+    "MaxSize": "1",
     "MinSize": "0",
     "LaunchConfigurationName": {
      "Ref": "ECSARM64AutoScalingGroupLaunchConfig9B8B62ED"
@@ -10438,15 +10420,6 @@
      "Ref": "SsmParameterValueawsserviceecsoptimizedamiwindowsserver2019englishfullrecommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
     },
     "InstanceType": "m5.large",
-    "BlockDeviceMappings": [
-     {
-      "DeviceName": "/dev/sda1",
-      "Ebs": {
-       "DeleteOnTermination": true,
-       "VolumeSize": 30
-      }
-     }
-    ],
     "IamInstanceProfile": {
      "Ref": "ECSWindowsAutoScalingGroupInstanceProfileD8019407"
     },
@@ -10469,11 +10442,7 @@
       "Fn::Join": [
        "",
        [
-        "<powershell>aws ecr get-login-password --region ",
-        {
-         "Ref": "AWS::Region"
-        },
-        " | docker login --username AWS --password-stdin ",
+        "<powershell>(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin ",
         {
          "Ref": "AWS::AccountId"
         },
@@ -10542,7 +10511,7 @@
   "ECSWindowsAutoScalingGroupASG864E3AAF": {
    "Type": "AWS::AutoScaling::AutoScalingGroup",
    "Properties": {
-    "MaxSize": "5",
+    "MaxSize": "1",
     "MinSize": "0",
     "LaunchConfigurationName": {
      "Ref": "ECSWindowsAutoScalingGroupLaunchConfigAD09CF33"

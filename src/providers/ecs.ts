@@ -136,7 +136,7 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    *
    * Each instance can be used by multiple runners, so make sure there is enough space for all of them.
    *
-   * @default 30GB
+   * @default default size for AMI (usually 30GB for Linux and 50GB for Windows)
    */
   readonly storageSize?: cdk.Size;
 
@@ -313,27 +313,23 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         maxCapacity: props?.maxInstances ?? 5,
         machineImage: this.defaultClusterInstanceAmi(),
         instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
-        blockDevices: [
+        blockDevices: props?.storageSize ? [
           {
             deviceName: '/dev/sda1',
             volume: {
               ebsDevice: {
-                volumeSize: props?.storageSize?.toGibibytes() ?? 30,
+                volumeSize: props?.storageSize?.toGibibytes(),
                 deleteOnTermination: true,
               },
             },
           },
-        ],
+        ] : undefined,
       }),
       spotInstanceDraining: false, // waste of money to restart jobs as the restarted job won't have a token
     });
     this.securityGroups.map(sg => this.capacityProvider.autoScalingGroup.addSecurityGroup(sg));
     this.capacityProvider.autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
-    const thisStack = Stack.of(this);
-    this.capacityProvider.autoScalingGroup.addUserData(
-      `aws ecr get-login-password --region ${thisStack.region} | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`,
-      this.pullCommand(),
-    );
+    this.capacityProvider.autoScalingGroup.addUserData(this.loginCommand(), this.pullCommand());
     image.imageRepository.grantPull(this.capacityProvider.autoScalingGroup);
 
     this.cluster.addAsgCapacityProvider(
@@ -419,6 +415,14 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       return `Start-Job -ScriptBlock { docker pull ${this.image.imageRepository.repositoryUri}:${this.image.imageTag} }`;
     }
     return `docker pull ${this.image.imageRepository.repositoryUri}:${this.image.imageTag} &`;
+  }
+
+  private loginCommand() {
+    const thisStack = Stack.of(this);
+    if (this.image.os.is(Os.WINDOWS)) {
+      return `(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`;
+    }
+    return `aws ecr get-login-password --region ${thisStack.region} | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`;
   }
 
   /**

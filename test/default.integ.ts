@@ -141,16 +141,19 @@ new GitHubRunners(stack, 'runners', {
       labels: ['ecs', 'linux', 'x64'],
       imageBuilder: codeBuildImageBuilder, // codebuild has dind
       vpc,
+      maxInstances: 1,
     }),
     new EcsRunnerProvider(stack, 'ECS ARM64', {
       labels: ['ecs', 'linux', 'arm64'],
       imageBuilder: codeBuildArm64ImageBuilder, // codebuild has dind
       vpc,
+      maxInstances: 1,
     }),
     new EcsRunnerProvider(stack, 'ECS Windows', {
       labels: ['ecs', 'windows', 'x64'],
       imageBuilder: windowsImageBuilder,
       vpc,
+      maxInstances: 1,
     }),
     new LambdaRunnerProvider(stack, 'Lambda', {
       labels: ['lambda', 'x64'],
