@@ -4969,7 +4969,7 @@ public readonly imageBuilder: IRunnerImageBuilder;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
-- *Default:* CodeBuildRunnerProviderProps.imageBuilder()
+- *Default:* CodeBuildRunnerProvider.imageBuilder()
 
 Runner image builder used to build Docker images containing GitHub Runner and all requirements.
 
@@ -5520,7 +5520,7 @@ VPC where runner instances will be launched.
 
 ### FargateRunnerProviderProps <a name="FargateRunnerProviderProps" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps"></a>
 
-Properties for FargateRunner.
+Properties for FargateRunnerProvider.
 
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.Initializer"></a>
 
@@ -5661,7 +5661,7 @@ public readonly imageBuilder: IRunnerImageBuilder;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
-- *Default:* FargateRunnerProviderProps.imageBuilder()
+- *Default:* FargateRunnerProvider.imageBuilder()
 
 Runner image builder used to build Docker images containing GitHub Runner and all requirements.
 
@@ -6168,7 +6168,7 @@ public readonly imageBuilder: IRunnerImageBuilder;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
-- *Default:* LambdaRunnerProviderProps.imageBuilder()
+- *Default:* LambdaRunnerProvider.imageBuilder()
 
 Runner image builder used to build Docker images containing GitHub Runner and all requirements.
 

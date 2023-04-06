@@ -29,15 +29,15 @@ import { ecsRunCommand } from './fargate';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from './image-builders';
 
 /**
- * Properties for FargateRunner.
+ * Properties for EcsRunnerProvider.
  */
-export interface FargateRunnerProviderProps extends RunnerProviderProps {
+export interface EcsRunnerProviderProps extends RunnerProviderProps {
   /**
    * Runner image builder used to build Docker images containing GitHub Runner and all requirements.
    *
    * The image builder determines the OS and architecture of the runner.
    *
-   * @default FargateRunnerProviderProps.imageBuilder()
+   * @default EcsRunnerProvider.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
 
@@ -147,6 +147,13 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    * @default true
    */
   readonly dockerInDocker?: boolean;
+
+  /**
+   * Use spot capacity and set a maximum price for spot instances.
+   *
+   * @default no spot capacity
+   */
+  readonly spotMaxPrice?: string;
 }
 
 interface EcsEc2LaunchTargetProps {
@@ -176,15 +183,17 @@ class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
 }
 
 /**
- * GitHub Actions runner provider using Fargate to execute jobs.
+ * GitHub Actions runner provider using ECS on EC2 to execute jobs.
  *
- * Creates a task definition with a single container that gets started for each job.
+ * ECS can be useful when you want more control of the infrastructure running the GitHub Actions Docker containers. You can control the autoscaling
+ * group to scale down to zero during the night and scale up during work hours. This way you can still save money, but have to wait less for
+ * infrastructure to spin up.
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   /**
-   * Create new image builder that builds Fargate specific runner images using Ubuntu.
+   * Create new image builder that builds ECS specific runner images using Ubuntu.
    *
    * Included components:
    *  * `RunnerImageComponent.requiredPackages()`
@@ -223,7 +232,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   private readonly capacityProvider: ecs.AsgCapacityProvider;
 
   /**
-   * Fargate task hosting the runner.
+   * ECS task hosting the runner.
    */
   private readonly task: ecs.Ec2TaskDefinition;
 
@@ -263,7 +272,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   readonly connections: ec2.Connections;
 
   /**
-   * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to Fargate tasks.
+   * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to ECS tasks.
    */
   private readonly image: RunnerImage;
 
@@ -284,7 +293,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    */
   private readonly dind: boolean;
 
-  constructor(scope: Construct, id: string, props?: FargateRunnerProviderProps) {
+  constructor(scope: Construct, id: string, props?: EcsRunnerProviderProps) {
     super(scope, id, props);
 
     this.labels = props?.labels ?? ['ecs'];
@@ -305,6 +314,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     const imageBuilder = props?.imageBuilder ?? EcsRunnerProvider.imageBuilder(this, 'Image Builder');
     const image = this.image = imageBuilder.bindDockerImage();
 
+    if (props?.capacityProvider && (props?.minInstances || props?.maxInstances || props?.instanceType || props?.storageSize)) {
+      cdk.Annotations.of(this).addWarning('When using a custom capacity provider, minInstances, maxInstances, instanceType and storageSize will be ignored.');
+    }
+
     this.capacityProvider = props?.capacityProvider ?? new ecs.AsgCapacityProvider(this, 'Capacity Provider', {
       autoScalingGroup: new autoscaling.AutoScalingGroup(this, 'Auto Scaling Group', {
         vpc: this.vpc,
@@ -324,6 +337,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
             },
           },
         ] : undefined,
+        spotPrice: props?.spotMaxPrice,
       }),
       spotInstanceDraining: false, // waste of money to restart jobs as the restarted job won't have a token
     });

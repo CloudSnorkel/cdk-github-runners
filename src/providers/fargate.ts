@@ -25,7 +25,7 @@ import {
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from './image-builders';
 
 /**
- * Properties for FargateRunner.
+ * Properties for FargateRunnerProvider.
  */
 export interface FargateRunnerProviderProps extends RunnerProviderProps {
   /**
@@ -33,7 +33,7 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    *
    * The image builder determines the OS and architecture of the runner.
    *
-   * @default FargateRunnerProviderProps.imageBuilder()
+   * @default FargateRunnerProvider.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
 

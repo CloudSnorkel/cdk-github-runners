@@ -32,19 +32,23 @@ The best way to browse API documentation is on [Constructs Hub][13]. It is avail
 
 A runner provider creates compute resources on-demand and uses [actions/runner][5] to start a runner.
 
-|                  | EC2               | CodeBuild                  | Fargate        | Lambda        |
-|------------------|-------------------|----------------------------|----------------|---------------|
-| **Time limit**   | Unlimited         | 8 hours                    | Unlimited      | 15 minutes    |
-| **vCPUs**        | Unlimited         | 2, 4, 8, or 72             | 0.25 to 4      | 1 to 6        |
-| **RAM**          | Unlimited         | 3gb, 7gb, 15gb, or 145gb   | 512mb to 30gb  | 128mb to 10gb |
-| **Storage**      | Unlimited         | 50gb to 824gb              | 20gb to 200gb  | Up to 10gb    |
-| **Architecture** | x86_64, ARM64     | x86_64, ARM64              | x86_64, ARM64  | x86_64, ARM64 |
-| **sudo**         | ✔                 | ✔                         | ✔              | ❌           |
-| **Docker**       | ✔                 | ✔ (Linux only)            | ❌              | ❌           |
-| **Spot pricing** | ✔                 | ❌                         | ✔              | ❌           |
-| **OS**           | Linux, Windows    | Linux, Windows             | Linux, Windows | Linux         |
+|                  | EC2               | CodeBuild                  | Fargate        | ECS            | Lambda        |
+|------------------|-------------------|----------------------------|----------------|----------------|---------------|
+| **Time limit**   | Unlimited         | 8 hours                    | Unlimited      | Unlimited      | 15 minutes    |
+| **vCPUs**        | Unlimited         | 2, 4, 8, or 72             | 0.25 to 4      | Unlimited      | 1 to 6        |
+| **RAM**          | Unlimited         | 3gb, 7gb, 15gb, or 145gb   | 512mb to 30gb  | Unlimited      | 128mb to 10gb |
+| **Storage**      | Unlimited         | 50gb to 824gb              | 20gb to 200gb  | Unlimited      | Up to 10gb    |
+| **Architecture** | x86_64, ARM64     | x86_64, ARM64              | x86_64, ARM64  | x86_64, ARM64  | x86_64, ARM64 |
+| **sudo**         | ✔                 | ✔                         | ✔              | ✔              | ❌           |
+| **Docker**       | ✔                 | ✔ (Linux only)            | ❌              | ✔              | ❌           |
+| **Spot pricing** | ✔                 | ❌                         | ✔              | ✔              | ❌           |
+| **OS**           | Linux, Windows    | Linux, Windows             | Linux, Windows | Linux, Windows | Linux         |
 
 The best provider to use mostly depends on your current infrastructure. When in doubt, CodeBuild is always a good choice. Execution history and logs are easy to view, and it has no restrictive limits unless you need to run for more than 8 hours.
+
+* EC2 is useful when you want runners to have complete access to the host
+* ECS is useful when you want to control the infrastructure, like leaving the runner host running for faster startups
+* Lambda is useful for short jobs that can work within time, size and readonly system constraints
 
 You can also create your own provider by implementing `IRunnerProvider`.
 
