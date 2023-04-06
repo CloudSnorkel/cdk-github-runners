@@ -1,7 +1,7 @@
-import { aws_logs as logs, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
 import * as cdk from 'aws-cdk-lib';
-import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
+import { aws_logs as logs, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { LambdaAccess } from './access';
 import { WebhookHandlerFunction } from './lambdas/webhook-handler-function';
 import { Secrets } from './secrets';
 
@@ -19,6 +19,11 @@ export interface GithubWebhookHandlerProps {
    * Secrets used to communicate with GitHub.
    */
   readonly secrets: Secrets;
+
+  /**
+   * Configure access to webhook function.
+   */
+  readonly access?: LambdaAccess;
 }
 
 /**
@@ -55,7 +60,8 @@ export class GithubWebhookHandler extends Construct {
       },
     );
 
-    this.url = this.handler.addFunctionUrl({ authType: FunctionUrlAuthType.NONE }).url;
+    const access = props?.access ?? LambdaAccess.lambdaUrl();
+    this.url = access._bind(this, 'access', this.handler);
 
     props.secrets.webhook.grantRead(this.handler);
     props.orchestrator.grantStartExecution(this.handler);

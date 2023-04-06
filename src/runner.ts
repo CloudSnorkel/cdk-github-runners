@@ -10,8 +10,8 @@ import {
   aws_stepfunctions_tasks as stepfunctions_tasks,
   RemovalPolicy,
 } from 'aws-cdk-lib';
-import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
+import { LambdaAccess } from './access';
 import { DeleteRunnerFunction } from './lambdas/delete-runner-function';
 import { SetupFunction } from './lambdas/setup-function';
 import { StatusFunction } from './lambdas/status-function';
@@ -22,6 +22,7 @@ import { FargateRunnerProvider } from './providers/fargate';
 import { LambdaRunnerProvider } from './providers/lambda';
 import { Secrets } from './secrets';
 import { GithubWebhookHandler } from './webhook';
+
 
 /**
  * Properties for GitHubRunners
@@ -94,6 +95,32 @@ export interface GitHubRunnersProps {
    * @default no logs
    */
   readonly logOptions?: LogOptions;
+
+  /**
+   * Access configuration for the setup function. Once you finish the setup process, you can set this to `LambdaAccess.noAccess()` to remove access to the setup function. You can also use `LambdaAccess.apiGateway({ allowedIps: ['my-ip/0']})` to limit access to your IP only.
+   *
+   * @default LambdaAccess.lambdaUrl()
+   */
+  readonly setupAccess?: LambdaAccess;
+
+
+  /**
+   * Access configuration for the webhook function. This function is called by GitHub when a new workflow job is scheduled. For an extra layer of security, you can set this to `LambdaAccess.apiGateway({ allowedIps: LambdaAccess.githubWebhookIps() })`.
+   *
+   * You can also set this to `LambdaAccess.privateApiGateway()` if your GitHub Enterprise Server is hosted in a VPC. This will create an API Gateway endpoint that's only accessible from within the VPC.
+   *
+   * *WARNING*: changing access type may change the URL. When the URL changes, you must update GitHub as well.
+   *
+   * @default LambdaAccess.lambdaUrl()
+   */
+  readonly webhookAccess?: LambdaAccess;
+
+  /**
+   * Access configuration for the status function. This function returns a lot of sensitive information about the runner, so you should only allow access to it from trusted IPs, if at all.
+   *
+   * @default LambdaAccess.noAccess()
+   */
+  readonly statusAccess?: LambdaAccess;
 }
 
 /**
@@ -222,6 +249,7 @@ export class GitHubRunners extends Construct {
     this.webhook = new GithubWebhookHandler(this, 'Webhook Handler', {
       orchestrator: this.orchestrator,
       secrets: this.secrets,
+      access: this.props?.webhookAccess ?? LambdaAccess.lambdaUrl(),
     });
 
     this.setupUrl = this.setupFunction();
@@ -451,6 +479,19 @@ export class GitHubRunners extends Construct {
         value: `aws --region ${stack.region} lambda invoke --function-name ${statusFunction.functionName} status.json`,
       },
     );
+
+    const access = this.props?.statusAccess ?? LambdaAccess.noAccess();
+    const url = access._bind(this, 'status access', statusFunction);
+
+    if (url !== '') {
+      new cdk.CfnOutput(
+        this,
+        'status url',
+        {
+          value: url,
+        },
+      );
+    }
   }
 
   private setupFunction(): string {
@@ -482,7 +523,8 @@ export class GitHubRunners extends Construct {
     this.secrets.setup.grantRead(setupFunction);
     this.secrets.setup.grantWrite(setupFunction);
 
-    return setupFunction.addFunctionUrl({ authType: FunctionUrlAuthType.NONE }).url;
+    const access = this.props?.setupAccess ?? LambdaAccess.lambdaUrl();
+    return access._bind(this, 'setup access', setupFunction);
   }
 
   private checkIntersectingLabels() {

@@ -4550,6 +4550,68 @@ VPC where builder instances will be launched.
 
 ---
 
+### ApiGatewayAccessProps <a name="ApiGatewayAccessProps" id="@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps"></a>
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.Initializer"></a>
+
+```typescript
+import { ApiGatewayAccessProps } from '@cloudsnorkel/cdk-github-runners'
+
+const apiGatewayAccessProps: ApiGatewayAccessProps = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedIps">allowedIps</a></code> | <code>string[]</code> | List of IP addresses in CIDR notation that are allowed to access the API Gateway. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedSecurityGroups">allowedSecurityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | List of security groups that are allowed to access the API Gateway. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpc">allowedVpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | Creates a private API Gateway and allows access from the specified VPC. |
+
+---
+
+##### `allowedIps`<sup>Optional</sup> <a name="allowedIps" id="@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedIps"></a>
+
+```typescript
+public readonly allowedIps: string[];
+```
+
+- *Type:* string[]
+
+List of IP addresses in CIDR notation that are allowed to access the API Gateway.
+
+If not specified on public API Gateway, all IP addresses are allowed.
+
+If not specified on private API Gateway, no IP addresses are allowed (but specified security groups are).
+
+---
+
+##### `allowedSecurityGroups`<sup>Optional</sup> <a name="allowedSecurityGroups" id="@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedSecurityGroups"></a>
+
+```typescript
+public readonly allowedSecurityGroups: ISecurityGroup[];
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup[]
+
+List of security groups that are allowed to access the API Gateway.
+
+Only works for private API Gateways with {@link allowedVpc}.
+
+---
+
+##### `allowedVpc`<sup>Optional</sup> <a name="allowedVpc" id="@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpc"></a>
+
+```typescript
+public readonly allowedVpc: IVpc;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.IVpc
+
+Creates a private API Gateway and allows access from the specified VPC.
+
+---
+
 ### AwsImageBuilderRunnerImageBuilderProps <a name="AwsImageBuilderRunnerImageBuilderProps" id="@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps"></a>
 
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.Initializer"></a>
@@ -5819,8 +5881,11 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.logOptions">logOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions">LogOptions</a></code> | Logging options for the state machine that manages the runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | List of runner providers to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to all management functions. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.setupAccess">setupAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the setup function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.statusAccess">statusAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the status function. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for all management functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpcSubnets">vpcSubnets</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | VPC subnets used for all management functions. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.webhookAccess">webhookAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the webhook function. |
 
 ---
 
@@ -5928,6 +5993,36 @@ Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
 
 ---
 
+##### `setupAccess`<sup>Optional</sup> <a name="setupAccess" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.setupAccess"></a>
+
+```typescript
+public readonly setupAccess: LambdaAccess;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a>
+- *Default:* LambdaAccess.lambdaUrl()
+
+Access configuration for the setup function.
+
+Once you finish the setup process, you can set this to `LambdaAccess.noAccess()` to remove access to the setup function. You can also use `LambdaAccess.apiGateway({ allowedIps: ['my-ip/0']})` to limit access to your IP only.
+
+---
+
+##### `statusAccess`<sup>Optional</sup> <a name="statusAccess" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.statusAccess"></a>
+
+```typescript
+public readonly statusAccess: LambdaAccess;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a>
+- *Default:* LambdaAccess.noAccess()
+
+Access configuration for the status function.
+
+This function returns a lot of sensitive information about the runner, so you should only allow access to it from trusted IPs, if at all.
+
+---
+
 ##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpc"></a>
 
 ```typescript
@@ -5953,6 +6048,25 @@ public readonly vpcSubnets: SubnetSelection;
 VPC subnets used for all management functions.
 
 Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
+
+---
+
+##### `webhookAccess`<sup>Optional</sup> <a name="webhookAccess" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.webhookAccess"></a>
+
+```typescript
+public readonly webhookAccess: LambdaAccess;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a>
+- *Default:* LambdaAccess.lambdaUrl()
+
+Access configuration for the webhook function.
+
+This function is called by GitHub when a new workflow job is scheduled. For an extra layer of security, you can set this to `LambdaAccess.apiGateway({ allowedIps: LambdaAccess.githubWebhookIps() })`.
+
+You can also set this to `LambdaAccess.privateApiGateway()` if your GitHub Enterprise Server is hosted in a VPC. This will create an API Gateway endpoint that's only accessible from within the VPC.
+
+*WARNING*: changing access type may change the URL. When the URL changes, you must update GitHub as well.
 
 ---
 
@@ -7261,6 +7375,107 @@ public readonly X86_64: Architecture;
 X86_64.
 
 ---
+
+### LambdaAccess <a name="LambdaAccess" id="@cloudsnorkel/cdk-github-runners.LambdaAccess"></a>
+
+Access configuration options for Lambda functions like setup and webhook function.
+
+Use this to limit access to these functions.
+
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.Initializer"></a>
+
+```typescript
+import { LambdaAccess } from '@cloudsnorkel/cdk-github-runners'
+
+new LambdaAccess()
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+
+---
+
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess.apiGateway">apiGateway</a></code> | Provide access using API Gateway. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess.githubWebhookIps">githubWebhookIps</a></code> | Downloads the list of IP addresses used by GitHub.com for webhooks. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess.lambdaUrl">lambdaUrl</a></code> | Provide access using Lambda URL. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess.noAccess">noAccess</a></code> | Disables access to the configured Lambda function. |
+
+---
+
+##### `apiGateway` <a name="apiGateway" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.apiGateway"></a>
+
+```typescript
+import { LambdaAccess } from '@cloudsnorkel/cdk-github-runners'
+
+LambdaAccess.apiGateway(props?: ApiGatewayAccessProps)
+```
+
+Provide access using API Gateway.
+
+This is the most secure option, but requires additional configuration. It allows you to limit access to specific IP addresses and even to a specific VPC.
+
+To limit access to GitHub.com use:
+
+```
+LambdaAccess.apiGateway({
+  allowedIps: LambdaAccess.githubWebhookIps(),
+});
+```
+
+Alternatively, get and manually update the list manually with:
+
+```
+curl https://api.github.com/meta | jq .hooks
+```
+
+###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.apiGateway.parameter.props"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps">ApiGatewayAccessProps</a>
+
+---
+
+##### `githubWebhookIps` <a name="githubWebhookIps" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.githubWebhookIps"></a>
+
+```typescript
+import { LambdaAccess } from '@cloudsnorkel/cdk-github-runners'
+
+LambdaAccess.githubWebhookIps()
+```
+
+Downloads the list of IP addresses used by GitHub.com for webhooks.
+
+Note that downloading dynamic data during deployment is not recommended in CDK. This is a workaround for the lack of a better solution.
+
+##### `lambdaUrl` <a name="lambdaUrl" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.lambdaUrl"></a>
+
+```typescript
+import { LambdaAccess } from '@cloudsnorkel/cdk-github-runners'
+
+LambdaAccess.lambdaUrl()
+```
+
+Provide access using Lambda URL.
+
+This is the default and simplest option. It puts no limits on the requester, but the Lambda functions themselves authenticate every request.
+
+##### `noAccess` <a name="noAccess" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.noAccess"></a>
+
+```typescript
+import { LambdaAccess } from '@cloudsnorkel/cdk-github-runners'
+
+LambdaAccess.noAccess()
+```
+
+Disables access to the configured Lambda function.
+
+This is useful for the setup function after setup is done.
+
+
 
 ### LinuxUbuntuComponents <a name="LinuxUbuntuComponents" id="@cloudsnorkel/cdk-github-runners.LinuxUbuntuComponents"></a>
 
