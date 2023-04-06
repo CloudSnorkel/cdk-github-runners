@@ -5142,7 +5142,7 @@
                                 {
                                   "Ref": "AWS::Region"
                                 },
-                                ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\nusermod -aG sudo runner\\necho \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker-in-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nDOCKER_CHANNEL=\\\"stable\\\"\\nDIND_COMMIT=\\\"42b1175eda071c0e9121e1d64345928384a93df1\\\"\\nDOCKER_VERSION=\\\"20.10.18\\\"\\nDOCKER_COMPOSE_VERSION=\\\"2.11.0\\\"\\ncurl -fsSL \\\"https://download.docker.com/linux/static/${DOCKER_CHANNEL}/x86_64/docker-${DOCKER_VERSION}.tgz\\\" -o docker.tgz\\ntar --strip-components 1 -C /usr/local/bin/ -xzf docker.tgz\\nrm docker.tgz\\n# set up subuid/subgid so that \\\"--userns-remap=default\\\" works out-of-the box\\naddgroup dockremap\\nuseradd -g dockremap dockremap\\necho 'dockremap:165536:65536' >> /etc/subuid\\necho 'dockremap:165536:65536' >> /etc/subgid\\ncurl -fsSL \\\"https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind\\\" -o /usr/local/bin/dind\\ncurl -fsSL https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose\\nmkdir -p /home/runner/.docker/cli-plugins && ln -s /usr/local/bin/docker-compose /home/runner/.docker/cli-plugins/docker-compose\\nchown -R runner /home/runner/.docker\\nchmod +x /usr/local/bin/dind /usr/local/bin/docker-compose\\naddgroup docker && usermod -aG docker runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker-in-Docker.sh\",\n        \"cat > component6-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-GithubRunner.sh\",\n        \"aws s3 cp ",
+                                ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\nusermod -aG sudo runner\\necho \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker-in-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nDEBIAN_FRONTEND=noninteractive apt-get install -y socat\\nDOCKER_CHANNEL=\\\"stable\\\"\\nDIND_COMMIT=\\\"42b1175eda071c0e9121e1d64345928384a93df1\\\"\\nDOCKER_VERSION=\\\"20.10.18\\\"\\nDOCKER_COMPOSE_VERSION=\\\"2.11.0\\\"\\ncurl -fsSL \\\"https://download.docker.com/linux/static/${DOCKER_CHANNEL}/x86_64/docker-${DOCKER_VERSION}.tgz\\\" -o docker.tgz\\ntar --strip-components 1 -C /usr/local/bin/ -xzf docker.tgz\\nrm docker.tgz\\n# set up subuid/subgid so that \\\"--userns-remap=default\\\" works out-of-the box\\naddgroup dockremap\\nuseradd -g dockremap dockremap\\necho 'dockremap:165536:65536' >> /etc/subuid\\necho 'dockremap:165536:65536' >> /etc/subgid\\ncurl -fsSL \\\"https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind\\\" -o /usr/local/bin/dind\\ncurl -fsSL https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose\\nmkdir -p /home/runner/.docker/cli-plugins && ln -s /usr/local/bin/docker-compose /home/runner/.docker/cli-plugins/docker-compose\\nchown -R runner /home/runner/.docker\\nchmod +x /usr/local/bin/dind /usr/local/bin/docker-compose\\naddgroup docker && usermod -aG docker runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker-in-Docker.sh\",\n        \"cat > component6-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-GithubRunner.sh\",\n        \"aws s3 cp ",
                                 {
                                   "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
                                 },
@@ -5828,7 +5828,7 @@
                                 {
                                   "Ref": "AWS::Region"
                                 },
-                                ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\nusermod -aG sudo runner\\necho \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker-in-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nDOCKER_CHANNEL=\\\"stable\\\"\\nDIND_COMMIT=\\\"42b1175eda071c0e9121e1d64345928384a93df1\\\"\\nDOCKER_VERSION=\\\"20.10.18\\\"\\nDOCKER_COMPOSE_VERSION=\\\"2.11.0\\\"\\ncurl -fsSL \\\"https://download.docker.com/linux/static/${DOCKER_CHANNEL}/aarch64/docker-${DOCKER_VERSION}.tgz\\\" -o docker.tgz\\ntar --strip-components 1 -C /usr/local/bin/ -xzf docker.tgz\\nrm docker.tgz\\n# set up subuid/subgid so that \\\"--userns-remap=default\\\" works out-of-the box\\naddgroup dockremap\\nuseradd -g dockremap dockremap\\necho 'dockremap:165536:65536' >> /etc/subuid\\necho 'dockremap:165536:65536' >> /etc/subgid\\ncurl -fsSL \\\"https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind\\\" -o /usr/local/bin/dind\\ncurl -fsSL https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-linux-aarch64 -o /usr/local/bin/docker-compose\\nmkdir -p /home/runner/.docker/cli-plugins && ln -s /usr/local/bin/docker-compose /home/runner/.docker/cli-plugins/docker-compose\\nchown -R runner /home/runner/.docker\\nchmod +x /usr/local/bin/dind /usr/local/bin/docker-compose\\naddgroup docker && usermod -aG docker runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker-in-Docker.sh\",\n        \"cat > component6-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-GithubRunner.sh\",\n        \"aws s3 cp ",
+                                ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\nusermod -aG sudo runner\\necho \\\"%sudo   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker-in-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nDEBIAN_FRONTEND=noninteractive apt-get install -y socat\\nDOCKER_CHANNEL=\\\"stable\\\"\\nDIND_COMMIT=\\\"42b1175eda071c0e9121e1d64345928384a93df1\\\"\\nDOCKER_VERSION=\\\"20.10.18\\\"\\nDOCKER_COMPOSE_VERSION=\\\"2.11.0\\\"\\ncurl -fsSL \\\"https://download.docker.com/linux/static/${DOCKER_CHANNEL}/aarch64/docker-${DOCKER_VERSION}.tgz\\\" -o docker.tgz\\ntar --strip-components 1 -C /usr/local/bin/ -xzf docker.tgz\\nrm docker.tgz\\n# set up subuid/subgid so that \\\"--userns-remap=default\\\" works out-of-the box\\naddgroup dockremap\\nuseradd -g dockremap dockremap\\necho 'dockremap:165536:65536' >> /etc/subuid\\necho 'dockremap:165536:65536' >> /etc/subgid\\ncurl -fsSL \\\"https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind\\\" -o /usr/local/bin/dind\\ncurl -fsSL https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-linux-aarch64 -o /usr/local/bin/docker-compose\\nmkdir -p /home/runner/.docker/cli-plugins && ln -s /usr/local/bin/docker-compose /home/runner/.docker/cli-plugins/docker-compose\\nchown -R runner /home/runner/.docker\\nchmod +x /usr/local/bin/dind /usr/local/bin/docker-compose\\naddgroup docker && usermod -aG docker runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker-in-Docker.sh\",\n        \"cat > component6-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-GithubRunner.sh\",\n        \"aws s3 cp ",
                                 {
                                   "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
                                 },
@@ -10823,6 +10823,2596 @@
               "version": "2.50.0"
             }
           },
+          "ECS": {
+            "id": "ECS",
+            "path": "github-runners-test/ECS",
+            "children": {
+              "security group": {
+                "id": "security group",
+                "path": "github-runners-test/ECS/security group",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/ECS/security group/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "groupDescription": "github-runners-test/ECS/security group",
+                        "securityGroupEgress": [
+                          {
+                            "cidrIp": "0.0.0.0/0",
+                            "description": "Allow all outbound traffic by default",
+                            "ipProtocol": "-1"
+                          }
+                        ],
+                        "vpcId": {
+                          "Ref": "Vpc8378EB38"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                  "version": "2.50.0"
+                }
+              },
+              "cluster": {
+                "id": "cluster",
+                "path": "github-runners-test/ECS/cluster",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/ECS/cluster/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECS::Cluster",
+                      "aws:cdk:cloudformation:props": {}
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.CfnCluster",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "cluster": {
+                    "id": "cluster",
+                    "path": "github-runners-test/ECS/cluster/cluster",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECS::ClusterCapacityProviderAssociations",
+                      "aws:cdk:cloudformation:props": {
+                        "capacityProviders": [
+                          {
+                            "Ref": "ECSCapacityProviderABF1B146"
+                          }
+                        ],
+                        "cluster": {
+                          "Ref": "ECScluster20BC0B82"
+                        },
+                        "defaultCapacityProviderStrategy": []
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.CfnClusterCapacityProviderAssociations",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.Cluster",
+                  "version": "2.50.0"
+                }
+              },
+              "Auto Scaling Group": {
+                "id": "Auto Scaling Group",
+                "path": "github-runners-test/ECS/Auto Scaling Group",
+                "children": {
+                  "InstanceSecurityGroup": {
+                    "id": "InstanceSecurityGroup",
+                    "path": "github-runners-test/ECS/Auto Scaling Group/InstanceSecurityGroup",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS/Auto Scaling Group/InstanceSecurityGroup/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
+                          "aws:cdk:cloudformation:props": {
+                            "groupDescription": "github-runners-test/ECS/Auto Scaling Group/InstanceSecurityGroup",
+                            "securityGroupEgress": [
+                              {
+                                "cidrIp": "0.0.0.0/0",
+                                "description": "Allow all outbound traffic by default",
+                                "ipProtocol": "-1"
+                              }
+                            ],
+                            "tags": [
+                              {
+                                "key": "Name",
+                                "value": "github-runners-test/ECS/Auto Scaling Group"
+                              }
+                            ],
+                            "vpcId": {
+                              "Ref": "Vpc8378EB38"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "InstanceRole": {
+                    "id": "InstanceRole",
+                    "path": "github-runners-test/ECS/Auto Scaling Group/InstanceRole",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS/Auto Scaling Group/InstanceRole/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                          "aws:cdk:cloudformation:props": {
+                            "assumeRolePolicyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sts:AssumeRole",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": {
+                                      "Fn::Join": [
+                                        "",
+                                        [
+                                          "ec2.",
+                                          {
+                                            "Ref": "AWS::URLSuffix"
+                                          }
+                                        ]
+                                      ]
+                                    }
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            },
+                            "managedPolicyArns": [
+                              {
+                                "Fn::Join": [
+                                  "",
+                                  [
+                                    "arn:",
+                                    {
+                                      "Ref": "AWS::Partition"
+                                    },
+                                    ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+                                  ]
+                                ]
+                              }
+                            ],
+                            "tags": [
+                              {
+                                "key": "Name",
+                                "value": "github-runners-test/ECS/Auto Scaling Group"
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                          "version": "2.50.0"
+                        }
+                      },
+                      "DefaultPolicy": {
+                        "id": "DefaultPolicy",
+                        "path": "github-runners-test/ECS/Auto Scaling Group/InstanceRole/DefaultPolicy",
+                        "children": {
+                          "Resource": {
+                            "id": "Resource",
+                            "path": "github-runners-test/ECS/Auto Scaling Group/InstanceRole/DefaultPolicy/Resource",
+                            "attributes": {
+                              "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                              "aws:cdk:cloudformation:props": {
+                                "policyDocument": {
+                                  "Statement": [
+                                    {
+                                      "Action": [
+                                        "ecr:BatchCheckLayerAvailability",
+                                        "ecr:GetDownloadUrlForLayer",
+                                        "ecr:BatchGetImage"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Ref": "CodeBuildImageBuilderB8638EC8"
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecr:GetAuthorizationToken",
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    },
+                                    {
+                                      "Action": [
+                                        "ecs:DeregisterContainerInstance",
+                                        "ecs:RegisterContainerInstance",
+                                        "ecs:Submit*"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::GetAtt": [
+                                          "ECScluster20BC0B82",
+                                          "Arn"
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "Action": [
+                                        "ecs:Poll",
+                                        "ecs:StartTelemetrySession"
+                                      ],
+                                      "Condition": {
+                                        "ArnEquals": {
+                                          "ecs:cluster": {
+                                            "Fn::GetAtt": [
+                                              "ECScluster20BC0B82",
+                                              "Arn"
+                                            ]
+                                          }
+                                        }
+                                      },
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    },
+                                    {
+                                      "Action": [
+                                        "ecs:DiscoverPollEndpoint",
+                                        "ecr:GetAuthorizationToken",
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    }
+                                  ],
+                                  "Version": "2012-10-17"
+                                },
+                                "policyName": "ECSAutoScalingGroupInstanceRoleDefaultPolicy86A5959D",
+                                "roles": [
+                                  {
+                                    "Ref": "ECSAutoScalingGroupInstanceRoleCA234A7C"
+                                  }
+                                ]
+                              }
+                            },
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                              "version": "2.50.0"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.Policy",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "InstanceProfile": {
+                    "id": "InstanceProfile",
+                    "path": "github-runners-test/ECS/Auto Scaling Group/InstanceProfile",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
+                      "aws:cdk:cloudformation:props": {
+                        "roles": [
+                          {
+                            "Ref": "ECSAutoScalingGroupInstanceRoleCA234A7C"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "LaunchConfig": {
+                    "id": "LaunchConfig",
+                    "path": "github-runners-test/ECS/Auto Scaling Group/LaunchConfig",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::AutoScaling::LaunchConfiguration",
+                      "aws:cdk:cloudformation:props": {
+                        "imageId": {
+                          "Ref": "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
+                        },
+                        "instanceType": "m5.large",
+                        "iamInstanceProfile": {
+                          "Ref": "ECSAutoScalingGroupInstanceProfile288AC654"
+                        },
+                        "securityGroups": [
+                          {
+                            "Fn::GetAtt": [
+                              "ECSAutoScalingGroupInstanceSecurityGroup87D56BFE",
+                              "GroupId"
+                            ]
+                          },
+                          {
+                            "Fn::GetAtt": [
+                              "ECSsecuritygroup76605212",
+                              "GroupId"
+                            ]
+                          }
+                        ],
+                        "userData": {
+                          "Fn::Base64": {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "#!/bin/bash\naws ecr get-login-password --region ",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                " | docker login --username AWS --password-stdin ",
+                                {
+                                  "Ref": "AWS::AccountId"
+                                },
+                                ".dkr.ecr.",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                ".amazonaws.com\ndocker pull ",
+                                {
+                                  "Fn::Select": [
+                                    4,
+                                    {
+                                      "Fn::Split": [
+                                        ":",
+                                        {
+                                          "Ref": "CodeBuildImageBuilderB8638EC8"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                ".dkr.ecr.",
+                                {
+                                  "Fn::Select": [
+                                    3,
+                                    {
+                                      "Fn::Split": [
+                                        ":",
+                                        {
+                                          "Ref": "CodeBuildImageBuilderB8638EC8"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                ".",
+                                {
+                                  "Ref": "AWS::URLSuffix"
+                                },
+                                "/",
+                                {
+                                  "Fn::GetAtt": [
+                                    "CodeBuildImageBuilderB8638EC8",
+                                    "Name"
+                                  ]
+                                },
+                                ":latest &\necho ECS_CLUSTER=",
+                                {
+                                  "Ref": "ECScluster20BC0B82"
+                                },
+                                " >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config"
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_autoscaling.CfnLaunchConfiguration",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "ASG": {
+                    "id": "ASG",
+                    "path": "github-runners-test/ECS/Auto Scaling Group/ASG",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::AutoScaling::AutoScalingGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "maxSize": "1",
+                        "minSize": "0",
+                        "launchConfigurationName": {
+                          "Ref": "ECSAutoScalingGroupLaunchConfigC22C3413"
+                        },
+                        "newInstancesProtectedFromScaleIn": true,
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "github-runners-test/ECS/Auto Scaling Group",
+                            "propagateAtLaunch": true
+                          }
+                        ],
+                        "vpcZoneIdentifier": [
+                          {
+                            "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
+                          },
+                          {
+                            "Ref": "VpcPublicSubnet2Subnet691E08A3"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_autoscaling.CfnAutoScalingGroup",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_autoscaling.AutoScalingGroup",
+                  "version": "2.50.0"
+                }
+              },
+              "Capacity Provider": {
+                "id": "Capacity Provider",
+                "path": "github-runners-test/ECS/Capacity Provider",
+                "children": {
+                  "Capacity Provider": {
+                    "id": "Capacity Provider",
+                    "path": "github-runners-test/ECS/Capacity Provider/Capacity Provider",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECS::CapacityProvider",
+                      "aws:cdk:cloudformation:props": {
+                        "autoScalingGroupProvider": {
+                          "autoScalingGroupArn": {
+                            "Ref": "ECSAutoScalingGroupASG88763D9A"
+                          },
+                          "managedScaling": {
+                            "status": "ENABLED",
+                            "targetCapacity": 100
+                          },
+                          "managedTerminationProtection": "ENABLED"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.CfnCapacityProvider",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.AsgCapacityProvider",
+                  "version": "2.50.0"
+                }
+              },
+              "logs": {
+                "id": "logs",
+                "path": "github-runners-test/ECS/logs",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/ECS/logs/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "retentionInDays": 30
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "logs filter": {
+                    "id": "logs filter",
+                    "path": "github-runners-test/ECS/logs/logs filter",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS/logs/logs filter/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::Logs::MetricFilter",
+                          "aws:cdk:cloudformation:props": {
+                            "filterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+                            "logGroupName": {
+                              "Ref": "ECSlogs71446134"
+                            },
+                            "metricTransformations": [
+                              {
+                                "metricNamespace": "GitHubRunners",
+                                "metricName": "JobCompleted",
+                                "metricValue": "1",
+                                "dimensions": [
+                                  {
+                                    "key": "ProviderLabels",
+                                    "value": "$labels"
+                                  },
+                                  {
+                                    "key": "Status",
+                                    "value": "$status"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_logs.CfnMetricFilter",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.MetricFilter",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
+                  "version": "2.50.0"
+                }
+              },
+              "task": {
+                "id": "task",
+                "path": "github-runners-test/ECS/task",
+                "children": {
+                  "TaskRole": {
+                    "id": "TaskRole",
+                    "path": "github-runners-test/ECS/task/TaskRole",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS/task/TaskRole/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                          "aws:cdk:cloudformation:props": {
+                            "assumeRolePolicyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sts:AssumeRole",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": "ecs-tasks.amazonaws.com"
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/ECS/task/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECS::TaskDefinition",
+                      "aws:cdk:cloudformation:props": {
+                        "containerDefinitions": [
+                          {
+                            "command": [
+                              "sh",
+                              "-c",
+                              "sudo socat UNIX-LISTEN:/var/run/docker.sock,group=docker,mode=770,fork UNIX-CONNECT:/var/run/docker.sock.host &\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+                            ],
+                            "cpu": 1024,
+                            "essential": true,
+                            "image": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  {
+                                    "Fn::Select": [
+                                      4,
+                                      {
+                                        "Fn::Split": [
+                                          ":",
+                                          {
+                                            "Ref": "CodeBuildImageBuilderB8638EC8"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  ".dkr.ecr.",
+                                  {
+                                    "Fn::Select": [
+                                      3,
+                                      {
+                                        "Fn::Split": [
+                                          ":",
+                                          {
+                                            "Ref": "CodeBuildImageBuilderB8638EC8"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  ".",
+                                  {
+                                    "Ref": "AWS::URLSuffix"
+                                  },
+                                  "/",
+                                  {
+                                    "Fn::GetAtt": [
+                                      "CodeBuildImageBuilderB8638EC8",
+                                      "Name"
+                                    ]
+                                  },
+                                  ":latest"
+                                ]
+                              ]
+                            },
+                            "memory": 3500,
+                            "mountPoints": [
+                              {
+                                "containerPath": "/var/run/docker.sock.host",
+                                "readOnly": false,
+                                "sourceVolume": "docker"
+                              }
+                            ],
+                            "name": "runner",
+                            "privileged": true,
+                            "user": "runner",
+                            "logConfiguration": {
+                              "logDriver": "awslogs",
+                              "options": {
+                                "awslogs-group": {
+                                  "Ref": "ECSlogs71446134"
+                                },
+                                "awslogs-stream-prefix": "runner",
+                                "awslogs-region": {
+                                  "Ref": "AWS::Region"
+                                }
+                              }
+                            }
+                          }
+                        ],
+                        "executionRoleArn": {
+                          "Fn::GetAtt": [
+                            "ECStaskExecutionRole1A6D19A5",
+                            "Arn"
+                          ]
+                        },
+                        "family": "githubrunnerstestECStaskCE74CC84",
+                        "networkMode": "bridge",
+                        "requiresCompatibilities": [
+                          "EC2"
+                        ],
+                        "taskRoleArn": {
+                          "Fn::GetAtt": [
+                            "ECStaskTaskRoleFE831ECD",
+                            "Arn"
+                          ]
+                        },
+                        "volumes": [
+                          {
+                            "host": {
+                              "sourcePath": "/var/run/docker.sock"
+                            },
+                            "name": "docker"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.CfnTaskDefinition",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "runner": {
+                    "id": "runner",
+                    "path": "github-runners-test/ECS/task/runner",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.ContainerDefinition",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "ExecutionRole": {
+                    "id": "ExecutionRole",
+                    "path": "github-runners-test/ECS/task/ExecutionRole",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS/task/ExecutionRole/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                          "aws:cdk:cloudformation:props": {
+                            "assumeRolePolicyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sts:AssumeRole",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": "ecs-tasks.amazonaws.com"
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                          "version": "2.50.0"
+                        }
+                      },
+                      "DefaultPolicy": {
+                        "id": "DefaultPolicy",
+                        "path": "github-runners-test/ECS/task/ExecutionRole/DefaultPolicy",
+                        "children": {
+                          "Resource": {
+                            "id": "Resource",
+                            "path": "github-runners-test/ECS/task/ExecutionRole/DefaultPolicy/Resource",
+                            "attributes": {
+                              "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                              "aws:cdk:cloudformation:props": {
+                                "policyDocument": {
+                                  "Statement": [
+                                    {
+                                      "Action": [
+                                        "ecr:BatchCheckLayerAvailability",
+                                        "ecr:GetDownloadUrlForLayer",
+                                        "ecr:BatchGetImage"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Ref": "CodeBuildImageBuilderB8638EC8"
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecr:GetAuthorizationToken",
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    },
+                                    {
+                                      "Action": [
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::GetAtt": [
+                                          "ECSlogs71446134",
+                                          "Arn"
+                                        ]
+                                      }
+                                    }
+                                  ],
+                                  "Version": "2012-10-17"
+                                },
+                                "policyName": "ECStaskExecutionRoleDefaultPolicy564C1271",
+                                "roles": [
+                                  {
+                                    "Ref": "ECStaskExecutionRole1A6D19A5"
+                                  }
+                                ]
+                              }
+                            },
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                              "version": "2.50.0"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.Policy",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.Ec2TaskDefinition",
+                  "version": "2.50.0"
+                }
+              },
+              "ecs, linux, x64": {
+                "id": "ecs, linux, x64",
+                "path": "github-runners-test/ECS/ecs, linux, x64",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.EcsRunTask",
+                  "version": "2.50.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
+            }
+          },
+          "SsmParameterValue:--aws--service--ecs--optimized-ami--amazon-linux-2--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
+            "id": "SsmParameterValue:--aws--service--ecs--optimized-ami--amazon-linux-2--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--ecs--optimized-ami--amazon-linux-2--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnParameter",
+              "version": "2.50.0"
+            }
+          },
+          "SsmParameterValue:--aws--service--ecs--optimized-ami--amazon-linux-2--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118": {
+            "id": "SsmParameterValue:--aws--service--ecs--optimized-ami--amazon-linux-2--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--ecs--optimized-ami--amazon-linux-2--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.Resource",
+              "version": "2.50.0"
+            }
+          },
+          "ECS ARM64": {
+            "id": "ECS ARM64",
+            "path": "github-runners-test/ECS ARM64",
+            "children": {
+              "security group": {
+                "id": "security group",
+                "path": "github-runners-test/ECS ARM64/security group",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/ECS ARM64/security group/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "groupDescription": "github-runners-test/ECS ARM64/security group",
+                        "securityGroupEgress": [
+                          {
+                            "cidrIp": "0.0.0.0/0",
+                            "description": "Allow all outbound traffic by default",
+                            "ipProtocol": "-1"
+                          }
+                        ],
+                        "vpcId": {
+                          "Ref": "Vpc8378EB38"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                  "version": "2.50.0"
+                }
+              },
+              "cluster": {
+                "id": "cluster",
+                "path": "github-runners-test/ECS ARM64/cluster",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/ECS ARM64/cluster/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECS::Cluster",
+                      "aws:cdk:cloudformation:props": {}
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.CfnCluster",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "cluster": {
+                    "id": "cluster",
+                    "path": "github-runners-test/ECS ARM64/cluster/cluster",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECS::ClusterCapacityProviderAssociations",
+                      "aws:cdk:cloudformation:props": {
+                        "capacityProviders": [
+                          {
+                            "Ref": "ECSARM64CapacityProvider8627FEF9"
+                          }
+                        ],
+                        "cluster": {
+                          "Ref": "ECSARM64cluster4ECAA083"
+                        },
+                        "defaultCapacityProviderStrategy": []
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.CfnClusterCapacityProviderAssociations",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.Cluster",
+                  "version": "2.50.0"
+                }
+              },
+              "Auto Scaling Group": {
+                "id": "Auto Scaling Group",
+                "path": "github-runners-test/ECS ARM64/Auto Scaling Group",
+                "children": {
+                  "InstanceSecurityGroup": {
+                    "id": "InstanceSecurityGroup",
+                    "path": "github-runners-test/ECS ARM64/Auto Scaling Group/InstanceSecurityGroup",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS ARM64/Auto Scaling Group/InstanceSecurityGroup/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
+                          "aws:cdk:cloudformation:props": {
+                            "groupDescription": "github-runners-test/ECS ARM64/Auto Scaling Group/InstanceSecurityGroup",
+                            "securityGroupEgress": [
+                              {
+                                "cidrIp": "0.0.0.0/0",
+                                "description": "Allow all outbound traffic by default",
+                                "ipProtocol": "-1"
+                              }
+                            ],
+                            "tags": [
+                              {
+                                "key": "Name",
+                                "value": "github-runners-test/ECS ARM64/Auto Scaling Group"
+                              }
+                            ],
+                            "vpcId": {
+                              "Ref": "Vpc8378EB38"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "InstanceRole": {
+                    "id": "InstanceRole",
+                    "path": "github-runners-test/ECS ARM64/Auto Scaling Group/InstanceRole",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS ARM64/Auto Scaling Group/InstanceRole/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                          "aws:cdk:cloudformation:props": {
+                            "assumeRolePolicyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sts:AssumeRole",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": {
+                                      "Fn::Join": [
+                                        "",
+                                        [
+                                          "ec2.",
+                                          {
+                                            "Ref": "AWS::URLSuffix"
+                                          }
+                                        ]
+                                      ]
+                                    }
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            },
+                            "managedPolicyArns": [
+                              {
+                                "Fn::Join": [
+                                  "",
+                                  [
+                                    "arn:",
+                                    {
+                                      "Ref": "AWS::Partition"
+                                    },
+                                    ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+                                  ]
+                                ]
+                              }
+                            ],
+                            "tags": [
+                              {
+                                "key": "Name",
+                                "value": "github-runners-test/ECS ARM64/Auto Scaling Group"
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                          "version": "2.50.0"
+                        }
+                      },
+                      "DefaultPolicy": {
+                        "id": "DefaultPolicy",
+                        "path": "github-runners-test/ECS ARM64/Auto Scaling Group/InstanceRole/DefaultPolicy",
+                        "children": {
+                          "Resource": {
+                            "id": "Resource",
+                            "path": "github-runners-test/ECS ARM64/Auto Scaling Group/InstanceRole/DefaultPolicy/Resource",
+                            "attributes": {
+                              "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                              "aws:cdk:cloudformation:props": {
+                                "policyDocument": {
+                                  "Statement": [
+                                    {
+                                      "Action": [
+                                        "ecr:BatchCheckLayerAvailability",
+                                        "ecr:GetDownloadUrlForLayer",
+                                        "ecr:BatchGetImage"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecr:GetAuthorizationToken",
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    },
+                                    {
+                                      "Action": [
+                                        "ecs:DeregisterContainerInstance",
+                                        "ecs:RegisterContainerInstance",
+                                        "ecs:Submit*"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::GetAtt": [
+                                          "ECSARM64cluster4ECAA083",
+                                          "Arn"
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "Action": [
+                                        "ecs:Poll",
+                                        "ecs:StartTelemetrySession"
+                                      ],
+                                      "Condition": {
+                                        "ArnEquals": {
+                                          "ecs:cluster": {
+                                            "Fn::GetAtt": [
+                                              "ECSARM64cluster4ECAA083",
+                                              "Arn"
+                                            ]
+                                          }
+                                        }
+                                      },
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    },
+                                    {
+                                      "Action": [
+                                        "ecs:DiscoverPollEndpoint",
+                                        "ecr:GetAuthorizationToken",
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    }
+                                  ],
+                                  "Version": "2012-10-17"
+                                },
+                                "policyName": "ECSARM64AutoScalingGroupInstanceRoleDefaultPolicyD0E29275",
+                                "roles": [
+                                  {
+                                    "Ref": "ECSARM64AutoScalingGroupInstanceRole01030665"
+                                  }
+                                ]
+                              }
+                            },
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                              "version": "2.50.0"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.Policy",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "InstanceProfile": {
+                    "id": "InstanceProfile",
+                    "path": "github-runners-test/ECS ARM64/Auto Scaling Group/InstanceProfile",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
+                      "aws:cdk:cloudformation:props": {
+                        "roles": [
+                          {
+                            "Ref": "ECSARM64AutoScalingGroupInstanceRole01030665"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "LaunchConfig": {
+                    "id": "LaunchConfig",
+                    "path": "github-runners-test/ECS ARM64/Auto Scaling Group/LaunchConfig",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::AutoScaling::LaunchConfiguration",
+                      "aws:cdk:cloudformation:props": {
+                        "imageId": {
+                          "Ref": "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2arm64recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
+                        },
+                        "instanceType": "m6g.large",
+                        "iamInstanceProfile": {
+                          "Ref": "ECSARM64AutoScalingGroupInstanceProfile768645E6"
+                        },
+                        "securityGroups": [
+                          {
+                            "Fn::GetAtt": [
+                              "ECSARM64AutoScalingGroupInstanceSecurityGroupB68B781E",
+                              "GroupId"
+                            ]
+                          },
+                          {
+                            "Fn::GetAtt": [
+                              "ECSARM64securitygroup281D94B2",
+                              "GroupId"
+                            ]
+                          }
+                        ],
+                        "userData": {
+                          "Fn::Base64": {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "#!/bin/bash\naws ecr get-login-password --region ",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                " | docker login --username AWS --password-stdin ",
+                                {
+                                  "Ref": "AWS::AccountId"
+                                },
+                                ".dkr.ecr.",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                ".amazonaws.com\ndocker pull ",
+                                {
+                                  "Fn::Select": [
+                                    4,
+                                    {
+                                      "Fn::Split": [
+                                        ":",
+                                        {
+                                          "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                ".dkr.ecr.",
+                                {
+                                  "Fn::Select": [
+                                    3,
+                                    {
+                                      "Fn::Split": [
+                                        ":",
+                                        {
+                                          "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                ".",
+                                {
+                                  "Ref": "AWS::URLSuffix"
+                                },
+                                "/",
+                                {
+                                  "Fn::GetAtt": [
+                                    "CodeBuildImageBuilderarmBuilder755EB37D",
+                                    "Name"
+                                  ]
+                                },
+                                ":latest &\necho ECS_CLUSTER=",
+                                {
+                                  "Ref": "ECSARM64cluster4ECAA083"
+                                },
+                                " >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config"
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_autoscaling.CfnLaunchConfiguration",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "ASG": {
+                    "id": "ASG",
+                    "path": "github-runners-test/ECS ARM64/Auto Scaling Group/ASG",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::AutoScaling::AutoScalingGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "maxSize": "1",
+                        "minSize": "0",
+                        "launchConfigurationName": {
+                          "Ref": "ECSARM64AutoScalingGroupLaunchConfig9B8B62ED"
+                        },
+                        "newInstancesProtectedFromScaleIn": true,
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "github-runners-test/ECS ARM64/Auto Scaling Group",
+                            "propagateAtLaunch": true
+                          }
+                        ],
+                        "vpcZoneIdentifier": [
+                          {
+                            "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
+                          },
+                          {
+                            "Ref": "VpcPublicSubnet2Subnet691E08A3"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_autoscaling.CfnAutoScalingGroup",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_autoscaling.AutoScalingGroup",
+                  "version": "2.50.0"
+                }
+              },
+              "Capacity Provider": {
+                "id": "Capacity Provider",
+                "path": "github-runners-test/ECS ARM64/Capacity Provider",
+                "children": {
+                  "Capacity Provider": {
+                    "id": "Capacity Provider",
+                    "path": "github-runners-test/ECS ARM64/Capacity Provider/Capacity Provider",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECS::CapacityProvider",
+                      "aws:cdk:cloudformation:props": {
+                        "autoScalingGroupProvider": {
+                          "autoScalingGroupArn": {
+                            "Ref": "ECSARM64AutoScalingGroupASGA19FC118"
+                          },
+                          "managedScaling": {
+                            "status": "ENABLED",
+                            "targetCapacity": 100
+                          },
+                          "managedTerminationProtection": "ENABLED"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.CfnCapacityProvider",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.AsgCapacityProvider",
+                  "version": "2.50.0"
+                }
+              },
+              "logs": {
+                "id": "logs",
+                "path": "github-runners-test/ECS ARM64/logs",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/ECS ARM64/logs/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "retentionInDays": 30
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "logs filter": {
+                    "id": "logs filter",
+                    "path": "github-runners-test/ECS ARM64/logs/logs filter",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS ARM64/logs/logs filter/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::Logs::MetricFilter",
+                          "aws:cdk:cloudformation:props": {
+                            "filterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+                            "logGroupName": {
+                              "Ref": "ECSARM64logs1A2F1E00"
+                            },
+                            "metricTransformations": [
+                              {
+                                "metricNamespace": "GitHubRunners",
+                                "metricName": "JobCompleted",
+                                "metricValue": "1",
+                                "dimensions": [
+                                  {
+                                    "key": "ProviderLabels",
+                                    "value": "$labels"
+                                  },
+                                  {
+                                    "key": "Status",
+                                    "value": "$status"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_logs.CfnMetricFilter",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.MetricFilter",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
+                  "version": "2.50.0"
+                }
+              },
+              "task": {
+                "id": "task",
+                "path": "github-runners-test/ECS ARM64/task",
+                "children": {
+                  "TaskRole": {
+                    "id": "TaskRole",
+                    "path": "github-runners-test/ECS ARM64/task/TaskRole",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS ARM64/task/TaskRole/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                          "aws:cdk:cloudformation:props": {
+                            "assumeRolePolicyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sts:AssumeRole",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": "ecs-tasks.amazonaws.com"
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/ECS ARM64/task/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECS::TaskDefinition",
+                      "aws:cdk:cloudformation:props": {
+                        "containerDefinitions": [
+                          {
+                            "command": [
+                              "sh",
+                              "-c",
+                              "sudo socat UNIX-LISTEN:/var/run/docker.sock,group=docker,mode=770,fork UNIX-CONNECT:/var/run/docker.sock.host &\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+                            ],
+                            "cpu": 1024,
+                            "essential": true,
+                            "image": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  {
+                                    "Fn::Select": [
+                                      4,
+                                      {
+                                        "Fn::Split": [
+                                          ":",
+                                          {
+                                            "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  ".dkr.ecr.",
+                                  {
+                                    "Fn::Select": [
+                                      3,
+                                      {
+                                        "Fn::Split": [
+                                          ":",
+                                          {
+                                            "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  ".",
+                                  {
+                                    "Ref": "AWS::URLSuffix"
+                                  },
+                                  "/",
+                                  {
+                                    "Fn::GetAtt": [
+                                      "CodeBuildImageBuilderarmBuilder755EB37D",
+                                      "Name"
+                                    ]
+                                  },
+                                  ":latest"
+                                ]
+                              ]
+                            },
+                            "memory": 3500,
+                            "mountPoints": [
+                              {
+                                "containerPath": "/var/run/docker.sock.host",
+                                "readOnly": false,
+                                "sourceVolume": "docker"
+                              }
+                            ],
+                            "name": "runner",
+                            "privileged": true,
+                            "user": "runner",
+                            "logConfiguration": {
+                              "logDriver": "awslogs",
+                              "options": {
+                                "awslogs-group": {
+                                  "Ref": "ECSARM64logs1A2F1E00"
+                                },
+                                "awslogs-stream-prefix": "runner",
+                                "awslogs-region": {
+                                  "Ref": "AWS::Region"
+                                }
+                              }
+                            }
+                          }
+                        ],
+                        "executionRoleArn": {
+                          "Fn::GetAtt": [
+                            "ECSARM64taskExecutionRoleBF2AE76F",
+                            "Arn"
+                          ]
+                        },
+                        "family": "githubrunnerstestECSARM64taskE94E43A3",
+                        "networkMode": "bridge",
+                        "requiresCompatibilities": [
+                          "EC2"
+                        ],
+                        "taskRoleArn": {
+                          "Fn::GetAtt": [
+                            "ECSARM64taskTaskRole23B1CB4E",
+                            "Arn"
+                          ]
+                        },
+                        "volumes": [
+                          {
+                            "host": {
+                              "sourcePath": "/var/run/docker.sock"
+                            },
+                            "name": "docker"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.CfnTaskDefinition",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "runner": {
+                    "id": "runner",
+                    "path": "github-runners-test/ECS ARM64/task/runner",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.ContainerDefinition",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "ExecutionRole": {
+                    "id": "ExecutionRole",
+                    "path": "github-runners-test/ECS ARM64/task/ExecutionRole",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS ARM64/task/ExecutionRole/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                          "aws:cdk:cloudformation:props": {
+                            "assumeRolePolicyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sts:AssumeRole",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": "ecs-tasks.amazonaws.com"
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                          "version": "2.50.0"
+                        }
+                      },
+                      "DefaultPolicy": {
+                        "id": "DefaultPolicy",
+                        "path": "github-runners-test/ECS ARM64/task/ExecutionRole/DefaultPolicy",
+                        "children": {
+                          "Resource": {
+                            "id": "Resource",
+                            "path": "github-runners-test/ECS ARM64/task/ExecutionRole/DefaultPolicy/Resource",
+                            "attributes": {
+                              "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                              "aws:cdk:cloudformation:props": {
+                                "policyDocument": {
+                                  "Statement": [
+                                    {
+                                      "Action": [
+                                        "ecr:BatchCheckLayerAvailability",
+                                        "ecr:GetDownloadUrlForLayer",
+                                        "ecr:BatchGetImage"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecr:GetAuthorizationToken",
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    },
+                                    {
+                                      "Action": [
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::GetAtt": [
+                                          "ECSARM64logs1A2F1E00",
+                                          "Arn"
+                                        ]
+                                      }
+                                    }
+                                  ],
+                                  "Version": "2012-10-17"
+                                },
+                                "policyName": "ECSARM64taskExecutionRoleDefaultPolicy17294239",
+                                "roles": [
+                                  {
+                                    "Ref": "ECSARM64taskExecutionRoleBF2AE76F"
+                                  }
+                                ]
+                              }
+                            },
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                              "version": "2.50.0"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.Policy",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.Ec2TaskDefinition",
+                  "version": "2.50.0"
+                }
+              },
+              "ecs, linux, arm64": {
+                "id": "ecs, linux, arm64",
+                "path": "github-runners-test/ECS ARM64/ecs, linux, arm64",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.EcsRunTask",
+                  "version": "2.50.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
+            }
+          },
+          "SsmParameterValue:--aws--service--ecs--optimized-ami--amazon-linux-2--arm64--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
+            "id": "SsmParameterValue:--aws--service--ecs--optimized-ami--amazon-linux-2--arm64--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--ecs--optimized-ami--amazon-linux-2--arm64--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnParameter",
+              "version": "2.50.0"
+            }
+          },
+          "SsmParameterValue:--aws--service--ecs--optimized-ami--amazon-linux-2--arm64--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118": {
+            "id": "SsmParameterValue:--aws--service--ecs--optimized-ami--amazon-linux-2--arm64--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--ecs--optimized-ami--amazon-linux-2--arm64--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.Resource",
+              "version": "2.50.0"
+            }
+          },
+          "ECS Windows": {
+            "id": "ECS Windows",
+            "path": "github-runners-test/ECS Windows",
+            "children": {
+              "security group": {
+                "id": "security group",
+                "path": "github-runners-test/ECS Windows/security group",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/ECS Windows/security group/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "groupDescription": "github-runners-test/ECS Windows/security group",
+                        "securityGroupEgress": [
+                          {
+                            "cidrIp": "0.0.0.0/0",
+                            "description": "Allow all outbound traffic by default",
+                            "ipProtocol": "-1"
+                          }
+                        ],
+                        "vpcId": {
+                          "Ref": "Vpc8378EB38"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                  "version": "2.50.0"
+                }
+              },
+              "cluster": {
+                "id": "cluster",
+                "path": "github-runners-test/ECS Windows/cluster",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/ECS Windows/cluster/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECS::Cluster",
+                      "aws:cdk:cloudformation:props": {}
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.CfnCluster",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "cluster": {
+                    "id": "cluster",
+                    "path": "github-runners-test/ECS Windows/cluster/cluster",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECS::ClusterCapacityProviderAssociations",
+                      "aws:cdk:cloudformation:props": {
+                        "capacityProviders": [
+                          {
+                            "Ref": "ECSWindowsCapacityProvider8F8896A5"
+                          }
+                        ],
+                        "cluster": {
+                          "Ref": "ECSWindowscluster14061F74"
+                        },
+                        "defaultCapacityProviderStrategy": []
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.CfnClusterCapacityProviderAssociations",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.Cluster",
+                  "version": "2.50.0"
+                }
+              },
+              "Auto Scaling Group": {
+                "id": "Auto Scaling Group",
+                "path": "github-runners-test/ECS Windows/Auto Scaling Group",
+                "children": {
+                  "InstanceSecurityGroup": {
+                    "id": "InstanceSecurityGroup",
+                    "path": "github-runners-test/ECS Windows/Auto Scaling Group/InstanceSecurityGroup",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS Windows/Auto Scaling Group/InstanceSecurityGroup/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
+                          "aws:cdk:cloudformation:props": {
+                            "groupDescription": "github-runners-test/ECS Windows/Auto Scaling Group/InstanceSecurityGroup",
+                            "securityGroupEgress": [
+                              {
+                                "cidrIp": "0.0.0.0/0",
+                                "description": "Allow all outbound traffic by default",
+                                "ipProtocol": "-1"
+                              }
+                            ],
+                            "tags": [
+                              {
+                                "key": "Name",
+                                "value": "github-runners-test/ECS Windows/Auto Scaling Group"
+                              }
+                            ],
+                            "vpcId": {
+                              "Ref": "Vpc8378EB38"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "InstanceRole": {
+                    "id": "InstanceRole",
+                    "path": "github-runners-test/ECS Windows/Auto Scaling Group/InstanceRole",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS Windows/Auto Scaling Group/InstanceRole/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                          "aws:cdk:cloudformation:props": {
+                            "assumeRolePolicyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sts:AssumeRole",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": {
+                                      "Fn::Join": [
+                                        "",
+                                        [
+                                          "ec2.",
+                                          {
+                                            "Ref": "AWS::URLSuffix"
+                                          }
+                                        ]
+                                      ]
+                                    }
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            },
+                            "managedPolicyArns": [
+                              {
+                                "Fn::Join": [
+                                  "",
+                                  [
+                                    "arn:",
+                                    {
+                                      "Ref": "AWS::Partition"
+                                    },
+                                    ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+                                  ]
+                                ]
+                              }
+                            ],
+                            "tags": [
+                              {
+                                "key": "Name",
+                                "value": "github-runners-test/ECS Windows/Auto Scaling Group"
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                          "version": "2.50.0"
+                        }
+                      },
+                      "DefaultPolicy": {
+                        "id": "DefaultPolicy",
+                        "path": "github-runners-test/ECS Windows/Auto Scaling Group/InstanceRole/DefaultPolicy",
+                        "children": {
+                          "Resource": {
+                            "id": "Resource",
+                            "path": "github-runners-test/ECS Windows/Auto Scaling Group/InstanceRole/DefaultPolicy/Resource",
+                            "attributes": {
+                              "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                              "aws:cdk:cloudformation:props": {
+                                "policyDocument": {
+                                  "Statement": [
+                                    {
+                                      "Action": [
+                                        "ecr:BatchCheckLayerAvailability",
+                                        "ecr:GetDownloadUrlForLayer",
+                                        "ecr:BatchGetImage"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::Join": [
+                                          "",
+                                          [
+                                            "arn:",
+                                            {
+                                              "Ref": "AWS::Partition"
+                                            },
+                                            ":ecr:",
+                                            {
+                                              "Ref": "AWS::Region"
+                                            },
+                                            ":",
+                                            {
+                                              "Ref": "AWS::AccountId"
+                                            },
+                                            ":repository/",
+                                            {
+                                              "Fn::Select": [
+                                                0,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Fn::Select": [
+                                                        1,
+                                                        {
+                                                          "Fn::Split": [
+                                                            "/",
+                                                            {
+                                                              "Fn::GetAtt": [
+                                                                "WindowsImageBuilderDockerImage8672CA3E",
+                                                                "ImageUri"
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecr:GetAuthorizationToken",
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    },
+                                    {
+                                      "Action": [
+                                        "ecs:DeregisterContainerInstance",
+                                        "ecs:RegisterContainerInstance",
+                                        "ecs:Submit*"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::GetAtt": [
+                                          "ECSWindowscluster14061F74",
+                                          "Arn"
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "Action": [
+                                        "ecs:Poll",
+                                        "ecs:StartTelemetrySession"
+                                      ],
+                                      "Condition": {
+                                        "ArnEquals": {
+                                          "ecs:cluster": {
+                                            "Fn::GetAtt": [
+                                              "ECSWindowscluster14061F74",
+                                              "Arn"
+                                            ]
+                                          }
+                                        }
+                                      },
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    },
+                                    {
+                                      "Action": [
+                                        "ecs:DiscoverPollEndpoint",
+                                        "ecr:GetAuthorizationToken",
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    }
+                                  ],
+                                  "Version": "2012-10-17"
+                                },
+                                "policyName": "ECSWindowsAutoScalingGroupInstanceRoleDefaultPolicyAEE83B95",
+                                "roles": [
+                                  {
+                                    "Ref": "ECSWindowsAutoScalingGroupInstanceRoleFB287046"
+                                  }
+                                ]
+                              }
+                            },
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                              "version": "2.50.0"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.Policy",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "InstanceProfile": {
+                    "id": "InstanceProfile",
+                    "path": "github-runners-test/ECS Windows/Auto Scaling Group/InstanceProfile",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::InstanceProfile",
+                      "aws:cdk:cloudformation:props": {
+                        "roles": [
+                          {
+                            "Ref": "ECSWindowsAutoScalingGroupInstanceRoleFB287046"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnInstanceProfile",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "LaunchConfig": {
+                    "id": "LaunchConfig",
+                    "path": "github-runners-test/ECS Windows/Auto Scaling Group/LaunchConfig",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::AutoScaling::LaunchConfiguration",
+                      "aws:cdk:cloudformation:props": {
+                        "imageId": {
+                          "Ref": "SsmParameterValueawsserviceecsoptimizedamiwindowsserver2019englishfullrecommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
+                        },
+                        "instanceType": "m5.large",
+                        "iamInstanceProfile": {
+                          "Ref": "ECSWindowsAutoScalingGroupInstanceProfileD8019407"
+                        },
+                        "securityGroups": [
+                          {
+                            "Fn::GetAtt": [
+                              "ECSWindowsAutoScalingGroupInstanceSecurityGroupA3DBA17A",
+                              "GroupId"
+                            ]
+                          },
+                          {
+                            "Fn::GetAtt": [
+                              "ECSWindowssecuritygroupB4EE54DA",
+                              "GroupId"
+                            ]
+                          }
+                        ],
+                        "userData": {
+                          "Fn::Base64": {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "<powershell>(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin ",
+                                {
+                                  "Ref": "AWS::AccountId"
+                                },
+                                ".dkr.ecr.",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                ".amazonaws.com\nStart-Job -ScriptBlock { docker pull ",
+                                {
+                                  "Ref": "AWS::AccountId"
+                                },
+                                ".dkr.ecr.",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                ".",
+                                {
+                                  "Ref": "AWS::URLSuffix"
+                                },
+                                "/",
+                                {
+                                  "Fn::Select": [
+                                    0,
+                                    {
+                                      "Fn::Split": [
+                                        ":",
+                                        {
+                                          "Fn::Select": [
+                                            1,
+                                            {
+                                              "Fn::Split": [
+                                                "/",
+                                                {
+                                                  "Fn::GetAtt": [
+                                                    "WindowsImageBuilderDockerImage8672CA3E",
+                                                    "ImageUri"
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                ":latest }\nRemove-Item -Recurse C:\\ProgramData\\Amazon\\ECS\\Cache\nImport-Module ECSTools\n[Environment]::SetEnvironmentVariable(\"ECS_CLUSTER\", \"",
+                                {
+                                  "Ref": "ECSWindowscluster14061F74"
+                                },
+                                "\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_AWSLOGS_EXECUTIONROLE_OVERRIDE\", \"true\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_AVAILABLE_LOGGING_DRIVERS\", '[\"json-file\",\"awslogs\"]', \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_TASK_IAM_ROLE\", \"true\", \"Machine\")\nInitialize-ECSAgent -Cluster '",
+                                {
+                                  "Ref": "ECSWindowscluster14061F74"
+                                },
+                                "' -EnableTaskIAMRole</powershell>"
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_autoscaling.CfnLaunchConfiguration",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "ASG": {
+                    "id": "ASG",
+                    "path": "github-runners-test/ECS Windows/Auto Scaling Group/ASG",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::AutoScaling::AutoScalingGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "maxSize": "1",
+                        "minSize": "0",
+                        "launchConfigurationName": {
+                          "Ref": "ECSWindowsAutoScalingGroupLaunchConfigAD09CF33"
+                        },
+                        "newInstancesProtectedFromScaleIn": true,
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "github-runners-test/ECS Windows/Auto Scaling Group",
+                            "propagateAtLaunch": true
+                          }
+                        ],
+                        "vpcZoneIdentifier": [
+                          {
+                            "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
+                          },
+                          {
+                            "Ref": "VpcPublicSubnet2Subnet691E08A3"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_autoscaling.CfnAutoScalingGroup",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_autoscaling.AutoScalingGroup",
+                  "version": "2.50.0"
+                }
+              },
+              "Capacity Provider": {
+                "id": "Capacity Provider",
+                "path": "github-runners-test/ECS Windows/Capacity Provider",
+                "children": {
+                  "Capacity Provider": {
+                    "id": "Capacity Provider",
+                    "path": "github-runners-test/ECS Windows/Capacity Provider/Capacity Provider",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECS::CapacityProvider",
+                      "aws:cdk:cloudformation:props": {
+                        "autoScalingGroupProvider": {
+                          "autoScalingGroupArn": {
+                            "Ref": "ECSWindowsAutoScalingGroupASG864E3AAF"
+                          },
+                          "managedScaling": {
+                            "status": "ENABLED",
+                            "targetCapacity": 100
+                          },
+                          "managedTerminationProtection": "ENABLED"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.CfnCapacityProvider",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.AsgCapacityProvider",
+                  "version": "2.50.0"
+                }
+              },
+              "logs": {
+                "id": "logs",
+                "path": "github-runners-test/ECS Windows/logs",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/ECS Windows/logs/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "retentionInDays": 30
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "logs filter": {
+                    "id": "logs filter",
+                    "path": "github-runners-test/ECS Windows/logs/logs filter",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS Windows/logs/logs filter/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::Logs::MetricFilter",
+                          "aws:cdk:cloudformation:props": {
+                            "filterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+                            "logGroupName": {
+                              "Ref": "ECSWindowslogs83D9D352"
+                            },
+                            "metricTransformations": [
+                              {
+                                "metricNamespace": "GitHubRunners",
+                                "metricName": "JobCompleted",
+                                "metricValue": "1",
+                                "dimensions": [
+                                  {
+                                    "key": "ProviderLabels",
+                                    "value": "$labels"
+                                  },
+                                  {
+                                    "key": "Status",
+                                    "value": "$status"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_logs.CfnMetricFilter",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.MetricFilter",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.LogGroup",
+                  "version": "2.50.0"
+                }
+              },
+              "task": {
+                "id": "task",
+                "path": "github-runners-test/ECS Windows/task",
+                "children": {
+                  "TaskRole": {
+                    "id": "TaskRole",
+                    "path": "github-runners-test/ECS Windows/task/TaskRole",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS Windows/task/TaskRole/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                          "aws:cdk:cloudformation:props": {
+                            "assumeRolePolicyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sts:AssumeRole",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": "ecs-tasks.amazonaws.com"
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/ECS Windows/task/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ECS::TaskDefinition",
+                      "aws:cdk:cloudformation:props": {
+                        "containerDefinitions": [
+                          {
+                            "command": [
+                              "powershell",
+                              "-Command",
+                              "cd \\actions ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ; \n        ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL}\" $RunnerFlags --name \"${Env:RUNNER_NAME}\" ; \n        ./run.cmd ; \n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ; \n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
+                            ],
+                            "cpu": 1024,
+                            "essential": true,
+                            "image": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  {
+                                    "Ref": "AWS::AccountId"
+                                  },
+                                  ".dkr.ecr.",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  ".",
+                                  {
+                                    "Ref": "AWS::URLSuffix"
+                                  },
+                                  "/",
+                                  {
+                                    "Fn::Select": [
+                                      0,
+                                      {
+                                        "Fn::Split": [
+                                          ":",
+                                          {
+                                            "Fn::Select": [
+                                              1,
+                                              {
+                                                "Fn::Split": [
+                                                  "/",
+                                                  {
+                                                    "Fn::GetAtt": [
+                                                      "WindowsImageBuilderDockerImage8672CA3E",
+                                                      "ImageUri"
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  ":latest"
+                                ]
+                              ]
+                            },
+                            "memory": 3500,
+                            "name": "runner",
+                            "privileged": false,
+                            "logConfiguration": {
+                              "logDriver": "awslogs",
+                              "options": {
+                                "awslogs-group": {
+                                  "Ref": "ECSWindowslogs83D9D352"
+                                },
+                                "awslogs-stream-prefix": "runner",
+                                "awslogs-region": {
+                                  "Ref": "AWS::Region"
+                                }
+                              }
+                            }
+                          }
+                        ],
+                        "executionRoleArn": {
+                          "Fn::GetAtt": [
+                            "ECSWindowstaskExecutionRoleF164B5BF",
+                            "Arn"
+                          ]
+                        },
+                        "family": "githubrunnerstestECSWindowstask6B1D5861",
+                        "networkMode": "bridge",
+                        "requiresCompatibilities": [
+                          "EC2"
+                        ],
+                        "taskRoleArn": {
+                          "Fn::GetAtt": [
+                            "ECSWindowstaskTaskRole17C8DA48",
+                            "Arn"
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.CfnTaskDefinition",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "runner": {
+                    "id": "runner",
+                    "path": "github-runners-test/ECS Windows/task/runner",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ecs.ContainerDefinition",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "ExecutionRole": {
+                    "id": "ExecutionRole",
+                    "path": "github-runners-test/ECS Windows/task/ExecutionRole",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/ECS Windows/task/ExecutionRole/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                          "aws:cdk:cloudformation:props": {
+                            "assumeRolePolicyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sts:AssumeRole",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": "ecs-tasks.amazonaws.com"
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                          "version": "2.50.0"
+                        }
+                      },
+                      "DefaultPolicy": {
+                        "id": "DefaultPolicy",
+                        "path": "github-runners-test/ECS Windows/task/ExecutionRole/DefaultPolicy",
+                        "children": {
+                          "Resource": {
+                            "id": "Resource",
+                            "path": "github-runners-test/ECS Windows/task/ExecutionRole/DefaultPolicy/Resource",
+                            "attributes": {
+                              "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                              "aws:cdk:cloudformation:props": {
+                                "policyDocument": {
+                                  "Statement": [
+                                    {
+                                      "Action": [
+                                        "ecr:BatchCheckLayerAvailability",
+                                        "ecr:GetDownloadUrlForLayer",
+                                        "ecr:BatchGetImage"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::Join": [
+                                          "",
+                                          [
+                                            "arn:",
+                                            {
+                                              "Ref": "AWS::Partition"
+                                            },
+                                            ":ecr:",
+                                            {
+                                              "Ref": "AWS::Region"
+                                            },
+                                            ":",
+                                            {
+                                              "Ref": "AWS::AccountId"
+                                            },
+                                            ":repository/",
+                                            {
+                                              "Fn::Select": [
+                                                0,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Fn::Select": [
+                                                        1,
+                                                        {
+                                                          "Fn::Split": [
+                                                            "/",
+                                                            {
+                                                              "Fn::GetAtt": [
+                                                                "WindowsImageBuilderDockerImage8672CA3E",
+                                                                "ImageUri"
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecr:GetAuthorizationToken",
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    },
+                                    {
+                                      "Action": [
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::GetAtt": [
+                                          "ECSWindowslogs83D9D352",
+                                          "Arn"
+                                        ]
+                                      }
+                                    }
+                                  ],
+                                  "Version": "2012-10-17"
+                                },
+                                "policyName": "ECSWindowstaskExecutionRoleDefaultPolicyA46C9687",
+                                "roles": [
+                                  {
+                                    "Ref": "ECSWindowstaskExecutionRoleF164B5BF"
+                                  }
+                                ]
+                              }
+                            },
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                              "version": "2.50.0"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.Policy",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.Ec2TaskDefinition",
+                  "version": "2.50.0"
+                }
+              },
+              "ecs, windows, x64": {
+                "id": "ecs, windows, x64",
+                "path": "github-runners-test/ECS Windows/ecs, windows, x64",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_stepfunctions_tasks.EcsRunTask",
+                  "version": "2.50.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.0.5"
+            }
+          },
+          "SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
+            "id": "SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnParameter",
+              "version": "2.50.0"
+            }
+          },
+          "SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118": {
+            "id": "SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.Resource",
+              "version": "2.50.0"
+            }
+          },
           "Lambda": {
             "id": "Lambda",
             "path": "github-runners-test/Lambda",
@@ -11975,7 +14565,7 @@
                             "command": [
                               "sh",
                               "-c",
-                              "cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+                              "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
                             ],
                             "essential": true,
                             "image": {
@@ -12355,7 +14945,7 @@
                             "command": [
                               "sh",
                               "-c",
-                              "cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+                              "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
                             ],
                             "essential": true,
                             "image": {
@@ -12735,7 +15325,7 @@
                             "command": [
                               "sh",
                               "-c",
-                              "cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+                              "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
                             ],
                             "essential": true,
                             "image": {
@@ -13115,7 +15705,7 @@
                             "command": [
                               "sh",
                               "-c",
-                              "cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+                              "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
                             ],
                             "essential": true,
                             "image": {
@@ -15833,6 +18423,441 @@
                                       }
                                     },
                                     {
+                                      "Action": "ecs:RunTask",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::Join": [
+                                          "",
+                                          [
+                                            "arn:",
+                                            {
+                                              "Fn::Select": [
+                                                1,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "ECStask8F0DD550"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                2,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "ECStask8F0DD550"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                3,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "ECStask8F0DD550"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                4,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "ECStask8F0DD550"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                0,
+                                                {
+                                                  "Fn::Split": [
+                                                    "/",
+                                                    {
+                                                      "Fn::Select": [
+                                                        5,
+                                                        {
+                                                          "Fn::Split": [
+                                                            ":",
+                                                            {
+                                                              "Ref": "ECStask8F0DD550"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            "/",
+                                            {
+                                              "Fn::Select": [
+                                                1,
+                                                {
+                                                  "Fn::Split": [
+                                                    "/",
+                                                    {
+                                                      "Fn::Select": [
+                                                        5,
+                                                        {
+                                                          "Fn::Split": [
+                                                            ":",
+                                                            {
+                                                              "Ref": "ECStask8F0DD550"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "Action": [
+                                        "ecs:StopTask",
+                                        "ecs:DescribeTasks"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": "*"
+                                    },
+                                    {
+                                      "Action": "iam:PassRole",
+                                      "Effect": "Allow",
+                                      "Resource": [
+                                        {
+                                          "Fn::GetAtt": [
+                                            "ECStaskTaskRoleFE831ECD",
+                                            "Arn"
+                                          ]
+                                        },
+                                        {
+                                          "Fn::GetAtt": [
+                                            "ECStaskExecutionRole1A6D19A5",
+                                            "Arn"
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "Action": [
+                                        "events:PutTargets",
+                                        "events:PutRule",
+                                        "events:DescribeRule"
+                                      ],
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::Join": [
+                                          "",
+                                          [
+                                            "arn:",
+                                            {
+                                              "Ref": "AWS::Partition"
+                                            },
+                                            ":events:",
+                                            {
+                                              "Ref": "AWS::Region"
+                                            },
+                                            ":",
+                                            {
+                                              "Ref": "AWS::AccountId"
+                                            },
+                                            ":rule/StepFunctionsGetEventsForECSTaskRule"
+                                          ]
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "Action": "ecs:RunTask",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::Join": [
+                                          "",
+                                          [
+                                            "arn:",
+                                            {
+                                              "Fn::Select": [
+                                                1,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "ECSARM64task27EB8443"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                2,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "ECSARM64task27EB8443"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                3,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "ECSARM64task27EB8443"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                4,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "ECSARM64task27EB8443"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                0,
+                                                {
+                                                  "Fn::Split": [
+                                                    "/",
+                                                    {
+                                                      "Fn::Select": [
+                                                        5,
+                                                        {
+                                                          "Fn::Split": [
+                                                            ":",
+                                                            {
+                                                              "Ref": "ECSARM64task27EB8443"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            "/",
+                                            {
+                                              "Fn::Select": [
+                                                1,
+                                                {
+                                                  "Fn::Split": [
+                                                    "/",
+                                                    {
+                                                      "Fn::Select": [
+                                                        5,
+                                                        {
+                                                          "Fn::Split": [
+                                                            ":",
+                                                            {
+                                                              "Ref": "ECSARM64task27EB8443"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "Action": "iam:PassRole",
+                                      "Effect": "Allow",
+                                      "Resource": [
+                                        {
+                                          "Fn::GetAtt": [
+                                            "ECSARM64taskTaskRole23B1CB4E",
+                                            "Arn"
+                                          ]
+                                        },
+                                        {
+                                          "Fn::GetAtt": [
+                                            "ECSARM64taskExecutionRoleBF2AE76F",
+                                            "Arn"
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "Action": "ecs:RunTask",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Fn::Join": [
+                                          "",
+                                          [
+                                            "arn:",
+                                            {
+                                              "Fn::Select": [
+                                                1,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "ECSWindowstask73A31B6C"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                2,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "ECSWindowstask73A31B6C"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                3,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "ECSWindowstask73A31B6C"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                4,
+                                                {
+                                                  "Fn::Split": [
+                                                    ":",
+                                                    {
+                                                      "Ref": "ECSWindowstask73A31B6C"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            ":",
+                                            {
+                                              "Fn::Select": [
+                                                0,
+                                                {
+                                                  "Fn::Split": [
+                                                    "/",
+                                                    {
+                                                      "Fn::Select": [
+                                                        5,
+                                                        {
+                                                          "Fn::Split": [
+                                                            ":",
+                                                            {
+                                                              "Ref": "ECSWindowstask73A31B6C"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            "/",
+                                            {
+                                              "Fn::Select": [
+                                                1,
+                                                {
+                                                  "Fn::Split": [
+                                                    "/",
+                                                    {
+                                                      "Fn::Select": [
+                                                        5,
+                                                        {
+                                                          "Fn::Split": [
+                                                            ":",
+                                                            {
+                                                              "Ref": "ECSWindowstask73A31B6C"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "Action": "iam:PassRole",
+                                      "Effect": "Allow",
+                                      "Resource": [
+                                        {
+                                          "Fn::GetAtt": [
+                                            "ECSWindowstaskTaskRole17C8DA48",
+                                            "Arn"
+                                          ]
+                                        },
+                                        {
+                                          "Fn::GetAtt": [
+                                            "ECSWindowstaskExecutionRoleF164B5BF",
+                                            "Arn"
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
                                       "Action": "lambda:InvokeFunction",
                                       "Effect": "Allow",
                                       "Resource": [
@@ -16000,14 +19025,6 @@
                                       }
                                     },
                                     {
-                                      "Action": [
-                                        "ecs:StopTask",
-                                        "ecs:DescribeTasks"
-                                      ],
-                                      "Effect": "Allow",
-                                      "Resource": "*"
-                                    },
-                                    {
                                       "Action": "iam:PassRole",
                                       "Effect": "Allow",
                                       "Resource": [
@@ -16024,34 +19041,6 @@
                                           ]
                                         }
                                       ]
-                                    },
-                                    {
-                                      "Action": [
-                                        "events:PutTargets",
-                                        "events:PutRule",
-                                        "events:DescribeRule"
-                                      ],
-                                      "Effect": "Allow",
-                                      "Resource": {
-                                        "Fn::Join": [
-                                          "",
-                                          [
-                                            "arn:",
-                                            {
-                                              "Ref": "AWS::Partition"
-                                            },
-                                            ":events:",
-                                            {
-                                              "Ref": "AWS::Region"
-                                            },
-                                            ":",
-                                            {
-                                              "Ref": "AWS::AccountId"
-                                            },
-                                            ":rule/StepFunctionsGetEventsForECSTaskRule"
-                                          ]
-                                        ]
-                                      }
                                     },
                                     {
                                       "Action": "ecs:RunTask",
@@ -16735,7 +19724,7 @@
                                   "Arn"
                                 ]
                               },
-                              "\"},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"And\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true}],\"Next\":\"codebuild-x64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"codebuild, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"codebuild, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"lambda, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"lambda, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2-spot, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, arm64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, windows, x64 data\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Succeed\"},\"codebuild-x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"CodeBuild.CodeBuildException\",\"CodeBuild.AccountLimitExceededException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+                              "\"},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"And\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true}],\"Next\":\"codebuild-x64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"codebuild, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"codebuild, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ecs, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"ecs, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ecs, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"lambda, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"lambda, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2-spot, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, arm64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, windows, x64 data\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Succeed\"},\"codebuild-x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"CodeBuild.CodeBuildException\",\"CodeBuild.AccountLimitExceededException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },
@@ -16759,7 +19748,52 @@
                               {
                                 "Ref": "CodeBuildWindowsCodeBuildC39F35C1"
                               },
-                              "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"}]}},\"lambda, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"Lambda.LambdaException\",\"Lambda.Ec2ThrottledException\",\"Lambda.Ec2UnexpectedException\",\"Lambda.EniLimitReachedException\",\"Lambda.TooManyRequestsException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+                              "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"}]}},\"ecs, linux, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              ":states:::ecs:runTask.sync\",\"Parameters\":{\"Cluster\":\"",
+                              {
+                                "Fn::GetAtt": [
+                                  "ECScluster20BC0B82",
+                                  "Arn"
+                                ]
+                              },
+                              "\",\"TaskDefinition\":\"githubrunnerstestECStaskCE74CC84\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+                              {
+                                "Ref": "ECSCapacityProviderABF1B146"
+                              },
+                              "\"}]}},\"ecs, linux, arm64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              ":states:::ecs:runTask.sync\",\"Parameters\":{\"Cluster\":\"",
+                              {
+                                "Fn::GetAtt": [
+                                  "ECSARM64cluster4ECAA083",
+                                  "Arn"
+                                ]
+                              },
+                              "\",\"TaskDefinition\":\"githubrunnerstestECSARM64taskE94E43A3\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+                              {
+                                "Ref": "ECSARM64CapacityProvider8627FEF9"
+                              },
+                              "\"}]}},\"ecs, windows, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ecs.EcsException\",\"Ecs.LimitExceededException\",\"Ecs.UpdateInProgressException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              ":states:::ecs:runTask.sync\",\"Parameters\":{\"Cluster\":\"",
+                              {
+                                "Fn::GetAtt": [
+                                  "ECSWindowscluster14061F74",
+                                  "Arn"
+                                ]
+                              },
+                              "\",\"TaskDefinition\":\"githubrunnerstestECSWindowstask6B1D5861\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+                              {
+                                "Ref": "ECSWindowsCapacityProvider8F8896A5"
+                              },
+                              "\"}]}},\"lambda, x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"Lambda.LambdaException\",\"Lambda.Ec2ThrottledException\",\"Lambda.Ec2UnexpectedException\",\"Lambda.EniLimitReachedException\",\"Lambda.TooManyRequestsException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
                               {
                                 "Ref": "AWS::Partition"
                               },

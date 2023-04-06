@@ -35,7 +35,7 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
    *
    * The image builder determines the OS and architecture of the runner.
    *
-   * @default CodeBuildRunnerProviderProps.imageBuilder()
+   * @default CodeBuildRunnerProvider.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
 

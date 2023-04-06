@@ -12,61 +12,86 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: linux
+          - name: codebuild x64
+            os: linux
             arch: X64
             runs-on: [self-hosted, linux, X64, codebuild-x64]
             docker: true
             sudo: true
-          - os: linux
+          - name: codebuild arm64
+            os: linux
             arch: ARM64
             runs-on: [self-hosted, linux, codebuild, arm64]
             docker: true
             sudo: true
-          - os: linux
+          - name: ecs x64
+            os: linux
+            arch: X64
+            runs-on: [self-hosted, linux, ecs, X64]
+            docker: true
+            sudo: true
+          - name: ecs arm64
+            os: linux
+            arch: ARM64
+            runs-on: [self-hosted, linux, ecs, arm64]
+            docker: true
+            sudo: true
+          - name: lambda x64
+            os: linux
             arch: X64
             runs-on: [self-hosted, linux, lambda, x64]
             docker: false
             sudo: false
-          - os: linux
+          - name: lambda arm64
+            os: linux
             arch: ARM64
             runs-on: [self-hosted, linux, lambda, arm64]
             docker: false
             sudo: false
-          - os: linux
+          - name: fargate x64
+            os: linux
             arch: X64
             runs-on: [self-hosted, linux, fargate, x64]
             docker: false
             sudo: true
-          - os: linux
+          - name: fargate arm64
+            os: linux
             arch: ARM64
             runs-on: [self-hosted, linux, fargate, arm64]
             docker: false
             sudo: true
-          - os: linux
+          - name: fargate x64 (spot)
+            os: linux
             arch: X64
             runs-on: [self-hosted, linux, fargate-spot, x64]
             docker: false
             sudo: true
-          - os: linux
+          - name: fargate arm64 (spot)
+            os: linux
             arch: ARM64
             runs-on: [self-hosted, linux, fargate-spot, arm64]
             docker: false
             sudo: true
-          - os: linux
+          - name: ec2 x64
+            os: linux
             arch: X64
             runs-on: [self-hosted, linux, ec2, x64]
             docker: true
             sudo: true
-          - os: linux
+          - name: ec2 x64 (spot)
+            os: linux
             arch: X64
             runs-on: [self-hosted, linux, ec2-spot, x64]
             docker: true
             sudo: true
-          - os: linux
+          - name: ec2 arm64
+            os: linux
             arch: ARM64
             runs-on: [self-hosted, linux, ec2, arm64]
             docker: true
             sudo: true
+
+    name: ${{ matrix.name }}
 
     runs-on: ${{ matrix.runs-on }}
     steps:
@@ -113,18 +138,28 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows
+          - name: codebuild windows
+            os: windows
             arch: X64
             runs-on: [self-hosted, windows, codebuild, x64]
             docker: false
-          - os: windows
+          - name: ecs windows
+            os: windows
+            arch: X64
+            runs-on: [self-hosted, windows, ecs, x64]
+            docker: false
+          - name: fargate windows
+            os: windows
             arch: X64
             runs-on: [self-hosted, windows, fargate, x64]
             docker: false
-          - os: windows
+          - name: ec2 windows
+            os: windows
             arch: X64
             runs-on: [self-hosted, windows, ec2, x64]
             docker: true
+
+    name: ${{ matrix.name }}
 
     runs-on: ${{ matrix.runs-on }}
     steps:
