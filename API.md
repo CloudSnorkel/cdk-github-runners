@@ -4564,8 +4564,9 @@ const apiGatewayAccessProps: ApiGatewayAccessProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedIps">allowedIps</a></code> | <code>string[]</code> | List of IP addresses that are allowed to access the API Gateway. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpcs">allowedVpcs</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc[]</code> | List of VPCs that are allowed to access the API Gateway. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedIps">allowedIps</a></code> | <code>string[]</code> | List of IP addresses in CIDR notation that are allowed to access the API Gateway. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedSecurityGroups">allowedSecurityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | List of security groups that are allowed to access the API Gateway. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpc">allowedVpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | Creates a private API Gateway and allows access from the specified VPC. |
 
 ---
 
@@ -4577,23 +4578,37 @@ public readonly allowedIps: string[];
 
 - *Type:* string[]
 
-List of IP addresses that are allowed to access the API Gateway.
+List of IP addresses in CIDR notation that are allowed to access the API Gateway.
 
-If not specified, all IP addresses are allowed.
+If not specified on public API Gateway, all IP addresses are allowed.
+
+If not specified on private API Gateway, no IP addresses are allowed (but specified security groups are).
 
 ---
 
-##### `allowedVpcs`<sup>Optional</sup> <a name="allowedVpcs" id="@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpcs"></a>
+##### `allowedSecurityGroups`<sup>Optional</sup> <a name="allowedSecurityGroups" id="@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedSecurityGroups"></a>
 
 ```typescript
-public readonly allowedVpcs: IVpc[];
+public readonly allowedSecurityGroups: ISecurityGroup[];
 ```
 
-- *Type:* aws-cdk-lib.aws_ec2.IVpc[]
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup[]
 
-List of VPCs that are allowed to access the API Gateway.
+List of security groups that are allowed to access the API Gateway.
 
-If not specified, all VPCs are allowed.
+Only works for private API Gateways with {@link allowedVpc}.
+
+---
+
+##### `allowedVpc`<sup>Optional</sup> <a name="allowedVpc" id="@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpc"></a>
+
+```typescript
+public readonly allowedVpc: IVpc;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.IVpc
+
+Creates a private API Gateway and allows access from the specified VPC.
 
 ---
 
