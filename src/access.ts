@@ -1,5 +1,6 @@
 import { execFileSync } from 'child_process';
-import { aws_apigateway as apigateway, aws_ec2 as ec2, aws_lambda as lambda } from 'aws-cdk-lib';
+import * as cdk from 'aws-cdk-lib';
+import { aws_apigateway as apigateway, aws_ec2 as ec2, aws_iam as iam, aws_lambda as lambda } from 'aws-cdk-lib';
 import { PolicyDocument } from 'aws-cdk-lib/aws-iam';
 import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
@@ -7,14 +8,25 @@ import { Construct } from 'constructs';
 
 export interface ApiGatewayAccessProps {
   /**
-   * List of IP addresses that are allowed to access the API Gateway. If not specified, all IP addresses are allowed.
+   * List of IP addresses in CIDR notation that are allowed to access the API Gateway.
+   *
+   * If not specified on public API Gateway, all IP addresses are allowed.
+   *
+   * If not specified on private API Gateway, no IP addresses are allowed (but specified security groups are).
    */
   readonly allowedIps?: string[];
 
   /**
-   * List of VPCs that are allowed to access the API Gateway. If not specified, all VPCs are allowed.
+   * Creates a private API Gateway and allows access from the specified VPC.
    */
-  readonly allowedVpcs?: ec2.IVpc[];
+  readonly allowedVpc?: ec2.IVpc;
+
+  /**
+   * List of security groups that are allowed to access the API Gateway.
+   *
+   * Only works for private API Gateways with {@link allowedVpc}.
+   */
+  readonly allowedSecurityGroups?: ec2.ISecurityGroup[];
 }
 
 /**
@@ -102,11 +114,56 @@ class ApiGateway {
   constructor(private readonly props?: ApiGatewayAccessProps) {}
 
   public _bind(scope: Construct, id: string, lambdaFunction: lambda.Function): string {
-    const api = new apigateway.LambdaRestApi(scope, id, {
-      handler: lambdaFunction,
-      proxy: true,
-      cloudWatchRole: false,
-      policy: PolicyDocument.fromJson({
+    let policy: iam.PolicyDocument;
+    let endpointConfig: apigateway.EndpointConfiguration | undefined = undefined;
+
+    if (this.props?.allowedVpc) {
+      // private api gateway
+      const sg = new ec2.SecurityGroup(scope, `${id}/SG`, {
+        vpc: this.props.allowedVpc,
+        allowAllOutbound: true,
+      });
+
+      for (const otherSg of this.props?.allowedSecurityGroups ?? []) {
+        sg.connections.allowFrom(otherSg, ec2.Port.tcp(443));
+      }
+
+      const vpcEndpoint = new ec2.InterfaceVpcEndpoint(scope, `${id}/VpcEndpoint`, {
+        vpc: this.props.allowedVpc,
+        service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
+        privateDnsEnabled: true,
+        securityGroups: [sg],
+        open: false,
+      });
+
+      endpointConfig = {
+        types: [apigateway.EndpointType.PRIVATE],
+        vpcEndpoints: [vpcEndpoint],
+      };
+
+      policy = PolicyDocument.fromJson({
+        Version: '2012-10-17',
+        Statement: [
+          {
+            Effect: 'Allow',
+            Principal: '*',
+            Action: 'execute-api:Invoke',
+            Resource: 'execute-api:/*/*/*',
+            Condition: {
+              StringEquals: {
+                'aws:SourceVpce': vpcEndpoint.vpcEndpointId,
+              },
+            },
+          },
+        ],
+      });
+    } else {
+      // public api gateway
+      if (this.props?.allowedSecurityGroups) {
+        cdk.Annotations.of(scope).addWarning('allowedSecurityGroups is ignored when allowedVpc is not specified.');
+      }
+
+      policy = PolicyDocument.fromJson({
         Version: '2012-10-17',
         Statement: [
           {
@@ -121,11 +178,20 @@ class ApiGateway {
             },
           },
         ],
-      }),
+      });
+    }
+
+    const api = new apigateway.LambdaRestApi(scope, id, {
+      handler: lambdaFunction,
+      proxy: true,
+      cloudWatchRole: false,
+      endpointConfiguration: endpointConfig,
+      policy,
     });
-    api.node.tryRemoveChild('Endpoint'); // remove CfnOutput
-    // TODO vpce, aws:SourceVpce, security group, https://gist.github.com/skorfmann/6941326b2dd75f52cb67e1853c5f8601
-    // TODO endpointTypes: this.props?.allowedVpcs ? [apigateway.EndpointType.PRIVATE] : undefined,
+
+    // remove CfnOutput
+    api.node.tryRemoveChild('Endpoint');
+
     return api.url;
   }
 }
