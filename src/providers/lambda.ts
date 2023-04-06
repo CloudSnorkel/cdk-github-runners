@@ -36,7 +36,7 @@ export interface LambdaRunnerProviderProps extends RunnerProviderProps {
    *
    * The image builder determines the OS and architecture of the runner.
    *
-   * @default LambdaRunnerProviderProps.imageBuilder()
+   * @default LambdaRunnerProvider.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
 
