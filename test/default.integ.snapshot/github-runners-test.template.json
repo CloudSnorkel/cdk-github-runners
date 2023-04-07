@@ -2824,6 +2824,9 @@
      "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
     },
     "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "InstanceMetadataOptions": {
+     "HttpTokens": "required"
+    },
     "InstanceTypes": [
      "m5.large"
     ],
@@ -3112,6 +3115,9 @@
    "Type": "AWS::EC2::LaunchTemplate",
    "Properties": {
     "LaunchTemplateData": {
+     "MetadataOptions": {
+      "HttpTokens": "required"
+     },
      "TagSpecifications": [
       {
        "ResourceType": "instance",
@@ -3868,6 +3874,9 @@
      "Ref": "AMILinuxBuilderInstanceProfile3CA638BE"
     },
     "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
+    "InstanceMetadataOptions": {
+     "HttpTokens": "required"
+    },
     "InstanceTypes": [
      "m5.large"
     ],
@@ -6008,6 +6017,9 @@
    "Type": "AWS::EC2::LaunchTemplate",
    "Properties": {
     "LaunchTemplateData": {
+     "MetadataOptions": {
+      "HttpTokens": "required"
+     },
      "TagSpecifications": [
       {
        "ResourceType": "instance",
@@ -6764,6 +6776,9 @@
      "Ref": "AMILinuxarm64BuilderInstanceProfileCE3B6B09"
     },
     "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+    "InstanceMetadataOptions": {
+     "HttpTokens": "required"
+    },
     "InstanceTypes": [
      "m6g.large"
     ],
@@ -7054,6 +7069,9 @@
    "Type": "AWS::EC2::LaunchTemplate",
    "Properties": {
     "LaunchTemplateData": {
+     "MetadataOptions": {
+      "HttpTokens": "required"
+     },
      "TagSpecifications": [
       {
        "ResourceType": "instance",
@@ -7807,6 +7825,9 @@
      "Ref": "WindowsEC2BuilderInstanceProfileA8DBA763"
     },
     "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+    "InstanceMetadataOptions": {
+     "HttpTokens": "required"
+    },
     "InstanceTypes": [
      "m5.large"
     ],
@@ -9278,6 +9299,9 @@
     "IamInstanceProfile": {
      "Ref": "ECSAutoScalingGroupInstanceProfile288AC654"
     },
+    "MetadataOptions": {
+     "HttpTokens": "required"
+    },
     "SecurityGroups": [
      {
       "Fn::GetAtt": [
@@ -9828,6 +9852,9 @@
     "InstanceType": "m6g.large",
     "IamInstanceProfile": {
      "Ref": "ECSARM64AutoScalingGroupInstanceProfile768645E6"
+    },
+    "MetadataOptions": {
+     "HttpTokens": "required"
     },
     "SecurityGroups": [
      {
@@ -10422,6 +10449,9 @@
     "InstanceType": "m5.large",
     "IamInstanceProfile": {
      "Ref": "ECSWindowsAutoScalingGroupInstanceProfileD8019407"
+    },
+    "MetadataOptions": {
+     "HttpTokens": "required"
     },
     "SecurityGroups": [
      {

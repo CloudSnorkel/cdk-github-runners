@@ -3418,6 +3418,9 @@
                       "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
                     },
                     "name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+                    "instanceMetadataOptions": {
+                      "httpTokens": "required"
+                    },
                     "instanceTypes": [
                       "m5.large"
                     ],
@@ -3860,7 +3863,10 @@
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "metadataOptions": {
+                            "httpTokens": "required"
+                          }
                         },
                         "tagSpecifications": [
                           {
@@ -4511,6 +4517,9 @@
                       "Ref": "AMILinuxBuilderInstanceProfile3CA638BE"
                     },
                     "name": "github-runners-test-AMILinuxBuilder-67243E6D",
+                    "instanceMetadataOptions": {
+                      "httpTokens": "required"
+                    },
                     "instanceTypes": [
                       "m5.large"
                     ],
@@ -7231,7 +7240,10 @@
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "metadataOptions": {
+                            "httpTokens": "required"
+                          }
                         },
                         "tagSpecifications": [
                           {
@@ -7882,6 +7894,9 @@
                       "Ref": "AMILinuxarm64BuilderInstanceProfileCE3B6B09"
                     },
                     "name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+                    "instanceMetadataOptions": {
+                      "httpTokens": "required"
+                    },
                     "instanceTypes": [
                       "m6g.large"
                     ],
@@ -8336,7 +8351,10 @@
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "metadataOptions": {
+                            "httpTokens": "required"
+                          }
                         },
                         "tagSpecifications": [
                           {
@@ -8987,6 +9005,9 @@
                       "Ref": "WindowsEC2BuilderInstanceProfileA8DBA763"
                     },
                     "name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+                    "instanceMetadataOptions": {
+                      "httpTokens": "required"
+                    },
                     "instanceTypes": [
                       "m5.large"
                     ],
@@ -11137,6 +11158,9 @@
                         "iamInstanceProfile": {
                           "Ref": "ECSAutoScalingGroupInstanceProfile288AC654"
                         },
+                        "metadataOptions": {
+                          "httpTokens": "required"
+                        },
                         "securityGroups": [
                           {
                             "Fn::GetAtt": [
@@ -11976,6 +12000,9 @@
                         "instanceType": "m6g.large",
                         "iamInstanceProfile": {
                           "Ref": "ECSARM64AutoScalingGroupInstanceProfile768645E6"
+                        },
+                        "metadataOptions": {
+                          "httpTokens": "required"
                         },
                         "securityGroups": [
                           {
@@ -12859,6 +12886,9 @@
                         "instanceType": "m5.large",
                         "iamInstanceProfile": {
                           "Ref": "ECSWindowsAutoScalingGroupInstanceProfileD8019407"
+                        },
+                        "metadataOptions": {
+                          "httpTokens": "required"
                         },
                         "securityGroups": [
                           {

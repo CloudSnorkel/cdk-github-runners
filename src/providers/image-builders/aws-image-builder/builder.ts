@@ -452,6 +452,9 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       subnetId: this.vpc?.selectSubnets(this.subnetSelection).subnetIds[0],
       securityGroupIds: this.securityGroups?.map(sg => sg.securityGroupId),
       instanceTypes: [this.instanceType.toString()],
+      instanceMetadataOptions: {
+        httpTokens: 'required',
+      },
       instanceProfileName: new iam.CfnInstanceProfile(this, 'Instance Profile', {
         roles: [
           this.role.roleName,

@@ -338,6 +338,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
           },
         ] : undefined,
         spotPrice: props?.spotMaxPrice,
+        requireImdsv2: true,
       }),
       spotInstanceDraining: false, // waste of money to restart jobs as the restarted job won't have a token
     });
