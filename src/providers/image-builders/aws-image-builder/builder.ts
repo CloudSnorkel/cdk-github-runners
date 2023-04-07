@@ -532,7 +532,9 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       return this.boundAmi;
     }
 
-    const launchTemplate = new ec2.LaunchTemplate(this, 'Launch template');
+    const launchTemplate = new ec2.LaunchTemplate(this, 'Launch template', {
+      requireImdsv2: true,
+    });
 
     const stackName = cdk.Stack.of(this).stackName;
     const builderName = this.node.path;
