@@ -338,6 +338,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
           },
         ] : undefined,
         spotPrice: props?.spotMaxPrice,
+        requireImdsv2: true,
       }),
       spotInstanceDraining: false, // waste of money to restart jobs as the restarted job won't have a token
     });
@@ -418,7 +419,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     }
 
     if (this.image.os.is(Os.WINDOWS)) {
-      return ecs.EcsOptimizedImage.windows(ecs.WindowsOptimizedVersion.SERVER_2019);
+      // ancient AMI from 2019 with no IMSDv2 support 🤦‍♂️ -- return ecs.EcsOptimizedImage.windows(ecs.WindowsOptimizedVersion.SERVER_2019);
+      return ec2.MachineImage.fromSsmParameter('/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized/image_id', {
+        os: ec2.OperatingSystemType.WINDOWS,
+      });
     }
 
     throw new Error(`Unable to find AMI for ECS instances for ${this.image.os.name}/${this.image.architecture.name}`);

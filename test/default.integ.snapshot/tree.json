@@ -3418,6 +3418,9 @@
                       "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
                     },
                     "name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+                    "instanceMetadataOptions": {
+                      "httpTokens": "required"
+                    },
                     "instanceTypes": [
                       "m5.large"
                     ],
@@ -3860,7 +3863,10 @@
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "metadataOptions": {
+                            "httpTokens": "required"
+                          }
                         },
                         "tagSpecifications": [
                           {
@@ -4511,6 +4517,9 @@
                       "Ref": "AMILinuxBuilderInstanceProfile3CA638BE"
                     },
                     "name": "github-runners-test-AMILinuxBuilder-67243E6D",
+                    "instanceMetadataOptions": {
+                      "httpTokens": "required"
+                    },
                     "instanceTypes": [
                       "m5.large"
                     ],
@@ -7231,7 +7240,10 @@
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "metadataOptions": {
+                            "httpTokens": "required"
+                          }
                         },
                         "tagSpecifications": [
                           {
@@ -7882,6 +7894,9 @@
                       "Ref": "AMILinuxarm64BuilderInstanceProfileCE3B6B09"
                     },
                     "name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+                    "instanceMetadataOptions": {
+                      "httpTokens": "required"
+                    },
                     "instanceTypes": [
                       "m6g.large"
                     ],
@@ -8336,7 +8351,10 @@
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "metadataOptions": {
+                            "httpTokens": "required"
+                          }
                         },
                         "tagSpecifications": [
                           {
@@ -8987,6 +9005,9 @@
                       "Ref": "WindowsEC2BuilderInstanceProfileA8DBA763"
                     },
                     "name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+                    "instanceMetadataOptions": {
+                      "httpTokens": "required"
+                    },
                     "instanceTypes": [
                       "m5.large"
                     ],
@@ -11137,6 +11158,9 @@
                         "iamInstanceProfile": {
                           "Ref": "ECSAutoScalingGroupInstanceProfile288AC654"
                         },
+                        "metadataOptions": {
+                          "httpTokens": "required"
+                        },
                         "securityGroups": [
                           {
                             "Fn::GetAtt": [
@@ -11976,6 +12000,9 @@
                         "instanceType": "m6g.large",
                         "iamInstanceProfile": {
                           "Ref": "ECSARM64AutoScalingGroupInstanceProfile768645E6"
+                        },
+                        "metadataOptions": {
+                          "httpTokens": "required"
                         },
                         "securityGroups": [
                           {
@@ -12854,11 +12881,14 @@
                       "aws:cdk:cloudformation:type": "AWS::AutoScaling::LaunchConfiguration",
                       "aws:cdk:cloudformation:props": {
                         "imageId": {
-                          "Ref": "SsmParameterValueawsserviceecsoptimizedamiwindowsserver2019englishfullrecommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
+                          "Ref": "SsmParameterValueawsserviceamiwindowslatestWindowsServer2019EnglishFullECSOptimizedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
                         },
                         "instanceType": "m5.large",
                         "iamInstanceProfile": {
                           "Ref": "ECSWindowsAutoScalingGroupInstanceProfileD8019407"
+                        },
+                        "metadataOptions": {
+                          "httpTokens": "required"
                         },
                         "securityGroups": [
                           {
@@ -13397,17 +13427,17 @@
               "version": "10.0.5"
             }
           },
-          "SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
-            "id": "SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+          "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2019-English-Full-ECS_Optimized--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
+            "id": "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2019-English-Full-ECS_Optimized--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2019-English-Full-ECS_Optimized--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
             "constructInfo": {
               "fqn": "aws-cdk-lib.CfnParameter",
               "version": "2.50.0"
             }
           },
-          "SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118": {
-            "id": "SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+          "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2019-English-Full-ECS_Optimized--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118": {
+            "id": "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2019-English-Full-ECS_Optimized--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2019-English-Full-ECS_Optimized--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
             "constructInfo": {
               "fqn": "aws-cdk-lib.Resource",
               "version": "2.50.0"

@@ -452,6 +452,9 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       subnetId: this.vpc?.selectSubnets(this.subnetSelection).subnetIds[0],
       securityGroupIds: this.securityGroups?.map(sg => sg.securityGroupId),
       instanceTypes: [this.instanceType.toString()],
+      instanceMetadataOptions: {
+        httpTokens: 'required',
+      },
       instanceProfileName: new iam.CfnInstanceProfile(this, 'Instance Profile', {
         roles: [
           this.role.roleName,
@@ -532,7 +535,9 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       return this.boundAmi;
     }
 
-    const launchTemplate = new ec2.LaunchTemplate(this, 'Launch template');
+    const launchTemplate = new ec2.LaunchTemplate(this, 'Launch template', {
+      requireImdsv2: true,
+    });
 
     const stackName = cdk.Stack.of(this).stackName;
     const builderName = this.node.path;

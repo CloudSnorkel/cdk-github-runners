@@ -110,6 +110,9 @@ export abstract class ImageBuilderBase extends Construct implements IRunnerImage
       subnetId: this.subnetId,
       securityGroupIds: this.securityGroups.map(sg => sg.securityGroupId),
       instanceTypes: [this.instanceType.toString()],
+      instanceMetadataOptions: {
+        httpTokens: 'required',
+      },
       instanceProfileName: new iam.CfnInstanceProfile(this, 'Instance Profile', {
         roles: [
           role.roleName,
