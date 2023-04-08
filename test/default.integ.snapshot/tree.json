@@ -12881,7 +12881,7 @@
                       "aws:cdk:cloudformation:type": "AWS::AutoScaling::LaunchConfiguration",
                       "aws:cdk:cloudformation:props": {
                         "imageId": {
-                          "Ref": "SsmParameterValueawsserviceecsoptimizedamiwindowsserver2019englishfullrecommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
+                          "Ref": "SsmParameterValueawsserviceamiwindowslatestWindowsServer2019EnglishFullECSOptimizedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
                         },
                         "instanceType": "m5.large",
                         "iamInstanceProfile": {
@@ -13427,17 +13427,17 @@
               "version": "10.0.5"
             }
           },
-          "SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
-            "id": "SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+          "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2019-English-Full-ECS_Optimized--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
+            "id": "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2019-English-Full-ECS_Optimized--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2019-English-Full-ECS_Optimized--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
             "constructInfo": {
               "fqn": "aws-cdk-lib.CfnParameter",
               "version": "2.50.0"
             }
           },
-          "SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118": {
-            "id": "SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--ecs--optimized-ami--windows_server--2019--english--full--recommended--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+          "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2019-English-Full-ECS_Optimized--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118": {
+            "id": "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2019-English-Full-ECS_Optimized--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
+            "path": "github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2019-English-Full-ECS_Optimized--image_id:C96584B6-F00A-464E-AD19-53AFF4B05118",
             "constructInfo": {
               "fqn": "aws-cdk-lib.Resource",
               "version": "2.50.0"
