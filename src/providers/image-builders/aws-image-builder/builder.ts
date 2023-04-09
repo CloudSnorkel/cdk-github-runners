@@ -226,7 +226,6 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
     } else {
       return [
         'set -ex',
-        // 'exit 150',
       ].concat(commands);
     }
   }
