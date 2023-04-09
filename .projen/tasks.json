@@ -82,7 +82,7 @@
           "exec": "vite build setup"
         },
         {
-          "exec": "cp -r setup/dist/index.html assets/lambdas/setup.lambda/index.html"
+          "exec": "cp -r setup/dist/index.html assets/setup.lambda/index.html"
         }
       ]
     },
