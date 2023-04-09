@@ -23,6 +23,6 @@ tsconfig.tsbuildinfo
 /.eslintrc.json
 !.jsii
 !/assets/
-test\.tmp
-test\default.integ.snapshot
+test/.tmp
+test/default.integ.snapshot
 /setup
