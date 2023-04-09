@@ -10,16 +10,16 @@ export interface UpdateLambdaFunctionProps extends lambda.FunctionOptions {
 }
 
 /**
- * An AWS Lambda function which executes src/lambdas/update-lambda.
+ * An AWS Lambda function which executes src/providers/update-lambda.
  */
 export class UpdateLambdaFunction extends lambda.Function {
   constructor(scope: Construct, id: string, props?: UpdateLambdaFunctionProps) {
     super(scope, id, {
-      description: 'src/lambdas/update-lambda.lambda.ts',
+      description: 'src/providers/update-lambda.lambda.ts',
       ...props,
       runtime: new lambda.Runtime('nodejs16.x', lambda.RuntimeFamily.NODEJS),
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../assets/lambdas/update-lambda.lambda')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../assets/providers/update-lambda.lambda')),
     });
     this.addEnvironment('AWS_NODEJS_CONNECTION_REUSE_ENABLED', '1', { removeInEdge: true });
   }

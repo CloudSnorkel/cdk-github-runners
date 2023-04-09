@@ -10,16 +10,16 @@ export interface SetupFunctionProps extends lambda.FunctionOptions {
 }
 
 /**
- * An AWS Lambda function which executes src/lambdas/setup.
+ * An AWS Lambda function which executes src/setup.
  */
 export class SetupFunction extends lambda.Function {
   constructor(scope: Construct, id: string, props?: SetupFunctionProps) {
     super(scope, id, {
-      description: 'src/lambdas/setup.lambda.ts',
+      description: 'src/setup.lambda.ts',
       ...props,
       runtime: new lambda.Runtime('nodejs16.x', lambda.RuntimeFamily.NODEJS),
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../assets/lambdas/setup.lambda')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../assets/setup.lambda')),
     });
     this.addEnvironment('AWS_NODEJS_CONNECTION_REUSE_ENABLED', '1', { removeInEdge: true });
   }

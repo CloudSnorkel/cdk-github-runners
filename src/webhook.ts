@@ -2,8 +2,8 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_logs as logs, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
-import { WebhookHandlerFunction } from './lambdas/webhook-handler-function';
 import { Secrets } from './secrets';
+import { WebhookHandlerFunction } from './webhook-handler-function';
 
 /**
  * Properties for GithubWebhookHandler

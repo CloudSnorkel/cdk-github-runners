@@ -2,7 +2,7 @@
 import * as AWSLambda from 'aws-lambda';
 /* eslint-disable-next-line import/no-extraneous-dependencies */
 import * as AWS from 'aws-sdk';
-import { customResourceRespond } from './helpers';
+import { customResourceRespond } from '../lambda-helpers';
 
 const codebuild = new AWS.CodeBuild();
 const ecr = new AWS.ECR();

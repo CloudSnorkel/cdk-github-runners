@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
-import { getSecretValue, getSecretJsonValue } from './helpers';
+import { getSecretValue, getSecretJsonValue } from './lambda-helpers';
 
 export function baseUrlFromDomain(domain: string): string {
   if (domain == 'github.com') {

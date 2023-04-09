@@ -3,7 +3,7 @@ import * as AWSLambda from 'aws-lambda';
 /* eslint-disable import/no-extraneous-dependencies */
 import * as AWS from 'aws-sdk';
 import { inc, maxSatisfying } from 'semver';
-import { customResourceRespond } from './helpers';
+import { customResourceRespond } from '../../../lambda-helpers';
 
 const ib = new AWS.Imagebuilder();
 

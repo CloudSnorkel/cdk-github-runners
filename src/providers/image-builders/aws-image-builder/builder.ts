@@ -22,10 +22,10 @@ import { Construct, IConstruct } from 'constructs';
 import { AmiRecipe, defaultBaseAmi } from './ami';
 import { ImageBuilderObjectBase } from './common';
 import { ContainerRecipe, defaultBaseDockerImage } from './container';
+import { DeleteAmiFunction } from './delete-ami-function';
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
-import { BuildImageFunction } from '../../../lambdas/build-image-function';
-import { DeleteAmiFunction } from '../../../lambdas/delete-ami-function';
 import { singletonLambda } from '../../../utils';
+import { BuildImageFunction } from '../../build-image-function';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../common';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps, uniqueImageBuilderName } from '../common';
 

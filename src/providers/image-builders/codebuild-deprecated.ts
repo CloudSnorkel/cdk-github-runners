@@ -19,8 +19,8 @@ import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import { IRunnerImageBuilder } from './common';
-import { BuildImageFunction } from '../../lambdas/build-image-function';
 import { singletonLambda } from '../../utils';
+import { BuildImageFunction } from '../build-image-function';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../common';
 
 /*

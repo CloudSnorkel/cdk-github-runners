@@ -10,16 +10,16 @@ export interface StatusFunctionProps extends lambda.FunctionOptions {
 }
 
 /**
- * An AWS Lambda function which executes src/lambdas/status.
+ * An AWS Lambda function which executes src/status.
  */
 export class StatusFunction extends lambda.Function {
   constructor(scope: Construct, id: string, props?: StatusFunctionProps) {
     super(scope, id, {
-      description: 'src/lambdas/status.lambda.ts',
+      description: 'src/status.lambda.ts',
       ...props,
       runtime: new lambda.Runtime('nodejs16.x', lambda.RuntimeFamily.NODEJS),
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../assets/lambdas/status.lambda')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../assets/status.lambda')),
     });
     this.addEnvironment('AWS_NODEJS_CONNECTION_REUSE_ENABLED', '1', { removeInEdge: true });
   }

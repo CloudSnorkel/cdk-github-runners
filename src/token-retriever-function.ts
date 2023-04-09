@@ -10,16 +10,16 @@ export interface TokenRetrieverFunctionProps extends lambda.FunctionOptions {
 }
 
 /**
- * An AWS Lambda function which executes src/lambdas/token-retriever.
+ * An AWS Lambda function which executes src/token-retriever.
  */
 export class TokenRetrieverFunction extends lambda.Function {
   constructor(scope: Construct, id: string, props?: TokenRetrieverFunctionProps) {
     super(scope, id, {
-      description: 'src/lambdas/token-retriever.lambda.ts',
+      description: 'src/token-retriever.lambda.ts',
       ...props,
       runtime: new lambda.Runtime('nodejs16.x', lambda.RuntimeFamily.NODEJS),
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../assets/lambdas/token-retriever.lambda')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../assets/token-retriever.lambda')),
     });
     this.addEnvironment('AWS_NODEJS_CONNECTION_REUSE_ENABLED', '1', { removeInEdge: true });
   }

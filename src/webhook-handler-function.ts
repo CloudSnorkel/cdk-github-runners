@@ -10,16 +10,16 @@ export interface WebhookHandlerFunctionProps extends lambda.FunctionOptions {
 }
 
 /**
- * An AWS Lambda function which executes src/lambdas/webhook-handler.
+ * An AWS Lambda function which executes src/webhook-handler.
  */
 export class WebhookHandlerFunction extends lambda.Function {
   constructor(scope: Construct, id: string, props?: WebhookHandlerFunctionProps) {
     super(scope, id, {
-      description: 'src/lambdas/webhook-handler.lambda.ts',
+      description: 'src/webhook-handler.lambda.ts',
       ...props,
       runtime: new lambda.Runtime('nodejs16.x', lambda.RuntimeFamily.NODEJS),
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../assets/lambdas/webhook-handler.lambda')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../assets/webhook-handler.lambda')),
     });
     this.addEnvironment('AWS_NODEJS_CONNECTION_REUSE_ENABLED', '1', { removeInEdge: true });
   }
