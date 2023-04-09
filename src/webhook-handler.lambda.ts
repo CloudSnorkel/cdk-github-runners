@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 /* eslint-disable-next-line import/no-extraneous-dependencies,import/no-unresolved */
 import * as AWSLambda from 'aws-lambda';
 import * as AWS from 'aws-sdk';
-import { getSecretJsonValue } from './helpers';
+import { getSecretJsonValue } from './lambda-helpers';
 
 const sf = new AWS.StepFunctions();
 

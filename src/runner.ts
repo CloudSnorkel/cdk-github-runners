@@ -13,16 +13,19 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
-import { DeleteRunnerFunction } from './lambdas/delete-runner-function';
-import { SetupFunction } from './lambdas/setup-function';
-import { StatusFunction } from './lambdas/status-function';
-import { TokenRetrieverFunction } from './lambdas/token-retriever-function';
-import { AwsImageBuilderFailedBuildNotifier, CodeBuildImageBuilderFailedBuildNotifier } from './providers';
-import { CodeBuildRunnerProvider } from './providers/codebuild';
-import { IRunnerProvider } from './providers/common';
-import { FargateRunnerProvider } from './providers/fargate';
-import { LambdaRunnerProvider } from './providers/lambda';
+import { DeleteRunnerFunction } from './delete-runner-function';
+import {
+  AwsImageBuilderFailedBuildNotifier,
+  CodeBuildImageBuilderFailedBuildNotifier,
+  CodeBuildRunnerProvider,
+  FargateRunnerProvider,
+  IRunnerProvider,
+  LambdaRunnerProvider,
+} from './providers';
 import { Secrets } from './secrets';
+import { SetupFunction } from './setup-function';
+import { StatusFunction } from './status-function';
+import { TokenRetrieverFunction } from './token-retriever-function';
 import { GithubWebhookHandler } from './webhook';
 
 

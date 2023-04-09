@@ -5,7 +5,7 @@ import { Octokit } from '@octokit/rest';
 /* eslint-disable-next-line import/no-extraneous-dependencies,import/no-unresolved */
 import * as AWSLambda from 'aws-lambda';
 import { baseUrlFromDomain } from './github';
-import { getSecretJsonValue, updateSecretValue } from './helpers';
+import { getSecretJsonValue, updateSecretValue } from './lambda-helpers';
 
 type ApiGatewayEvent = AWSLambda.APIGatewayProxyEvent | AWSLambda.APIGatewayProxyEventV2;
 

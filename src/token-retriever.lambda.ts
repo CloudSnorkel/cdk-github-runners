@@ -1,5 +1,5 @@
 import { getOctokit } from './github';
-import { StepFunctionLambdaInput } from './helpers';
+import { StepFunctionLambdaInput } from './lambda-helpers';
 
 exports.handler = async function (event: StepFunctionLambdaInput) {
   const { githubSecrets, octokit } = await getOctokit(event.installationId);

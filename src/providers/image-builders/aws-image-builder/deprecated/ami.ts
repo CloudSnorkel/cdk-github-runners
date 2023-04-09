@@ -15,12 +15,12 @@ import { Construct } from 'constructs';
 import { ImageBuilderBase } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
-import { DeleteAmiFunction } from '../../../../lambdas/delete-ami-function';
 import { singletonLambda } from '../../../../utils';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../common';
 import { uniqueImageBuilderName } from '../../common';
 import { AmiRecipe, defaultBaseAmi } from '../ami';
 import { ImageBuilderComponent } from '../builder';
+import { DeleteAmiFunction } from '../delete-ami-function';
 
 /**
  * Properties for {@link AmiBuilder} construct.

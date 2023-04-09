@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_iam as iam, aws_logs as logs, CustomResource } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { AwsImageBuilderVersionerFunction } from '../../../lambdas/aws-image-builder-versioner-function';
+import { VersionerFunction } from './versioner-function';
 import { singletonLambda } from '../../../utils';
 
 /**
@@ -25,8 +25,8 @@ export abstract class ImageBuilderObjectBase extends cdk.Resource {
     }).ref;
   }
 
-  private versionFunction(): AwsImageBuilderVersionerFunction {
-    return singletonLambda(AwsImageBuilderVersionerFunction, this, 'aws-image-builder-versioner', {
+  private versionFunction(): VersionerFunction {
+    return singletonLambda(VersionerFunction, this, 'aws-image-builder-versioner', {
       description: 'Custom resource handler that bumps up Image Builder versions',
       initialPolicy: [
         new iam.PolicyStatement({

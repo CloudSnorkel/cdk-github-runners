@@ -10,16 +10,16 @@ export interface DeleteRunnerFunctionProps extends lambda.FunctionOptions {
 }
 
 /**
- * An AWS Lambda function which executes src/lambdas/delete-runner.
+ * An AWS Lambda function which executes src/delete-runner.
  */
 export class DeleteRunnerFunction extends lambda.Function {
   constructor(scope: Construct, id: string, props?: DeleteRunnerFunctionProps) {
     super(scope, id, {
-      description: 'src/lambdas/delete-runner.lambda.ts',
+      description: 'src/delete-runner.lambda.ts',
       ...props,
       runtime: new lambda.Runtime('nodejs16.x', lambda.RuntimeFamily.NODEJS),
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../assets/lambdas/delete-runner.lambda')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../assets/delete-runner.lambda')),
     });
     this.addEnvironment('AWS_NODEJS_CONNECTION_REUSE_ENABLED', '1', { removeInEdge: true });
   }

@@ -147,16 +147,16 @@
         "devDependencies": [
           "**/test/**",
           "**/build-tools/**",
-          "src/lambdas/aws-image-builder-versioner.lambda.ts",
-          "src/lambdas/build-image.lambda.ts",
-          "src/lambdas/delete-ami.lambda.ts",
-          "src/lambdas/delete-runner.lambda.ts",
-          "src/lambdas/setup.lambda.ts",
-          "src/lambdas/status.lambda.ts",
-          "src/lambdas/token-retriever.lambda.ts",
-          "src/lambdas/update-lambda.lambda.ts",
-          "src/lambdas/webhook-handler.lambda.ts",
-          "src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts"
+          "src/delete-runner.lambda.ts",
+          "src/providers/build-image.lambda.ts",
+          "src/providers/image-builders/aws-image-builder/delete-ami.lambda.ts",
+          "src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
+          "src/providers/image-builders/aws-image-builder/versioner.lambda.ts",
+          "src/providers/update-lambda.lambda.ts",
+          "src/setup.lambda.ts",
+          "src/status.lambda.ts",
+          "src/token-retriever.lambda.ts",
+          "src/webhook-handler.lambda.ts"
         ],
         "optionalDependencies": false,
         "peerDependencies": true

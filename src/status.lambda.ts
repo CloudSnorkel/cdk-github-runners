@@ -2,10 +2,10 @@
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/core';
 import * as AWSLambda from 'aws-lambda';
+/* eslint-disable-next-line import/no-extraneous-dependencies,import/no-unresolved */
 import * as AWS from 'aws-sdk';
 import { baseUrlFromDomain } from './github';
-import { getSecretJsonValue, getSecretValue } from './helpers';
-/* eslint-disable-next-line import/no-extraneous-dependencies,import/no-unresolved */
+import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
 
 const cfn = new AWS.CloudFormation();
 const ec2 = new AWS.EC2();
