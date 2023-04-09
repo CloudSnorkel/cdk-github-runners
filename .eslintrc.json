@@ -155,7 +155,8 @@
           "src/lambdas/status.lambda.ts",
           "src/lambdas/token-retriever.lambda.ts",
           "src/lambdas/update-lambda.lambda.ts",
-          "src/lambdas/webhook-handler.lambda.ts"
+          "src/lambdas/webhook-handler.lambda.ts",
+          "src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts"
         ],
         "optionalDependencies": false,
         "peerDependencies": true

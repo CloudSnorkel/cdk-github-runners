@@ -9,6 +9,8 @@ import {
   aws_imagebuilder as imagebuilder,
   aws_logs as logs,
   aws_s3_assets as s3_assets,
+  aws_sns as sns,
+  aws_sns_subscriptions as subs,
   CustomResource,
   Duration,
   RemovalPolicy,
@@ -16,10 +18,11 @@ import {
 } from 'aws-cdk-lib';
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { Construct } from 'constructs';
+import { Construct, IConstruct } from 'constructs';
 import { AmiRecipe, defaultBaseAmi } from './ami';
 import { ImageBuilderObjectBase } from './common';
 import { ContainerRecipe, defaultBaseDockerImage } from './container';
+import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
 import { BuildImageFunction } from '../../../lambdas/build-image-function';
 import { DeleteAmiFunction } from '../../../lambdas/delete-ami-function';
 import { singletonLambda } from '../../../utils';
@@ -223,6 +226,7 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
     } else {
       return [
         'set -ex',
+        // 'exit 150',
       ].concat(commands);
     }
   }
@@ -641,5 +645,36 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     }
 
     return this.boundComponents;
+  }
+}
+
+/**
+ * @internal
+ */
+export class AwsImageBuilderFailedBuildNotifier implements cdk.IAspect {
+  public static createFilteringTopic(scope: Construct, targetTopic: sns.Topic) {
+    const topic = new sns.Topic(scope, 'Image Builder Builds');
+    const filter = new FilterFailedBuildsFunction(scope, 'Image Builder Builds Filter', {
+      logRetention: logs.RetentionDays.ONE_MONTH,
+      environment: {
+        TARGET_TOPIC_ARN: targetTopic.topicArn,
+      },
+    });
+
+    topic.addSubscription(new subs.LambdaSubscription(filter));
+    targetTopic.grantPublish(filter);
+
+    return topic;
+  }
+
+  constructor(private topic: sns.ITopic) {
+  }
+
+  public visit(node: IConstruct): void {
+    if (node instanceof AwsImageBuilderRunnerImageBuilder) {
+      const builder = node as AwsImageBuilderRunnerImageBuilder;
+      const infra = builder.node.findChild('Infrastructure') as imagebuilder.CfnInfrastructureConfiguration;
+      infra.snsTopicArn = this.topic.topicArn;
+    }
   }
 }

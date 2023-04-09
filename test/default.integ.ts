@@ -10,13 +10,13 @@ import {
   Architecture,
   CodeBuildRunnerProvider,
   Ec2RunnerProvider,
+  EcsRunnerProvider,
   FargateRunnerProvider,
   GitHubRunners,
   LambdaRunnerProvider,
   Os,
   RunnerImageComponent,
 } from '../src';
-import { EcsRunnerProvider } from '../src/providers/ecs';
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
@@ -121,7 +121,7 @@ const ec2WindowsImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'Windows EC
 });
 ec2WindowsImageBuilder.addComponent(extraFilesComponentWindows);
 
-new GitHubRunners(stack, 'runners', {
+const runners = new GitHubRunners(stack, 'runners', {
   providers: [
     new CodeBuildRunnerProvider(stack, 'CodeBuildx64', {
       label: 'codebuild-x64',
@@ -233,6 +233,9 @@ new GitHubRunners(stack, 'runners', {
       vpc,
     }),
   ],
-}).metricJobCompleted();
+});
+
+runners.metricJobCompleted();
+runners.failedImageBuildsTopic();
 
 app.synth();

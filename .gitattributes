@@ -33,6 +33,7 @@
 /src/lambdas/token-retriever-function.ts linguist-generated
 /src/lambdas/update-lambda-function.ts linguist-generated
 /src/lambdas/webhook-handler-function.ts linguist-generated
+/src/providers/image-builders/aws-image-builder/filter-failed-builds-function.ts linguist-generated
 /tsconfig.dev.json linguist-generated
 /yarn.lock linguist-generated
 Dockerfile eol=lf
