@@ -27,6 +27,8 @@
     "bundle:lambdas/update-lambda.lambda:watch": "npx projen bundle:lambdas/update-lambda.lambda:watch",
     "bundle:lambdas/webhook-handler.lambda": "npx projen bundle:lambdas/webhook-handler.lambda",
     "bundle:lambdas/webhook-handler.lambda:watch": "npx projen bundle:lambdas/webhook-handler.lambda:watch",
+    "bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda": "npx projen bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda",
+    "bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda:watch": "npx projen bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda:watch",
     "clobber": "npx projen clobber",
     "compat": "npx projen compat",
     "compile": "npx projen compile",

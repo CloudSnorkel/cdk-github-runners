@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/d683e78c33c4de0163529ce1ae47b62cbdea581ddc99af53dff5e914efc37944.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/3eae1c989c4929e82fc388bb698cb8ef1310f800f06fee5e92b0ed0824cc1245.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -39,6 +39,43 @@
         "github-runners-test.assets"
       ],
       "metadata": {
+        "/github-runners-test": [
+          {
+            "type": "aws:cdk:info",
+            "data": "Number of resources: 402 is approaching allowed maximum of 500",
+            "trace": [
+              "Annotations.addMessage (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\aws-cdk-lib\\core\\lib\\annotations.js:1:1213)",
+              "Annotations.addInfo (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\aws-cdk-lib\\core\\lib\\annotations.js:1:682)",
+              "Stack._synthesizeTemplate (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\aws-cdk-lib\\core\\lib\\stack.js:1:9240)",
+              "DefaultStackSynthesizer.synthesizeTemplate (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\aws-cdk-lib\\core\\lib\\stack-synthesizers\\stack-synthesizer.js:1:1584)",
+              "DefaultStackSynthesizer.synthesize (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\aws-cdk-lib\\core\\lib\\stack-synthesizers\\default-synthesizer.js:1:5757)",
+              "C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\aws-cdk-lib\\core\\lib\\private\\synthesis.js:1:2661",
+              "visit (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\aws-cdk-lib\\core\\lib\\private\\synthesis.js:3:179)",
+              "visit (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\aws-cdk-lib\\core\\lib\\private\\synthesis.js:3:141)",
+              "synthesizeTree (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\aws-cdk-lib\\core\\lib\\private\\synthesis.js:1:2505)",
+              "Object.synthesize (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\aws-cdk-lib\\core\\lib\\private\\synthesis.js:1:735)",
+              "App.synth (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\aws-cdk-lib\\core\\lib\\stage.js:1:1883)",
+              "Object.<anonymous> (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\test\\default.integ.ts:241:5)",
+              "Module._compile (node:internal/modules/cjs/loader:1254:14)",
+              "Module.m._compile (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\ts-node\\src\\index.ts:1618:23)",
+              "Module._extensions..js (node:internal/modules/cjs/loader:1308:10)",
+              "Object.require.extensions.<computed> [as .ts] (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\ts-node\\src\\index.ts:1621:12)",
+              "Module.load (node:internal/modules/cjs/loader:1117:32)",
+              "Function.Module._load (node:internal/modules/cjs/loader:958:12)",
+              "Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:81:12)",
+              "phase4 (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\ts-node\\src\\bin.ts:649:14)",
+              "bootstrap (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\ts-node\\src\\bin.ts:95:10)",
+              "main (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\ts-node\\src\\bin.ts:55:10)",
+              "Object.<anonymous> (C:\\Users\\kichi\\Dropbox\\Dev\\cdk-github-runners\\node_modules\\ts-node\\src\\bin.ts:800:3)",
+              "Module._compile (node:internal/modules/cjs/loader:1254:14)",
+              "Object.Module._extensions..js (node:internal/modules/cjs/loader:1308:10)",
+              "Module.load (node:internal/modules/cjs/loader:1117:32)",
+              "Function.Module._load (node:internal/modules/cjs/loader:958:12)",
+              "Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:81:12)",
+              "node:internal/main/run_main_module:23:47"
+            ]
+          }
+        ],
         "/github-runners-test/Vpc/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -159,6 +196,12 @@
             "data": "FargatebuilderCodeBuildEventsRoleDefaultPolicyD2B048CD"
           }
         ],
+        "/github-runners-test/Fargate builder/CodeBuild/BuildFailed/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargatebuilderCodeBuildBuildFailed1D2D3785"
+          }
+        ],
         "/github-runners-test/Fargate builder/CR Policy/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -219,6 +262,12 @@
             "data": "FargatebuilderarmCodeBuildEventsRoleDefaultPolicy39CAA8CB"
           }
         ],
+        "/github-runners-test/Fargate builder arm/CodeBuild/BuildFailed/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FargatebuilderarmCodeBuildBuildFailed264992E6"
+          }
+        ],
         "/github-runners-test/Fargate builder arm/CR Policy/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -277,6 +326,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "LambdaImageBuilderx64CodeBuildEventsRoleDefaultPolicy2B894997"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builder x64/CodeBuild/BuildFailed/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderx64CodeBuildBuildFailed7E839416"
           }
         ],
         "/github-runners-test/Lambda Image Builder x64/CR Policy/Resource": [
@@ -723,6 +778,12 @@
             "data": "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D"
           }
         ],
+        "/github-runners-test/CodeBuild Image Builder/CodeBuild/BuildFailed/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderCodeBuildBuildFailed9B205D70"
+          }
+        ],
         "/github-runners-test/CodeBuild Image Builder/CR Policy/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -783,6 +844,12 @@
             "data": "CodeBuildImageBuilderarmCodeBuildEventsRoleDefaultPolicyEA24770D"
           }
         ],
+        "/github-runners-test/CodeBuild Image Builder arm/CodeBuild/BuildFailed/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CodeBuildImageBuilderarmCodeBuildBuildFailed7605ECB2"
+          }
+        ],
         "/github-runners-test/CodeBuild Image Builder arm/CR Policy/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -841,6 +908,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "LambdaImageBuilderzCodeBuildEventsRoleDefaultPolicyE0DB8E23"
+          }
+        ],
+        "/github-runners-test/Lambda Image Builderz/CodeBuild/BuildFailed/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaImageBuilderzCodeBuildBuildFailedFBCC1CE8"
           }
         ],
         "/github-runners-test/Lambda Image Builderz/CR Policy/Resource": [
@@ -2401,6 +2474,60 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "runnersstatuscommand4A30F0F5"
+          }
+        ],
+        "/github-runners-test/runners/Failed Runner Image Builds/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "runnersFailedRunnerImageBuilds233D2237"
+          }
+        ],
+        "/github-runners-test/runners/Failed Runner Image Builds/Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "runnersFailedRunnerImageBuildsPolicyC1C99AF8"
+          }
+        ],
+        "/github-runners-test/runners/Image Builder Builds/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "runnersImageBuilderBuildsDF5A50E4"
+          }
+        ],
+        "/github-runners-test/runners/Image Builder Builds Filter/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "runnersImageBuilderBuildsFilterServiceRoleED82BC5F"
+          }
+        ],
+        "/github-runners-test/runners/Image Builder Builds Filter/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "runnersImageBuilderBuildsFilterServiceRoleDefaultPolicy4525F6C1"
+          }
+        ],
+        "/github-runners-test/runners/Image Builder Builds Filter/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "runnersImageBuilderBuildsFilterD708AA06"
+          }
+        ],
+        "/github-runners-test/runners/Image Builder Builds Filter/LogRetention/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "runnersImageBuilderBuildsFilterLogRetentionD5005098"
+          }
+        ],
+        "/github-runners-test/runners/Image Builder Builds Filter/AllowInvoke:githubrunnerstestrunnersImageBuilderBuilds109FC9E8": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "runnersImageBuilderBuildsFilterAllowInvokegithubrunnerstestrunnersImageBuilderBuilds109FC9E855AB30DD"
+          }
+        ],
+        "/github-runners-test/runners/Image Builder Builds Filter/Image Builder Builds/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "runnersImageBuilderBuildsFilterImageBuilderBuilds7F42F563"
           }
         ],
         "/github-runners-test/Service-principalMap": [

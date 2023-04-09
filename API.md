@@ -3101,6 +3101,7 @@ new GitHubRunners(scope: Construct, id: string, props?: GitHubRunnersProps)
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic">failedImageBuildsTopic</a></code> | Creates a topic for notifications when a runner image build fails. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed">metricFailed</a></code> | Metric for failed runner executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted">metricJobCompleted</a></code> | Metric for the number of GitHub Actions jobs completed. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricSucceeded">metricSucceeded</a></code> | Metric for successful executions. |
@@ -3115,6 +3116,18 @@ public toString(): string
 ```
 
 Returns a string representation of this construct.
+
+##### `failedImageBuildsTopic` <a name="failedImageBuildsTopic" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic"></a>
+
+```typescript
+public failedImageBuildsTopic(): Topic
+```
+
+Creates a topic for notifications when a runner image build fails.
+
+Runner images are rebuilt every week by default. This provides the latest GitHub Runner version and software updates.
+
+If you want to be sure you are using the latest runner version, you can use this topic to be notified when a build fails.
 
 ##### `metricFailed` <a name="metricFailed" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed"></a>
 

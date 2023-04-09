@@ -905,6 +905,48 @@
                       "fqn": "aws-cdk-lib.aws_iam.Role",
                       "version": "2.50.0"
                     }
+                  },
+                  "BuildFailed": {
+                    "id": "BuildFailed",
+                    "path": "github-runners-test/Fargate builder/CodeBuild/BuildFailed",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/Fargate builder/CodeBuild/BuildFailed/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::CodeStarNotifications::NotificationRule",
+                          "aws:cdk:cloudformation:props": {
+                            "detailType": "FULL",
+                            "eventTypeIds": [
+                              "codebuild-project-build-state-failed"
+                            ],
+                            "name": "githubrunnerstestFargatebuilderCodeBuildBuildFailed8BDBCD42",
+                            "resource": {
+                              "Fn::GetAtt": [
+                                "FargatebuilderCodeBuild4F182743",
+                                "Arn"
+                              ]
+                            },
+                            "targets": [
+                              {
+                                "targetType": "SNS",
+                                "targetAddress": {
+                                  "Ref": "runnersFailedRunnerImageBuilds233D2237"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_codestarnotifications.CfnNotificationRule",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_codestarnotifications.NotificationRule",
+                      "version": "2.50.0"
+                    }
                   }
                 },
                 "constructInfo": {
@@ -1589,6 +1631,48 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "BuildFailed": {
+                    "id": "BuildFailed",
+                    "path": "github-runners-test/Fargate builder arm/CodeBuild/BuildFailed",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/Fargate builder arm/CodeBuild/BuildFailed/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::CodeStarNotifications::NotificationRule",
+                          "aws:cdk:cloudformation:props": {
+                            "detailType": "FULL",
+                            "eventTypeIds": [
+                              "codebuild-project-build-state-failed"
+                            ],
+                            "name": "githubrunnerstestFargatebuilderarmCodeBuildBuildFailed60EDAF2B",
+                            "resource": {
+                              "Fn::GetAtt": [
+                                "FargatebuilderarmCodeBuild0D30679A",
+                                "Arn"
+                              ]
+                            },
+                            "targets": [
+                              {
+                                "targetType": "SNS",
+                                "targetAddress": {
+                                  "Ref": "runnersFailedRunnerImageBuilds233D2237"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_codestarnotifications.CfnNotificationRule",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_codestarnotifications.NotificationRule",
                       "version": "2.50.0"
                     }
                   }
@@ -2335,6 +2419,48 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "BuildFailed": {
+                    "id": "BuildFailed",
+                    "path": "github-runners-test/Lambda Image Builder x64/CodeBuild/BuildFailed",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/Lambda Image Builder x64/CodeBuild/BuildFailed/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::CodeStarNotifications::NotificationRule",
+                          "aws:cdk:cloudformation:props": {
+                            "detailType": "FULL",
+                            "eventTypeIds": [
+                              "codebuild-project-build-state-failed"
+                            ],
+                            "name": "thubrunnerstestLambdaImageBuilderx64CodeBuildBuildFailedE326D971",
+                            "resource": {
+                              "Fn::GetAtt": [
+                                "LambdaImageBuilderx64CodeBuild67DE14C8",
+                                "Arn"
+                              ]
+                            },
+                            "targets": [
+                              {
+                                "targetType": "SNS",
+                                "targetAddress": {
+                                  "Ref": "runnersFailedRunnerImageBuilds233D2237"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_codestarnotifications.CfnNotificationRule",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_codestarnotifications.NotificationRule",
                       "version": "2.50.0"
                     }
                   }
@@ -3432,6 +3558,9 @@
                         ]
                       }
                     ],
+                    "snsTopicArn": {
+                      "Ref": "runnersImageBuilderBuildsDF5A50E4"
+                    },
                     "subnetId": {
                       "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                     }
@@ -4531,6 +4660,9 @@
                         ]
                       }
                     ],
+                    "snsTopicArn": {
+                      "Ref": "runnersImageBuilderBuildsDF5A50E4"
+                    },
                     "subnetId": {
                       "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                     }
@@ -5267,6 +5399,48 @@
                       "fqn": "aws-cdk-lib.aws_iam.Role",
                       "version": "2.50.0"
                     }
+                  },
+                  "BuildFailed": {
+                    "id": "BuildFailed",
+                    "path": "github-runners-test/CodeBuild Image Builder/CodeBuild/BuildFailed",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/CodeBuild Image Builder/CodeBuild/BuildFailed/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::CodeStarNotifications::NotificationRule",
+                          "aws:cdk:cloudformation:props": {
+                            "detailType": "FULL",
+                            "eventTypeIds": [
+                              "codebuild-project-build-state-failed"
+                            ],
+                            "name": "thubrunnerstestCodeBuildImageBuilderCodeBuildBuildFailed73942339",
+                            "resource": {
+                              "Fn::GetAtt": [
+                                "CodeBuildImageBuilderCodeBuild38ECAA44",
+                                "Arn"
+                              ]
+                            },
+                            "targets": [
+                              {
+                                "targetType": "SNS",
+                                "targetAddress": {
+                                  "Ref": "runnersFailedRunnerImageBuilds233D2237"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_codestarnotifications.CfnNotificationRule",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_codestarnotifications.NotificationRule",
+                      "version": "2.50.0"
+                    }
                   }
                 },
                 "constructInfo": {
@@ -5951,6 +6125,48 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "BuildFailed": {
+                    "id": "BuildFailed",
+                    "path": "github-runners-test/CodeBuild Image Builder arm/CodeBuild/BuildFailed",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/CodeBuild Image Builder arm/CodeBuild/BuildFailed/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::CodeStarNotifications::NotificationRule",
+                          "aws:cdk:cloudformation:props": {
+                            "detailType": "FULL",
+                            "eventTypeIds": [
+                              "codebuild-project-build-state-failed"
+                            ],
+                            "name": "brunnerstestCodeBuildImageBuilderarmCodeBuildBuildFailedF9370687",
+                            "resource": {
+                              "Fn::GetAtt": [
+                                "CodeBuildImageBuilderarmCodeBuildBFF1CF57",
+                                "Arn"
+                              ]
+                            },
+                            "targets": [
+                              {
+                                "targetType": "SNS",
+                                "targetAddress": {
+                                  "Ref": "runnersFailedRunnerImageBuilds233D2237"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_codestarnotifications.CfnNotificationRule",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_codestarnotifications.NotificationRule",
                       "version": "2.50.0"
                     }
                   }
@@ -6697,6 +6913,48 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "BuildFailed": {
+                    "id": "BuildFailed",
+                    "path": "github-runners-test/Lambda Image Builderz/CodeBuild/BuildFailed",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/Lambda Image Builderz/CodeBuild/BuildFailed/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::CodeStarNotifications::NotificationRule",
+                          "aws:cdk:cloudformation:props": {
+                            "detailType": "FULL",
+                            "eventTypeIds": [
+                              "codebuild-project-build-state-failed"
+                            ],
+                            "name": "githubrunnerstestLambdaImageBuilderzCodeBuildBuildFailedD221038C",
+                            "resource": {
+                              "Fn::GetAtt": [
+                                "LambdaImageBuilderzCodeBuild73AB6718",
+                                "Arn"
+                              ]
+                            },
+                            "targets": [
+                              {
+                                "targetType": "SNS",
+                                "targetAddress": {
+                                  "Ref": "runnersFailedRunnerImageBuilds233D2237"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_codestarnotifications.CfnNotificationRule",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_codestarnotifications.NotificationRule",
                       "version": "2.50.0"
                     }
                   }
@@ -7908,6 +8166,9 @@
                         ]
                       }
                     ],
+                    "snsTopicArn": {
+                      "Ref": "runnersImageBuilderBuildsDF5A50E4"
+                    },
                     "subnetId": {
                       "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                     }
@@ -9019,6 +9280,9 @@
                         ]
                       }
                     ],
+                    "snsTopicArn": {
+                      "Ref": "runnersImageBuilderBuildsDF5A50E4"
+                    },
                     "subnetId": {
                       "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
                     }
@@ -21290,6 +21554,339 @@
                 "path": "github-runners-test/runners/status command",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.CfnOutput",
+                  "version": "2.50.0"
+                }
+              },
+              "Failed Runner Image Builds": {
+                "id": "Failed Runner Image Builds",
+                "path": "github-runners-test/runners/Failed Runner Image Builds",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/runners/Failed Runner Image Builds/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::SNS::Topic",
+                      "aws:cdk:cloudformation:props": {}
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sns.CfnTopic",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "Policy": {
+                    "id": "Policy",
+                    "path": "github-runners-test/runners/Failed Runner Image Builds/Policy",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/runners/Failed Runner Image Builds/Policy/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::SNS::TopicPolicy",
+                          "aws:cdk:cloudformation:props": {
+                            "policyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sns:Publish",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": "codestar-notifications.amazonaws.com"
+                                  },
+                                  "Resource": {
+                                    "Ref": "runnersFailedRunnerImageBuilds233D2237"
+                                  },
+                                  "Sid": "0"
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            },
+                            "topics": [
+                              {
+                                "Ref": "runnersFailedRunnerImageBuilds233D2237"
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_sns.CfnTopicPolicy",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sns.TopicPolicy",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_sns.Topic",
+                  "version": "2.50.0"
+                }
+              },
+              "Image Builder Builds": {
+                "id": "Image Builder Builds",
+                "path": "github-runners-test/runners/Image Builder Builds",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/runners/Image Builder Builds/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::SNS::Topic",
+                      "aws:cdk:cloudformation:props": {}
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sns.CfnTopic",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_sns.Topic",
+                  "version": "2.50.0"
+                }
+              },
+              "Image Builder Builds Filter": {
+                "id": "Image Builder Builds Filter",
+                "path": "github-runners-test/runners/Image Builder Builds Filter",
+                "children": {
+                  "ServiceRole": {
+                    "id": "ServiceRole",
+                    "path": "github-runners-test/runners/Image Builder Builds Filter/ServiceRole",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/runners/Image Builder Builds Filter/ServiceRole/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                          "aws:cdk:cloudformation:props": {
+                            "assumeRolePolicyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sts:AssumeRole",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": "lambda.amazonaws.com"
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            },
+                            "managedPolicyArns": [
+                              {
+                                "Fn::Join": [
+                                  "",
+                                  [
+                                    "arn:",
+                                    {
+                                      "Ref": "AWS::Partition"
+                                    },
+                                    ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                                  ]
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                          "version": "2.50.0"
+                        }
+                      },
+                      "DefaultPolicy": {
+                        "id": "DefaultPolicy",
+                        "path": "github-runners-test/runners/Image Builder Builds Filter/ServiceRole/DefaultPolicy",
+                        "children": {
+                          "Resource": {
+                            "id": "Resource",
+                            "path": "github-runners-test/runners/Image Builder Builds Filter/ServiceRole/DefaultPolicy/Resource",
+                            "attributes": {
+                              "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                              "aws:cdk:cloudformation:props": {
+                                "policyDocument": {
+                                  "Statement": [
+                                    {
+                                      "Action": "sns:Publish",
+                                      "Effect": "Allow",
+                                      "Resource": {
+                                        "Ref": "runnersFailedRunnerImageBuilds233D2237"
+                                      }
+                                    }
+                                  ],
+                                  "Version": "2012-10-17"
+                                },
+                                "policyName": "runnersImageBuilderBuildsFilterServiceRoleDefaultPolicy4525F6C1",
+                                "roles": [
+                                  {
+                                    "Ref": "runnersImageBuilderBuildsFilterServiceRoleED82BC5F"
+                                  }
+                                ]
+                              }
+                            },
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                              "version": "2.50.0"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.Policy",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "Code": {
+                    "id": "Code",
+                    "path": "github-runners-test/runners/Image Builder Builds Filter/Code",
+                    "children": {
+                      "Stage": {
+                        "id": "Stage",
+                        "path": "github-runners-test/runners/Image Builder Builds Filter/Code/Stage",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.AssetStaging",
+                          "version": "2.50.0"
+                        }
+                      },
+                      "AssetBucket": {
+                        "id": "AssetBucket",
+                        "path": "github-runners-test/runners/Image Builder Builds Filter/Code/AssetBucket",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_s3.BucketBase",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "github-runners-test/runners/Image Builder Builds Filter/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
+                      "aws:cdk:cloudformation:props": {
+                        "code": {
+                          "s3Bucket": {
+                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                          },
+                          "s3Key": "a03b764f5d4bc761c5335ccb74f4496f0ac4044feac5c489f1b70e2f082f25f8.zip"
+                        },
+                        "role": {
+                          "Fn::GetAtt": [
+                            "runnersImageBuilderBuildsFilterServiceRoleED82BC5F",
+                            "Arn"
+                          ]
+                        },
+                        "description": "src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
+                        "environment": {
+                          "variables": {
+                            "TARGET_TOPIC_ARN": {
+                              "Ref": "runnersFailedRunnerImageBuilds233D2237"
+                            },
+                            "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+                          }
+                        },
+                        "handler": "index.handler",
+                        "runtime": "nodejs16.x"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "LogRetention": {
+                    "id": "LogRetention",
+                    "path": "github-runners-test/runners/Image Builder Builds Filter/LogRetention",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/runners/Image Builder Builds Filter/LogRetention/Resource",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnResource",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_logs.LogRetention",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "LogGroup": {
+                    "id": "LogGroup",
+                    "path": "github-runners-test/runners/Image Builder Builds Filter/LogGroup",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "AllowInvoke:githubrunnerstestrunnersImageBuilderBuilds109FC9E8": {
+                    "id": "AllowInvoke:githubrunnerstestrunnersImageBuilderBuilds109FC9E8",
+                    "path": "github-runners-test/runners/Image Builder Builds Filter/AllowInvoke:githubrunnerstestrunnersImageBuilderBuilds109FC9E8",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                      "aws:cdk:cloudformation:props": {
+                        "action": "lambda:InvokeFunction",
+                        "functionName": {
+                          "Fn::GetAtt": [
+                            "runnersImageBuilderBuildsFilterD708AA06",
+                            "Arn"
+                          ]
+                        },
+                        "principal": "sns.amazonaws.com",
+                        "sourceArn": {
+                          "Ref": "runnersImageBuilderBuildsDF5A50E4"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                      "version": "2.50.0"
+                    }
+                  },
+                  "Image Builder Builds": {
+                    "id": "Image Builder Builds",
+                    "path": "github-runners-test/runners/Image Builder Builds Filter/Image Builder Builds",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "github-runners-test/runners/Image Builder Builds Filter/Image Builder Builds/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::SNS::Subscription",
+                          "aws:cdk:cloudformation:props": {
+                            "protocol": "lambda",
+                            "topicArn": {
+                              "Ref": "runnersImageBuilderBuildsDF5A50E4"
+                            },
+                            "endpoint": {
+                              "Fn::GetAtt": [
+                                "runnersImageBuilderBuildsFilterD708AA06",
+                                "Arn"
+                              ]
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_sns.CfnSubscription",
+                          "version": "2.50.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sns.Subscription",
+                      "version": "2.50.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.Function",
                   "version": "2.50.0"
                 }
               }

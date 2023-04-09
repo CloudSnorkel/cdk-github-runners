@@ -9,6 +9,7 @@ import {
   aws_iam as iam,
   aws_logs as logs,
   aws_s3_assets as s3_assets,
+  aws_sns as sns,
   CustomResource,
   Duration,
   RemovalPolicy,
@@ -16,7 +17,7 @@ import {
 import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { Construct } from 'constructs';
+import { Construct, IConstruct } from 'constructs';
 import { defaultBaseDockerImage } from './aws-image-builder';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
 import { BuildImageFunction } from '../../lambdas/build-image-function';
@@ -360,5 +361,21 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
   get grantPrincipal(): iam.IPrincipal {
     return this.role;
+  }
+}
+
+/**
+ * @internal
+ */
+export class CodeBuildImageBuilderFailedBuildNotifier implements cdk.IAspect {
+  constructor(private topic: sns.ITopic) {
+  }
+
+  public visit(node: IConstruct): void {
+    if (node instanceof CodeBuildRunnerImageBuilder) {
+      const builder = node as CodeBuildRunnerImageBuilder;
+      const project = builder.node.findChild('CodeBuild') as codebuild.Project;
+      project.notifyOnBuildFailed('BuildFailed', this.topic);
+    }
   }
 }

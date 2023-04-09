@@ -589,6 +589,30 @@
     ]
    }
   },
+  "FargatebuilderCodeBuildBuildFailed1D2D3785": {
+   "Type": "AWS::CodeStarNotifications::NotificationRule",
+   "Properties": {
+    "DetailType": "FULL",
+    "EventTypeIds": [
+     "codebuild-project-build-state-failed"
+    ],
+    "Name": "githubrunnerstestFargatebuilderCodeBuildBuildFailed8BDBCD42",
+    "Resource": {
+     "Fn::GetAtt": [
+      "FargatebuilderCodeBuild4F182743",
+      "Arn"
+     ]
+    },
+    "Targets": [
+     {
+      "TargetAddress": {
+       "Ref": "runnersFailedRunnerImageBuilds233D2237"
+      },
+      "TargetType": "SNS"
+     }
+    ]
+   }
+  },
   "FargatebuilderCRPolicy22FB4B05": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
@@ -725,6 +749,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+    "FargatebuilderCodeBuildBuildFailed1D2D3785",
     "FargatebuilderCodeBuildEventsRoleDefaultPolicyD2B048CD",
     "FargatebuilderCodeBuildEventsRole92F2259E",
     "FargatebuilderCodeBuild4F182743",
@@ -1162,6 +1187,30 @@
     ]
    }
   },
+  "FargatebuilderarmCodeBuildBuildFailed264992E6": {
+   "Type": "AWS::CodeStarNotifications::NotificationRule",
+   "Properties": {
+    "DetailType": "FULL",
+    "EventTypeIds": [
+     "codebuild-project-build-state-failed"
+    ],
+    "Name": "githubrunnerstestFargatebuilderarmCodeBuildBuildFailed60EDAF2B",
+    "Resource": {
+     "Fn::GetAtt": [
+      "FargatebuilderarmCodeBuild0D30679A",
+      "Arn"
+     ]
+    },
+    "Targets": [
+     {
+      "TargetAddress": {
+       "Ref": "runnersFailedRunnerImageBuilds233D2237"
+      },
+      "TargetType": "SNS"
+     }
+    ]
+   }
+  },
   "FargatebuilderarmCRPolicyD241BB66": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
@@ -1298,6 +1347,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+    "FargatebuilderarmCodeBuildBuildFailed264992E6",
     "FargatebuilderarmCodeBuildEventsRoleDefaultPolicy39CAA8CB",
     "FargatebuilderarmCodeBuildEventsRole20E8CE66",
     "FargatebuilderarmCodeBuild0D30679A",
@@ -1743,6 +1793,30 @@
     ]
    }
   },
+  "LambdaImageBuilderx64CodeBuildBuildFailed7E839416": {
+   "Type": "AWS::CodeStarNotifications::NotificationRule",
+   "Properties": {
+    "DetailType": "FULL",
+    "EventTypeIds": [
+     "codebuild-project-build-state-failed"
+    ],
+    "Name": "thubrunnerstestLambdaImageBuilderx64CodeBuildBuildFailedE326D971",
+    "Resource": {
+     "Fn::GetAtt": [
+      "LambdaImageBuilderx64CodeBuild67DE14C8",
+      "Arn"
+     ]
+    },
+    "Targets": [
+     {
+      "TargetAddress": {
+       "Ref": "runnersFailedRunnerImageBuilds233D2237"
+      },
+      "TargetType": "SNS"
+     }
+    ]
+   }
+  },
   "LambdaImageBuilderx64CRPolicy6DBE0D1F": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
@@ -1887,6 +1961,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+    "LambdaImageBuilderx64CodeBuildBuildFailed7E839416",
     "LambdaImageBuilderx64CodeBuildEventsRoleDefaultPolicy2B894997",
     "LambdaImageBuilderx64CodeBuildEventsRoleF8B03C21",
     "LambdaImageBuilderx64CodeBuild67DE14C8",
@@ -2838,6 +2913,9 @@
       ]
      }
     ],
+    "SnsTopicArn": {
+     "Ref": "runnersImageBuilderBuildsDF5A50E4"
+    },
     "SubnetId": {
      "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
     }
@@ -3888,6 +3966,9 @@
       ]
      }
     ],
+    "SnsTopicArn": {
+     "Ref": "runnersImageBuilderBuildsDF5A50E4"
+    },
     "SubnetId": {
      "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
     }
@@ -4415,6 +4496,30 @@
     ]
    }
   },
+  "CodeBuildImageBuilderCodeBuildBuildFailed9B205D70": {
+   "Type": "AWS::CodeStarNotifications::NotificationRule",
+   "Properties": {
+    "DetailType": "FULL",
+    "EventTypeIds": [
+     "codebuild-project-build-state-failed"
+    ],
+    "Name": "thubrunnerstestCodeBuildImageBuilderCodeBuildBuildFailed73942339",
+    "Resource": {
+     "Fn::GetAtt": [
+      "CodeBuildImageBuilderCodeBuild38ECAA44",
+      "Arn"
+     ]
+    },
+    "Targets": [
+     {
+      "TargetAddress": {
+       "Ref": "runnersFailedRunnerImageBuilds233D2237"
+      },
+      "TargetType": "SNS"
+     }
+    ]
+   }
+  },
   "CodeBuildImageBuilderCRPolicyAFC63F28": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
@@ -4551,6 +4656,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+    "CodeBuildImageBuilderCodeBuildBuildFailed9B205D70",
     "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D",
     "CodeBuildImageBuilderCodeBuildEventsRole4277A55E",
     "CodeBuildImageBuilderCodeBuild38ECAA44",
@@ -4988,6 +5094,30 @@
     ]
    }
   },
+  "CodeBuildImageBuilderarmCodeBuildBuildFailed7605ECB2": {
+   "Type": "AWS::CodeStarNotifications::NotificationRule",
+   "Properties": {
+    "DetailType": "FULL",
+    "EventTypeIds": [
+     "codebuild-project-build-state-failed"
+    ],
+    "Name": "brunnerstestCodeBuildImageBuilderarmCodeBuildBuildFailedF9370687",
+    "Resource": {
+     "Fn::GetAtt": [
+      "CodeBuildImageBuilderarmCodeBuildBFF1CF57",
+      "Arn"
+     ]
+    },
+    "Targets": [
+     {
+      "TargetAddress": {
+       "Ref": "runnersFailedRunnerImageBuilds233D2237"
+      },
+      "TargetType": "SNS"
+     }
+    ]
+   }
+  },
   "CodeBuildImageBuilderarmCRPolicy75CB8D91": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
@@ -5124,6 +5254,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+    "CodeBuildImageBuilderarmCodeBuildBuildFailed7605ECB2",
     "CodeBuildImageBuilderarmCodeBuildEventsRoleDefaultPolicyEA24770D",
     "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89",
     "CodeBuildImageBuilderarmCodeBuildBFF1CF57",
@@ -5569,6 +5700,30 @@
     ]
    }
   },
+  "LambdaImageBuilderzCodeBuildBuildFailedFBCC1CE8": {
+   "Type": "AWS::CodeStarNotifications::NotificationRule",
+   "Properties": {
+    "DetailType": "FULL",
+    "EventTypeIds": [
+     "codebuild-project-build-state-failed"
+    ],
+    "Name": "githubrunnerstestLambdaImageBuilderzCodeBuildBuildFailedD221038C",
+    "Resource": {
+     "Fn::GetAtt": [
+      "LambdaImageBuilderzCodeBuild73AB6718",
+      "Arn"
+     ]
+    },
+    "Targets": [
+     {
+      "TargetAddress": {
+       "Ref": "runnersFailedRunnerImageBuilds233D2237"
+      },
+      "TargetType": "SNS"
+     }
+    ]
+   }
+  },
   "LambdaImageBuilderzCRPolicyC9B09855": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
@@ -5713,6 +5868,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+    "LambdaImageBuilderzCodeBuildBuildFailedFBCC1CE8",
     "LambdaImageBuilderzCodeBuildEventsRoleDefaultPolicyE0DB8E23",
     "LambdaImageBuilderzCodeBuildEventsRoleE9E50664",
     "LambdaImageBuilderzCodeBuild73AB6718",
@@ -6790,6 +6946,9 @@
       ]
      }
     ],
+    "SnsTopicArn": {
+     "Ref": "runnersImageBuilderBuildsDF5A50E4"
+    },
     "SubnetId": {
      "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
     }
@@ -7839,6 +7998,9 @@
       ]
      }
     ],
+    "SnsTopicArn": {
+     "Ref": "runnersImageBuilderBuildsDF5A50E4"
+    },
     "SubnetId": {
      "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
     }
@@ -17619,6 +17781,178 @@
      ]
     },
     "RetentionInDays": 30
+   }
+  },
+  "runnersFailedRunnerImageBuilds233D2237": {
+   "Type": "AWS::SNS::Topic"
+  },
+  "runnersFailedRunnerImageBuildsPolicyC1C99AF8": {
+   "Type": "AWS::SNS::TopicPolicy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sns:Publish",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codestar-notifications.amazonaws.com"
+       },
+       "Resource": {
+        "Ref": "runnersFailedRunnerImageBuilds233D2237"
+       },
+       "Sid": "0"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Topics": [
+     {
+      "Ref": "runnersFailedRunnerImageBuilds233D2237"
+     }
+    ]
+   }
+  },
+  "runnersImageBuilderBuildsDF5A50E4": {
+   "Type": "AWS::SNS::Topic"
+  },
+  "runnersImageBuilderBuildsFilterServiceRoleED82BC5F": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "runnersImageBuilderBuildsFilterServiceRoleDefaultPolicy4525F6C1": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sns:Publish",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersFailedRunnerImageBuilds233D2237"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "runnersImageBuilderBuildsFilterServiceRoleDefaultPolicy4525F6C1",
+    "Roles": [
+     {
+      "Ref": "runnersImageBuilderBuildsFilterServiceRoleED82BC5F"
+     }
+    ]
+   }
+  },
+  "runnersImageBuilderBuildsFilterD708AA06": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "a03b764f5d4bc761c5335ccb74f4496f0ac4044feac5c489f1b70e2f082f25f8.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "runnersImageBuilderBuildsFilterServiceRoleED82BC5F",
+      "Arn"
+     ]
+    },
+    "Description": "src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
+    "Environment": {
+     "Variables": {
+      "TARGET_TOPIC_ARN": {
+       "Ref": "runnersFailedRunnerImageBuilds233D2237"
+      },
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs16.x"
+   },
+   "DependsOn": [
+    "runnersImageBuilderBuildsFilterServiceRoleDefaultPolicy4525F6C1",
+    "runnersImageBuilderBuildsFilterServiceRoleED82BC5F"
+   ]
+  },
+  "runnersImageBuilderBuildsFilterLogRetentionD5005098": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "runnersImageBuilderBuildsFilterD708AA06"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "runnersImageBuilderBuildsFilterAllowInvokegithubrunnerstestrunnersImageBuilderBuilds109FC9E855AB30DD": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "runnersImageBuilderBuildsFilterD708AA06",
+      "Arn"
+     ]
+    },
+    "Principal": "sns.amazonaws.com",
+    "SourceArn": {
+     "Ref": "runnersImageBuilderBuildsDF5A50E4"
+    }
+   }
+  },
+  "runnersImageBuilderBuildsFilterImageBuilderBuilds7F42F563": {
+   "Type": "AWS::SNS::Subscription",
+   "Properties": {
+    "Protocol": "lambda",
+    "TopicArn": {
+     "Ref": "runnersImageBuilderBuildsDF5A50E4"
+    },
+    "Endpoint": {
+     "Fn::GetAtt": [
+      "runnersImageBuilderBuildsFilterD708AA06",
+      "Arn"
+     ]
+    }
    }
   }
  },

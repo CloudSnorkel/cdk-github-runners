@@ -73,6 +73,9 @@
           "spawn": "bundle:lambdas/webhook-handler.lambda"
         },
         {
+          "spawn": "bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda"
+        },
+        {
           "exec": "cp -r src/providers/docker-images assets"
         },
         {
@@ -242,6 +245,24 @@
       "steps": [
         {
           "exec": "esbuild --bundle src/lambdas/webhook-handler.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/lambdas/webhook-handler.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda": {
+      "name": "bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda",
+      "description": "Create a JavaScript bundle from src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/providers/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda:watch": {
+      "name": "bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/providers/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
         }
       ]
     },

@@ -6,6 +6,7 @@ import {
   aws_iam as iam,
   aws_lambda as lambda,
   aws_logs as logs,
+  aws_sns as sns,
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
   RemovalPolicy,
@@ -16,6 +17,7 @@ import { DeleteRunnerFunction } from './lambdas/delete-runner-function';
 import { SetupFunction } from './lambdas/setup-function';
 import { StatusFunction } from './lambdas/status-function';
 import { TokenRetrieverFunction } from './lambdas/token-retriever-function';
+import { AwsImageBuilderFailedBuildNotifier, CodeBuildImageBuilderFailedBuildNotifier } from './providers';
 import { CodeBuildRunnerProvider } from './providers/codebuild';
 import { IRunnerProvider } from './providers/common';
 import { FargateRunnerProvider } from './providers/fargate';
@@ -613,5 +615,24 @@ export class GitHubRunners extends Construct {
    */
   public metricTime(props?: cloudwatch.MetricProps): cloudwatch.Metric {
     return this.orchestrator.metricTime(props);
+  }
+
+  /**
+   * Creates a topic for notifications when a runner image build fails.
+   *
+   * Runner images are rebuilt every week by default. This provides the latest GitHub Runner version and software updates.
+   *
+   * If you want to be sure you are using the latest runner version, you can use this topic to be notified when a build fails.
+   */
+  public failedImageBuildsTopic() {
+    const topic = new sns.Topic(this, 'Failed Runner Image Builds');
+    const stack = cdk.Stack.of(this);
+    cdk.Aspects.of(stack).add(new CodeBuildImageBuilderFailedBuildNotifier(topic));
+    cdk.Aspects.of(stack).add(
+      new AwsImageBuilderFailedBuildNotifier(
+        AwsImageBuilderFailedBuildNotifier.createFilteringTopic(this, topic),
+      ),
+    );
+    return topic;
   }
 }
