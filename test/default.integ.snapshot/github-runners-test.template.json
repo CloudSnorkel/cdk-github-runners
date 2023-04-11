@@ -2900,6 +2900,7 @@
     },
     "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
     "InstanceMetadataOptions": {
+     "HttpPutResponseHopLimit": 2,
      "HttpTokens": "required"
     },
     "InstanceTypes": [
@@ -3953,6 +3954,7 @@
     },
     "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
     "InstanceMetadataOptions": {
+     "HttpPutResponseHopLimit": 2,
      "HttpTokens": "required"
     },
     "InstanceTypes": [
@@ -6933,6 +6935,7 @@
     },
     "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
     "InstanceMetadataOptions": {
+     "HttpPutResponseHopLimit": 2,
      "HttpTokens": "required"
     },
     "InstanceTypes": [
@@ -7985,6 +7988,7 @@
     },
     "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
     "InstanceMetadataOptions": {
+     "HttpPutResponseHopLimit": 2,
      "HttpTokens": "required"
     },
     "InstanceTypes": [
