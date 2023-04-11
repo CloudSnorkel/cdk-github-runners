@@ -341,10 +341,6 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
 {{{ imagebuilder:environments }}}
 {{{ imagebuilder:components }}}`;
 
-    if (this.boundComponents.length == 0) {
-      this.boundComponents.push(...this.components.map((c, i) => c._asAwsImageBuilderComponent(this, `Component ${i}`, this.os, this.architecture)));
-    }
-
     for (const c of this.components) {
       const commands = c.getDockerCommands(this.os, this.architecture);
       if (commands.length > 0) {
@@ -354,7 +350,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
 
     const recipe = new ContainerRecipe(this, 'Container Recipe', {
       platform: this.platform(),
-      components: this.boundComponents,
+      components: this.bindComponents(),
       targetRepository: this.repository,
       dockerfileTemplate: dockerfileTemplate,
       parentImage: this.baseImage,

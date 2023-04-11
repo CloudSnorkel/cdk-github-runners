@@ -3006,17 +3006,17 @@
                   "version": "2.50.0"
                 }
               },
-              "Component 0": {
-                "id": "Component 0",
-                "path": "github-runners-test/Windows Image Builder/Component 0",
+              "Component 0 RequiredPackages": {
+                "id": "Component 0 RequiredPackages",
+                "path": "github-runners-test/Windows Image Builder/Component 0 RequiredPackages",
                 "children": {
                   "Version": {
                     "id": "Version",
-                    "path": "github-runners-test/Windows Image Builder/Component 0/Version",
+                    "path": "github-runners-test/Windows Image Builder/Component 0 RequiredPackages/Version",
                     "children": {
                       "Default": {
                         "id": "Default",
-                        "path": "github-runners-test/Windows Image Builder/Component 0/Version/Default",
+                        "path": "github-runners-test/Windows Image Builder/Component 0 RequiredPackages/Version/Default",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnResource",
                           "version": "2.50.0"
@@ -3030,17 +3030,17 @@
                   },
                   "Component": {
                     "id": "Component",
-                    "path": "github-runners-test/Windows Image Builder/Component 0/Component",
+                    "path": "github-runners-test/Windows Image Builder/Component 0 RequiredPackages/Component",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
                       "aws:cdk:cloudformation:props": {
-                        "name": "github-runners-test-WindowsImageBuilder-Component0-A5011FC5",
+                        "name": "github-runners-test-WindowsImageBuilder-Component0RequiredPackages-1A3E0E7C",
                         "platform": "Windows",
                         "version": {
-                          "Ref": "WindowsImageBuilderComponent0VersionE91A6DEE"
+                          "Ref": "WindowsImageBuilderComponent0RequiredPackagesVersion54CE1D67"
                         },
-                        "data": "{\"name\":\"Component 0\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn'\"]}}]}]}",
-                        "description": "Component 0"
+                        "data": "{\"name\":\"Component 0 RequiredPackages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn'\"]}}]}]}",
+                        "description": "Component 0 RequiredPackages"
                       }
                     },
                     "constructInfo": {
@@ -3054,17 +3054,17 @@
                   "version": "2.50.0"
                 }
               },
-              "Component 1": {
-                "id": "Component 1",
-                "path": "github-runners-test/Windows Image Builder/Component 1",
+              "Component 1 RunnerUser": {
+                "id": "Component 1 RunnerUser",
+                "path": "github-runners-test/Windows Image Builder/Component 1 RunnerUser",
                 "children": {
                   "Version": {
                     "id": "Version",
-                    "path": "github-runners-test/Windows Image Builder/Component 1/Version",
+                    "path": "github-runners-test/Windows Image Builder/Component 1 RunnerUser/Version",
                     "children": {
                       "Default": {
                         "id": "Default",
-                        "path": "github-runners-test/Windows Image Builder/Component 1/Version/Default",
+                        "path": "github-runners-test/Windows Image Builder/Component 1 RunnerUser/Version/Default",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnResource",
                           "version": "2.50.0"
@@ -3078,17 +3078,17 @@
                   },
                   "Component": {
                     "id": "Component",
-                    "path": "github-runners-test/Windows Image Builder/Component 1/Component",
+                    "path": "github-runners-test/Windows Image Builder/Component 1 RunnerUser/Component",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
                       "aws:cdk:cloudformation:props": {
-                        "name": "github-runners-test-WindowsImageBuilder-Component1-CE75CA6D",
+                        "name": "github-runners-test-WindowsImageBuilder-Component1RunnerUser-F040C0BA",
                         "platform": "Windows",
                         "version": {
-                          "Ref": "WindowsImageBuilderComponent1Version2EE9CF79"
+                          "Ref": "WindowsImageBuilderComponent1RunnerUserVersion9DEF18DE"
                         },
-                        "data": "{\"name\":\"Component 1\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]}]}]}",
-                        "description": "Component 1"
+                        "data": "{\"name\":\"Component 1 RunnerUser\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]}]}]}",
+                        "description": "Component 1 RunnerUser"
                       }
                     },
                     "constructInfo": {
@@ -3102,17 +3102,17 @@
                   "version": "2.50.0"
                 }
               },
-              "Component 2": {
-                "id": "Component 2",
-                "path": "github-runners-test/Windows Image Builder/Component 2",
+              "Component 2 Git": {
+                "id": "Component 2 Git",
+                "path": "github-runners-test/Windows Image Builder/Component 2 Git",
                 "children": {
                   "Version": {
                     "id": "Version",
-                    "path": "github-runners-test/Windows Image Builder/Component 2/Version",
+                    "path": "github-runners-test/Windows Image Builder/Component 2 Git/Version",
                     "children": {
                       "Default": {
                         "id": "Default",
-                        "path": "github-runners-test/Windows Image Builder/Component 2/Version/Default",
+                        "path": "github-runners-test/Windows Image Builder/Component 2 Git/Version/Default",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnResource",
                           "version": "2.50.0"
@@ -3126,17 +3126,17 @@
                   },
                   "Component": {
                     "id": "Component",
-                    "path": "github-runners-test/Windows Image Builder/Component 2/Component",
+                    "path": "github-runners-test/Windows Image Builder/Component 2 Git/Component",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
                       "aws:cdk:cloudformation:props": {
-                        "name": "github-runners-test-WindowsImageBuilder-Component2-CC45675C",
+                        "name": "github-runners-test-WindowsImageBuilder-Component2Git-316DB12E",
                         "platform": "Windows",
                         "version": {
-                          "Ref": "WindowsImageBuilderComponent2Version1E3B418C"
+                          "Ref": "WindowsImageBuilderComponent2GitVersion1AA56A2F"
                         },
-                        "data": "{\"name\":\"Component 2\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"$GIT_REVISION = ($GIT_VERSION -Split '.windows.')[1]\",\"If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = \\\"$GIT_VERSION_SHORT.$GIT_REVISION\\\"}\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'\",\"del git-setup.exe\"]}}]}]}",
-                        "description": "Component 2"
+                        "data": "{\"name\":\"Component 2 Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"$GIT_REVISION = ($GIT_VERSION -Split '.windows.')[1]\",\"If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = \\\"$GIT_VERSION_SHORT.$GIT_REVISION\\\"}\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'\",\"del git-setup.exe\"]}}]}]}",
+                        "description": "Component 2 Git"
                       }
                     },
                     "constructInfo": {
@@ -3150,17 +3150,17 @@
                   "version": "2.50.0"
                 }
               },
-              "Component 3": {
-                "id": "Component 3",
-                "path": "github-runners-test/Windows Image Builder/Component 3",
+              "Component 3 GithubCli": {
+                "id": "Component 3 GithubCli",
+                "path": "github-runners-test/Windows Image Builder/Component 3 GithubCli",
                 "children": {
                   "Version": {
                     "id": "Version",
-                    "path": "github-runners-test/Windows Image Builder/Component 3/Version",
+                    "path": "github-runners-test/Windows Image Builder/Component 3 GithubCli/Version",
                     "children": {
                       "Default": {
                         "id": "Default",
-                        "path": "github-runners-test/Windows Image Builder/Component 3/Version/Default",
+                        "path": "github-runners-test/Windows Image Builder/Component 3 GithubCli/Version/Default",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnResource",
                           "version": "2.50.0"
@@ -3174,17 +3174,17 @@
                   },
                   "Component": {
                     "id": "Component",
-                    "path": "github-runners-test/Windows Image Builder/Component 3/Component",
+                    "path": "github-runners-test/Windows Image Builder/Component 3 GithubCli/Component",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
                       "aws:cdk:cloudformation:props": {
-                        "name": "github-runners-test-WindowsImageBuilder-Component3-94EF5710",
+                        "name": "github-runners-test-WindowsImageBuilder-Component3GithubCli-8D855BAC",
                         "platform": "Windows",
                         "version": {
-                          "Ref": "WindowsImageBuilderComponent3Version715094B2"
+                          "Ref": "WindowsImageBuilderComponent3GithubCliVersionFE27093C"
                         },
-                        "data": "{\"name\":\"Component 3\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}",
-                        "description": "Component 3"
+                        "data": "{\"name\":\"Component 3 GithubCli\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}",
+                        "description": "Component 3 GithubCli"
                       }
                     },
                     "constructInfo": {
@@ -3198,17 +3198,17 @@
                   "version": "2.50.0"
                 }
               },
-              "Component 4": {
-                "id": "Component 4",
-                "path": "github-runners-test/Windows Image Builder/Component 4",
+              "Component 4 AwsCli": {
+                "id": "Component 4 AwsCli",
+                "path": "github-runners-test/Windows Image Builder/Component 4 AwsCli",
                 "children": {
                   "Version": {
                     "id": "Version",
-                    "path": "github-runners-test/Windows Image Builder/Component 4/Version",
+                    "path": "github-runners-test/Windows Image Builder/Component 4 AwsCli/Version",
                     "children": {
                       "Default": {
                         "id": "Default",
-                        "path": "github-runners-test/Windows Image Builder/Component 4/Version/Default",
+                        "path": "github-runners-test/Windows Image Builder/Component 4 AwsCli/Version/Default",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnResource",
                           "version": "2.50.0"
@@ -3222,17 +3222,17 @@
                   },
                   "Component": {
                     "id": "Component",
-                    "path": "github-runners-test/Windows Image Builder/Component 4/Component",
+                    "path": "github-runners-test/Windows Image Builder/Component 4 AwsCli/Component",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
                       "aws:cdk:cloudformation:props": {
-                        "name": "github-runners-test-WindowsImageBuilder-Component4-6C1B17DC",
+                        "name": "github-runners-test-WindowsImageBuilder-Component4AwsCli-1B2DBBE1",
                         "platform": "Windows",
                         "version": {
-                          "Ref": "WindowsImageBuilderComponent4Version369F5E8C"
+                          "Ref": "WindowsImageBuilderComponent4AwsCliVersion597B7A92"
                         },
-                        "data": "{\"name\":\"Component 4\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn'\"]}}]}]}",
-                        "description": "Component 4"
+                        "data": "{\"name\":\"Component 4 AwsCli\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn'\"]}}]}]}",
+                        "description": "Component 4 AwsCli"
                       }
                     },
                     "constructInfo": {
@@ -3246,17 +3246,17 @@
                   "version": "2.50.0"
                 }
               },
-              "Component 5": {
-                "id": "Component 5",
-                "path": "github-runners-test/Windows Image Builder/Component 5",
+              "Component 5 GithubRunner": {
+                "id": "Component 5 GithubRunner",
+                "path": "github-runners-test/Windows Image Builder/Component 5 GithubRunner",
                 "children": {
                   "Version": {
                     "id": "Version",
-                    "path": "github-runners-test/Windows Image Builder/Component 5/Version",
+                    "path": "github-runners-test/Windows Image Builder/Component 5 GithubRunner/Version",
                     "children": {
                       "Default": {
                         "id": "Default",
-                        "path": "github-runners-test/Windows Image Builder/Component 5/Version/Default",
+                        "path": "github-runners-test/Windows Image Builder/Component 5 GithubRunner/Version/Default",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnResource",
                           "version": "2.50.0"
@@ -3270,17 +3270,17 @@
                   },
                   "Component": {
                     "id": "Component",
-                    "path": "github-runners-test/Windows Image Builder/Component 5/Component",
+                    "path": "github-runners-test/Windows Image Builder/Component 5 GithubRunner/Component",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
                       "aws:cdk:cloudformation:props": {
-                        "name": "github-runners-test-WindowsImageBuilder-Component5-356CABF5",
+                        "name": "github-runners-test-WindowsImageBuilder-Component5GithubRunner-7AC775C5",
                         "platform": "Windows",
                         "version": {
-                          "Ref": "WindowsImageBuilderComponent5Version1B413E7D"
+                          "Ref": "WindowsImageBuilderComponent5GithubRunnerVersionDA209B9C"
                         },
-                        "data": "{\"name\":\"Component 5\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\",\"echo latest | Out-File -Encoding ASCII -NoNewline C:\\\\actions\\\\RUNNER_VERSION\"]}}]}]}",
-                        "description": "Component 5"
+                        "data": "{\"name\":\"Component 5 GithubRunner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\",\"echo latest | Out-File -Encoding ASCII -NoNewline C:\\\\actions\\\\RUNNER_VERSION\"]}}]}]}",
+                        "description": "Component 5 GithubRunner"
                       }
                     },
                     "constructInfo": {
@@ -3294,13 +3294,13 @@
                   "version": "2.50.0"
                 }
               },
-              "Component 6 asset 0": {
-                "id": "Component 6 asset 0",
-                "path": "github-runners-test/Windows Image Builder/Component 6 asset 0",
+              "Component 6 Custom-Undefined asset 0": {
+                "id": "Component 6 Custom-Undefined asset 0",
+                "path": "github-runners-test/Windows Image Builder/Component 6 Custom-Undefined asset 0",
                 "children": {
                   "Stage": {
                     "id": "Stage",
-                    "path": "github-runners-test/Windows Image Builder/Component 6 asset 0/Stage",
+                    "path": "github-runners-test/Windows Image Builder/Component 6 Custom-Undefined asset 0/Stage",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.AssetStaging",
                       "version": "2.50.0"
@@ -3308,7 +3308,7 @@
                   },
                   "AssetBucket": {
                     "id": "AssetBucket",
-                    "path": "github-runners-test/Windows Image Builder/Component 6 asset 0/AssetBucket",
+                    "path": "github-runners-test/Windows Image Builder/Component 6 Custom-Undefined asset 0/AssetBucket",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_s3.BucketBase",
                       "version": "2.50.0"
@@ -3320,17 +3320,17 @@
                   "version": "2.50.0"
                 }
               },
-              "Component 6": {
-                "id": "Component 6",
-                "path": "github-runners-test/Windows Image Builder/Component 6",
+              "Component 6 Custom-Undefined": {
+                "id": "Component 6 Custom-Undefined",
+                "path": "github-runners-test/Windows Image Builder/Component 6 Custom-Undefined",
                 "children": {
                   "Version": {
                     "id": "Version",
-                    "path": "github-runners-test/Windows Image Builder/Component 6/Version",
+                    "path": "github-runners-test/Windows Image Builder/Component 6 Custom-Undefined/Version",
                     "children": {
                       "Default": {
                         "id": "Default",
-                        "path": "github-runners-test/Windows Image Builder/Component 6/Version/Default",
+                        "path": "github-runners-test/Windows Image Builder/Component 6 Custom-Undefined/Version/Default",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnResource",
                           "version": "2.50.0"
@@ -3344,20 +3344,20 @@
                   },
                   "Component": {
                     "id": "Component",
-                    "path": "github-runners-test/Windows Image Builder/Component 6/Component",
+                    "path": "github-runners-test/Windows Image Builder/Component 6 Custom-Undefined/Component",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::ImageBuilder::Component",
                       "aws:cdk:cloudformation:props": {
-                        "name": "github-runners-test-WindowsImageBuilder-Component6-6E0F70D8",
+                        "name": "github-runners-test-WindowsImageBuilder-Component6Custom-Undefined-0A739BAE",
                         "platform": "Windows",
                         "version": {
-                          "Ref": "WindowsImageBuilderComponent6Version5FF30FC9"
+                          "Ref": "WindowsImageBuilderComponent6CustomUndefinedVersionB3367BF0"
                         },
                         "data": {
                           "Fn::Join": [
                             "",
                             [
-                              "{\"name\":\"Component 6\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[{\"source\":\"",
+                              "{\"name\":\"Component 6 Custom-Undefined\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[{\"source\":\"",
                               {
                                 "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
                               },
@@ -3365,7 +3365,7 @@
                             ]
                           ]
                         },
-                        "description": "Component 6"
+                        "description": "Component 6 Custom-Undefined"
                       }
                     },
                     "constructInfo": {
@@ -3411,7 +3411,7 @@
                           {
                             "componentArn": {
                               "Fn::GetAtt": [
-                                "WindowsImageBuilderComponent0Component1BAC2114",
+                                "WindowsImageBuilderComponent0RequiredPackagesComponent490D1D26",
                                 "Arn"
                               ]
                             }
@@ -3419,7 +3419,7 @@
                           {
                             "componentArn": {
                               "Fn::GetAtt": [
-                                "WindowsImageBuilderComponent1Component69BC8752",
+                                "WindowsImageBuilderComponent1RunnerUserComponentCB0163EE",
                                 "Arn"
                               ]
                             }
@@ -3427,7 +3427,7 @@
                           {
                             "componentArn": {
                               "Fn::GetAtt": [
-                                "WindowsImageBuilderComponent2ComponentC3C8B164",
+                                "WindowsImageBuilderComponent2GitComponentD5E90F74",
                                 "Arn"
                               ]
                             }
@@ -3435,7 +3435,7 @@
                           {
                             "componentArn": {
                               "Fn::GetAtt": [
-                                "WindowsImageBuilderComponent3Component0F5BE877",
+                                "WindowsImageBuilderComponent3GithubCliComponent3D6C7BCE",
                                 "Arn"
                               ]
                             }
@@ -3443,7 +3443,7 @@
                           {
                             "componentArn": {
                               "Fn::GetAtt": [
-                                "WindowsImageBuilderComponent4Component9A9E3E83",
+                                "WindowsImageBuilderComponent4AwsCliComponentE42A66BF",
                                 "Arn"
                               ]
                             }
@@ -3451,7 +3451,7 @@
                           {
                             "componentArn": {
                               "Fn::GetAtt": [
-                                "WindowsImageBuilderComponent5ComponentAA1F708B",
+                                "WindowsImageBuilderComponent5GithubRunnerComponent34C12ED4",
                                 "Arn"
                               ]
                             }
@@ -3459,7 +3459,7 @@
                           {
                             "componentArn": {
                               "Fn::GetAtt": [
-                                "WindowsImageBuilderComponent6Component161DD9F3",
+                                "WindowsImageBuilderComponent6CustomUndefinedComponentC1AEB345",
                                 "Arn"
                               ]
                             }

@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9fa2827020b9ee33e0fd0cf3d0a32f02dd9410d6ded99e56a3ece8594ba49ecb.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9c0a45e0ef8b2912f4dd15c456ecba5f59c5820aeb8df601ab86623734525d13.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -394,88 +394,88 @@
             "data": "WindowsImageBuilderDockerDistributionCDE69DC2"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 0/Version/Default": [
+        "/github-runners-test/Windows Image Builder/Component 0 RequiredPackages/Version/Default": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent0VersionE91A6DEE"
+            "data": "WindowsImageBuilderComponent0RequiredPackagesVersion54CE1D67"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 0/Component": [
+        "/github-runners-test/Windows Image Builder/Component 0 RequiredPackages/Component": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent0Component1BAC2114"
+            "data": "WindowsImageBuilderComponent0RequiredPackagesComponent490D1D26"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 1/Version/Default": [
+        "/github-runners-test/Windows Image Builder/Component 1 RunnerUser/Version/Default": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent1Version2EE9CF79"
+            "data": "WindowsImageBuilderComponent1RunnerUserVersion9DEF18DE"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 1/Component": [
+        "/github-runners-test/Windows Image Builder/Component 1 RunnerUser/Component": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent1Component69BC8752"
+            "data": "WindowsImageBuilderComponent1RunnerUserComponentCB0163EE"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 2/Version/Default": [
+        "/github-runners-test/Windows Image Builder/Component 2 Git/Version/Default": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent2Version1E3B418C"
+            "data": "WindowsImageBuilderComponent2GitVersion1AA56A2F"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 2/Component": [
+        "/github-runners-test/Windows Image Builder/Component 2 Git/Component": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent2ComponentC3C8B164"
+            "data": "WindowsImageBuilderComponent2GitComponentD5E90F74"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 3/Version/Default": [
+        "/github-runners-test/Windows Image Builder/Component 3 GithubCli/Version/Default": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent3Version715094B2"
+            "data": "WindowsImageBuilderComponent3GithubCliVersionFE27093C"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 3/Component": [
+        "/github-runners-test/Windows Image Builder/Component 3 GithubCli/Component": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent3Component0F5BE877"
+            "data": "WindowsImageBuilderComponent3GithubCliComponent3D6C7BCE"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 4/Version/Default": [
+        "/github-runners-test/Windows Image Builder/Component 4 AwsCli/Version/Default": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent4Version369F5E8C"
+            "data": "WindowsImageBuilderComponent4AwsCliVersion597B7A92"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 4/Component": [
+        "/github-runners-test/Windows Image Builder/Component 4 AwsCli/Component": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent4Component9A9E3E83"
+            "data": "WindowsImageBuilderComponent4AwsCliComponentE42A66BF"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 5/Version/Default": [
+        "/github-runners-test/Windows Image Builder/Component 5 GithubRunner/Version/Default": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent5Version1B413E7D"
+            "data": "WindowsImageBuilderComponent5GithubRunnerVersionDA209B9C"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 5/Component": [
+        "/github-runners-test/Windows Image Builder/Component 5 GithubRunner/Component": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent5ComponentAA1F708B"
+            "data": "WindowsImageBuilderComponent5GithubRunnerComponent34C12ED4"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 6/Version/Default": [
+        "/github-runners-test/Windows Image Builder/Component 6 Custom-Undefined/Version/Default": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent6Version5FF30FC9"
+            "data": "WindowsImageBuilderComponent6CustomUndefinedVersionB3367BF0"
           }
         ],
-        "/github-runners-test/Windows Image Builder/Component 6/Component": [
+        "/github-runners-test/Windows Image Builder/Component 6 Custom-Undefined/Component": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WindowsImageBuilderComponent6Component161DD9F3"
+            "data": "WindowsImageBuilderComponent6CustomUndefinedComponentC1AEB345"
           }
         ],
         "/github-runners-test/Windows Image Builder/Container Recipe/Version/Default": [
