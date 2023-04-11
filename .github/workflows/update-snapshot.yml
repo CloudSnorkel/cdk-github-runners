@@ -1,4 +1,4 @@
-name: update snapshot
+name: update-snapshot
 
 on:
   workflow_run:
@@ -9,15 +9,19 @@ on:
 jobs:
   on-failure:
     runs-on: ubuntu-latest
-    container:
-      image: jsii/superchain:1-buster-slim-node14
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    env:
+      CI: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           ref: main
           fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
       - name: Snapshot main
