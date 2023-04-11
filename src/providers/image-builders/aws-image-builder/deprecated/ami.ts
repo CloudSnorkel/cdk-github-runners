@@ -138,7 +138,6 @@ export interface AmiBuilderProps {
  *   displayName: 'p7zip',
  *   description: 'Install some more packages',
  *   commands: [
- *     'set -ex',
  *     'apt-get install p7zip',
  *   ],
  * }));

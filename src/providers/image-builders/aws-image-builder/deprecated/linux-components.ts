@@ -24,7 +24,6 @@ export class LinuxUbuntuComponents {
       displayName: 'Required packages',
       description: 'Install packages required for GitHub Runner and upgrade all packages',
       commands: [
-        'set -ex',
         'apt-get update',
         'DEBIAN_FRONTEND=noninteractive apt-get upgrade -y',
         'DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates',
@@ -41,7 +40,6 @@ export class LinuxUbuntuComponents {
       displayName: 'GitHub Runner user',
       description: 'Install latest version of AWS CLI',
       commands: [
-        'set -ex',
         'addgroup runner',
         'adduser --system --disabled-password --home /home/runner --ingroup runner runner',
         'usermod -aG sudo runner',
@@ -65,7 +63,6 @@ export class LinuxUbuntuComponents {
       displayName: 'AWS CLI',
       description: 'Install latest version of AWS CLI',
       commands: [
-        'set -ex',
         `curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${archUrl}.zip" -o awscliv2.zip`,
         'unzip -q awscliv2.zip',
         './aws/install',
@@ -80,7 +77,6 @@ export class LinuxUbuntuComponents {
       displayName: 'GitHub CLI',
       description: 'Install latest version of gh',
       commands: [
-        'set -ex',
         'curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg',
         'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] ' +
         '  https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null',
@@ -96,7 +92,6 @@ export class LinuxUbuntuComponents {
       displayName: 'Git',
       description: 'Install latest version of git',
       commands: [
-        'set -ex',
         'add-apt-repository ppa:git-core/ppa',
         'apt-get update',
         'DEBIAN_FRONTEND=noninteractive apt-get install -y git',
@@ -126,7 +121,6 @@ export class LinuxUbuntuComponents {
       displayName: 'GitHub Actions Runner',
       description: 'Install latest version of GitHub Actions Runner',
       commands: [
-        'set -ex',
         versionCommand,
         `curl -fsSLO "https://github.com/actions/runner/releases/download/v\${RUNNER_VERSION}/actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
         `tar xzf "actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
@@ -143,7 +137,6 @@ export class LinuxUbuntuComponents {
       displayName: 'Docker',
       description: 'Install latest version of Docker',
       commands: [
-        'set -ex',
         'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg',
         'echo ' +
         '  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ' +
@@ -162,7 +155,6 @@ export class LinuxUbuntuComponents {
       displayName: 'Extra certificates',
       description: 'Install self-signed certificates to provide access to GitHub Enterprise Server',
       commands: [
-        'set -ex',
         'cp certs/certs.pem /usr/local/share/ca-certificates/github-enterprise-server.crt',
         'update-ca-certificates',
       ],
