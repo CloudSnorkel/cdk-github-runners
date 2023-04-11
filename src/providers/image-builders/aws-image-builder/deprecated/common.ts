@@ -112,6 +112,8 @@ export abstract class ImageBuilderBase extends Construct implements IRunnerImage
       instanceTypes: [this.instanceType.toString()],
       instanceMetadataOptions: {
         httpTokens: 'required',
+        // Container builds require a minimum of two hops.
+        httpPutResponseHopLimit: 2,
       },
       instanceProfileName: new iam.CfnInstanceProfile(this, 'Instance Profile', {
         roles: [
