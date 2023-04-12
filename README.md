@@ -21,6 +21,7 @@ Self-hosted runners in AWS are useful when:
 * You need easy access to internal resources in your actions
 * You want to pre-install some software for your actions
 * You want to provide some basic AWS API access (but [aws-actions/configure-aws-credentials][2] has more security controls)
+* You are using GitHub Enterprise Server
 
 Ephemeral (or on-demand) runners are the [recommended way by GitHub][14] for auto-scaling, and they make sure all jobs run with a clean image. Runners are started on-demand. You don't pay unless a job is running.
 
@@ -212,7 +213,7 @@ new GitHubRunners(this, 'runners', {
 1. Always start with the status function, make sure no errors are reported, and confirm all status codes are OK
 2. If jobs are stuck on pending:
    1. Make sure `runs-on` in the workflow matches the expected labels set in the runner provider
-   2. If it happens every time, cancel the job and start it again
+   2. If jobs get stuck often and take a long time to start, cancel the pending jobs and start them again
 4. Confirm the webhook Lambda was called by visiting the URL in `troubleshooting.webhookHandlerUrl` from `status.json`
    1. If it's not called or logs errors, confirm the webhook settings on the GitHub side
    2. If you see too many errors, make sure you're only sending `workflow_job` events
@@ -220,6 +221,18 @@ new GitHubRunners(this, 'runners', {
 6. Check execution details of the orchestrator step function by visiting the URL in `troubleshooting.stepFunctionUrl` from `status.json`
    1. Use the details tab to find the specific execution of the provider (Lambda, CodeBuild, Fargate, etc.)
    2. Every step function execution should be successful, even if the runner action inside it failed
+
+## Monitoring
+
+There are two important ways to monitor your runners:
+
+1. Make sure runners don't fail to start. When that happens, jobs may sit and wait. Use `GitHubRunners.metricFailed()` to get a metric for the number of failed runner starts. You should use this metric to trigger an alarm.
+2. Make sure runner images don't fail to build. Failed runner image builds mean you will get stuck with out-of-date software on your runners. It may lead to security vulnerabilities, or it may lead to slower runner start-ups as the runner software itself needs to be updated. Use `GitHubRunners.failedImageBuildsTopic()` to get SNS topic that gets notified of failed runner image builds. You should subscribe to this topic.
+
+Other useful metrics to track:
+
+1. Use `GitHubRunners.metricJobCompleted()` to get a metric for the number of completed jobs broken down by labels and job success.
+2. Use `GitHubRunners.metricTime()` to get a metric for the total time a runner is running. This includes the overhead of starting the runner.
 
 ## Other Options
 
