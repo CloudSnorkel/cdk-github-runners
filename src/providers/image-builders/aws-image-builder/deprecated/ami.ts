@@ -291,7 +291,7 @@ export class AmiBuilder extends ImageBuilderBase {
       platform: this.platform,
       components: this.components,
       architecture: this.architecture,
-      baseAmi: defaultBaseAmi(this.os, this.architecture).getImage(this).imageId,
+      baseAmi: defaultBaseAmi(this, this.os, this.architecture),
     });
 
     const log = this.createLog(recipe.name);

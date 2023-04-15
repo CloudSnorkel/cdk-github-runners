@@ -3039,7 +3039,7 @@
                         "version": {
                           "Ref": "WindowsImageBuilderComponent0RequiredPackagesVersion54CE1D67"
                         },
-                        "data": "{\"name\":\"Component 0 RequiredPackages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn'\"]}}]}]}",
+                        "data": "{\"name\":\"Component 0 RequiredPackages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn'\"]}}]}]}",
                         "description": "Component 0 RequiredPackages"
                       }
                     },
@@ -3135,7 +3135,7 @@
                         "version": {
                           "Ref": "WindowsImageBuilderComponent2GitVersion1AA56A2F"
                         },
-                        "data": "{\"name\":\"Component 2 Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"$GIT_REVISION = ($GIT_VERSION -Split '.windows.')[1]\",\"If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = \\\"$GIT_VERSION_SHORT.$GIT_REVISION\\\"}\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'\",\"del git-setup.exe\"]}}]}]}",
+                        "data": "{\"name\":\"Component 2 Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"$GIT_REVISION = ($GIT_VERSION -Split '.windows.')[1]\",\"If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = \\\"$GIT_VERSION_SHORT.$GIT_REVISION\\\"}\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'\",\"del git-setup.exe\"]}}]}]}",
                         "description": "Component 2 Git"
                       }
                     },
@@ -3183,7 +3183,7 @@
                         "version": {
                           "Ref": "WindowsImageBuilderComponent3GithubCliVersionFE27093C"
                         },
-                        "data": "{\"name\":\"Component 3 GithubCli\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}",
+                        "data": "{\"name\":\"Component 3 GithubCli\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}",
                         "description": "Component 3 GithubCli"
                       }
                     },
@@ -3231,7 +3231,7 @@
                         "version": {
                           "Ref": "WindowsImageBuilderComponent4AwsCliVersion597B7A92"
                         },
-                        "data": "{\"name\":\"Component 4 AwsCli\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn'\"]}}]}]}",
+                        "data": "{\"name\":\"Component 4 AwsCli\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn'\"]}}]}]}",
                         "description": "Component 4 AwsCli"
                       }
                     },
@@ -3279,7 +3279,7 @@
                         "version": {
                           "Ref": "WindowsImageBuilderComponent5GithubRunnerVersionDA209B9C"
                         },
-                        "data": "{\"name\":\"Component 5 GithubRunner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\",\"echo latest | Out-File -Encoding ASCII -NoNewline C:\\\\actions\\\\RUNNER_VERSION\"]}}]}]}",
+                        "data": "{\"name\":\"Component 5 GithubRunner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\",\"echo latest | Out-File -Encoding ASCII -NoNewline C:\\\\actions\\\\RUNNER_VERSION\"]}}]}]}",
                         "description": "Component 5 GithubRunner"
                       }
                     },
@@ -3361,7 +3361,7 @@
                               {
                                 "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
                               },
-                              "\",\"destination\":\"FUNDING.yml\"}]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"New-Item -ItemType file -Path / -Name custom-file\",\"New-Item -ItemType directory -Path / -Name custom-dir\",\"Move-Item FUNDING.yml /custom-dir\"]}}]}]}"
+                              "\",\"destination\":\"FUNDING.yml\"}]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"New-Item -ItemType file -Path / -Name custom-file\",\"New-Item -ItemType directory -Path / -Name custom-dir\",\"Move-Item FUNDING.yml /custom-dir\"]}}]}]}"
                             ]
                           ]
                         },
@@ -3731,22 +3731,6 @@
             "constructInfo": {
               "fqn": "constructs.Construct",
               "version": "10.0.5"
-            }
-          },
-          "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
-            "id": "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.CfnParameter",
-              "version": "2.50.0"
-            }
-          },
-          "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118": {
-            "id": "SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--ami-windows-latest--Windows_Server-2022-English-Full-ContainersLatest:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.Resource",
-              "version": "2.50.0"
             }
           },
           "AMI Linux Builder": {
@@ -4575,7 +4559,24 @@
                         ],
                         "name": "github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
                         "parentImage": {
-                          "Ref": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentamd64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              ":imagebuilder:",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              ":",
+                              {
+                                "Ref": "AWS::AccountId"
+                              },
+                              ":image/ubuntu-server-22-lts-x86"
+                            ]
+                          ]
                         },
                         "version": {
                           "Ref": "AMILinuxBuilderAmiRecipeVersionFBE9C9AE"
@@ -4846,22 +4847,6 @@
             "constructInfo": {
               "fqn": "constructs.Construct",
               "version": "10.0.5"
-            }
-          },
-          "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
-            "id": "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.CfnParameter",
-              "version": "2.50.0"
-            }
-          },
-          "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118": {
-            "id": "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--amd64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.Resource",
-              "version": "2.50.0"
             }
           },
           "CodeBuild Image Builder": {
@@ -8082,7 +8067,24 @@
                         ],
                         "name": "github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
                         "parentImage": {
-                          "Ref": "SsmParameterValueawsservicecanonicalubuntuserverfocalstablecurrentarm64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter"
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              ":imagebuilder:",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              ":",
+                              {
+                                "Ref": "AWS::AccountId"
+                              },
+                              ":image/ubuntu-server-22-lts-arm64"
+                            ]
+                          ]
                         },
                         "version": {
                           "Ref": "AMILinuxarm64BuilderAmiRecipeVersion429E7646"
@@ -8353,22 +8355,6 @@
             "constructInfo": {
               "fqn": "constructs.Construct",
               "version": "10.0.5"
-            }
-          },
-          "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": {
-            "id": "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.CfnParameter",
-              "version": "2.50.0"
-            }
-          },
-          "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118": {
-            "id": "SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "path": "github-runners-test/SsmParameterValue:--aws--service--canonical--ubuntu--server--focal--stable--current--arm64--hvm--ebs-gp2--ami-id:C96584B6-F00A-464E-AD19-53AFF4B05118",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.Resource",
-              "version": "2.50.0"
             }
           },
           "Windows EC2 Builder": {
@@ -8713,7 +8699,7 @@
                         "version": {
                           "Ref": "WindowsEC2BuilderComponent0RequiredPackagesVersion08C0B23D"
                         },
-                        "data": "{\"name\":\"Component 0 RequiredPackages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn'\"]}}]}]}",
+                        "data": "{\"name\":\"Component 0 RequiredPackages\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn'\"]}}]}]}",
                         "description": "Component 0 RequiredPackages"
                       }
                     },
@@ -8809,7 +8795,7 @@
                         "version": {
                           "Ref": "WindowsEC2BuilderComponent2GitVersion6AACF128"
                         },
-                        "data": "{\"name\":\"Component 2 Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"$GIT_REVISION = ($GIT_VERSION -Split '.windows.')[1]\",\"If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = \\\"$GIT_VERSION_SHORT.$GIT_REVISION\\\"}\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'\",\"del git-setup.exe\"]}}]}]}",
+                        "data": "{\"name\":\"Component 2 Git\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"$GIT_REVISION = ($GIT_VERSION -Split '.windows.')[1]\",\"If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = \\\"$GIT_VERSION_SHORT.$GIT_REVISION\\\"}\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"Start-Process git-setup.exe -Wait -ArgumentList '/VERYSILENT'\",\"del git-setup.exe\"]}}]}]}",
                         "description": "Component 2 Git"
                       }
                     },
@@ -8857,7 +8843,7 @@
                         "version": {
                           "Ref": "WindowsEC2BuilderComponent3GithubCliVersion1BB3282E"
                         },
-                        "data": "{\"name\":\"Component 3 GithubCli\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}",
+                        "data": "{\"name\":\"Component 3 GithubCli\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /qn'\",\"del gh.msi\"]}}]}]}",
                         "description": "Component 3 GithubCli"
                       }
                     },
@@ -8905,7 +8891,7 @@
                         "version": {
                           "Ref": "WindowsEC2BuilderComponent4AwsCliVersion235F6DDE"
                         },
-                        "data": "{\"name\":\"Component 4 AwsCli\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn'\"]}}]}]}",
+                        "data": "{\"name\":\"Component 4 AwsCli\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"Start-Process msiexec.exe -Wait -ArgumentList '/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn'\"]}}]}]}",
                         "description": "Component 4 AwsCli"
                       }
                     },
@@ -8953,7 +8939,7 @@
                         "version": {
                           "Ref": "WindowsEC2BuilderComponent5DockerVersion40844B58"
                         },
-                        "data": "{\"name\":\"Component 5 Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe -OutFile docker-setup.exe\",\"Start-Process 'docker-setup.exe' -Wait -ArgumentList '/install --quiet --accept-license'\",\"del docker-setup.exe\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\\\latest-docker-compose\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-docker-compose\",\"$LatestDockerCompose = ($LatestUrl -Split '/')[-1]\",\"Invoke-WebRequest -UseBasicParsing -Uri  \\\"https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe\\\" -OutFile $Env:ProgramFiles\\\\Docker\\\\docker-compose.exe\",\"copy $Env:ProgramFiles\\\\Docker\\\\docker-compose.exe $Env:ProgramFiles\\\\Docker\\\\cli-plugins\\\\docker-compose.exe\"]}}]}]}",
+                        "data": "{\"name\":\"Component 5 Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe -OutFile docker-setup.exe\",\"Start-Process \\\"docker-setup.exe\\\" -Wait -ArgumentList \\\"install --quiet --accept-license\\\"\",\"del docker-setup.exe\",\"if (-Not(Test-Path -Path \\\"$Env:ProgramFiles\\\\Docker\\\")) { echo \\\"Docker installation failed\\\" ; exit 1 }\"]}}]}]}",
                         "description": "Component 5 Docker"
                       }
                     },
@@ -9001,7 +8987,7 @@
                         "version": {
                           "Ref": "WindowsEC2BuilderComponent6GithubRunnerVersion068CC361"
                         },
-                        "data": "{\"name\":\"Component 6 GithubRunner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\",\"echo latest | Out-File -Encoding ASCII -NoNewline C:\\\\actions\\\\RUNNER_VERSION\"]}}]}]}",
+                        "data": "{\"name\":\"Component 6 GithubRunner\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\",\"echo latest | Out-File -Encoding ASCII -NoNewline C:\\\\actions\\\\RUNNER_VERSION\"]}}]}]}",
                         "description": "Component 6 GithubRunner"
                       }
                     },
@@ -9083,7 +9069,7 @@
                               {
                                 "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
                               },
-                              "\",\"destination\":\"FUNDING.yml\"}]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"New-Item -ItemType file -Path / -Name custom-file\",\"New-Item -ItemType directory -Path / -Name custom-dir\",\"Move-Item FUNDING.yml /custom-dir\"]}}]}]}"
+                              "\",\"destination\":\"FUNDING.yml\"}]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"New-Item -ItemType file -Path / -Name custom-file\",\"New-Item -ItemType directory -Path / -Name custom-dir\",\"Move-Item FUNDING.yml /custom-dir\"]}}]}]}"
                             ]
                           ]
                         },
@@ -9197,7 +9183,24 @@
                         ],
                         "name": "github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
                         "parentImage": {
-                          "Ref": "SsmParameterValueawsserviceamiwindowslatestWindowsServer2022EnglishFullContainersLatestC96584B6F00A464EAD1953AFF4B05118Parameter"
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              ":imagebuilder:",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              ":",
+                              {
+                                "Ref": "AWS::AccountId"
+                              },
+                              ":image/windows-server-2022-english-full-base-x86"
+                            ]
+                          ]
                         },
                         "version": {
                           "Ref": "WindowsEC2BuilderAmiRecipeVersionEE5C2F0C"

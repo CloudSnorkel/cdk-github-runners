@@ -221,6 +221,7 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
       return [
         '$ErrorActionPreference = \'Stop\'',
         '$ProgressPreference = \'SilentlyContinue\'',
+        'Set-PSDebug -Trace 1',
       ].concat(commands);
     } else {
       return [
@@ -268,7 +269,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.securityGroups = props?.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })];
     this.subnetSelection = props?.subnetSelection;
     this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
-    this.baseAmi = props?.baseAmi ?? defaultBaseAmi(this.os, this.architecture).getImage(this).imageId;
+    this.baseAmi = props?.baseAmi ?? defaultBaseAmi(this, this.os, this.architecture);
     this.instanceType = props?.awsImageBuilderOptions?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
 
     // confirm instance type
