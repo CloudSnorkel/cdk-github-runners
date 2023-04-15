@@ -98,7 +98,7 @@ export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architect
     return stack.formatArn({
       service: 'imagebuilder',
       resource: 'image',
-      resourceName: `ubuntu-server-22-lts-${arch}`,
+      resourceName: `ubuntu-server-22-lts-${arch}/x.x.x`,
     });
   }
 
@@ -106,7 +106,7 @@ export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architect
     return stack.formatArn({
       service: 'imagebuilder',
       resource: 'image',
-      resourceName: `amazon-linux-2-${arch}`,
+      resourceName: `amazon-linux-2-${arch}/x.x.x`,
     });
   }
 
@@ -114,7 +114,7 @@ export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architect
     return stack.formatArn({
       service: 'imagebuilder',
       resource: 'image',
-      resourceName: `windows-server-2022-english-full-base-${arch}`,
+      resourceName: `windows-server-2022-english-full-base-${arch}/x.x.x`,
     });
   }
 

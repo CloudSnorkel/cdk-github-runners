@@ -3862,7 +3862,7 @@
         {
          "Ref": "AWS::AccountId"
         },
-        ":image/ubuntu-server-22-lts-x86"
+        ":image/ubuntu-server-22-lts-x86/x.x.x"
        ]
       ]
      }
@@ -3957,7 +3957,7 @@
        {
         "Ref": "AWS::AccountId"
        },
-       ":image/ubuntu-server-22-lts-x86"
+       ":image/ubuntu-server-22-lts-x86/x.x.x"
       ]
      ]
     },
@@ -6877,7 +6877,7 @@
         {
          "Ref": "AWS::AccountId"
         },
-        ":image/ubuntu-server-22-lts-arm64"
+        ":image/ubuntu-server-22-lts-arm64/x.x.x"
        ]
       ]
      }
@@ -6972,7 +6972,7 @@
        {
         "Ref": "AWS::AccountId"
        },
-       ":image/ubuntu-server-22-lts-arm64"
+       ":image/ubuntu-server-22-lts-arm64/x.x.x"
       ]
      ]
     },
@@ -7967,7 +7967,7 @@
         {
          "Ref": "AWS::AccountId"
         },
-        ":image/windows-server-2022-english-full-base-x86"
+        ":image/windows-server-2022-english-full-base-x86/x.x.x"
        ]
       ]
      }
@@ -8062,7 +8062,7 @@
        {
         "Ref": "AWS::AccountId"
        },
-       ":image/windows-server-2022-english-full-base-x86"
+       ":image/windows-server-2022-english-full-base-x86/x.x.x"
       ]
      ]
     },
