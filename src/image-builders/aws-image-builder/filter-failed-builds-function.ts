@@ -10,16 +10,16 @@ export interface FilterFailedBuildsFunctionProps extends lambda.FunctionOptions 
 }
 
 /**
- * An AWS Lambda function which executes src/providers/image-builders/aws-image-builder/filter-failed-builds.
+ * An AWS Lambda function which executes src/image-builders/aws-image-builder/filter-failed-builds.
  */
 export class FilterFailedBuildsFunction extends lambda.Function {
   constructor(scope: Construct, id: string, props?: FilterFailedBuildsFunctionProps) {
     super(scope, id, {
-      description: 'src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts',
+      description: 'src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts',
       ...props,
       runtime: new lambda.Runtime('nodejs16.x', lambda.RuntimeFamily.NODEJS),
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../../../assets/providers/image-builders/aws-image-builder/filter-failed-builds.lambda')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../../assets/image-builders/aws-image-builder/filter-failed-builds.lambda')),
     });
     this.addEnvironment('AWS_NODEJS_CONNECTION_REUSE_ENABLED', '1', { removeInEdge: true });
   }

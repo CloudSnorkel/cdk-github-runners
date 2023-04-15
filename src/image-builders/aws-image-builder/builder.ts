@@ -24,9 +24,9 @@ import { ImageBuilderObjectBase } from './common';
 import { ContainerRecipe, defaultBaseDockerImage } from './container';
 import { DeleteAmiFunction } from './delete-ami-function';
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
-import { singletonLambda } from '../../../utils';
-import { BuildImageFunction } from '../../build-image-function';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../common';
+import { BuildImageFunction } from '../../providers/build-image-function';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers/common';
+import { singletonLambda } from '../../utils';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps, uniqueImageBuilderName } from '../common';
 
 export interface AwsImageBuilderRunnerImageBuilderProps {

@@ -26,7 +26,7 @@ import {
   RunnerVersion,
 } from './common';
 import { ecsRunCommand } from './fargate';
-import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from './image-builders';
+import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 
 /**
  * Properties for EcsRunnerProvider.

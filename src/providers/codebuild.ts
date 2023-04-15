@@ -24,7 +24,7 @@ import {
   RunnerRuntimeParameters,
   RunnerVersion,
 } from './common';
-import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from './image-builders';
+import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 
 
 export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {

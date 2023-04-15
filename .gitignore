@@ -56,10 +56,10 @@ tsconfig.json
 !/API.md
 /assets/
 !/src/delete-runner-function.ts
+!/src/image-builders/aws-image-builder/delete-ami-function.ts
+!/src/image-builders/aws-image-builder/filter-failed-builds-function.ts
+!/src/image-builders/aws-image-builder/versioner-function.ts
 !/src/providers/build-image-function.ts
-!/src/providers/image-builders/aws-image-builder/delete-ami-function.ts
-!/src/providers/image-builders/aws-image-builder/filter-failed-builds-function.ts
-!/src/providers/image-builders/aws-image-builder/versioner-function.ts
 !/src/providers/update-lambda-function.ts
 !/src/setup-function.ts
 !/src/status-function.ts
