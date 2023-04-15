@@ -24,8 +24,8 @@ import {
   RunnerRuntimeParameters,
   RunnerVersion,
 } from './common';
-import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 import { UpdateLambdaFunction } from './update-lambda-function';
+import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 import { singletonLambda } from '../utils';
 
 export interface LambdaRunnerProviderProps extends RunnerProviderProps {

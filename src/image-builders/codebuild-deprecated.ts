@@ -19,9 +19,9 @@ import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import { IRunnerImageBuilder } from './common';
-import { singletonLambda } from '../utils';
 import { BuildImageFunction } from '../providers/build-image-function';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers/common';
+import { singletonLambda } from '../utils';
 
 /*
 AWS Image Builder was not used because:
