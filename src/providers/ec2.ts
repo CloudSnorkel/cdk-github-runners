@@ -23,7 +23,7 @@ import {
   RunnerRuntimeParameters,
   RunnerVersion,
 } from './common';
-import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageBuilderType, RunnerImageComponent } from './image-builders';
+import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageBuilderType, RunnerImageComponent } from '../image-builders';
 
 // this script is specifically made so `poweroff` is absolutely always called
 // each `{}` is a variable coming from `params` below

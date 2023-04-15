@@ -20,9 +20,9 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
 import { defaultBaseDockerImage } from './aws-image-builder';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
-import { singletonLambda } from '../../utils';
-import { BuildImageFunction } from '../build-image-function';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../common';
+import { singletonLambda } from '../utils';
+import { BuildImageFunction } from '../providers/build-image-function';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers/common';
 
 
 export interface CodeBuildRunnerImageBuilderProps {

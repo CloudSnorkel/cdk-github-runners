@@ -4,4 +4,4 @@ export * from './codebuild';
 export * from './lambda';
 export * from './fargate';
 export * from './common';
-export * from './image-builders';
+export * from '../image-builders';

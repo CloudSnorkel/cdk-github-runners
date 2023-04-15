@@ -10,16 +10,16 @@ export interface VersionerFunctionProps extends lambda.FunctionOptions {
 }
 
 /**
- * An AWS Lambda function which executes src/providers/image-builders/aws-image-builder/versioner.
+ * An AWS Lambda function which executes src/image-builders/aws-image-builder/versioner.
  */
 export class VersionerFunction extends lambda.Function {
   constructor(scope: Construct, id: string, props?: VersionerFunctionProps) {
     super(scope, id, {
-      description: 'src/providers/image-builders/aws-image-builder/versioner.lambda.ts',
+      description: 'src/image-builders/aws-image-builder/versioner.lambda.ts',
       ...props,
       runtime: new lambda.Runtime('nodejs16.x', lambda.RuntimeFamily.NODEJS),
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../../../assets/providers/image-builders/aws-image-builder/versioner.lambda')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../../assets/image-builders/aws-image-builder/versioner.lambda')),
     });
     this.addEnvironment('AWS_NODEJS_CONNECTION_REUSE_ENABLED', '1', { removeInEdge: true });
   }

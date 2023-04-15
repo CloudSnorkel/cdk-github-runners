@@ -1,6 +1,6 @@
 import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { RunnerVersion } from '../../../common';
+import { RunnerVersion } from '../../../providers/common';
 import { ImageBuilderComponent } from '../builder';
 
 /**

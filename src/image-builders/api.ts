@@ -3,7 +3,7 @@ import { Construct } from 'constructs';
 import { AwsImageBuilderRunnerImageBuilder } from './aws-image-builder';
 import { CodeBuildRunnerImageBuilder } from './codebuild';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps, RunnerImageBuilderType } from './common';
-import { Os } from '../common';
+import { Os } from '../providers/common';
 
 /**
  * GitHub Runner image builder. Builds a Docker image or AMI with GitHub Runner and other requirements installed.

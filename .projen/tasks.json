@@ -49,16 +49,16 @@
           "spawn": "bundle:delete-runner.lambda"
         },
         {
+          "spawn": "bundle:image-builders/aws-image-builder/delete-ami.lambda"
+        },
+        {
+          "spawn": "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda"
+        },
+        {
+          "spawn": "bundle:image-builders/aws-image-builder/versioner.lambda"
+        },
+        {
           "spawn": "bundle:providers/build-image.lambda"
-        },
-        {
-          "spawn": "bundle:providers/image-builders/aws-image-builder/delete-ami.lambda"
-        },
-        {
-          "spawn": "bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda"
-        },
-        {
-          "spawn": "bundle:providers/image-builders/aws-image-builder/versioner.lambda"
         },
         {
           "spawn": "bundle:providers/update-lambda.lambda"
@@ -104,6 +104,60 @@
         }
       ]
     },
+    "bundle:image-builders/aws-image-builder/delete-ami.lambda": {
+      "name": "bundle:image-builders/aws-image-builder/delete-ami.lambda",
+      "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/delete-ami.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-ami.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-ami.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:image-builders/aws-image-builder/delete-ami.lambda:watch": {
+      "name": "bundle:image-builders/aws-image-builder/delete-ami.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/delete-ami.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-ami.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-ami.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda": {
+      "name": "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda",
+      "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda:watch": {
+      "name": "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:image-builders/aws-image-builder/versioner.lambda": {
+      "name": "bundle:image-builders/aws-image-builder/versioner.lambda",
+      "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/versioner.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/versioner.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/versioner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:image-builders/aws-image-builder/versioner.lambda:watch": {
+      "name": "bundle:image-builders/aws-image-builder/versioner.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/versioner.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/versioner.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/versioner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
     "bundle:providers/build-image.lambda": {
       "name": "bundle:providers/build-image.lambda",
       "description": "Create a JavaScript bundle from src/providers/build-image.lambda.ts",
@@ -119,60 +173,6 @@
       "steps": [
         {
           "exec": "esbuild --bundle src/providers/build-image.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/providers/build-image.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
-        }
-      ]
-    },
-    "bundle:providers/image-builders/aws-image-builder/delete-ami.lambda": {
-      "name": "bundle:providers/image-builders/aws-image-builder/delete-ami.lambda",
-      "description": "Create a JavaScript bundle from src/providers/image-builders/aws-image-builder/delete-ami.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/providers/image-builders/aws-image-builder/delete-ami.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/providers/image-builders/aws-image-builder/delete-ami.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
-        }
-      ]
-    },
-    "bundle:providers/image-builders/aws-image-builder/delete-ami.lambda:watch": {
-      "name": "bundle:providers/image-builders/aws-image-builder/delete-ami.lambda:watch",
-      "description": "Continuously update the JavaScript bundle from src/providers/image-builders/aws-image-builder/delete-ami.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/providers/image-builders/aws-image-builder/delete-ami.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/providers/image-builders/aws-image-builder/delete-ami.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
-        }
-      ]
-    },
-    "bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda": {
-      "name": "bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda",
-      "description": "Create a JavaScript bundle from src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/providers/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
-        }
-      ]
-    },
-    "bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda:watch": {
-      "name": "bundle:providers/image-builders/aws-image-builder/filter-failed-builds.lambda:watch",
-      "description": "Continuously update the JavaScript bundle from src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/providers/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/providers/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
-        }
-      ]
-    },
-    "bundle:providers/image-builders/aws-image-builder/versioner.lambda": {
-      "name": "bundle:providers/image-builders/aws-image-builder/versioner.lambda",
-      "description": "Create a JavaScript bundle from src/providers/image-builders/aws-image-builder/versioner.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/providers/image-builders/aws-image-builder/versioner.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/providers/image-builders/aws-image-builder/versioner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
-        }
-      ]
-    },
-    "bundle:providers/image-builders/aws-image-builder/versioner.lambda:watch": {
-      "name": "bundle:providers/image-builders/aws-image-builder/versioner.lambda:watch",
-      "description": "Continuously update the JavaScript bundle from src/providers/image-builders/aws-image-builder/versioner.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/providers/image-builders/aws-image-builder/versioner.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/providers/image-builders/aws-image-builder/versioner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
         }
       ]
     },

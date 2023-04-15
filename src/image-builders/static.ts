@@ -2,7 +2,7 @@ import { aws_ecr as ecr } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CodeBuildRunnerImageBuilder } from './codebuild';
 import { IRunnerImageBuilder } from './common';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../common';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers/common';
 
 /**
  * Helper class with methods to use static images that are built outside the context of this project.
