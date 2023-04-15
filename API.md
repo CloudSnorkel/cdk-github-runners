@@ -4975,7 +4975,7 @@ public readonly buildImage: IBuildImage;
 ```
 
 - *Type:* aws-cdk-lib.aws_codebuild.IBuildImage
-- *Default:* Ubuntu 20.04 for x64 and Amazon Linux 2 for ARM64
+- *Default:* Ubuntu 22.04 for x64 and Amazon Linux 2 for ARM64
 
 Build image to use in CodeBuild.
 
@@ -5159,7 +5159,7 @@ public readonly buildImage: IBuildImage;
 ```
 
 - *Type:* aws-cdk-lib.aws_codebuild.IBuildImage
-- *Default:* Ubuntu 20.04 for x64 and Amazon Linux 2 for ARM64
+- *Default:* Ubuntu 22.04 for x64 and Amazon Linux 2 for ARM64
 
 Build image to use in CodeBuild.
 
@@ -7432,9 +7432,11 @@ public readonly baseAmi: string;
 ```
 
 - *Type:* string
-- *Default:* latest Ubuntu 20.04 AMI for Os.LINUX_UBUNTU, latest Amazon Linux 2 AMI for Os.LINUX_AMAZON_2, latest Windows Server 2022 AMI for Os.WINDOWS
+- *Default:* latest Ubuntu 22.04 AMI for Os.LINUX_UBUNTU, latest Amazon Linux 2 AMI for Os.LINUX_AMAZON_2, latest Windows Server 2022 AMI for Os.WINDOWS
 
 Base AMI from which runner AMIs will be built.
+
+This can be an actual AMI or an AWS Image Builder ARN that points to the latest AMI. For example `arn:aws:imagebuilder:us-east-1:aws:image/ubuntu-server-22-lts-x86` would always use the latest version of Ubuntu 22.04 in each build.
 
 ---
 
