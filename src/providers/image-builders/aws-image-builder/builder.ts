@@ -54,6 +54,28 @@ export interface ImageBuilderAsset {
 }
 
 /**
+ * Properties for RebootComponent construct.
+ *
+ * @internal
+ */
+export interface RebootComponentProperties {
+  /**
+   * Component platform. Must match the builder platform.
+   */
+  readonly platform: 'Linux' | 'Windows';
+
+  /**
+   * Component display name.
+   */
+  readonly displayName: string;
+
+  /**
+   * Component description.
+   */
+  readonly description: string;
+}
+
+/**
  * Properties for ImageBuilderComponent construct.
  */
 export interface ImageBuilderComponentProperties {
@@ -228,6 +250,59 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
         'set -ex',
       ].concat(commands);
     }
+  }
+}
+
+/**
+ * @internal
+ */
+export class RebootComponent extends ImageBuilderObjectBase {
+  /**
+   * Component ARN.
+   */
+  public readonly arn: string;
+
+  /**
+   * Supported platform for the component.
+   */
+  public readonly platform: 'Windows' | 'Linux';
+
+  constructor(scope: Construct, id: string, props: RebootComponentProperties) {
+    super(scope, id);
+
+    this.platform = props.platform;
+
+    const data = {
+      name: props.displayName,
+      schemaVersion: '1.0',
+      phases: [
+        {
+          name: 'build',
+          steps: [
+            {
+              name: 'Reboot',
+              action: 'Reboot',
+              inputs: {},
+            },
+          ],
+        },
+      ],
+    };
+
+    const name = uniqueImageBuilderName(this);
+    const component = new imagebuilder.CfnComponent(this, 'Component', {
+      name: name,
+      description: props.description,
+      platform: props.platform,
+      version: this.version('Component', name, {
+        platform: props.platform,
+        data,
+        description: props.description,
+      }),
+      data: JSON.stringify(data),
+    });
+
+    this.arn = component.attrArn;
   }
 }
 

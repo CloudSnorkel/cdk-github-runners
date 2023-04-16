@@ -3858,11 +3858,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ":",
-        {
-         "Ref": "AWS::AccountId"
-        },
-        ":image/ubuntu-server-22-lts-x86/x.x.x"
+        ":aws:image/ubuntu-server-22-lts-x86/x.x.x"
        ]
       ]
      }
@@ -3953,11 +3949,7 @@
        {
         "Ref": "AWS::Region"
        },
-       ":",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ":image/ubuntu-server-22-lts-x86/x.x.x"
+       ":aws:image/ubuntu-server-22-lts-x86/x.x.x"
       ]
      ]
     },
@@ -6873,11 +6865,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ":",
-        {
-         "Ref": "AWS::AccountId"
-        },
-        ":image/ubuntu-server-22-lts-arm64/x.x.x"
+        ":aws:image/ubuntu-server-22-lts-arm64/x.x.x"
        ]
       ]
      }
@@ -6968,11 +6956,7 @@
        {
         "Ref": "AWS::Region"
        },
-       ":",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ":image/ubuntu-server-22-lts-arm64/x.x.x"
+       ":aws:image/ubuntu-server-22-lts-arm64/x.x.x"
       ]
      ]
     },
@@ -7872,6 +7856,53 @@
     "Description": "Component 7 Custom-Undefined"
    }
   },
+  "WindowsEC2BuilderAmiRecipeRebootVersion29E01F8B": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-WindowsEC2Builder-AmiRecipe-Reboot-5DF77D83",
+    "VersionedData": {
+     "platform": "Windows",
+     "data": {
+      "name": "Reboot",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Reboot",
+          "action": "Reboot",
+          "inputs": {}
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Reboot the machine"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "WindowsEC2BuilderAmiRecipeRebootComponent3B81B797": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Name": "github-runners-test-WindowsEC2Builder-AmiRecipe-Reboot-5DF77D83",
+    "Platform": "Windows",
+    "Version": {
+     "Ref": "WindowsEC2BuilderAmiRecipeRebootVersion29E01F8B"
+    },
+    "Data": "{\"name\":\"Reboot\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Reboot\",\"action\":\"Reboot\",\"inputs\":{}}]}]}",
+    "Description": "Reboot the machine"
+   }
+  },
   "WindowsEC2BuilderAmiRecipeVersionEE5C2F0C": {
    "Type": "Custom::ImageBuilder-ImageRecipe-Version",
    "Properties": {
@@ -7949,6 +7980,14 @@
          "Arn"
         ]
        }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "WindowsEC2BuilderAmiRecipeRebootComponent3B81B797",
+         "Arn"
+        ]
+       }
       }
      ],
      "parentAmi": {
@@ -7963,11 +8002,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ":",
-        {
-         "Ref": "AWS::AccountId"
-        },
-        ":image/windows-server-2022-english-full-base-x86/x.x.x"
+        ":aws:image/windows-server-2022-english-full-base-x86/x.x.x"
        ]
       ]
      }
@@ -8043,6 +8078,14 @@
         "Arn"
        ]
       }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "WindowsEC2BuilderAmiRecipeRebootComponent3B81B797",
+        "Arn"
+       ]
+      }
      }
     ],
     "Name": "github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
@@ -8058,11 +8101,7 @@
        {
         "Ref": "AWS::Region"
        },
-       ":",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ":image/windows-server-2022-english-full-base-x86/x.x.x"
+       ":aws:image/windows-server-2022-english-full-base-x86/x.x.x"
       ]
      ]
     },

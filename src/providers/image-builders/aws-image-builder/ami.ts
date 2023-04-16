@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { ImageBuilderComponent } from './builder';
+import { ImageBuilderComponent, RebootComponent } from './builder';
 import { ImageBuilderObjectBase } from './common';
 import { Architecture, Os } from '../../common';
 import { uniqueImageBuilderName } from '../common';
@@ -51,6 +51,17 @@ export class AmiRecipe extends ImageBuilderObjectBase {
       };
     });
 
+    if (props.platform == 'Windows') {
+      // reboot just in case one of the components needed it (docker does)
+      components.push({
+        componentArn: new RebootComponent(this, 'Reboot', {
+          platform: props.platform,
+          description: 'Reboot the machine',
+          displayName: 'Reboot',
+        }).arn,
+      });
+    }
+
     let workingDirectory;
     if (props.platform == 'Linux') {
       workingDirectory = '/home/runner';
@@ -98,6 +109,7 @@ export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architect
     return stack.formatArn({
       service: 'imagebuilder',
       resource: 'image',
+      account: 'aws',
       resourceName: `ubuntu-server-22-lts-${arch}/x.x.x`,
     });
   }
@@ -106,6 +118,7 @@ export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architect
     return stack.formatArn({
       service: 'imagebuilder',
       resource: 'image',
+      account: 'aws',
       resourceName: `amazon-linux-2-${arch}/x.x.x`,
     });
   }
@@ -114,6 +127,7 @@ export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architect
     return stack.formatArn({
       service: 'imagebuilder',
       resource: 'image',
+      account: 'aws',
       resourceName: `windows-server-2022-english-full-base-${arch}/x.x.x`,
     });
   }
