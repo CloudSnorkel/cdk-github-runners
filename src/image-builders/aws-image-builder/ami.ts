@@ -1,4 +1,5 @@
-import { aws_ec2 as ec2, aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
+import * as cdk from 'aws-cdk-lib';
+import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './builder';
 import { ImageBuilderObjectBase } from './common';
@@ -81,34 +82,43 @@ export class AmiRecipe extends ImageBuilderObjectBase {
  *
  * @internal
  */
-export function defaultBaseAmi(os: Os, architecture: Architecture) {
-  let archUrl;
-  let cpuType;
+export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architecture) {
+  const stack = cdk.Stack.of(scope);
+
+  let arch;
   if (architecture.is(Architecture.X86_64)) {
-    archUrl = 'amd64';
-    cpuType = ec2.AmazonLinuxCpuType.X86_64;
+    arch = 'x86';
   } else if (architecture.is(Architecture.ARM64)) {
-    archUrl = 'arm64';
-    cpuType = ec2.AmazonLinuxCpuType.ARM_64;
+    arch = 'arm64';
   } else {
     throw new Error(`Unsupported architecture for base AMI: ${architecture.name}`);
   }
 
   if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX)) {
-    return ec2.MachineImage.fromSsmParameter(
-      `/aws/service/canonical/ubuntu/server/focal/stable/current/${archUrl}/hvm/ebs-gp2/ami-id`,
-      {
-        os: ec2.OperatingSystemType.LINUX,
-      },
-    );
+    return stack.formatArn({
+      service: 'imagebuilder',
+      resource: 'image',
+      account: 'aws',
+      resourceName: `ubuntu-server-22-lts-${arch}/x.x.x`,
+    });
   }
 
   if (os.is(Os.LINUX_AMAZON_2)) {
-    return ec2.MachineImage.latestAmazonLinux({ cpuType });
+    return stack.formatArn({
+      service: 'imagebuilder',
+      resource: 'image',
+      account: 'aws',
+      resourceName: `amazon-linux-2-${arch}/x.x.x`,
+    });
   }
 
   if (os.is(Os.WINDOWS)) {
-    return ec2.MachineImage.latestWindows(ec2.WindowsVersion.WINDOWS_SERVER_2022_ENGLISH_FULL_CONTAINERSLATEST);
+    return stack.formatArn({
+      service: 'imagebuilder',
+      resource: 'image',
+      account: 'aws',
+      resourceName: `windows-server-2022-english-full-base-${arch}/x.x.x`,
+    });
   }
 
   throw new Error(`OS ${os.name} not supported for AMI runner image`);

@@ -350,17 +350,17 @@ export abstract class RunnerImageComponent {
         } else if (os.is(Os.WINDOWS)) {
           return [
             'Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe -OutFile docker-setup.exe',
-            'Start-Process \'docker-setup.exe\' -Wait -ArgumentList \'/install --quiet --accept-license\'',
+            'Start-Process "docker-setup.exe" -Wait -ArgumentList "install --quiet --accept-license"',
             'del docker-setup.exe',
-            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\latest-docker-compose',
-            '$LatestUrl = Get-Content $Env:TEMP\\latest-docker-compose',
-            '$LatestDockerCompose = ($LatestUrl -Split \'/\')[-1]',
-            'Invoke-WebRequest -UseBasicParsing -Uri  "https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe" -OutFile $Env:ProgramFiles\\Docker\\docker-compose.exe',
-            'copy $Env:ProgramFiles\\Docker\\docker-compose.exe $Env:ProgramFiles\\Docker\\cli-plugins\\docker-compose.exe',
+            'if (-Not(Test-Path -Path "$Env:ProgramFiles\\Docker")) { echo "Docker installation failed" ; exit 1 }',
           ];
         }
 
         throw new Error(`Unknown os/architecture combo for docker: ${os.name}/${architecture.name}`);
+      }
+
+      shouldReboot(os: Os, _architecture: Architecture): boolean {
+        return os.is(Os.WINDOWS);
       }
     }();
   }
@@ -530,6 +530,13 @@ export abstract class RunnerImageComponent {
   }
 
   /**
+   * Returns true if the image builder should be rebooted after this component is installed.
+   */
+  shouldReboot(_os: Os, _architecture: Architecture): boolean {
+    return false;
+  }
+
+  /**
    * Convert component to an AWS Image Builder component.
    *
    * @internal
@@ -555,6 +562,7 @@ export abstract class RunnerImageComponent {
       }),
       displayName: id,
       description: id,
+      reboot: this.shouldReboot(os, architecture),
     });
   }
 }

@@ -39,7 +39,7 @@ export interface CodeBuildRunnerImageBuilderProps {
    *
    * The only action taken in CodeBuild is running `docker build`. You would therefore not need to change this setting often.
    *
-   * @default Ubuntu 20.04 for x64 and Amazon Linux 2 for ARM64
+   * @default Ubuntu 22.04 for x64 and Amazon Linux 2 for ARM64
    */
   readonly buildImage?: codebuild.IBuildImage;
 
