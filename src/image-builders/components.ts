@@ -358,6 +358,10 @@ export abstract class RunnerImageComponent {
 
         throw new Error(`Unknown os/architecture combo for docker: ${os.name}/${architecture.name}`);
       }
+
+      shouldReboot(os: Os, _architecture: Architecture): boolean {
+        return os.is(Os.WINDOWS);
+      }
     }();
   }
 
@@ -526,6 +530,13 @@ export abstract class RunnerImageComponent {
   }
 
   /**
+   * Returns true if the image builder should be rebooted after this component is installed.
+   */
+  shouldReboot(_os: Os, _architecture: Architecture): boolean {
+    return false;
+  }
+
+  /**
    * Convert component to an AWS Image Builder component.
    *
    * @internal
@@ -551,6 +562,7 @@ export abstract class RunnerImageComponent {
       }),
       displayName: id,
       description: id,
+      reboot: this.shouldReboot(os, architecture),
     });
   }
 }

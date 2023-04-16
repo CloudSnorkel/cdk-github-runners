@@ -24,8 +24,8 @@ import { ImageBuilderObjectBase } from './common';
 import { ContainerRecipe, defaultBaseDockerImage } from './container';
 import { DeleteAmiFunction } from './delete-ami-function';
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers';
 import { BuildImageFunction } from '../../providers/build-image-function';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers/common';
 import { singletonLambda } from '../../utils';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps, uniqueImageBuilderName } from '../common';
 
@@ -51,28 +51,6 @@ export interface ImageBuilderAsset {
    * Asset to place in the image.
    */
   readonly asset: s3_assets.Asset;
-}
-
-/**
- * Properties for RebootComponent construct.
- *
- * @internal
- */
-export interface RebootComponentProperties {
-  /**
-   * Component platform. Must match the builder platform.
-   */
-  readonly platform: 'Linux' | 'Windows';
-
-  /**
-   * Component display name.
-   */
-  readonly displayName: string;
-
-  /**
-   * Component description.
-   */
-  readonly description: string;
 }
 
 /**
@@ -105,6 +83,13 @@ export interface ImageBuilderComponentProperties {
    * Optional assets to add to the built image.
    */
   readonly assets?: ImageBuilderAsset[];
+
+  /**
+   * Require a reboot after installing this component.
+   *
+   * @default false
+   */
+  readonly reboot?: boolean;
 }
 
 /**
@@ -200,6 +185,14 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
       });
     }
 
+    if (props.reboot ?? false) {
+      steps.push({
+        name: 'Reboot',
+        action: 'Reboot',
+        inputs: {},
+      });
+    }
+
     const data = {
       name: props.displayName,
       schemaVersion: '1.0',
@@ -250,59 +243,6 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
         'set -ex',
       ].concat(commands);
     }
-  }
-}
-
-/**
- * @internal
- */
-export class RebootComponent extends ImageBuilderObjectBase {
-  /**
-   * Component ARN.
-   */
-  public readonly arn: string;
-
-  /**
-   * Supported platform for the component.
-   */
-  public readonly platform: 'Windows' | 'Linux';
-
-  constructor(scope: Construct, id: string, props: RebootComponentProperties) {
-    super(scope, id);
-
-    this.platform = props.platform;
-
-    const data = {
-      name: props.displayName,
-      schemaVersion: '1.0',
-      phases: [
-        {
-          name: 'build',
-          steps: [
-            {
-              name: 'Reboot',
-              action: 'Reboot',
-              inputs: {},
-            },
-          ],
-        },
-      ],
-    };
-
-    const name = uniqueImageBuilderName(this);
-    const component = new imagebuilder.CfnComponent(this, 'Component', {
-      name: name,
-      description: props.description,
-      platform: props.platform,
-      version: this.version('Component', name, {
-        platform: props.platform,
-        data,
-        description: props.description,
-      }),
-      data: JSON.stringify(data),
-    });
-
-    this.arn = component.attrArn;
   }
 }
 

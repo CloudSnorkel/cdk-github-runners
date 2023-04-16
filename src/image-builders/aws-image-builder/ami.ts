@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { ImageBuilderComponent, RebootComponent } from './builder';
+import { ImageBuilderComponent } from './builder';
 import { ImageBuilderObjectBase } from './common';
 import { Architecture, Os } from '../../providers/common';
 import { uniqueImageBuilderName } from '../common';
@@ -50,17 +50,6 @@ export class AmiRecipe extends ImageBuilderObjectBase {
         componentArn: component.arn,
       };
     });
-
-    if (props.platform == 'Windows') {
-      // reboot just in case one of the components needed it (docker does)
-      components.push({
-        componentArn: new RebootComponent(this, 'Reboot', {
-          platform: props.platform,
-          description: 'Reboot the machine',
-          displayName: 'Reboot',
-        }).arn,
-      });
-    }
 
     let workingDirectory;
     if (props.platform == 'Linux') {

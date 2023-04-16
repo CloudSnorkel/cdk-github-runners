@@ -7689,6 +7689,11 @@
             "if (-Not(Test-Path -Path \"$Env:ProgramFiles\\Docker\")) { echo \"Docker installation failed\" ; exit 1 }"
            ]
           }
+         },
+         {
+          "name": "Reboot",
+          "action": "Reboot",
+          "inputs": {}
          }
         ]
        }
@@ -7708,7 +7713,7 @@
     "Version": {
      "Ref": "WindowsEC2BuilderComponent5DockerVersion40844B58"
     },
-    "Data": "{\"name\":\"Component 5 Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe -OutFile docker-setup.exe\",\"Start-Process \\\"docker-setup.exe\\\" -Wait -ArgumentList \\\"install --quiet --accept-license\\\"\",\"del docker-setup.exe\",\"if (-Not(Test-Path -Path \\\"$Env:ProgramFiles\\\\Docker\\\")) { echo \\\"Docker installation failed\\\" ; exit 1 }\"]}}]}]}",
+    "Data": "{\"name\":\"Component 5 Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe -OutFile docker-setup.exe\",\"Start-Process \\\"docker-setup.exe\\\" -Wait -ArgumentList \\\"install --quiet --accept-license\\\"\",\"del docker-setup.exe\",\"if (-Not(Test-Path -Path \\\"$Env:ProgramFiles\\\\Docker\\\")) { echo \\\"Docker installation failed\\\" ; exit 1 }\"]}},{\"name\":\"Reboot\",\"action\":\"Reboot\",\"inputs\":{}}]}]}",
     "Description": "Component 5 Docker"
    }
   },
@@ -7856,53 +7861,6 @@
     "Description": "Component 7 Custom-Undefined"
    }
   },
-  "WindowsEC2BuilderAmiRecipeRebootVersion29E01F8B": {
-   "Type": "Custom::ImageBuilder-Component-Version",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
-      "Arn"
-     ]
-    },
-    "ObjectType": "Component",
-    "ObjectName": "github-runners-test-WindowsEC2Builder-AmiRecipe-Reboot-5DF77D83",
-    "VersionedData": {
-     "platform": "Windows",
-     "data": {
-      "name": "Reboot",
-      "schemaVersion": "1.0",
-      "phases": [
-       {
-        "name": "build",
-        "steps": [
-         {
-          "name": "Reboot",
-          "action": "Reboot",
-          "inputs": {}
-         }
-        ]
-       }
-      ]
-     },
-     "description": "Reboot the machine"
-    }
-   },
-   "UpdateReplacePolicy": "Retain",
-   "DeletionPolicy": "Retain"
-  },
-  "WindowsEC2BuilderAmiRecipeRebootComponent3B81B797": {
-   "Type": "AWS::ImageBuilder::Component",
-   "Properties": {
-    "Name": "github-runners-test-WindowsEC2Builder-AmiRecipe-Reboot-5DF77D83",
-    "Platform": "Windows",
-    "Version": {
-     "Ref": "WindowsEC2BuilderAmiRecipeRebootVersion29E01F8B"
-    },
-    "Data": "{\"name\":\"Reboot\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Reboot\",\"action\":\"Reboot\",\"inputs\":{}}]}]}",
-    "Description": "Reboot the machine"
-   }
-  },
   "WindowsEC2BuilderAmiRecipeVersionEE5C2F0C": {
    "Type": "Custom::ImageBuilder-ImageRecipe-Version",
    "Properties": {
@@ -7977,14 +7935,6 @@
        "componentArn": {
         "Fn::GetAtt": [
          "WindowsEC2BuilderComponent7CustomUndefinedComponent83F7C59D",
-         "Arn"
-        ]
-       }
-      },
-      {
-       "componentArn": {
-        "Fn::GetAtt": [
-         "WindowsEC2BuilderAmiRecipeRebootComponent3B81B797",
          "Arn"
         ]
        }
@@ -8075,14 +8025,6 @@
       "ComponentArn": {
        "Fn::GetAtt": [
         "WindowsEC2BuilderComponent7CustomUndefinedComponent83F7C59D",
-        "Arn"
-       ]
-      }
-     },
-     {
-      "ComponentArn": {
-       "Fn::GetAtt": [
-        "WindowsEC2BuilderAmiRecipeRebootComponent3B81B797",
         "Arn"
        ]
       }
