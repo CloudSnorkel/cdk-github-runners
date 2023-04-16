@@ -6700,6 +6700,7 @@ const imageBuilderComponentProperties: ImageBuilderComponentProperties = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.displayName">displayName</a></code> | <code>string</code> | Component display name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.platform">platform</a></code> | <code>string</code> | Component platform. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.assets">assets</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderAsset">ImageBuilderAsset</a>[]</code> | Optional assets to add to the built image. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.reboot">reboot</a></code> | <code>boolean</code> | Require a reboot after installing this component. |
 
 ---
 
@@ -6764,6 +6765,19 @@ public readonly assets: ImageBuilderAsset[];
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderAsset">ImageBuilderAsset</a>[]
 
 Optional assets to add to the built image.
+
+---
+
+##### `reboot`<sup>Optional</sup> <a name="reboot" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.reboot"></a>
+
+```typescript
+public readonly reboot: boolean;
+```
+
+- *Type:* boolean
+- *Default:* false
+
+Require a reboot after installing this component.
 
 ---
 
@@ -8445,6 +8459,7 @@ new RunnerImageComponent()
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.getAssets">getAssets</a></code> | Returns assets to copy into the built image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.getCommands">getCommands</a></code> | Returns commands to run to in built image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.getDockerCommands">getDockerCommands</a></code> | Returns Docker commands to run to in built image. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.shouldReboot">shouldReboot</a></code> | Returns true if the image builder should be rebooted after this component is installed. |
 
 ---
 
@@ -8511,6 +8526,26 @@ Docker commands are added after assets and normal commands.
 ---
 
 ###### `_architecture`<sup>Required</sup> <a name="_architecture" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.getDockerCommands.parameter._architecture"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
+
+---
+
+##### `shouldReboot` <a name="shouldReboot" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.shouldReboot"></a>
+
+```typescript
+public shouldReboot(_os: Os, _architecture: Architecture): boolean
+```
+
+Returns true if the image builder should be rebooted after this component is installed.
+
+###### `_os`<sup>Required</sup> <a name="_os" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.shouldReboot.parameter._os"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
+
+---
+
+###### `_architecture`<sup>Required</sup> <a name="_architecture" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.shouldReboot.parameter._architecture"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
 
