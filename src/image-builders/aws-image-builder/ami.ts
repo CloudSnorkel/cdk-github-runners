@@ -3,7 +3,7 @@ import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent, RebootComponent } from './builder';
 import { ImageBuilderObjectBase } from './common';
-import { Architecture, Os } from '../../common';
+import { Architecture, Os } from '../../providers/common';
 import { uniqueImageBuilderName } from '../common';
 
 /**

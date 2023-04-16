@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_iam as iam, aws_logs as logs, CustomResource } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { VersionerFunction } from './versioner-function';
-import { singletonLambda } from '../../../utils';
+import { singletonLambda } from '../../utils';
 
 /**
  * @internal

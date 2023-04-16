@@ -3,7 +3,7 @@ import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './aws-image-builder';
 import { RunnerImageAsset } from './common';
-import { Architecture, Os, RunnerVersion } from '../common';
+import { Architecture, Os, RunnerVersion } from '../providers/common';
 
 export interface RunnerImageComponentCustomProps {
   /**
@@ -478,11 +478,11 @@ export abstract class RunnerImageComponent {
       getAssets(_os: Os, _architecture: Architecture): RunnerImageAsset[] {
         return [
           {
-            source: path.join(__dirname, '..', 'docker-images', 'lambda', 'linux-x64', 'runner.js'),
+            source: path.join(__dirname, '..', 'providers', 'docker-images', 'lambda', 'linux-x64', 'runner.js'),
             target: '${LAMBDA_TASK_ROOT}/runner.js',
           },
           {
-            source: path.join(__dirname, '..', 'docker-images', 'lambda', 'linux-x64', 'runner.sh'),
+            source: path.join(__dirname, '..', 'providers', 'docker-images', 'lambda', 'linux-x64', 'runner.sh'),
             target: '${LAMBDA_TASK_ROOT}/runner.sh',
           },
         ];

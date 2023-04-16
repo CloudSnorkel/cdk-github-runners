@@ -10,16 +10,16 @@ export interface DeleteAmiFunctionProps extends lambda.FunctionOptions {
 }
 
 /**
- * An AWS Lambda function which executes src/providers/image-builders/aws-image-builder/delete-ami.
+ * An AWS Lambda function which executes src/image-builders/aws-image-builder/delete-ami.
  */
 export class DeleteAmiFunction extends lambda.Function {
   constructor(scope: Construct, id: string, props?: DeleteAmiFunctionProps) {
     super(scope, id, {
-      description: 'src/providers/image-builders/aws-image-builder/delete-ami.lambda.ts',
+      description: 'src/image-builders/aws-image-builder/delete-ami.lambda.ts',
       ...props,
       runtime: new lambda.Runtime('nodejs16.x', lambda.RuntimeFamily.NODEJS),
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../../../assets/providers/image-builders/aws-image-builder/delete-ami.lambda')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../../assets/image-builders/aws-image-builder/delete-ami.lambda')),
     });
     this.addEnvironment('AWS_NODEJS_CONNECTION_REUSE_ENABLED', '1', { removeInEdge: true });
   }

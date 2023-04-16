@@ -4,7 +4,7 @@ import { Construct } from 'constructs';
 import { AwsImageBuilderRunnerImageBuilderProps } from './aws-image-builder';
 import { CodeBuildRunnerImageBuilderProps } from './codebuild';
 import { RunnerImageComponent } from './components';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../common';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers/common';
 
 /**
  * @internal
