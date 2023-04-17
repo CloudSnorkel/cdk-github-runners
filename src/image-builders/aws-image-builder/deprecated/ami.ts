@@ -112,7 +112,7 @@ export interface AmiBuilderProps {
   readonly logRemovalPolicy?: RemovalPolicy;
 
   /**
-   * Install Docker inside the image, so it can be used by the runner. You may want to disable this if you are building a Windows image and don't have a Docker Desktop license.
+   * Install Docker inside the image, so it can be used by the runner.
    *
    * @default true
    */

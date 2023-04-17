@@ -3,7 +3,7 @@ import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './aws-image-builder';
 import { RunnerImageAsset } from './common';
-import { Architecture, Os, RunnerVersion } from '../providers/common';
+import { Architecture, Os, RunnerVersion } from '../providers';
 
 export interface RunnerImageComponentCustomProps {
   /**
@@ -329,7 +329,9 @@ export abstract class RunnerImageComponent {
   }
 
   /**
-   * A component to install Docker. On Windows this installs Docker Desktop.
+   * A component to install Docker.
+   *
+   * On Windows this sets up dockerd for Windows containers without Docker Desktop. If you need Linux containers on Windows, you'll need to install Docker Desktop which doesn't seem to play well with servers (PRs welcome).
    */
   static docker(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
@@ -353,11 +355,31 @@ export abstract class RunnerImageComponent {
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [
-            'Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe -OutFile docker-setup.exe',
-            '$p = Start-Process "docker-setup.exe" -PassThru -Wait -ArgumentList "install --quiet --accept-license"',
-            'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
-            'del docker-setup.exe',
-            'if (-Not(Test-Path -Path "$Env:ProgramFiles\\Docker")) { echo "Docker installation failed" ; exit 1 }',
+            // figure out latest docker version
+            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/moby/moby/releases/latest > $Env:TEMP\\latest-docker',
+            '$LatestUrl = Get-Content $Env:TEMP\\latest-docker',
+            '$DOCKER_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
+            // download static binaries
+            'Invoke-WebRequest -UseBasicParsing -Uri "https://download.docker.com/win/static/stable/x86_64/docker-${DOCKER_VERSION}.zip" -OutFile docker.zip',
+            // extract to C:\Program Files\Docker
+            'Expand-Archive docker.zip -DestinationPath "$Env:ProgramFiles"',
+            'del docker.zip',
+            // add to path
+            '$persistedPaths = [Environment]::GetEnvironmentVariable(\'Path\', [EnvironmentVariableTarget]::Machine)',
+            '[Environment]::SetEnvironmentVariable("PATH", $persistedPaths + ";$Env:ProgramFiles\\Docker", [EnvironmentVariableTarget]::Machine)',
+            '$env:PATH = $env:PATH + ";$Env:ProgramFiles\\Docker"',
+            // register docker service
+            'dockerd --register-service',
+            'if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }',
+            // enable containers feature
+            'Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart',
+            // install docker-compose
+            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\latest-docker-compose',
+            '$LatestUrl = Get-Content $Env:TEMP\\latest-docker-compose',
+            '$LatestDockerCompose = ($LatestUrl -Split \'/\')[-1]',
+            'Invoke-WebRequest -UseBasicParsing -Uri  "https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe" -OutFile $Env:ProgramFiles\\Docker\\docker-compose.exe',
+            'New-Item -ItemType directory -Path "$Env:ProgramFiles\\Docker\\cli-plugins"',
+            'Copy-Item -Path "$Env:ProgramFiles\\Docker\\docker-compose.exe" -Destination "$Env:ProgramFiles\\Docker\\cli-plugins\\docker-compose.exe"',
           ];
         }
 
