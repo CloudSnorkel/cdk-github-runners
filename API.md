@@ -4667,8 +4667,6 @@ public readonly installDocker: boolean;
 
 Install Docker inside the image, so it can be used by the runner.
 
-You may want to disable this if you are building a Windows image and don't have a Docker Desktop license.
-
 ---
 
 ##### `instanceType`<sup>Optional</sup> <a name="instanceType" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps.property.instanceType"></a>
@@ -8612,7 +8610,7 @@ RunnerImageComponent.docker()
 
 A component to install Docker.
 
-On Windows this installs Docker Desktop.
+On Windows this sets up dockerd for Windows containers without Docker Desktop. If you need Linux containers on Windows, you'll need to install Docker Desktop which doesn't seem to play well with servers (PRs welcome).
 
 ##### `dockerInDocker` <a name="dockerInDocker" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.dockerInDocker"></a>
 

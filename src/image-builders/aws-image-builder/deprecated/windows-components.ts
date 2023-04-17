@@ -1,6 +1,7 @@
 import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { RunnerVersion } from '../../../providers/common';
+import { Architecture, Os, RunnerVersion } from '../../../providers';
+import { RunnerImageComponent } from '../../components';
 import { ImageBuilderComponent } from '../builder';
 
 /**
@@ -100,13 +101,7 @@ export class WindowsComponents {
       platform: 'Windows',
       displayName: 'Docker',
       description: 'Install latest version of Docker',
-      commands: [
-        'Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe -OutFile docker-setup.exe',
-        '$p = Start-Process "docker-setup.exe" -PassThru -Wait -ArgumentList "install --quiet --accept-license"',
-        'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
-        'del docker-setup.exe',
-        'if (-Not(Test-Path -Path "$Env:ProgramFiles\\Docker")) { echo "Docker installation failed" ; exit 1 }',
-      ],
+      commands: RunnerImageComponent.docker().getCommands(Os.WINDOWS, Architecture.X86_64),
       reboot: true,
     });
   }

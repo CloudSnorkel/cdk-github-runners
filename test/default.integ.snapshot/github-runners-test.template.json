@@ -7691,11 +7691,24 @@
             "$ErrorActionPreference = 'Stop'",
             "$ProgressPreference = 'SilentlyContinue'",
             "Set-PSDebug -Trace 1",
-            "Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe -OutFile docker-setup.exe",
-            "$p = Start-Process \"docker-setup.exe\" -PassThru -Wait -ArgumentList \"install --quiet --accept-license\"",
-            "if ($p.ExitCode -ne 0) { throw \"Exit code is $p.ExitCode\" }",
-            "del docker-setup.exe",
-            "if (-Not(Test-Path -Path \"$Env:ProgramFiles\\Docker\")) { echo \"Docker installation failed\" ; exit 1 }"
+            "cmd /c curl -w \"%{redirect_url}\" -fsS https://github.com/moby/moby/releases/latest > $Env:TEMP\\latest-docker",
+            "$LatestUrl = Get-Content $Env:TEMP\\latest-docker",
+            "$DOCKER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)",
+            "Invoke-WebRequest -UseBasicParsing -Uri \"https://download.docker.com/win/static/stable/x86_64/docker-${DOCKER_VERSION}.zip\" -OutFile docker.zip",
+            "Expand-Archive docker.zip -DestinationPath \"$Env:ProgramFiles\"",
+            "del docker.zip",
+            "$persistedPaths = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)",
+            "[Environment]::SetEnvironmentVariable(\"PATH\", $persistedPaths + \";$Env:ProgramFiles\\Docker\", [EnvironmentVariableTarget]::Machine)",
+            "$env:PATH = $env:PATH + \";$Env:ProgramFiles\\Docker\"",
+            "dockerd --register-service",
+            "if ($LASTEXITCODE -ne 0) { throw \"Exit code is $LASTEXITCODE\" }",
+            "Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart",
+            "cmd /c curl -w \"%{redirect_url}\" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\latest-docker-compose",
+            "$LatestUrl = Get-Content $Env:TEMP\\latest-docker-compose",
+            "$LatestDockerCompose = ($LatestUrl -Split '/')[-1]",
+            "Invoke-WebRequest -UseBasicParsing -Uri  \"https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe\" -OutFile $Env:ProgramFiles\\Docker\\docker-compose.exe",
+            "New-Item -ItemType directory -Path \"$Env:ProgramFiles\\Docker\\cli-plugins\"",
+            "Copy-Item -Path \"$Env:ProgramFiles\\Docker\\docker-compose.exe\" -Destination \"$Env:ProgramFiles\\Docker\\cli-plugins\\docker-compose.exe\""
            ]
           }
          },
@@ -7722,7 +7735,7 @@
     "Version": {
      "Ref": "WindowsEC2BuilderComponent5DockerVersion40844B58"
     },
-    "Data": "{\"name\":\"Component 5 Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe -OutFile docker-setup.exe\",\"$p = Start-Process \\\"docker-setup.exe\\\" -PassThru -Wait -ArgumentList \\\"install --quiet --accept-license\\\"\",\"if ($p.ExitCode -ne 0) { throw \\\"Exit code is $p.ExitCode\\\" }\",\"del docker-setup.exe\",\"if (-Not(Test-Path -Path \\\"$Env:ProgramFiles\\\\Docker\\\")) { echo \\\"Docker installation failed\\\" ; exit 1 }\"]}},{\"name\":\"Reboot\",\"action\":\"Reboot\",\"inputs\":{}}]}]}",
+    "Data": "{\"name\":\"Component 5 Docker\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/moby/moby/releases/latest > $Env:TEMP\\\\latest-docker\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-docker\",\"$DOCKER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://download.docker.com/win/static/stable/x86_64/docker-${DOCKER_VERSION}.zip\\\" -OutFile docker.zip\",\"Expand-Archive docker.zip -DestinationPath \\\"$Env:ProgramFiles\\\"\",\"del docker.zip\",\"$persistedPaths = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)\",\"[Environment]::SetEnvironmentVariable(\\\"PATH\\\", $persistedPaths + \\\";$Env:ProgramFiles\\\\Docker\\\", [EnvironmentVariableTarget]::Machine)\",\"$env:PATH = $env:PATH + \\\";$Env:ProgramFiles\\\\Docker\\\"\",\"dockerd --register-service\",\"if ($LASTEXITCODE -ne 0) { throw \\\"Exit code is $LASTEXITCODE\\\" }\",\"Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\\\latest-docker-compose\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-docker-compose\",\"$LatestDockerCompose = ($LatestUrl -Split '/')[-1]\",\"Invoke-WebRequest -UseBasicParsing -Uri  \\\"https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe\\\" -OutFile $Env:ProgramFiles\\\\Docker\\\\docker-compose.exe\",\"New-Item -ItemType directory -Path \\\"$Env:ProgramFiles\\\\Docker\\\\cli-plugins\\\"\",\"Copy-Item -Path \\\"$Env:ProgramFiles\\\\Docker\\\\docker-compose.exe\\\" -Destination \\\"$Env:ProgramFiles\\\\Docker\\\\cli-plugins\\\\docker-compose.exe\\\"\"]}},{\"name\":\"Reboot\",\"action\":\"Reboot\",\"inputs\":{}}]}]}",
     "Description": "Component 5 Docker"
    }
   },
