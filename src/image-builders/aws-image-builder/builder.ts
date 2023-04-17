@@ -103,7 +103,8 @@ export interface ImageBuilderComponentProperties {
  *   displayName: 'AWS CLI',
  *   description: 'Install latest version of AWS CLI',
  *   commands: [
- *     'Start-Process msiexec.exe -Wait -ArgumentList \'/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn\'',
+ *     '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn\'',
+ *     'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
  *   ],
  * }
  * ```
