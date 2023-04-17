@@ -101,7 +101,8 @@ export abstract class RunnerImageComponent {
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [
-            'Start-Process msiexec.exe -Wait -ArgumentList \'/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn\'',
+            '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn\'',
+            'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
           ];
         }
 
@@ -168,7 +169,8 @@ export abstract class RunnerImageComponent {
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [
-            'Start-Process msiexec.exe -Wait -ArgumentList \'/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn\'',
+            '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn\'',
+            'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
           ];
         }
 
@@ -204,7 +206,8 @@ export abstract class RunnerImageComponent {
             '$LatestUrl = Get-Content $Env:TEMP\\latest-gh',
             '$GH_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi" -OutFile gh.msi',
-            'Start-Process msiexec.exe -Wait -ArgumentList \'/i gh.msi /qn\'',
+            '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i gh.msi /qn\'',
+            'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
             'del gh.msi',
           ];
         }
@@ -241,7 +244,8 @@ export abstract class RunnerImageComponent {
             '$GIT_REVISION = ($GIT_VERSION -Split \'.windows.\')[1]',
             'If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = "$GIT_VERSION_SHORT.$GIT_REVISION"}',
             'Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe',
-            'Start-Process git-setup.exe -Wait -ArgumentList \'/VERYSILENT\'',
+            '$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList \'/VERYSILENT\'',
+            'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
             'del git-setup.exe',
           ];
         }
@@ -350,7 +354,8 @@ export abstract class RunnerImageComponent {
         } else if (os.is(Os.WINDOWS)) {
           return [
             'Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe -OutFile docker-setup.exe',
-            'Start-Process "docker-setup.exe" -Wait -ArgumentList "install --quiet --accept-license"',
+            '$p = Start-Process "docker-setup.exe" -PassThru -Wait -ArgumentList "install --quiet --accept-license"',
+            'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
             'del docker-setup.exe',
             'if (-Not(Test-Path -Path "$Env:ProgramFiles\\Docker")) { echo "Docker installation failed" ; exit 1 }',
           ];

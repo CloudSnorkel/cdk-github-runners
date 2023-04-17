@@ -124,7 +124,7 @@ jobs:
       - name: docker
         if: ${{ matrix.docker }}
         run: |
-          echo FROM public.ecr.aws/docker/library/bash > Dockerfile
+          echo FROM public.ecr.aws/docker/library/hello-world > Dockerfile
           docker build  .
           docker-compose --version
           docker compose version
@@ -187,23 +187,30 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           git --version
+          if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }
       - name: aws
         run: |
           $ErrorActionPreference = 'Stop'
           aws --version
+          if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }
           aws sts get-caller-identity
+          if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }
       - name: gh
         run: |
           $ErrorActionPreference = 'Stop'
           gh --version
+          if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }
       - name: docker
         if: ${{ matrix.docker }}
         run: |
           $ErrorActionPreference = 'Stop'
-          echo "FROM public.ecr.aws/docker/library/bash" | Out-File -Encoding ASCII Dockerfile
+          echo "FROM public.ecr.aws/docker/library/hello-world" | Out-File -Encoding ASCII Dockerfile
           docker build  .
+          if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }
           docker-compose --version
+          if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }
           docker compose version
+          if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }
       - name: custom files
         run: |
           $ErrorActionPreference = 'Stop'
