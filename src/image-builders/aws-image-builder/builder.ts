@@ -311,9 +311,17 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       removalPolicy: RemovalPolicy.DESTROY,
       lifecycleRules: [
         {
-          description: 'Remove untagged images that have been replaced by CodeBuild',
+          description: 'Remove untagged images that have been replaced by AWS Image Builder',
           tagStatus: TagStatus.UNTAGGED,
           maxImageAge: Duration.days(1),
+          rulePriority: 1,
+        },
+        {
+          description: 'Remove non-latest images',
+          tagStatus: TagStatus.TAGGED,
+          tagPrefixList: ['1'], // all versions start with '1.0.'
+          maxImageCount: 2, // keep two in case of rollback
+          rulePriority: 2,
         },
       ],
     });
