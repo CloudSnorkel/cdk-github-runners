@@ -3186,20 +3186,6 @@
     ]
    }
   },
-  "AMILinuxBuilderRepositoryAE4287AE": {
-   "Type": "AWS::ECR::Repository",
-   "Properties": {
-    "ImageScanningConfiguration": {
-     "ScanOnPush": true
-    },
-    "ImageTagMutability": "MUTABLE",
-    "LifecyclePolicy": {
-     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by AWS Image Builder\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove non-latest images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"1\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":2},\"action\":{\"type\":\"expire\"}}]}"
-    }
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
   "AMILinuxBuilderLaunchtemplateA29452C4": {
    "Type": "AWS::EC2::LaunchTemplate",
    "Properties": {
@@ -6193,20 +6179,6 @@
     ]
    }
   },
-  "AMILinuxarm64BuilderRepository31842F89": {
-   "Type": "AWS::ECR::Repository",
-   "Properties": {
-    "ImageScanningConfiguration": {
-     "ScanOnPush": true
-    },
-    "ImageTagMutability": "MUTABLE",
-    "LifecyclePolicy": {
-     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by AWS Image Builder\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove non-latest images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"1\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":2},\"action\":{\"type\":\"expire\"}}]}"
-    }
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
   "AMILinuxarm64BuilderLaunchtemplate8F5EFF44": {
    "Type": "AWS::EC2::LaunchTemplate",
    "Properties": {
@@ -7274,20 +7246,6 @@
      }
     ]
    }
-  },
-  "WindowsEC2BuilderRepository6AF0EAB4": {
-   "Type": "AWS::ECR::Repository",
-   "Properties": {
-    "ImageScanningConfiguration": {
-     "ScanOnPush": true
-    },
-    "ImageTagMutability": "MUTABLE",
-    "LifecyclePolicy": {
-     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by AWS Image Builder\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove non-latest images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"1\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":2},\"action\":{\"type\":\"expire\"}}]}"
-    }
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
   },
   "WindowsEC2BuilderLaunchtemplate0A66E9C2": {
    "Type": "AWS::EC2::LaunchTemplate",

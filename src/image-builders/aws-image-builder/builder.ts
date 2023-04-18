@@ -261,7 +261,6 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   private readonly logRemovalPolicy: RemovalPolicy;
   private readonly vpc: ec2.IVpc;
   private readonly securityGroups: ec2.ISecurityGroup[];
-  private readonly repository: ecr.Repository;
   private readonly subnetSelection: ec2.SubnetSelection | undefined;
   private readonly rebuildInterval: cdk.Duration;
   private readonly boundComponents: ImageBuilderComponent[] = [];
@@ -303,28 +302,6 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.role = new iam.Role(this, 'Role', {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
     });
-
-    // create repository that only keeps one tag
-    this.repository = new ecr.Repository(this, 'Repository', {
-      imageScanOnPush: true,
-      imageTagMutability: TagMutability.MUTABLE,
-      removalPolicy: RemovalPolicy.DESTROY,
-      lifecycleRules: [
-        {
-          description: 'Remove untagged images that have been replaced by AWS Image Builder',
-          tagStatus: TagStatus.UNTAGGED,
-          maxImageAge: Duration.days(1),
-          rulePriority: 1,
-        },
-        {
-          description: 'Remove non-latest images',
-          tagStatus: TagStatus.TAGGED,
-          tagPrefixList: ['1'], // all versions start with '1.0.'
-          maxImageCount: 2, // keep two in case of rollback
-          rulePriority: 2,
-        },
-      ],
-    });
   }
 
   private platform() {
@@ -345,6 +322,28 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       return this.boundDockerImage;
     }
 
+    // create repository that only keeps one tag
+    const repository = new ecr.Repository(this, 'Repository', {
+      imageScanOnPush: true,
+      imageTagMutability: TagMutability.MUTABLE,
+      removalPolicy: RemovalPolicy.DESTROY,
+      lifecycleRules: [
+        {
+          description: 'Remove untagged images that have been replaced by AWS Image Builder',
+          tagStatus: TagStatus.UNTAGGED,
+          maxImageAge: Duration.days(1),
+          rulePriority: 1,
+        },
+        {
+          description: 'Remove non-latest images',
+          tagStatus: TagStatus.TAGGED,
+          tagPrefixList: ['1'], // all versions start with '1.0.'
+          maxImageCount: 2, // keep two in case of rollback
+          rulePriority: 2,
+        },
+      ],
+    });
+
     const dist = new imagebuilder.CfnDistributionConfiguration(this, 'Docker Distribution', {
       name: uniqueImageBuilderName(this),
       // description: this.description,
@@ -355,7 +354,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
             ContainerTags: ['latest'],
             TargetRepository: {
               Service: 'ECR',
-              RepositoryName: this.repository.repositoryName,
+              RepositoryName: repository.repositoryName,
             },
           },
         },
@@ -376,7 +375,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     const recipe = new ContainerRecipe(this, 'Container Recipe', {
       platform: this.platform(),
       components: this.bindComponents(),
-      targetRepository: this.repository,
+      targetRepository: repository,
       dockerfileTemplate: dockerfileTemplate,
       parentImage: this.baseImage,
     });
@@ -389,7 +388,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     const image = this.createImage(infra, dist, log, undefined, recipe.arn);
     this.createPipeline(infra, dist, log, undefined, recipe.arn);
 
-    this.imageCleaner(image, recipe.name);
+    this.imageCleaner(image, recipe.name, repository);
 
     this.boundDockerImage = {
       // There are simpler ways to get the ARN, but we want an image object that depends on the newly built image.
@@ -409,7 +408,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return this.boundDockerImage;
   }
 
-  private imageCleaner(image: imagebuilder.CfnImage, recipeName: string) {
+  private imageCleaner(image: imagebuilder.CfnImage, recipeName: string, repository: ecr.IRepository) {
     const crHandler = singletonLambda(BuildImageFunction, this, 'build-image', {
       description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
       timeout: cdk.Duration.minutes(3),
@@ -420,7 +419,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       statements: [
         new iam.PolicyStatement({
           actions: ['ecr:BatchDeleteImage', 'ecr:ListImages'],
-          resources: [this.repository.repositoryArn],
+          resources: [repository.repositoryArn],
         }),
         new iam.PolicyStatement({
           actions: ['imagebuilder:ListImages', 'imagebuilder:ListImageBuildVersions', 'imagebuilder:DeleteImage'],
@@ -434,7 +433,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       serviceToken: crHandler.functionArn,
       resourceType: 'Custom::ImageDeleter',
       properties: {
-        RepoName: this.repository.repositoryName,
+        RepoName: repository.repositoryName,
         ImageBuilderName: recipeName, // we don't use image.name because CloudFormation complains if it was deleted already
         DeleteOnly: true,
       },
