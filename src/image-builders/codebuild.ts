@@ -291,6 +291,8 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
               '  "LogicalResourceId": "$LOGICAL_RESOURCE_ID",\n' +
               '  "PhysicalResourceId": "$REPO_ARN",\n' +
               '  "Status": "$STATUS",\n' +
+              // we remove non-printable characters from the log because CloudFormation doesn't like them
+              // https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1601
               '  "Reason": `sed \'s/[^[:print:]]//g\' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\n' +
               `  "Data": {"Name": "${repository.repositoryName}"}\n` +
               '}\n' +
