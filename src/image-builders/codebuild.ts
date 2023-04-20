@@ -20,8 +20,8 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
 import { defaultBaseDockerImage } from './aws-image-builder';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
 import { BuildImageFunction } from '../providers/build-image-function';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers/common';
 import { singletonLambda } from '../utils';
 
 
@@ -139,7 +139,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     );
 
     // generate buildSpec
-    const buildSpec = this.getBuildSpec(this.repository, logGroup);
+    const buildSpec = this.getBuildSpec(this.repository);
 
     // create CodeBuild project that builds Dockerfile and pushes to repository
     const project = new codebuild.Project(this, 'CodeBuild', {
@@ -250,7 +250,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     return commands;
   }
 
-  private getBuildSpec(repository: ecr.Repository, logGroup: logs.LogGroup): codebuild.BuildSpec {
+  private getBuildSpec(repository: ecr.Repository): codebuild.BuildSpec {
     const thisStack = cdk.Stack.of(this);
 
     return codebuild.BuildSpec.fromObject({
@@ -263,23 +263,26 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
           REQUEST_ID: 'unspecified',
           LOGICAL_RESOURCE_ID: 'unspecified',
           RESPONSE_URL: 'unspecified',
+          BASH_ENV: 'codebuild-log.sh',
         },
+        shell: 'bash',
       },
       phases: {
         pre_build: {
           commands: [
+            'echo "exec > >(tee -a /tmp/codebuild.log) 2>&1" > codebuild-log.sh',
             `aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`,
           ],
         },
         build: {
-          commands: this.getDockerfileGenerationCommands().concat([
-            'docker build . -t "$REPO_URI"',
+          commands: this.getDockerfileGenerationCommands().concat(
+            'docker build --progress plain . -t "$REPO_URI"',
             'docker push "$REPO_URI"',
-          ]),
+          ),
         },
         post_build: {
           commands: [
-            'STATUS="SUCCESS"',
+            'rm -f codebuild-log.sh && STATUS="SUCCESS"',
             'if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS="FAILED"; fi',
             'cat <<EOF > /tmp/payload.json\n' +
               '{\n' +
@@ -288,7 +291,9 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
               '  "LogicalResourceId": "$LOGICAL_RESOURCE_ID",\n' +
               '  "PhysicalResourceId": "$REPO_ARN",\n' +
               '  "Status": "$STATUS",\n' +
-              `  "Reason": "See logs in ${logGroup.logGroupName}/$CODEBUILD_LOG_PATH (deploy again with \'cdk deploy -R\' or logRemovalPolicy=RemovalPolicy.RETAIN if they are already deleted)",\n` +
+              // we remove non-printable characters from the log because CloudFormation doesn't like them
+              // https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1601
+              '  "Reason": `sed \'s/[^[:print:]]//g\' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\n' +
               `  "Data": {"Name": "${repository.repositoryName}"}\n` +
               '}\n' +
               'EOF',
