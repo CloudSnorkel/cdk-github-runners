@@ -24,6 +24,7 @@ import { ImageBuilderObjectBase } from './common';
 import { ContainerRecipe, defaultBaseDockerImage } from './container';
 import { DeleteAmiFunction } from './delete-ami-function';
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
+import { ReaperFunction } from './reaper-function';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers';
 import { BuildImageFunction } from '../../providers/build-image-function';
 import { singletonLambda } from '../../utils';
@@ -389,6 +390,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.createPipeline(infra, dist, log, undefined, recipe.arn);
 
     this.imageCleaner(image, recipe.name, repository);
+    this.reaper(recipe.name, 'Docker');
 
     this.boundDockerImage = {
       // There are simpler ways to get the ARN, but we want an image object that depends on the newly built image.
@@ -617,6 +619,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     };
 
     this.amiCleaner(launchTemplate, stackName, builderName);
+    this.reaper(recipe.name, 'AMI');
 
     return this.boundAmi;
   }
@@ -665,6 +668,37 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     }
 
     return this.boundComponents;
+  }
+
+  private reaper(recipeName: string, imageType: 'Docker' | 'AMI') {
+    const reaper = singletonLambda(ReaperFunction, this, 'Reaper', {
+      description: 'AWS Image Builder version reaper deletes old image build versions pointing to deleted AMIs/Docker images',
+      timeout: cdk.Duration.minutes(3),
+      logRetention: logs.RetentionDays.ONE_MONTH,
+      initialPolicy: [
+        new iam.PolicyStatement({
+          actions: [
+            'imagebuilder:ListImages',
+            'imagebuilder:ListImageBuildVersions',
+            'imagebuilder:DeleteImage',
+            'ec2:DescribeImages',
+            'ecr:DescribeImages',
+          ],
+          resources: ['*'],
+        }),
+      ],
+    });
+
+    const scheduleRule = new events.Rule(this, `Reaper Schedule ${imageType}`, {
+      description: `Delete old image build versions for ${recipeName}`,
+      schedule: events.Schedule.rate(cdk.Duration.days(1)),
+    });
+
+    scheduleRule.addTarget(new events_targets.LambdaFunction(reaper, {
+      event: events.RuleTargetInput.fromObject({
+        RecipeName: recipeName,
+      }),
+    }));
   }
 }
 
