@@ -75,3 +75,6 @@ test/default.integ.snapshot/**/manifest.json
 test/default.integ.snapshot/tree.json
 test/default.integ.snapshot/**/tree.json
 /setup/dist
+!/cdk.json
+/cdk.out/
+.cdk.staging/
