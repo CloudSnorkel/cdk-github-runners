@@ -12,6 +12,7 @@
     ".projen/deps.json",
     ".projen/files.json",
     ".projen/tasks.json",
+    "cdk.json",
     "LICENSE",
     "src/delete-runner-function.ts",
     "src/image-builders/aws-image-builder/delete-ami-function.ts",

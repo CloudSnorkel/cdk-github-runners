@@ -1,4 +1,5 @@
 const { awscdk } = require('projen');
+const { CdkConfig } = require('projen/lib/awscdk');
 const { Stability } = require('projen/lib/cdk/jsii-project');
 
 const project = new awscdk.AwsCdkConstructLibrary({
@@ -125,5 +126,18 @@ project.gitignore.addPatterns('/setup/dist');
 project.addPackageIgnore('/setup');
 project.bundler.bundleTask.exec('vite build setup');
 project.bundler.bundleTask.exec('cp -r setup/dist/index.html assets/setup.lambda/index.html');
+
+// support integ:default:watch -- https://github.com/projen/projen/issues/1347
+const cdkConfig = new CdkConfig(project, {
+  app: '', // Required for types.
+  buildCommand: 'npm run bundle',
+  watchIncludes: [
+    `${project.srcdir}/**/*.ts`,
+    `${project.testdir}/**/*.integ.ts`,
+  ],
+});
+cdkConfig.json.addDeletionOverride('app');
+cdkConfig.json.addDeletionOverride('context');
+cdkConfig.json.addDeletionOverride('output');
 
 project.synth();

@@ -22,6 +22,7 @@
 /.projen/files.json linguist-generated
 /.projen/tasks.json linguist-generated
 /API.md linguist-generated
+/cdk.json linguist-generated
 /LICENSE linguist-generated
 /package.json linguist-generated
 /src/delete-runner-function.ts linguist-generated
