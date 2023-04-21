@@ -28,6 +28,7 @@
 /src/delete-runner-function.ts linguist-generated
 /src/image-builders/aws-image-builder/delete-ami-function.ts linguist-generated
 /src/image-builders/aws-image-builder/filter-failed-builds-function.ts linguist-generated
+/src/image-builders/aws-image-builder/reaper-function.ts linguist-generated
 /src/image-builders/aws-image-builder/versioner-function.ts linguist-generated
 /src/providers/build-image-function.ts linguist-generated
 /src/providers/update-lambda-function.ts linguist-generated

@@ -3036,6 +3036,45 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "WindowsImageBuilderReaperScheduleDockerDFBF7915": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Delete old image build versions for github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "Reaperdcc036c8876b451ea2c1552f9e06e9e1243BFB08",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": "{\"RecipeName\":\"github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B\"}"
+     }
+    ]
+   }
+  },
+  "WindowsImageBuilderReaperScheduleDockerAllowEventRulegithubrunnerstestReaperdcc036c8876b451ea2c1552f9e06e9e1A3B5C963F66931D8": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "Reaperdcc036c8876b451ea2c1552f9e06e9e1243BFB08",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderReaperScheduleDockerDFBF7915",
+      "Arn"
+     ]
+    }
+   }
+  },
   "AMILinuxBuilderSGEDC86329": {
    "Type": "AWS::EC2::SecurityGroup",
    "Properties": {
@@ -4103,6 +4142,45 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "AMILinuxBuilderReaperScheduleAMI1FDEB175": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Delete old image build versions for github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "Reaperdcc036c8876b451ea2c1552f9e06e9e1243BFB08",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": "{\"RecipeName\":\"github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B\"}"
+     }
+    ]
+   }
+  },
+  "AMILinuxBuilderReaperScheduleAMIAllowEventRulegithubrunnerstestReaperdcc036c8876b451ea2c1552f9e06e9e1A3B5C963B9718DFD": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "Reaperdcc036c8876b451ea2c1552f9e06e9e1243BFB08",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderReaperScheduleAMI1FDEB175",
+      "Arn"
+     ]
+    }
+   }
   },
   "CodeBuildImageBuilderRoleF1F34984": {
    "Type": "AWS::IAM::Role",
@@ -7073,6 +7151,45 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
+  "AMILinuxarm64BuilderReaperScheduleAMIA85EF7E0": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Delete old image build versions for github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "Reaperdcc036c8876b451ea2c1552f9e06e9e1243BFB08",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": "{\"RecipeName\":\"github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF\"}"
+     }
+    ]
+   }
+  },
+  "AMILinuxarm64BuilderReaperScheduleAMIAllowEventRulegithubrunnerstestReaperdcc036c8876b451ea2c1552f9e06e9e1A3B5C96351358891": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "Reaperdcc036c8876b451ea2c1552f9e06e9e1243BFB08",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderReaperScheduleAMIA85EF7E0",
+      "Arn"
+     ]
+    }
+   }
+  },
   "WindowsEC2BuilderSGE3F67842": {
    "Type": "AWS::EC2::SecurityGroup",
    "Properties": {
@@ -8163,6 +8280,45 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "WindowsEC2BuilderReaperScheduleAMI948B0F32": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Delete old image build versions for github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "Reaperdcc036c8876b451ea2c1552f9e06e9e1243BFB08",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": "{\"RecipeName\":\"github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750\"}"
+     }
+    ]
+   }
+  },
+  "WindowsEC2BuilderReaperScheduleAMIAllowEventRulegithubrunnerstestReaperdcc036c8876b451ea2c1552f9e06e9e1A3B5C9632369AAD6": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "Reaperdcc036c8876b451ea2c1552f9e06e9e1243BFB08",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderReaperScheduleAMI948B0F32",
+      "Arn"
+     ]
+    }
+   }
   },
   "CodeBuildx64LogsA21ECD59": {
    "Type": "AWS::Logs::LogGroup",
@@ -9286,6 +9442,117 @@
        "/aws/lambda/",
        {
         "Ref": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "Reaperdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleF3DF0C70": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "Reaperdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0E224712": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "imagebuilder:ListImages",
+        "imagebuilder:ListImageBuildVersions",
+        "imagebuilder:DeleteImage",
+        "ec2:DescribeImages",
+        "ecr:DescribeImages"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "Reaperdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0E224712",
+    "Roles": [
+     {
+      "Ref": "Reaperdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleF3DF0C70"
+     }
+    ]
+   }
+  },
+  "Reaperdcc036c8876b451ea2c1552f9e06e9e1243BFB08": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "5f8bfcf4ab8ff4424ec7439e70ebd737d939618a617fa91bfb0482b2a957cf23.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "Reaperdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleF3DF0C70",
+      "Arn"
+     ]
+    },
+    "Description": "AWS Image Builder version reaper deletes old image build versions pointing to deleted AMIs/Docker images",
+    "Environment": {
+     "Variables": {
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs16.x",
+    "Timeout": 180
+   },
+   "DependsOn": [
+    "Reaperdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0E224712",
+    "Reaperdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleF3DF0C70"
+   ]
+  },
+  "Reaperdcc036c8876b451ea2c1552f9e06e9e1LogRetention316D07CD": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "Reaperdcc036c8876b451ea2c1552f9e06e9e1243BFB08"
        }
       ]
      ]

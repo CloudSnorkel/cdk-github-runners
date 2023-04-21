@@ -15,6 +15,8 @@
     "bundle:image-builders/aws-image-builder/delete-ami.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/delete-ami.lambda:watch",
     "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda": "npx projen bundle:image-builders/aws-image-builder/filter-failed-builds.lambda",
     "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/filter-failed-builds.lambda:watch",
+    "bundle:image-builders/aws-image-builder/reaper.lambda": "npx projen bundle:image-builders/aws-image-builder/reaper.lambda",
+    "bundle:image-builders/aws-image-builder/reaper.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/reaper.lambda:watch",
     "bundle:image-builders/aws-image-builder/versioner.lambda": "npx projen bundle:image-builders/aws-image-builder/versioner.lambda",
     "bundle:image-builders/aws-image-builder/versioner.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/versioner.lambda:watch",
     "bundle:providers/build-image.lambda": "npx projen bundle:providers/build-image.lambda",

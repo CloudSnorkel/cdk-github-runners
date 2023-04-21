@@ -55,6 +55,9 @@
           "spawn": "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda"
         },
         {
+          "spawn": "bundle:image-builders/aws-image-builder/reaper.lambda"
+        },
+        {
           "spawn": "bundle:image-builders/aws-image-builder/versioner.lambda"
         },
         {
@@ -137,6 +140,24 @@
       "steps": [
         {
           "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:image-builders/aws-image-builder/reaper.lambda": {
+      "name": "bundle:image-builders/aws-image-builder/reaper.lambda",
+      "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/reaper.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/reaper.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/reaper.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:image-builders/aws-image-builder/reaper.lambda:watch": {
+      "name": "bundle:image-builders/aws-image-builder/reaper.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/reaper.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/reaper.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/reaper.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
         }
       ]
     },
