@@ -179,12 +179,12 @@ export interface LogOptions {
  * const bucket = new s3.Bucket(this, 'runner bucket');
  *
  * // create a custom CodeBuild provider
- * const myProvider = new CodeBuildRunner(
+ * const myProvider = new CodeBuildRunnerProvider(
  *   this, 'codebuild runner',
  *   {
- *      label: 'my-codebuild',
+ *      labels: ['my-codebuild'],
  *      vpc: vpc,
- *      securityGroup: runnerSg,
+ *      securityGroups: [runnerSg],
  *   },
  * );
  * // grant some permissions to the provider

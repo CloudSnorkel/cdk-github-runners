@@ -29,8 +29,8 @@ builder.addComponent(new ImageBuilderComponent(scope, id, {
     'apt-get install p7zip',
   ],
 }));
-new Ec2Runner(this, 'EC2 provider', {
-    label: 'custom-ec2',
+new Ec2RunnerProvider(this, 'EC2 provider', {
+    labels: ['custom-ec2'],
     amiBuilder: builder,
 });
 ```
@@ -245,8 +245,8 @@ const builder = new CodeBuildImageBuilder(this, 'Builder', {
     rebuildInterval: Duration.days(14),
 });
 builder.setBuildArg('EXTRA_PACKAGES', 'nginx xz-utils');
-new FargateRunner(this, 'Fargate provider', {
-    label: 'customized-fargate',
+new FargateRunnerProvider(this, 'Fargate provider', {
+    labels: ['customized-fargate'],
     imageBuilder: builder,
 });
 ```
@@ -1221,8 +1221,8 @@ const builder = new ContainerImageBuilder(this, 'Builder', {
     runnerVersion: RunnerVersion.specific('2.293.0'),
     rebuildInterval: Duration.days(14),
 });
-new CodeBuildRunner(this, 'CodeBuild provider', {
-    label: 'custom-codebuild',
+new CodeBuildRunnerProvider(this, 'CodeBuild provider', {
+    labels: ['custom-codebuild'],
     imageBuilder: builder,
 });
 ```
@@ -3039,12 +3039,12 @@ const dbSg = ec2.SecurityGroup.fromSecurityGroupId(this, 'database security grou
 const bucket = new s3.Bucket(this, 'runner bucket');
 
 // create a custom CodeBuild provider
-const myProvider = new CodeBuildRunner(
+const myProvider = new CodeBuildRunnerProvider(
   this, 'codebuild runner',
   {
-     label: 'my-codebuild',
+     labels: ['my-codebuild'],
      vpc: vpc,
-     securityGroup: runnerSg,
+     securityGroups: [runnerSg],
   },
 );
 // grant some permissions to the provider
@@ -7545,7 +7545,7 @@ public readonly os: Os;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
-- *Default:* OS.LINUX
+- *Default:* OS.LINUX_UBUNTU
 
 Image OS.
 
