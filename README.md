@@ -197,7 +197,7 @@ new GitHubRunners(this, 'runners', {
          labels: ['arm64', 'fargate'],
          imageBuidler: FargateRunnerProvider.imageBuilder(this, 'image builder', {
             architecture: Architecture.ARM64,
-            os: Os.LINUX,
+            os: Os.LINUX_UBUNTU,
          }),
       }),
    ],

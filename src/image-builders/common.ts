@@ -36,7 +36,7 @@ export interface ImageBuilderBaseProps {
   /**
    * Image OS.
    *
-   * @default OS.LINUX
+   * @default OS.LINUX_UBUNTU
    */
   readonly os?: Os;
 
@@ -139,7 +139,7 @@ export interface RunnerImageBuilderProps {
   /**
    * Image OS.
    *
-   * @default OS.LINUX
+   * @default OS.LINUX_UBUNTU
    */
   readonly os?: Os;
 

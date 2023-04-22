@@ -7545,7 +7545,7 @@ public readonly os: Os;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
-- *Default:* OS.LINUX
+- *Default:* OS.LINUX_UBUNTU
 
 Image OS.
 
