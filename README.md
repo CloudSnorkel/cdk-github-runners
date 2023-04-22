@@ -104,10 +104,10 @@ let dbSg: ec2.SecurityGroup;
 let bucket: s3.Bucket;
 
 // create a custom CodeBuild provider
-const myProvider = new CodeBuildRunnerProvider(this, 'codebuild runner', { 
-  label: 'my-codebuild',
-  vpc: vpc,
-  securityGroup: runnerSg,
+const myProvider = new CodeBuildRunnerProvider(this, 'codebuild runner', {
+   labels: ['my-codebuild'],
+   vpc: vpc,
+   securityGroups: [runnerSg],
 });
 // grant some permissions to the provider
 bucket.grantReadWrite(myProvider);
@@ -132,9 +132,9 @@ myBuilder.addComponent(
 );
 
 const myProvider = new FargateRunnerProvider(this, 'fargate runner', {
-   label: 'customized-fargate',
+   labels: ['customized-fargate'],
    vpc: vpc,
-   securityGroup: runnerSg,
+   securityGroups: [runnerSg],
    imageBuilder: myBuilder,
 });
 
@@ -160,31 +160,31 @@ Windows images can also be customized the same way.
 
 ```typescript
 const myWindowsBuilder = FargateRunnerProvider.imageBuilder(this, 'Windows image builder', {
-  architecture: Architecture.X86_64,
-  os: Os.WINDOWS,
-  runnerVersion: RunnerVersion.specific('2.291.0'),
-  rebuildInterval: Duration.days(14),    
+   architecture: Architecture.X86_64,
+   os: Os.WINDOWS,
+   runnerVersion: RunnerVersion.specific('2.291.0'),
+   rebuildInterval: Duration.days(14),
 });
 myWindowsBuilder.addComponent(
-  RunnerImageComponent.custom({
-    name: 'Ninja',
-    commands: [
-      'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-win.zip" -OutFile ninja.zip',
-      'Expand-Archive ninja.zip -DestinationPath C:\\actions',
-      'del ninja.zip',
-    ],
-  })
+        RunnerImageComponent.custom({
+           name: 'Ninja',
+           commands: [
+              'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-win.zip" -OutFile ninja.zip',
+              'Expand-Archive ninja.zip -DestinationPath C:\\actions',
+              'del ninja.zip',
+           ],
+        })
 );
 
 const myProvider = new FargateRunnerProvider(this, 'fargate runner', {
-  label: 'customized-windows-fargate',
-  vpc: vpc,
-  securityGroup: runnerSg,
-  imageBuidler: myWindowsBuilder,
+   labels: ['customized-windows-fargate'],
+   vpc: vpc,
+   securityGroups: [runnerSg],
+   imageBuidler: myWindowsBuilder,
 });
 
 new GitHubRunners(this, 'runners', {
-  providers: [myProvider],
+   providers: [myProvider],
 });
 ```
 
@@ -192,15 +192,15 @@ The runner OS and architecture is determined by the image it is set to use. For 
 
 ```typescript
 new GitHubRunners(this, 'runners', {
-  providers: [
-    new FargateRunnerProvider(this, 'fargate runner', {
-      labels: ['arm64', 'fargate'],
-      imageBuidler: FargateRunnerProvider.imageBuilder(this, 'image builder', {
-        architecture: Architecture.ARM64,
-        os: Os.LINUX,
+   providers: [
+      new FargateRunnerProvider(this, 'fargate runner', {
+         labels: ['arm64', 'fargate'],
+         imageBuidler: FargateRunnerProvider.imageBuilder(this, 'image builder', {
+            architecture: Architecture.ARM64,
+            os: Os.LINUX,
+         }),
       }),
-    }),
-  ],
+   ],
 });
 ```
 

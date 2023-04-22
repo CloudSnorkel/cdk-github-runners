@@ -51,21 +51,21 @@ test('Fargate provider labels', () => {
 
   const defaultLabel = new FargateRunnerProvider(stack, 'defaultLabel', {
     vpc: vpc,
-    securityGroup: sg,
+    securityGroups: [sg],
   });
   expect(defaultLabel.labels).toStrictEqual(['fargate']);
 
   const deprecatedLabel = new FargateRunnerProvider(stack, 'deprecatedLabel', {
     label: 'hello',
     vpc: vpc,
-    securityGroup: sg,
+    securityGroups: [sg],
   });
   expect(deprecatedLabel.labels).toStrictEqual(['hello']);
 
   const labels = new FargateRunnerProvider(stack, 'labels', {
     labels: ['hello', 'world'],
     vpc: vpc,
-    securityGroup: sg,
+    securityGroups: [sg],
   });
   expect(labels.labels).toStrictEqual(['hello', 'world']);
 

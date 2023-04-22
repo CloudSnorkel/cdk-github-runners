@@ -73,7 +73,7 @@ test('Fargate provider', () => {
 
   new FargateRunnerProvider(stack, 'provider', {
     vpc: vpc,
-    securityGroup: sg,
+    securityGroups: [sg],
   });
 
   const template = Template.fromStack(stack);

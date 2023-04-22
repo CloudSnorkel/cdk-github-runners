@@ -141,8 +141,8 @@ export interface AmiBuilderProps {
  *     'apt-get install p7zip',
  *   ],
  * }));
- * new Ec2Runner(this, 'EC2 provider', {
- *     label: 'custom-ec2',
+ * new Ec2RunnerProvider(this, 'EC2 provider', {
+ *     labels: ['custom-ec2'],
  *     amiBuilder: builder,
  * });
  * ```

@@ -151,8 +151,8 @@ export interface CodeBuildImageBuilderProps {
  *     rebuildInterval: Duration.days(14),
  * });
  * builder.setBuildArg('EXTRA_PACKAGES', 'nginx xz-utils');
- * new FargateRunner(this, 'Fargate provider', {
- *     label: 'customized-fargate',
+ * new FargateRunnerProvider(this, 'Fargate provider', {
+ *     labels: ['customized-fargate'],
  *     imageBuilder: builder,
  * });
  * ```
