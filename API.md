@@ -240,7 +240,7 @@ For example, to set a specific runner version, rebuild the image every 2 weeks, 
 
 ```
 const builder = new CodeBuildImageBuilder(this, 'Builder', {
-    dockerfilePath: FargateProvider.LINUX_X64_DOCKERFILE_PATH,
+    dockerfilePath: FargateRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
     runnerVersion: RunnerVersion.specific('2.293.0'),
     rebuildInterval: Duration.days(14),
 });
@@ -5693,7 +5693,7 @@ public readonly imageBuilder: IRunnerImageBuilder;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
-- *Default:* Ec2ProviderProps.imageBuilder()
+- *Default:* Ec2RunnerProvider.imageBuilder()
 
 Runner image builder used to build AMI containing GitHub Runner and all requirements.
 
