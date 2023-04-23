@@ -138,7 +138,7 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
    *
    * The image builder determines the OS and architecture of the runner.
    *
-   * @default Ec2ProviderProps.imageBuilder()
+   * @default Ec2RunnerProvider.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
 
