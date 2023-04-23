@@ -146,7 +146,7 @@ export interface CodeBuildImageBuilderProps {
  *
  * ```
  * const builder = new CodeBuildImageBuilder(this, 'Builder', {
- *     dockerfilePath: FargateProvider.LINUX_X64_DOCKERFILE_PATH,
+ *     dockerfilePath: FargateRunnerProvider.LINUX_X64_DOCKERFILE_PATH,
  *     runnerVersion: RunnerVersion.specific('2.293.0'),
  *     rebuildInterval: Duration.days(14),
  * });
