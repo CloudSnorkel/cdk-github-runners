@@ -55,39 +55,96 @@ You can also create your own provider by implementing `IRunnerProvider`.
 
 ## Installation
 
-1. Confirm you're using CDK v2
-2. Install the appropriate package
-   1. [Python][6]
-      ```
-      pip install cloudsnorkel.cdk-github-runners
-      ```
-   2. [TypeScript or JavaScript][7]
-      ```
-      npm i @cloudsnorkel/cdk-github-runners
-      ```
-   3. [Java][8]
-      ```xml
-      <dependency>
+1. Install and use the appropriate package
+   <details><summary>Python</summary>
+
+   ### Install
+   Available on [PyPI][6].
+   ```bash
+   pip install cloudsnorkel.cdk-github-runners
+   ```
+   ### Use
+   ```python
+   from cloudsnorkel.cdk_github_runners import GitHubRunners
+   
+   GitHubRunners(self, "runners")
+   ```
+   </details>
+   <details><summary>TypeScript or JavaScript</summary>
+
+   ### Install
+   Available on [npm][7].
+   ```bash
+   npm i @cloudsnorkel/cdk-github-runners
+   ```
+   ### Use
+   ```typescript
+   import { GitHubRunners } from '@cloudsnorkel/cdk-github-runners';
+   
+   new GitHubRunners(this, "runners");
+   ```
+   </details>
+   <details><summary>Java</summary>
+
+   ### Install
+   Available on [Maven][8].
+   ```xml
+   <dependency>
       <groupId>com.cloudsnorkel</groupId>
       <artifactId>cdk.github.runners</artifactId>
-      </dependency>
-      ```
-   4. [Go][11]
-      ```
-      go get github.com/CloudSnorkel/cdk-github-runners-go/cloudsnorkelcdkgithubrunners
-      ```
-   5. [.NET][12]
-      ```
-      dotnet add package CloudSnorkel.Cdk.Github.Runners
-      ```
-3. Use `GitHubRunners` construct in your code (starting with default arguments is fine)
-4. Deploy your stack
-5. Look for the status command output similar to `aws --region us-east-1 lambda invoke --function-name status-XYZ123 status.json`
-6. Execute the status command (you may need to specify `--profile` too) and open the resulting `status.json` file
-7. Open the URL in `github.setup.url` from `status.json` or [manually setup GitHub](SETUP_GITHUB.md) integration as an app or with personal access token
-8. Run status command again to confirm `github.auth.status` and `github.webhook.status` are OK
-9. Trigger a GitHub action that has a `self-hosted` label with `runs-on: [self-hosted, linux, codebuild]` or similar
-10. If the action is not successful, see [troubleshooting](#Troubleshooting)
+   </dependency>
+   ```
+   ### Use
+   ```java
+   import com.cloudsnorkel.cdk.github.runners.GitHubRunners;
+   
+   GitHubRunners.Builder.create(this, "runners").build();
+   ```
+   </details>
+   <details><summary>Go</summary>
+
+   ### Install
+   Available on [GitHub][11].
+   ```bash
+   go get github.com/CloudSnorkel/cdk-github-runners-go/cloudsnorkelcdkgithubrunners
+   ```
+   ### Use
+   ```go
+   import "github.com/CloudSnorkel/cdk-github-runners-go/cloudsnorkelcdkgithubrunners"
+   
+   NewGitHubRunners(this, jsii.String("runners"))
+   ```
+   </details>
+   <details><summary>.NET</summary>
+
+   ### Install
+   Available on [Nuget][12].
+   ```bash
+   dotnet add package CloudSnorkel.Cdk.Github.Runners
+   ```
+   ### Use
+   ```csharp
+   using CloudSnorkel;
+   
+   new GitHubRunners(this, "runners");
+   ```
+   </details>
+2. Use `GitHubRunners` construct in your code (starting with default arguments is fine)
+3. Deploy your stack
+4. Look for the status command output similar to `aws --region us-east-1 lambda invoke --function-name status-XYZ123 status.json`
+   ```
+    ✅  github-runners-test
+
+   ✨  Deployment time: 260.01s
+   
+   Outputs:
+   github-runners-test.runnersstatuscommand4A30F0F5 = aws --region us-east-1 lambda invoke --function-name github-runners-test-runnersstatus1A5771C0-mvttg8oPQnQS status.json
+   ```
+5. Execute the status command (you may need to specify `--profile` too) and open the resulting `status.json` file
+6. Open the URL in `github.setup.url` from `status.json` or [manually setup GitHub](SETUP_GITHUB.md) integration as an app or with personal access token
+7. Run status command again to confirm `github.auth.status` and `github.webhook.status` are OK
+8. Trigger a GitHub action that has a `self-hosted` label with `runs-on: [self-hosted, linux, codebuild]` or similar
+9. If the action is not successful, see [troubleshooting](#Troubleshooting)
 
 [![Demo](demo-thumbnail.jpg)](https://youtu.be/wlyv_3V8lIw)
 
@@ -247,7 +304,7 @@ Other useful metrics to track:
 [5]: https://github.com/actions/runner
 [6]: https://pypi.org/project/cloudsnorkel.cdk-github-runners
 [7]: https://www.npmjs.com/package/@cloudsnorkel/cdk-github-runners
-[8]: https://search.maven.org/search?q=g:%22com.cloudsnorkel%22%20AND%20a:%22cdk.github.runners%22
+[8]: https://central.sonatype.com/artifact/com.cloudsnorkel/cdk.github.runners/
 [9]: https://docs.github.com/en/developers/apps/getting-started-with-apps/about-apps
 [10]: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 [11]: https://pkg.go.dev/github.com/CloudSnorkel/cdk-github-runners-go/cloudsnorkelcdkgithubrunners
