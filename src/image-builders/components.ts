@@ -509,11 +509,11 @@ export abstract class RunnerImageComponent {
       getAssets(_os: Os, _architecture: Architecture): RunnerImageAsset[] {
         return [
           {
-            source: path.join(__dirname, '..', 'providers', 'docker-images', 'lambda', 'linux-x64', 'runner.js'),
+            source: path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-x64', 'runner.js'),
             target: '${LAMBDA_TASK_ROOT}/runner.js',
           },
           {
-            source: path.join(__dirname, '..', 'providers', 'docker-images', 'lambda', 'linux-x64', 'runner.sh'),
+            source: path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-x64', 'runner.sh'),
             target: '${LAMBDA_TASK_ROOT}/runner.sh',
           },
         ];
