@@ -9593,29 +9593,7 @@
     "DefaultCapacityProviderStrategy": []
    }
   },
-  "ECSAutoScalingGroupInstanceSecurityGroup87D56BFE": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/ECS/Auto Scaling Group/InstanceSecurityGroup",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/ECS/Auto Scaling Group"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
-  },
-  "ECSAutoScalingGroupInstanceRoleCA234A7C": {
+  "ECSLaunchTemplateRole3D54417B": {
    "Type": "AWS::IAM::Role",
    "Properties": {
     "AssumeRolePolicyDocument": {
@@ -9653,16 +9631,10 @@
        ]
       ]
      }
-    ],
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/ECS/Auto Scaling Group"
-     }
     ]
    }
   },
-  "ECSAutoScalingGroupInstanceRoleDefaultPolicy86A5959D": {
+  "ECSLaunchTemplateRoleDefaultPolicyA6578409": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
     "PolicyDocument": {
@@ -9728,138 +9700,165 @@
      ],
      "Version": "2012-10-17"
     },
-    "PolicyName": "ECSAutoScalingGroupInstanceRoleDefaultPolicy86A5959D",
+    "PolicyName": "ECSLaunchTemplateRoleDefaultPolicyA6578409",
     "Roles": [
      {
-      "Ref": "ECSAutoScalingGroupInstanceRoleCA234A7C"
+      "Ref": "ECSLaunchTemplateRole3D54417B"
      }
     ]
    }
   },
-  "ECSAutoScalingGroupInstanceProfile288AC654": {
+  "ECSLaunchTemplateProfileC7A3F149": {
    "Type": "AWS::IAM::InstanceProfile",
    "Properties": {
     "Roles": [
      {
-      "Ref": "ECSAutoScalingGroupInstanceRoleCA234A7C"
+      "Ref": "ECSLaunchTemplateRole3D54417B"
      }
     ]
    }
   },
-  "ECSAutoScalingGroupLaunchConfigC22C3413": {
-   "Type": "AWS::AutoScaling::LaunchConfiguration",
+  "ECSLaunchTemplate3A132D2F": {
+   "Type": "AWS::EC2::LaunchTemplate",
    "Properties": {
-    "ImageId": {
-     "Ref": "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
-    },
-    "InstanceType": "m5.large",
-    "IamInstanceProfile": {
-     "Ref": "ECSAutoScalingGroupInstanceProfile288AC654"
-    },
-    "MetadataOptions": {
-     "HttpTokens": "required"
-    },
-    "SecurityGroups": [
-     {
-      "Fn::GetAtt": [
-       "ECSAutoScalingGroupInstanceSecurityGroup87D56BFE",
-       "GroupId"
-      ]
-     },
-     {
-      "Fn::GetAtt": [
-       "ECSsecuritygroup76605212",
-       "GroupId"
-      ]
-     }
-    ],
-    "UserData": {
-     "Fn::Base64": {
-      "Fn::Join": [
-       "",
-       [
-        "#!/bin/bash\naws ecr get-login-password --region ",
-        {
-         "Ref": "AWS::Region"
-        },
-        " | docker login --username AWS --password-stdin ",
-        {
-         "Ref": "AWS::AccountId"
-        },
-        ".dkr.ecr.",
-        {
-         "Ref": "AWS::Region"
-        },
-        ".amazonaws.com\ndocker pull ",
-        {
-         "Fn::Select": [
-          4,
-          {
-           "Fn::Split": [
-            ":",
-            {
-             "Ref": "CodeBuildImageBuilderB8638EC8"
-            }
-           ]
-          }
-         ]
-        },
-        ".dkr.ecr.",
-        {
-         "Fn::Select": [
-          3,
-          {
-           "Fn::Split": [
-            ":",
-            {
-             "Ref": "CodeBuildImageBuilderB8638EC8"
-            }
-           ]
-          }
-         ]
-        },
-        ".",
-        {
-         "Ref": "AWS::URLSuffix"
-        },
-        "/",
-        {
-         "Fn::GetAtt": [
-          "CodeBuildImageBuilderB8638EC8",
-          "Name"
-         ]
-        },
-        ":latest &\necho ECS_CLUSTER=",
-        {
-         "Ref": "ECScluster20BC0B82"
-        },
-        " >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config"
+    "LaunchTemplateData": {
+     "IamInstanceProfile": {
+      "Arn": {
+       "Fn::GetAtt": [
+        "ECSLaunchTemplateProfileC7A3F149",
+        "Arn"
        ]
+      }
+     },
+     "ImageId": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id",
+     "InstanceType": "m5.large",
+     "MetadataOptions": {
+      "HttpTokens": "required"
+     },
+     "SecurityGroupIds": [
+      {
+       "Fn::GetAtt": [
+        "ECSsecuritygroup76605212",
+        "GroupId"
+       ]
+      }
+     ],
+     "TagSpecifications": [
+      {
+       "ResourceType": "instance",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/ECS/Launch Template"
+        }
+       ]
+      },
+      {
+       "ResourceType": "volume",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/ECS/Launch Template"
+        }
+       ]
+      }
+     ],
+     "UserData": {
+      "Fn::Base64": {
+       "Fn::Join": [
+        "",
+        [
+         "#!/bin/bash\naws ecr get-login-password --region ",
+         {
+          "Ref": "AWS::Region"
+         },
+         " | docker login --username AWS --password-stdin ",
+         {
+          "Ref": "AWS::AccountId"
+         },
+         ".dkr.ecr.",
+         {
+          "Ref": "AWS::Region"
+         },
+         ".amazonaws.com\ndocker pull ",
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "CodeBuildImageBuilderB8638EC8"
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "CodeBuildImageBuilderB8638EC8"
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Fn::GetAtt": [
+           "CodeBuildImageBuilderB8638EC8",
+           "Name"
+          ]
+         },
+         ":latest &\necho ECS_CLUSTER=",
+         {
+          "Ref": "ECScluster20BC0B82"
+         },
+         " >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config"
+        ]
+       ]
+      }
+     }
+    },
+    "TagSpecifications": [
+     {
+      "ResourceType": "launch-template",
+      "Tags": [
+       {
+        "Key": "Name",
+        "Value": "github-runners-test/ECS/Launch Template"
+       }
       ]
      }
-    }
-   },
-   "DependsOn": [
-    "ECSAutoScalingGroupInstanceRoleDefaultPolicy86A5959D",
-    "ECSAutoScalingGroupInstanceRoleCA234A7C"
-   ]
+    ]
+   }
   },
   "ECSAutoScalingGroupASG88763D9A": {
    "Type": "AWS::AutoScaling::AutoScalingGroup",
    "Properties": {
     "MaxSize": "1",
     "MinSize": "0",
-    "LaunchConfigurationName": {
-     "Ref": "ECSAutoScalingGroupLaunchConfigC22C3413"
+    "LaunchTemplate": {
+     "LaunchTemplateId": {
+      "Ref": "ECSLaunchTemplate3A132D2F"
+     },
+     "Version": {
+      "Fn::GetAtt": [
+       "ECSLaunchTemplate3A132D2F",
+       "LatestVersionNumber"
+      ]
+     }
     },
     "NewInstancesProtectedFromScaleIn": true,
-    "Tags": [
-     {
-      "Key": "Name",
-      "PropagateAtLaunch": true,
-      "Value": "github-runners-test/ECS/Auto Scaling Group"
-     }
-    ],
     "VPCZoneIdentifier": [
      {
       "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
@@ -10147,29 +10146,7 @@
     "DefaultCapacityProviderStrategy": []
    }
   },
-  "ECSARM64AutoScalingGroupInstanceSecurityGroupB68B781E": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/ECS ARM64/Auto Scaling Group/InstanceSecurityGroup",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/ECS ARM64/Auto Scaling Group"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
-  },
-  "ECSARM64AutoScalingGroupInstanceRole01030665": {
+  "ECSARM64LaunchTemplateRole9D1574E2": {
    "Type": "AWS::IAM::Role",
    "Properties": {
     "AssumeRolePolicyDocument": {
@@ -10207,16 +10184,10 @@
        ]
       ]
      }
-    ],
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/ECS ARM64/Auto Scaling Group"
-     }
     ]
    }
   },
-  "ECSARM64AutoScalingGroupInstanceRoleDefaultPolicyD0E29275": {
+  "ECSARM64LaunchTemplateRoleDefaultPolicy0705A7AA": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
     "PolicyDocument": {
@@ -10282,138 +10253,165 @@
      ],
      "Version": "2012-10-17"
     },
-    "PolicyName": "ECSARM64AutoScalingGroupInstanceRoleDefaultPolicyD0E29275",
+    "PolicyName": "ECSARM64LaunchTemplateRoleDefaultPolicy0705A7AA",
     "Roles": [
      {
-      "Ref": "ECSARM64AutoScalingGroupInstanceRole01030665"
+      "Ref": "ECSARM64LaunchTemplateRole9D1574E2"
      }
     ]
    }
   },
-  "ECSARM64AutoScalingGroupInstanceProfile768645E6": {
+  "ECSARM64LaunchTemplateProfileBF272018": {
    "Type": "AWS::IAM::InstanceProfile",
    "Properties": {
     "Roles": [
      {
-      "Ref": "ECSARM64AutoScalingGroupInstanceRole01030665"
+      "Ref": "ECSARM64LaunchTemplateRole9D1574E2"
      }
     ]
    }
   },
-  "ECSARM64AutoScalingGroupLaunchConfig9B8B62ED": {
-   "Type": "AWS::AutoScaling::LaunchConfiguration",
+  "ECSARM64LaunchTemplateC44F6059": {
+   "Type": "AWS::EC2::LaunchTemplate",
    "Properties": {
-    "ImageId": {
-     "Ref": "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2arm64recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
-    },
-    "InstanceType": "m6g.large",
-    "IamInstanceProfile": {
-     "Ref": "ECSARM64AutoScalingGroupInstanceProfile768645E6"
-    },
-    "MetadataOptions": {
-     "HttpTokens": "required"
-    },
-    "SecurityGroups": [
-     {
-      "Fn::GetAtt": [
-       "ECSARM64AutoScalingGroupInstanceSecurityGroupB68B781E",
-       "GroupId"
-      ]
-     },
-     {
-      "Fn::GetAtt": [
-       "ECSARM64securitygroup281D94B2",
-       "GroupId"
-      ]
-     }
-    ],
-    "UserData": {
-     "Fn::Base64": {
-      "Fn::Join": [
-       "",
-       [
-        "#!/bin/bash\naws ecr get-login-password --region ",
-        {
-         "Ref": "AWS::Region"
-        },
-        " | docker login --username AWS --password-stdin ",
-        {
-         "Ref": "AWS::AccountId"
-        },
-        ".dkr.ecr.",
-        {
-         "Ref": "AWS::Region"
-        },
-        ".amazonaws.com\ndocker pull ",
-        {
-         "Fn::Select": [
-          4,
-          {
-           "Fn::Split": [
-            ":",
-            {
-             "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
-            }
-           ]
-          }
-         ]
-        },
-        ".dkr.ecr.",
-        {
-         "Fn::Select": [
-          3,
-          {
-           "Fn::Split": [
-            ":",
-            {
-             "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
-            }
-           ]
-          }
-         ]
-        },
-        ".",
-        {
-         "Ref": "AWS::URLSuffix"
-        },
-        "/",
-        {
-         "Fn::GetAtt": [
-          "CodeBuildImageBuilderarmBuilder755EB37D",
-          "Name"
-         ]
-        },
-        ":latest &\necho ECS_CLUSTER=",
-        {
-         "Ref": "ECSARM64cluster4ECAA083"
-        },
-        " >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config"
+    "LaunchTemplateData": {
+     "IamInstanceProfile": {
+      "Arn": {
+       "Fn::GetAtt": [
+        "ECSARM64LaunchTemplateProfileBF272018",
+        "Arn"
        ]
+      }
+     },
+     "ImageId": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2/arm64/recommended/image_id",
+     "InstanceType": "m6g.large",
+     "MetadataOptions": {
+      "HttpTokens": "required"
+     },
+     "SecurityGroupIds": [
+      {
+       "Fn::GetAtt": [
+        "ECSARM64securitygroup281D94B2",
+        "GroupId"
+       ]
+      }
+     ],
+     "TagSpecifications": [
+      {
+       "ResourceType": "instance",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/ECS ARM64/Launch Template"
+        }
+       ]
+      },
+      {
+       "ResourceType": "volume",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/ECS ARM64/Launch Template"
+        }
+       ]
+      }
+     ],
+     "UserData": {
+      "Fn::Base64": {
+       "Fn::Join": [
+        "",
+        [
+         "#!/bin/bash\naws ecr get-login-password --region ",
+         {
+          "Ref": "AWS::Region"
+         },
+         " | docker login --username AWS --password-stdin ",
+         {
+          "Ref": "AWS::AccountId"
+         },
+         ".dkr.ecr.",
+         {
+          "Ref": "AWS::Region"
+         },
+         ".amazonaws.com\ndocker pull ",
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Fn::GetAtt": [
+           "CodeBuildImageBuilderarmBuilder755EB37D",
+           "Name"
+          ]
+         },
+         ":latest &\necho ECS_CLUSTER=",
+         {
+          "Ref": "ECSARM64cluster4ECAA083"
+         },
+         " >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config"
+        ]
+       ]
+      }
+     }
+    },
+    "TagSpecifications": [
+     {
+      "ResourceType": "launch-template",
+      "Tags": [
+       {
+        "Key": "Name",
+        "Value": "github-runners-test/ECS ARM64/Launch Template"
+       }
       ]
      }
-    }
-   },
-   "DependsOn": [
-    "ECSARM64AutoScalingGroupInstanceRoleDefaultPolicyD0E29275",
-    "ECSARM64AutoScalingGroupInstanceRole01030665"
-   ]
+    ]
+   }
   },
   "ECSARM64AutoScalingGroupASGA19FC118": {
    "Type": "AWS::AutoScaling::AutoScalingGroup",
    "Properties": {
     "MaxSize": "1",
     "MinSize": "0",
-    "LaunchConfigurationName": {
-     "Ref": "ECSARM64AutoScalingGroupLaunchConfig9B8B62ED"
+    "LaunchTemplate": {
+     "LaunchTemplateId": {
+      "Ref": "ECSARM64LaunchTemplateC44F6059"
+     },
+     "Version": {
+      "Fn::GetAtt": [
+       "ECSARM64LaunchTemplateC44F6059",
+       "LatestVersionNumber"
+      ]
+     }
     },
     "NewInstancesProtectedFromScaleIn": true,
-    "Tags": [
-     {
-      "Key": "Name",
-      "PropagateAtLaunch": true,
-      "Value": "github-runners-test/ECS ARM64/Auto Scaling Group"
-     }
-    ],
     "VPCZoneIdentifier": [
      {
       "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
@@ -10701,29 +10699,7 @@
     "DefaultCapacityProviderStrategy": []
    }
   },
-  "ECSWindowsAutoScalingGroupInstanceSecurityGroupA3DBA17A": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/ECS Windows/Auto Scaling Group/InstanceSecurityGroup",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/ECS Windows/Auto Scaling Group"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
-  },
-  "ECSWindowsAutoScalingGroupInstanceRoleFB287046": {
+  "ECSWindowsLaunchTemplateRole610E9A88": {
    "Type": "AWS::IAM::Role",
    "Properties": {
     "AssumeRolePolicyDocument": {
@@ -10761,16 +10737,10 @@
        ]
       ]
      }
-    ],
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "github-runners-test/ECS Windows/Auto Scaling Group"
-     }
     ]
    }
   },
-  "ECSWindowsAutoScalingGroupInstanceRoleDefaultPolicyAEE83B95": {
+  "ECSWindowsLaunchTemplateRoleDefaultPolicy48457459": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
     "PolicyDocument": {
@@ -10879,138 +10849,165 @@
      ],
      "Version": "2012-10-17"
     },
-    "PolicyName": "ECSWindowsAutoScalingGroupInstanceRoleDefaultPolicyAEE83B95",
+    "PolicyName": "ECSWindowsLaunchTemplateRoleDefaultPolicy48457459",
     "Roles": [
      {
-      "Ref": "ECSWindowsAutoScalingGroupInstanceRoleFB287046"
+      "Ref": "ECSWindowsLaunchTemplateRole610E9A88"
      }
     ]
    }
   },
-  "ECSWindowsAutoScalingGroupInstanceProfileD8019407": {
+  "ECSWindowsLaunchTemplateProfile4B6AA05B": {
    "Type": "AWS::IAM::InstanceProfile",
    "Properties": {
     "Roles": [
      {
-      "Ref": "ECSWindowsAutoScalingGroupInstanceRoleFB287046"
+      "Ref": "ECSWindowsLaunchTemplateRole610E9A88"
      }
     ]
    }
   },
-  "ECSWindowsAutoScalingGroupLaunchConfigAD09CF33": {
-   "Type": "AWS::AutoScaling::LaunchConfiguration",
+  "ECSWindowsLaunchTemplateA6BF5C73": {
+   "Type": "AWS::EC2::LaunchTemplate",
    "Properties": {
-    "ImageId": {
-     "Ref": "SsmParameterValueawsserviceamiwindowslatestWindowsServer2019EnglishFullECSOptimizedimageidC96584B6F00A464EAD1953AFF4B05118Parameter"
-    },
-    "InstanceType": "m5.large",
-    "IamInstanceProfile": {
-     "Ref": "ECSWindowsAutoScalingGroupInstanceProfileD8019407"
-    },
-    "MetadataOptions": {
-     "HttpTokens": "required"
-    },
-    "SecurityGroups": [
-     {
-      "Fn::GetAtt": [
-       "ECSWindowsAutoScalingGroupInstanceSecurityGroupA3DBA17A",
-       "GroupId"
-      ]
-     },
-     {
-      "Fn::GetAtt": [
-       "ECSWindowssecuritygroupB4EE54DA",
-       "GroupId"
-      ]
-     }
-    ],
-    "UserData": {
-     "Fn::Base64": {
-      "Fn::Join": [
-       "",
-       [
-        "<powershell>(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin ",
-        {
-         "Ref": "AWS::AccountId"
-        },
-        ".dkr.ecr.",
-        {
-         "Ref": "AWS::Region"
-        },
-        ".amazonaws.com\nStart-Job -ScriptBlock { docker pull ",
-        {
-         "Ref": "AWS::AccountId"
-        },
-        ".dkr.ecr.",
-        {
-         "Ref": "AWS::Region"
-        },
-        ".",
-        {
-         "Ref": "AWS::URLSuffix"
-        },
-        "/",
-        {
-         "Fn::Select": [
-          0,
-          {
-           "Fn::Split": [
-            ":",
-            {
-             "Fn::Select": [
-              1,
-              {
-               "Fn::Split": [
-                "/",
-                {
-                 "Fn::GetAtt": [
-                  "WindowsImageBuilderDockerImage8672CA3E",
-                  "ImageUri"
-                 ]
-                }
-               ]
-              }
-             ]
-            }
-           ]
-          }
-         ]
-        },
-        ":latest }\nRemove-Item -Recurse C:\\ProgramData\\Amazon\\ECS\\Cache\nImport-Module ECSTools\n[Environment]::SetEnvironmentVariable(\"ECS_CLUSTER\", \"",
-        {
-         "Ref": "ECSWindowscluster14061F74"
-        },
-        "\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_AWSLOGS_EXECUTIONROLE_OVERRIDE\", \"true\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_AVAILABLE_LOGGING_DRIVERS\", '[\"json-file\",\"awslogs\"]', \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_TASK_IAM_ROLE\", \"true\", \"Machine\")\nInitialize-ECSAgent -Cluster '",
-        {
-         "Ref": "ECSWindowscluster14061F74"
-        },
-        "' -EnableTaskIAMRole</powershell>"
+    "LaunchTemplateData": {
+     "IamInstanceProfile": {
+      "Arn": {
+       "Fn::GetAtt": [
+        "ECSWindowsLaunchTemplateProfile4B6AA05B",
+        "Arn"
        ]
+      }
+     },
+     "ImageId": "resolve:ssm:/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized/image_id",
+     "InstanceType": "m5.large",
+     "MetadataOptions": {
+      "HttpTokens": "required"
+     },
+     "SecurityGroupIds": [
+      {
+       "Fn::GetAtt": [
+        "ECSWindowssecuritygroupB4EE54DA",
+        "GroupId"
+       ]
+      }
+     ],
+     "TagSpecifications": [
+      {
+       "ResourceType": "instance",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/ECS Windows/Launch Template"
+        }
+       ]
+      },
+      {
+       "ResourceType": "volume",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/ECS Windows/Launch Template"
+        }
+       ]
+      }
+     ],
+     "UserData": {
+      "Fn::Base64": {
+       "Fn::Join": [
+        "",
+        [
+         "<powershell>(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin ",
+         {
+          "Ref": "AWS::AccountId"
+         },
+         ".dkr.ecr.",
+         {
+          "Ref": "AWS::Region"
+         },
+         ".amazonaws.com\nStart-Job -ScriptBlock { docker pull ",
+         {
+          "Ref": "AWS::AccountId"
+         },
+         ".dkr.ecr.",
+         {
+          "Ref": "AWS::Region"
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Fn::Select": [
+           0,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::Select": [
+               1,
+               {
+                "Fn::Split": [
+                 "/",
+                 {
+                  "Fn::GetAtt": [
+                   "WindowsImageBuilderDockerImage8672CA3E",
+                   "ImageUri"
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ":latest }\nRemove-Item -Recurse C:\\ProgramData\\Amazon\\ECS\\Cache\nImport-Module ECSTools\n[Environment]::SetEnvironmentVariable(\"ECS_CLUSTER\", \"",
+         {
+          "Ref": "ECSWindowscluster14061F74"
+         },
+         "\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_AWSLOGS_EXECUTIONROLE_OVERRIDE\", \"true\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_AVAILABLE_LOGGING_DRIVERS\", '[\"json-file\",\"awslogs\"]', \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_TASK_IAM_ROLE\", \"true\", \"Machine\")\nInitialize-ECSAgent -Cluster '",
+         {
+          "Ref": "ECSWindowscluster14061F74"
+         },
+         "' -EnableTaskIAMRole</powershell>"
+        ]
+       ]
+      }
+     }
+    },
+    "TagSpecifications": [
+     {
+      "ResourceType": "launch-template",
+      "Tags": [
+       {
+        "Key": "Name",
+        "Value": "github-runners-test/ECS Windows/Launch Template"
+       }
       ]
      }
-    }
-   },
-   "DependsOn": [
-    "ECSWindowsAutoScalingGroupInstanceRoleDefaultPolicyAEE83B95",
-    "ECSWindowsAutoScalingGroupInstanceRoleFB287046"
-   ]
+    ]
+   }
   },
   "ECSWindowsAutoScalingGroupASG864E3AAF": {
    "Type": "AWS::AutoScaling::AutoScalingGroup",
    "Properties": {
     "MaxSize": "1",
     "MinSize": "0",
-    "LaunchConfigurationName": {
-     "Ref": "ECSWindowsAutoScalingGroupLaunchConfigAD09CF33"
+    "LaunchTemplate": {
+     "LaunchTemplateId": {
+      "Ref": "ECSWindowsLaunchTemplateA6BF5C73"
+     },
+     "Version": {
+      "Fn::GetAtt": [
+       "ECSWindowsLaunchTemplateA6BF5C73",
+       "LatestVersionNumber"
+      ]
+     }
     },
     "NewInstancesProtectedFromScaleIn": true,
-    "Tags": [
-     {
-      "Key": "Name",
-      "PropagateAtLaunch": true,
-      "Value": "github-runners-test/ECS Windows/Auto Scaling Group"
-     }
-    ],
     "VPCZoneIdentifier": [
      {
       "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
@@ -18260,9 +18257,9 @@
    "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
    "Default": "/aws/service/ecs/optimized-ami/amazon-linux-2/arm64/recommended/image_id"
   },
-  "SsmParameterValueawsserviceamiwindowslatestWindowsServer2019EnglishFullECSOptimizedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
+  "SsmParameterValueawsserviceecsoptimizedamiwindowsserver2019englishfullrecommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
    "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
-   "Default": "/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized/image_id"
+   "Default": "/aws/service/ecs/optimized-ami/windows_server/2019/english/full/recommended/image_id"
   },
   "BootstrapVersion": {
    "Type": "AWS::SSM::Parameter::Value<String>",

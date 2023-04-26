@@ -318,34 +318,48 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       cdk.Annotations.of(this).addWarning('When using a custom capacity provider, minInstances, maxInstances, instanceType and storageSize will be ignored.');
     }
 
-    this.capacityProvider = props?.capacityProvider ?? new ecs.AsgCapacityProvider(this, 'Capacity Provider', {
-      autoScalingGroup: new autoscaling.AutoScalingGroup(this, 'Auto Scaling Group', {
-        vpc: this.vpc,
-        vpcSubnets: this.subnetSelection,
-        minCapacity: props?.minInstances ?? 0,
-        maxCapacity: props?.maxInstances ?? 5,
-        machineImage: this.defaultClusterInstanceAmi(),
-        instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
-        blockDevices: props?.storageSize ? [
-          {
-            deviceName: '/dev/sda1',
-            volume: {
-              ebsDevice: {
-                volumeSize: props?.storageSize?.toGibibytes(),
-                deleteOnTermination: true,
-              },
+    const launchTemplate = new ec2.LaunchTemplate(this, 'Launch Template', {
+      machineImage: this.defaultClusterInstanceAmi(),
+      instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
+      blockDevices: props?.storageSize ? [
+        {
+          deviceName: '/dev/sda1',
+          volume: {
+            ebsDevice: {
+              volumeSize: props?.storageSize?.toGibibytes(),
+              deleteOnTermination: true,
             },
           },
-        ] : undefined,
-        spotPrice: props?.spotMaxPrice,
-        requireImdsv2: true,
+        },
+      ] : undefined,
+      spotOptions: props?.spotMaxPrice ? {
+        requestType: ec2.SpotRequestType.ONE_TIME,
+        maxPrice: parseFloat(props.spotMaxPrice),
+      } : undefined,
+      requireImdsv2: true,
+      securityGroup: this.securityGroups[0],
+      role: new iam.Role(this, 'Launch Template Role', {
+        assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
       }),
+      userData: ec2.UserData.forOperatingSystem(image.os.is(Os.WINDOWS) ? ec2.OperatingSystemType.WINDOWS : ec2.OperatingSystemType.LINUX),
+    });
+    this.securityGroups.slice(1).map(sg => launchTemplate.connections.addSecurityGroup(sg));
+
+    const autoScalingGroup = new autoscaling.AutoScalingGroup(this, 'Auto Scaling Group', {
+      vpc: this.vpc,
+      launchTemplate,
+      vpcSubnets: this.subnetSelection,
+      minCapacity: props?.minInstances ?? 0,
+      maxCapacity: props?.maxInstances ?? 5,
+    });
+    autoScalingGroup.addUserData(this.loginCommand(), this.pullCommand());
+    autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
+    image.imageRepository.grantPull(autoScalingGroup);
+
+    this.capacityProvider = props?.capacityProvider ?? new ecs.AsgCapacityProvider(this, 'Capacity Provider', {
+      autoScalingGroup,
       spotInstanceDraining: false, // waste of money to restart jobs as the restarted job won't have a token
     });
-    this.securityGroups.map(sg => this.capacityProvider.autoScalingGroup.addSecurityGroup(sg));
-    this.capacityProvider.autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
-    this.capacityProvider.autoScalingGroup.addUserData(this.loginCommand(), this.pullCommand());
-    image.imageRepository.grantPull(this.capacityProvider.autoScalingGroup);
 
     this.cluster.addAsgCapacityProvider(
       this.capacityProvider,
@@ -409,23 +423,46 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   }
 
   private defaultClusterInstanceAmi() {
+    let baseImage: ec2.IMachineImage;
+    let ssmPath: string;
+    let found = false;
+
     if (this.image.os.is(Os.LINUX) || this.image.os.is(Os.LINUX_UBUNTU) || this.image.os.is(Os.LINUX_AMAZON_2)) {
       if (this.image.architecture.is(Architecture.X86_64)) {
-        return ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.STANDARD);
+        baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.STANDARD);
+        ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id';
+        found = true;
       }
       if (this.image.architecture.is(Architecture.ARM64)) {
-        return ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.ARM);
+        baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.ARM);
+        ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2/arm64/recommended/image_id';
+        found = true;
       }
     }
 
     if (this.image.os.is(Os.WINDOWS)) {
-      // ancient AMI from 2019 with no IMSDv2 support 🤦‍♂️ -- return ecs.EcsOptimizedImage.windows(ecs.WindowsOptimizedVersion.SERVER_2019);
-      return ec2.MachineImage.fromSsmParameter('/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized/image_id', {
-        os: ec2.OperatingSystemType.WINDOWS,
-      });
+      baseImage = ecs.EcsOptimizedImage.windows(ecs.WindowsOptimizedVersion.SERVER_2019);
+      ssmPath = '/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized/image_id';
+      found = true;
     }
 
-    throw new Error(`Unable to find AMI for ECS instances for ${this.image.os.name}/${this.image.architecture.name}`);
+    if (!found) {
+      throw new Error(`Unable to find AMI for ECS instances for ${this.image.os.name}/${this.image.architecture.name}`);
+    }
+
+    const image: ec2.IMachineImage = {
+      getImage(scope: Construct): ec2.MachineImageConfig {
+        const baseImageRes = baseImage.getImage(scope);
+
+        return {
+          imageId: `resolve:ssm:${ssmPath}`,
+          userData: baseImageRes.userData,
+          osType: baseImageRes.osType,
+        };
+      },
+    };
+
+    return image;
   }
 
   private pullCommand() {
