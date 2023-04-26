@@ -9090,9 +9090,49 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderRepositoryA4CBB6D8",
-         "Arn"
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":ecr:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":repository/",
+          {
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::Select": [
+                1,
+                {
+                 "Fn::Split": [
+                  "/",
+                  {
+                   "Fn::GetAtt": [
+                    "WindowsImageBuilderDockerImage8672CA3E",
+                    "ImageUri"
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
         ]
        }
       },
@@ -9229,37 +9269,11 @@
        "",
        [
         {
-         "Fn::Select": [
-          4,
-          {
-           "Fn::Split": [
-            ":",
-            {
-             "Fn::GetAtt": [
-              "WindowsImageBuilderRepositoryA4CBB6D8",
-              "Arn"
-             ]
-            }
-           ]
-          }
-         ]
+         "Ref": "AWS::AccountId"
         },
         ".dkr.ecr.",
         {
-         "Fn::Select": [
-          3,
-          {
-           "Fn::Split": [
-            ":",
-            {
-             "Fn::GetAtt": [
-              "WindowsImageBuilderRepositoryA4CBB6D8",
-              "Arn"
-             ]
-            }
-           ]
-          }
-         ]
+         "Ref": "AWS::Region"
         },
         ".",
         {
@@ -9267,7 +9281,30 @@
         },
         "/",
         {
-         "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
+         "Fn::Select": [
+          0,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::Select": [
+              1,
+              {
+               "Fn::Split": [
+                "/",
+                {
+                 "Fn::GetAtt": [
+                  "WindowsImageBuilderDockerImage8672CA3E",
+                  "ImageUri"
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
         },
         ":latest"
        ]
@@ -10716,9 +10753,49 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderRepositoryA4CBB6D8",
-         "Arn"
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":ecr:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":repository/",
+          {
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::Select": [
+                1,
+                {
+                 "Fn::Split": [
+                  "/",
+                  {
+                   "Fn::GetAtt": [
+                    "WindowsImageBuilderDockerImage8672CA3E",
+                    "ImageUri"
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
         ]
        }
       },
@@ -10850,37 +10927,11 @@
          },
          ".amazonaws.com\nStart-Job -ScriptBlock { docker pull ",
          {
-          "Fn::Select": [
-           4,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Fn::GetAtt": [
-               "WindowsImageBuilderRepositoryA4CBB6D8",
-               "Arn"
-              ]
-             }
-            ]
-           }
-          ]
+          "Ref": "AWS::AccountId"
          },
          ".dkr.ecr.",
          {
-          "Fn::Select": [
-           3,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Fn::GetAtt": [
-               "WindowsImageBuilderRepositoryA4CBB6D8",
-               "Arn"
-              ]
-             }
-            ]
-           }
-          ]
+          "Ref": "AWS::Region"
          },
          ".",
          {
@@ -10888,7 +10939,30 @@
          },
          "/",
          {
-          "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
+          "Fn::Select": [
+           0,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::Select": [
+               1,
+               {
+                "Fn::Split": [
+                 "/",
+                 {
+                  "Fn::GetAtt": [
+                   "WindowsImageBuilderDockerImage8672CA3E",
+                   "ImageUri"
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
          },
          ":latest }\nRemove-Item -Recurse C:\\ProgramData\\Amazon\\ECS\\Cache\nImport-Module ECSTools\n[Environment]::SetEnvironmentVariable(\"ECS_CLUSTER\", \"",
          {
@@ -11033,37 +11107,11 @@
         "",
         [
          {
-          "Fn::Select": [
-           4,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Fn::GetAtt": [
-               "WindowsImageBuilderRepositoryA4CBB6D8",
-               "Arn"
-              ]
-             }
-            ]
-           }
-          ]
+          "Ref": "AWS::AccountId"
          },
          ".dkr.ecr.",
          {
-          "Fn::Select": [
-           3,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Fn::GetAtt": [
-               "WindowsImageBuilderRepositoryA4CBB6D8",
-               "Arn"
-              ]
-             }
-            ]
-           }
-          ]
+          "Ref": "AWS::Region"
          },
          ".",
          {
@@ -11071,7 +11119,30 @@
          },
          "/",
          {
-          "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
+          "Fn::Select": [
+           0,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::Select": [
+               1,
+               {
+                "Fn::Split": [
+                 "/",
+                 {
+                  "Fn::GetAtt": [
+                   "WindowsImageBuilderDockerImage8672CA3E",
+                   "ImageUri"
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
          },
          ":latest"
         ]
@@ -11143,9 +11214,49 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderRepositoryA4CBB6D8",
-         "Arn"
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":ecr:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":repository/",
+          {
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::Select": [
+                1,
+                {
+                 "Fn::Split": [
+                  "/",
+                  {
+                   "Fn::GetAtt": [
+                    "WindowsImageBuilderDockerImage8672CA3E",
+                    "ImageUri"
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
         ]
        }
       },
@@ -12883,37 +12994,11 @@
         "",
         [
          {
-          "Fn::Select": [
-           4,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Fn::GetAtt": [
-               "WindowsImageBuilderRepositoryA4CBB6D8",
-               "Arn"
-              ]
-             }
-            ]
-           }
-          ]
+          "Ref": "AWS::AccountId"
          },
          ".dkr.ecr.",
          {
-          "Fn::Select": [
-           3,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Fn::GetAtt": [
-               "WindowsImageBuilderRepositoryA4CBB6D8",
-               "Arn"
-              ]
-             }
-            ]
-           }
-          ]
+          "Ref": "AWS::Region"
          },
          ".",
          {
@@ -12921,7 +13006,30 @@
          },
          "/",
          {
-          "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
+          "Fn::Select": [
+           0,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::Select": [
+               1,
+               {
+                "Fn::Split": [
+                 "/",
+                 {
+                  "Fn::GetAtt": [
+                   "WindowsImageBuilderDockerImage8672CA3E",
+                   "ImageUri"
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
          },
          ":latest"
         ]
@@ -12997,9 +13105,49 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderRepositoryA4CBB6D8",
-         "Arn"
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":ecr:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":repository/",
+          {
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::Select": [
+                1,
+                {
+                 "Fn::Split": [
+                  "/",
+                  {
+                   "Fn::GetAtt": [
+                    "WindowsImageBuilderDockerImage8672CA3E",
+                    "ImageUri"
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
         ]
        }
       },
@@ -16362,9 +16510,49 @@
        "Action": "ecr:DescribeImages",
        "Effect": "Allow",
        "Resource": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderRepositoryA4CBB6D8",
-         "Arn"
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":ecr:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":repository/",
+          {
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::Select": [
+                1,
+                {
+                 "Fn::Split": [
+                  "/",
+                  {
+                   "Fn::GetAtt": [
+                    "WindowsImageBuilderDockerImage8672CA3E",
+                    "ImageUri"
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
         ]
        }
       },
@@ -16751,37 +16939,11 @@
          "",
          [
           {
-           "Fn::Select": [
-            4,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::GetAtt": [
-                "WindowsImageBuilderRepositoryA4CBB6D8",
-                "Arn"
-               ]
-              }
-             ]
-            }
-           ]
+           "Ref": "AWS::AccountId"
           },
           ".dkr.ecr.",
           {
-           "Fn::Select": [
-            3,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::GetAtt": [
-                "WindowsImageBuilderRepositoryA4CBB6D8",
-                "Arn"
-               ]
-              }
-             ]
-            }
-           ]
+           "Ref": "AWS::Region"
           },
           ".",
           {
@@ -16789,7 +16951,30 @@
           },
           "/",
           {
-           "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::Select": [
+                1,
+                {
+                 "Fn::Split": [
+                  "/",
+                  {
+                   "Fn::GetAtt": [
+                    "WindowsImageBuilderDockerImage8672CA3E",
+                    "ImageUri"
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
           }
          ]
         ]
@@ -17051,37 +17236,11 @@
          "",
          [
           {
-           "Fn::Select": [
-            4,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::GetAtt": [
-                "WindowsImageBuilderRepositoryA4CBB6D8",
-                "Arn"
-               ]
-              }
-             ]
-            }
-           ]
+           "Ref": "AWS::AccountId"
           },
           ".dkr.ecr.",
           {
-           "Fn::Select": [
-            3,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::GetAtt": [
-                "WindowsImageBuilderRepositoryA4CBB6D8",
-                "Arn"
-               ]
-              }
-             ]
-            }
-           ]
+           "Ref": "AWS::Region"
           },
           ".",
           {
@@ -17089,7 +17248,30 @@
           },
           "/",
           {
-           "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::Select": [
+                1,
+                {
+                 "Fn::Split": [
+                  "/",
+                  {
+                   "Fn::GetAtt": [
+                    "WindowsImageBuilderDockerImage8672CA3E",
+                    "ImageUri"
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
           }
          ]
         ]
@@ -17689,37 +17871,11 @@
          "",
          [
           {
-           "Fn::Select": [
-            4,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::GetAtt": [
-                "WindowsImageBuilderRepositoryA4CBB6D8",
-                "Arn"
-               ]
-              }
-             ]
-            }
-           ]
+           "Ref": "AWS::AccountId"
           },
           ".dkr.ecr.",
           {
-           "Fn::Select": [
-            3,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::GetAtt": [
-                "WindowsImageBuilderRepositoryA4CBB6D8",
-                "Arn"
-               ]
-              }
-             ]
-            }
-           ]
+           "Ref": "AWS::Region"
           },
           ".",
           {
@@ -17727,7 +17883,30 @@
           },
           "/",
           {
-           "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
+           "Fn::Select": [
+            0,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::Select": [
+                1,
+                {
+                 "Fn::Split": [
+                  "/",
+                  {
+                   "Fn::GetAtt": [
+                    "WindowsImageBuilderDockerImage8672CA3E",
+                    "ImageUri"
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
           }
          ]
         ]
