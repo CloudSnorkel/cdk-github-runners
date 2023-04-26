@@ -8576,7 +8576,6 @@ Returns true if the image builder should be rebooted after this component is ins
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubCli">githubCli</a></code> | A component to install the GitHub CLI. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubRunner">githubRunner</a></code> | A component to install the GitHub Actions Runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.lambdaEntrypoint">lambdaEntrypoint</a></code> | A component to set up the required Lambda entrypoint for Lambda runners. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.nvidiaDrivers">nvidiaDrivers</a></code> | A component to set up the required Lambda entrypoint for Lambda runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.requiredPackages">requiredPackages</a></code> | A component to install the required packages for the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.runnerUser">runnerUser</a></code> | A component to prepare the required runner user. |
 
@@ -8715,24 +8714,6 @@ RunnerImageComponent.lambdaEntrypoint()
 ```
 
 A component to set up the required Lambda entrypoint for Lambda runners.
-
-##### `nvidiaDrivers` <a name="nvidiaDrivers" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.nvidiaDrivers"></a>
-
-```typescript
-import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
-
-RunnerImageComponent.nvidiaDrivers(version: string)
-```
-
-A component to set up the required Lambda entrypoint for Lambda runners.
-
-###### `version`<sup>Required</sup> <a name="version" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.nvidiaDrivers.parameter.version"></a>
-
-- *Type:* string
-
-the major version of the Nvidia drivers to install (e.g. '530').
-
----
 
 ##### `requiredPackages` <a name="requiredPackages" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.requiredPackages"></a>
 
