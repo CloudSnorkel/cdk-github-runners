@@ -149,9 +149,14 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
   readonly dockerInDocker?: boolean;
 
   /**
-   * Use spot capacity and set a maximum price for spot instances.
+   * Use spot capacity.
    *
-   * @default no spot capacity
+   * @default false (true if spotMaxPrice is specified)
+   */
+  readonly spot?: boolean;
+
+  /**
+   * Maximum price for spot instances.
    */
   readonly spotMaxPrice?: string;
 }
@@ -318,6 +323,8 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       cdk.Annotations.of(this).addWarning('When using a custom capacity provider, minInstances, maxInstances, instanceType and storageSize will be ignored.');
     }
 
+    const spot = props?.spot ?? props?.spotMaxPrice !== undefined;
+
     const launchTemplate = new ec2.LaunchTemplate(this, 'Launch Template', {
       machineImage: this.defaultClusterInstanceAmi(),
       instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
@@ -332,9 +339,9 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
           },
         },
       ] : undefined,
-      spotOptions: props?.spotMaxPrice ? {
+      spotOptions: spot ? {
         requestType: ec2.SpotRequestType.ONE_TIME,
-        maxPrice: parseFloat(props.spotMaxPrice),
+        maxPrice: props?.spotMaxPrice ? parseFloat(props?.spotMaxPrice) : undefined,
       } : undefined,
       requireImdsv2: true,
       securityGroup: this.securityGroups[0],

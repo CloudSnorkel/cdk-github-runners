@@ -5875,7 +5875,8 @@ const ecsRunnerProviderProps: EcsRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | The amount (in MiB) of memory used by the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.minInstances">minInstances</a></code> | <code>number</code> | The minimum number of instances to run in the cluster. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to the task. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spotMaxPrice">spotMaxPrice</a></code> | <code>string</code> | Use spot capacity and set a maximum price for spot instances. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spot">spot</a></code> | <code>boolean</code> | Use spot capacity. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spotMaxPrice">spotMaxPrice</a></code> | <code>string</code> | Maximum price for spot instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for launched cluster instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets to run the runners in. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
@@ -6087,6 +6088,19 @@ Security groups to assign to the task.
 
 ---
 
+##### `spot`<sup>Optional</sup> <a name="spot" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spot"></a>
+
+```typescript
+public readonly spot: boolean;
+```
+
+- *Type:* boolean
+- *Default:* false (true if spotMaxPrice is specified)
+
+Use spot capacity.
+
+---
+
 ##### `spotMaxPrice`<sup>Optional</sup> <a name="spotMaxPrice" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spotMaxPrice"></a>
 
 ```typescript
@@ -6094,9 +6108,8 @@ public readonly spotMaxPrice: string;
 ```
 
 - *Type:* string
-- *Default:* no spot capacity
 
-Use spot capacity and set a maximum price for spot instances.
+Maximum price for spot instances.
 
 ---
 
@@ -8563,6 +8576,7 @@ Returns true if the image builder should be rebooted after this component is ins
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubCli">githubCli</a></code> | A component to install the GitHub CLI. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubRunner">githubRunner</a></code> | A component to install the GitHub Actions Runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.lambdaEntrypoint">lambdaEntrypoint</a></code> | A component to set up the required Lambda entrypoint for Lambda runners. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.nvidiaDrivers">nvidiaDrivers</a></code> | A component to set up the required Lambda entrypoint for Lambda runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.requiredPackages">requiredPackages</a></code> | A component to install the required packages for the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.runnerUser">runnerUser</a></code> | A component to prepare the required runner user. |
 
@@ -8701,6 +8715,24 @@ RunnerImageComponent.lambdaEntrypoint()
 ```
 
 A component to set up the required Lambda entrypoint for Lambda runners.
+
+##### `nvidiaDrivers` <a name="nvidiaDrivers" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.nvidiaDrivers"></a>
+
+```typescript
+import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
+
+RunnerImageComponent.nvidiaDrivers(version: string)
+```
+
+A component to set up the required Lambda entrypoint for Lambda runners.
+
+###### `version`<sup>Required</sup> <a name="version" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.nvidiaDrivers.parameter.version"></a>
+
+- *Type:* string
+
+the major version of the Nvidia drivers to install (e.g. '530').
+
+---
 
 ##### `requiredPackages` <a name="requiredPackages" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.requiredPackages"></a>
 
