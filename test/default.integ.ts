@@ -142,6 +142,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       imageBuilder: codeBuildImageBuilder, // codebuild has dind
       vpc,
       maxInstances: 1,
+      spot: true,
     }),
     new EcsRunnerProvider(stack, 'ECS ARM64', {
       labels: ['ecs', 'linux', 'arm64'],

@@ -9731,6 +9731,12 @@
       }
      },
      "ImageId": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id",
+     "InstanceMarketOptions": {
+      "MarketType": "spot",
+      "SpotOptions": {
+       "SpotInstanceType": "one-time"
+      }
+     },
      "InstanceType": "m5.large",
      "MetadataOptions": {
       "HttpTokens": "required"
