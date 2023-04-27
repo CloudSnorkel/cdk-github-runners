@@ -393,18 +393,13 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.reaper(recipe.name, 'Docker');
 
     this.boundDockerImage = {
-      // There are simpler ways to get the ARN, but we want an image object that depends on the newly built image.
-      // We want whoever is using this image to automatically wait for Image Builder to finish building before using the image.
-      imageRepository: ecr.Repository.fromRepositoryName(
-        this, 'Dependable Image',
-        // we can't use image.attrName because it comes up with upper case
-        cdk.Fn.split(':', cdk.Fn.split('/', image.attrImageUri, 2)[1], 2)[0],
-      ),
+      imageRepository: repository,
       imageTag: 'latest',
       os: this.os,
       architecture: this.architecture,
       logGroup: log,
       runnerVersion: RunnerVersion.specific('unknown'),
+      // no dependable as CloudFormation will fail to get image ARN once the image is deleted (we delete old images daily)
     };
 
     return this.boundDockerImage;

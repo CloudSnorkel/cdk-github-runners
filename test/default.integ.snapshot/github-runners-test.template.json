@@ -516,11 +516,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
-        {
-         "Ref": "FargatebuilderRepository8F7BA13C"
-        },
-        "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -728,11 +724,7 @@
        {
         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
        },
-       " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
-       {
-        "Ref": "FargatebuilderRepository8F7BA13C"
-       },
-       "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+       " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
       ]
      ]
     }
@@ -1106,11 +1098,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
-        {
-         "Ref": "FargatebuilderarmRepository77DCC132"
-        },
-        "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -1318,11 +1306,7 @@
        {
         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
        },
-       " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
-       {
-        "Ref": "FargatebuilderarmRepository77DCC132"
-       },
-       "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+       " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
       ]
      ]
     }
@@ -1598,10 +1582,141 @@
     "ImageTagMutability": "MUTABLE",
     "LifecyclePolicy": {
      "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+    },
+    "RepositoryPolicyText": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
     }
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "LambdaImageBuilderx64RepositoryPushrule1C711F47": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Update GitHub Actions runner Lambda on ECR image push",
+    "EventPattern": {
+     "detail-type": [
+      "ECR Image Action"
+     ],
+     "detail": {
+      "action-type": [
+       "PUSH"
+      ],
+      "repository-name": [
+       {
+        "Ref": "LambdaImageBuilderx64Repository57F632F1"
+       }
+      ],
+      "image-tag": [
+       "latest"
+      ],
+      "result": [
+       "SUCCESS"
+      ]
+     },
+     "source": [
+      "aws.ecr"
+     ]
+    },
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": {
+       "Fn::Join": [
+        "",
+        [
+         "{\"lambdaName\":\"",
+         {
+          "Ref": "LambdaFunction9233991D"
+         },
+         "\",\"repositoryUri\":\"",
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "LambdaImageBuilderx64Repository57F632F1",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "LambdaImageBuilderx64Repository57F632F1",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "LambdaImageBuilderx64Repository57F632F1"
+         },
+         "\",\"repositoryTag\":\"latest\"}"
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "LambdaImageBuilderx64RepositoryPushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98EAF8930B2": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "LambdaImageBuilderx64RepositoryPushrule1C711F47",
+      "Arn"
+     ]
+    }
+   }
   },
   "LambdaImageBuilderx64Logs1C003BB4": {
    "Type": "AWS::Logs::LogGroup",
@@ -1704,11 +1819,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:14-x86_64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
-        {
-         "Ref": "LambdaImageBuilderx64Repository57F632F1"
-        },
-        "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:14-x86_64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -1924,11 +2035,7 @@
        {
         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
        },
-       " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:14-x86_64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
-       {
-        "Ref": "LambdaImageBuilderx64Repository57F632F1"
-       },
-       "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+       " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:14-x86_64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
       ]
      ]
     }
@@ -1981,121 +2088,6 @@
       }
      }
     ]
-   }
-  },
-  "LambdaImageBuilderx64DependableImagePushruleDEB26F21": {
-   "Type": "AWS::Events::Rule",
-   "Properties": {
-    "Description": "Update GitHub Actions runner Lambda on ECR image push",
-    "EventPattern": {
-     "detail-type": [
-      "ECR Image Action"
-     ],
-     "detail": {
-      "action-type": [
-       "PUSH"
-      ],
-      "repository-name": [
-       {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderx64Builder42F384AF",
-         "Name"
-        ]
-       }
-      ],
-      "image-tag": [
-       "latest"
-      ],
-      "result": [
-       "SUCCESS"
-      ]
-     },
-     "source": [
-      "aws.ecr"
-     ]
-    },
-    "State": "ENABLED",
-    "Targets": [
-     {
-      "Arn": {
-       "Fn::GetAtt": [
-        "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA",
-        "Arn"
-       ]
-      },
-      "Id": "Target0",
-      "Input": {
-       "Fn::Join": [
-        "",
-        [
-         "{\"lambdaName\":\"",
-         {
-          "Ref": "LambdaFunction9233991D"
-         },
-         "\",\"repositoryUri\":\"",
-         {
-          "Fn::Select": [
-           4,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Ref": "LambdaImageBuilderx64Builder42F384AF"
-             }
-            ]
-           }
-          ]
-         },
-         ".dkr.ecr.",
-         {
-          "Fn::Select": [
-           3,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Ref": "LambdaImageBuilderx64Builder42F384AF"
-             }
-            ]
-           }
-          ]
-         },
-         ".",
-         {
-          "Ref": "AWS::URLSuffix"
-         },
-         "/",
-         {
-          "Fn::GetAtt": [
-           "LambdaImageBuilderx64Builder42F384AF",
-           "Name"
-          ]
-         },
-         "\",\"repositoryTag\":\"latest\"}"
-        ]
-       ]
-      }
-     }
-    ]
-   }
-  },
-  "LambdaImageBuilderx64DependableImagePushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98E7BC3031D": {
-   "Type": "AWS::Lambda::Permission",
-   "Properties": {
-    "Action": "lambda:InvokeFunction",
-    "FunctionName": {
-     "Fn::GetAtt": [
-      "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA",
-      "Arn"
-     ]
-    },
-    "Principal": "events.amazonaws.com",
-    "SourceArn": {
-     "Fn::GetAtt": [
-      "LambdaImageBuilderx64DependableImagePushruleDEB26F21",
-      "Arn"
-     ]
-    }
    }
   },
   "WindowsImageBuilderSG5ACD1618": {
@@ -4501,11 +4493,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker-in-Docker.sh /tmp\\nRUN /tmp/component5-Docker-in-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
-        {
-         "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
-        },
-        "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker-in-Docker.sh /tmp\\nRUN /tmp/component5-Docker-in-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -4713,11 +4701,7 @@
        {
         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
        },
-       " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker-in-Docker.sh /tmp\\nRUN /tmp/component5-Docker-in-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
-       {
-        "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
-       },
-       "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+       " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker-in-Docker.sh /tmp\\nRUN /tmp/component5-Docker-in-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
       ]
      ]
     }
@@ -5091,11 +5075,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker-in-Docker.sh /tmp\\nRUN /tmp/component5-Docker-in-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
-        {
-         "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
-        },
-        "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker-in-Docker.sh /tmp\\nRUN /tmp/component5-Docker-in-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -5303,11 +5283,7 @@
        {
         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
        },
-       " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker-in-Docker.sh /tmp\\nRUN /tmp/component5-Docker-in-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
-       {
-        "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
-       },
-       "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+       " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker-in-Docker.sh /tmp\\nRUN /tmp/component5-Docker-in-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
       ]
      ]
     }
@@ -5583,10 +5559,141 @@
     "ImageTagMutability": "MUTABLE",
     "LifecyclePolicy": {
      "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+    },
+    "RepositoryPolicyText": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
     }
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "LambdaImageBuilderzRepositoryPushruleA1F1B44F": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Update GitHub Actions runner Lambda on ECR image push",
+    "EventPattern": {
+     "detail-type": [
+      "ECR Image Action"
+     ],
+     "detail": {
+      "action-type": [
+       "PUSH"
+      ],
+      "repository-name": [
+       {
+        "Ref": "LambdaImageBuilderzRepository7C7AD146"
+       }
+      ],
+      "image-tag": [
+       "latest"
+      ],
+      "result": [
+       "SUCCESS"
+      ]
+     },
+     "source": [
+      "aws.ecr"
+     ]
+    },
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": {
+       "Fn::Join": [
+        "",
+        [
+         "{\"lambdaName\":\"",
+         {
+          "Ref": "LambdaARMFunctionDD4B5FF7"
+         },
+         "\",\"repositoryUri\":\"",
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "LambdaImageBuilderzRepository7C7AD146",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "LambdaImageBuilderzRepository7C7AD146",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "LambdaImageBuilderzRepository7C7AD146"
+         },
+         "\",\"repositoryTag\":\"latest\"}"
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "LambdaImageBuilderzRepositoryPushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98E002B5DB7": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "LambdaImageBuilderzRepositoryPushruleA1F1B44F",
+      "Arn"
+     ]
+    }
+   }
   },
   "LambdaImageBuilderzLogsC9FB42C8": {
    "Type": "AWS::Logs::LogGroup",
@@ -5689,11 +5796,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:14-arm64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
-        {
-         "Ref": "LambdaImageBuilderzRepository7C7AD146"
-        },
-        "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:14-arm64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -5909,11 +6012,7 @@
        {
         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
        },
-       " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:14-arm64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Name\\\": \\\"",
-       {
-        "Ref": "LambdaImageBuilderzRepository7C7AD146"
-       },
-       "\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
+       " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:14-arm64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\"\n      ]\n    }\n  }\n}"
       ]
      ]
     }
@@ -5966,121 +6065,6 @@
       }
      }
     ]
-   }
-  },
-  "LambdaImageBuilderzDependableImagePushrule2E3269CC": {
-   "Type": "AWS::Events::Rule",
-   "Properties": {
-    "Description": "Update GitHub Actions runner Lambda on ECR image push",
-    "EventPattern": {
-     "detail-type": [
-      "ECR Image Action"
-     ],
-     "detail": {
-      "action-type": [
-       "PUSH"
-      ],
-      "repository-name": [
-       {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderzBuilder235DD147",
-         "Name"
-        ]
-       }
-      ],
-      "image-tag": [
-       "latest"
-      ],
-      "result": [
-       "SUCCESS"
-      ]
-     },
-     "source": [
-      "aws.ecr"
-     ]
-    },
-    "State": "ENABLED",
-    "Targets": [
-     {
-      "Arn": {
-       "Fn::GetAtt": [
-        "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA",
-        "Arn"
-       ]
-      },
-      "Id": "Target0",
-      "Input": {
-       "Fn::Join": [
-        "",
-        [
-         "{\"lambdaName\":\"",
-         {
-          "Ref": "LambdaARMFunctionDD4B5FF7"
-         },
-         "\",\"repositoryUri\":\"",
-         {
-          "Fn::Select": [
-           4,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Ref": "LambdaImageBuilderzBuilder235DD147"
-             }
-            ]
-           }
-          ]
-         },
-         ".dkr.ecr.",
-         {
-          "Fn::Select": [
-           3,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Ref": "LambdaImageBuilderzBuilder235DD147"
-             }
-            ]
-           }
-          ]
-         },
-         ".",
-         {
-          "Ref": "AWS::URLSuffix"
-         },
-         "/",
-         {
-          "Fn::GetAtt": [
-           "LambdaImageBuilderzBuilder235DD147",
-           "Name"
-          ]
-         },
-         "\",\"repositoryTag\":\"latest\"}"
-        ]
-       ]
-      }
-     }
-    ]
-   }
-  },
-  "LambdaImageBuilderzDependableImagePushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98ECD865F34": {
-   "Type": "AWS::Lambda::Permission",
-   "Properties": {
-    "Action": "lambda:InvokeFunction",
-    "FunctionName": {
-     "Fn::GetAtt": [
-      "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA",
-      "Arn"
-     ]
-    },
-    "Principal": "events.amazonaws.com",
-    "SourceArn": {
-     "Fn::GetAtt": [
-      "LambdaImageBuilderzDependableImagePushrule2E3269CC",
-      "Arn"
-     ]
-    }
    }
   },
   "AMILinuxarm64BuilderSG94315968": {
@@ -8385,7 +8369,10 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Ref": "CodeBuildImageBuilderB8638EC8"
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderRepository9DE3B6F0",
+         "Arn"
+        ]
        }
       },
       {
@@ -8527,7 +8514,10 @@
            "Fn::Split": [
             ":",
             {
-             "Ref": "CodeBuildImageBuilderB8638EC8"
+             "Fn::GetAtt": [
+              "CodeBuildImageBuilderRepository9DE3B6F0",
+              "Arn"
+             ]
             }
            ]
           }
@@ -8541,7 +8531,10 @@
            "Fn::Split": [
             ":",
             {
-             "Ref": "CodeBuildImageBuilderB8638EC8"
+             "Fn::GetAtt": [
+              "CodeBuildImageBuilderRepository9DE3B6F0",
+              "Arn"
+             ]
             }
            ]
           }
@@ -8553,10 +8546,7 @@
         },
         "/",
         {
-         "Fn::GetAtt": [
-          "CodeBuildImageBuilderB8638EC8",
-          "Name"
-         ]
+         "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
         },
         ":latest"
        ]
@@ -8818,7 +8808,10 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderarmRepositoryE967421B",
+         "Arn"
+        ]
        }
       },
       {
@@ -8960,7 +8953,10 @@
            "Fn::Split": [
             ":",
             {
-             "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+             "Fn::GetAtt": [
+              "CodeBuildImageBuilderarmRepositoryE967421B",
+              "Arn"
+             ]
             }
            ]
           }
@@ -8974,7 +8970,10 @@
            "Fn::Split": [
             ":",
             {
-             "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+             "Fn::GetAtt": [
+              "CodeBuildImageBuilderarmRepositoryE967421B",
+              "Arn"
+             ]
             }
            ]
           }
@@ -8986,10 +8985,7 @@
         },
         "/",
         {
-         "Fn::GetAtt": [
-          "CodeBuildImageBuilderarmBuilder755EB37D",
-          "Name"
-         ]
+         "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
         },
         ":latest"
        ]
@@ -9090,49 +9086,9 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Fn::Join": [
-         "",
-         [
-          "arn:",
-          {
-           "Ref": "AWS::Partition"
-          },
-          ":ecr:",
-          {
-           "Ref": "AWS::Region"
-          },
-          ":",
-          {
-           "Ref": "AWS::AccountId"
-          },
-          ":repository/",
-          {
-           "Fn::Select": [
-            0,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::Select": [
-                1,
-                {
-                 "Fn::Split": [
-                  "/",
-                  {
-                   "Fn::GetAtt": [
-                    "WindowsImageBuilderDockerImage8672CA3E",
-                    "ImageUri"
-                   ]
-                  }
-                 ]
-                }
-               ]
-              }
-             ]
-            }
-           ]
-          }
-         ]
+        "Fn::GetAtt": [
+         "WindowsImageBuilderRepositoryA4CBB6D8",
+         "Arn"
         ]
        }
       },
@@ -9269,11 +9225,37 @@
        "",
        [
         {
-         "Ref": "AWS::AccountId"
+         "Fn::Select": [
+          4,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "WindowsImageBuilderRepositoryA4CBB6D8",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
         },
         ".dkr.ecr.",
         {
-         "Ref": "AWS::Region"
+         "Fn::Select": [
+          3,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "WindowsImageBuilderRepositoryA4CBB6D8",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
         },
         ".",
         {
@@ -9281,30 +9263,7 @@
         },
         "/",
         {
-         "Fn::Select": [
-          0,
-          {
-           "Fn::Split": [
-            ":",
-            {
-             "Fn::Select": [
-              1,
-              {
-               "Fn::Split": [
-                "/",
-                {
-                 "Fn::GetAtt": [
-                  "WindowsImageBuilderDockerImage8672CA3E",
-                  "ImageUri"
-                 ]
-                }
-               ]
-              }
-             ]
-            }
-           ]
-          }
-         ]
+         "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
         },
         ":latest"
        ]
@@ -9647,7 +9606,10 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Ref": "CodeBuildImageBuilderB8638EC8"
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderRepository9DE3B6F0",
+         "Arn"
+        ]
        }
       },
       {
@@ -9794,7 +9756,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "CodeBuildImageBuilderB8638EC8"
+              "Fn::GetAtt": [
+               "CodeBuildImageBuilderRepository9DE3B6F0",
+               "Arn"
+              ]
              }
             ]
            }
@@ -9808,7 +9773,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "CodeBuildImageBuilderB8638EC8"
+              "Fn::GetAtt": [
+               "CodeBuildImageBuilderRepository9DE3B6F0",
+               "Arn"
+              ]
              }
             ]
            }
@@ -9820,10 +9788,7 @@
          },
          "/",
          {
-          "Fn::GetAtt": [
-           "CodeBuildImageBuilderB8638EC8",
-           "Name"
-          ]
+          "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
          },
          ":latest &\necho ECS_CLUSTER=",
          {
@@ -9970,7 +9935,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "CodeBuildImageBuilderB8638EC8"
+              "Fn::GetAtt": [
+               "CodeBuildImageBuilderRepository9DE3B6F0",
+               "Arn"
+              ]
              }
             ]
            }
@@ -9984,7 +9952,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "CodeBuildImageBuilderB8638EC8"
+              "Fn::GetAtt": [
+               "CodeBuildImageBuilderRepository9DE3B6F0",
+               "Arn"
+              ]
              }
             ]
            }
@@ -9996,10 +9967,7 @@
          },
          "/",
          {
-          "Fn::GetAtt": [
-           "CodeBuildImageBuilderB8638EC8",
-           "Name"
-          ]
+          "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
          },
          ":latest"
         ]
@@ -10087,7 +10055,10 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Ref": "CodeBuildImageBuilderB8638EC8"
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderRepository9DE3B6F0",
+         "Arn"
+        ]
        }
       },
       {
@@ -10206,7 +10177,10 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderarmRepositoryE967421B",
+         "Arn"
+        ]
        }
       },
       {
@@ -10347,7 +10321,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+              "Fn::GetAtt": [
+               "CodeBuildImageBuilderarmRepositoryE967421B",
+               "Arn"
+              ]
              }
             ]
            }
@@ -10361,7 +10338,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+              "Fn::GetAtt": [
+               "CodeBuildImageBuilderarmRepositoryE967421B",
+               "Arn"
+              ]
              }
             ]
            }
@@ -10373,10 +10353,7 @@
          },
          "/",
          {
-          "Fn::GetAtt": [
-           "CodeBuildImageBuilderarmBuilder755EB37D",
-           "Name"
-          ]
+          "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
          },
          ":latest &\necho ECS_CLUSTER=",
          {
@@ -10523,7 +10500,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+              "Fn::GetAtt": [
+               "CodeBuildImageBuilderarmRepositoryE967421B",
+               "Arn"
+              ]
              }
             ]
            }
@@ -10537,7 +10517,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+              "Fn::GetAtt": [
+               "CodeBuildImageBuilderarmRepositoryE967421B",
+               "Arn"
+              ]
              }
             ]
            }
@@ -10549,10 +10532,7 @@
          },
          "/",
          {
-          "Fn::GetAtt": [
-           "CodeBuildImageBuilderarmBuilder755EB37D",
-           "Name"
-          ]
+          "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
          },
          ":latest"
         ]
@@ -10640,7 +10620,10 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderarmRepositoryE967421B",
+         "Arn"
+        ]
        }
       },
       {
@@ -10759,49 +10742,9 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Fn::Join": [
-         "",
-         [
-          "arn:",
-          {
-           "Ref": "AWS::Partition"
-          },
-          ":ecr:",
-          {
-           "Ref": "AWS::Region"
-          },
-          ":",
-          {
-           "Ref": "AWS::AccountId"
-          },
-          ":repository/",
-          {
-           "Fn::Select": [
-            0,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::Select": [
-                1,
-                {
-                 "Fn::Split": [
-                  "/",
-                  {
-                   "Fn::GetAtt": [
-                    "WindowsImageBuilderDockerImage8672CA3E",
-                    "ImageUri"
-                   ]
-                  }
-                 ]
-                }
-               ]
-              }
-             ]
-            }
-           ]
-          }
-         ]
+        "Fn::GetAtt": [
+         "WindowsImageBuilderRepositoryA4CBB6D8",
+         "Arn"
         ]
        }
       },
@@ -10933,11 +10876,37 @@
          },
          ".amazonaws.com\nStart-Job -ScriptBlock { docker pull ",
          {
-          "Ref": "AWS::AccountId"
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "WindowsImageBuilderRepositoryA4CBB6D8",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
          },
          ".dkr.ecr.",
          {
-          "Ref": "AWS::Region"
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "WindowsImageBuilderRepositoryA4CBB6D8",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
          },
          ".",
          {
@@ -10945,30 +10914,7 @@
          },
          "/",
          {
-          "Fn::Select": [
-           0,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Fn::Select": [
-               1,
-               {
-                "Fn::Split": [
-                 "/",
-                 {
-                  "Fn::GetAtt": [
-                   "WindowsImageBuilderDockerImage8672CA3E",
-                   "ImageUri"
-                  ]
-                 }
-                ]
-               }
-              ]
-             }
-            ]
-           }
-          ]
+          "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
          },
          ":latest }\nRemove-Item -Recurse C:\\ProgramData\\Amazon\\ECS\\Cache\nImport-Module ECSTools\n[Environment]::SetEnvironmentVariable(\"ECS_CLUSTER\", \"",
          {
@@ -11113,11 +11059,37 @@
         "",
         [
          {
-          "Ref": "AWS::AccountId"
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "WindowsImageBuilderRepositoryA4CBB6D8",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
          },
          ".dkr.ecr.",
          {
-          "Ref": "AWS::Region"
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "WindowsImageBuilderRepositoryA4CBB6D8",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
          },
          ".",
          {
@@ -11125,30 +11097,7 @@
          },
          "/",
          {
-          "Fn::Select": [
-           0,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Fn::Select": [
-               1,
-               {
-                "Fn::Split": [
-                 "/",
-                 {
-                  "Fn::GetAtt": [
-                   "WindowsImageBuilderDockerImage8672CA3E",
-                   "ImageUri"
-                  ]
-                 }
-                ]
-               }
-              ]
-             }
-            ]
-           }
-          ]
+          "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
          },
          ":latest"
         ]
@@ -11220,49 +11169,9 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Fn::Join": [
-         "",
-         [
-          "arn:",
-          {
-           "Ref": "AWS::Partition"
-          },
-          ":ecr:",
-          {
-           "Ref": "AWS::Region"
-          },
-          ":",
-          {
-           "Ref": "AWS::AccountId"
-          },
-          ":repository/",
-          {
-           "Fn::Select": [
-            0,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::Select": [
-                1,
-                {
-                 "Fn::Split": [
-                  "/",
-                  {
-                   "Fn::GetAtt": [
-                    "WindowsImageBuilderDockerImage8672CA3E",
-                    "ImageUri"
-                   ]
-                  }
-                 ]
-                }
-               ]
-              }
-             ]
-            }
-           ]
-          }
-         ]
+        "Fn::GetAtt": [
+         "WindowsImageBuilderRepositoryA4CBB6D8",
+         "Arn"
         ]
        }
       },
@@ -11310,10 +11219,7 @@
       [
        "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
        {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderx64Builder42F384AF",
-         "Name"
-        ]
+        "Ref": "LambdaImageBuilderx64Repository57F632F1"
        },
        "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
       ]
@@ -11325,16 +11231,27 @@
       [
        "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
        {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderx64Builder42F384AF",
-         "Name"
-        ]
+        "Ref": "LambdaImageBuilderx64Repository57F632F1"
        },
        "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
       ]
      ]
     },
-    "Delete": "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\"}}",
+    "Delete": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\",\"dependable\":\"",
+       {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64Builder42F384AF",
+         "Random"
+        ]
+       },
+       "\"}}"
+      ]
+     ]
+    },
     "InstallLatestAwsSdk": false
    },
    "DependsOn": [
@@ -11352,14 +11269,20 @@
        "Action": "ecr:DescribeImages",
        "Effect": "Allow",
        "Resource": {
-        "Ref": "LambdaImageBuilderx64Builder42F384AF"
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64Repository57F632F1",
+         "Arn"
+        ]
        }
       },
       {
        "Action": "fake:Fake",
        "Effect": "Allow",
        "Resource": {
-        "Ref": "LambdaImageBuilderx64Builder42F384AF"
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64Repository57F632F1",
+         "Arn"
+        ]
        }
       }
      ],
@@ -11419,7 +11342,10 @@
            "Fn::Split": [
             ":",
             {
-             "Ref": "LambdaImageBuilderx64Builder42F384AF"
+             "Fn::GetAtt": [
+              "LambdaImageBuilderx64Repository57F632F1",
+              "Arn"
+             ]
             }
            ]
           }
@@ -11433,7 +11359,10 @@
            "Fn::Split": [
             ":",
             {
-             "Ref": "LambdaImageBuilderx64Builder42F384AF"
+             "Fn::GetAtt": [
+              "LambdaImageBuilderx64Repository57F632F1",
+              "Arn"
+             ]
             }
            ]
           }
@@ -11445,10 +11374,7 @@
         },
         "/",
         {
-         "Fn::GetAtt": [
-          "LambdaImageBuilderx64Builder42F384AF",
-          "Name"
-         ]
+         "Ref": "LambdaImageBuilderx64Repository57F632F1"
         },
         "@sha256:",
         {
@@ -11757,10 +11683,7 @@
       [
        "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
        {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderzBuilder235DD147",
-         "Name"
-        ]
+        "Ref": "LambdaImageBuilderzRepository7C7AD146"
        },
        "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
       ]
@@ -11772,16 +11695,27 @@
       [
        "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
        {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderzBuilder235DD147",
-         "Name"
-        ]
+        "Ref": "LambdaImageBuilderzRepository7C7AD146"
        },
        "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
       ]
      ]
     },
-    "Delete": "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\"}}",
+    "Delete": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\",\"dependable\":\"",
+       {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzBuilder235DD147",
+         "Random"
+        ]
+       },
+       "\"}}"
+      ]
+     ]
+    },
     "InstallLatestAwsSdk": false
    },
    "DependsOn": [
@@ -11799,14 +11733,20 @@
        "Action": "ecr:DescribeImages",
        "Effect": "Allow",
        "Resource": {
-        "Ref": "LambdaImageBuilderzBuilder235DD147"
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzRepository7C7AD146",
+         "Arn"
+        ]
        }
       },
       {
        "Action": "fake:Fake",
        "Effect": "Allow",
        "Resource": {
-        "Ref": "LambdaImageBuilderzBuilder235DD147"
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzRepository7C7AD146",
+         "Arn"
+        ]
        }
       }
      ],
@@ -11866,7 +11806,10 @@
            "Fn::Split": [
             ":",
             {
-             "Ref": "LambdaImageBuilderzBuilder235DD147"
+             "Fn::GetAtt": [
+              "LambdaImageBuilderzRepository7C7AD146",
+              "Arn"
+             ]
             }
            ]
           }
@@ -11880,7 +11823,10 @@
            "Fn::Split": [
             ":",
             {
-             "Ref": "LambdaImageBuilderzBuilder235DD147"
+             "Fn::GetAtt": [
+              "LambdaImageBuilderzRepository7C7AD146",
+              "Arn"
+             ]
             }
            ]
           }
@@ -11892,10 +11838,7 @@
         },
         "/",
         {
-         "Fn::GetAtt": [
-          "LambdaImageBuilderzBuilder235DD147",
-          "Name"
-         ]
+         "Ref": "LambdaImageBuilderzRepository7C7AD146"
         },
         "@sha256:",
         {
@@ -12082,7 +12025,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "FargatebuilderBuilder0834CD0B"
+              "Fn::GetAtt": [
+               "FargatebuilderRepository8F7BA13C",
+               "Arn"
+              ]
              }
             ]
            }
@@ -12096,7 +12042,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "FargatebuilderBuilder0834CD0B"
+              "Fn::GetAtt": [
+               "FargatebuilderRepository8F7BA13C",
+               "Arn"
+              ]
              }
             ]
            }
@@ -12108,10 +12057,7 @@
          },
          "/",
          {
-          "Fn::GetAtt": [
-           "FargatebuilderBuilder0834CD0B",
-           "Name"
-          ]
+          "Ref": "FargatebuilderRepository8F7BA13C"
          },
          ":latest"
         ]
@@ -12191,7 +12137,10 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Ref": "FargatebuilderBuilder0834CD0B"
+        "Fn::GetAtt": [
+         "FargatebuilderRepository8F7BA13C",
+         "Arn"
+        ]
        }
       },
       {
@@ -12313,7 +12262,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "FargatebuilderBuilder0834CD0B"
+              "Fn::GetAtt": [
+               "FargatebuilderRepository8F7BA13C",
+               "Arn"
+              ]
              }
             ]
            }
@@ -12327,7 +12279,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "FargatebuilderBuilder0834CD0B"
+              "Fn::GetAtt": [
+               "FargatebuilderRepository8F7BA13C",
+               "Arn"
+              ]
              }
             ]
            }
@@ -12339,10 +12294,7 @@
          },
          "/",
          {
-          "Fn::GetAtt": [
-           "FargatebuilderBuilder0834CD0B",
-           "Name"
-          ]
+          "Ref": "FargatebuilderRepository8F7BA13C"
          },
          ":latest"
         ]
@@ -12422,7 +12374,10 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Ref": "FargatebuilderBuilder0834CD0B"
+        "Fn::GetAtt": [
+         "FargatebuilderRepository8F7BA13C",
+         "Arn"
+        ]
        }
       },
       {
@@ -12544,7 +12499,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "FargatebuilderarmBuilder48D1AF5A"
+              "Fn::GetAtt": [
+               "FargatebuilderarmRepository77DCC132",
+               "Arn"
+              ]
              }
             ]
            }
@@ -12558,7 +12516,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "FargatebuilderarmBuilder48D1AF5A"
+              "Fn::GetAtt": [
+               "FargatebuilderarmRepository77DCC132",
+               "Arn"
+              ]
              }
             ]
            }
@@ -12570,10 +12531,7 @@
          },
          "/",
          {
-          "Fn::GetAtt": [
-           "FargatebuilderarmBuilder48D1AF5A",
-           "Name"
-          ]
+          "Ref": "FargatebuilderarmRepository77DCC132"
          },
          ":latest"
         ]
@@ -12653,7 +12611,10 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Ref": "FargatebuilderarmBuilder48D1AF5A"
+        "Fn::GetAtt": [
+         "FargatebuilderarmRepository77DCC132",
+         "Arn"
+        ]
        }
       },
       {
@@ -12775,7 +12736,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "FargatebuilderarmBuilder48D1AF5A"
+              "Fn::GetAtt": [
+               "FargatebuilderarmRepository77DCC132",
+               "Arn"
+              ]
              }
             ]
            }
@@ -12789,7 +12753,10 @@
             "Fn::Split": [
              ":",
              {
-              "Ref": "FargatebuilderarmBuilder48D1AF5A"
+              "Fn::GetAtt": [
+               "FargatebuilderarmRepository77DCC132",
+               "Arn"
+              ]
              }
             ]
            }
@@ -12801,10 +12768,7 @@
          },
          "/",
          {
-          "Fn::GetAtt": [
-           "FargatebuilderarmBuilder48D1AF5A",
-           "Name"
-          ]
+          "Ref": "FargatebuilderarmRepository77DCC132"
          },
          ":latest"
         ]
@@ -12884,7 +12848,10 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Ref": "FargatebuilderarmBuilder48D1AF5A"
+        "Fn::GetAtt": [
+         "FargatebuilderarmRepository77DCC132",
+         "Arn"
+        ]
        }
       },
       {
@@ -13000,11 +12967,37 @@
         "",
         [
          {
-          "Ref": "AWS::AccountId"
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "WindowsImageBuilderRepositoryA4CBB6D8",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
          },
          ".dkr.ecr.",
          {
-          "Ref": "AWS::Region"
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "WindowsImageBuilderRepositoryA4CBB6D8",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
          },
          ".",
          {
@@ -13012,30 +13005,7 @@
          },
          "/",
          {
-          "Fn::Select": [
-           0,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Fn::Select": [
-               1,
-               {
-                "Fn::Split": [
-                 "/",
-                 {
-                  "Fn::GetAtt": [
-                   "WindowsImageBuilderDockerImage8672CA3E",
-                   "ImageUri"
-                  ]
-                 }
-                ]
-               }
-              ]
-             }
-            ]
-           }
-          ]
+          "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
          },
          ":latest"
         ]
@@ -13111,49 +13081,9 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Fn::Join": [
-         "",
-         [
-          "arn:",
-          {
-           "Ref": "AWS::Partition"
-          },
-          ":ecr:",
-          {
-           "Ref": "AWS::Region"
-          },
-          ":",
-          {
-           "Ref": "AWS::AccountId"
-          },
-          ":repository/",
-          {
-           "Fn::Select": [
-            0,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::Select": [
-                1,
-                {
-                 "Fn::Split": [
-                  "/",
-                  {
-                   "Fn::GetAtt": [
-                    "WindowsImageBuilderDockerImage8672CA3E",
-                    "ImageUri"
-                   ]
-                  }
-                 ]
-                }
-               ]
-              }
-             ]
-            }
-           ]
-          }
-         ]
+        "Fn::GetAtt": [
+         "WindowsImageBuilderRepositoryA4CBB6D8",
+         "Arn"
         ]
        }
       },
@@ -16502,63 +16432,9 @@
        "Action": "ecr:DescribeImages",
        "Effect": "Allow",
        "Resource": {
-        "Ref": "CodeBuildImageBuilderB8638EC8"
-       }
-      },
-      {
-       "Action": "ecr:DescribeImages",
-       "Effect": "Allow",
-       "Resource": {
-        "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
-       }
-      },
-      {
-       "Action": "ecr:DescribeImages",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::Join": [
-         "",
-         [
-          "arn:",
-          {
-           "Ref": "AWS::Partition"
-          },
-          ":ecr:",
-          {
-           "Ref": "AWS::Region"
-          },
-          ":",
-          {
-           "Ref": "AWS::AccountId"
-          },
-          ":repository/",
-          {
-           "Fn::Select": [
-            0,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::Select": [
-                1,
-                {
-                 "Fn::Split": [
-                  "/",
-                  {
-                   "Fn::GetAtt": [
-                    "WindowsImageBuilderDockerImage8672CA3E",
-                    "ImageUri"
-                   ]
-                  }
-                 ]
-                }
-               ]
-              }
-             ]
-            }
-           ]
-          }
-         ]
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderRepository9DE3B6F0",
+         "Arn"
         ]
        }
       },
@@ -16566,28 +16442,60 @@
        "Action": "ecr:DescribeImages",
        "Effect": "Allow",
        "Resource": {
-        "Ref": "LambdaImageBuilderx64Builder42F384AF"
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderarmRepositoryE967421B",
+         "Arn"
+        ]
        }
       },
       {
        "Action": "ecr:DescribeImages",
        "Effect": "Allow",
        "Resource": {
-        "Ref": "LambdaImageBuilderzBuilder235DD147"
+        "Fn::GetAtt": [
+         "WindowsImageBuilderRepositoryA4CBB6D8",
+         "Arn"
+        ]
        }
       },
       {
        "Action": "ecr:DescribeImages",
        "Effect": "Allow",
        "Resource": {
-        "Ref": "FargatebuilderBuilder0834CD0B"
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64Repository57F632F1",
+         "Arn"
+        ]
        }
       },
       {
        "Action": "ecr:DescribeImages",
        "Effect": "Allow",
        "Resource": {
-        "Ref": "FargatebuilderarmBuilder48D1AF5A"
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzRepository7C7AD146",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:DescribeImages",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderRepository8F7BA13C",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:DescribeImages",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderarmRepository77DCC132",
+         "Arn"
+        ]
        }
       },
       {
@@ -16815,7 +16723,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "CodeBuildImageBuilderB8638EC8"
+               "Fn::GetAtt": [
+                "CodeBuildImageBuilderRepository9DE3B6F0",
+                "Arn"
+               ]
               }
              ]
             }
@@ -16829,7 +16740,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "CodeBuildImageBuilderB8638EC8"
+               "Fn::GetAtt": [
+                "CodeBuildImageBuilderRepository9DE3B6F0",
+                "Arn"
+               ]
               }
              ]
             }
@@ -16841,10 +16755,7 @@
           },
           "/",
           {
-           "Fn::GetAtt": [
-            "CodeBuildImageBuilderB8638EC8",
-            "Name"
-           ]
+           "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
           }
          ]
         ]
@@ -16883,7 +16794,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+               "Fn::GetAtt": [
+                "CodeBuildImageBuilderarmRepositoryE967421B",
+                "Arn"
+               ]
               }
              ]
             }
@@ -16897,7 +16811,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+               "Fn::GetAtt": [
+                "CodeBuildImageBuilderarmRepositoryE967421B",
+                "Arn"
+               ]
               }
              ]
             }
@@ -16909,10 +16826,7 @@
           },
           "/",
           {
-           "Fn::GetAtt": [
-            "CodeBuildImageBuilderarmBuilder755EB37D",
-            "Name"
-           ]
+           "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
           }
          ]
         ]
@@ -16945,11 +16859,37 @@
          "",
          [
           {
-           "Ref": "AWS::AccountId"
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "WindowsImageBuilderRepositoryA4CBB6D8",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
           },
           ".dkr.ecr.",
           {
-           "Ref": "AWS::Region"
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "WindowsImageBuilderRepositoryA4CBB6D8",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
           },
           ".",
           {
@@ -16957,30 +16897,7 @@
           },
           "/",
           {
-           "Fn::Select": [
-            0,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::Select": [
-                1,
-                {
-                 "Fn::Split": [
-                  "/",
-                  {
-                   "Fn::GetAtt": [
-                    "WindowsImageBuilderDockerImage8672CA3E",
-                    "ImageUri"
-                   ]
-                  }
-                 ]
-                }
-               ]
-              }
-             ]
-            }
-           ]
+           "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
           }
          ]
         ]
@@ -17050,7 +16967,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "CodeBuildImageBuilderB8638EC8"
+               "Fn::GetAtt": [
+                "CodeBuildImageBuilderRepository9DE3B6F0",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17064,7 +16984,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "CodeBuildImageBuilderB8638EC8"
+               "Fn::GetAtt": [
+                "CodeBuildImageBuilderRepository9DE3B6F0",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17076,10 +16999,7 @@
           },
           "/",
           {
-           "Fn::GetAtt": [
-            "CodeBuildImageBuilderB8638EC8",
-            "Name"
-           ]
+           "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
           }
          ]
         ]
@@ -17149,7 +17069,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+               "Fn::GetAtt": [
+                "CodeBuildImageBuilderarmRepositoryE967421B",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17163,7 +17086,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "CodeBuildImageBuilderarmBuilder755EB37D"
+               "Fn::GetAtt": [
+                "CodeBuildImageBuilderarmRepositoryE967421B",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17175,10 +17101,7 @@
           },
           "/",
           {
-           "Fn::GetAtt": [
-            "CodeBuildImageBuilderarmBuilder755EB37D",
-            "Name"
-           ]
+           "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
           }
          ]
         ]
@@ -17242,11 +17165,37 @@
          "",
          [
           {
-           "Ref": "AWS::AccountId"
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "WindowsImageBuilderRepositoryA4CBB6D8",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
           },
           ".dkr.ecr.",
           {
-           "Ref": "AWS::Region"
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "WindowsImageBuilderRepositoryA4CBB6D8",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
           },
           ".",
           {
@@ -17254,30 +17203,7 @@
           },
           "/",
           {
-           "Fn::Select": [
-            0,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::Select": [
-                1,
-                {
-                 "Fn::Split": [
-                  "/",
-                  {
-                   "Fn::GetAtt": [
-                    "WindowsImageBuilderDockerImage8672CA3E",
-                    "ImageUri"
-                   ]
-                  }
-                 ]
-                }
-               ]
-              }
-             ]
-            }
-           ]
+           "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
           }
          ]
         ]
@@ -17318,7 +17244,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "LambdaImageBuilderx64Builder42F384AF"
+               "Fn::GetAtt": [
+                "LambdaImageBuilderx64Repository57F632F1",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17332,7 +17261,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "LambdaImageBuilderx64Builder42F384AF"
+               "Fn::GetAtt": [
+                "LambdaImageBuilderx64Repository57F632F1",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17344,10 +17276,7 @@
           },
           "/",
           {
-           "Fn::GetAtt": [
-            "LambdaImageBuilderx64Builder42F384AF",
-            "Name"
-           ]
+           "Ref": "LambdaImageBuilderx64Repository57F632F1"
           }
          ]
         ]
@@ -17388,7 +17317,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "LambdaImageBuilderzBuilder235DD147"
+               "Fn::GetAtt": [
+                "LambdaImageBuilderzRepository7C7AD146",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17402,7 +17334,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "LambdaImageBuilderzBuilder235DD147"
+               "Fn::GetAtt": [
+                "LambdaImageBuilderzRepository7C7AD146",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17414,10 +17349,7 @@
           },
           "/",
           {
-           "Fn::GetAtt": [
-            "LambdaImageBuilderzBuilder235DD147",
-            "Name"
-           ]
+           "Ref": "LambdaImageBuilderzRepository7C7AD146"
           }
          ]
         ]
@@ -17487,7 +17419,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "FargatebuilderBuilder0834CD0B"
+               "Fn::GetAtt": [
+                "FargatebuilderRepository8F7BA13C",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17501,7 +17436,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "FargatebuilderBuilder0834CD0B"
+               "Fn::GetAtt": [
+                "FargatebuilderRepository8F7BA13C",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17513,10 +17451,7 @@
           },
           "/",
           {
-           "Fn::GetAtt": [
-            "FargatebuilderBuilder0834CD0B",
-            "Name"
-           ]
+           "Ref": "FargatebuilderRepository8F7BA13C"
           }
          ]
         ]
@@ -17586,7 +17521,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "FargatebuilderBuilder0834CD0B"
+               "Fn::GetAtt": [
+                "FargatebuilderRepository8F7BA13C",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17600,7 +17538,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "FargatebuilderBuilder0834CD0B"
+               "Fn::GetAtt": [
+                "FargatebuilderRepository8F7BA13C",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17612,10 +17553,7 @@
           },
           "/",
           {
-           "Fn::GetAtt": [
-            "FargatebuilderBuilder0834CD0B",
-            "Name"
-           ]
+           "Ref": "FargatebuilderRepository8F7BA13C"
           }
          ]
         ]
@@ -17685,7 +17623,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "FargatebuilderarmBuilder48D1AF5A"
+               "Fn::GetAtt": [
+                "FargatebuilderarmRepository77DCC132",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17699,7 +17640,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "FargatebuilderarmBuilder48D1AF5A"
+               "Fn::GetAtt": [
+                "FargatebuilderarmRepository77DCC132",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17711,10 +17655,7 @@
           },
           "/",
           {
-           "Fn::GetAtt": [
-            "FargatebuilderarmBuilder48D1AF5A",
-            "Name"
-           ]
+           "Ref": "FargatebuilderarmRepository77DCC132"
           }
          ]
         ]
@@ -17784,7 +17725,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "FargatebuilderarmBuilder48D1AF5A"
+               "Fn::GetAtt": [
+                "FargatebuilderarmRepository77DCC132",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17798,7 +17742,10 @@
              "Fn::Split": [
               ":",
               {
-               "Ref": "FargatebuilderarmBuilder48D1AF5A"
+               "Fn::GetAtt": [
+                "FargatebuilderarmRepository77DCC132",
+                "Arn"
+               ]
               }
              ]
             }
@@ -17810,10 +17757,7 @@
           },
           "/",
           {
-           "Fn::GetAtt": [
-            "FargatebuilderarmBuilder48D1AF5A",
-            "Name"
-           ]
+           "Ref": "FargatebuilderarmRepository77DCC132"
           }
          ]
         ]
@@ -17877,11 +17821,37 @@
          "",
          [
           {
-           "Ref": "AWS::AccountId"
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "WindowsImageBuilderRepositoryA4CBB6D8",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
           },
           ".dkr.ecr.",
           {
-           "Ref": "AWS::Region"
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "WindowsImageBuilderRepositoryA4CBB6D8",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
           },
           ".",
           {
@@ -17889,30 +17859,7 @@
           },
           "/",
           {
-           "Fn::Select": [
-            0,
-            {
-             "Fn::Split": [
-              ":",
-              {
-               "Fn::Select": [
-                1,
-                {
-                 "Fn::Split": [
-                  "/",
-                  {
-                   "Fn::GetAtt": [
-                    "WindowsImageBuilderDockerImage8672CA3E",
-                    "ImageUri"
-                   ]
-                  }
-                 ]
-                }
-               ]
-              }
-             ]
-            }
-           ]
+           "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
           }
          ]
         ]

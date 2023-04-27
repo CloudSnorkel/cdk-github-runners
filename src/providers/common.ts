@@ -188,6 +188,13 @@ export interface RunnerImage {
    * @deprecated open a ticket if you need this
    */
   readonly runnerVersion: RunnerVersion;
+
+  /**
+   * A dependable string that can be waited on to ensure the image is ready.
+   *
+   * @internal
+   */
+  readonly _dependable?: string;
 }
 
 /**

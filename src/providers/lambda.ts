@@ -237,6 +237,12 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       throw new Error(`Unable to find supported Lambda architecture for ${image.os.name}/${image.architecture.name}`);
     }
 
+    if (!image._dependable) {
+      // AWS Image Builder can't get us dependable images and there is no point in using it anyway. CodeBuild is so much faster.
+      // This may change if Lambda starts supporting Windows images. Then we would need AWS Image Builder.
+      cdk.Annotations.of(this).addError('Lambda provider can only work with images built by CodeBuild and not AWS Image Builder');
+    }
+
     // get image digest and make sure to get it every time the lambda function might be updated
     // pass all variables that may change and cause a function update
     // if we don't get the latest digest, the update may fail as a new image was already built outside the stack on a schedule
@@ -252,6 +258,9 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       memorySize: props?.memorySize,
       ephemeralStorageSize: props?.ephemeralStorageSize?.toKibibytes(),
       logRetention: props?.logRetention?.toFixed(),
+      // update on image build too to avoid conflict of the scheduled updater and any other CDK updates like VPC
+      // this also helps with rollbacks as it will always get the right digest and prevent rollbacks using deleted images from failing
+      dependable: image._dependable,
     });
 
     this.function = new lambda.DockerImageFunction(
@@ -421,6 +430,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       logRetention: RetentionDays.ONE_MONTH,
     });
 
+    // mark this resource as retainable, as there is nothing to do on delete
     const res = reader.node.tryFindChild('Resource') as cdk.CustomResource | undefined;
     if (res) {
       // don't actually call the fake onDelete above

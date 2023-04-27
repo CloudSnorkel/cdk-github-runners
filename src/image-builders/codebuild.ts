@@ -173,17 +173,13 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
     // return the image
     this.boundDockerImage = {
-      imageRepository: ecr.Repository.fromRepositoryAttributes(this, 'Dependable Image', {
-        // There are simpler ways to get name and ARN, but we want an image object that depends on the custom resource.
-        // We want whoever is using this image to automatically wait for CodeBuild to start and finish through the custom resource.
-        repositoryName: cr.getAttString('Name'),
-        repositoryArn: cr.ref,
-      }),
+      imageRepository: this.repository,
       imageTag: 'latest',
       architecture: this.architecture,
       os: this.os,
       logGroup,
       runnerVersion: RunnerVersion.specific('unknown'),
+      _dependable: cr.getAttString('Random'),
     };
     return this.boundDockerImage;
   }
@@ -294,7 +290,8 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
               // we remove non-printable characters from the log because CloudFormation doesn't like them
               // https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1601
               '  "Reason": `sed \'s/[^[:print:]]//g\' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\n' +
-              `  "Data": {"Name": "${repository.repositoryName}"}\n` +
+              // for lambda always get a new value because there is always a new image hash
+              '  "Data": {"Random": "$RANDOM"}\n' +
               '}\n' +
               'EOF',
             'if [ "$RESPONSE_URL" != "unspecified" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$RESPONSE_URL"; fi',

@@ -19,8 +19,8 @@ import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import { IRunnerImageBuilder } from './common';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
 import { BuildImageFunction } from '../providers/build-image-function';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers/common';
 import { singletonLambda } from '../utils';
 
 /*
@@ -356,17 +356,13 @@ export class CodeBuildImageBuilder extends Construct implements IRunnerImageBuil
     }
 
     this.boundImage = {
-      imageRepository: ecr.Repository.fromRepositoryAttributes(this, 'Dependable Image', {
-        // There are simpler ways to get name and ARN, but we want an image object that depends on the custom resource.
-        // We want whoever is using this image to automatically wait for CodeBuild to start and finish through the custom resource.
-        repositoryName: cr.getAttString('Name'),
-        repositoryArn: cr.ref,
-      }),
+      imageRepository: this.repository,
       imageTag: 'latest',
       architecture: this.architecture,
       os: this.os,
       logGroup,
       runnerVersion: this.props.runnerVersion ?? RunnerVersion.latest(),
+      _dependable: cr.ref,
     };
     return this.boundImage;
   }
