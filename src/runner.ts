@@ -92,7 +92,7 @@ export interface GitHubRunnersProps {
   /**
    * Time to wait before stopping a runner that remains idle. If the user cancelled the job, or if another runner stole it, this stops the runner to avoid wasting resources.
    *
-   * @default 10 minutes
+   * @default 5 minutes
    */
   readonly idleTimeout?: cdk.Duration;
 
@@ -311,31 +311,10 @@ export class GitHubRunners extends Construct {
         repo: stepfunctions.JsonPath.stringAt('$.repo'),
         runId: stepfunctions.JsonPath.stringAt('$.runId'),
         installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
-        maxIdleSeconds: (props?.idleTimeout ?? cdk.Duration.minutes(10)).toSeconds(),
+        maxIdleSeconds: (props?.idleTimeout ?? cdk.Duration.minutes(5)).toSeconds(),
       }),
       resultPath: '$.idleReaper',
     });
-
-    // const waitForIdleRunner = new stepfunctions.Wait(this, 'Wait', {
-    //   time: stepfunctions.WaitTime.duration(props?.idleTimeout ?? cdk.Duration.minutes(10)),
-    // });
-    // const deleteIdleRunnerTask = new stepfunctions_tasks.LambdaInvoke(
-    //   this,
-    //   'Delete Idle Runner',
-    //   {
-    //     lambdaFunction: deleteRunnerFunction,
-    //     payloadResponseOnly: true,
-    //     resultPath: '$.delete',
-    //     payload: stepfunctions.TaskInput.fromObject({
-    //       runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
-    //       owner: stepfunctions.JsonPath.stringAt('$.owner'),
-    //       repo: stepfunctions.JsonPath.stringAt('$.repo'),
-    //       runId: stepfunctions.JsonPath.stringAt('$.runId'),
-    //       installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
-    //       idleOnly: true,
-    //     }),
-    //   },
-    // );
 
     const providerChooser = new stepfunctions.Choice(this, 'Choose provider');
     for (const provider of this.providers) {
