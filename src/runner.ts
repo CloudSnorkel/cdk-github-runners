@@ -309,8 +309,9 @@ export class GitHubRunners extends Construct {
       maxAttempts: 60,
     });
 
+    const idleReaper = this.idleReaper();
     const queueIdleReaperTask = new stepfunctions_tasks.SqsSendMessage(this, 'Queue Idle Reaper', {
-      queue: this.idleReaperQueue(),
+      queue: this.idleReaperQueue(idleReaper),
       messageBody: stepfunctions.TaskInput.fromObject({
         executionArn: stepfunctions.JsonPath.stringAt('$$.Execution.Id'),
         runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
@@ -382,6 +383,7 @@ export class GitHubRunners extends Construct {
       },
     );
 
+    stateMachine.grantRead(idleReaper);
     for (const provider of this.providers) {
       provider.grantStateMachine(stateMachine);
     }
@@ -551,20 +553,9 @@ export class GitHubRunners extends Construct {
     }
   }
 
-  private idleReaperQueue() {
-    const queue = new sqs.Queue(this, 'Idle Reaper Queue', {
-      deliveryDelay: cdk.Duration.minutes(10),
-      visibilityTimeout: cdk.Duration.minutes(10),
-    });
-
-    const reaper = new IdleRunnerRepearFunction(this, 'Idle Reaper', {
+  private idleReaper() {
+    return new IdleRunnerRepearFunction(this, 'Idle Reaper', {
       description: 'Stop idle GitHub runners to avoid paying for runners when the job was already canceled',
-      initialPolicy: [
-        new iam.PolicyStatement({
-          actions: ['states:DescribeExecution'],
-          resources: ['*'], // TODO arn:aws:states:us-east-1:xxxx:execution:${step function}:*
-        }),
-      ],
       environment: {
         GITHUB_SECRET_ARN: this.secrets.github.secretArn,
         GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
@@ -573,8 +564,15 @@ export class GitHubRunners extends Construct {
       logRetention: logs.RetentionDays.ONE_MONTH,
       timeout: cdk.Duration.minutes(1),
       ...this.extraLambdaProps,
-    },
-    );
+    });
+  }
+
+  private idleReaperQueue(reaper: lambda.Function) {
+    const queue = new sqs.Queue(this, 'Idle Reaper Queue', {
+      deliveryDelay: cdk.Duration.minutes(10),
+      visibilityTimeout: cdk.Duration.minutes(10),
+    });
+
     reaper.addEventSource(new lambda_event_sources.SqsEventSource(queue, {
       reportBatchItemFailures: true,
     }));
