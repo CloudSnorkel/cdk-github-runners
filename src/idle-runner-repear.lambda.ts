@@ -7,7 +7,6 @@ interface IdleReaperLambdaInput {
   readonly runnerName: string;
   readonly owner: string;
   readonly repo: string;
-  readonly runId: string;
   readonly installationId: string;
   readonly maxIdleSeconds: number;
 }
@@ -19,7 +18,7 @@ exports.handler = async function (event: AWSLambda.SQSEvent): Promise<AWSLambda.
 
   for (const record of event.Records) {
     const input = JSON.parse(record.body) as IdleReaperLambdaInput;
-    console.log(`Checking runner #${input.runId} for ${input.owner}/${input.repo} [execution-id=${input.runnerName}]`);
+    console.log(`Checking runner for ${input.owner}/${input.repo} [execution-id=${input.runnerName}]`);
 
     const retryLater = () => result.batchItemFailures.push({ itemIdentifier: record.messageId });
 

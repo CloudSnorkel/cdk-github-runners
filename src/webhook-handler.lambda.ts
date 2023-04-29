@@ -120,7 +120,7 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
     input: JSON.stringify({
       owner: payload.repository.owner.login,
       repo: payload.repository.name,
-      runId: payload.workflow_job.run_id,
+      jobId: payload.workflow_job.id,
       installationId: payload.installation?.id,
       labels: labels,
     }),

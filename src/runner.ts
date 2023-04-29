@@ -295,7 +295,6 @@ export class GitHubRunners extends Construct {
           runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
           owner: stepfunctions.JsonPath.stringAt('$.owner'),
           repo: stepfunctions.JsonPath.stringAt('$.repo'),
-          runId: stepfunctions.JsonPath.stringAt('$.runId'),
           installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
           idleOnly: false,
         }),
@@ -313,12 +312,10 @@ export class GitHubRunners extends Construct {
     const queueIdleReaperTask = new stepfunctions_tasks.SqsSendMessage(this, 'Queue Idle Reaper', {
       queue: this.idleReaperQueue(),
       messageBody: stepfunctions.TaskInput.fromObject({
-        // TODO do we need all these?
         executionArn: stepfunctions.JsonPath.stringAt('$$.Execution.Id'),
         runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
         owner: stepfunctions.JsonPath.stringAt('$.owner'),
         repo: stepfunctions.JsonPath.stringAt('$.repo'),
-        runId: stepfunctions.JsonPath.stringAt('$.runId'),
         installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
         maxIdleSeconds: (props?.idleTimeout ?? cdk.Duration.minutes(5)).toSeconds(),
       }),
