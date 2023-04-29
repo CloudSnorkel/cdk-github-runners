@@ -1,6 +1,6 @@
 import * as AWSLambda from 'aws-lambda';
 import * as AWS from 'aws-sdk';
-import { getOctokit, getRunner } from './github';
+import { getOctokit, getRunner } from './lambda-github';
 
 interface IdleReaperLambdaInput {
   readonly executionArn: string;

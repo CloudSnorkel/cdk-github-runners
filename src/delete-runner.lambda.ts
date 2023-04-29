@@ -1,6 +1,5 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { RequestError } from '@octokit/request-error';
-import { getOctokit, getRunner } from './github';
+import { getOctokit, getRunner } from './lambda-github';
 import { StepFunctionLambdaInput } from './lambda-helpers';
 
 class RunnerBusy extends Error {

@@ -1,6 +1,4 @@
-/* eslint-disable-next-line import/no-extraneous-dependencies,import/no-unresolved */
 import * as AWSLambda from 'aws-lambda';
-/* eslint-disable-next-line import/no-extraneous-dependencies */
 import * as AWS from 'aws-sdk';
 
 interface ReaperInput {
@@ -164,7 +162,6 @@ async function dockerImagesGone(dockerImages?: AWS.Imagebuilder.ContainerList) {
   return true;
 }
 
-/* eslint-disable @typescript-eslint/no-require-imports, import/no-extraneous-dependencies */
 exports.handler = async function (event: ReaperInput, _context: AWSLambda.Context) {
   for (const imageVersion of await iterateImageVersions(event.RecipeName)) {
     for (const imageBuildVersion of await iterateImageBuildVersions(imageVersion)) {

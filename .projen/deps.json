@@ -181,12 +181,12 @@
     },
     {
       "name": "vite-plugin-singlefile",
-      "version": "^0.11.0",
+      "version": "^0.13.5",
       "type": "build"
     },
     {
       "name": "vite",
-      "version": "^3.0.0",
+      "version": "^4.0.0",
       "type": "build"
     },
     {
