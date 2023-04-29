@@ -44,6 +44,15 @@ export interface GitHubRunnersProps {
 
   /**
    * VPC used for all management functions. Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
+   *
+   * Make sure the selected VPC and subnets have access to the following with either NAT Gateway or VPC Endpoints:
+   * * GitHub Enterprise Server
+   * * Secrets Manager
+   * * SQS
+   * * Step Functions
+   * * CloudFormation (status function only)
+   * * EC2 (status function only)
+   * * ECR (status function only)
    */
   readonly vpc?: ec2.IVpc;
 
