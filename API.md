@@ -6459,7 +6459,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to all management functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.setupAccess">setupAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the setup function. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.statusAccess">statusAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the status function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for all management functions. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for all management functions. Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpcSubnets">vpcSubnets</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | VPC subnets used for all management functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.webhookAccess">webhookAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the webhook function. |
 
@@ -6519,7 +6519,7 @@ public readonly idleTimeout: Duration;
 ```
 
 - *Type:* aws-cdk-lib.Duration
-- *Default:* 10 minutes
+- *Default:* 5 minutes
 
 Time to wait before stopping a runner that remains idle.
 
@@ -6607,9 +6607,16 @@ public readonly vpc: IVpc;
 
 - *Type:* aws-cdk-lib.aws_ec2.IVpc
 
-VPC used for all management functions.
+VPC used for all management functions. Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
 
-Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
+Make sure the selected VPC and subnets have access to the following with either NAT Gateway or VPC Endpoints:
+* GitHub Enterprise Server
+* Secrets Manager
+* SQS
+* Step Functions
+* CloudFormation (status function only)
+* EC2 (status function only)
+* ECR (status function only)
 
 ---
 
