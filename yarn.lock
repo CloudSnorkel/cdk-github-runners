@@ -7195,10 +7195,10 @@ validate-npm-package-name@^5.0.0:
   dependencies:
     builtins "^5.0.0"
 
-vite-plugin-singlefile@^0.11.0:
-  version "0.11.1"
-  resolved "https://registry.yarnpkg.com/vite-plugin-singlefile/-/vite-plugin-singlefile-0.11.1.tgz#4a309d72d91f67babf98d0ffb2ff67bc130a9077"
-  integrity sha512-ZTT3XA2AM7rOf4UGmEM+FmMht000Uuc6OJSdlYqddFE9y7IrGDnNhFVQ/TZQMAFzZ0dYX3JzknAmrdKWe6s0xg==
+vite-plugin-singlefile@^0.13.5:
+  version "0.13.5"
+  resolved "https://registry.yarnpkg.com/vite-plugin-singlefile/-/vite-plugin-singlefile-0.13.5.tgz#9465dbb0b06afb2a73600a50fcce4b51c8d10999"
+  integrity sha512-y/aRGh8qHmw2f1IhaI/C6PJAaov47ESYDvUv1am1YHMhpY+19B5k5Odp8P+tgs+zhfvak6QB1ykrALQErEAo7g==
   dependencies:
     micromatch "^4.0.5"
 
