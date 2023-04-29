@@ -50,3 +50,39 @@ export async function getOctokit(installationId?: string) {
     octokit,
   };
 }
+
+interface GitHubRunner {
+  readonly id: number;
+  readonly name: string;
+  readonly os: string;
+  readonly status: string;
+  readonly busy: boolean;
+  readonly labels: {
+    readonly id: number;
+    readonly name: string;
+    readonly type: string;
+  }[];
+}
+
+export async function getRunner(octokit: any, owner: string, repo: string, name: string): Promise<GitHubRunner | undefined> {
+  let page = 1;
+  while (true) {
+    const runners = await octokit.request('GET /repos/{owner}/{repo}/actions/runners?per_page=100&page={page}', {
+      page: page,
+      owner: owner,
+      repo: repo,
+    });
+
+    if (runners.data.runners.length == 0) {
+      return;
+    }
+
+    for (const runner of runners.data.runners) {
+      if (runner.name == name) {
+        return runner;
+      }
+    }
+
+    page++;
+  }
+}

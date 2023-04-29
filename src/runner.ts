@@ -5,15 +5,17 @@ import {
   aws_ec2 as ec2,
   aws_iam as iam,
   aws_lambda as lambda,
+  aws_lambda_event_sources as lambda_event_sources,
   aws_logs as logs,
   aws_sns as sns,
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
-  RemovalPolicy,
+  aws_sqs as sqs,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
 import { DeleteRunnerFunction } from './delete-runner-function';
+import { IdleRunnerRepearFunction } from './idle-runner-repear-function';
 import {
   AwsImageBuilderFailedBuildNotifier,
   CodeBuildImageBuilderFailedBuildNotifier,
@@ -299,26 +301,41 @@ export class GitHubRunners extends Construct {
       maxAttempts: 60,
     });
 
-    const waitForIdleRunner = new stepfunctions.Wait(this, 'Wait', {
-      time: stepfunctions.WaitTime.duration(props?.idleTimeout ?? cdk.Duration.minutes(10)),
+    const queueIdleReaperTask = new stepfunctions_tasks.SqsSendMessage(this, 'Queue Idle Reaper', {
+      queue: this.idleReaperQueue(),
+      messageBody: stepfunctions.TaskInput.fromObject({
+        // TODO do we need all these?
+        executionArn: stepfunctions.JsonPath.stringAt('$$.Execution.Id'),
+        runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+        owner: stepfunctions.JsonPath.stringAt('$.owner'),
+        repo: stepfunctions.JsonPath.stringAt('$.repo'),
+        runId: stepfunctions.JsonPath.stringAt('$.runId'),
+        installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
+        maxIdleSeconds: (props?.idleTimeout ?? cdk.Duration.minutes(10)).toSeconds(),
+      }),
+      resultPath: '$.idleReaper',
     });
-    const deleteIdleRunnerTask = new stepfunctions_tasks.LambdaInvoke(
-      this,
-      'Delete Idle Runner',
-      {
-        lambdaFunction: deleteRunnerFunction,
-        payloadResponseOnly: true,
-        resultPath: '$.delete',
-        payload: stepfunctions.TaskInput.fromObject({
-          runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
-          owner: stepfunctions.JsonPath.stringAt('$.owner'),
-          repo: stepfunctions.JsonPath.stringAt('$.repo'),
-          runId: stepfunctions.JsonPath.stringAt('$.runId'),
-          installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
-          idleOnly: true,
-        }),
-      },
-    );
+
+    // const waitForIdleRunner = new stepfunctions.Wait(this, 'Wait', {
+    //   time: stepfunctions.WaitTime.duration(props?.idleTimeout ?? cdk.Duration.minutes(10)),
+    // });
+    // const deleteIdleRunnerTask = new stepfunctions_tasks.LambdaInvoke(
+    //   this,
+    //   'Delete Idle Runner',
+    //   {
+    //     lambdaFunction: deleteRunnerFunction,
+    //     payloadResponseOnly: true,
+    //     resultPath: '$.delete',
+    //     payload: stepfunctions.TaskInput.fromObject({
+    //       runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+    //       owner: stepfunctions.JsonPath.stringAt('$.owner'),
+    //       repo: stepfunctions.JsonPath.stringAt('$.repo'),
+    //       runId: stepfunctions.JsonPath.stringAt('$.runId'),
+    //       installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
+    //       idleOnly: true,
+    //     }),
+    //   },
+    // );
 
     const providerChooser = new stepfunctions.Choice(this, 'Choose provider');
     for (const provider of this.providers) {
@@ -343,12 +360,11 @@ export class GitHubRunners extends Construct {
 
     providerChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown label'));
 
-    const work = tokenRetrieverTask.next(
+    const work = tokenRetrieverTask.next(queueIdleReaperTask).next(
       new stepfunctions.Parallel(this, 'Error Catcher', { resultPath: '$.result' })
         .branch(providerChooser)
-        .branch(waitForIdleRunner.next(deleteIdleRunnerTask))
         .addCatch(
-          deleteRunnerTask
+          deleteRunnerTask // TODO do we still need to delete? yes lambda timeout -- no it will timeout itself?
             .next(new stepfunctions.Fail(this, 'Runner Failed')),
           {
             resultPath: '$.error',
@@ -361,7 +377,7 @@ export class GitHubRunners extends Construct {
       this.stateMachineLogGroup = new logs.LogGroup(this, 'Logs', {
         logGroupName: props?.logOptions?.logGroupName,
         retention: props?.logOptions?.logRetention ?? logs.RetentionDays.ONE_MONTH,
-        removalPolicy: RemovalPolicy.DESTROY,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
       });
 
       logOptions = {
@@ -547,6 +563,40 @@ export class GitHubRunners extends Construct {
         }
       }
     }
+  }
+
+  private idleReaperQueue() {
+    const queue = new sqs.Queue(this, 'Idle Reaper Queue', {
+      deliveryDelay: cdk.Duration.minutes(10),
+      visibilityTimeout: cdk.Duration.minutes(10),
+    });
+
+    const reaper = new IdleRunnerRepearFunction(this, 'Idle Reaper', {
+      description: 'Stop idle GitHub runners to avoid paying for runners when the job was already canceled',
+      initialPolicy: [
+        new iam.PolicyStatement({
+          actions: ['states:DescribeExecution'],
+          resources: ['*'], // TODO arn:aws:states:us-east-1:xxxx:execution:${step function}:*
+        }),
+      ],
+      environment: {
+        GITHUB_SECRET_ARN: this.secrets.github.secretArn,
+        GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+        ...this.extraLambdaEnv,
+      },
+      logRetention: logs.RetentionDays.ONE_MONTH,
+      timeout: cdk.Duration.minutes(1),
+      ...this.extraLambdaProps,
+    },
+    );
+    reaper.addEventSource(new lambda_event_sources.SqsEventSource(queue, {
+      reportBatchItemFailures: true,
+    }));
+
+    this.secrets.github.grantRead(reaper);
+    this.secrets.githubPrivateKey.grantRead(reaper);
+
+    return queue;
   }
 
   /**

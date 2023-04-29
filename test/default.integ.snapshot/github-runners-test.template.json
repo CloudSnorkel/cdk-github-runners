@@ -14033,7 +14033,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "a1c6366bd373211cfaadb81d4b67bf7de05a0acaf062e6bcdcbfb9fd1d5c1522.zip"
+     "S3Key": "878004ea3674af12bd89bd5a196788045d655128da01602fe397a2f5e67a702e.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -14083,6 +14083,179 @@
      ]
     },
     "RetentionInDays": 30
+   }
+  },
+  "runnersIdleReaperQueue117EFB9F": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "DelaySeconds": 600,
+    "VisibilityTimeout": 600
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "runnersIdleReaperServiceRoleA775758D": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "runnersIdleReaperServiceRoleDefaultPolicyE05BFDF0": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "states:DescribeExecution",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "sqs:ReceiveMessage",
+        "sqs:ChangeMessageVisibility",
+        "sqs:GetQueueUrl",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersIdleReaperQueue117EFB9F",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubEFD96479"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "runnersIdleReaperServiceRoleDefaultPolicyE05BFDF0",
+    "Roles": [
+     {
+      "Ref": "runnersIdleReaperServiceRoleA775758D"
+     }
+    ]
+   }
+  },
+  "runnersIdleReaper6FBF63A3": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "d24cfcb3d708d1912d80cf12febb402ad526b9c8ae9ebf49bd0dacc8886be783.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "runnersIdleReaperServiceRoleA775758D",
+      "Arn"
+     ]
+    },
+    "Description": "Stop idle GitHub runners to avoid paying for runners when the job was already canceled",
+    "Environment": {
+     "Variables": {
+      "GITHUB_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubEFD96479"
+      },
+      "GITHUB_PRIVATE_KEY_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+      },
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs16.x",
+    "Timeout": 60
+   },
+   "DependsOn": [
+    "runnersIdleReaperServiceRoleDefaultPolicyE05BFDF0",
+    "runnersIdleReaperServiceRoleA775758D"
+   ]
+  },
+  "runnersIdleReaperLogRetention7C122308": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "runnersIdleReaper6FBF63A3"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "runnersIdleReaperSqsEventSourcegithubrunnerstestrunnersIdleReaperQueue5E84F4E4B0DB6768": {
+   "Type": "AWS::Lambda::EventSourceMapping",
+   "Properties": {
+    "FunctionName": {
+     "Ref": "runnersIdleReaper6FBF63A3"
+    },
+    "EventSourceArn": {
+     "Fn::GetAtt": [
+      "runnersIdleReaperQueue117EFB9F",
+      "Arn"
+     ]
+    },
+    "FunctionResponseTypes": [
+     "ReportBatchItemFailures"
+    ]
    }
   },
   "runnersRunnerOrchestratorRole5D220AD7": {
@@ -14140,6 +14313,16 @@
          ]
         }
        ]
+      },
+      {
+       "Action": "sqs:SendMessage",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersIdleReaperQueue117EFB9F",
+         "Arn"
+        ]
+       }
       },
       {
        "Action": "lambda:InvokeFunction",
@@ -15515,14 +15698,22 @@
      "Fn::Join": [
       "",
       [
-       "{\"StartAt\":\"Get Runner Token\",\"States\":{\"Get Runner Token\":{\"Next\":\"Error Catcher\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
+       "{\"StartAt\":\"Get Runner Token\",\"States\":{\"Get Runner Token\":{\"Next\":\"Queue Idle Reaper\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnerstokenretrieverD5E8392A",
          "Arn"
         ]
        },
-       "\"},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"And\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true}],\"Next\":\"codebuild-x64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"codebuild, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"codebuild, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ecs, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"ecs, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ecs, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"lambda, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"lambda, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2-spot, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, arm64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, windows, x64 data\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Succeed\"},\"codebuild-x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"CodeBuild.CodeBuildException\",\"CodeBuild.AccountLimitExceededException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"},\"Queue Idle Reaper\":{\"Next\":\"Error Catcher\",\"Type\":\"Task\",\"ResultPath\":\"$.idleReaper\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::sqs:sendMessage\",\"Parameters\":{\"QueueUrl\":\"",
+       {
+        "Ref": "runnersIdleReaperQueue117EFB9F"
+       },
+       "\",\"MessageBody\":{\"executionArn.$\":\"$$.Execution.Id\",\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"runId.$\":\"$.runId\",\"installationId.$\":\"$.installationId\",\"maxIdleSeconds\":600}}},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"And\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true}],\"Next\":\"codebuild-x64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"codebuild, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"codebuild, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ecs, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"ecs, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ecs, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"lambda, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"lambda, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2-spot, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, arm64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, windows, x64 data\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Succeed\"},\"codebuild-x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"CodeBuild.CodeBuildException\",\"CodeBuild.AccountLimitExceededException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -16015,14 +16206,7 @@
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]}}},{\"StartAt\":\"Wait\",\"States\":{\"Wait\":{\"Type\":\"Wait\",\"Seconds\":600,\"Next\":\"Delete Idle Runner\"},\"Delete Idle Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
-       {
-        "Fn::GetAtt": [
-         "runnersdeleterunner7F8D5293",
-         "Arn"
-        ]
-       },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"runId.$\":\"$.runId\",\"installationId.$\":\"$.installationId\",\"idleOnly\":true}}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnersdeleterunner7F8D5293",

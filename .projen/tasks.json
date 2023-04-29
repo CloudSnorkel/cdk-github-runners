@@ -49,6 +49,9 @@
           "spawn": "bundle:delete-runner.lambda"
         },
         {
+          "spawn": "bundle:idle-runner-repear.lambda"
+        },
+        {
           "spawn": "bundle:image-builders/aws-image-builder/delete-ami.lambda"
         },
         {
@@ -104,6 +107,24 @@
       "steps": [
         {
           "exec": "esbuild --bundle src/delete-runner.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/delete-runner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:idle-runner-repear.lambda": {
+      "name": "bundle:idle-runner-repear.lambda",
+      "description": "Create a JavaScript bundle from src/idle-runner-repear.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/idle-runner-repear.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/idle-runner-repear.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:idle-runner-repear.lambda:watch": {
+      "name": "bundle:idle-runner-repear.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/idle-runner-repear.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/idle-runner-repear.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/idle-runner-repear.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
         }
       ]
     },
