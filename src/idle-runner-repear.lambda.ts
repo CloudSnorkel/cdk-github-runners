@@ -49,30 +49,40 @@ exports.handler = async function (event: AWSLambda.SQSEvent): Promise<AWSLambda.
     }
 
     // check if max idle timeout has reached
-    const started = parseInt(record.attributes.SentTimestamp);
-    const startedDate = new Date(started);
-    const now = new Date();
-    const diffMs = now.getTime() - startedDate.getTime();
-    console.log(now.getTime(), startedDate.getTime(), startedDate, started);
+    let found = false;
+    for (const label of runner.labels) {
+      if (label.name.toLowerCase().startsWith('cdkghr:started:')) {
+        const started = parseFloat(label.name.split(':')[2]);
+        const startedDate = new Date(started * 1000);
+        const now = new Date();
+        const diffMs = now.getTime() - startedDate.getTime();
 
-    console.log(`Runner ${input.runnerName} started ${diffMs/1000} seconds ago`);
+        console.log(`Runner ${input.runnerName} started ${diffMs/1000} seconds ago`);
 
-    // max idle time reached, delete runner
-    if (diffMs > 1000 * input.maxIdleSeconds) {
-      console.log(`Runner ${input.runnerName} is idle for too long, deleting...`);
+        if (diffMs > 1000 * input.maxIdleSeconds) {
+          // max idle time reached, delete runner
+          console.log(`Runner ${input.runnerName} is idle for too long, deleting...`);
 
-      // delete runner
-      await octokit.rest.actions.deleteSelfHostedRunnerFromRepo({
-        owner: input.owner,
-        repo: input.repo,
-        runner_id: runner.id,
-      });
+          await octokit.rest.actions.deleteSelfHostedRunnerFromRepo({
+            owner: input.owner,
+            repo: input.repo,
+            runner_id: runner.id,
+          });
+        } else {
+          // still idle, timeout not reached -- retry later
+          retryLater();
+        }
 
-      continue;
+        found = true;
+        break;
+      }
     }
 
-    // still idle, timeout not reached -- retry later
-    retryLater();
+    if (!found) {
+      // no started label? retry later (it won't retry forever as eventually the runner will stop and the step function will finish)
+      console.error('No `cdkghr:started:xxx` label found???');
+      retryLater();
+    }
   }
 
   return result;

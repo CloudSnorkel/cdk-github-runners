@@ -59,7 +59,7 @@ EOF
 }
 action () {
   if [ "$(< RUNNER_VERSION)" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
-  sudo -Hu runner /home/runner/config.sh --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{}" $RUNNER_FLAGS --name "{}" || exit 1
+  sudo -Hu runner /home/runner/config.sh --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{},cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "{}" || exit 1
   sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
   STATUS=$(grep -Phors "finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*" /home/runner/_diag/ | tail -n1)
   [ -n "$STATUS" ] && echo CDKGHA JOB DONE "{}" "$STATUS"
@@ -108,7 +108,7 @@ function action () {
   cd /actions
   $RunnerVersion = Get-Content RUNNER_VERSION -Raw 
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
-  ./config.cmd --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{}" $RunnerFlags --name "{}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  ./config.cmd --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "{}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
   if ($LASTEXITCODE -ne 0) { return 1 }
   ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
   if ($LASTEXITCODE -ne 0) { return 2 }
