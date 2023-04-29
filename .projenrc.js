@@ -12,7 +12,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
   repositoryUrl: 'https://github.com/CloudSnorkel/cdk-github-runners.git',
   license: 'Apache-2.0',
   description: 'CDK construct to create GitHub Actions self-hosted runners. A webhook listens to events and creates ephemeral runners on the fly.',
-  deps: [
+  devDeps: [
+    'esbuild', // for faster NodejsFunction bundling
     '@octokit/core',
     '@octokit/auth-app',
     '@octokit/request-error',
@@ -33,8 +34,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'vite@^3.0.0',
     'vite-plugin-singlefile@^0.11.0',
   ],
-  devDeps: [
-    'esbuild', // for faster NodejsFunction bundling
+  deps: [
   ],
   jsiiVersion: '5.0.x',
   typescriptVersion: '4.9.x',
@@ -136,5 +136,9 @@ const cdkConfig = new CdkConfig(project, {
 cdkConfig.json.addDeletionOverride('app');
 cdkConfig.json.addDeletionOverride('context');
 cdkConfig.json.addDeletionOverride('output');
+
+// allow lambda utility files to import dev dependencies
+project.eslint.allowDevDeps('src/lambda-helpers.ts');
+project.eslint.allowDevDeps('src/lambda-github.ts');
 
 project.synth();

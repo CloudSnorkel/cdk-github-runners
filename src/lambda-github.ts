@@ -1,5 +1,5 @@
-import { createAppAuth } from '@octokit/auth-app';
-import { Octokit } from '@octokit/rest';
+import { createAppAuth } from '@octokit/auth-app'; // eslint-disable-line import/no-extraneous-dependencies
+import { Octokit } from '@octokit/rest'; // eslint-disable-line import/no-extraneous-dependencies
 import { getSecretValue, getSecretJsonValue } from './lambda-helpers';
 
 export function baseUrlFromDomain(domain: string): string {

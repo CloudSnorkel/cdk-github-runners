@@ -1,5 +1,5 @@
 import { RequestError } from '@octokit/request-error';
-import { getOctokit } from './github';
+import { getOctokit } from './lambda-github';
 import { StepFunctionLambdaInput } from './lambda-helpers';
 
 interface DeleteRunnerInput extends StepFunctionLambdaInput {

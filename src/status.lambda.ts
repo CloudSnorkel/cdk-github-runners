@@ -2,7 +2,7 @@ import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/core';
 import * as AWSLambda from 'aws-lambda';
 import * as AWS from 'aws-sdk';
-import { baseUrlFromDomain } from './github';
+import { baseUrlFromDomain } from './lambda-github';
 import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
 
 const cfn = new AWS.CloudFormation();
