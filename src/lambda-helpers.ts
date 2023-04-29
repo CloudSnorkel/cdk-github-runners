@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import * as AWS from 'aws-sdk';
 
 export interface StepFunctionLambdaInput {

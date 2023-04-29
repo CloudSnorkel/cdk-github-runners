@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { RequestError } from '@octokit/request-error';
 import { getOctokit } from './github';
 import { StepFunctionLambdaInput } from './lambda-helpers';

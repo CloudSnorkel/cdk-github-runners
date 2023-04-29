@@ -12,9 +12,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   repositoryUrl: 'https://github.com/CloudSnorkel/cdk-github-runners.git',
   license: 'Apache-2.0',
   description: 'CDK construct to create GitHub Actions self-hosted runners. A webhook listens to events and creates ephemeral runners on the fly.',
-  // packageName: undefined,  /* The "name" in package.json. */
-  devDeps: [
-    'esbuild', // for faster NodejsFunction bundling
+  deps: [
     '@octokit/core',
     '@octokit/auth-app',
     '@octokit/request-error',
@@ -32,12 +30,11 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'svelte@^3.49.0',
     'svelte-check@^2.8.0',
     'svelte-preprocess@^4.10.7',
-    //'tslib@^2.4.0',
-    //'typescript@^4.6.4',
     'vite@^3.0.0',
     'vite-plugin-singlefile@^0.11.0',
   ],
-  deps: [
+  devDeps: [
+    'esbuild', // for faster NodejsFunction bundling
   ],
   jsiiVersion: '5.0.x',
   typescriptVersion: '4.9.x',

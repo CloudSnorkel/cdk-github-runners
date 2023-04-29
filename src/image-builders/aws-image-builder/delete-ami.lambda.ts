@@ -1,6 +1,4 @@
-/* eslint-disable-next-line import/no-extraneous-dependencies,import/no-unresolved */
 import * as AWSLambda from 'aws-lambda';
-/* eslint-disable-next-line import/no-extraneous-dependencies */
 import * as AWS from 'aws-sdk';
 import { customResourceRespond } from '../../lambda-helpers';
 
@@ -80,7 +78,6 @@ async function deleteAmis(launchTemplateId: string, stackName: string, builderNa
   }
 }
 
-/* eslint-disable @typescript-eslint/no-require-imports, import/no-extraneous-dependencies */
 exports.handler = async function (event: DeleteAmiInput | AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   try {
     console.log(JSON.stringify({ ...event, ResponseURL: '...' }));

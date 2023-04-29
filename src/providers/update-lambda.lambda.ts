@@ -1,6 +1,4 @@
-/* eslint-disable-next-line import/no-extraneous-dependencies */
 import * as AWS from 'aws-sdk';
-/* eslint-disable-next-line import/no-extraneous-dependencies */
 import { AWSError } from 'aws-sdk/lib/error';
 
 const lambda = new AWS.Lambda();

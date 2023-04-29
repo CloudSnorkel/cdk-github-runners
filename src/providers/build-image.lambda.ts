@@ -1,6 +1,4 @@
-/* eslint-disable-next-line import/no-extraneous-dependencies,import/no-unresolved */
 import * as AWSLambda from 'aws-lambda';
-/* eslint-disable-next-line import/no-extraneous-dependencies */
 import * as AWS from 'aws-sdk';
 import { customResourceRespond } from '../lambda-helpers';
 
@@ -9,7 +7,6 @@ const ecr = new AWS.ECR();
 const ib = new AWS.Imagebuilder();
 
 
-/* eslint-disable @typescript-eslint/no-require-imports, import/no-extraneous-dependencies */
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   try {
     console.log(JSON.stringify({ ...event, ResponseURL: '...' }));
