@@ -31,7 +31,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'svelte@^3.49.0',
     'svelte-check@^2.8.0',
     'svelte-preprocess@^4.10.7',
-    'vite@^3.0.0',
+    'vite@^4.0.0',
     'vite-plugin-singlefile@^0.11.0',
   ],
   deps: [
