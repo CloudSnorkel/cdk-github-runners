@@ -349,7 +349,8 @@ export class GitHubRunners extends Construct {
       new stepfunctions.Parallel(this, 'Error Catcher', { resultPath: '$.result' })
         .branch(providerChooser)
         .addCatch(
-          deleteRunnerTask // TODO do we still need to delete? yes lambda timeout -- no it will timeout itself?
+          // delete runner on failure as it won't remove itself and there is a limit on the number of registered runners
+          deleteRunnerTask
             .next(new stepfunctions.Fail(this, 'Runner Failed')),
           {
             resultPath: '$.error',
