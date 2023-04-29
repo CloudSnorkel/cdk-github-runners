@@ -1,10 +1,8 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import { Octokit } from '@octokit/rest';
-/* eslint-disable-next-line import/no-extraneous-dependencies,import/no-unresolved */
 import * as AWSLambda from 'aws-lambda';
-import { baseUrlFromDomain } from './github';
+import { baseUrlFromDomain } from './lambda-github';
 import { getSecretJsonValue, updateSecretValue } from './lambda-helpers';
 
 type ApiGatewayEvent = AWSLambda.APIGatewayProxyEvent | AWSLambda.APIGatewayProxyEventV2;

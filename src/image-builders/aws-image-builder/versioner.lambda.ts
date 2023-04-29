@@ -1,13 +1,10 @@
-/* eslint-disable-next-line import/no-extraneous-dependencies,import/no-unresolved */
 import * as AWSLambda from 'aws-lambda';
-/* eslint-disable import/no-extraneous-dependencies */
 import * as AWS from 'aws-sdk';
 import { inc, maxSatisfying } from 'semver';
 import { customResourceRespond } from '../../lambda-helpers';
 
 const ib = new AWS.Imagebuilder();
 
-/* eslint-disable @typescript-eslint/no-require-imports, import/no-extraneous-dependencies */
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   console.log(JSON.stringify({ ...event, ResponseURL: '...' }));
 

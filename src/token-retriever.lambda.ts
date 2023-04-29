@@ -1,4 +1,4 @@
-import { getOctokit } from './github';
+import { getOctokit } from './lambda-github';
 import { StepFunctionLambdaInput } from './lambda-helpers';
 
 exports.handler = async function (event: StepFunctionLambdaInput) {
