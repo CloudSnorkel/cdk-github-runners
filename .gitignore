@@ -56,6 +56,7 @@ tsconfig.json
 !/API.md
 /assets/
 !/src/delete-runner-function.ts
+!/src/idle-runner-repear-function.ts
 !/src/image-builders/aws-image-builder/delete-ami-function.ts
 !/src/image-builders/aws-image-builder/filter-failed-builds-function.ts
 !/src/image-builders/aws-image-builder/reaper-function.ts

@@ -3,7 +3,6 @@ import * as AWS from 'aws-sdk';
 export interface StepFunctionLambdaInput {
   readonly owner: string;
   readonly repo: string;
-  readonly runId: string;
   readonly runnerName: string;
   readonly installationId: string;
   readonly labels: string[];

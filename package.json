@@ -11,6 +11,8 @@
     "bundle": "npx projen bundle",
     "bundle:delete-runner.lambda": "npx projen bundle:delete-runner.lambda",
     "bundle:delete-runner.lambda:watch": "npx projen bundle:delete-runner.lambda:watch",
+    "bundle:idle-runner-repear.lambda": "npx projen bundle:idle-runner-repear.lambda",
+    "bundle:idle-runner-repear.lambda:watch": "npx projen bundle:idle-runner-repear.lambda:watch",
     "bundle:image-builders/aws-image-builder/delete-ami.lambda": "npx projen bundle:image-builders/aws-image-builder/delete-ami.lambda",
     "bundle:image-builders/aws-image-builder/delete-ami.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/delete-ami.lambda:watch",
     "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda": "npx projen bundle:image-builders/aws-image-builder/filter-failed-builds.lambda",

@@ -1813,7 +1813,7 @@
         },
         " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/86dfcbcdb3c3fd028fb3abe4342e42137a2928bc0eb4842117b8ccc39447ef5b.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/87fb05c277980b465b21ee7baa15bbacc55d6ea6bd5f0e0a4fe78d27fd87907e.sh"
         },
         " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
         {
@@ -2029,7 +2029,7 @@
        },
        " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
        {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/86dfcbcdb3c3fd028fb3abe4342e42137a2928bc0eb4842117b8ccc39447ef5b.sh"
+        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/87fb05c277980b465b21ee7baa15bbacc55d6ea6bd5f0e0a4fe78d27fd87907e.sh"
        },
        " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
        {
@@ -5790,7 +5790,7 @@
         },
         " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/86dfcbcdb3c3fd028fb3abe4342e42137a2928bc0eb4842117b8ccc39447ef5b.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/87fb05c277980b465b21ee7baa15bbacc55d6ea6bd5f0e0a4fe78d27fd87907e.sh"
         },
         " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
         {
@@ -6006,7 +6006,7 @@
        },
        " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
        {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/86dfcbcdb3c3fd028fb3abe4342e42137a2928bc0eb4842117b8ccc39447ef5b.sh"
+        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/87fb05c277980b465b21ee7baa15bbacc55d6ea6bd5f0e0a4fe78d27fd87907e.sh"
        },
        " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
        {
@@ -8563,7 +8563,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL}\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Cache": {
@@ -9002,7 +9002,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL}\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://${GITHUB_DOMAIN}/${OWNER}/${REPO}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Cache": {
@@ -9280,7 +9280,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"if (${Env:RUNNER_VERSION} -eq \\\"latest\\\") { $RunnerFlags = \\\"\\\" } else { $RunnerFlags = \\\"--disableupdate\\\" }\",\n        \"./config.cmd --unattended --url \\\"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\\\" --token \\\"${Env:RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${Env:RUNNER_LABEL}\\\" ${RunnerFlags} --name \\\"${Env:RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"./run.cmd\",\n        \"$STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1\",\n        \"if ($STATUS) { echo \\\"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\\\" }\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"if (${Env:RUNNER_VERSION} -eq \\\"latest\\\") { $RunnerFlags = \\\"\\\" } else { $RunnerFlags = \\\"--disableupdate\\\" }\",\n        \"./config.cmd --unattended --url \\\"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\\\" --token \\\"${Env:RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat %s)\\\" ${RunnerFlags} --name \\\"${Env:RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"./run.cmd\",\n        \"$STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1\",\n        \"if ($STATUS) { echo \\\"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\\\" }\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Cache": {
@@ -9920,7 +9920,7 @@
       "Command": [
        "sh",
        "-c",
-       "sudo socat UNIX-LISTEN:/var/run/docker.sock,group=docker,mode=770,fork UNIX-CONNECT:/var/run/docker.sock.host &\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "sudo socat UNIX-LISTEN:/var/run/docker.sock,group=docker,mode=770,fork UNIX-CONNECT:/var/run/docker.sock.host &\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -10485,7 +10485,7 @@
       "Command": [
        "sh",
        "-c",
-       "sudo socat UNIX-LISTEN:/var/run/docker.sock,group=docker,mode=770,fork UNIX-CONNECT:/var/run/docker.sock.host &\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "sudo socat UNIX-LISTEN:/var/run/docker.sock,group=docker,mode=770,fork UNIX-CONNECT:/var/run/docker.sock.host &\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -11050,7 +11050,7 @@
       "Command": [
        "powershell",
        "-Command",
-       "cd \\actions ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ; \n        ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL}\" $RunnerFlags --name \"${Env:RUNNER_NAME}\" ; \n        ./run.cmd ; \n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ; \n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
+       "cd \\actions ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ; \n        ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"${Env:RUNNER_NAME}\" ; \n        ./run.cmd ; \n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ; \n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -12011,7 +12011,7 @@
       "Command": [
        "sh",
        "-c",
-       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -12248,7 +12248,7 @@
       "Command": [
        "sh",
        "-c",
-       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -12485,7 +12485,7 @@
       "Command": [
        "sh",
        "-c",
-       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -12722,7 +12722,7 @@
       "Command": [
        "sh",
        "-c",
-       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"https://$GITHUB_DOMAIN/$OWNER/$REPO\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" && \n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -12959,7 +12959,7 @@
       "Command": [
        "powershell",
        "-Command",
-       "cd \\actions ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ; \n        ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL}\" $RunnerFlags --name \"${Env:RUNNER_NAME}\" ; \n        ./run.cmd ; \n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ; \n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
+       "cd \\actions ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ; \n        ./config.cmd --unattended --url \"https://${Env:GITHUB_DOMAIN}/${Env:OWNER}/${Env:REPO}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"${Env:RUNNER_NAME}\" ; \n        ./run.cmd ; \n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ; \n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
       ],
       "Essential": true,
       "Image": {
@@ -14033,7 +14033,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "bc54a4f332d20592490b201993eb7b2e3d54cfae7a3b48a9b4106bbffcc1d4ec.zip"
+     "S3Key": "6b90a27e248b48c2546126c214604cd40bb6fd61f0a474c7f00990aeffe0a7bb.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -14084,6 +14084,235 @@
     },
     "RetentionInDays": 30
    }
+  },
+  "runnersIdleReaperServiceRoleA775758D": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "runnersIdleReaperServiceRoleDefaultPolicyE05BFDF0": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "sqs:ReceiveMessage",
+        "sqs:ChangeMessageVisibility",
+        "sqs:GetQueueUrl",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersIdleReaperQueue117EFB9F",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubEFD96479"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+       }
+      },
+      {
+       "Action": [
+        "states:ListExecutions",
+        "states:ListStateMachines"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersRunnerOrchestratorF9B66EBA"
+       }
+      },
+      {
+       "Action": [
+        "states:DescribeExecution",
+        "states:DescribeStateMachineForExecution",
+        "states:GetExecutionHistory"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":states:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":execution:",
+          {
+           "Fn::Select": [
+            6,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "runnersRunnerOrchestratorF9B66EBA"
+              }
+             ]
+            }
+           ]
+          },
+          ":*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "states:ListActivities",
+        "states:DescribeStateMachine",
+        "states:DescribeActivity"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "runnersIdleReaperServiceRoleDefaultPolicyE05BFDF0",
+    "Roles": [
+     {
+      "Ref": "runnersIdleReaperServiceRoleA775758D"
+     }
+    ]
+   }
+  },
+  "runnersIdleReaper6FBF63A3": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "285fb8797f2d4972268f77cc0bbaa5f546ec57fc1eafa6f7a75159fd98996a94.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "runnersIdleReaperServiceRoleA775758D",
+      "Arn"
+     ]
+    },
+    "Description": "Stop idle GitHub runners to avoid paying for runners when the job was already canceled",
+    "Environment": {
+     "Variables": {
+      "GITHUB_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubEFD96479"
+      },
+      "GITHUB_PRIVATE_KEY_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+      },
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs16.x",
+    "Timeout": 60
+   },
+   "DependsOn": [
+    "runnersIdleReaperServiceRoleDefaultPolicyE05BFDF0",
+    "runnersIdleReaperServiceRoleA775758D"
+   ]
+  },
+  "runnersIdleReaperLogRetention7C122308": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "runnersIdleReaper6FBF63A3"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
+   }
+  },
+  "runnersIdleReaperSqsEventSourcegithubrunnerstestrunnersIdleReaperQueue5E84F4E4B0DB6768": {
+   "Type": "AWS::Lambda::EventSourceMapping",
+   "Properties": {
+    "FunctionName": {
+     "Ref": "runnersIdleReaper6FBF63A3"
+    },
+    "EventSourceArn": {
+     "Fn::GetAtt": [
+      "runnersIdleReaperQueue117EFB9F",
+      "Arn"
+     ]
+    },
+    "FunctionResponseTypes": [
+     "ReportBatchItemFailures"
+    ]
+   }
+  },
+  "runnersIdleReaperQueue117EFB9F": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "DelaySeconds": 600,
+    "VisibilityTimeout": 600
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   },
   "runnersRunnerOrchestratorRole5D220AD7": {
    "Type": "AWS::IAM::Role",
@@ -14140,6 +14369,16 @@
          ]
         }
        ]
+      },
+      {
+       "Action": "sqs:SendMessage",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersIdleReaperQueue117EFB9F",
+         "Arn"
+        ]
+       }
       },
       {
        "Action": "lambda:InvokeFunction",
@@ -15515,14 +15754,22 @@
      "Fn::Join": [
       "",
       [
-       "{\"StartAt\":\"Get Runner Token\",\"States\":{\"Get Runner Token\":{\"Next\":\"Error Catcher\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
+       "{\"StartAt\":\"Get Runner Token\",\"States\":{\"Get Runner Token\":{\"Next\":\"Queue Idle Reaper\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnerstokenretrieverD5E8392A",
          "Arn"
         ]
        },
-       "\"},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"And\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true}],\"Next\":\"codebuild-x64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"codebuild, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"codebuild, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ecs, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"ecs, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ecs, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"lambda, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"lambda, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2-spot, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, arm64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, windows, x64 data\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Succeed\"},\"codebuild-x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"CodeBuild.CodeBuildException\",\"CodeBuild.AccountLimitExceededException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"},\"Queue Idle Reaper\":{\"Next\":\"Error Catcher\",\"Type\":\"Task\",\"ResultPath\":\"$.idleReaper\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::sqs:sendMessage\",\"Parameters\":{\"QueueUrl\":\"",
+       {
+        "Ref": "runnersIdleReaperQueue117EFB9F"
+       },
+       "\",\"MessageBody\":{\"executionArn.$\":\"$$.Execution.Id\",\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"maxIdleSeconds\":300}}},\"Error Catcher\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Choose provider\",\"States\":{\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"And\":[{\"Variable\":\"$.labels.codebuild-x64\",\"IsPresent\":true}],\"Next\":\"codebuild-x64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"codebuild, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.codebuild\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"codebuild, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ecs, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"ecs, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.ecs\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ecs, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"lambda, x64\"},{\"And\":[{\"Variable\":\"$.labels.lambda\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"lambda, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"fargate-spot, linux, arm64\"},{\"And\":[{\"Variable\":\"$.labels.fargate\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"fargate, windows, x64\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2-spot\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2-spot, linux, x64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.linux\",\"IsPresent\":true},{\"Variable\":\"$.labels.arm64\",\"IsPresent\":true}],\"Next\":\"ec2, linux, arm64 data\"},{\"And\":[{\"Variable\":\"$.labels.ec2\",\"IsPresent\":true},{\"Variable\":\"$.labels.windows\",\"IsPresent\":true},{\"Variable\":\"$.labels.x64\",\"IsPresent\":true}],\"Next\":\"ec2, windows, x64 data\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Succeed\"},\"codebuild-x64\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"CodeBuild.CodeBuildException\",\"CodeBuild.AccountLimitExceededException\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -15743,7 +15990,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"ec2, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" $RUNNER_FLAGS --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\\\\\-]+ with result: \\\\\\\\K.*\\\" /home/runner/_diag/ | tail -n1)\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"{}\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2, linux, x64 subnet iterator\"},\"ec2, linux, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, linux, x64 subnet1\",\"States\":{\"ec2, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"ec2, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{},cdkghr:started:`date +%s`\\\" $RUNNER_FLAGS --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\\\\\-]+ with result: \\\\\\\\K.*\\\" /home/runner/_diag/ | tail -n1)\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"{}\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2, linux, x64 subnet iterator\"},\"ec2, linux, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, linux, x64 subnet1\",\"States\":{\"ec2, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -15811,7 +16058,7 @@
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"ec2-spot, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" $RUNNER_FLAGS --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\\\\\-]+ with result: \\\\\\\\K.*\\\" /home/runner/_diag/ | tail -n1)\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"{}\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2-spot, linux, x64 subnet iterator\"},\"ec2-spot, linux, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2-spot, linux, x64 subnet1\",\"States\":{\"ec2-spot, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2-spot, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"ec2-spot, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{},cdkghr:started:`date +%s`\\\" $RUNNER_FLAGS --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\\\\\-]+ with result: \\\\\\\\K.*\\\" /home/runner/_diag/ | tail -n1)\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"{}\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2-spot, linux, x64 subnet iterator\"},\"ec2-spot, linux, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2-spot, linux, x64 subnet1\",\"States\":{\"ec2-spot, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2-spot, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -15879,7 +16126,7 @@
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}}}}]},\"ec2, linux, arm64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" $RUNNER_FLAGS --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\\\\\-]+ with result: \\\\\\\\K.*\\\" /home/runner/_diag/ | tail -n1)\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"{}\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2, linux, arm64 subnet iterator\"},\"ec2, linux, arm64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, linux, arm64 subnet1\",\"States\":{\"ec2, linux, arm64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, arm64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}}}}]},\"ec2, linux, arm64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{},cdkghr:started:`date +%s`\\\" $RUNNER_FLAGS --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\\\\\-]+ with result: \\\\\\\\K.*\\\" /home/runner/_diag/ | tail -n1)\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"{}\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2, linux, arm64 subnet iterator\"},\"ec2, linux, arm64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, linux, arm64 subnet1\",\"States\":{\"ec2, linux, arm64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, arm64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -15947,7 +16194,7 @@
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"ec2, windows, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\nStart-Job -ScriptBlock \\\\{\\n  while (1) \\\\{\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    sleep 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  echo '\\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n         \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/actions/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}' | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  $RunnerVersion = Get-Content RUNNER_VERSION -Raw \\n  if ($RunnerVersion -eq \\\"latest\\\") \\\\{ $RunnerFlags = \\\"\\\" \\\\} else \\\\{ $RunnerFlags = \\\"--disableupdate\\\" \\\\}\\n  ./config.cmd --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{}\\\" $RunnerFlags --name \\\"{}\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\\\\\-]+ with result: (.*)' | %\\\\{$_.Matches.Groups[1].Value\\\\} | Select-Object -Last 1\\n  if ($STATUS) \\\\{ echo \\\"CDKGHA JOB DONE {} $STATUS\\\" | Out-File -Encoding ASCII -Append /actions/runner.log \\\\}\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}'\\n\\\\} else \\\\{\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\n\\\\}\\nStart-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"ec2, windows, x64 subnet iterator\"},\"ec2, windows, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, windows, x64 subnet1\",\"States\":{\"ec2, windows, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, windows, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"ec2, windows, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\nStart-Job -ScriptBlock \\\\{\\n  while (1) \\\\{\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    sleep 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  echo '\\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n         \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/actions/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}' | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  $RunnerVersion = Get-Content RUNNER_VERSION -Raw \\n  if ($RunnerVersion -eq \\\"latest\\\") \\\\{ $RunnerFlags = \\\"\\\" \\\\} else \\\\{ $RunnerFlags = \\\"--disableupdate\\\" \\\\}\\n  ./config.cmd --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{},cdkghr:started:$(Get-Date -UFormat +%s)\\\" $RunnerFlags --name \\\"{}\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\\\\\-]+ with result: (.*)' | %\\\\{$_.Matches.Groups[1].Value\\\\} | Select-Object -Last 1\\n  if ($STATUS) \\\\{ echo \\\"CDKGHA JOB DONE {} $STATUS\\\" | Out-File -Encoding ASCII -Append /actions/runner.log \\\\}\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}'\\n\\\\} else \\\\{\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\n\\\\}\\nStart-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"ec2, windows, x64 subnet iterator\"},\"ec2, windows, x64 subnet iterator\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"IntervalSeconds\":60,\"MaxAttempts\":10,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"ec2, windows, x64 subnet1\",\"States\":{\"ec2, windows, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, windows, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -16015,21 +16262,14 @@
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]}}},{\"StartAt\":\"Wait\",\"States\":{\"Wait\":{\"Type\":\"Wait\",\"Seconds\":600,\"Next\":\"Delete Idle Runner\"},\"Delete Idle Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnersdeleterunner7F8D5293",
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"runId.$\":\"$.runId\",\"installationId.$\":\"$.installationId\",\"idleOnly\":true}}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
-       {
-        "Fn::GetAtt": [
-         "runnersdeleterunner7F8D5293",
-         "Arn"
-        ]
-       },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"runId.$\":\"$.runId\",\"installationId.$\":\"$.installationId\",\"idleOnly\":false}},\"Runner Failed\":{\"Type\":\"Fail\"}}}"
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"idleOnly\":false}},\"Runner Failed\":{\"Type\":\"Fail\"}}}"
       ]
      ]
     }
@@ -16110,7 +16350,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "d74a3d886e6a038a7db2c9fa8ca2c8f44267a58a594c9f361aeedf969ac70a31.zip"
+     "S3Key": "6e50b29336865ad777b78c6f67bb8f9a6458d3599515b818a7705d4c2c781180.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -16629,7 +16869,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "9ee02ca09b92d869c022504c9f31031e228e34618ee37cd49a81324f337b95bb.zip"
+     "S3Key": "50a2d4fb7efb1e97ecc9702cb62ba675d936a9537af08a39365281047994d1b7.zip"
     },
     "Role": {
      "Fn::GetAtt": [

@@ -84,7 +84,7 @@ interface AppInstallation {
 interface RecentRun {
   readonly owner?: string;
   readonly repo?: string;
-  readonly runId?: string;
+  readonly jobId?: string;
   readonly executionArn?: string;
   readonly status: string;
 }
@@ -179,7 +179,7 @@ exports.handler = async function (event: Partial<AWSLambda.APIGatewayProxyEvent>
         status: execution.status,
         owner: input.owner,
         repo: input.repo,
-        runId: input.runId,
+        jobId: input.jobId,
       });
     }
   } catch (e) {

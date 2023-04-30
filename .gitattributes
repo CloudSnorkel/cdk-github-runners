@@ -26,6 +26,7 @@
 /LICENSE linguist-generated
 /package.json linguist-generated
 /src/delete-runner-function.ts linguist-generated
+/src/idle-runner-repear-function.ts linguist-generated
 /src/image-builders/aws-image-builder/delete-ami-function.ts linguist-generated
 /src/image-builders/aws-image-builder/filter-failed-builds-function.ts linguist-generated
 /src/image-builders/aws-image-builder/reaper-function.ts linguist-generated
