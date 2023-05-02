@@ -230,7 +230,7 @@ export interface RunnerAmi {
 }
 
 /**
- * Retry options for providers. The default is to retry 10 times for about 45 minutes with increasing interval.
+ * Retry options for providers. The default is to retry 23 times for about 24 hours with increasing interval.
  */
 export interface ProviderRetryOptions {
   /**
@@ -250,7 +250,7 @@ export interface ProviderRetryOptions {
   /**
    * How many times to retry.
    *
-   * @default 10
+   * @default 23
    */
   readonly maxAttempts?: number;
 
@@ -276,9 +276,7 @@ export interface RunnerProviderProps {
   readonly logRetention?: logs.RetentionDays;
 
   /**
-   * Options to retry operation in case of failure like missing capacity, or API quota issues.
-   *
-   * @default retry 10 times up to about 45 minutes
+   * @deprecated use {@link retryOptions} on {@link GitHubRunners} instead
    */
   readonly retryOptions?: ProviderRetryOptions;
 }
@@ -420,6 +418,11 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, ICons
   readonly logGroup: logs.ILogGroup;
 
   /**
+   * List of step functions errors that should be retried.
+   */
+  readonly retryableErrors: string[];
+
+  /**
    * Generate step function tasks that execute the runner.
    *
    * Called by GithubRunners and shouldn't be called manually.
@@ -450,11 +453,8 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, ICons
  * @internal
  */
 export abstract class BaseProvider extends Construct {
-  private readonly retryOptions?: ProviderRetryOptions;
-
-  protected constructor(scope: Construct, id: string, props?: RunnerProviderProps) {
+  protected constructor(scope: Construct, id: string, _props?: RunnerProviderProps) {
     super(scope, id);
-    this.retryOptions = props?.retryOptions;
   }
 
   protected labelsFromProperties(defaultLabel: string, propsLabel: string | undefined, propsLabels: string[] | undefined): string[] {
@@ -469,16 +469,5 @@ export abstract class BaseProvider extends Construct {
       return [propsLabel];
     }
     return [defaultLabel];
-  }
-
-  protected addRetry(task: stepfunctions.TaskStateBase | stepfunctions.Parallel, errors: string[]) {
-    if (this.retryOptions?.retry ?? true) {
-      task.addRetry({
-        errors,
-        interval: this.retryOptions?.interval ?? Duration.minutes(1),
-        maxAttempts: this.retryOptions?.maxAttempts ?? 10,
-        backoffRate: this.retryOptions?.backoffRate ?? 1.3,
-      });
-    }
   }
 }

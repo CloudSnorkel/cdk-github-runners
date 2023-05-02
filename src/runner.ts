@@ -10,7 +10,7 @@ import {
   aws_sns as sns,
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
-  aws_sqs as sqs,
+  aws_sqs as sqs, Duration,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
@@ -23,6 +23,7 @@ import {
   FargateRunnerProvider,
   IRunnerProvider,
   LambdaRunnerProvider,
+  ProviderRetryOptions,
 } from './providers';
 import { Secrets } from './secrets';
 import { SetupFunction } from './setup-function';
@@ -137,6 +138,17 @@ export interface GitHubRunnersProps {
    * @default LambdaAccess.noAccess()
    */
   readonly statusAccess?: LambdaAccess;
+
+  /**
+   * Options to retry operation in case of failure like missing capacity, or API quota issues.
+   *
+   * GitHub jobs time out after not being able to get a runner for 24 hours. You should not retry for more than 24 hours.
+   *
+   * Total time spent waiting can be calculated with interval * (backoffRate ^ maxAttempts) / (backoffRate - 1).
+   *
+   * @default retry 23 times up to about 24 hours
+   */
+  readonly retryOptions?: ProviderRetryOptions;
 }
 
 /**
@@ -320,7 +332,7 @@ export class GitHubRunners extends Construct {
         installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
         maxIdleSeconds: (props?.idleTimeout ?? cdk.Duration.minutes(5)).toSeconds(),
       }),
-      resultPath: '$.idleReaper',
+      resultPath: stepfunctions.JsonPath.DISCARD,
     });
 
     const providerChooser = new stepfunctions.Choice(this, 'Choose provider');
@@ -346,18 +358,40 @@ export class GitHubRunners extends Construct {
 
     providerChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown label'));
 
-    const work = tokenRetrieverTask.next(queueIdleReaperTask).next(
-      new stepfunctions.Parallel(this, 'Error Catcher', { resultPath: '$.result' })
-        .branch(providerChooser)
-        .addCatch(
-          // delete runner on failure as it won't remove itself and there is a limit on the number of registered runners
-          deleteRunnerTask
-            .next(new stepfunctions.Fail(this, 'Runner Failed')),
-          {
-            resultPath: '$.error',
-          },
-        ),
-    );
+    const work = new stepfunctions.Parallel(this, 'Retry on Error', { resultPath: '$.result' })
+      .branch(tokenRetrieverTask.next(providerChooser))
+      .addCatch(
+        // delete runner on failure as it won't remove itself and there is a limit on the number of registered runners
+        deleteRunnerTask.next(new stepfunctions.Fail(this, 'Runner Failed')),
+        {
+          resultPath: '$.error',
+        },
+      );
+
+    if (props?.retryOptions?.retry ?? true) {
+      const interval = props?.retryOptions?.interval ?? Duration.minutes(1);
+      const maxAttempts = props?.retryOptions?.maxAttempts ?? 23;
+      const backoffRate = props?.retryOptions?.backoffRate ?? 1.3;
+
+      const totalSeconds = interval.toSeconds() * backoffRate ** maxAttempts / (backoffRate - 1);
+      if (totalSeconds >= Duration.days(1).toSeconds()) {
+        // https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners#usage-limits
+        // "Job queue time - Each job for self-hosted runners can be queued for a maximum of 24 hours. If a self-hosted runner does not start executing the job within this limit, the job is terminated and fails to complete."
+        Annotations.of(this).addWarning(`Total retry time is greater than 24 hours (${Math.floor(totalSeconds / 60 / 60)} hours). Jobs expire after 24 hours so it would be a waste of resources to retry further.`);
+      }
+
+      work.addRetry({
+        interval,
+        maxAttempts,
+        backoffRate,
+        // we can't retry on all errors mainly because we don't want to retry on idle runner error
+        // when the idle reaper kills a runner, it will fail the state machine
+        // if we retry, we would just waste resources and end up killing it again
+        errors: ['RunnerTokenError'].concat(...this.providers.map(provider => provider.retryableErrors)),
+      });
+    }
+
+    const all = queueIdleReaperTask.next(work);
 
     let logOptions: cdk.aws_stepfunctions.LogOptions | undefined;
     if (this.props?.logOptions) {
@@ -378,7 +412,7 @@ export class GitHubRunners extends Construct {
       this,
       'Runner Orchestrator',
       {
-        definition: work,
+        definition: all,
         logs: logOptions,
       },
     );

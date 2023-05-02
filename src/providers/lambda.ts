@@ -210,6 +210,14 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    */
   readonly logGroup: logs.ILogGroup;
 
+  readonly retryableErrors = [
+    'Lambda.LambdaException',
+    'Lambda.Ec2ThrottledException',
+    'Lambda.Ec2UnexpectedException',
+    'Lambda.EniLimitReachedException',
+    'Lambda.TooManyRequestsException',
+  ];
+
   private readonly vpc?: ec2.IVpc;
   private readonly securityGroups?: ec2.ISecurityGroup[];
 
@@ -317,8 +325,6 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
         }),
       },
     );
-
-    this.addRetry(invoke, ['Lambda.LambdaException', 'Lambda.Ec2ThrottledException', 'Lambda.Ec2UnexpectedException', 'Lambda.EniLimitReachedException', 'Lambda.TooManyRequestsException']);
 
     return invoke;
   }
