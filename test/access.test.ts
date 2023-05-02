@@ -80,7 +80,12 @@ test('Private API Gateway access', () => {
       allowedSecurityGroups: [sg],
       allowedIps: ['1.2.3.4/32', '2002::1234:abcd:ffff:c0a8:101/64'],
     }),
-    statusAccess: LambdaAccess.apiGateway(),
+    statusAccess: LambdaAccess.apiGateway({
+      allowedVpcEndpoints: [ec2.InterfaceVpcEndpoint.fromInterfaceVpcEndpointAttributes(stack, 'endpoint', {
+        vpcEndpointId: 'vpce-1234567890',
+        port: 443,
+      })],
+    }),
     providers: [new LambdaRunnerProvider(stack, 'lambda')],
   });
 
@@ -106,5 +111,21 @@ test('Private API Gateway access', () => {
         ToPort: 443,
       },
     ],
+  });
+  template.hasResourceProperties('AWS::ApiGateway::RestApi', {
+    Policy: {
+      Version: '2012-10-17',
+      Statement: [{
+        Effect: 'Allow',
+        Principal: '*',
+        Action: 'execute-api:Invoke',
+        Resource: 'execute-api:/*/*/*',
+        Condition: {
+          StringEquals: {
+            'aws:SourceVpce': ['vpce-1234567890'],
+          },
+        },
+      }],
+    },
   });
 });

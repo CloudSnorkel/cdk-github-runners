@@ -8,6 +8,15 @@ import { Construct } from 'constructs';
 
 export interface ApiGatewayAccessProps {
   /**
+   * Create a private API Gateway and allow access from the specified VPC endpoints.
+   *
+   * Use this to make use of existing VPC endpoints. The VPC endpoint must point to `ec2.InterfaceVpcEndpointAwsService.APIGATEWAY`.
+   *
+   * When specified VPC endpoints, no other setting is supported.
+   */
+  readonly allowedVpcEndpoints?: ec2.IVpcEndpoint[];
+
+  /**
    * List of IP addresses in CIDR notation that are allowed to access the API Gateway.
    *
    * If not specified on public API Gateway, all IP addresses are allowed.
@@ -17,7 +26,7 @@ export interface ApiGatewayAccessProps {
   readonly allowedIps?: string[];
 
   /**
-   * Creates a private API Gateway and allows access from the specified VPC.
+   * Create a private API Gateway and allow access from the specified VPC.
    */
   readonly allowedVpc?: ec2.IVpc;
 
@@ -117,7 +126,40 @@ class ApiGateway {
     let policy: iam.PolicyDocument;
     let endpointConfig: apigateway.EndpointConfiguration | undefined = undefined;
 
-    if (this.props?.allowedVpc) {
+    if (this.props?.allowedVpcEndpoints) {
+      // private api gateway with existing vpc endpoints
+      if (this.props?.allowedSecurityGroups) {
+        cdk.Annotations.of(scope).addError('allowedSecurityGroups cannot be used when allowedVpcEndpoints is specified.');
+      }
+      if (this.props?.allowedIps) {
+        cdk.Annotations.of(scope).addError('allowedIps cannot be used when allowedVpcEndpoints is specified.');
+      }
+      if (this.props?.allowedVpc) {
+        cdk.Annotations.of(scope).addError('allowedVpc cannot be used when allowedVpcEndpoints is specified.');
+      }
+
+      endpointConfig = {
+        types: [apigateway.EndpointType.PRIVATE],
+        vpcEndpoints: this.props.allowedVpcEndpoints,
+      };
+
+      policy = PolicyDocument.fromJson({
+        Version: '2012-10-17',
+        Statement: [
+          {
+            Effect: 'Allow',
+            Principal: '*',
+            Action: 'execute-api:Invoke',
+            Resource: 'execute-api:/*/*/*',
+            Condition: {
+              StringEquals: {
+                'aws:SourceVpce': this.props.allowedVpcEndpoints.map(ve => ve.vpcEndpointId),
+              },
+            },
+          },
+        ],
+      });
+    } else if (this.props?.allowedVpc) {
       // private api gateway
       const sg = new ec2.SecurityGroup(scope, `${id}/SG`, {
         vpc: this.props.allowedVpc,
@@ -170,7 +212,7 @@ class ApiGateway {
     } else {
       // public api gateway
       if (this.props?.allowedSecurityGroups) {
-        cdk.Annotations.of(scope).addWarning('allowedSecurityGroups is ignored when allowedVpc is not specified.');
+        cdk.Annotations.of(scope).addError('allowedSecurityGroups cannot be used when allowedVpc is not specified.');
       }
 
       policy = PolicyDocument.fromJson({
