@@ -128,6 +128,16 @@ class ApiGateway {
         sg.connections.allowFrom(otherSg, ec2.Port.tcp(443));
       }
 
+      for (const ip of this.props?.allowedIps ?? []) {
+        try {
+          sg.connections.allowFrom(ec2.Peer.ipv4(ip), ec2.Port.tcp(443));
+        } catch {
+          // poor attempt at supporting both IPv4 and IPv6
+          // we can't accept ec2.IPeer because that doesn't work for public API Gateway
+          sg.connections.allowFrom(ec2.Peer.ipv6(ip), ec2.Port.tcp(443));
+        }
+      }
+
       const vpcEndpoint = new ec2.InterfaceVpcEndpoint(scope, `${id}/VpcEndpoint`, {
         vpc: this.props.allowedVpc,
         service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
