@@ -100,7 +100,7 @@
     "jsii-docgen": "^6.3.27",
     "jsii-pacmak": "^1.80.0",
     "npm-check-updates": "^16",
-    "projen": "^0.71.23",
+    "projen": "^0.71.34",
     "sass": "^1.54.0",
     "semver": "^7.5.0",
     "standard-version": "^9",
