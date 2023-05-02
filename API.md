@@ -4831,7 +4831,8 @@ const apiGatewayAccessProps: ApiGatewayAccessProps = { ... }
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedIps">allowedIps</a></code> | <code>string[]</code> | List of IP addresses in CIDR notation that are allowed to access the API Gateway. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedSecurityGroups">allowedSecurityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | List of security groups that are allowed to access the API Gateway. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpc">allowedVpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | Creates a private API Gateway and allows access from the specified VPC. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpc">allowedVpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | Create a private API Gateway and allow access from the specified VPC. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpcEndpoints">allowedVpcEndpoints</a></code> | <code>aws-cdk-lib.aws_ec2.IVpcEndpoint[]</code> | Create a private API Gateway and allow access from the specified VPC endpoints. |
 
 ---
 
@@ -4873,7 +4874,23 @@ public readonly allowedVpc: IVpc;
 
 - *Type:* aws-cdk-lib.aws_ec2.IVpc
 
-Creates a private API Gateway and allows access from the specified VPC.
+Create a private API Gateway and allow access from the specified VPC.
+
+---
+
+##### `allowedVpcEndpoints`<sup>Optional</sup> <a name="allowedVpcEndpoints" id="@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpcEndpoints"></a>
+
+```typescript
+public readonly allowedVpcEndpoints: IVpcEndpoint[];
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.IVpcEndpoint[]
+
+Create a private API Gateway and allow access from the specified VPC endpoints.
+
+Use this to make use of existing VPC endpoints. The VPC endpoint must point to `ec2.InterfaceVpcEndpointAwsService.APIGATEWAY`.
+
+No other settings are supported when using this option.
 
 ---
 
