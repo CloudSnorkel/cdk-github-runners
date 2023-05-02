@@ -12,7 +12,7 @@ export interface ApiGatewayAccessProps {
    *
    * Use this to make use of existing VPC endpoints. The VPC endpoint must point to `ec2.InterfaceVpcEndpointAwsService.APIGATEWAY`.
    *
-   * When specified VPC endpoints, no other setting is supported.
+   * No other settings are supported when using this option.
    */
   readonly allowedVpcEndpoints?: ec2.IVpcEndpoint[];
 
