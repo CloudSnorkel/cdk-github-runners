@@ -10,9 +10,11 @@ export interface ApiGatewayAccessProps {
   /**
    * Create a private API Gateway and allow access from the specified VPC endpoints.
    *
-   * Use this to make use of existing VPC endpoints. The VPC endpoint must point to `ec2.InterfaceVpcEndpointAwsService.APIGATEWAY`.
+   * Use this to make use of existing VPC endpoints or to share an endpoint between multiple functions. The VPC endpoint must point to `ec2.InterfaceVpcEndpointAwsService.APIGATEWAY`.
    *
    * No other settings are supported when using this option.
+   *
+   * All endpoints will be allowed access, but only the first one will be used as the URL by the runner system for setting up the webhook, and as setup URL.
    */
   readonly allowedVpcEndpoints?: ec2.IVpcEndpoint[];
 
@@ -125,6 +127,8 @@ class ApiGateway {
   public _bind(scope: Construct, id: string, lambdaFunction: lambda.Function): string {
     let policy: iam.PolicyDocument;
     let endpointConfig: apigateway.EndpointConfiguration | undefined = undefined;
+    let vpcEndpoint: ec2.IVpcEndpoint | undefined = undefined;
+    const region = cdk.Stack.of(scope).region;
 
     if (this.props?.allowedVpcEndpoints) {
       // private api gateway with existing vpc endpoints
@@ -159,6 +163,8 @@ class ApiGateway {
           },
         ],
       });
+
+      vpcEndpoint = this.props.allowedVpcEndpoints[0];
     } else if (this.props?.allowedVpc) {
       // private api gateway
       const sg = new ec2.SecurityGroup(scope, `${id}/SG`, {
@@ -180,10 +186,10 @@ class ApiGateway {
         }
       }
 
-      const vpcEndpoint = new ec2.InterfaceVpcEndpoint(scope, `${id}/VpcEndpoint`, {
+      vpcEndpoint = new ec2.InterfaceVpcEndpoint(scope, `${id}/VpcEndpoint`, {
         vpc: this.props.allowedVpc,
         service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
-        privateDnsEnabled: true,
+        privateDnsEnabled: false,
         securityGroups: [sg],
         open: false,
       });
@@ -243,6 +249,12 @@ class ApiGateway {
 
     // remove CfnOutput
     api.node.tryRemoveChild('Endpoint');
+
+    if (vpcEndpoint) {
+      // enabling private DNS affects the entire VPC, so we use the Route53 alias instead
+      // https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-private-api-test-invoke-url.html
+      return `https://${api.restApiId}-${vpcEndpoint.vpcEndpointId}.execute-api.${region}.amazonaws.com/${api.deploymentStage.stageName}`;
+    }
 
     return api.url;
   }
