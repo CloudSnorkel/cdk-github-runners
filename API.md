@@ -4888,9 +4888,11 @@ public readonly allowedVpcEndpoints: IVpcEndpoint[];
 
 Create a private API Gateway and allow access from the specified VPC endpoints.
 
-Use this to make use of existing VPC endpoints. The VPC endpoint must point to `ec2.InterfaceVpcEndpointAwsService.APIGATEWAY`.
+Use this to make use of existing VPC endpoints or to share an endpoint between multiple functions. The VPC endpoint must point to `ec2.InterfaceVpcEndpointAwsService.APIGATEWAY`.
 
 No other settings are supported when using this option.
+
+All endpoints will be allowed access, but only the first one will be used as the URL by the runner system for setting up the webhook, and as setup URL.
 
 ---
 
