@@ -42,6 +42,8 @@ export interface ApiGatewayAccessProps {
 
 /**
  * Access configuration options for Lambda functions like setup and webhook function. Use this to limit access to these functions.
+ *
+ * If you need a custom access point, you can implement this abstract class yourself. Note that the Lambda functions expect API Gateway v1 or v2 input. They also expect every URL under the constructed URL to point to the function.
  */
 export abstract class LambdaAccess {
   /**
@@ -93,16 +95,16 @@ export abstract class LambdaAccess {
   /**
    * Creates all required resources and returns access URL or empty string if disabled.
    *
-   * @internal
+   * @return access URL or empty string if disabled
    */
-  public abstract _bind(construct: Construct, id: string, lambdaFunction: lambda.Function): string;
+  public abstract bind(construct: Construct, id: string, lambdaFunction: lambda.Function): string;
 }
 
 /**
  * @internal
  */
 class NoAccess extends LambdaAccess {
-  public _bind(_construct: Construct, _id: string, _lambdaFunction: lambda.Function): string {
+  public bind(_construct: Construct, _id: string, _lambdaFunction: lambda.Function): string {
     return '';
   }
 }
@@ -111,7 +113,7 @@ class NoAccess extends LambdaAccess {
  * @internal
  */
 class LambdaUrl extends LambdaAccess {
-  public _bind(_construct: Construct, _id: string, lambdaFunction: lambda.Function): string {
+  public bind(_construct: Construct, _id: string, lambdaFunction: lambda.Function): string {
     return lambdaFunction.addFunctionUrl({
       authType: FunctionUrlAuthType.NONE,
     }).url;
@@ -124,7 +126,7 @@ class LambdaUrl extends LambdaAccess {
 class ApiGateway {
   constructor(private readonly props?: ApiGatewayAccessProps) {}
 
-  public _bind(scope: Construct, id: string, lambdaFunction: lambda.Function): string {
+  public bind(scope: Construct, id: string, lambdaFunction: lambda.Function): string {
     let policy: iam.PolicyDocument;
     let endpointConfig: apigateway.EndpointConfiguration | undefined = undefined;
     let vpcEndpoint: ec2.IVpcEndpoint | undefined = undefined;
