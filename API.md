@@ -8024,12 +8024,12 @@ new LambdaAccess()
 ##### `bind` <a name="bind" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.bind"></a>
 
 ```typescript
-public bind(construct: Construct, id: string, lambdaFunction: Function): string
+public bind(scope: Construct, id: string, lambdaFunction: Function): string
 ```
 
 Creates all required resources and returns access URL or empty string if disabled.
 
-###### `construct`<sup>Required</sup> <a name="construct" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.bind.parameter.construct"></a>
+###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.bind.parameter.scope"></a>
 
 - *Type:* constructs.Construct
 

@@ -97,7 +97,7 @@ export abstract class LambdaAccess {
    *
    * @return access URL or empty string if disabled
    */
-  public abstract bind(construct: Construct, id: string, lambdaFunction: lambda.Function): string;
+  public abstract bind(scope: Construct, id: string, lambdaFunction: lambda.Function): string;
 }
 
 /**
