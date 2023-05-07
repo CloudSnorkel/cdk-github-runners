@@ -1,4 +1,5 @@
 {
+  "build": "npm run bundle",
   "watch": {
     "include": [
       "src/**/*.ts",
