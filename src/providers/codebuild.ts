@@ -208,6 +208,11 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
    */
   readonly logGroup: logs.ILogGroup;
 
+  readonly retryableErrors = [
+    'CodeBuild.CodeBuildException',
+    'CodeBuild.AccountLimitExceededException',
+  ];
+
   private readonly vpc?: ec2.IVpc;
   private readonly securityGroups?: ec2.ISecurityGroup[];
   private readonly dind: boolean;
@@ -375,8 +380,6 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
         },
       },
     );
-
-    this.addRetry(step, ['CodeBuild.CodeBuildException', 'CodeBuild.AccountLimitExceededException']);
 
     return step;
   }

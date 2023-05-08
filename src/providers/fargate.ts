@@ -351,6 +351,12 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
    */
   readonly logGroup: logs.ILogGroup;
 
+  readonly retryableErrors = [
+    'Ecs.EcsException',
+    'Ecs.LimitExceededException',
+    'Ecs.UpdateInProgressException',
+  ];
+
   private readonly securityGroups: ec2.ISecurityGroup[];
 
   constructor(scope: Construct, id: string, props?: FargateRunnerProviderProps) {
@@ -485,8 +491,6 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
         ],
       },
     );
-
-    this.addRetry(task, ['Ecs.EcsException', 'Ecs.LimitExceededException', 'Ecs.UpdateInProgressException']);
 
     return task;
   }

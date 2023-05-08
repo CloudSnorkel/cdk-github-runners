@@ -701,6 +701,7 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.project">project</a></code> | <code>aws-cdk-lib.aws_codebuild.Project</code> | CodeBuild project hosting the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -803,6 +804,20 @@ public readonly project: Project;
 - *Type:* aws-cdk-lib.aws_codebuild.Project
 
 CodeBuild project hosting the runner.
+
+---
+
+##### ~~`retryableErrors`~~<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.retryableErrors"></a>
+
+- *Deprecated:* use {@link CodeBuildRunnerProvider }
+
+```typescript
+public readonly retryableErrors: string[];
+```
+
+- *Type:* string[]
+
+List of step functions errors that should be retried.
 
 ---
 
@@ -1052,6 +1067,7 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.project">project</a></code> | <code>aws-cdk-lib.aws_codebuild.Project</code> | CodeBuild project hosting the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -1140,6 +1156,18 @@ public readonly project: Project;
 - *Type:* aws-cdk-lib.aws_codebuild.Project
 
 CodeBuild project hosting the runner.
+
+---
+
+##### `retryableErrors`<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.retryableErrors"></a>
+
+```typescript
+public readonly retryableErrors: string[];
+```
+
+- *Type:* string[]
+
+List of step functions errors that should be retried.
 
 ---
 
@@ -1606,6 +1634,7 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -1678,6 +1707,20 @@ public readonly logGroup: ILogGroup;
 Log group where provided runners will save their logs.
 
 Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+##### ~~`retryableErrors`~~<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.retryableErrors"></a>
+
+- *Deprecated:* use {@link Ec2RunnerProvider }
+
+```typescript
+public readonly retryableErrors: string[];
+```
+
+- *Type:* string[]
+
+List of step functions errors that should be retried.
 
 ---
 
@@ -1867,6 +1910,7 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -1929,6 +1973,18 @@ public readonly logGroup: ILogGroup;
 Log group where provided runners will save their logs.
 
 Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+##### `retryableErrors`<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.retryableErrors"></a>
+
+```typescript
+public readonly retryableErrors: string[];
+```
+
+- *Type:* string[]
+
+List of step functions errors that should be retried.
 
 ---
 
@@ -2122,6 +2178,7 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -2184,6 +2241,18 @@ public readonly logGroup: ILogGroup;
 Log group where provided runners will save their logs.
 
 Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+##### `retryableErrors`<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.retryableErrors"></a>
+
+```typescript
+public readonly retryableErrors: string[];
+```
+
+- *Type:* string[]
+
+List of step functions errors that should be retried.
 
 ---
 
@@ -2370,6 +2439,7 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image loaded with GitHub Actions Runner and its prerequisites. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.spot">spot</a></code> | <code>boolean</code> | Use spot pricing for Fargate tasks. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.task">task</a></code> | <code>aws-cdk-lib.aws_ecs.FargateTaskDefinition</code> | Fargate task hosting the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets used for hosting the runner task. |
@@ -2504,6 +2574,20 @@ public readonly logGroup: ILogGroup;
 Log group where provided runners will save their logs.
 
 Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+##### ~~`retryableErrors`~~<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.retryableErrors"></a>
+
+- *Deprecated:* use {@link FargateRunnerProvider }
+
+```typescript
+public readonly retryableErrors: string[];
+```
+
+- *Type:* string[]
+
+List of step functions errors that should be retried.
 
 ---
 
@@ -2802,6 +2886,7 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image loaded with GitHub Actions Runner and its prerequisites. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.spot">spot</a></code> | <code>boolean</code> | Use spot pricing for Fargate tasks. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.task">task</a></code> | <code>aws-cdk-lib.aws_ecs.FargateTaskDefinition</code> | Fargate task hosting the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets used for hosting the runner task. |
@@ -2918,6 +3003,18 @@ public readonly logGroup: ILogGroup;
 Log group where provided runners will save their logs.
 
 Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+##### `retryableErrors`<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.retryableErrors"></a>
+
+```typescript
+public readonly retryableErrors: string[];
+```
+
+- *Type:* string[]
+
+List of step functions errors that should be retried.
 
 ---
 
@@ -3740,6 +3837,7 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image loaded with GitHub Actions Runner and its prerequisites. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -3842,6 +3940,20 @@ public readonly logGroup: ILogGroup;
 Log group where provided runners will save their logs.
 
 Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+##### ~~`retryableErrors`~~<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.retryableErrors"></a>
+
+- *Deprecated:* use {@link LambdaRunnerProvider }
+
+```typescript
+public readonly retryableErrors: string[];
+```
+
+- *Type:* string[]
+
+List of step functions errors that should be retried.
 
 ---
 
@@ -4085,6 +4197,7 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image loaded with GitHub Actions Runner and its prerequisites. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -4173,6 +4286,18 @@ public readonly logGroup: ILogGroup;
 Log group where provided runners will save their logs.
 
 Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+##### `retryableErrors`<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.retryableErrors"></a>
+
+```typescript
+public readonly retryableErrors: string[];
+```
+
+- *Type:* string[]
+
+List of step functions errors that should be retried.
 
 ---
 
@@ -5233,7 +5358,7 @@ const codeBuildRunnerProviderProps: CodeBuildRunnerProviderProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build Docker images containing GitHub Runner and all requirements. |
@@ -5264,16 +5389,15 @@ remove the retention policy, set the value to `INFINITE`.
 
 ---
 
-##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.retryOptions"></a>
+##### ~~`retryOptions`~~<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.retryOptions"></a>
+
+- *Deprecated:* use {@link retryOptions } on {@link GitHubRunners } instead
 
 ```typescript
 public readonly retryOptions: ProviderRetryOptions;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a>
-- *Default:* retry 10 times up to about 45 minutes
-
-Options to retry operation in case of failure like missing capacity, or API quota issues.
 
 ---
 
@@ -5647,7 +5771,7 @@ const ec2RunnerProviderProps: Ec2RunnerProviderProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.amiBuilder">amiBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build AMI containing GitHub Runner and all requirements. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.instanceType">instanceType</a></code> | <code>aws-cdk-lib.aws_ec2.InstanceType</code> | Instance type for launched runner instances. |
@@ -5680,16 +5804,15 @@ remove the retention policy, set the value to `INFINITE`.
 
 ---
 
-##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.retryOptions"></a>
+##### ~~`retryOptions`~~<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.retryOptions"></a>
+
+- *Deprecated:* use {@link retryOptions } on {@link GitHubRunners } instead
 
 ```typescript
 public readonly retryOptions: ProviderRetryOptions;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a>
-- *Default:* retry 10 times up to about 45 minutes
-
-Options to retry operation in case of failure like missing capacity, or API quota issues.
 
 ---
 
@@ -5881,7 +6004,7 @@ const ecsRunnerProviderProps: EcsRunnerProviderProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.assignPublicIp">assignPublicIp</a></code> | <code>boolean</code> | Assign public IP to the runner task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.capacityProvider">capacityProvider</a></code> | <code>aws-cdk-lib.aws_ecs.AsgCapacityProvider</code> | Existing capacity provider to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_ecs.Cluster</code> | Existing ECS cluster to use. |
@@ -5919,16 +6042,15 @@ remove the retention policy, set the value to `INFINITE`.
 
 ---
 
-##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.retryOptions"></a>
+##### ~~`retryOptions`~~<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.retryOptions"></a>
+
+- *Deprecated:* use {@link retryOptions } on {@link GitHubRunners } instead
 
 ```typescript
 public readonly retryOptions: ProviderRetryOptions;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a>
-- *Default:* retry 10 times up to about 45 minutes
-
-Options to retry operation in case of failure like missing capacity, or API quota issues.
 
 ---
 
@@ -6192,7 +6314,7 @@ const fargateRunnerProviderProps: FargateRunnerProviderProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.assignPublicIp">assignPublicIp</a></code> | <code>boolean</code> | Assign public IP to the runner task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_ecs.Cluster</code> | Existing Fargate cluster to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.cpu">cpu</a></code> | <code>number</code> | The number of cpu units used by the task. |
@@ -6226,16 +6348,15 @@ remove the retention policy, set the value to `INFINITE`.
 
 ---
 
-##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.retryOptions"></a>
+##### ~~`retryOptions`~~<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.retryOptions"></a>
+
+- *Deprecated:* use {@link retryOptions } on {@link GitHubRunners } instead
 
 ```typescript
 public readonly retryOptions: ProviderRetryOptions;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a>
-- *Default:* retry 10 times up to about 45 minutes
-
-Options to retry operation in case of failure like missing capacity, or API quota issues.
 
 ---
 
@@ -6475,6 +6596,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.idleTimeout">idleTimeout</a></code> | <code>aws-cdk-lib.Duration</code> | Time to wait before stopping a runner that remains idle. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.logOptions">logOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions">LogOptions</a></code> | Logging options for the state machine that manages the runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | List of runner providers to use. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to all management functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.setupAccess">setupAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the setup function. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.statusAccess">statusAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the status function. |
@@ -6571,6 +6693,23 @@ public readonly providers: IRunnerProvider[];
 List of runner providers to use.
 
 At least one provider is required. Provider will be selected when its label matches the labels requested by the workflow job.
+
+---
+
+##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.retryOptions"></a>
+
+```typescript
+public readonly retryOptions: ProviderRetryOptions;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a>
+- *Default:* retry 23 times up to about 24 hours
+
+Options to retry operation in case of failure like missing capacity, or API quota issues.
+
+GitHub jobs time out after not being able to get a runner for 24 hours. You should not retry for more than 24 hours.
+
+Total time spent waiting can be calculated with interval * (backoffRate ^ maxAttempts) / (backoffRate - 1).
 
 ---
 
@@ -6834,7 +6973,7 @@ const lambdaRunnerProviderProps: LambdaRunnerProviderProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.ephemeralStorageSize">ephemeralStorageSize</a></code> | <code>aws-cdk-lib.Size</code> | The size of the function’s /tmp directory in MiB. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build Docker images containing GitHub Runner and all requirements. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
@@ -6865,16 +7004,15 @@ remove the retention policy, set the value to `INFINITE`.
 
 ---
 
-##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.retryOptions"></a>
+##### ~~`retryOptions`~~<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.retryOptions"></a>
+
+- *Deprecated:* use {@link retryOptions } on {@link GitHubRunners } instead
 
 ```typescript
 public readonly retryOptions: ProviderRetryOptions;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a>
-- *Default:* retry 10 times up to about 45 minutes
-
-Options to retry operation in case of failure like missing capacity, or API quota issues.
 
 ---
 
@@ -7109,7 +7247,7 @@ remove the retention policy, set the value to `INFINITE`.
 
 Retry options for providers.
 
-The default is to retry 10 times for about 45 minutes with increasing interval.
+The default is to retry 23 times for about 24 hours with increasing interval.
 
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.Initializer"></a>
 
@@ -7165,7 +7303,7 @@ public readonly maxAttempts: number;
 ```
 
 - *Type:* number
-- *Default:* 10
+- *Default:* 23
 
 How many times to retry.
 
@@ -7750,7 +7888,7 @@ const runnerProviderProps: RunnerProviderProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
 
 ---
 
@@ -7771,16 +7909,15 @@ remove the retention policy, set the value to `INFINITE`.
 
 ---
 
-##### `retryOptions`<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.RunnerProviderProps.property.retryOptions"></a>
+##### ~~`retryOptions`~~<sup>Optional</sup> <a name="retryOptions" id="@cloudsnorkel/cdk-github-runners.RunnerProviderProps.property.retryOptions"></a>
+
+- *Deprecated:* use {@link retryOptions } on {@link GitHubRunners } instead
 
 ```typescript
 public readonly retryOptions: ProviderRetryOptions;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a>
-- *Default:* retry 10 times up to about 45 minutes
-
-Options to retry operation in case of failure like missing capacity, or API quota issues.
 
 ---
 
@@ -9457,6 +9594,7 @@ grantable for the status function.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -9523,6 +9661,18 @@ public readonly logGroup: ILogGroup;
 Log group where provided runners will save their logs.
 
 Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+##### `retryableErrors`<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.retryableErrors"></a>
+
+```typescript
+public readonly retryableErrors: string[];
+```
+
+- *Type:* string[]
+
+List of step functions errors that should be retried.
 
 ---
 

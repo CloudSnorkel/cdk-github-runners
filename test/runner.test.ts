@@ -103,4 +103,22 @@ describe('GitHubRunners', () => {
       1,
     );
   });
+
+  test('Retry warnings', () => {
+    new GitHubRunners(stack, 'no', {
+      providers: [new CodeBuildRunnerProvider(stack, 'p1')],
+    });
+    new GitHubRunners(stack, 'yes', {
+      providers: [new CodeBuildRunnerProvider(stack, 'p2')],
+      retryOptions: {
+        maxAttempts: 30,
+      },
+    });
+
+    Annotations.fromStack(stack).hasNoWarning('/test/no', Match.anyValue());
+    Annotations.fromStack(stack).hasWarning(
+      '/test/yes',
+      Match.stringLikeRegexp('Total retry time is greater than 24 hours \\(145 hours\\)\\. Jobs expire after 24 hours so it would be a waste of resources to retry further\\.'),
+    );
+  });
 });

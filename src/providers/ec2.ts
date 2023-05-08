@@ -279,6 +279,11 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
    */
   readonly logGroup: logs.ILogGroup;
 
+  readonly retryableErrors = [
+    'Ec2.Ec2Exception',
+    'States.Timeout',
+  ];
+
   private readonly ami: RunnerAmi;
   private readonly role: iam.Role;
   private readonly instanceType: ec2.InstanceType;
@@ -424,11 +429,8 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       });
     });
 
-    // use Parallel, so we can easily retry this whole block on failure (only 1 branch)
-    const subnetIterator = new stepfunctions.Parallel(this, `${this.labels.join(', ')} subnet iterator`);
-
     // start with the first subnet
-    subnetIterator.branch(subnetRunners[0]);
+    passUserData.next(subnetRunners[0]);
 
     // chain up the rest of the subnets
     for (let i = 1; i < subnetRunners.length; i++) {
@@ -438,11 +440,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       });
     }
 
-    // retry the whole Parallel block if (only the last state) failed with an Ec2Exception or timed out
-    this.addRetry(subnetIterator, ['Ec2.Ec2Exception', 'States.Timeout']);
-
-    // return Parallel block
-    return passUserData.next(subnetIterator);
+    return passUserData;
   }
 
   grantStateMachine(stateMachineRole: iam.IGrantable) {
