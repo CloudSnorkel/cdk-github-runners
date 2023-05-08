@@ -10,7 +10,7 @@ import {
   aws_sns as sns,
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
-  aws_sqs as sqs, Duration,
+  aws_sqs as sqs,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
@@ -358,7 +358,7 @@ export class GitHubRunners extends Construct {
 
     providerChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown label'));
 
-    const work = new stepfunctions.Parallel(this, 'Retry on Error', { resultPath: '$.result' })
+    const runProviders = new stepfunctions.Parallel(this, 'Retry on Error', { resultPath: '$.result' })
       .branch(tokenRetrieverTask.next(providerChooser))
       .addCatch(
         // delete runner on failure as it won't remove itself and there is a limit on the number of registered runners
@@ -369,18 +369,18 @@ export class GitHubRunners extends Construct {
       );
 
     if (props?.retryOptions?.retry ?? true) {
-      const interval = props?.retryOptions?.interval ?? Duration.minutes(1);
+      const interval = props?.retryOptions?.interval ?? cdk.Duration.minutes(1);
       const maxAttempts = props?.retryOptions?.maxAttempts ?? 23;
       const backoffRate = props?.retryOptions?.backoffRate ?? 1.3;
 
       const totalSeconds = interval.toSeconds() * backoffRate ** maxAttempts / (backoffRate - 1);
-      if (totalSeconds >= Duration.days(1).toSeconds()) {
+      if (totalSeconds >= cdk.Duration.days(1).toSeconds()) {
         // https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners#usage-limits
         // "Job queue time - Each job for self-hosted runners can be queued for a maximum of 24 hours. If a self-hosted runner does not start executing the job within this limit, the job is terminated and fails to complete."
         Annotations.of(this).addWarning(`Total retry time is greater than 24 hours (${Math.floor(totalSeconds / 60 / 60)} hours). Jobs expire after 24 hours so it would be a waste of resources to retry further.`);
       }
 
-      work.addRetry({
+      runProviders.addRetry({
         interval,
         maxAttempts,
         backoffRate,
@@ -390,8 +390,6 @@ export class GitHubRunners extends Construct {
         errors: ['RunnerTokenError'].concat(...this.providers.map(provider => provider.retryableErrors)),
       });
     }
-
-    const all = queueIdleReaperTask.next(work);
 
     let logOptions: cdk.aws_stepfunctions.LogOptions | undefined;
     if (this.props?.logOptions) {
@@ -412,7 +410,7 @@ export class GitHubRunners extends Construct {
       this,
       'Runner Orchestrator',
       {
-        definition: all,
+        definition: queueIdleReaperTask.next(runProviders),
         logs: logOptions,
       },
     );
