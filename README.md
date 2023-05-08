@@ -267,17 +267,18 @@ new GitHubRunners(this, 'runners', {
 
 ## Troubleshooting
 
+Runners are started in response to a webhook coming in from GitHub. If there are any issues starting the runner like missing capacity or transient API issues, the provider will keep retrying for 24 hours. Configuration issue related errors like pointing to a missing AMI will not be retried. GitHub itself will cancel the job if it can't find a runner for 24 hours. If your jobs don't start, follow the steps below to examine all parts of this workflow.
+
 1. Always start with the status function, make sure no errors are reported, and confirm all status codes are OK
-2. If jobs are stuck on pending:
-   1. Make sure `runs-on` in the workflow matches the expected labels set in the runner provider
-   2. If jobs get stuck often and take a long time to start, cancel the pending jobs and start them again
+2. Make sure `runs-on` in the workflow matches the expected labels set in the runner provider
+3. Diagnose relevant executions of the orchestrator step function by visiting the URL in `troubleshooting.stepFunctionUrl` from `status.json`
+   1. If the execution failed, check your runner provider configuration for errors
+   2. If the execution is still running for a long time, check the execution events to see why runner starting is being retried
+   3. If there are no relevant executions, move to the next step
 4. Confirm the webhook Lambda was called by visiting the URL in `troubleshooting.webhookHandlerUrl` from `status.json`
    1. If it's not called or logs errors, confirm the webhook settings on the GitHub side
    2. If you see too many errors, make sure you're only sending `workflow_job` events
-5. When using GitHub app, make sure there are active installation in `github.auth.app.installations`
-6. Check execution details of the orchestrator step function by visiting the URL in `troubleshooting.stepFunctionUrl` from `status.json`
-   1. Use the details tab to find the specific execution of the provider (Lambda, CodeBuild, Fargate, etc.)
-   2. Every step function execution should be successful, even if the runner action inside it failed
+5. When using GitHub app, make sure there are active installations in `github.auth.app.installations`
 
 ## Monitoring
 

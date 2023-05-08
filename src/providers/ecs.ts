@@ -298,6 +298,12 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    */
   private readonly dind: boolean;
 
+  readonly retryableErrors = [
+    'Ecs.EcsException',
+    'Ecs.LimitExceededException',
+    'Ecs.UpdateInProgressException',
+  ];
+
   constructor(scope: Construct, id: string, props?: EcsRunnerProviderProps) {
     super(scope, id, props);
 
@@ -537,8 +543,6 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         ],
       },
     );
-
-    this.addRetry(task, ['Ecs.EcsException', 'Ecs.LimitExceededException', 'Ecs.UpdateInProgressException']);
 
     return task;
   }
