@@ -327,11 +327,11 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     const imageBuilder = props?.imageBuilder ?? EcsRunnerProvider.imageBuilder(this, 'Image Builder');
     const image = this.image = imageBuilder.bindDockerImage();
 
-    if (props?.capacityProvider && (props?.minInstances || props?.maxInstances || props?.instanceType || props?.storageSize || props?.spot || props?.spotMaxPrice)) {
-      cdk.Annotations.of(this).addWarning('When using a custom capacity provider, minInstances, maxInstances, instanceType, storageSize, spot, and spotMaxPrice will be ignored.');
-    }
-
     if (props?.capacityProvider) {
+      if (props?.minInstances || props?.maxInstances || props?.instanceType || props?.storageSize || props?.spot || props?.spotMaxPrice) {
+        cdk.Annotations.of(this).addWarning('When using a custom capacity provider, minInstances, maxInstances, instanceType, storageSize, spot, and spotMaxPrice will be ignored.');
+      }
+
       this.capacityProvider = props.capacityProvider;
     } else {
       const spot = props?.spot ?? props?.spotMaxPrice !== undefined;
