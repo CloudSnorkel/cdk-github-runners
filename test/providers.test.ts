@@ -1,9 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
-import {
-  aws_ec2 as ec2,
-} from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
-import { CodeBuildRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
+import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
+import { CodeBuildRunnerProvider, EcsRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
 
 test('CodeBuild provider', () => {
   const app = new cdk.App();
@@ -89,4 +88,61 @@ test('Fargate provider', () => {
       },
     ],
   }));
+});
+
+describe('ECS provider', () => {
+  test('Basic', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test');
+
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+    new EcsRunnerProvider(stack, 'provider', {
+      vpc: vpc,
+      securityGroups: [sg],
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.resourceCountIs('AWS::ECS::Cluster', 1);
+    template.resourceCountIs('AWS::AutoScaling::AutoScalingGroup', 1);
+
+    template.hasResourceProperties('AWS::ECS::TaskDefinition', Match.objectLike({
+      NetworkMode: 'bridge',
+      RequiresCompatibilities: ['EC2'],
+      ContainerDefinitions: [
+        {
+          Name: 'runner',
+        },
+      ],
+    }));
+  });
+
+  test('Custom capacity provider', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test');
+
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+    new EcsRunnerProvider(stack, 'provider', {
+      vpc: vpc,
+      securityGroups: [sg],
+      capacityProvider: new ecs.AsgCapacityProvider(stack, 'Capacity Provider', {
+        autoScalingGroup: new autoscaling.AutoScalingGroup(stack, 'Auto Scaling Group', {
+          vpc: vpc,
+          instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
+          machineImage: ecs.EcsOptimizedImage.amazonLinux2(),
+          minCapacity: 1,
+          maxCapacity: 3,
+        }),
+      }),
+    });
+
+    const template = Template.fromStack(stack);
+
+    // don't create our own autoscaling group when capacity provider is specified
+    template.resourceCountIs('AWS::AutoScaling::AutoScalingGroup', 1);
+  });
 });

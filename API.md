@@ -6080,6 +6080,8 @@ public readonly capacityProvider: AsgCapacityProvider;
 
 Existing capacity provider to use.
 
+Make sure the AMI used by the capacity provider is compatible with ECS.
+
 ---
 
 ##### `cluster`<sup>Optional</sup> <a name="cluster" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.cluster"></a>

@@ -83,6 +83,8 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
   /**
    * Existing capacity provider to use.
    *
+   * Make sure the AMI used by the capacity provider is compatible with ECS.
+   *
    * @default new capacity provider
    */
   readonly capacityProvider?: ecs.AsgCapacityProvider;
@@ -325,54 +327,59 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     const imageBuilder = props?.imageBuilder ?? EcsRunnerProvider.imageBuilder(this, 'Image Builder');
     const image = this.image = imageBuilder.bindDockerImage();
 
-    if (props?.capacityProvider && (props?.minInstances || props?.maxInstances || props?.instanceType || props?.storageSize)) {
-      cdk.Annotations.of(this).addWarning('When using a custom capacity provider, minInstances, maxInstances, instanceType and storageSize will be ignored.');
+    if (props?.capacityProvider && (props?.minInstances || props?.maxInstances || props?.instanceType || props?.storageSize || props?.spot || props?.spotMaxPrice)) {
+      cdk.Annotations.of(this).addWarning('When using a custom capacity provider, minInstances, maxInstances, instanceType, storageSize, spot, and spotMaxPrice will be ignored.');
     }
 
-    const spot = props?.spot ?? props?.spotMaxPrice !== undefined;
+    if (props?.capacityProvider) {
+      this.capacityProvider = props.capacityProvider;
+    } else {
+      const spot = props?.spot ?? props?.spotMaxPrice !== undefined;
 
-    const launchTemplate = new ec2.LaunchTemplate(this, 'Launch Template', {
-      machineImage: this.defaultClusterInstanceAmi(),
-      instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
-      blockDevices: props?.storageSize ? [
-        {
-          deviceName: '/dev/sda1',
-          volume: {
-            ebsDevice: {
-              volumeSize: props?.storageSize?.toGibibytes(),
-              deleteOnTermination: true,
+      const launchTemplate = new ec2.LaunchTemplate(this, 'Launch Template', {
+        machineImage: this.defaultClusterInstanceAmi(),
+        instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
+        blockDevices: props?.storageSize ? [
+          {
+            deviceName: '/dev/sda1',
+            volume: {
+              ebsDevice: {
+                volumeSize: props?.storageSize?.toGibibytes(),
+                deleteOnTermination: true,
+              },
             },
           },
-        },
-      ] : undefined,
-      spotOptions: spot ? {
-        requestType: ec2.SpotRequestType.ONE_TIME,
-        maxPrice: props?.spotMaxPrice ? parseFloat(props?.spotMaxPrice) : undefined,
-      } : undefined,
-      requireImdsv2: true,
-      securityGroup: this.securityGroups[0],
-      role: new iam.Role(this, 'Launch Template Role', {
-        assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
-      }),
-      userData: ec2.UserData.forOperatingSystem(image.os.is(Os.WINDOWS) ? ec2.OperatingSystemType.WINDOWS : ec2.OperatingSystemType.LINUX),
-    });
-    this.securityGroups.slice(1).map(sg => launchTemplate.connections.addSecurityGroup(sg));
+        ] : undefined,
+        spotOptions: spot ? {
+          requestType: ec2.SpotRequestType.ONE_TIME,
+          maxPrice: props?.spotMaxPrice ? parseFloat(props?.spotMaxPrice) : undefined,
+        } : undefined,
+        requireImdsv2: true,
+        securityGroup: this.securityGroups[0],
+        role: new iam.Role(this, 'Launch Template Role', {
+          assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+        }),
+        userData: ec2.UserData.forOperatingSystem(image.os.is(Os.WINDOWS) ? ec2.OperatingSystemType.WINDOWS : ec2.OperatingSystemType.LINUX),
+      });
+      this.securityGroups.slice(1).map(sg => launchTemplate.connections.addSecurityGroup(sg));
 
-    const autoScalingGroup = new autoscaling.AutoScalingGroup(this, 'Auto Scaling Group', {
-      vpc: this.vpc,
-      launchTemplate,
-      vpcSubnets: this.subnetSelection,
-      minCapacity: props?.minInstances ?? 0,
-      maxCapacity: props?.maxInstances ?? 5,
-    });
-    autoScalingGroup.addUserData(this.loginCommand(), this.pullCommand());
-    autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
-    image.imageRepository.grantPull(autoScalingGroup);
+      const autoScalingGroup = new autoscaling.AutoScalingGroup(this, 'Auto Scaling Group', {
+        vpc: this.vpc,
+        launchTemplate,
+        vpcSubnets: this.subnetSelection,
+        minCapacity: props?.minInstances ?? 0,
+        maxCapacity: props?.maxInstances ?? 5,
+      });
 
-    this.capacityProvider = props?.capacityProvider ?? new ecs.AsgCapacityProvider(this, 'Capacity Provider', {
-      autoScalingGroup,
-      spotInstanceDraining: false, // waste of money to restart jobs as the restarted job won't have a token
-    });
+      this.capacityProvider = props?.capacityProvider ?? new ecs.AsgCapacityProvider(this, 'Capacity Provider', {
+        autoScalingGroup,
+        spotInstanceDraining: false, // waste of money to restart jobs as the restarted job won't have a token
+      });
+    }
+
+    this.capacityProvider.autoScalingGroup.addUserData(this.loginCommand(), this.pullCommand());
+    this.capacityProvider.autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
+    image.imageRepository.grantPull(this.capacityProvider.autoScalingGroup);
 
     this.cluster.addAsgCapacityProvider(
       this.capacityProvider,
