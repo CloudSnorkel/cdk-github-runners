@@ -8,9 +8,9 @@ import {
   aws_lambda_event_sources as lambda_event_sources,
   aws_logs as logs,
   aws_sns as sns,
+  aws_sqs as sqs,
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
-  aws_sqs as sqs,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
@@ -71,8 +71,15 @@ export interface GitHubRunnersProps {
 
   /**
    * Security group attached to all management functions. Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
+   *
+   * @deprecated use {@link securityGroups} instead
    */
   readonly securityGroup?: ec2.ISecurityGroup;
+
+  /**
+   * Security groups attached to all management functions. Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
+   */
+  readonly securityGroups?: ec2.ISecurityGroup[];
 
   /**
    * Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.
@@ -224,7 +231,7 @@ export interface LogOptions {
  * );
  * ```
  */
-export class GitHubRunners extends Construct {
+export class GitHubRunners extends Construct implements ec2.IConnectable {
   /**
    * Configured runner providers.
    */
@@ -234,6 +241,13 @@ export class GitHubRunners extends Construct {
    * Secrets for GitHub communication including webhook secret and runner authentication.
    */
   readonly secrets: Secrets;
+
+  /**
+   * Manage the connections of all management functions. Use this to enable connections to your GitHub Enterprise Server in a VPC.
+   *
+   * This cannot be used to manage connections of the runners. Use the `connections` property of each runner provider to manage runner connections.
+   */
+  readonly connections: ec2.Connections;
 
   private readonly webhook: GithubWebhookHandler;
   private readonly orchestrator: stepfunctions.StateMachine;
@@ -251,12 +265,13 @@ export class GitHubRunners extends Construct {
       vpc: this.props?.vpc,
       vpcSubnets: this.props?.vpcSubnets,
       allowPublicSubnet: this.props?.allowPublicSubnet,
-      securityGroups: this.props?.securityGroup ? [this.props.securityGroup] : undefined,
+      securityGroups: this.lambdaSecurityGroups(),
       layers: this.props?.extraCertificates ? [new lambda.LayerVersion(scope, 'Certificate Layer', {
         description: 'Layer containing GitHub Enterprise Server certificate for cdk-github-runners',
         code: lambda.Code.fromAsset(this.props.extraCertificates),
       })] : undefined,
     };
+    this.connections = new ec2.Connections({ securityGroups: this.extraLambdaProps.securityGroups });
     if (this.props?.extraCertificates) {
       this.extraLambdaEnv.NODE_EXTRA_CA_CERTS = '/opt/certs.pem';
     }
@@ -613,6 +628,32 @@ export class GitHubRunners extends Construct {
     this.secrets.githubPrivateKey.grantRead(reaper);
 
     return queue;
+  }
+
+  private lambdaSecurityGroups() {
+    if (!this.props?.vpc) {
+      if (this.props?.securityGroup) {
+        cdk.Annotations.of(this).addWarning('securityGroup is specified, but vpc is not. securityGroup will be ignored');
+      }
+      if (this.props?.securityGroups) {
+        cdk.Annotations.of(this).addWarning('securityGroups is specified, but vpc is not. securityGroups will be ignored');
+      }
+
+      return undefined;
+    }
+
+    if (this.props.securityGroups) {
+      if (this.props.securityGroup) {
+        cdk.Annotations.of(this).addWarning('Both securityGroup and securityGroups are specified. securityGroup will be ignored');
+      }
+      return this.props.securityGroups;
+    }
+
+    if (this.props.securityGroup) {
+      return [this.props.securityGroup];
+    }
+
+    return [new ec2.SecurityGroup(this, 'Management Lambdas Security Group', { vpc: this.props.vpc })];
   }
 
   /**
