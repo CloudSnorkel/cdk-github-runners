@@ -3117,6 +3117,8 @@ Available build arguments that can be set in the image builder:
 
 ### GitHubRunners <a name="GitHubRunners" id="@cloudsnorkel/cdk-github-runners.GitHubRunners"></a>
 
+- *Implements:* aws-cdk-lib.aws_ec2.IConnectable
+
 Create all the required infrastructure to provide self-hosted GitHub runners.
 
 It creates a webhook, secrets, and a step function to orchestrate all runs. Secrets are not automatically filled. See README.md for instructions on how to setup GitHub integration.
@@ -3324,6 +3326,7 @@ Any object.
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | Manage the connections of all management functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | Configured runner providers. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.secrets">secrets</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets">Secrets</a></code> | Secrets for GitHub communication including webhook secret and runner authentication. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps">GitHubRunnersProps</a></code> | *No description.* |
@@ -3339,6 +3342,22 @@ public readonly node: Node;
 - *Type:* constructs.Node
 
 The tree node.
+
+---
+
+##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.property.connections"></a>
+
+```typescript
+public readonly connections: Connections;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.Connections
+
+Manage the connections of all management functions.
+
+Use this to enable connections to your GitHub Enterprise Server in a VPC.
+
+This cannot be used to manage connections of the runners. Use the `connections` property of each runner provider to manage runner connections.
 
 ---
 
@@ -6600,6 +6619,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | List of runner providers to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to all management functions. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups attached to all management functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.setupAccess">setupAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the setup function. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.statusAccess">statusAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the status function. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for all management functions. Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC. |
@@ -6715,7 +6735,9 @@ Total time spent waiting can be calculated with interval * (backoffRate ^ maxAtt
 
 ---
 
-##### `securityGroup`<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup"></a>
+##### ~~`securityGroup`~~<sup>Optional</sup> <a name="securityGroup" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup"></a>
+
+- *Deprecated:* use {@link securityGroups } instead
 
 ```typescript
 public readonly securityGroup: ISecurityGroup;
@@ -6724,6 +6746,20 @@ public readonly securityGroup: ISecurityGroup;
 - *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
 
 Security group attached to all management functions.
+
+Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
+
+---
+
+##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroups"></a>
+
+```typescript
+public readonly securityGroups: ISecurityGroup[];
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup[]
+
+Security groups attached to all management functions.
 
 Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
 
