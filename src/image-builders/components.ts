@@ -411,7 +411,6 @@ export abstract class RunnerImageComponent {
           }
 
           return [
-            os.is(Os.LINUX_UBUNTU) ? 'DEBIAN_FRONTEND=noninteractive apt-get install -y socat' : 'yum install -y socat', // for ECS
             'DOCKER_CHANNEL="stable"',
             'DIND_COMMIT="42b1175eda071c0e9121e1d64345928384a93df1"',
             'DOCKER_VERSION="20.10.18"',

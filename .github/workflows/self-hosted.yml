@@ -133,6 +133,26 @@ jobs:
           ls /custom-file
           ls /custom-dir/FUNDING.yml
 
+  self-hosted-dind:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: codebuild dind
+            runs-on: [ self-hosted, linux, codebuild, x64 ]
+          - name: ecs dind
+            runs-on: [ self-hosted, linux, ecs, x64 ]
+          - name: ec2 dind
+            runs-on: [ self-hosted, linux, ec2, x64 ]
+
+    name: ${{ matrix.name }}
+
+    runs-on: ${{ matrix.runs-on }}
+    container: bash  # this makes it a docker-in-docker container
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
   self-hosted-windows:
     strategy:
       fail-fast: false
