@@ -204,7 +204,8 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
   if (os.is(Os.LINUX) || os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
     let dindCommand = '';
     if (dind) {
-      dindCommand = 'sudo socat UNIX-LISTEN:/var/run/docker.sock,group=docker,mode=770,fork UNIX-CONNECT:/var/run/docker.sock.host &';
+      dindCommand = 'nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & ' +
+        'timeout 15 sh -c "until docker info; do echo .; sleep 1; done"';
     }
 
     return [

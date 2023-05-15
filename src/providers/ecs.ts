@@ -414,21 +414,6 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       },
     );
 
-    // docker-in-docker
-    if (this.dind) {
-      this.task.addVolume({
-        name: 'docker',
-        host: {
-          sourcePath: '/var/run/docker.sock',
-        },
-      });
-      this.container.addMountPoints({
-        sourceVolume: 'docker',
-        containerPath: '/var/run/docker.sock.host',
-        readOnly: false,
-      });
-    }
-
     this.grantPrincipal = this.task.taskRole;
   }
 
