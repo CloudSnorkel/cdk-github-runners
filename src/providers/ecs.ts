@@ -302,6 +302,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
 
   readonly retryableErrors = [
     'Ecs.EcsException',
+    'ECS.AmazonECSException',
     'Ecs.LimitExceededException',
     'Ecs.UpdateInProgressException',
   ];
