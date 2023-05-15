@@ -119,6 +119,7 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
       owner: payload.repository.owner.login,
       repo: payload.repository.name,
       jobId: payload.workflow_job.id,
+      jobUrl: payload.workflow_job.html_url,
       installationId: payload.installation?.id,
       labels: labels,
     }),
