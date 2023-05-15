@@ -139,7 +139,7 @@ jobs:
       matrix:
         include:
           - name: codebuild dind
-            runs-on: [ self-hosted, linux, codebuild, x64 ]
+            runs-on: [ self-hosted, codebuild-x64 ]
           - name: ecs dind
             runs-on: [ self-hosted, linux, ecs, x64 ]
           - name: ec2 dind
