@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import { aws_ec2 as ec2 } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import { CodeBuildRunnerProvider, GitHubRunners } from '../src';
 
@@ -120,5 +121,36 @@ describe('GitHubRunners', () => {
       '/test/yes',
       Match.stringLikeRegexp('Total retry time is greater than 24 hours \\(145 hours\\)\\. Jobs expire after 24 hours so it would be a waste of resources to retry further\\.'),
     );
+  });
+
+  test('Management security group', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const sg = new ec2.SecurityGroup(stack, 'github sg', { vpc });
+
+    const runners = new GitHubRunners(stack, 'runners', {
+      providers: [],
+      vpc,
+    });
+
+    sg.connections.allowFrom(runners, ec2.Port.tcp(8888));
+
+    const template = Template.fromStack(stack);
+    template.resourceCountIs('AWS::EC2::SecurityGroup', 2);
+    template.hasResourceProperties('AWS::EC2::SecurityGroupIngress', {
+      SourceSecurityGroupId: {
+        'Fn::GetAtt': [
+          stack.getLogicalId(runners.connections.securityGroups[0].node.defaultChild as ec2.CfnSecurityGroup),
+          'GroupId',
+        ],
+      },
+      GroupId: {
+        'Fn::GetAtt': [
+          stack.getLogicalId(sg.node.defaultChild as ec2.CfnSecurityGroup),
+          'GroupId',
+        ],
+      },
+      FromPort: 8888,
+      ToPort: 8888,
+    });
   });
 });
