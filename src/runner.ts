@@ -402,7 +402,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         // we can't retry on all errors mainly because we don't want to retry on idle runner error
         // when the idle reaper kills a runner, it will fail the state machine
         // if we retry, we would just waste resources and end up killing it again
-        errors: ['RunnerTokenError'].concat(...this.providers.map(provider => provider.retryableErrors)),
+        errors: [...new Set(['RunnerTokenError'].concat(...this.providers.map(provider => provider.retryableErrors)))],
       });
     }
 
