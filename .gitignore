@@ -62,6 +62,7 @@ tsconfig.json
 !/src/image-builders/aws-image-builder/filter-failed-builds-function.ts
 !/src/image-builders/aws-image-builder/reaper-function.ts
 !/src/image-builders/aws-image-builder/versioner-function.ts
+!/src/providers/ami-root-device-function.ts
 !/src/providers/build-image-function.ts
 !/src/providers/update-lambda-function.ts
 !/src/setup-function.ts

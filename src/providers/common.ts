@@ -1,5 +1,16 @@
-import { aws_ec2 as ec2, aws_ecr as ecr, aws_iam as iam, aws_logs as logs, aws_stepfunctions as stepfunctions, Duration } from 'aws-cdk-lib';
+import * as cdk from 'aws-cdk-lib';
+import {
+  aws_ec2 as ec2,
+  aws_ecr as ecr,
+  aws_iam as iam,
+  aws_logs as logs,
+  aws_stepfunctions as stepfunctions,
+  CustomResource,
+  Duration,
+} from 'aws-cdk-lib';
 import { Construct, IConstruct } from 'constructs';
+import { AmiRootDeviceFunction } from './ami-root-device-function';
+import { singletonLambda } from '../utils';
 
 /**
  * Defines desired GitHub Actions runner version.
@@ -470,4 +481,37 @@ export abstract class BaseProvider extends Construct {
     }
     return [defaultLabel];
   }
+}
+
+/**
+ * Use custom resource to determine the root device name of a given AMI, Launch Template, or SSM parameter pointing to AMI.
+ *
+ * @internal
+ */
+export function amiRootDevice(scope: Construct, ami?: string) {
+  const crHandler = singletonLambda(AmiRootDeviceFunction, scope, 'AMI Root Device Reader', {
+    description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
+    timeout: cdk.Duration.minutes(1),
+    logRetention: logs.RetentionDays.ONE_MONTH,
+    initialPolicy: [
+      new iam.PolicyStatement({
+        actions: [
+          'ssm:GetParameter',
+          'ec2:DescribeImages',
+          'ec2:DescribeLaunchTemplateVersions',
+        ],
+        resources: ['*'],
+      }),
+    ],
+  });
+
+  const cr = new CustomResource(scope, 'AMI Root Device', {
+    serviceToken: crHandler.functionArn,
+    resourceType: 'Custom::AmiRootDevice',
+    properties: {
+      Ami: ami ?? '',
+    },
+  });
+
+  return cr.ref;
 }

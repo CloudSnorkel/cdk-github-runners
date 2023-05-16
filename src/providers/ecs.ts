@@ -15,6 +15,7 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
+  amiRootDevice,
   Architecture,
   BaseProvider,
   IRunnerProvider,
@@ -342,10 +343,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
         blockDevices: props?.storageSize ? [
           {
-            deviceName: '/dev/sda1',
+            deviceName: amiRootDevice(this, this.defaultClusterInstanceAmi().getImage(this).imageId),
             volume: {
               ebsDevice: {
-                volumeSize: props?.storageSize?.toGibibytes(),
+                volumeSize: props.storageSize.toGibibytes(),
                 deleteOnTermination: true,
               },
             },
@@ -494,7 +495,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    * @param parameters workflow job details
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    const task = new stepfunctions_tasks.EcsRunTask(
+    return new stepfunctions_tasks.EcsRunTask(
       this,
       this.labels.join(', '),
       {
@@ -536,8 +537,6 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         ],
       },
     );
-
-    return task;
   }
 
   grantStateMachine(_: iam.IGrantable) {
