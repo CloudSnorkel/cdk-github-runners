@@ -13226,6 +13226,22 @@
     ]
    }
   },
+  "EC2LinuxAMIRootDevice26D5E56E": {
+   "Type": "Custom::AmiRootDevice",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C",
+      "Arn"
+     ]
+    },
+    "Ami": {
+     "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
   "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -13476,6 +13492,22 @@
     ]
    }
   },
+  "EC2SpotLinuxAMIRootDeviceC8A06843": {
+   "Type": "Custom::AmiRootDevice",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C",
+      "Arn"
+     ]
+    },
+    "Ami": {
+     "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
   "EC2Linuxarm64SG550ECD6C": {
    "Type": "AWS::EC2::SecurityGroup",
    "Properties": {
@@ -13616,6 +13648,22 @@
     ]
    }
   },
+  "EC2Linuxarm64AMIRootDevice3046D37D": {
+   "Type": "Custom::AmiRootDevice",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C",
+      "Arn"
+     ]
+    },
+    "Ami": {
+     "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
   "EC2WindowsSG13E24976": {
    "Type": "AWS::EC2::SecurityGroup",
    "Properties": {
@@ -13755,6 +13803,22 @@
      }
     ]
    }
+  },
+  "EC2WindowsAMIRootDevice9FFC971A": {
+   "Type": "Custom::AmiRootDevice",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C",
+      "Arn"
+     ]
+    },
+    "Ami": {
+     "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   },
   "runnersSecretsWebhook7AF0D74E": {
    "Type": "AWS::SecretsManager::Secret",
@@ -15994,7 +16058,11 @@
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, linux, x64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"",
+       {
+        "Ref": "EC2LinuxAMIRootDevice26D5E56E"
+       },
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, linux, x64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
@@ -16028,7 +16096,11 @@
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2-spot, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{},cdkghr:started:`date +%s`\\\" $RUNNER_FLAGS --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\\\\\-]+ with result: \\\\\\\\K.*\\\" /home/runner/_diag/ | tail -n1)\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"{}\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2-spot, linux, x64 subnet1\"},\"ec2-spot, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2-spot, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"",
+       {
+        "Ref": "EC2LinuxAMIRootDevice26D5E56E"
+       },
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2-spot, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{},cdkghr:started:`date +%s`\\\" $RUNNER_FLAGS --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\\\\\-]+ with result: \\\\\\\\K.*\\\" /home/runner/_diag/ | tail -n1)\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"{}\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2-spot, linux, x64 subnet1\"},\"ec2-spot, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2-spot, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -16062,7 +16134,11 @@
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}},\"ec2-spot, linux, x64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"",
+       {
+        "Ref": "EC2SpotLinuxAMIRootDeviceC8A06843"
+       },
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}},\"ec2-spot, linux, x64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
@@ -16096,7 +16172,11 @@
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}},\"ec2, linux, arm64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{},cdkghr:started:`date +%s`\\\" $RUNNER_FLAGS --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\\\\\-]+ with result: \\\\\\\\K.*\\\" /home/runner/_diag/ | tail -n1)\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"{}\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2, linux, arm64 subnet1\"},\"ec2, linux, arm64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, arm64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"",
+       {
+        "Ref": "EC2SpotLinuxAMIRootDeviceC8A06843"
+       },
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}},\"ec2, linux, arm64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{},cdkghr:started:`date +%s`\\\" $RUNNER_FLAGS --name \\\"{}\\\" || exit 1\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\\\\\-]+ with result: \\\\\\\\K.*\\\" /home/runner/_diag/ | tail -n1)\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"{}\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2, linux, arm64 subnet1\"},\"ec2, linux, arm64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, arm64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -16130,7 +16210,11 @@
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, linux, arm64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"",
+       {
+        "Ref": "EC2Linuxarm64AMIRootDevice3046D37D"
+       },
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, linux, arm64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
@@ -16164,7 +16248,11 @@
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, windows, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\nStart-Job -ScriptBlock \\\\{\\n  while (1) \\\\{\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    sleep 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  echo '\\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n         \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/actions/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}' | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  $RunnerVersion = Get-Content RUNNER_VERSION -Raw \\n  if ($RunnerVersion -eq \\\"latest\\\") \\\\{ $RunnerFlags = \\\"\\\" \\\\} else \\\\{ $RunnerFlags = \\\"--disableupdate\\\" \\\\}\\n  ./config.cmd --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{},cdkghr:started:$(Get-Date -UFormat +%s)\\\" $RunnerFlags --name \\\"{}\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\\\\\-]+ with result: (.*)' | %\\\\{$_.Matches.Groups[1].Value\\\\} | Select-Object -Last 1\\n  if ($STATUS) \\\\{ echo \\\"CDKGHA JOB DONE {} $STATUS\\\" | Out-File -Encoding ASCII -Append /actions/runner.log \\\\}\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}'\\n\\\\} else \\\\{\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\n\\\\}\\nStart-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"ec2, windows, x64 subnet1\"},\"ec2, windows, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, windows, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"",
+       {
+        "Ref": "EC2Linuxarm64AMIRootDevice3046D37D"
+       },
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, windows, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\nStart-Job -ScriptBlock \\\\{\\n  while (1) \\\\{\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    sleep 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  echo '\\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n         \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/actions/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"{}\\\",\\n              \\\"log_stream_name\\\": \\\"{}\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}' | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  $RunnerVersion = Get-Content RUNNER_VERSION -Raw \\n  if ($RunnerVersion -eq \\\"latest\\\") \\\\{ $RunnerFlags = \\\"\\\" \\\\} else \\\\{ $RunnerFlags = \\\"--disableupdate\\\" \\\\}\\n  ./config.cmd --unattended --url \\\"https://{}/{}/{}\\\" --token \\\"{}\\\" --ephemeral --work _work --labels \\\"{},cdkghr:started:$(Get-Date -UFormat +%s)\\\" $RunnerFlags --name \\\"{}\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\\\\\-]+ with result: (.*)' | %\\\\{$_.Matches.Groups[1].Value\\\\} | Select-Object -Last 1\\n  if ($STATUS) \\\\{ echo \\\"CDKGHA JOB DONE {} $STATUS\\\" | Out-File -Encoding ASCII -Append /actions/runner.log \\\\}\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}'\\n\\\\} else \\\\{\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\n\\\\}\\nStart-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"ec2, windows, x64 subnet1\"},\"ec2, windows, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, windows, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -16198,7 +16286,11 @@
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, windows, x64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"",
+       {
+        "Ref": "EC2WindowsAMIRootDevice9FFC971A"
+       },
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, windows, x64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
@@ -16232,7 +16324,11 @@
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"",
+       {
+        "Ref": "EC2WindowsAMIRootDevice9FFC971A"
+       },
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnersdeleterunner7F8D5293",
@@ -18408,6 +18504,115 @@
       "Arn"
      ]
     }
+   }
+  },
+  "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicyDC1762B6": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ssm:GetParameter",
+        "ec2:DescribeImages",
+        "ec2:DescribeLaunchTemplateVersions"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicyDC1762B6",
+    "Roles": [
+     {
+      "Ref": "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36"
+     }
+    ]
+   }
+  },
+  "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "f6443e31e1528e3c0ecc843baeafa9eb46d31cebbab14d3c0343227d415e4c0e.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36",
+      "Arn"
+     ]
+    },
+    "Description": "Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion",
+    "Environment": {
+     "Variables": {
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs16.x",
+    "Timeout": 60
+   },
+   "DependsOn": [
+    "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicyDC1762B6",
+    "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36"
+   ]
+  },
+  "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1LogRetentionFC67AFCF": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 30
    }
   }
  },

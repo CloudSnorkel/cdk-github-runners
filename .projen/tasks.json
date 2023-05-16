@@ -64,6 +64,9 @@
           "spawn": "bundle:image-builders/aws-image-builder/versioner.lambda"
         },
         {
+          "spawn": "bundle:providers/ami-root-device.lambda"
+        },
+        {
           "spawn": "bundle:providers/build-image.lambda"
         },
         {
@@ -197,6 +200,24 @@
       "steps": [
         {
           "exec": "esbuild --bundle src/image-builders/aws-image-builder/versioner.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/versioner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+        }
+      ]
+    },
+    "bundle:providers/ami-root-device.lambda": {
+      "name": "bundle:providers/ami-root-device.lambda",
+      "description": "Create a JavaScript bundle from src/providers/ami-root-device.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/providers/ami-root-device.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/providers/ami-root-device.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:providers/ami-root-device.lambda:watch": {
+      "name": "bundle:providers/ami-root-device.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/providers/ami-root-device.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/providers/ami-root-device.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/providers/ami-root-device.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
         }
       ]
     },
