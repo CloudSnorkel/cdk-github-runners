@@ -379,7 +379,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       });
     }
 
-    this.capacityProvider.autoScalingGroup.addUserData(this.loginCommand(), this.pullCommand(), this.ecsSettingsCommand());
+    this.capacityProvider.autoScalingGroup.addUserData(this.loginCommand(), this.pullCommand(), ...this.ecsSettingsCommands());
     this.capacityProvider.autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
     image.imageRepository.grantPull(this.capacityProvider.autoScalingGroup);
 
@@ -487,10 +487,19 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     return `aws ecr get-login-password --region ${thisStack.region} | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`;
   }
 
-  private ecsSettingsCommand() {
+  private ecsSettingsCommands() {
     // don't let ECS accumulate too many stopped tasks that can end up very big in our case
     // the default is 10m duration with 1h jitter which can end up with 1h10m delay for cleaning up stopped tasks
-    return 'echo ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION=5s >> /etc/ecs/ecs.config && echo ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER=5s >> /etc/ecs/ecs.config';
+    if (this.image.os.is(Os.WINDOWS)) {
+      return [
+        '[Environment]::SetEnvironmentVariable("ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION", "5s", "Machine")',
+        '[Environment]::SetEnvironmentVariable("ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER", "5s", "Machine")',
+      ];
+    }
+    return [
+      'echo ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION=5s >> /etc/ecs/ecs.config',
+      'echo ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER=5s >> /etc/ecs/ecs.config',
+    ];
   }
 
   /**
