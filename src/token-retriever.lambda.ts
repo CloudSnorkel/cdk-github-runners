@@ -5,7 +5,7 @@ import { StepFunctionLambdaInput } from './lambda-helpers';
 class RunnerTokenError extends Error {
   constructor(msg: string) {
     super(msg);
-    this.name = 'RunnerBusy';
+    this.name = 'RunnerTokenError';
     Object.setPrototypeOf(this, RunnerTokenError.prototype);
   }
 }
