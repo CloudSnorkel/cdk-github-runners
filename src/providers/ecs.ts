@@ -15,6 +15,7 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
+  amiRootDevice,
   Architecture,
   BaseProvider,
   IRunnerProvider,
@@ -342,10 +343,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
         blockDevices: props?.storageSize ? [
           {
-            deviceName: '/dev/sda1',
+            deviceName: amiRootDevice(this, this.defaultClusterInstanceAmi().getImage(this).imageId),
             volume: {
               ebsDevice: {
-                volumeSize: props?.storageSize?.toGibibytes(),
+                volumeSize: props.storageSize.toGibibytes(),
                 deleteOnTermination: true,
               },
             },
@@ -378,7 +379,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       });
     }
 
-    this.capacityProvider.autoScalingGroup.addUserData(this.loginCommand(), this.pullCommand());
+    this.capacityProvider.autoScalingGroup.addUserData(this.loginCommand(), this.pullCommand(), ...this.ecsSettingsCommands());
     this.capacityProvider.autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
     image.imageRepository.grantPull(this.capacityProvider.autoScalingGroup);
 
@@ -486,6 +487,21 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     return `aws ecr get-login-password --region ${thisStack.region} | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`;
   }
 
+  private ecsSettingsCommands() {
+    // don't let ECS accumulate too many stopped tasks that can end up very big in our case
+    // the default is 10m duration with 1h jitter which can end up with 1h10m delay for cleaning up stopped tasks
+    if (this.image.os.is(Os.WINDOWS)) {
+      return [
+        '[Environment]::SetEnvironmentVariable("ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION", "5s", "Machine")',
+        '[Environment]::SetEnvironmentVariable("ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER", "5s", "Machine")',
+      ];
+    }
+    return [
+      'echo ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION=5s >> /etc/ecs/ecs.config',
+      'echo ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER=5s >> /etc/ecs/ecs.config',
+    ];
+  }
+
   /**
    * Generate step function task(s) to start a new runner.
    *
@@ -494,7 +510,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    * @param parameters workflow job details
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    const task = new stepfunctions_tasks.EcsRunTask(
+    return new stepfunctions_tasks.EcsRunTask(
       this,
       this.labels.join(', '),
       {
@@ -536,8 +552,6 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         ],
       },
     );
-
-    return task;
   }
 
   grantStateMachine(_: iam.IGrantable) {

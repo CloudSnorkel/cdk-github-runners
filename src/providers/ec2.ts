@@ -13,6 +13,7 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
+  amiRootDevice,
   Architecture,
   BaseProvider,
   IRunnerProvider,
@@ -381,6 +382,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     const instanceProfile = new iam.CfnInstanceProfile(this, 'Instance Profile', {
       roles: [this.role.roleName],
     });
+    const rootDevice = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
     const subnetRunners = this.subnets.map((subnet, index) => {
       return new stepfunctions_tasks.CallAwsService(this, `${this.labels.join(', ')} subnet${index+1}`, {
         comment: subnet.subnetId,
@@ -411,7 +413,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
           SecurityGroupIds: this.securityGroups.map(sg => sg.securityGroupId),
           SubnetId: subnet.subnetId,
           BlockDeviceMappings: [{
-            DeviceName: '/dev/sda1',
+            DeviceName: rootDevice,
             Ebs: {
               DeleteOnTermination: true,
               VolumeSize: this.storageSize.toGibibytes(),
