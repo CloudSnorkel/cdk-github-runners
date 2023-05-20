@@ -430,6 +430,8 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, ICons
 
   /**
    * List of step functions errors that should be retried.
+   *
+   * @deprecated do not use
    */
   readonly retryableErrors: string[];
 
