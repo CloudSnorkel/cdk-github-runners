@@ -64,7 +64,7 @@ exports.handler = async function (event: AWSLambda.SQSEvent): Promise<AWSLambda.
 
           try {
             // stop step function first, so it's marked as aborted with the proper error
-            // if we delete the runner first, the step function will be marked as error with a generic error
+            // if we delete the runner first, the step function will be marked as failed with a generic error
             console.log(`Stopping step function ${input.executionArn}...`);
             await sfn.stopExecution({
               executionArn: input.executionArn,
