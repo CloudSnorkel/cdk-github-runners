@@ -9702,7 +9702,9 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ---
 
-##### `retryableErrors`<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.retryableErrors"></a>
+##### ~~`retryableErrors`~~<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.retryableErrors"></a>
+
+- *Deprecated:* do not use
 
 ```typescript
 public readonly retryableErrors: string[];
