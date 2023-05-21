@@ -399,10 +399,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         interval,
         maxAttempts,
         backoffRate,
-        // we can't retry on all errors mainly because we don't want to retry on idle runner error
-        // when the idle reaper kills a runner, it will fail the state machine
-        // if we retry, we would just waste resources and end up killing it again
-        errors: [...new Set(['RunnerTokenError'].concat(...this.providers.map(provider => provider.retryableErrors)))],
+        // we retry on everything
+        // deleted idle runners will also fail, but the reaper will stop this step function to avoid endless retries
       });
     }
 
@@ -431,6 +429,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     );
 
     stateMachine.grantRead(idleReaper);
+    stateMachine.grantExecution(idleReaper, 'states:StopExecution');
     for (const provider of this.providers) {
       provider.grantStateMachine(stateMachine);
     }

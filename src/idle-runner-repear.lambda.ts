@@ -60,13 +60,35 @@ exports.handler = async function (event: AWSLambda.SQSEvent): Promise<AWSLambda.
 
         if (diffMs > 1000 * input.maxIdleSeconds) {
           // max idle time reached, delete runner
-          console.log(`Runner ${input.runnerName} is idle for too long, deleting...`);
+          console.log(`Runner ${input.runnerName} is idle for too long`);
 
-          await octokit.rest.actions.deleteSelfHostedRunnerFromRepo({
-            owner: input.owner,
-            repo: input.repo,
-            runner_id: runner.id,
-          });
+          try {
+            // stop step function first, so it's marked as aborted with the proper error
+            // if we delete the runner first, the step function will be marked as failed with a generic error
+            console.log(`Stopping step function ${input.executionArn}...`);
+            await sfn.stopExecution({
+              executionArn: input.executionArn,
+              error: 'IdleRunner',
+              cause: `Runner ${input.runnerName} on ${input.owner}/${input.repo} is idle for too long (${diffMs / 1000} seconds and limit is ${input.maxIdleSeconds} seconds)`,
+            }).promise();
+          } catch (e) {
+            console.error(`Failed to stop step function ${input.executionArn}: ${e}`);
+            retryLater();
+            continue;
+          }
+
+          try {
+            console.log(`Deleting runner ${runner.id}...`);
+            await octokit.rest.actions.deleteSelfHostedRunnerFromRepo({
+              owner: input.owner,
+              repo: input.repo,
+              runner_id: runner.id,
+            });
+          } catch (e) {
+            console.error(`Failed to delete runner ${runner.id}: ${e}`);
+            retryLater();
+            continue;
+          }
         } else {
           // still idle, timeout not reached -- retry later
           retryLater();
