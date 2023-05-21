@@ -10,6 +10,15 @@ class RunnerBusy extends Error {
   }
 }
 
+class ReraisedError extends Error {
+  constructor(event: StepFunctionLambdaInput) {
+    super(event.error!.Cause);
+    this.name = event.error!.Error;
+    this.message = event.error!.Cause;
+    Object.setPrototypeOf(this, ReraisedError.prototype);
+  }
+}
+
 exports.handler = async function (event: StepFunctionLambdaInput) {
   const { octokit } = await getOctokit(event.installationId);
 
@@ -17,7 +26,7 @@ exports.handler = async function (event: StepFunctionLambdaInput) {
   const runner = await getRunner(octokit, event.owner, event.repo, event.runnerName);
   if (!runner) {
     console.error(`Unable to find runner id for ${event.owner}/${event.repo}:${event.runnerName}`);
-    return;
+    throw new ReraisedError(event);
   }
 
   console.log(`Runner ${event.runnerName} has id #${runner.id}`);
@@ -35,9 +44,12 @@ exports.handler = async function (event: StepFunctionLambdaInput) {
   } catch (e) {
     const reqError = <RequestError>e;
     if (reqError.message.includes('is still running a job')) {
+      // ideally we would stop the job that's hanging on this failed runner, but GitHub Actions only has API to stop the entire workflow
       throw new RunnerBusy(reqError.message);
     } else {
-      throw e;
+      console.error('Unable to delete runner', e);
     }
   }
+
+  throw new ReraisedError(event);
 };
