@@ -8171,9 +8171,9 @@ X86_64.
 
 ### LambdaAccess <a name="LambdaAccess" id="@cloudsnorkel/cdk-github-runners.LambdaAccess"></a>
 
-Access configuration options for Lambda functions like setup and webhook function.
+Access configuration options for Lambda functions like setup and webhook function. Use this to limit access to these functions.
 
-Use this to limit access to these functions.
+If you need a custom access point, you can implement this abstract class yourself. Note that the Lambda functions expect API Gateway v1 or v2 input. They also expect every URL under the constructed URL to point to the function.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.Initializer"></a>
 
@@ -8188,6 +8188,39 @@ new LambdaAccess()
 
 ---
 
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess.bind">bind</a></code> | Creates all required resources and returns access URL or empty string if disabled. |
+
+---
+
+##### `bind` <a name="bind" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.bind"></a>
+
+```typescript
+public bind(scope: Construct, id: string, lambdaFunction: Function): string
+```
+
+Creates all required resources and returns access URL or empty string if disabled.
+
+###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.bind.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+###### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.bind.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+###### `lambdaFunction`<sup>Required</sup> <a name="lambdaFunction" id="@cloudsnorkel/cdk-github-runners.LambdaAccess.bind.parameter.lambdaFunction"></a>
+
+- *Type:* aws-cdk-lib.aws_lambda.Function
+
+---
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 

@@ -536,7 +536,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     );
 
     const access = this.props?.statusAccess ?? LambdaAccess.noAccess();
-    const url = access._bind(this, 'status access', statusFunction);
+    const url = access.bind(this, 'status access', statusFunction);
 
     if (url !== '') {
       new cdk.CfnOutput(
@@ -579,7 +579,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     this.secrets.setup.grantWrite(setupFunction);
 
     const access = this.props?.setupAccess ?? LambdaAccess.lambdaUrl();
-    return access._bind(this, 'setup access', setupFunction);
+    return access.bind(this, 'setup access', setupFunction);
   }
 
   private checkIntersectingLabels() {

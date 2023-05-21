@@ -61,7 +61,7 @@ export class GithubWebhookHandler extends Construct {
     );
 
     const access = props?.access ?? LambdaAccess.lambdaUrl();
-    this.url = access._bind(this, 'access', this.handler);
+    this.url = access.bind(this, 'access', this.handler);
 
     props.secrets.webhook.grantRead(this.handler);
     props.orchestrator.grantStartExecution(this.handler);
