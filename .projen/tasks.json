@@ -46,7 +46,7 @@
       "description": "Prepare assets",
       "steps": [
         {
-          "spawn": "bundle:delete-runner.lambda"
+          "spawn": "bundle:delete-failed-runner.lambda"
         },
         {
           "spawn": "bundle:idle-runner-repear.lambda"
@@ -95,21 +95,21 @@
         }
       ]
     },
-    "bundle:delete-runner.lambda": {
-      "name": "bundle:delete-runner.lambda",
-      "description": "Create a JavaScript bundle from src/delete-runner.lambda.ts",
+    "bundle:delete-failed-runner.lambda": {
+      "name": "bundle:delete-failed-runner.lambda",
+      "description": "Create a JavaScript bundle from src/delete-failed-runner.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/delete-runner.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/delete-runner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+          "exec": "esbuild --bundle src/delete-failed-runner.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/delete-failed-runner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
         }
       ]
     },
-    "bundle:delete-runner.lambda:watch": {
-      "name": "bundle:delete-runner.lambda:watch",
-      "description": "Continuously update the JavaScript bundle from src/delete-runner.lambda.ts",
+    "bundle:delete-failed-runner.lambda:watch": {
+      "name": "bundle:delete-failed-runner.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/delete-failed-runner.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/delete-runner.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/delete-runner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
+          "exec": "esbuild --bundle src/delete-failed-runner.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/delete-failed-runner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
         }
       ]
     },

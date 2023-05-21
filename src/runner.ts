@@ -14,7 +14,7 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
-import { DeleteRunnerFunction } from './delete-runner-function';
+import { DeleteFailedRunnerFunction } from './delete-failed-runner-function';
 import { IdleRunnerRepearFunction } from './idle-runner-repear-function';
 import {
   AwsImageBuilderFailedBuildNotifier,
@@ -310,12 +310,12 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       },
     );
 
-    let deleteRunnerFunction = this.deleteRunner();
-    const deleteRunnerTask = new stepfunctions_tasks.LambdaInvoke(
+    let deleteFailedRunnerFunction = this.deleteFailedRunner();
+    const deleteFailedRunnerTask = new stepfunctions_tasks.LambdaInvoke(
       this,
-      'Delete Runner',
+      'Delete Failed Runner',
       {
-        lambdaFunction: deleteRunnerFunction,
+        lambdaFunction: deleteFailedRunnerFunction,
         payloadResponseOnly: true,
         resultPath: '$.delete',
         payload: stepfunctions.TaskInput.fromObject({
@@ -323,11 +323,11 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           owner: stepfunctions.JsonPath.stringAt('$.owner'),
           repo: stepfunctions.JsonPath.stringAt('$.repo'),
           installationId: stepfunctions.JsonPath.stringAt('$.installationId'),
-          idleOnly: false,
+          error: stepfunctions.JsonPath.objectAt('$.error'),
         }),
       },
     );
-    deleteRunnerTask.addRetry({
+    deleteFailedRunnerTask.addRetry({
       errors: [
         'RunnerBusy',
       ],
@@ -373,15 +373,20 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     providerChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown label'));
 
-    const runProviders = new stepfunctions.Parallel(this, 'Retry on Error', { resultPath: '$.result' })
-      .branch(tokenRetrieverTask.next(providerChooser))
-      .addCatch(
+    const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
+      new stepfunctions.Parallel(this, 'Error Handler').branch(
+        // make sure idle runner will be stopped, get token, and then start runner
+        // we do this entire process for each retry because any of the steps may expire
+        // for example, if a lambda times out after the runner already started, the idle reaper may have already stopped
+        queueIdleReaperTask.next(tokenRetrieverTask.next(providerChooser)),
+      ).addCatch(
         // delete runner on failure as it won't remove itself and there is a limit on the number of registered runners
-        deleteRunnerTask.next(new stepfunctions.Fail(this, 'Runner Failed')),
+        deleteFailedRunnerTask,
         {
           resultPath: '$.error',
         },
-      );
+      ),
+    );
 
     if (props?.retryOptions?.retry ?? true) {
       const interval = props?.retryOptions?.interval ?? cdk.Duration.minutes(1);
@@ -423,7 +428,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       this,
       'Runner Orchestrator',
       {
-        definition: queueIdleReaperTask.next(runProviders),
+        definition: runProviders,
         logs: logOptions,
       },
     );
@@ -460,12 +465,12 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     return func;
   }
 
-  private deleteRunner() {
-    const func = new DeleteRunnerFunction(
+  private deleteFailedRunner() {
+    const func = new DeleteFailedRunnerFunction(
       this,
       'delete-runner',
       {
-        description: 'Delete GitHub Actions runner on error',
+        description: 'Delete failed GitHub Actions runner on error',
         environment: {
           GITHUB_SECRET_ARN: this.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,

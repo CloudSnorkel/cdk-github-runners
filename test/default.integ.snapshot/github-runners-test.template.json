@@ -14067,7 +14067,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "6b90a27e248b48c2546126c214604cd40bb6fd61f0a474c7f00990aeffe0a7bb.zip"
+     "S3Key": "0a4eb7ea77b48ab333bf1d2665956b0e101cf4c1e51a170ad1d0d28b0ce919fb.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -14075,7 +14075,7 @@
       "Arn"
      ]
     },
-    "Description": "Delete GitHub Actions runner on error",
+    "Description": "Delete failed GitHub Actions runner on error",
     "Environment": {
      "Variables": {
       "GITHUB_SECRET_ARN": {
@@ -14417,16 +14417,6 @@
     "PolicyDocument": {
      "Statement": [
       {
-       "Action": "sqs:SendMessage",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "runnersIdleReaperQueue117EFB9F",
-         "Arn"
-        ]
-       }
-      },
-      {
        "Action": "lambda:InvokeFunction",
        "Effect": "Allow",
        "Resource": [
@@ -14451,6 +14441,16 @@
          ]
         }
        ]
+      },
+      {
+       "Action": "sqs:SendMessage",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersIdleReaperQueue117EFB9F",
+         "Arn"
+        ]
+       }
       },
       {
        "Action": "lambda:InvokeFunction",
@@ -15826,7 +15826,7 @@
      "Fn::Join": [
       "",
       [
-       "{\"StartAt\":\"Queue Idle Reaper\",\"States\":{\"Queue Idle Reaper\":{\"Next\":\"Retry on Error\",\"Type\":\"Task\",\"ResultPath\":null,\"Resource\":\"arn:",
+       "{\"StartAt\":\"Run Providers\",\"States\":{\"Run Providers\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"States.ALL\"],\"IntervalSeconds\":60,\"MaxAttempts\":23,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"Error Handler\",\"States\":{\"Error Handler\":{\"Type\":\"Parallel\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Failed Runner\"}],\"Branches\":[{\"StartAt\":\"Queue Idle Reaper\",\"States\":{\"Queue Idle Reaper\":{\"Next\":\"Get Runner Token\",\"Type\":\"Task\",\"ResultPath\":null,\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -15834,7 +15834,7 @@
        {
         "Ref": "runnersIdleReaperQueue117EFB9F"
        },
-       "\",\"MessageBody\":{\"executionArn.$\":\"$$.Execution.Id\",\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"maxIdleSeconds\":300}}},\"Retry on Error\":{\"Type\":\"Parallel\",\"ResultPath\":\"$.result\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"States.ALL\"],\"IntervalSeconds\":60,\"MaxAttempts\":23,\"BackoffRate\":1.3}],\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Runner\"}],\"Branches\":[{\"StartAt\":\"Get Runner Token\",\"States\":{\"Get Runner Token\":{\"Next\":\"Choose provider\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
+       "\",\"MessageBody\":{\"executionArn.$\":\"$$.Execution.Id\",\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"maxIdleSeconds\":300}}},\"Get Runner Token\":{\"Next\":\"Choose provider\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnerstokenretrieverD5E8392A",
@@ -16366,14 +16366,14 @@
        {
         "Ref": "EC2WindowsAMIRootDevice9FFC971A"
        },
-       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"Delete Runner\":{\"Next\":\"Runner Failed\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"Delete Failed Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnersdeleterunner7F8D5293",
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"idleOnly\":false}},\"Runner Failed\":{\"Type\":\"Fail\"}}}"
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"error.$\":\"$.error\"}}}}]}}}"
       ]
      ]
     }
