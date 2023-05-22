@@ -14308,7 +14308,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "642ba5533efb1f87e42c142004de7fde5322eb4f53f22cf5ca6cf73d49951612.zip"
+     "S3Key": "2536f82047cdfe2739857abebc03c3da9a943212e19ba30f724500898a4f9dfc.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -14330,7 +14330,7 @@
     },
     "Handler": "index.handler",
     "Runtime": "nodejs16.x",
-    "Timeout": 60
+    "Timeout": 300
    },
    "DependsOn": [
     "runnersIdleReaperServiceRoleDefaultPolicyE05BFDF0",
@@ -14417,6 +14417,16 @@
     "PolicyDocument": {
      "Statement": [
       {
+       "Action": "sqs:SendMessage",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersIdleReaperQueue117EFB9F",
+         "Arn"
+        ]
+       }
+      },
+      {
        "Action": "lambda:InvokeFunction",
        "Effect": "Allow",
        "Resource": [
@@ -14441,16 +14451,6 @@
          ]
         }
        ]
-      },
-      {
-       "Action": "sqs:SendMessage",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "runnersIdleReaperQueue117EFB9F",
-         "Arn"
-        ]
-       }
       },
       {
        "Action": "lambda:InvokeFunction",
@@ -15826,7 +15826,7 @@
      "Fn::Join": [
       "",
       [
-       "{\"StartAt\":\"Run Providers\",\"States\":{\"Run Providers\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"States.ALL\"],\"IntervalSeconds\":60,\"MaxAttempts\":23,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"Error Handler\",\"States\":{\"Error Handler\":{\"Type\":\"Parallel\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Failed Runner\"}],\"Branches\":[{\"StartAt\":\"Queue Idle Reaper\",\"States\":{\"Queue Idle Reaper\":{\"Next\":\"Get Runner Token\",\"Type\":\"Task\",\"ResultPath\":null,\"Resource\":\"arn:",
+       "{\"StartAt\":\"Queue Idle Reaper\",\"States\":{\"Queue Idle Reaper\":{\"Next\":\"Run Providers\",\"Type\":\"Task\",\"ResultPath\":null,\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -15834,7 +15834,7 @@
        {
         "Ref": "runnersIdleReaperQueue117EFB9F"
        },
-       "\",\"MessageBody\":{\"executionArn.$\":\"$$.Execution.Id\",\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"maxIdleSeconds\":300}}},\"Get Runner Token\":{\"Next\":\"Choose provider\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
+       "\",\"MessageBody\":{\"executionArn.$\":\"$$.Execution.Id\",\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"maxIdleSeconds\":300}}},\"Run Providers\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"States.ALL\"],\"IntervalSeconds\":60,\"MaxAttempts\":23,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"Error Handler\",\"States\":{\"Error Handler\":{\"Type\":\"Parallel\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Failed Runner\"}],\"Branches\":[{\"StartAt\":\"Get Runner Token\",\"States\":{\"Get Runner Token\":{\"Next\":\"Choose provider\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnerstokenretrieverD5E8392A",

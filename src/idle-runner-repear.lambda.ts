@@ -48,9 +48,12 @@ exports.handler = async function (event: AWSLambda.SQSEvent): Promise<AWSLambda.
       continue;
     }
 
-    // if not idle, we're done
+    // if not idle, try again later
+    // we want to try again because the runner might be retried due to e.g. lambda timeout
+    // we need to keep following the retry too and make sure it doesn't go idle
     if (runner.busy) {
       console.log('Runner is not idle');
+      retryLater();
       continue;
     }
 

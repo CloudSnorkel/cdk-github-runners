@@ -375,10 +375,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
       new stepfunctions.Parallel(this, 'Error Handler').branch(
-        // make sure idle runner will be stopped, get token, and then start runner
-        // we do this entire process for each retry because any of the steps may expire
-        // for example, if a lambda times out after the runner already started, the idle reaper may have already stopped
-        queueIdleReaperTask.next(tokenRetrieverTask.next(providerChooser)),
+        // we get a token for every retry because the token can expire faster than the job can timeout
+        tokenRetrieverTask.next(providerChooser),
       ).addCatch(
         // delete runner on failure as it won't remove itself and there is a limit on the number of registered runners
         deleteFailedRunnerTask,
@@ -428,7 +426,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       this,
       'Runner Orchestrator',
       {
-        definition: runProviders,
+        definition: queueIdleReaperTask.next(runProviders),
         logs: logOptions,
       },
     );
@@ -613,7 +611,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         ...this.extraLambdaEnv,
       },
       logRetention: logs.RetentionDays.ONE_MONTH,
-      timeout: cdk.Duration.minutes(1),
+      timeout: cdk.Duration.minutes(5),
       ...this.extraLambdaProps,
     });
   }
