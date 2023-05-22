@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import { Octokit } from '@octokit/rest';
 import * as AWSLambda from 'aws-lambda';
-import { baseUrlFromDomain } from './lambda-github';
+import { baseUrlFromDomain, GitHubSecrets } from './lambda-github';
 import { getSecretJsonValue, updateSecretValue } from './lambda-helpers';
 
 type ApiGatewayEvent = AWSLambda.APIGatewayProxyEvent | AWSLambda.APIGatewayProxyEventV2;
@@ -34,7 +34,7 @@ function response(code: number, body: string): AWSLambda.APIGatewayProxyResultV2
 async function handleRoot(event: ApiGatewayEvent, setupToken: string): Promise<AWSLambda.APIGatewayProxyResultV2> {
   const stage = event.requestContext.stage == '$default' ? '' : `/${event.requestContext.stage}`;
   const setupBaseUrl = `https://${event.requestContext.domainName}${stage}`;
-  const githubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
+  const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
 
   return response(200, getHtml(setupBaseUrl, setupToken, githubSecrets.domain));
 }
@@ -56,7 +56,7 @@ async function handleDomain(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
     return response(400, 'Invalid domain');
   }
 
-  const githubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
+  const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   githubSecrets.domain = body.domain;
   await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(githubSecrets));
 
@@ -69,9 +69,9 @@ async function handlePat(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayPr
     return response(400, 'Invalid personal access token');
   }
 
-  await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify({
+  await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(<GitHubSecrets>{
     domain: body.domain,
-    appId: '',
+    appId: -1,
     personalAuthToken: body.pat,
   }));
   await updateSecretValue(process.env.SETUP_SECRET_ARN, JSON.stringify({ token: '' }));
@@ -90,11 +90,11 @@ async function handleNewApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
     return response( 400, 'Invalid code');
   }
 
-  const githubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
+  const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   const baseUrl = baseUrlFromDomain(githubSecrets.domain);
   const newApp = await new Octokit({ baseUrl }).rest.apps.createFromManifest({ code });
 
-  await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify({
+  await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(<GitHubSecrets>{
     domain: new URL(newApp.data.html_url).host,
     appId: newApp.data.id,
     personalAuthToken: '',
@@ -115,7 +115,7 @@ async function handleExistingApp(event: ApiGatewayEvent): Promise<AWSLambda.APIG
     return response( 400, 'Missing fields');
   }
 
-  await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify({
+  await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(<GitHubSecrets>{
     domain: body.domain,
     appId: body.appid,
     personalAuthToken: '',

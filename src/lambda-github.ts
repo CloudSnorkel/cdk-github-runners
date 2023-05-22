@@ -9,12 +9,41 @@ export function baseUrlFromDomain(domain: string): string {
   return `https://${domain}/api/v3`;
 }
 
-export async function getOctokit(installationId?: string) {
+export interface GitHubSecrets {
+  domain: string;
+  appId: number;
+  personalAuthToken: string;
+}
+
+const octokitCache: {
+  installationId?: number;
+  secrets?: GitHubSecrets;
+  octokit?: Octokit;
+} = {};
+
+export async function getOctokit(installationId?: number): Promise<{ octokit: Octokit; githubSecrets: any }> {
   if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
     throw new Error('Missing environment variables');
   }
 
-  const githubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
+  const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
+
+  if (octokitCache.octokit && octokitCache.installationId == installationId && octokitCache.secrets &&
+    octokitCache.secrets.domain == githubSecrets.domain && octokitCache.secrets.appId == githubSecrets.appId &&
+    octokitCache.secrets.personalAuthToken == githubSecrets.personalAuthToken) {
+    // test and use cache
+    try {
+      await octokitCache.octokit.rest.meta.getOctocat();
+      console.log('Using cached octokit');
+      return {
+        octokit: octokitCache.octokit,
+        githubSecrets: octokitCache.secrets,
+      };
+    } catch (e) {
+      console.log('Octokit cache is invalid', e);
+      octokitCache.octokit = undefined;
+    }
+  }
 
   let baseUrl = baseUrlFromDomain(githubSecrets.domain);
 
@@ -44,9 +73,13 @@ export async function getOctokit(installationId?: string) {
     auth: token,
   });
 
+  octokitCache.octokit = octokit;
+  octokitCache.installationId = installationId;
+  octokitCache.secrets = githubSecrets;
+
   return {
-    githubSecrets,
     octokit,
+    githubSecrets,
   };
 }
 
