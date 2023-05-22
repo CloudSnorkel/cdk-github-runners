@@ -1,3 +1,4 @@
+import { Octokit } from '@octokit/rest';
 import * as AWSLambda from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { getOctokit, getRunner } from './lambda-github';
@@ -7,14 +8,15 @@ interface IdleReaperLambdaInput {
   readonly runnerName: string;
   readonly owner: string;
   readonly repo: string;
-  readonly installationId: string;
+  readonly installationId?: number;
   readonly maxIdleSeconds: number;
 }
 
 const sfn = new AWS.StepFunctions();
 
 exports.handler = async function (event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSBatchResponse> {
-  let result: AWSLambda.SQSBatchResponse = { batchItemFailures: [] };
+  const result: AWSLambda.SQSBatchResponse = { batchItemFailures: [] };
+  const octokitCache: { [key: number]: Octokit } = {};
 
   for (const record of event.Records) {
     const input = JSON.parse(record.body) as IdleReaperLambdaInput;
@@ -31,7 +33,12 @@ exports.handler = async function (event: AWSLambda.SQSEvent): Promise<AWSLambda.
     }
 
     // get github access
-    const { octokit } = await getOctokit(input.installationId);
+    let octokit: Octokit;
+    if (octokitCache[input.installationId ?? -1]) {
+      octokit = octokitCache[input.installationId ?? -1];
+    } else {
+      octokit = octokitCache[input.installationId ?? -1] = (await getOctokit(input.installationId)).octokit;
+    }
 
     // find runner
     const runner = await getRunner(octokit, input.owner, input.repo, input.runnerName);

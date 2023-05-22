@@ -2,7 +2,7 @@ import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/core';
 import * as AWSLambda from 'aws-lambda';
 import * as AWS from 'aws-sdk';
-import { baseUrlFromDomain } from './lambda-github';
+import { baseUrlFromDomain, GitHubSecrets } from './lambda-github';
 import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
 
 const cfn = new AWS.CloudFormation();
@@ -135,7 +135,7 @@ exports.handler = async function (event: Partial<AWSLambda.APIGatewayProxyEvent>
         privateKeySecretArn: process.env.GITHUB_PRIVATE_KEY_SECRET_ARN,
         privateKeySecretUrl: secretArnToUrl(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN),
         app: {
-          id: '',
+          id: -1,
           url: '',
           installations: [] as AppInstallation[],
         },
@@ -187,7 +187,7 @@ exports.handler = async function (event: Partial<AWSLambda.APIGatewayProxyEvent>
   }
 
   // get secrets
-  let githubSecrets;
+  let githubSecrets: GitHubSecrets;
   try {
     githubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   } catch (e) {
