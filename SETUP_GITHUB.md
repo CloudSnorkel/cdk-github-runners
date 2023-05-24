@@ -7,14 +7,16 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 ### Setup Wizard
 
 1. Open the URL in `github.setup.url` from `status.json`
-2. If you want to create an app for your personal repositories, click the Create button under New Personal App
-3. If you want to create an app for your organization:
-   1. Find the New Organization App section
-   2. Type in the organization name in organization slug (ORGANIZATION from https://github.com/ORGANIZATION/REPO)
-   3. Click the Create button
-4. Follow the instructions on GitHub
-5. When brought back to the setup wizard, click the install link
-6. Install the new app on your desired repositories
+2. Choose whether you're integrating with GitHub.com or GitHub Enterprise Server
+3. Next choose New GitHub App
+4. If you want to create an app for your personal repositories, choose User app
+5. If you want to create an app for your organization:
+   1. Choose Orginization app
+   2. Type in the organization slug (ORGANIZATION from https://github.com/ORGANIZATION/REPO)
+6. Click Create GitHub App to take you to GitHub to finish the setup
+7. Follow the instructions on GitHub
+8. When brought back to the setup wizard, click the install link
+9. Install the new app on your desired repositories
 
 ### Manually
 
@@ -56,8 +58,10 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 #### Setup Wizard
 
 1. Open the URL in `github.setup.url` from `status.json`
-2. Enter your personal access token under Using Personal Access Token
-3. Click the Set button
+2. Choose whether you're integrating with GitHub.com or GitHub Enterprise Server
+3. Next choose Personal Access Token
+3. Enter your personal access token
+4. Click the Setup button
 
 #### Manually
 
