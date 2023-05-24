@@ -11,7 +11,7 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 3. Next choose New GitHub App
 4. If you want to create an app for your personal repositories, choose User app
 5. If you want to create an app for your organization:
-   1. Choose Orginization app
+   1. Choose Organization app
    2. Type in the organization slug (ORGANIZATION from https://github.com/ORGANIZATION/REPO)
 6. Click Create GitHub App to take you to GitHub to finish the setup
 7. Follow the instructions on GitHub
@@ -39,7 +39,7 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 10. Open the URL in `github.auth.secretUrl` from `status.json` and edit the secret value
     1. If you're using a self-hosted GitHub instance, put its domain in `domain` (e.g. `github.mycompany.com`)
     2. Put the new application id in `appId` (e.g. `34789562`)
-    6. Ignore/delete `dummy` and **leave `personalAuthToken` empty**
+    3. Ignore/delete `dummy` and **leave `personalAuthToken` empty**
 11. Open the URL in `github.auth.privateKeySecretUrl` from `status.json` and edit the secret value
     1. Open the downloaded private key with any text editor
     2. Copy the text from the private key as-is into the secret
@@ -60,14 +60,14 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 1. Open the URL in `github.setup.url` from `status.json`
 2. Choose whether you're integrating with GitHub.com or GitHub Enterprise Server
 3. Next choose Personal Access Token
-3. Enter your personal access token
-4. Click the Setup button
+4. Enter your personal access token
+5. Click the Setup button
 
 #### Manually
 
 1. Open the URL in `github.auth.secretUrl` from `status.json` and edit the secret value
 2. If you're using a self-hosted GitHub instance, put its domain in `domain` (e.g. `github.mycompany.com`)
-3. Put the generated token in `personalAuthToken`
+3. Put the generated token in `personalAuthToken` (**not** `personalAccessToken`)
 4. Ignore all other values
 
 ### Setup Webhook
