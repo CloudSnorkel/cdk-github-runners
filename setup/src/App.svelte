@@ -181,7 +181,7 @@
             <div class="form-check">
               <input class="form-check-input" type="radio" bind:group={auth} value="pat" id="pat">
               <label class="form-check-label" for="pat">
-                Personal Authentication Token
+                Personal Access Token
               </label>
             </div>
           </div>

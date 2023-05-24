@@ -208,8 +208,8 @@ exports.handler = async function (event: Partial<AWSLambda.APIGatewayProxyEvent>
   status.github.domain = githubSecrets.domain;
 
   if (githubSecrets.personalAuthToken) {
-    // try authenticating with personal authentication token
-    status.github.auth.type = 'Personal Auth Token';
+    // try authenticating with personal access token
+    status.github.auth.type = 'Personal Access Token';
     status.github.auth.personalAuthToken = '*redacted*';
 
     let octokit;

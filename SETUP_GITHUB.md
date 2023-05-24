@@ -7,14 +7,16 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 ### Setup Wizard
 
 1. Open the URL in `github.setup.url` from `status.json`
-2. If you want to create an app for your personal repositories, click the Create button under New Personal App
-3. If you want to create an app for your organization:
-   1. Find the New Organization App section
-   2. Type in the organization name in organization slug (ORGANIZATION from https://github.com/ORGANIZATION/REPO)
-   3. Click the Create button
-4. Follow the instructions on GitHub
-5. When brought back to the setup wizard, click the install link
-6. Install the new app on your desired repositories
+2. Choose whether you're integrating with GitHub.com or GitHub Enterprise Server
+3. Next choose New GitHub App
+4. If you want to create an app for your personal repositories, choose User app
+5. If you want to create an app for your organization:
+   1. Choose Organization app
+   2. Type in the organization slug (ORGANIZATION from https://github.com/ORGANIZATION/REPO)
+6. Click Create GitHub App to take you to GitHub to finish the setup
+7. Follow the instructions on GitHub
+8. When brought back to the setup wizard, click the install link
+9. Install the new app on your desired repositories
 
 ### Manually
 
@@ -37,7 +39,7 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 10. Open the URL in `github.auth.secretUrl` from `status.json` and edit the secret value
     1. If you're using a self-hosted GitHub instance, put its domain in `domain` (e.g. `github.mycompany.com`)
     2. Put the new application id in `appId` (e.g. `34789562`)
-    6. Ignore/delete `dummy` and **leave `personalAuthToken` empty**
+    3. Ignore/delete `dummy` and **leave `personalAuthToken` empty**
 11. Open the URL in `github.auth.privateKeySecretUrl` from `status.json` and edit the secret value
     1. Open the downloaded private key with any text editor
     2. Copy the text from the private key as-is into the secret
@@ -56,14 +58,16 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 #### Setup Wizard
 
 1. Open the URL in `github.setup.url` from `status.json`
-2. Enter your personal access token under Using Personal Access Token
-3. Click the Set button
+2. Choose whether you're integrating with GitHub.com or GitHub Enterprise Server
+3. Next choose Personal Access Token
+4. Enter your personal access token
+5. Click the Setup button
 
 #### Manually
 
 1. Open the URL in `github.auth.secretUrl` from `status.json` and edit the secret value
 2. If you're using a self-hosted GitHub instance, put its domain in `domain` (e.g. `github.mycompany.com`)
-3. Put the generated token in `personalAuthToken`
+3. Put the generated token in `personalAuthToken` (**not** `personalAccessToken`)
 4. Ignore all other values
 
 ### Setup Webhook
