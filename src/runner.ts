@@ -617,6 +617,9 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   private idleReaperQueue(reaper: lambda.Function) {
+    // see this comment to understand why it's a queue that's out of the step function
+    // https://github.com/CloudSnorkel/cdk-github-runners/pull/314#issuecomment-1528901192
+
     const queue = new sqs.Queue(this, 'Idle Reaper Queue', {
       deliveryDelay: cdk.Duration.minutes(10),
       visibilityTimeout: cdk.Duration.minutes(10),
