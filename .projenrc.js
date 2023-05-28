@@ -125,16 +125,6 @@ project.addPackageIgnore('/setup');
 project.bundler.bundleTask.exec('vite build setup');
 project.bundler.bundleTask.exec('cp -r setup/dist/index.html assets/setup.lambda/index.html');
 
-// project.eslint.addExtends('plugin:svelte/recommended');
-// project.eslint.addOverride({
-//   files: ['*.svelte'],
-//   parser: 'svelte-eslint-parser',
-//   parserOptions: {
-//     parser: '@typescript-eslint/parser',
-//   },
-// });
-// project.eslint.config.parserOptions.extraFileExtensions = ['.svelte'];
-
 // support integ:default:watch -- https://github.com/projen/projen/issues/1347
 const cdkConfig = new CdkConfig(project, {
   app: '', // Required for types.
