@@ -33,6 +33,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'svelte-preprocess@^4.10.7',
     'vite@^4.0.0',
     'vite-plugin-singlefile@^0.13.5',
+    'eslint-plugin-svelte@^2.29.0',
   ],
   deps: [
   ],
@@ -123,6 +124,16 @@ project.gitignore.addPatterns('/setup/dist');
 project.addPackageIgnore('/setup');
 project.bundler.bundleTask.exec('vite build setup');
 project.bundler.bundleTask.exec('cp -r setup/dist/index.html assets/setup.lambda/index.html');
+
+// project.eslint.addExtends('plugin:svelte/recommended');
+// project.eslint.addOverride({
+//   files: ['*.svelte'],
+//   parser: 'svelte-eslint-parser',
+//   parserOptions: {
+//     parser: '@typescript-eslint/parser',
+//   },
+// });
+// project.eslint.config.parserOptions.extraFileExtensions = ['.svelte'];
 
 // support integ:default:watch -- https://github.com/projen/projen/issues/1347
 const cdkConfig = new CdkConfig(project, {
