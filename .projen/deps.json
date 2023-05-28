@@ -98,6 +98,11 @@
       "type": "build"
     },
     {
+      "name": "eslint-plugin-svelte",
+      "version": "^2.29.0",
+      "type": "build"
+    },
+    {
       "name": "eslint",
       "version": "^8",
       "type": "build"

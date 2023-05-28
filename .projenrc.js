@@ -33,6 +33,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'svelte-preprocess@^4.10.7',
     'vite@^4.0.0',
     'vite-plugin-singlefile@^0.13.5',
+    'eslint-plugin-svelte@^2.29.0',
   ],
   deps: [
   ],

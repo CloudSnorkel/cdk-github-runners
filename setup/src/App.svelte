@@ -17,7 +17,7 @@
     hook_attributes: {
       url: 'INSERT_WEBHOOK_URL_HERE',
     },
-    redirect_url: `INSERT_BASE_URL_HERE/complete-new-app`,
+    redirect_url: 'INSERT_BASE_URL_HERE/complete-new-app',
     public: false,
     default_permissions: {
       actions: 'write',
@@ -28,28 +28,28 @@
     ],
   };
 
-  function isSubmitDisabled(instance, auth, existingAppId, existingAppPk, pat, success) {
-    if (success) {
+  function isSubmitDisabled(instance_, auth_, existingAppId_, existingAppPk_, pat_, success_) {
+    if (success_) {
       return true;
     }
-    if (instance === undefined || auth === undefined) {
+    if (instance_ === undefined || auth_ === undefined) {
       return true;
     }
-    if (auth === 'newApp') {
+    if (auth_ === 'newApp') {
       return false;
     }
-    if (auth === 'existingApp') {
-      return existingAppId === '' || existingAppPk === '';
+    if (auth_ === 'existingApp') {
+      return existingAppId_ === '' || existingAppPk_ === '';
     }
-    if (auth === 'pat') {
-      return pat === '';
+    if (auth_ === 'pat') {
+      return pat_ === '';
     }
-    console.error('Something is broken', instance, auth, existingAppId);
+    console.error('Something is broken', instance_, auth_, existingAppId_);
     return true;
   }
 
-  function submitText(auth) {
-    if (auth === 'newApp') {
+  function submitText(auth_) {
+    if (auth_ === 'newApp') {
       return 'Create GitHub App';
     }
     return 'Setup';
