@@ -2140,18 +2140,6 @@
         {
          "Ref": "AWS::Partition"
         },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     },
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
         ":iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
        ]
       ]
@@ -2164,6 +2152,18 @@
    "Properties": {
     "PolicyDocument": {
      "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration",
+        "ssm:UpdateInstanceInformation"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
       {
        "Action": [
         "s3:GetObject*",
@@ -3117,18 +3117,6 @@
         {
          "Ref": "AWS::Partition"
         },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     },
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
         ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
        ]
       ]
@@ -3141,6 +3129,18 @@
    "Properties": {
     "PolicyDocument": {
      "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration",
+        "ssm:UpdateInstanceInformation"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
       {
        "Action": [
         "s3:GetObject*",
@@ -6117,18 +6117,6 @@
         {
          "Ref": "AWS::Partition"
         },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     },
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
         ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
        ]
       ]
@@ -6141,6 +6129,18 @@
    "Properties": {
     "PolicyDocument": {
      "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration",
+        "ssm:UpdateInstanceInformation"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
       {
        "Action": [
         "s3:GetObject*",
@@ -7224,18 +7224,6 @@
         {
          "Ref": "AWS::Partition"
         },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     },
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
         ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
        ]
       ]
@@ -7248,6 +7236,18 @@
    "Properties": {
     "PolicyDocument": {
      "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration",
+        "ssm:UpdateInstanceInformation"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
       {
        "Action": [
         "s3:GetObject*",
@@ -9576,21 +9576,7 @@
       }
      ],
      "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     }
-    ]
+    }
    }
   },
   "ECSLaunchTemplateRoleDefaultPolicyA6578409": {
@@ -9598,6 +9584,18 @@
    "Properties": {
     "PolicyDocument": {
      "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration",
+        "ssm:UpdateInstanceInformation"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
       {
        "Action": [
         "ecr:BatchCheckLayerAvailability",
@@ -9912,6 +9910,33 @@
     }
    }
   },
+  "ECStaskTaskRoleDefaultPolicy46A3CB3A": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "ECStaskTaskRoleDefaultPolicy46A3CB3A",
+    "Roles": [
+     {
+      "Ref": "ECStaskTaskRoleFE831ECD"
+     }
+    ]
+   }
+  },
   "ECStask8F0DD550": {
    "Type": "AWS::ECS::TaskDefinition",
    "Properties": {
@@ -10132,21 +10157,7 @@
       }
      ],
      "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     }
-    ]
+    }
    }
   },
   "ECSARM64LaunchTemplateRoleDefaultPolicy0705A7AA": {
@@ -10154,6 +10165,18 @@
    "Properties": {
     "PolicyDocument": {
      "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration",
+        "ssm:UpdateInstanceInformation"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
       {
        "Action": [
         "ecr:BatchCheckLayerAvailability",
@@ -10462,6 +10485,33 @@
     }
    }
   },
+  "ECSARM64taskTaskRoleDefaultPolicyD893D7DC": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "ECSARM64taskTaskRoleDefaultPolicyD893D7DC",
+    "Roles": [
+     {
+      "Ref": "ECSARM64taskTaskRole23B1CB4E"
+     }
+    ]
+   }
+  },
   "ECSARM64task27EB8443": {
    "Type": "AWS::ECS::TaskDefinition",
    "Properties": {
@@ -10682,21 +10732,7 @@
       }
      ],
      "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     }
-    ]
+    }
    }
   },
   "ECSWindowsLaunchTemplateRoleDefaultPolicy48457459": {
@@ -10704,6 +10740,18 @@
    "Properties": {
     "PolicyDocument": {
      "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration",
+        "ssm:UpdateInstanceInformation"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
       {
        "Action": [
         "ecr:BatchCheckLayerAvailability",
@@ -11010,6 +11058,33 @@
      ],
      "Version": "2012-10-17"
     }
+   }
+  },
+  "ECSWindowstaskTaskRoleDefaultPolicy529AC984": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "ECSWindowstaskTaskRoleDefaultPolicy529AC984",
+    "Roles": [
+     {
+      "Ref": "ECSWindowstaskTaskRole17C8DA48"
+     }
+    ]
    }
   },
   "ECSWindowstask73A31B6C": {
@@ -11973,6 +12048,32 @@
     }
    }
   },
+  "FargatetaskTaskRoleDefaultPolicy4E176780": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "FargatetaskTaskRoleDefaultPolicy4E176780",
+    "Roles": [
+     {
+      "Ref": "FargatetaskTaskRoleEFFCDAF8"
+     }
+    ]
+   }
+  },
   "FargatetaskFDFF3302": {
    "Type": "AWS::ECS::TaskDefinition",
    "Properties": {
@@ -12208,6 +12309,32 @@
      ],
      "Version": "2012-10-17"
     }
+   }
+  },
+  "Fargatex64spottaskTaskRoleDefaultPolicyDBB9916E": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "Fargatex64spottaskTaskRoleDefaultPolicyDBB9916E",
+    "Roles": [
+     {
+      "Ref": "Fargatex64spottaskTaskRole02893C25"
+     }
+    ]
    }
   },
   "Fargatex64spottask4C8B023D": {
@@ -12447,6 +12574,32 @@
     }
    }
   },
+  "Fargatearm64taskTaskRoleDefaultPolicy0D37729A": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "Fargatearm64taskTaskRoleDefaultPolicy0D37729A",
+    "Roles": [
+     {
+      "Ref": "Fargatearm64taskTaskRoleD3C2CD58"
+     }
+    ]
+   }
+  },
   "Fargatearm64taskECD67399": {
    "Type": "AWS::ECS::TaskDefinition",
    "Properties": {
@@ -12682,6 +12835,32 @@
      ],
      "Version": "2012-10-17"
     }
+   }
+  },
+  "Fargatearm64spottaskTaskRoleDefaultPolicyB8772E50": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "Fargatearm64spottaskTaskRoleDefaultPolicyB8772E50",
+    "Roles": [
+     {
+      "Ref": "Fargatearm64spottaskTaskRole0F078C81"
+     }
+    ]
    }
   },
   "Fargatearm64spottaskD21E60F2": {
@@ -12921,6 +13100,32 @@
     }
    }
   },
+  "FargateWindowstaskTaskRoleDefaultPolicy17F0249C": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "FargateWindowstaskTaskRoleDefaultPolicy17F0249C",
+    "Roles": [
+     {
+      "Ref": "FargateWindowstaskTaskRole364508C8"
+     }
+    ]
+   }
+  },
   "FargateWindowstask9F9B942D": {
    "Type": "AWS::ECS::TaskDefinition",
    "Properties": {
@@ -13126,21 +13331,7 @@
       }
      ],
      "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     }
-    ]
+    }
    }
   },
   "EC2LinuxRoleDefaultPolicy1369791B": {
@@ -13153,6 +13344,18 @@
         "states:SendTaskFailure",
         "states:SendTaskSuccess",
         "states:SendTaskHeartbeat"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration",
+        "ssm:UpdateInstanceInformation"
        ],
        "Effect": "Allow",
        "Resource": "*"
@@ -13392,21 +13595,7 @@
       }
      ],
      "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     }
-    ]
+    }
    }
   },
   "EC2SpotLinuxRoleDefaultPolicy061AD1D0": {
@@ -13419,6 +13608,18 @@
         "states:SendTaskFailure",
         "states:SendTaskSuccess",
         "states:SendTaskHeartbeat"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration",
+        "ssm:UpdateInstanceInformation"
        ],
        "Effect": "Allow",
        "Resource": "*"
@@ -13548,21 +13749,7 @@
       }
      ],
      "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     }
-    ]
+    }
    }
   },
   "EC2Linuxarm64RoleDefaultPolicyDE9193C3": {
@@ -13575,6 +13762,18 @@
         "states:SendTaskFailure",
         "states:SendTaskSuccess",
         "states:SendTaskHeartbeat"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration",
+        "ssm:UpdateInstanceInformation"
        ],
        "Effect": "Allow",
        "Resource": "*"
@@ -13704,21 +13903,7 @@
       }
      ],
      "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
-       ]
-      ]
-     }
-    ]
+    }
    }
   },
   "EC2WindowsRoleDefaultPolicyB6A15409": {
@@ -13731,6 +13916,18 @@
         "states:SendTaskFailure",
         "states:SendTaskSuccess",
         "states:SendTaskHeartbeat"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration",
+        "ssm:UpdateInstanceInformation"
        ],
        "Effect": "Allow",
        "Resource": "*"
@@ -15876,7 +16073,7 @@
          "Arn"
         ]
        },
-       "\",\"TaskDefinition\":\"githubrunnerstestECStaskCE74CC84\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+       "\",\"TaskDefinition\":\"githubrunnerstestECStaskCE74CC84\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,linux,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
        {
         "Ref": "ECSCapacityProviderABF1B146"
        },
@@ -15891,7 +16088,7 @@
          "Arn"
         ]
        },
-       "\",\"TaskDefinition\":\"githubrunnerstestECSARM64taskE94E43A3\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+       "\",\"TaskDefinition\":\"githubrunnerstestECSARM64taskE94E43A3\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
        {
         "Ref": "ECSARM64CapacityProvider8627FEF9"
        },
@@ -15906,7 +16103,7 @@
          "Arn"
         ]
        },
-       "\",\"TaskDefinition\":\"githubrunnerstestECSWindowstask6B1D5861\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+       "\",\"TaskDefinition\":\"githubrunnerstestECSWindowstask6B1D5861\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
        {
         "Ref": "ECSWindowsCapacityProvider8F8896A5"
        },

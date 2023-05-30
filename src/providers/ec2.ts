@@ -25,6 +25,7 @@ import {
   RunnerVersion,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageBuilderType, RunnerImageComponent } from '../image-builders';
+import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
 // this script is specifically made so `poweroff` is absolutely always called
 // each `{}` is a variable coming from `params` below
@@ -320,14 +321,12 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
 
     this.grantPrincipal = this.role = new iam.Role(this, 'Role', {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
-      managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
-      ],
     });
     this.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
       actions: ['states:SendTaskFailure', 'states:SendTaskSuccess', 'states:SendTaskHeartbeat'],
       resources: ['*'], // no support for stateMachine.stateMachineArn :(
     }));
+    this.grantPrincipal.addToPrincipalPolicy(MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT);
 
     this.logGroup = new logs.LogGroup(
       this,

@@ -277,7 +277,6 @@ export class ContainerImageBuilder extends ImageBuilderBase {
 
     const log = this.createLog(recipe.name);
     const infra = this.createInfrastructure([
-      iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilderECRContainerBuilds'),
     ]);
     const image = this.createImage(infra, dist, log, undefined, recipe.arn);

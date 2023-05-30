@@ -15,7 +15,7 @@ import { Construct } from 'constructs';
 import { ImageBuilderBase } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../providers/common';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../providers';
 import { singletonLambda } from '../../../utils';
 import { uniqueImageBuilderName } from '../../common';
 import { AmiRecipe, defaultBaseAmi } from '../ami';
@@ -296,7 +296,6 @@ export class AmiBuilder extends ImageBuilderBase {
 
     const log = this.createLog(recipe.name);
     const infra = this.createInfrastructure([
-      iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilder'),
     ]);
     this.createImage(infra, dist, log, recipe.arn, undefined);
