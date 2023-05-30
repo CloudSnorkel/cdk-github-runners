@@ -296,6 +296,7 @@ export class AmiBuilder extends ImageBuilderBase {
 
     const log = this.createLog(recipe.name);
     const infra = this.createInfrastructure([
+      iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilder'),
     ]);
     this.createImage(infra, dist, log, recipe.arn, undefined);
