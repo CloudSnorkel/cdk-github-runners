@@ -13345,6 +13345,13 @@
         "states:SendTaskSuccess",
         "states:SendTaskHeartbeat"
        ],
+       "Condition": {
+        "StringEquals": {
+         "aws:ResourceTag/aws:cloudformation:stack-id": {
+          "Ref": "AWS::StackId"
+         }
+        }
+       },
        "Effect": "Allow",
        "Resource": "*"
       },
@@ -13609,6 +13616,13 @@
         "states:SendTaskSuccess",
         "states:SendTaskHeartbeat"
        ],
+       "Condition": {
+        "StringEquals": {
+         "aws:ResourceTag/aws:cloudformation:stack-id": {
+          "Ref": "AWS::StackId"
+         }
+        }
+       },
        "Effect": "Allow",
        "Resource": "*"
       },
@@ -13763,6 +13777,13 @@
         "states:SendTaskSuccess",
         "states:SendTaskHeartbeat"
        ],
+       "Condition": {
+        "StringEquals": {
+         "aws:ResourceTag/aws:cloudformation:stack-id": {
+          "Ref": "AWS::StackId"
+         }
+        }
+       },
        "Effect": "Allow",
        "Resource": "*"
       },
@@ -13917,6 +13938,13 @@
         "states:SendTaskSuccess",
         "states:SendTaskHeartbeat"
        ],
+       "Condition": {
+        "StringEquals": {
+         "aws:ResourceTag/aws:cloudformation:stack-id": {
+          "Ref": "AWS::StackId"
+         }
+        }
+       },
        "Effect": "Allow",
        "Resource": "*"
       },

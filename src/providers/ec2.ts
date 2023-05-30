@@ -325,6 +325,11 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
       actions: ['states:SendTaskFailure', 'states:SendTaskSuccess', 'states:SendTaskHeartbeat'],
       resources: ['*'], // no support for stateMachine.stateMachineArn :(
+      conditions: {
+        StringEquals: {
+          'aws:ResourceTag/aws:cloudformation:stack-id': cdk.Stack.of(this).stackId,
+        },
+      },
     }));
     this.grantPrincipal.addToPrincipalPolicy(MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT);
 
