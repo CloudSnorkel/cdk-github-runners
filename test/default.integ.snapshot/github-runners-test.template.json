@@ -2140,6 +2140,18 @@
         {
          "Ref": "AWS::Partition"
         },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
         ":iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
        ]
       ]
@@ -2152,18 +2164,6 @@
    "Properties": {
     "PolicyDocument": {
      "Statement": [
-      {
-       "Action": [
-        "ssmmessages:CreateControlChannel",
-        "ssmmessages:CreateDataChannel",
-        "ssmmessages:OpenControlChannel",
-        "ssmmessages:OpenDataChannel",
-        "s3:GetEncryptionConfiguration",
-        "ssm:UpdateInstanceInformation"
-       ],
-       "Effect": "Allow",
-       "Resource": "*"
-      },
       {
        "Action": [
         "s3:GetObject*",
@@ -3117,6 +3117,18 @@
         {
          "Ref": "AWS::Partition"
         },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
         ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
        ]
       ]
@@ -3129,18 +3141,6 @@
    "Properties": {
     "PolicyDocument": {
      "Statement": [
-      {
-       "Action": [
-        "ssmmessages:CreateControlChannel",
-        "ssmmessages:CreateDataChannel",
-        "ssmmessages:OpenControlChannel",
-        "ssmmessages:OpenDataChannel",
-        "s3:GetEncryptionConfiguration",
-        "ssm:UpdateInstanceInformation"
-       ],
-       "Effect": "Allow",
-       "Resource": "*"
-      },
       {
        "Action": [
         "s3:GetObject*",
@@ -6117,6 +6117,18 @@
         {
          "Ref": "AWS::Partition"
         },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
         ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
        ]
       ]
@@ -6129,18 +6141,6 @@
    "Properties": {
     "PolicyDocument": {
      "Statement": [
-      {
-       "Action": [
-        "ssmmessages:CreateControlChannel",
-        "ssmmessages:CreateDataChannel",
-        "ssmmessages:OpenControlChannel",
-        "ssmmessages:OpenDataChannel",
-        "s3:GetEncryptionConfiguration",
-        "ssm:UpdateInstanceInformation"
-       ],
-       "Effect": "Allow",
-       "Resource": "*"
-      },
       {
        "Action": [
         "s3:GetObject*",
@@ -7224,6 +7224,18 @@
         {
          "Ref": "AWS::Partition"
         },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
         ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
        ]
       ]
@@ -7236,18 +7248,6 @@
    "Properties": {
     "PolicyDocument": {
      "Statement": [
-      {
-       "Action": [
-        "ssmmessages:CreateControlChannel",
-        "ssmmessages:CreateDataChannel",
-        "ssmmessages:OpenControlChannel",
-        "ssmmessages:OpenDataChannel",
-        "s3:GetEncryptionConfiguration",
-        "ssm:UpdateInstanceInformation"
-       ],
-       "Effect": "Allow",
-       "Resource": "*"
-      },
       {
        "Action": [
         "s3:GetObject*",
