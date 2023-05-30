@@ -27,7 +27,7 @@ import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
 import { ReaperFunction } from './reaper-function';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers';
 import { BuildImageFunction } from '../../providers/build-image-function';
-import { singletonLambda } from '../../utils';
+import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT, singletonLambda } from '../../utils';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps, uniqueImageBuilderName } from '../common';
 
 export interface AwsImageBuilderRunnerImageBuilderProps {
@@ -303,6 +303,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.role = new iam.Role(this, 'Role', {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
     });
+    this.role.addToPrincipalPolicy(MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT);
   }
 
   private platform() {
@@ -383,7 +384,6 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
 
     const log = this.createLog('Docker Log', recipe.name);
     const infra = this.createInfrastructure([
-      iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilderECRContainerBuilds'),
     ]);
     const image = this.createImage(infra, dist, log, undefined, recipe.arn);
@@ -599,7 +599,6 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
 
     const log = this.createLog('Ami Log', recipe.name);
     const infra = this.createInfrastructure([
-      iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilder'),
     ]);
     this.createImage(infra, dist, log, recipe.arn, undefined);

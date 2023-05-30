@@ -336,6 +336,10 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
     );
 
     this.grantPrincipal = this.project.grantPrincipal;
+
+    // allow SSM Session Manager access
+    // this.project.role?.addToPrincipalPolicy(MINIMAL_SSM_SESSION_MANAGER_POLICY_STATEMENT);
+    // step function won't let us pass `debugSessionEnabled: true` unless we use batch, so we can't use this
   }
 
   /**
@@ -346,7 +350,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
    * @param parameters workflow job details
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    const step = new stepfunctions_tasks.CodeBuildStartBuild(
+    return new stepfunctions_tasks.CodeBuildStartBuild(
       this,
       this.labels.join(', '),
       {
@@ -380,8 +384,6 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
         },
       },
     );
-
-    return step;
   }
 
   grantStateMachine(_: iam.IGrantable) {

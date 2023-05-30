@@ -23,6 +23,7 @@ import {
   RunnerVersion,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
+import { MINIMAL_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
 /**
  * Properties for FargateRunnerProvider.
@@ -435,6 +436,9 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
     );
 
     this.grantPrincipal = this.task.taskRole;
+
+    // allow SSM Session Manager
+    this.task.taskRole.addToPrincipalPolicy(MINIMAL_SSM_SESSION_MANAGER_POLICY_STATEMENT);
   }
 
   /**

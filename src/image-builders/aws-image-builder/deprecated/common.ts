@@ -1,7 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_events as events, aws_iam as iam, aws_imagebuilder as imagebuilder, aws_logs as logs, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../providers/common';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../providers';
+import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../../../utils';
 import { ImageBuilderBaseProps, IRunnerImageBuilder, uniqueImageBuilderName } from '../../common';
 import { ImageBuilderComponent } from '../builder';
 
@@ -99,6 +100,7 @@ export abstract class ImageBuilderBase extends Construct implements IRunnerImage
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
       managedPolicies: managedPolicies,
     });
+    role.addToPrincipalPolicy(MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT);
 
     for (const component of this.components) {
       component.grantAssetsRead(role);

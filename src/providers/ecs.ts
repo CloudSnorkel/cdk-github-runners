@@ -28,6 +28,7 @@ import {
 } from './common';
 import { ecsRunCommand } from './fargate';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
+import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT, MINIMAL_ECS_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
 /**
  * Properties for EcsRunnerProvider.
@@ -166,6 +167,7 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
 
 interface EcsEc2LaunchTargetProps {
   readonly capacityProvider: string;
+  readonly enableExecute: boolean;
 }
 
 class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
@@ -180,6 +182,7 @@ class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
     return {
       parameters: {
         PropagateTags: ecs.PropagatedTagSource.TASK_DEFINITION,
+        EnableExecuteCommand: this.props.enableExecute,
         CapacityProviderStrategy: [
           {
             CapacityProvider: this.props.capacityProvider,
@@ -380,7 +383,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     }
 
     this.capacityProvider.autoScalingGroup.addUserData(this.loginCommand(), this.pullCommand(), ...this.ecsSettingsCommands());
-    this.capacityProvider.autoScalingGroup.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
+    this.capacityProvider.autoScalingGroup.role.addToPrincipalPolicy(MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT);
     image.imageRepository.grantPull(this.capacityProvider.autoScalingGroup);
 
     this.cluster.addAsgCapacityProvider(
@@ -416,6 +419,9 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     );
 
     this.grantPrincipal = this.task.taskRole;
+
+    // permissions for SSM Session Manager
+    this.task.taskRole.addToPrincipalPolicy(MINIMAL_ECS_SSM_SESSION_MANAGER_POLICY_STATEMENT);
   }
 
   private defaultClusterInstanceType() {
@@ -517,7 +523,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,
         cluster: this.cluster,
-        launchTarget: new EcsEc2LaunchTarget({ capacityProvider: this.capacityProvider.capacityProviderName }),
+        launchTarget: new EcsEc2LaunchTarget({
+          capacityProvider: this.capacityProvider.capacityProviderName,
+          enableExecute: this.image.os.is(Os.LINUX) || this.image.os.is(Os.LINUX_UBUNTU) || this.image.os.is(Os.LINUX_AMAZON_2),
+        }),
         assignPublicIp: this.assignPublicIp,
         containerOverrides: [
           {
