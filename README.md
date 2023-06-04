@@ -299,7 +299,7 @@ Other useful metrics to track:
 
 
 [1]: https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners
-[2]: https://github.com/marketplace/actions/configure-aws-credentials-action-for-github-actions
+[2]: https://github.com/marketplace/actions/configure-aws-credentials-for-github-actions
 [3]: https://github.com/philips-labs/terraform-aws-github-runner
 [4]: https://github.com/actions/actions-runner-controller
 [5]: https://github.com/actions/runner
