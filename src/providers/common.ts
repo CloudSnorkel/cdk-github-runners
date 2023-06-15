@@ -507,13 +507,11 @@ export function amiRootDevice(scope: Construct, ami?: string) {
     ],
   });
 
-  const cr = new CustomResource(scope, 'AMI Root Device', {
+  return new CustomResource(scope, 'AMI Root Device', {
     serviceToken: crHandler.functionArn,
     resourceType: 'Custom::AmiRootDevice',
     properties: {
       Ami: ami ?? '',
     },
   });
-
-  return cr.ref;
 }
