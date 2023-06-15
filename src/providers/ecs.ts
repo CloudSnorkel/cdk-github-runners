@@ -346,7 +346,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
         blockDevices: props?.storageSize ? [
           {
-            deviceName: amiRootDevice(this, this.defaultClusterInstanceAmi().getImage(this).imageId),
+            deviceName: amiRootDevice(this, this.defaultClusterInstanceAmi().getImage(this).imageId).ref,
             volume: {
               ebsDevice: {
                 volumeSize: props.storageSize.toGibibytes(),

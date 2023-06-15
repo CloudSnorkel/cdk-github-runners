@@ -286,6 +286,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     'States.Timeout',
   ];
 
+  private readonly amiBuilder: IRunnerImageBuilder;
   private readonly ami: RunnerAmi;
   private readonly role: iam.Role;
   private readonly instanceType: ec2.InstanceType;
@@ -308,12 +309,12 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;
 
-    const amiBuilder = props?.imageBuilder ?? props?.amiBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
+    this.amiBuilder = props?.imageBuilder ?? props?.amiBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
       vpc: props?.vpc,
       subnetSelection: props?.subnetSelection,
       securityGroups: this.securityGroups,
     });
-    this.ami = amiBuilder.bindAmi();
+    this.ami = this.amiBuilder.bindAmi();
 
     if (!this.ami.architecture.instanceTypeMatch(this.instanceType)) {
       throw new Error(`AMI architecture (${this.ami.architecture.name}) doesn't match runner instance type (${this.instanceType} / ${this.instanceType.architecture})`);
@@ -386,7 +387,8 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     const instanceProfile = new iam.CfnInstanceProfile(this, 'Instance Profile', {
       roles: [this.role.roleName],
     });
-    const rootDevice = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
+    const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
+    rootDeviceResource.node.addDependency(this.amiBuilder);
     const subnetRunners = this.subnets.map((subnet, index) => {
       return new stepfunctions_tasks.CallAwsService(this, `${this.labels.join(', ')} subnet${index+1}`, {
         comment: subnet.subnetId,
@@ -417,7 +419,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
           SecurityGroupIds: this.securityGroups.map(sg => sg.securityGroupId),
           SubnetId: subnet.subnetId,
           BlockDeviceMappings: [{
-            DeviceName: rootDevice,
+            DeviceName: rootDeviceResource.ref,
             Ebs: {
               DeleteOnTermination: true,
               VolumeSize: this.storageSize.toGibibytes(),
