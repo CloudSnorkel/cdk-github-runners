@@ -113,21 +113,23 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
   // set execution name which is also used as runner name which are limited to 64 characters
   let executionName = `${payload.repository.full_name.replace('/', '-')}-${getHeader(event, 'x-github-delivery')}`.slice(0, 64);
   // start execution
+  const input = JSON.stringify({
+    owner: payload.repository.owner.login,
+    repo: payload.repository.name,
+    jobId: payload.workflow_job.id,
+    jobUrl: payload.workflow_job.html_url,
+    installationId: payload.installation?.id,
+    labels: labels,
+  });
   const execution = await sf.startExecution({
     stateMachineArn: process.env.STEP_FUNCTION_ARN,
-    input: JSON.stringify({
-      owner: payload.repository.owner.login,
-      repo: payload.repository.name,
-      jobId: payload.workflow_job.id,
-      jobUrl: payload.workflow_job.html_url,
-      installationId: payload.installation?.id,
-      labels: labels,
-    }),
+    input: input,
     // name is not random so multiple execution of this webhook won't cause multiple builders to start
     name: executionName,
   }).promise();
 
   console.log(`Started ${execution.executionArn}`);
+  console.log(input);
 
   return {
     statusCode: 202,
