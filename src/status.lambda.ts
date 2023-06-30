@@ -154,14 +154,16 @@ exports.handler = async function (event: Partial<AWSLambda.APIGatewayProxyEvent>
   };
 
   // setup url
-  const setupToken = (await getSecretJsonValue(process.env.SETUP_SECRET_ARN)).token;
-  if (setupToken && process.env.SETUP_FUNCTION_URL) {
-    status.github.setup.status = 'Pending';
-    status.github.setup.url = `${process.env.SETUP_FUNCTION_URL}?token=${setupToken}`;
-  } else if (process.env.SETUP_FUNCTION_URL) {
-    status.github.setup.status = 'Disabled';
+  if (process.env.SETUP_FUNCTION_URL) {
+    const setupToken = (await getSecretJsonValue(process.env.SETUP_SECRET_ARN)).token;
+    if (setupToken) {
+      status.github.setup.status = 'Pending';
+      status.github.setup.url = `${process.env.SETUP_FUNCTION_URL}?token=${setupToken}`;
+    } else {
+      status.github.setup.status = 'Complete';
+    }
   } else {
-    status.github.setup.status = 'Complete';
+    status.github.setup.status = 'Disabled';
   }
 
   // list last 10 executions and their status
