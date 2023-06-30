@@ -106,7 +106,7 @@ function safeReturnValue(event: Partial<AWSLambda.APIGatewayProxyEvent>, status:
 exports.handler = async function (event: Partial<AWSLambda.APIGatewayProxyEvent>) {
   // confirm required environment variables
   if (!process.env.WEBHOOK_SECRET_ARN || !process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN || !process.env.LOGICAL_ID ||
-      !process.env.WEBHOOK_HANDLER_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SETUP_SECRET_ARN || !process.env.SETUP_FUNCTION_URL ||
+      !process.env.WEBHOOK_HANDLER_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SETUP_SECRET_ARN ||
       !process.env.STACK_NAME) {
     throw new Error('Missing environment variables');
   }
@@ -154,12 +154,16 @@ exports.handler = async function (event: Partial<AWSLambda.APIGatewayProxyEvent>
   };
 
   // setup url
-  const setupToken = (await getSecretJsonValue(process.env.SETUP_SECRET_ARN)).token;
-  if (setupToken) {
-    status.github.setup.status = 'Pending';
-    status.github.setup.url = `${process.env.SETUP_FUNCTION_URL}?token=${setupToken}`;
+  if (process.env.SETUP_FUNCTION_URL) {
+    const setupToken = (await getSecretJsonValue(process.env.SETUP_SECRET_ARN)).token;
+    if (setupToken) {
+      status.github.setup.status = 'Pending';
+      status.github.setup.url = `${process.env.SETUP_FUNCTION_URL}?token=${setupToken}`;
+    } else {
+      status.github.setup.status = 'Complete';
+    }
   } else {
-    status.github.setup.status = 'Complete';
+    status.github.setup.status = 'Disabled';
   }
 
   // list last 10 executions and their status
