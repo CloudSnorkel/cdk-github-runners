@@ -158,7 +158,7 @@ exports.handler = async function (event: Partial<AWSLambda.APIGatewayProxyEvent>
   if (setupToken && process.env.SETUP_FUNCTION_URL) {
     status.github.setup.status = 'Pending';
     status.github.setup.url = `${process.env.SETUP_FUNCTION_URL}?token=${setupToken}`;
-  } else if (process.env.SETUP_FUNCTION_URL) {
+  } else if (!process.env.SETUP_FUNCTION_URL) {
     status.github.setup.status = 'Disabled';
   } else {
     status.github.setup.status = 'Complete';
