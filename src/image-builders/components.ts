@@ -123,8 +123,7 @@ export abstract class RunnerImageComponent {
           return [
             'addgroup runner',
             'adduser --system --disabled-password --home /home/runner --ingroup runner runner',
-            'usermod -aG sudo runner',
-            'echo "%sudo   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner',
+            'echo "%runner   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [

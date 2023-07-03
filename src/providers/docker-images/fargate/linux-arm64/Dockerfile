@@ -10,8 +10,7 @@ RUN addgroup runner && adduser --system --disabled-password --home /home/runner 
 ARG EXTRA_PACKAGES=""
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y && apt-get install -y curl sudo jq bash zip unzip software-properties-common ca-certificates $EXTRA_PACKAGES && \
-    usermod -aG sudo runner && \
-    echo "%sudo   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner
+    echo "%runner   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner
 
 # install extra certificates
 COPY extra_certs/. /tmp/certs/

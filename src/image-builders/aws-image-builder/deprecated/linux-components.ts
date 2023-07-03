@@ -1,6 +1,6 @@
 import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { Architecture, RunnerVersion } from '../../../providers/common';
+import { Architecture, RunnerVersion } from '../../../providers';
 import { ImageBuilderComponent } from '../index';
 
 /**
@@ -42,8 +42,7 @@ export class LinuxUbuntuComponents {
       commands: [
         'addgroup runner',
         'adduser --system --disabled-password --home /home/runner --ingroup runner runner',
-        'usermod -aG sudo runner',
-        'echo "%sudo   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner',
+        'echo "%runner   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner',
       ],
     });
   }
