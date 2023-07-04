@@ -110,9 +110,7 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
   let labels: any = {};
   payload.workflow_job.labels.forEach((l: string) => labels[l.toLowerCase()] = true);
 
-  // set execution name which is also used as runner name which are limited to 64 characters
-  let executionName = `${payload.repository.full_name.replace('/', '-')}-${getHeader(event, 'x-github-delivery')}`.slice(0, 64);
-  // start execution
+  // prepare state machine input
   const input = JSON.stringify({
     owner: payload.repository.owner.login,
     repo: payload.repository.name,
@@ -121,19 +119,51 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
     installationId: payload.installation?.id,
     labels: labels,
   });
-  const execution = await sf.startExecution({
-    stateMachineArn: process.env.STEP_FUNCTION_ARN,
-    input: input,
-    // name is not random so multiple execution of this webhook won't cause multiple builders to start
-    name: executionName,
-  }).promise();
-
-  console.log(`Started ${execution.executionArn}`);
   console.log(input);
 
+  // start execution
+  // we loop in case a previous attempt finished, and we got a duplicate event suggesting the job is still queued
+  for (let attempt = 1; attempt < 100; attempt++) {
+    // set execution name to job plus an attempt number, so we don't start two runners for the same job
+    // this can happen when environments are enabled https://github.com/CloudSnorkel/cdk-github-runners/issues/380
+    // execution name is limited to 80 characters, so we need to truncate it but leave some room for attempt number
+    const executionName = `${payload.repository.full_name.replace('/', '-')}-${payload.workflow_job.id}`.slice(0, 76) + `-${attempt}`;
+
+    try {
+      const execution = await sf.startExecution({
+        stateMachineArn: process.env.STEP_FUNCTION_ARN,
+        input: input,
+        // name is not random so multiple execution of this webhook won't cause multiple builders to start
+        name: executionName,
+      }).promise();
+
+      // success!
+      console.log(`Started ${execution.executionArn}`);
+      return {
+        statusCode: 202,
+        body: executionName,
+      };
+    } catch (e: any) {
+      // this means the previous attempt for this job already finished, but we got a webhook saying the job is still queued
+      // this can happen when environments are enabled
+      if (e.code === 'ExecutionAlreadyExists') {
+        console.log(`Execution ${executionName} already exists and finished, retrying with attempt ${attempt + 1}`);
+        continue;
+      }
+
+      // some other exception
+      console.error(e);
+      return {
+        statusCode: 500,
+        body: 'Internal error, see logs',
+      };
+    }
+  }
+
+  // no attempt succeeded
   return {
-    statusCode: 202,
-    body: executionName,
+    statusCode: 500,
+    body: 'Internal error, unable to start non-duplicate execution',
   };
 };
 
