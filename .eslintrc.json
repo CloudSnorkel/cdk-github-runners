@@ -147,6 +147,7 @@
         "devDependencies": [
           "**/test/**",
           "**/build-tools/**",
+          "src/check-job-status.lambda.ts",
           "src/delete-failed-runner.lambda.ts",
           "src/idle-runner-repear.lambda.ts",
           "src/image-builders/aws-image-builder/delete-ami.lambda.ts",

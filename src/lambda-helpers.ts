@@ -5,6 +5,7 @@ export interface StepFunctionLambdaInput {
   readonly repo: string;
   readonly runnerName: string;
   readonly installationId?: number;
+  readonly jobId?: number;
   readonly labels: string[];
   readonly error?: {
     readonly Error: string;

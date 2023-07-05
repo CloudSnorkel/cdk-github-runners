@@ -9,6 +9,8 @@
     "build": "npx projen build",
     "bump": "npx projen bump",
     "bundle": "npx projen bundle",
+    "bundle:check-job-status.lambda": "npx projen bundle:check-job-status.lambda",
+    "bundle:check-job-status.lambda:watch": "npx projen bundle:check-job-status.lambda:watch",
     "bundle:delete-failed-runner.lambda": "npx projen bundle:delete-failed-runner.lambda",
     "bundle:delete-failed-runner.lambda:watch": "npx projen bundle:delete-failed-runner.lambda:watch",
     "bundle:idle-runner-repear.lambda": "npx projen bundle:idle-runner-repear.lambda",

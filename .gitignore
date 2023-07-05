@@ -56,6 +56,7 @@ junit.xml
 tsconfig.json
 !/API.md
 /assets/
+!/src/check-job-status-function.ts
 !/src/delete-failed-runner-function.ts
 !/src/idle-runner-repear-function.ts
 !/src/image-builders/aws-image-builder/delete-ami-function.ts

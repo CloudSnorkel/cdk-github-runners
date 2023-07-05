@@ -46,6 +46,9 @@
       "description": "Prepare assets",
       "steps": [
         {
+          "spawn": "bundle:check-job-status.lambda"
+        },
+        {
           "spawn": "bundle:delete-failed-runner.lambda"
         },
         {
@@ -92,6 +95,24 @@
         },
         {
           "exec": "cp -r setup/dist/index.html assets/setup.lambda/index.html"
+        }
+      ]
+    },
+    "bundle:check-job-status.lambda": {
+      "name": "bundle:check-job-status.lambda",
+      "description": "Create a JavaScript bundle from src/check-job-status.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/check-job-status.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/check-job-status.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:check-job-status.lambda:watch": {
+      "name": "bundle:check-job-status.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/check-job-status.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/check-job-status.lambda.ts --target=\"node16\" --platform=\"node\" --outfile=\"assets/check-job-status.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:aws-sdk --watch"
         }
       ]
     },

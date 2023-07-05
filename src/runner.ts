@@ -11,6 +11,7 @@ import {
   aws_sqs as sqs,
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
+  Duration,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
@@ -29,6 +30,7 @@ import { Secrets } from './secrets';
 import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
 import { TokenRetrieverFunction } from './token-retriever-function';
+import { CheckJobStatusFunction } from './check-job-status-function';
 import { GithubWebhookHandler } from './webhook';
 
 
@@ -350,6 +352,26 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       resultPath: stepfunctions.JsonPath.DISCARD,
     });
 
+    const waitTask = new stepfunctions.Wait(this, 'Wait', {
+      time: stepfunctions.WaitTime.duration(Duration.seconds(10)),
+    });
+
+    let checkJobStatusFunction = this.checkJobStatus();
+    const checkJobStatusTask = new stepfunctions_tasks.LambdaInvoke(
+      this,
+      'Check Job Status',
+      {
+        lambdaFunction: checkJobStatusFunction,
+        payloadResponseOnly: true,
+        resultPath: stepfunctions.JsonPath.DISCARD,
+        payload: stepfunctions.TaskInput.fromObject({
+          owner: stepfunctions.JsonPath.stringAt('$.owner'),
+          repo: stepfunctions.JsonPath.stringAt('$.repo'),
+          jobId: stepfunctions.JsonPath.numberAt('$.jobId'),
+        }),
+      },
+    );
+
     const providerChooser = new stepfunctions.Choice(this, 'Choose provider');
     for (const provider of this.providers) {
       const providerTask = provider.getStepFunctionTask(
@@ -426,7 +448,10 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       this,
       'Runner Orchestrator',
       {
-        definition: queueIdleReaperTask.next(runProviders),
+        definition: queueIdleReaperTask
+          .next(waitTask)
+          .next(checkJobStatusTask)
+          .next(runProviders),
         logs: logOptions,
       },
     );
@@ -469,6 +494,29 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       'delete-runner',
       {
         description: 'Delete failed GitHub Actions runner on error',
+        environment: {
+          GITHUB_SECRET_ARN: this.secrets.github.secretArn,
+          GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+          ...this.extraLambdaEnv,
+        },
+        timeout: cdk.Duration.seconds(30),
+        logRetention: logs.RetentionDays.ONE_MONTH,
+        ...this.extraLambdaProps,
+      },
+    );
+
+    this.secrets.github.grantRead(func);
+    this.secrets.githubPrivateKey.grantRead(func);
+
+    return func;
+  }
+
+  private checkJobStatus() {
+    const func = new CheckJobStatusFunction(
+      this,
+      'check-job-status',
+      {
+        description: 'Check job status on Github',
         environment: {
           GITHUB_SECRET_ARN: this.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
