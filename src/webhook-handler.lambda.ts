@@ -2,6 +2,7 @@ import * as crypto from 'crypto';
 import * as AWSLambda from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import { getSecretJsonValue } from './lambda-helpers';
+import { SupportedLabels } from './webhook';
 
 const sf = new AWS.StepFunctions();
 
@@ -45,8 +46,23 @@ function verifyBody(event: AWSLambda.APIGatewayProxyEventV2, secret: any): strin
   return body.toString();
 }
 
+function matchLabelsToProvider(labels: string[]) {
+  const jobLabelSet = labels.map((label) => label.toLowerCase());
+  const supportedLabels: SupportedLabels[] = JSON.parse(process.env.SUPPORTED_LABELS!);
+
+  // is every label the job requires available in the runner provider?
+  for (const supportedLabelSet of supportedLabels) {
+    const lowerCasedSupportedLabelSet = supportedLabelSet.labels.map((label) => label.toLowerCase());
+    if (jobLabelSet.every(label => label == 'self-hosted' || lowerCasedSupportedLabelSet.includes(label))) {
+      return supportedLabelSet.provider;
+    }
+  }
+
+  return undefined;
+}
+
 exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
-  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN) {
+  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SUPPORTED_LABELS) {
     throw new Error('Missing environment variables');
   }
 
@@ -94,7 +110,7 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
     console.log(`Ignoring action "${payload.action}", expecting "queued"`);
     return {
       statusCode: 200,
-      body: 'OK. No runner started.',
+      body: 'OK. No runner started (action is not "queued").',
     };
   }
 
@@ -102,13 +118,19 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
     console.log(`Ignoring labels "${payload.workflow_job.labels}", expecting "self-hosted"`);
     return {
       statusCode: 200,
-      body: 'OK. No runner started.',
+      body: 'OK. No runner started (no "self-hosted" label).',
     };
   }
 
-  // it's easier to deal with maps in step functions
-  let labels: any = {};
-  payload.workflow_job.labels.forEach((l: string) => labels[l.toLowerCase()] = true);
+  // don't start step function unless labels match a runner provider
+  const provider = matchLabelsToProvider(payload.workflow_job.labels);
+  if (!provider) {
+    console.log(`Ignoring labels "${payload.workflow_job.labels}", as they don't match a supported runner provider`);
+    return {
+      statusCode: 200,
+      body: 'OK. No runner started (no provider with matching labels).',
+    };
+  }
 
   // set execution name which is also used as runner name which are limited to 64 characters
   let executionName = `${payload.repository.full_name.replace('/', '-')}-${getHeader(event, 'x-github-delivery')}`.slice(0, 64);
@@ -119,7 +141,8 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
     jobId: payload.workflow_job.id,
     jobUrl: payload.workflow_job.html_url,
     installationId: payload.installation?.id,
-    labels: labels,
+    labels: payload.workflow_job.labels,
+    provider: provider,
   });
   const execution = await sf.startExecution({
     stateMachineArn: process.env.STEP_FUNCTION_ARN,
@@ -136,4 +159,3 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
     body: executionName,
   };
 };
-

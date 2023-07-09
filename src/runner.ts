@@ -293,6 +293,12 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       orchestrator: this.orchestrator,
       secrets: this.secrets,
       access: this.props?.webhookAccess ?? LambdaAccess.lambdaUrl(),
+      supportedLabels: this.providers.map(p => {
+        return {
+          provider: p.node.path,
+          labels: p.labels,
+        };
+      }),
     });
 
     this.setupUrl = this.setupFunction();
@@ -363,9 +369,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       );
       providerChooser.when(
         stepfunctions.Condition.and(
-          ...provider.labels.map(
-            label => stepfunctions.Condition.isPresent(`$.labels.${label.toLowerCase()}`),
-          ),
+          stepfunctions.Condition.stringEquals('$.provider', provider.node.path),
         ),
         providerTask,
       );
