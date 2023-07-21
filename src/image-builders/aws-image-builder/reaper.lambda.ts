@@ -162,7 +162,7 @@ async function dockerImagesGone(dockerImages?: AWS.Imagebuilder.ContainerList) {
   return true;
 }
 
-exports.handler = async function (event: ReaperInput, _context: AWSLambda.Context) {
+export async function handler(event: ReaperInput, _context: AWSLambda.Context) {
   for (const imageVersion of await iterateImageVersions(event.RecipeName)) {
     for (const imageBuildVersion of await iterateImageBuildVersions(imageVersion)) {
       if (!imageBuildVersion.arn) {
@@ -179,4 +179,4 @@ exports.handler = async function (event: ReaperInput, _context: AWSLambda.Contex
       }
     }
   }
-};
+}

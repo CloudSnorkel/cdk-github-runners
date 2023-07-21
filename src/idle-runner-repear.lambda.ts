@@ -14,7 +14,7 @@ interface IdleReaperLambdaInput {
 
 const sfn = new AWS.StepFunctions();
 
-exports.handler = async function (event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSBatchResponse> {
+export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSBatchResponse> {
   const result: AWSLambda.SQSBatchResponse = { batchItemFailures: [] };
   const octokitCache: { [key: number]: Octokit } = {};
 
@@ -117,4 +117,4 @@ exports.handler = async function (event: AWSLambda.SQSEvent): Promise<AWSLambda.
   }
 
   return result;
-};
+}

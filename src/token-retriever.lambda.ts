@@ -11,7 +11,7 @@ class RunnerTokenError extends Error {
 }
 
 
-exports.handler = async function (event: StepFunctionLambdaInput) {
+export async function handler(event: StepFunctionLambdaInput) {
   try {
     const {
       githubSecrets,
@@ -32,4 +32,4 @@ exports.handler = async function (event: StepFunctionLambdaInput) {
     const reqError = <RequestError>error;
     throw new RunnerTokenError(reqError.message);
   }
-};
+}

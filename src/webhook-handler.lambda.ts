@@ -49,7 +49,7 @@ export function verifyBody(event: AWSLambda.APIGatewayProxyEventV2, secret: any)
   return body.toString();
 }
 
-exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
+export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
   if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN) {
     throw new Error('Missing environment variables');
   }
@@ -139,5 +139,4 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
     statusCode: 202,
     body: executionName,
   };
-};
-
+}
