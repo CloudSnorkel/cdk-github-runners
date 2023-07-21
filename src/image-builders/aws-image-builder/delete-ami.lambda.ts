@@ -78,7 +78,7 @@ async function deleteAmis(launchTemplateId: string, stackName: string, builderNa
   }
 }
 
-exports.handler = async function (event: DeleteAmiInput | AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
+export async function handler(event: DeleteAmiInput | AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   try {
     console.log(JSON.stringify({ ...event, ResponseURL: '...' }));
 
@@ -101,4 +101,4 @@ exports.handler = async function (event: DeleteAmiInput | AWSLambda.CloudFormati
       await customResourceRespond(event, 'FAILED', (e as Error).message || 'Internal Error', context.logStreamName, {});
     }
   }
-};
+}

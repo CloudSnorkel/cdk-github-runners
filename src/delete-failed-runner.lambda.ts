@@ -19,7 +19,7 @@ class ReraisedError extends Error {
   }
 }
 
-exports.handler = async function (event: StepFunctionLambdaInput) {
+export async function handler(event: StepFunctionLambdaInput) {
   const { octokit } = await getOctokit(event.installationId);
 
   // find runner id
@@ -52,4 +52,4 @@ exports.handler = async function (event: StepFunctionLambdaInput) {
   }
 
   throw new ReraisedError(event);
-};
+}

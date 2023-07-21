@@ -5,6 +5,25 @@ import { customResourceRespond } from '../../lambda-helpers';
 
 const ib = new AWS.Imagebuilder();
 
+/**
+ * Exported for unit tests.
+ * @internal
+ */
+export function increaseVersion(allVersions: string[]) {
+  let version = maxSatisfying(allVersions, '>=0.0.0');
+  if (version === null) {
+    version = '1.0.0';
+  }
+  console.log(`Found versions ${allVersions} -- latest is ${version}`);
+
+  version = inc(version, 'patch');
+  if (version === null) {
+    throw new Error('Unable to bump version');
+  }
+
+  return version;
+}
+
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   console.log(JSON.stringify({ ...event, ResponseURL: '...' }));
 
@@ -15,7 +34,6 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
     switch (event.RequestType) {
       case 'Create':
       case 'Update':
-        let version: string | null = '1.0.0';
         let allVersions: string[] = [];
         try {
           switch (objectType) {
@@ -70,16 +88,7 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
           }
         }
 
-        version = maxSatisfying(allVersions, '>=0.0.0');
-        if (version === null) {
-          version = '1.0.0';
-        }
-        console.log(`Found versions ${allVersions} -- latest is ${version}`);
-
-        version = inc(version, 'patch');
-        if (version === null) {
-          throw new Error('Unable to bump version');
-        }
+        const version = increaseVersion(allVersions);
         await customResourceRespond(event, 'SUCCESS', 'OK', version, {});
 
         break;
