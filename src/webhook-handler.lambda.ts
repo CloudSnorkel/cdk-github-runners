@@ -18,7 +18,11 @@ function getHeader(event: AWSLambda.APIGatewayProxyEventV2, header: string): str
   return undefined;
 }
 
-function verifyBody(event: AWSLambda.APIGatewayProxyEventV2, secret: any): string {
+/**
+ * Exported for unit testing.
+ * @internal
+ */
+export function verifyBody(event: AWSLambda.APIGatewayProxyEventV2, secret: any): string {
   const sig = Buffer.from(getHeader(event, 'x-hub-signature-256') || '', 'utf8');
 
   if (!event.body) {
