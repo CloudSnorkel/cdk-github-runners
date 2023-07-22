@@ -19,7 +19,11 @@ function getHeader(event: AWSLambda.APIGatewayProxyEventV2, header: string): str
   return undefined;
 }
 
-function verifyBody(event: AWSLambda.APIGatewayProxyEventV2, secret: any): string {
+/**
+ * Exported for unit testing.
+ * @internal
+ */
+export function verifyBody(event: AWSLambda.APIGatewayProxyEventV2, secret: any): string {
   const sig = Buffer.from(getHeader(event, 'x-hub-signature-256') || '', 'utf8');
 
   if (!event.body) {
@@ -61,7 +65,7 @@ function matchLabelsToProvider(labels: string[]) {
   return undefined;
 }
 
-exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
+export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
   if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SUPPORTED_LABELS) {
     throw new Error('Missing environment variables');
   }
@@ -158,4 +162,4 @@ exports.handler = async function (event: AWSLambda.APIGatewayProxyEventV2): Prom
     statusCode: 202,
     body: executionName,
   };
-};
+}

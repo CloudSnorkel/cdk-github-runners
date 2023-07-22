@@ -103,7 +103,7 @@ function safeReturnValue(event: Partial<AWSLambda.APIGatewayProxyEvent>, status:
   return status;
 }
 
-exports.handler = async function (event: Partial<AWSLambda.APIGatewayProxyEvent>) {
+export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
   // confirm required environment variables
   if (!process.env.WEBHOOK_SECRET_ARN || !process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN || !process.env.LOGICAL_ID ||
       !process.env.WEBHOOK_HANDLER_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SETUP_SECRET_ARN ||
@@ -330,4 +330,4 @@ exports.handler = async function (event: Partial<AWSLambda.APIGatewayProxyEvent>
   }
 
   return safeReturnValue(event, status);
-};
+}

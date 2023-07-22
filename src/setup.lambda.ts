@@ -126,7 +126,7 @@ async function handleExistingApp(event: ApiGatewayEvent): Promise<AWSLambda.APIG
   return response( 200, 'Existing app set. Don\'t forget to set up the webhook.');
 }
 
-exports.handler = async function (event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayProxyResultV2> {
+export async function handler(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayProxyResultV2> {
   // confirm required environment variables
   if (!process.env.WEBHOOK_URL) {
     throw new Error('Missing environment variables');
@@ -170,4 +170,4 @@ exports.handler = async function (event: ApiGatewayEvent): Promise<AWSLambda.API
     console.error(e);
     return response(500, `<b>Error:</b> ${e}`);
   }
-};
+}

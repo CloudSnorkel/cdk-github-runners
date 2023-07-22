@@ -3,7 +3,7 @@ import * as AWS from 'aws-sdk';
 
 const sns = new AWS.SNS();
 
-exports.handler = async function(event: AWSLambda.SNSEvent) {
+export async function handler(event: AWSLambda.SNSEvent) {
   console.log(JSON.stringify(event));
   for (const record of event.Records) {
     let message = JSON.parse(record.Sns.Message);
@@ -14,4 +14,4 @@ exports.handler = async function(event: AWSLambda.SNSEvent) {
       }).promise();
     }
   }
-};
+}
