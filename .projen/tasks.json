@@ -681,25 +681,13 @@
           "exec": "yarn upgrade npm-check-updates"
         },
         {
-          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='aws-cdk-lib,constructs,jsii-rosetta,jsii,typescript'"
-        },
-        {
-          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='aws-cdk-lib,constructs,jsii-rosetta,jsii,typescript'"
-        },
-        {
-          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='aws-cdk-lib,constructs,jsii-rosetta,jsii,typescript'"
-        },
-        {
-          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='aws-cdk-lib,constructs,jsii-rosetta,jsii,typescript'"
-        },
-        {
-          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='aws-cdk-lib,constructs,jsii-rosetta,jsii,typescript'"
+          "exec": "npm-check-updates --upgrade --target=minor --filter=@aws-sdk/types,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@sveltejs/vite-plugin-svelte,@tsconfig/svelte,@types/aws-lambda,@types/jest,@types/node,@types/semver,@typescript-eslint/eslint-plugin,@typescript-eslint/parser,aws-cdk,aws-sdk,bootstrap,esbuild,eslint-import-resolver-node,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-svelte,eslint,jest,jest-junit,jsii-diff,jsii-docgen,jsii-pacmak,npm-check-updates,projen,sass,semver,standard-version,svelte-check,svelte-preprocess,svelte,ts-jest,ts-node,vite-plugin-singlefile,vite,aws-cdk-lib,constructs"
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade"
+          "exec": "yarn upgrade @aws-sdk/types @octokit/auth-app @octokit/core @octokit/request-error @octokit/rest @sveltejs/vite-plugin-svelte @tsconfig/svelte @types/aws-lambda @types/jest @types/node @types/semver @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk aws-sdk bootstrap esbuild eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-svelte eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak npm-check-updates projen sass semver standard-version svelte-check svelte-preprocess svelte ts-jest ts-node vite-plugin-singlefile vite aws-cdk-lib constructs"
         },
         {
           "exec": "npx projen"
