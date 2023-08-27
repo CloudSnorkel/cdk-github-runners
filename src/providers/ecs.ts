@@ -382,7 +382,12 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       });
     }
 
-    this.capacityProvider.autoScalingGroup.addUserData(this.loginCommand(), this.pullCommand(), ...this.ecsSettingsCommands());
+    this.capacityProvider.autoScalingGroup.addUserData(
+      // we don't exit on errors because all of these commands are optional
+      ...this.loginCommands(),
+      this.pullCommand(),
+      ...this.ecsSettingsCommands(),
+    );
     this.capacityProvider.autoScalingGroup.role.addToPrincipalPolicy(MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT);
     image.imageRepository.grantPull(this.capacityProvider.autoScalingGroup);
 
@@ -485,12 +490,15 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     return `docker pull ${this.image.imageRepository.repositoryUri}:${this.image.imageTag} &`;
   }
 
-  private loginCommand() {
+  private loginCommands() {
     const thisStack = Stack.of(this);
     if (this.image.os.is(Os.WINDOWS)) {
-      return `(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`;
+      return [`(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`];
     }
-    return `aws ecr get-login-password --region ${thisStack.region} | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`;
+    return [
+      'yum install -y awscli',
+      `aws ecr get-login-password --region ${thisStack.region} | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`,
+    ];
   }
 
   private ecsSettingsCommands() {
