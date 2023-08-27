@@ -9732,7 +9732,7 @@
        "Fn::Join": [
         "",
         [
-         "#!/bin/bash\nset -ex\nyum install -y awscli\naws ecr get-login-password --region ",
+         "#!/bin/bash\nyum install -y awscli\naws ecr get-login-password --region ",
          {
           "Ref": "AWS::Region"
          },
@@ -10307,7 +10307,7 @@
        "Fn::Join": [
         "",
         [
-         "#!/bin/bash\nset -ex\nyum install -y awscli\naws ecr get-login-password --region ",
+         "#!/bin/bash\nyum install -y awscli\naws ecr get-login-password --region ",
          {
           "Ref": "AWS::Region"
          },
@@ -10882,7 +10882,7 @@
        "Fn::Join": [
         "",
         [
-         "<powershell>$ErrorActionPreference = \"Stop\"\n(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin ",
+         "<powershell>(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin ",
          {
           "Ref": "AWS::AccountId"
          },
