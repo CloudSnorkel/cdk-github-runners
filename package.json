@@ -86,7 +86,7 @@
     "@typescript-eslint/eslint-plugin": "^6",
     "@typescript-eslint/parser": "^6",
     "aws-cdk": "^2",
-    "aws-cdk-lib": "2.50.0",
+    "aws-cdk-lib": "2.77.0",
     "aws-sdk": "^2.1450.0",
     "bootstrap": "^5.2.0",
     "constructs": "10.0.5",
@@ -118,7 +118,7 @@
     "vite-plugin-singlefile": "^0.13.5"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.50.0",
+    "aws-cdk-lib": "^2.77.0",
     "constructs": "^10.0.5"
   },
   "keywords": [
