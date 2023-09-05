@@ -395,7 +395,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
         integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         service: 'ec2',
         action: 'runInstances',
-        heartbeat: Duration.minutes(10),
+        heartbeatTimeout: stepfunctions.Timeout.duration(Duration.minutes(10)),
         parameters: {
           LaunchTemplate: {
             LaunchTemplateId: this.ami.launchTemplate.launchTemplateId,
