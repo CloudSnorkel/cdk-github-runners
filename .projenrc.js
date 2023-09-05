@@ -6,7 +6,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Amir Szekely',
   authorAddress: 'amir@cloudsnorkel.com',
   stability: Stability.EXPERIMENTAL,
-  cdkVersion: '2.50.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode
+  cdkVersion: '2.77.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode, 2.77.0 for node 16
   defaultReleaseBranch: 'main',
   name: '@cloudsnorkel/cdk-github-runners',
   repositoryUrl: 'https://github.com/CloudSnorkel/cdk-github-runners.git',

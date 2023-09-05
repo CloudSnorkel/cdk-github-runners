@@ -144,7 +144,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     repo: payload.repository.name,
     jobId: payload.workflow_job.id,
     jobUrl: payload.workflow_job.html_url,
-    installationId: payload.installation?.id,
+    installationId: payload.installation?.id ?? -1, // always pass value because step function can't handle missing input
     labels: payload.workflow_job.labels,
     provider: provider,
   });
