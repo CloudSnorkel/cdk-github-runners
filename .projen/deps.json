@@ -59,7 +59,7 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": "2.50.0",
+      "version": "2.77.0",
       "type": "build"
     },
     {
@@ -201,7 +201,7 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": "^2.50.0",
+      "version": "^2.77.0",
       "type": "peer"
     },
     {

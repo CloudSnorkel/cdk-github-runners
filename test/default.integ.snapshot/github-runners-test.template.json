@@ -2115,17 +2115,7 @@
        "Action": "sts:AssumeRole",
        "Effect": "Allow",
        "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
+        "Service": "ec2.amazonaws.com"
        }
       }
      ],
@@ -3092,17 +3082,7 @@
        "Action": "sts:AssumeRole",
        "Effect": "Allow",
        "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
+        "Service": "ec2.amazonaws.com"
        }
       }
      ],
@@ -6091,17 +6071,7 @@
        "Action": "sts:AssumeRole",
        "Effect": "Allow",
        "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
+        "Service": "ec2.amazonaws.com"
        }
       }
      ],
@@ -7197,17 +7167,7 @@
        "Action": "sts:AssumeRole",
        "Effect": "Allow",
        "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
+        "Service": "ec2.amazonaws.com"
        }
       }
      ],
@@ -8722,12 +8682,20 @@
    "Type": "AWS::Lambda::Function",
    "Properties": {
     "Handler": "index.handler",
-    "Runtime": "nodejs14.x",
+    "Runtime": {
+     "Fn::FindInMap": [
+      "DefaultCrNodeVersionMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    },
     "Code": {
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "eb5b005c858404ea0c8f68098ed5dcdf5340e02461f149751d10f59c210d5ef8.zip"
+     "S3Key": "f5b6a6d08a8206e67d0b54e2a29abd7e0472d835abc71037de3a93545b5edacc.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -9559,17 +9527,7 @@
        "Action": "sts:AssumeRole",
        "Effect": "Allow",
        "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
+        "Service": "ec2.amazonaws.com"
        }
       }
      ],
@@ -10140,17 +10098,7 @@
        "Action": "sts:AssumeRole",
        "Effect": "Allow",
        "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
+        "Service": "ec2.amazonaws.com"
        }
       }
      ],
@@ -10715,17 +10663,7 @@
        "Action": "sts:AssumeRole",
        "Effect": "Allow",
        "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
+        "Service": "ec2.amazonaws.com"
        }
       }
      ],
@@ -11552,7 +11490,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "e845402ce43b66fc6f20df4a239f20f8662eb6c7f920b94cf6542dd0e64ce0f7.zip"
+     "S3Key": "a9d3d4d1afa000946b9863b3e7578a5a5ad86d88274b3639938aa2baebf822ce.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -11561,7 +11499,15 @@
      ]
     },
     "Handler": "index.handler",
-    "Runtime": "nodejs14.x",
+    "Runtime": {
+     "Fn::FindInMap": [
+      "DefaultCrNodeVersionMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    },
     "Timeout": 120
    },
    "DependsOn": [
@@ -13314,17 +13260,7 @@
        "Action": "sts:AssumeRole",
        "Effect": "Allow",
        "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
+        "Service": "ec2.amazonaws.com"
        }
       }
      ],
@@ -13620,17 +13556,7 @@
        "Action": "sts:AssumeRole",
        "Effect": "Allow",
        "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
+        "Service": "ec2.amazonaws.com"
        }
       }
      ],
@@ -13816,17 +13742,7 @@
        "Action": "sts:AssumeRole",
        "Effect": "Allow",
        "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
+        "Service": "ec2.amazonaws.com"
        }
       }
      ],
@@ -14012,17 +13928,7 @@
        "Action": "sts:AssumeRole",
        "Effect": "Allow",
        "Principal": {
-        "Service": {
-         "Fn::Join": [
-          "",
-          [
-           "ec2.",
-           {
-            "Ref": "AWS::URLSuffix"
-           }
-          ]
-         ]
-        }
+        "Service": "ec2.amazonaws.com"
        }
       }
      ],
@@ -16744,7 +16650,9 @@
    "DependsOn": [
     "runnersRunnerOrchestratorRoleDefaultPolicyD1C26D61",
     "runnersRunnerOrchestratorRole5D220AD7"
-   ]
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   },
   "runnersWebhookHandlerwebhookhandlerServiceRole03DB58D2": {
    "Type": "AWS::IAM::Role",
@@ -19017,6 +18925,210 @@
    }
   }
  },
+ "Mappings": {
+  "DefaultCrNodeVersionMap": {
+   "af-south-1": {
+    "value": "nodejs16.x"
+   },
+   "ap-east-1": {
+    "value": "nodejs16.x"
+   },
+   "ap-northeast-1": {
+    "value": "nodejs16.x"
+   },
+   "ap-northeast-2": {
+    "value": "nodejs16.x"
+   },
+   "ap-northeast-3": {
+    "value": "nodejs16.x"
+   },
+   "ap-south-1": {
+    "value": "nodejs16.x"
+   },
+   "ap-south-2": {
+    "value": "nodejs16.x"
+   },
+   "ap-southeast-1": {
+    "value": "nodejs16.x"
+   },
+   "ap-southeast-2": {
+    "value": "nodejs16.x"
+   },
+   "ap-southeast-3": {
+    "value": "nodejs16.x"
+   },
+   "ca-central-1": {
+    "value": "nodejs16.x"
+   },
+   "cn-north-1": {
+    "value": "nodejs16.x"
+   },
+   "cn-northwest-1": {
+    "value": "nodejs16.x"
+   },
+   "eu-central-1": {
+    "value": "nodejs16.x"
+   },
+   "eu-central-2": {
+    "value": "nodejs16.x"
+   },
+   "eu-north-1": {
+    "value": "nodejs16.x"
+   },
+   "eu-south-1": {
+    "value": "nodejs16.x"
+   },
+   "eu-south-2": {
+    "value": "nodejs16.x"
+   },
+   "eu-west-1": {
+    "value": "nodejs16.x"
+   },
+   "eu-west-2": {
+    "value": "nodejs16.x"
+   },
+   "eu-west-3": {
+    "value": "nodejs16.x"
+   },
+   "me-central-1": {
+    "value": "nodejs16.x"
+   },
+   "me-south-1": {
+    "value": "nodejs16.x"
+   },
+   "sa-east-1": {
+    "value": "nodejs16.x"
+   },
+   "us-east-1": {
+    "value": "nodejs16.x"
+   },
+   "us-east-2": {
+    "value": "nodejs16.x"
+   },
+   "us-gov-east-1": {
+    "value": "nodejs16.x"
+   },
+   "us-gov-west-1": {
+    "value": "nodejs16.x"
+   },
+   "us-iso-east-1": {
+    "value": "nodejs14.x"
+   },
+   "us-iso-west-1": {
+    "value": "nodejs14.x"
+   },
+   "us-isob-east-1": {
+    "value": "nodejs14.x"
+   },
+   "us-west-1": {
+    "value": "nodejs16.x"
+   },
+   "us-west-2": {
+    "value": "nodejs16.x"
+   }
+  },
+  "ServiceprincipalMap": {
+   "af-south-1": {
+    "states": "states.af-south-1.amazonaws.com"
+   },
+   "ap-east-1": {
+    "states": "states.ap-east-1.amazonaws.com"
+   },
+   "ap-northeast-1": {
+    "states": "states.ap-northeast-1.amazonaws.com"
+   },
+   "ap-northeast-2": {
+    "states": "states.ap-northeast-2.amazonaws.com"
+   },
+   "ap-northeast-3": {
+    "states": "states.ap-northeast-3.amazonaws.com"
+   },
+   "ap-south-1": {
+    "states": "states.ap-south-1.amazonaws.com"
+   },
+   "ap-south-2": {
+    "states": "states.ap-south-2.amazonaws.com"
+   },
+   "ap-southeast-1": {
+    "states": "states.ap-southeast-1.amazonaws.com"
+   },
+   "ap-southeast-2": {
+    "states": "states.ap-southeast-2.amazonaws.com"
+   },
+   "ap-southeast-3": {
+    "states": "states.ap-southeast-3.amazonaws.com"
+   },
+   "ca-central-1": {
+    "states": "states.ca-central-1.amazonaws.com"
+   },
+   "cn-north-1": {
+    "states": "states.cn-north-1.amazonaws.com"
+   },
+   "cn-northwest-1": {
+    "states": "states.cn-northwest-1.amazonaws.com"
+   },
+   "eu-central-1": {
+    "states": "states.eu-central-1.amazonaws.com"
+   },
+   "eu-central-2": {
+    "states": "states.eu-central-2.amazonaws.com"
+   },
+   "eu-north-1": {
+    "states": "states.eu-north-1.amazonaws.com"
+   },
+   "eu-south-1": {
+    "states": "states.eu-south-1.amazonaws.com"
+   },
+   "eu-south-2": {
+    "states": "states.eu-south-2.amazonaws.com"
+   },
+   "eu-west-1": {
+    "states": "states.eu-west-1.amazonaws.com"
+   },
+   "eu-west-2": {
+    "states": "states.eu-west-2.amazonaws.com"
+   },
+   "eu-west-3": {
+    "states": "states.eu-west-3.amazonaws.com"
+   },
+   "me-central-1": {
+    "states": "states.me-central-1.amazonaws.com"
+   },
+   "me-south-1": {
+    "states": "states.me-south-1.amazonaws.com"
+   },
+   "sa-east-1": {
+    "states": "states.sa-east-1.amazonaws.com"
+   },
+   "us-east-1": {
+    "states": "states.us-east-1.amazonaws.com"
+   },
+   "us-east-2": {
+    "states": "states.us-east-2.amazonaws.com"
+   },
+   "us-gov-east-1": {
+    "states": "states.us-gov-east-1.amazonaws.com"
+   },
+   "us-gov-west-1": {
+    "states": "states.us-gov-west-1.amazonaws.com"
+   },
+   "us-iso-east-1": {
+    "states": "states.amazonaws.com"
+   },
+   "us-iso-west-1": {
+    "states": "states.amazonaws.com"
+   },
+   "us-isob-east-1": {
+    "states": "states.amazonaws.com"
+   },
+   "us-west-1": {
+    "states": "states.us-west-1.amazonaws.com"
+   },
+   "us-west-2": {
+    "states": "states.us-west-2.amazonaws.com"
+   }
+  }
+ },
  "Parameters": {
   "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
    "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
@@ -19053,100 +19165,6 @@
       " status.json"
      ]
     ]
-   }
-  }
- },
- "Mappings": {
-  "ServiceprincipalMap": {
-   "af-south-1": {
-    "states": "states.af-south-1.amazonaws.com"
-   },
-   "ap-east-1": {
-    "states": "states.ap-east-1.amazonaws.com"
-   },
-   "ap-northeast-1": {
-    "states": "states.ap-northeast-1.amazonaws.com"
-   },
-   "ap-northeast-2": {
-    "states": "states.ap-northeast-2.amazonaws.com"
-   },
-   "ap-northeast-3": {
-    "states": "states.ap-northeast-3.amazonaws.com"
-   },
-   "ap-south-1": {
-    "states": "states.ap-south-1.amazonaws.com"
-   },
-   "ap-southeast-1": {
-    "states": "states.ap-southeast-1.amazonaws.com"
-   },
-   "ap-southeast-2": {
-    "states": "states.ap-southeast-2.amazonaws.com"
-   },
-   "ap-southeast-3": {
-    "states": "states.ap-southeast-3.amazonaws.com"
-   },
-   "ca-central-1": {
-    "states": "states.ca-central-1.amazonaws.com"
-   },
-   "cn-north-1": {
-    "states": "states.cn-north-1.amazonaws.com"
-   },
-   "cn-northwest-1": {
-    "states": "states.cn-northwest-1.amazonaws.com"
-   },
-   "eu-central-1": {
-    "states": "states.eu-central-1.amazonaws.com"
-   },
-   "eu-north-1": {
-    "states": "states.eu-north-1.amazonaws.com"
-   },
-   "eu-south-1": {
-    "states": "states.eu-south-1.amazonaws.com"
-   },
-   "eu-south-2": {
-    "states": "states.eu-south-2.amazonaws.com"
-   },
-   "eu-west-1": {
-    "states": "states.eu-west-1.amazonaws.com"
-   },
-   "eu-west-2": {
-    "states": "states.eu-west-2.amazonaws.com"
-   },
-   "eu-west-3": {
-    "states": "states.eu-west-3.amazonaws.com"
-   },
-   "me-south-1": {
-    "states": "states.me-south-1.amazonaws.com"
-   },
-   "sa-east-1": {
-    "states": "states.sa-east-1.amazonaws.com"
-   },
-   "us-east-1": {
-    "states": "states.us-east-1.amazonaws.com"
-   },
-   "us-east-2": {
-    "states": "states.us-east-2.amazonaws.com"
-   },
-   "us-gov-east-1": {
-    "states": "states.us-gov-east-1.amazonaws.com"
-   },
-   "us-gov-west-1": {
-    "states": "states.us-gov-west-1.amazonaws.com"
-   },
-   "us-iso-east-1": {
-    "states": "states.amazonaws.com"
-   },
-   "us-iso-west-1": {
-    "states": "states.amazonaws.com"
-   },
-   "us-isob-east-1": {
-    "states": "states.amazonaws.com"
-   },
-   "us-west-1": {
-    "states": "states.us-west-1.amazonaws.com"
-   },
-   "us-west-2": {
-    "states": "states.us-west-2.amazonaws.com"
    }
   }
  },
