@@ -6,10 +6,19 @@ import { Secrets } from './secrets';
 import { WebhookHandlerFunction } from './webhook-handler-function';
 
 /**
+ * @internal
+ */
+export interface SupportedLabels {
+  readonly provider: string;
+  readonly labels: string[];
+}
+
+/**
  * Properties for GithubWebhookHandler
+ *
+ * @internal
  */
 export interface GithubWebhookHandlerProps {
-
   /**
    * Step function in charge of handling the workflow job events and start the runners.
    */
@@ -24,12 +33,17 @@ export interface GithubWebhookHandlerProps {
    * Configure access to webhook function.
    */
   readonly access?: LambdaAccess;
+
+  /**
+   * List of supported label combinations.
+   */
+  readonly supportedLabels: SupportedLabels[];
 }
 
 /**
  * Create a Lambda with a public URL to handle GitHub webhook events. After validating the event with the given secret, the orchestrator step function is called with information about the workflow job.
  *
- * This construct is not meant to be used by itself.
+ * @internal
  */
 export class GithubWebhookHandler extends Construct {
 
@@ -54,6 +68,7 @@ export class GithubWebhookHandler extends Construct {
         environment: {
           STEP_FUNCTION_ARN: props.orchestrator.stateMachineArn,
           WEBHOOK_SECRET_ARN: props.secrets.webhook.secretArn,
+          SUPPORTED_LABELS: JSON.stringify(props.supportedLabels),
         },
         timeout: cdk.Duration.seconds(30),
         logRetention: logs.RetentionDays.ONE_MONTH,
