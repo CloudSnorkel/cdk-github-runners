@@ -16701,6 +16701,26 @@
        }
       },
       {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubEFD96479"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+       }
+      },
+      {
        "Action": "states:StartExecution",
        "Effect": "Allow",
        "Resource": {
@@ -16725,7 +16745,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "3de9933acb4ef22a64f565aac3d1c553e79e37e2b78dbd68dff914eaf0afab57.zip"
+     "S3Key": "613f6b9b955996f5af65fd19fc69b6f91a45f7271de98a454db015b7cc757e9b.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -16741,6 +16761,12 @@
       },
       "WEBHOOK_SECRET_ARN": {
        "Ref": "runnersSecretsWebhook7AF0D74E"
+      },
+      "GITHUB_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubEFD96479"
+      },
+      "GITHUB_PRIVATE_KEY_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubPrivateKey79498F91"
       },
       "SUPPORTED_LABELS": "[{\"provider\":\"github-runners-test/CodeBuildx64\",\"labels\":[\"codebuild-x64\"]},{\"provider\":\"github-runners-test/CodeBuildARM\",\"labels\":[\"codebuild\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/CodeBuildWindows\",\"labels\":[\"codebuild\",\"windows\",\"x64\"]},{\"provider\":\"github-runners-test/ECS\",\"labels\":[\"ecs\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/ECS ARM64\",\"labels\":[\"ecs\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/ECS Windows\",\"labels\":[\"ecs\",\"windows\",\"x64\"]},{\"provider\":\"github-runners-test/Lambda\",\"labels\":[\"lambda\",\"x64\"]},{\"provider\":\"github-runners-test/LambdaARM\",\"labels\":[\"lambda\",\"arm64\"]},{\"provider\":\"github-runners-test/Fargate\",\"labels\":[\"fargate\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/Fargate-x64-spot\",\"labels\":[\"fargate-spot\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/Fargate-arm64\",\"labels\":[\"fargate\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/Fargate-arm64-spot\",\"labels\":[\"fargate-spot\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/Fargate-Windows\",\"labels\":[\"fargate\",\"windows\",\"x64\"]},{\"provider\":\"github-runners-test/EC2 Linux\",\"labels\":[\"ec2\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/EC2 Spot Linux\",\"labels\":[\"ec2-spot\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/EC2 Linux arm64\",\"labels\":[\"ec2\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/EC2 Windows\",\"labels\":[\"ec2\",\"windows\",\"x64\"]}]",
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
@@ -17245,7 +17271,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "0dabbb1811a3f8a3a83de847f0cb208f97c2fbbace6e74a9687feb8d4c543a72.zip"
+     "S3Key": "f6bd7a51c37496572cc93e29101573598ccc4e3bf48de413ce58382b36b0a61c.zip"
     },
     "Role": {
      "Fn::GetAtt": [
