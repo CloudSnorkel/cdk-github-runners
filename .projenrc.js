@@ -111,6 +111,7 @@ releaseWorkflow.file.addDeletionOverride('on.push');
 project.bundler.bundleTask.exec('cp -r src/providers/docker-images assets');
 
 // set proper line endings
+project.gitattributes.addAttributes('*.ts', 'eol=lf');
 project.gitattributes.addAttributes('*.js', 'eol=lf');
 project.gitattributes.addAttributes('*.json', 'eol=lf');
 project.gitattributes.addAttributes('*.sh', 'eol=lf');
