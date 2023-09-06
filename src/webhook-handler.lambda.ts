@@ -60,7 +60,7 @@ async function isDeploymentPending(payload: any) {
   const { octokit } = await getOctokit(payload.installation?.id);
   const statuses = await octokit.request(statusesUrl);
 
-  return statuses.data[0]?.state !== "queued";
+  return statuses.data[0]?.state === "waiting";
 }
 
 function matchLabelsToProvider(labels: string[]) {
