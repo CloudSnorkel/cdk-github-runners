@@ -68,6 +68,8 @@ export class GithubWebhookHandler extends Construct {
         environment: {
           STEP_FUNCTION_ARN: props.orchestrator.stateMachineArn,
           WEBHOOK_SECRET_ARN: props.secrets.webhook.secretArn,
+          GITHUB_SECRET_ARN: props.secrets.github.secretArn,
+          GITHUB_PRIVATE_KEY_SECRET_ARN: props.secrets.githubPrivateKey.secretArn,
           SUPPORTED_LABELS: JSON.stringify(props.supportedLabels),
         },
         timeout: cdk.Duration.seconds(30),
@@ -79,6 +81,8 @@ export class GithubWebhookHandler extends Construct {
     this.url = access.bind(this, 'access', this.handler);
 
     props.secrets.webhook.grantRead(this.handler);
+    props.secrets.github.grantRead(this.handler);
+    props.secrets.githubPrivateKey.grantRead(this.handler);
     props.orchestrator.grantStartExecution(this.handler);
   }
 }

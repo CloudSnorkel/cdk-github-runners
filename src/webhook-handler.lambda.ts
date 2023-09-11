@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 import * as AWSLambda from 'aws-lambda';
 import * as AWS from 'aws-sdk';
+import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
 import { SupportedLabels } from './webhook';
 
@@ -48,6 +49,18 @@ export function verifyBody(event: AWSLambda.APIGatewayProxyEventV2, secret: any)
   }
 
   return body.toString();
+}
+
+async function isDeploymentPending(payload: any) {
+  const statusesUrl = payload.deployment?.statuses_url;
+  if (statusesUrl === undefined) {
+    return false;
+  }
+
+  const { octokit } = await getOctokit(payload.installation?.id);
+  const statuses = await octokit.request(statusesUrl);
+
+  return statuses.data[0]?.state === 'waiting';
 }
 
 function matchLabelsToProvider(labels: string[]) {
@@ -123,6 +136,14 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     return {
       statusCode: 200,
       body: 'OK. No runner started (no "self-hosted" label).',
+    };
+  }
+
+  if (await isDeploymentPending(payload)) {
+    console.log('Ignoring job as its deployment is still pending');
+    return {
+      statusCode: 200,
+      body: 'OK. No runner started (deployment pending).',
     };
   }
 

@@ -27,6 +27,13 @@ function lambdaArnToUrl(arn: string) {
   return `https://${region}.console.aws.amazon.com/lambda/home?region=${region}#/functions/${name}?tab=monitoring`;
 }
 
+function lambdaArnToLogGroup(arn: string) {
+  const parts = arn.split(':'); // arn:aws:lambda:us-east-1:12345678:function:name-XYZ
+  const name = parts[6];
+
+  return `/aws/lambda/${name}`;
+}
+
 function stepFunctionArnToUrl(arn: string) {
   const parts = arn.split(':'); // arn:aws:states:us-east-1:12345678:stateMachine:name-XYZ
   const region = parts[3];
@@ -146,6 +153,7 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
     troubleshooting: {
       webhookHandlerArn: process.env.WEBHOOK_HANDLER_ARN,
       webhookHandlerUrl: lambdaArnToUrl(process.env.WEBHOOK_HANDLER_ARN),
+      webhookHandlerLogGroup: lambdaArnToLogGroup(process.env.WEBHOOK_HANDLER_ARN),
       stepFunctionArn: process.env.STEP_FUNCTION_ARN,
       stepFunctionUrl: stepFunctionArnToUrl(process.env.STEP_FUNCTION_ARN),
       stepFunctionLogGroup: process.env.STEP_FUNCTION_LOG_GROUP,

@@ -18,6 +18,8 @@ jobs:
             runs-on: [self-hosted, codebuild-x64]
             docker: true
             sudo: true
+            # test for https://github.com/CloudSnorkel/cdk-github-runners/issues/380
+            environment: env-test
           - name: codebuild arm64
             os: linux
             arch: ARM64
@@ -92,6 +94,7 @@ jobs:
             sudo: true
 
     name: ${{ matrix.name }}
+    environment: ${{ matrix.environment }}
 
     runs-on: ${{ matrix.runs-on }}
     steps:
