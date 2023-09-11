@@ -1,9 +1,9 @@
 import * as crypto from 'crypto';
 import * as AWSLambda from 'aws-lambda';
 import * as AWS from 'aws-sdk';
+import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
 import { SupportedLabels } from './webhook';
-import { getOctokit } from './lambda-github';
 
 const sf = new AWS.StepFunctions();
 
@@ -60,7 +60,7 @@ async function isDeploymentPending(payload: any) {
   const { octokit } = await getOctokit(payload.installation?.id);
   const statuses = await octokit.request(statusesUrl);
 
-  return statuses.data[0]?.state === "waiting";
+  return statuses.data[0]?.state === 'waiting';
 }
 
 function matchLabelsToProvider(labels: string[]) {
@@ -140,11 +140,11 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
   }
 
   if (await isDeploymentPending(payload)) {
-      console.log(`Ignoring job as its deployment is still pending`);
-      return {
-          statusCode: 200,
-          body: 'OK. No runner started (deployment pending).',
-      };
+    console.log('Ignoring job as its deployment is still pending');
+    return {
+      statusCode: 200,
+      body: 'OK. No runner started (deployment pending).',
+    };
   }
 
   // don't start step function unless labels match a runner provider
