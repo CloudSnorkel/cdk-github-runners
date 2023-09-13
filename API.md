@@ -3199,6 +3199,7 @@ new GitHubRunners(scope: Construct, id: string, props?: GitHubRunnersProps)
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.createLogsInsightsQueries">createLogsInsightsQueries</a></code> | Creates CloudWatch Logs Insights saved queries that can be used to debug issues with the runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic">failedImageBuildsTopic</a></code> | Creates a topic for notifications when a runner image build fails. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed">metricFailed</a></code> | Metric for failed runner executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted">metricJobCompleted</a></code> | Metric for the number of GitHub Actions jobs completed. |
@@ -3214,6 +3215,19 @@ public toString(): string
 ```
 
 Returns a string representation of this construct.
+
+##### `createLogsInsightsQueries` <a name="createLogsInsightsQueries" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.createLogsInsightsQueries"></a>
+
+```typescript
+public createLogsInsightsQueries(): void
+```
+
+Creates CloudWatch Logs Insights saved queries that can be used to debug issues with the runners.
+
+* "Webhook errors" helps diagnose configuration issues with GitHub integration
+* "Ignored webhook" helps understand why runners aren't started
+* "Ignored jobs based on labels" helps debug label matching issues
+* "Webhook started runners" helps understand which runners were started
 
 ##### `failedImageBuildsTopic` <a name="failedImageBuildsTopic" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic"></a>
 
