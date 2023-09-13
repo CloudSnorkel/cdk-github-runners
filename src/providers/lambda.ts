@@ -158,12 +158,12 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    *  * `RunnerImageComponent.githubRunner()`
    *  * `RunnerImageComponent.lambdaEntrypoint()`
    *
-   *  Base Docker image: `public.ecr.aws/lambda/nodejs:18-x86_64` or `public.ecr.aws/lambda/nodejs:18-arm64`
+   *  Base Docker image: `public.ecr.aws/lambda/nodejs:16-x86_64` or `public.ecr.aws/lambda/nodejs:16-arm64`
    */
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
-    let baseDockerImage = 'public.ecr.aws/lambda/nodejs:18-x86_64';
+    let baseDockerImage = 'public.ecr.aws/lambda/nodejs:16-x86_64';
     if (props?.architecture === Architecture.ARM64) {
-      baseDockerImage = 'public.ecr.aws/lambda/nodejs:18-arm64';
+      baseDockerImage = 'public.ecr.aws/lambda/nodejs:16-arm64';
     }
 
     return RunnerImageBuilder.new(scope, id, {
