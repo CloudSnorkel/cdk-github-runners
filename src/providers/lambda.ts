@@ -161,6 +161,11 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    *  Base Docker image: `public.ecr.aws/lambda/nodejs:14-x86_64` or `public.ecr.aws/lambda/nodejs:14-arm64`
    */
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
+    if (props?.os && !Os.LINUX_AMAZON_2.is(props.os) && !props?.baseDockerImage) {
+      // TODO we can support Ubuntu by building our own image https://docs.aws.amazon.com/lambda/latest/dg/nodejs-image.html#nodejs-image-clients
+      throw new Error('Lambda runner provider only supports Amazon Linux 2. Use a different provider or specify a custom `baseDockerImage` that supports your desired OS.');
+    }
+
     let baseDockerImage = 'public.ecr.aws/lambda/nodejs:14-x86_64';
     if (props?.architecture === Architecture.ARM64) {
       baseDockerImage = 'public.ecr.aws/lambda/nodejs:14-arm64';

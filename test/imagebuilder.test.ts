@@ -302,3 +302,14 @@ test('Lambda default image builder has GitHub Runner and Lambda entry point', ()
     },
   });
 });
+
+test('Lambda image builder only accepts AMZL2', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'test');
+
+  expect(() => {
+    LambdaRunnerProvider.imageBuilder(stack, 'builder', {
+      os: Os.LINUX_UBUNTU,
+    });
+  }).toThrowError('Lambda runner provider only supports Amazon Linux 2');
+});
