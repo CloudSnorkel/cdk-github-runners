@@ -312,4 +312,9 @@ test('Lambda image builder only accepts AMZL2', () => {
       os: Os.LINUX_UBUNTU,
     });
   }).toThrowError('Lambda runner provider only supports Amazon Linux 2');
+
+  LambdaRunnerProvider.imageBuilder(stack, 'builder', {
+    os: Os.LINUX_UBUNTU,
+    baseDockerImage: 'some-fake-ubuntu-image',
+  });
 });
