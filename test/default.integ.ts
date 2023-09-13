@@ -238,5 +238,6 @@ const runners = new GitHubRunners(stack, 'runners', {
 
 runners.metricJobCompleted();
 runners.failedImageBuildsTopic();
+runners.createLogsInsightsQueries();
 
 app.synth();

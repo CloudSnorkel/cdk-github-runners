@@ -754,4 +754,72 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     );
     return topic;
   }
+
+  /**
+   * Creates CloudWatch Logs Insights saved queries that can be used to debug issues with the runners.
+   *
+   * * "Webhook errors" helps diagnose configuration issues with GitHub integration
+   * * "Ignored webhook" helps understand why runners aren't started
+   * * "Ignored jobs based on labels" helps debug label matching issues
+   * * "Webhook started runners" helps understand which runners were started
+   */
+  public createLogsInsightsQueries() {
+    new logs.QueryDefinition(this, 'Webhook errors', {
+      queryDefinitionName: 'GitHub Runners/Webhook errors',
+      logGroups: [this.webhook.handler.logGroup],
+      queryString: new logs.QueryString({
+        parseStatements: [
+          '@message /^(?<timestamp>[^\\s]+)\\t(?<requestId>[^\\s]+)\\t(?<level>[^\\s]+)\\t(?<message>.+$)/',
+        ],
+        filterStatements: [
+          'level = "ERROR"',
+        ],
+        sort: '@timestamp desc',
+        limit: 100,
+      }),
+    });
+
+    new logs.QueryDefinition(this, 'Ignored webhooks', {
+      queryDefinitionName: 'GitHub Runners/Ignored webhooks',
+      logGroups: [this.webhook.handler.logGroup],
+      queryString: new logs.QueryString({
+        parseStatements: [
+          '@message /^(?<timestamp>[^\\s]+)\\t(?<requestId>[^\\s]+)\\t(?<level>[^\\s]+)\\t(?<message>.+$)/',
+        ],
+        filterStatements: [
+          'strcontains(message, "Ignoring")',
+        ],
+        sort: '@timestamp desc',
+        limit: 100,
+      }),
+    });
+
+    new logs.QueryDefinition(this, 'Ignored jobs based on labels', {
+      queryDefinitionName: 'GitHub Runners/Ignored jobs based on labels',
+      logGroups: [this.webhook.handler.logGroup],
+      queryString: new logs.QueryString({
+        parseStatements: [
+          '@message /^(?<timestamp>[^\\s]+)\\t(?<requestId>[^\\s]+)\\t(?<level>[^\\s]+)\\t(?<message>.+$)/',
+        ],
+        filterStatements: [
+          'strcontains(message, "Ignoring labels")',
+        ],
+        sort: '@timestamp desc',
+        limit: 100,
+      }),
+    });
+
+    new logs.QueryDefinition(this, 'Webhook started runners', {
+      queryDefinitionName: 'GitHub Runners/Webhook started runners',
+      logGroups: [this.webhook.handler.logGroup],
+      queryString: new logs.QueryString({
+        fields: ['@timestamp', '@message'],
+        filterStatements: [
+          'jobUrl like /http.*/',
+        ],
+        sort: '@timestamp desc',
+        limit: 100,
+      }),
+    });
+  }
 }

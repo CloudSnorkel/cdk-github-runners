@@ -18842,6 +18842,66 @@
     }
    }
   },
+  "runnersWebhookerrors72F5BFF3": {
+   "Type": "AWS::Logs::QueryDefinition",
+   "Properties": {
+    "Name": "GitHub Runners/Webhook errors",
+    "QueryString": "parse @message /^(?<timestamp>[^\\s]+)\\t(?<requestId>[^\\s]+)\\t(?<level>[^\\s]+)\\t(?<message>.+$)/\n| filter level = \"ERROR\"\n| sort @timestamp desc\n| limit 100",
+    "LogGroupNames": [
+     {
+      "Fn::GetAtt": [
+       "runnersWebhookHandlerwebhookhandlerLogRetention0F5ED260",
+       "LogGroupName"
+      ]
+     }
+    ]
+   }
+  },
+  "runnersIgnoredwebhooksAD368063": {
+   "Type": "AWS::Logs::QueryDefinition",
+   "Properties": {
+    "Name": "GitHub Runners/Ignored webhooks",
+    "QueryString": "parse @message /^(?<timestamp>[^\\s]+)\\t(?<requestId>[^\\s]+)\\t(?<level>[^\\s]+)\\t(?<message>.+$)/\n| filter strcontains(message, \"Ignoring\")\n| sort @timestamp desc\n| limit 100",
+    "LogGroupNames": [
+     {
+      "Fn::GetAtt": [
+       "runnersWebhookHandlerwebhookhandlerLogRetention0F5ED260",
+       "LogGroupName"
+      ]
+     }
+    ]
+   }
+  },
+  "runnersIgnoredjobsbasedonlabels120F3D1A": {
+   "Type": "AWS::Logs::QueryDefinition",
+   "Properties": {
+    "Name": "GitHub Runners/Ignored jobs based on labels",
+    "QueryString": "parse @message /^(?<timestamp>[^\\s]+)\\t(?<requestId>[^\\s]+)\\t(?<level>[^\\s]+)\\t(?<message>.+$)/\n| filter strcontains(message, \"Ignoring labels\")\n| sort @timestamp desc\n| limit 100",
+    "LogGroupNames": [
+     {
+      "Fn::GetAtt": [
+       "runnersWebhookHandlerwebhookhandlerLogRetention0F5ED260",
+       "LogGroupName"
+      ]
+     }
+    ]
+   }
+  },
+  "runnersWebhookstartedrunners63776EDF": {
+   "Type": "AWS::Logs::QueryDefinition",
+   "Properties": {
+    "Name": "GitHub Runners/Webhook started runners",
+    "QueryString": "fields @timestamp, @message\n| filter jobUrl like /http.*/\n| sort @timestamp desc\n| limit 100",
+    "LogGroupNames": [
+     {
+      "Fn::GetAtt": [
+       "runnersWebhookHandlerwebhookhandlerLogRetention0F5ED260",
+       "LogGroupName"
+      ]
+     }
+    ]
+   }
+  },
   "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36": {
    "Type": "AWS::IAM::Role",
    "Properties": {
