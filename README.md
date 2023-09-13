@@ -280,6 +280,16 @@ Runners are started in response to a webhook coming in from GitHub. If there are
    2. If you see too many errors, make sure you're only sending `workflow_job` events
 5. When using GitHub app, make sure there are active installations in `github.auth.app.installations`
 
+All logs are saved in CloudWatch.
+* Log group names can be found in `status.json` for each provider, image builder, and other parts of the system
+* Some useful Logs Insights queries can be enabled with `GitHubRunners.createLogsInsightsQueries()`
+
+To get `status.json`, check out the CloudFormation stack output for a command that generates it. The command looks like:
+
+```
+aws --region us-east-1 lambda invoke --function-name status-XYZ123 status.json
+```
+
 ## Monitoring
 
 There are two important ways to monitor your runners:
