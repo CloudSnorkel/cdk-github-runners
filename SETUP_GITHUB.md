@@ -30,6 +30,7 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 4. In the repository permissions section enable:
     1. Actions: Read and write
     2. Administration: Read and write
+    3. Deployments: Read and write
 5. In the event subscription section enable:
     1. Workflow job
 6. Under "Where can this GitHub App be installed?" select "Only on this account"

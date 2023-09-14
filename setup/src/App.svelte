@@ -22,6 +22,7 @@
     default_permissions: {
       actions: 'write',
       administration: 'write',
+      deployments: 'write',
     },
     default_events: [
       'workflow_job',
