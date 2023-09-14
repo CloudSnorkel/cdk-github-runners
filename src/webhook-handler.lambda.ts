@@ -57,10 +57,15 @@ async function isDeploymentPending(payload: any) {
     return false;
   }
 
-  const { octokit } = await getOctokit(payload.installation?.id);
-  const statuses = await octokit.request(statusesUrl);
+  try {
+    const { octokit } = await getOctokit(payload.installation?.id);
+    const statuses = await octokit.request(statusesUrl);
 
-  return statuses.data[0]?.state === 'waiting';
+    return statuses.data[0]?.state === 'waiting';
+  } catch (e) {
+    console.error('Unable to check deployment. Try adding deployment read permission.', e);
+    return false;
+  }
 }
 
 function matchLabelsToProvider(labels: string[]) {
