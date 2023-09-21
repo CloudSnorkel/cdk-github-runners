@@ -2148,7 +2148,7 @@ Included components:
  * `RunnerImageComponent.git()`
  * `RunnerImageComponent.githubCli()`
  * `RunnerImageComponent.awsCli()`
- * `RunnerImageComponent.dockerInDocker()`
+ * `RunnerImageComponent.docker()`
  * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.imageBuilder.parameter.scope"></a>
@@ -8818,6 +8818,7 @@ Returns true if the image builder should be rebooted after this component is ins
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.awsCli">awsCli</a></code> | A component to install the AWS CLI. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.custom">custom</a></code> | Define a custom component that can run commands in the image, copy files into the image, and run some Docker commands. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.docker">docker</a></code> | A component to install Docker. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.dockerInDocker">dockerInDocker</a></code> | A component to install Docker-in-Docker. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.extraCertificates">extraCertificates</a></code> | A component to add a trusted certificate authority. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.git">git</a></code> | A component to install the GitHub CLI. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubCli">githubCli</a></code> | A component to install the GitHub CLI. |
@@ -8871,6 +8872,16 @@ RunnerImageComponent.docker()
 A component to install Docker.
 
 On Windows this sets up dockerd for Windows containers without Docker Desktop. If you need Linux containers on Windows, you'll need to install Docker Desktop which doesn't seem to play well with servers (PRs welcome).
+
+##### ~~`dockerInDocker`~~ <a name="dockerInDocker" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.dockerInDocker"></a>
+
+```typescript
+import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
+
+RunnerImageComponent.dockerInDocker()
+```
+
+A component to install Docker-in-Docker.
 
 ##### `extraCertificates` <a name="extraCertificates" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.extraCertificates"></a>
 
