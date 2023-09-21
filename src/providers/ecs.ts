@@ -225,8 +225,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         RunnerImageComponent.git(),
         RunnerImageComponent.githubCli(),
         RunnerImageComponent.awsCli(),
-        RunnerImageComponent.dockerInDocker(),
-        RunnerImageComponent.githubRunner(props?.runnerVersion ?? RunnerVersion.latest()),
+        RunnerImageComponent.docker(),
+        RunnerImageComponent.githubRunner(
+          props?.runnerVersion ?? RunnerVersion.latest(),
+        ),
       ],
       ...props,
     });
