@@ -175,9 +175,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
         RunnerImageComponent.githubCli(),
         RunnerImageComponent.awsCli(),
         RunnerImageComponent.docker(),
-        RunnerImageComponent.githubRunner(
-          props?.runnerVersion ?? RunnerVersion.latest(),
-        ),
+        RunnerImageComponent.githubRunner(props?.runnerVersion ?? RunnerVersion.latest()),
       ],
       ...props,
     });
