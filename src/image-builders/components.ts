@@ -393,47 +393,11 @@ export abstract class RunnerImageComponent {
 
   /**
    * A component to install Docker-in-Docker.
+   *
+   * @deprecated use `docker()`
    */
   static dockerInDocker(): RunnerImageComponent {
-    return new class extends RunnerImageComponent {
-      name = 'Docker-in-Docker';
-
-      getCommands(os: Os, architecture: Architecture) {
-        if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
-          let archUrl: string;
-          if (architecture.is(Architecture.X86_64)) {
-            archUrl = 'x86_64';
-          } else if (architecture.is(Architecture.ARM64)) {
-            archUrl = 'aarch64';
-          } else {
-            throw new Error(`Unsupported architecture for Docker-in-Docker: ${architecture.name}`);
-          }
-
-          return [
-            'DOCKER_CHANNEL="stable"',
-            'DIND_COMMIT="42b1175eda071c0e9121e1d64345928384a93df1"',
-            'DOCKER_VERSION="20.10.18"',
-            'DOCKER_COMPOSE_VERSION="2.11.0"',
-            `curl -fsSL "https://download.docker.com/linux/static/\${DOCKER_CHANNEL}/${archUrl}/docker-\${DOCKER_VERSION}.tgz" -o docker.tgz`,
-            'tar --strip-components 1 -C /usr/local/bin/ -xzf docker.tgz',
-            'rm docker.tgz',
-            '# set up subuid/subgid so that "--userns-remap=default" works out-of-the box',
-            'addgroup dockremap',
-            'useradd -g dockremap dockremap',
-            'echo \'dockremap:165536:65536\' >> /etc/subuid',
-            'echo \'dockremap:165536:65536\' >> /etc/subgid',
-            'curl -fsSL "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind" -o /usr/local/bin/dind',
-            `curl -fsSL https://github.com/docker/compose/releases/download/v\${DOCKER_COMPOSE_VERSION}/docker-compose-linux-${archUrl} -o /usr/local/bin/docker-compose`,
-            'mkdir -p /home/runner/.docker/cli-plugins && ln -s /usr/local/bin/docker-compose /home/runner/.docker/cli-plugins/docker-compose',
-            'chown -R runner /home/runner/.docker',
-            'chmod +x /usr/local/bin/dind /usr/local/bin/docker-compose',
-            'addgroup docker && usermod -aG docker runner',
-          ];
-        }
-
-        throw new Error(`Unknown os/architecture combo for Docker-in-Docker: ${os.name}/${architecture.name}`);
-      }
-    }();
+    return RunnerImageComponent.docker();
   }
 
   /**

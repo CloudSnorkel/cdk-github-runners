@@ -669,7 +669,7 @@ Included components:
  * `RunnerImageComponent.git()`
  * `RunnerImageComponent.githubCli()`
  * `RunnerImageComponent.awsCli()`
- * `RunnerImageComponent.dockerInDocker()`
+ * `RunnerImageComponent.docker()`
  * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.imageBuilder.parameter.scope"></a>
@@ -1035,7 +1035,7 @@ Included components:
  * `RunnerImageComponent.git()`
  * `RunnerImageComponent.githubCli()`
  * `RunnerImageComponent.awsCli()`
- * `RunnerImageComponent.dockerInDocker()`
+ * `RunnerImageComponent.docker()`
  * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.imageBuilder.parameter.scope"></a>
@@ -2148,7 +2148,7 @@ Included components:
  * `RunnerImageComponent.git()`
  * `RunnerImageComponent.githubCli()`
  * `RunnerImageComponent.awsCli()`
- * `RunnerImageComponent.dockerInDocker()`
+ * `RunnerImageComponent.docker()`
  * `RunnerImageComponent.githubRunner()`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.imageBuilder.parameter.scope"></a>
@@ -5476,7 +5476,7 @@ public readonly imageBuilder: IRunnerImageBuilder;
 
 Runner image builder used to build Docker images containing GitHub Runner and all requirements.
 
-The image builder must contain the {@link RunnerImageComponent.dockerInDocker} component unless `dockerInDocker` is set to false.
+The image builder must contain the {@link RunnerImageComponent.docker} component unless `dockerInDocker` is set to false.
 
 The image builder determines the OS and architecture of the runner.
 
@@ -8873,7 +8873,7 @@ A component to install Docker.
 
 On Windows this sets up dockerd for Windows containers without Docker Desktop. If you need Linux containers on Windows, you'll need to install Docker Desktop which doesn't seem to play well with servers (PRs welcome).
 
-##### `dockerInDocker` <a name="dockerInDocker" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.dockerInDocker"></a>
+##### ~~`dockerInDocker`~~ <a name="dockerInDocker" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.dockerInDocker"></a>
 
 ```typescript
 import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'

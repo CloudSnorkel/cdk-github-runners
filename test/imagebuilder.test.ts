@@ -221,7 +221,7 @@ test('CodeBuild default image builder has GitHub Runner and Docker-in-Docker', (
         'Fn::Join': [
           '',
           Match.arrayWith([
-            Match.stringLikeRegexp('component[0-9]+-Docker-in-Docker.sh'),
+            Match.stringLikeRegexp('component[0-9]+-Docker.sh'),
           ]),
         ],
       },

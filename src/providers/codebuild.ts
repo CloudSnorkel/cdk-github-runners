@@ -31,7 +31,7 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
   /**
    * Runner image builder used to build Docker images containing GitHub Runner and all requirements.
    *
-   * The image builder must contain the {@link RunnerImageComponent.dockerInDocker} component unless `dockerInDocker` is set to false.
+   * The image builder must contain the {@link RunnerImageComponent.docker} component unless `dockerInDocker` is set to false.
    *
    * The image builder determines the OS and architecture of the runner.
    *
@@ -161,7 +161,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
    *  * `RunnerImageComponent.git()`
    *  * `RunnerImageComponent.githubCli()`
    *  * `RunnerImageComponent.awsCli()`
-   *  * `RunnerImageComponent.dockerInDocker()`
+   *  * `RunnerImageComponent.docker()`
    *  * `RunnerImageComponent.githubRunner()`
    */
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
@@ -174,7 +174,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
         RunnerImageComponent.git(),
         RunnerImageComponent.githubCli(),
         RunnerImageComponent.awsCli(),
-        RunnerImageComponent.dockerInDocker(),
+        RunnerImageComponent.docker(),
         RunnerImageComponent.githubRunner(props?.runnerVersion ?? RunnerVersion.latest()),
       ],
       ...props,
