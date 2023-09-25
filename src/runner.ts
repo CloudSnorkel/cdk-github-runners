@@ -286,6 +286,10 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       ];
     }
 
+    if (this.providers.length == 0) {
+      throw new Error('At least one runner provider is required');
+    }
+
     this.checkIntersectingLabels();
 
     this.orchestrator = this.stateMachine(props);
