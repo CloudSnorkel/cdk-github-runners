@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2 } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
-import { CodeBuildRunnerProvider, GitHubRunners } from '../src';
+import { CodeBuildRunnerProvider, GitHubRunners, LambdaRunnerProvider } from '../src';
 
 let app: cdk.App;
 let stack: cdk.Stack;
@@ -14,7 +14,7 @@ describe('GitHubRunners', () => {
 
   test('Create GithubRunners with state machine logging enabled', () => {
     new GitHubRunners(stack, 'runners', {
-      providers: [],
+      providers: [new LambdaRunnerProvider(stack, 'p1')],
       logOptions: {
         logRetention: 1,
         logGroupName: 'test',
@@ -128,7 +128,7 @@ describe('GitHubRunners', () => {
     const sg = new ec2.SecurityGroup(stack, 'github sg', { vpc });
 
     const runners = new GitHubRunners(stack, 'runners', {
-      providers: [],
+      providers: [new LambdaRunnerProvider(stack, 'p1')],
       vpc,
     });
 
