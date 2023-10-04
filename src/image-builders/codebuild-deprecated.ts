@@ -103,7 +103,7 @@ export interface CodeBuildImageBuilderProps {
    *
    * The only action taken in CodeBuild is running `docker build`. You would therefore not need to change this setting often.
    *
-   * @default Ubuntu 22.04 for x64 and Amazon Linux 2 for ARM64
+   * @default Ubuntu 22.04 for x64 and Amazon Linux 2023 for ARM64
    */
   readonly buildImage?: codebuild.IBuildImage;
 
@@ -370,9 +370,9 @@ export class CodeBuildImageBuilder extends Construct implements IRunnerImageBuil
   private getBuildImage(): codebuild.IBuildImage {
     if (this.os.is(Os.LINUX)) {
       if (this.architecture.is(Architecture.X86_64)) {
-        return codebuild.LinuxBuildImage.STANDARD_6_0;
+        return codebuild.LinuxBuildImage.STANDARD_7_0;
       } else if (this.architecture.is(Architecture.ARM64)) {
-        return codebuild.LinuxArmBuildImage.AMAZON_LINUX_2_STANDARD_2_0;
+        return codebuild.LinuxArmBuildImage.AMAZON_LINUX_2_STANDARD_3_0;
       }
     }
     if (this.os.is(Os.WINDOWS)) {
