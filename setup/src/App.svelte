@@ -101,7 +101,7 @@
       manifest.default_permissions = runnerLevel === 'repo' ? repositoryPermissions : organizationPermissions;
       switch (auth) {
         case 'newApp':
-          return postJson('domain', { domain: rightDomain })
+          return postJson('domain', { domain: rightDomain, runnerLevel })
             .then(_ => {
               (document.getElementById('appform') as HTMLFormElement).submit();
               return Promise.resolve('Redirecting to GitHub...');
@@ -111,6 +111,7 @@
             appid: existingAppId,
             pk: existingAppPk,
             domain: rightDomain,
+            runnerLevel,
           });
         case 'pat':
           return postJson('pat', {
