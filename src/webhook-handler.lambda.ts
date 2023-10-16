@@ -1,11 +1,11 @@
 import * as crypto from 'crypto';
+import { SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import * as AWSLambda from 'aws-lambda';
-import * as AWS from 'aws-sdk';
 import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
 import { SupportedLabels } from './webhook';
 
-const sf = new AWS.StepFunctions();
+const sf = new SFNClient();
 
 // TODO use @octokit/webhooks?
 
@@ -174,12 +174,12 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     labels: payload.workflow_job.labels,
     provider: provider,
   });
-  const execution = await sf.startExecution({
+  const execution = await sf.send(new StartExecutionCommand({
     stateMachineArn: process.env.STEP_FUNCTION_ARN,
     input: input,
     // name is not random so multiple execution of this webhook won't cause multiple builders to start
     name: executionName,
-  }).promise();
+  }));
 
   console.log(`Started ${execution.executionArn}`);
   console.log(input);

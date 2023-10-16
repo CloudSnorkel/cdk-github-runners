@@ -17,7 +17,7 @@ export class AmiRootDeviceFunction extends lambda.Function {
     super(scope, id, {
       description: 'src/providers/ami-root-device.lambda.ts',
       ...props,
-      runtime: new lambda.Runtime('nodejs16.x', lambda.RuntimeFamily.NODEJS),
+      runtime: new lambda.Runtime('nodejs18.x', lambda.RuntimeFamily.NODEJS),
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../../assets/providers/ami-root-device.lambda')),
     });
