@@ -13,6 +13,7 @@
     ".projen/deps.json",
     ".projen/files.json",
     ".projen/tasks.json",
+    ".vscode/settings.json",
     "cdk.json",
     "LICENSE",
     "src/delete-failed-runner-function.ts",
