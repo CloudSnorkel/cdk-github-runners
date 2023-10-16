@@ -32,6 +32,7 @@ export async function handler(event: StepFunctionLambdaInput) {
 
     return {
       domain: githubSecrets.domain,
+      runnerLevel: githubSecrets.runnerLevel,
       token: response!.data.token,
     };
   } catch (error) {

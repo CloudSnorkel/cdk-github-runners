@@ -326,6 +326,12 @@ export interface RunnerRuntimeParameters {
    * Path to repository name.
    */
   readonly repoPath: string;
+
+  /**
+   * Level to register runner at. Can be either 'repo' or 'org'.
+   */
+  readonly runnerLevel: string;
+
 }
 
 /**
