@@ -150,6 +150,7 @@ cdkConfig.json.addDeletionOverride('output');
 project.eslint.allowDevDeps('src/lambda-helpers.ts');
 project.eslint.allowDevDeps('src/lambda-github.ts');
 
+// vscode auto formatting
 project.vscode.settings.addSettings({
   'editor.formatOnSave': true,
   'editor.codeActionsOnSave': {
