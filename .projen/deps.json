@@ -1,7 +1,43 @@
 {
   "dependencies": [
     {
-      "name": "@aws-sdk/types",
+      "name": "@aws-sdk/client-cloudformation",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-codebuild",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-ec2",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-ecr",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-imagebuilder",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-lambda",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-secrets-manager",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-sfn",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-sns",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-ssm",
       "type": "build"
     },
     {
@@ -60,10 +96,6 @@
     {
       "name": "aws-cdk",
       "version": "^2",
-      "type": "build"
-    },
-    {
-      "name": "aws-sdk",
       "type": "build"
     },
     {

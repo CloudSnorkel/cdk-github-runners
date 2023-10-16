@@ -1,6 +1,16 @@
+import { DescribeImagesCommand as DescribeEc2ImagesCommand, EC2Client } from '@aws-sdk/client-ec2';
+import { DescribeImagesCommand as DescribeEcrImagesCommand, ECRClient } from '@aws-sdk/client-ecr';
+import {
+  Ami, Container,
+  DeleteImageCommand,
+  ImagebuilderClient,
+  ImageSummary,
+  ListImageBuildVersionsCommand,
+  ListImageBuildVersionsRequest,
+  ListImagesCommand,
+  ListImagesRequest,
+} from '@aws-sdk/client-imagebuilder';
 import * as AWSLambda from 'aws-lambda';
-import * as AWS from 'aws-sdk';
-
 interface ReaperInput {
   /**
    * Recipe/image name.
@@ -8,14 +18,14 @@ interface ReaperInput {
   RecipeName: string;
 }
 
-const ec2 = new AWS.EC2();
-const ecr = new AWS.ECR();
-const ib = new AWS.Imagebuilder();
+const ec2 = new EC2Client();
+const ecr = new ECRClient();
+const ib = new ImagebuilderClient();
 
 async function iterateImageVersions(imageName: string) {
   let result: string[] = [];
 
-  let params: AWS.Imagebuilder.ListImagesRequest = {
+  let params: ListImagesRequest = {
     owner: 'Self',
     filters: [
       {
@@ -26,7 +36,7 @@ async function iterateImageVersions(imageName: string) {
   };
 
   while (true) {
-    const response = await ib.listImages(params).promise();
+    const response = await ib.send(new ListImagesCommand(params));
 
     if (response.imageVersionList) {
       for (const imageVersion of response.imageVersionList) {
@@ -46,14 +56,14 @@ async function iterateImageVersions(imageName: string) {
 }
 
 async function iterateImageBuildVersions(imageVersionArn: string) {
-  let result: AWS.Imagebuilder.ImageSummary[] = [];
+  let result: ImageSummary[] = [];
 
-  let params: AWS.Imagebuilder.ListImageBuildVersionsRequest = {
+  let params: ListImageBuildVersionsRequest = {
     imageVersionArn: imageVersionArn,
   };
 
   while (true) {
-    const response = await ib.listImageBuildVersions(params).promise();
+    const response = await ib.send(new ListImageBuildVersionsCommand(params));
 
     if (response.imageSummaryList) {
       for (const imageBuildVersion of response.imageSummaryList) {
@@ -76,7 +86,7 @@ async function iterateImageBuildVersions(imageVersionArn: string) {
   return result;
 }
 
-async function amisGone(amis?: AWS.Imagebuilder.AmiList) {
+async function amisGone(amis?: Ami[]) {
   if (!amis) {
     console.log('No AMIs found, so we can delete the image version build');
     return true;
@@ -92,9 +102,9 @@ async function amisGone(amis?: AWS.Imagebuilder.AmiList) {
     }
 
     try {
-      const response = await ec2.describeImages({
+      const response = await ec2.send(new DescribeEc2ImagesCommand({
         ImageIds: [ami.image],
-      }).promise();
+      }));
 
       if (response.Images?.length ?? 0 > 0) {
         // image still available
@@ -115,7 +125,7 @@ async function amisGone(amis?: AWS.Imagebuilder.AmiList) {
   return true;
 }
 
-async function dockerImagesGone(dockerImages?: AWS.Imagebuilder.ContainerList) {
+async function dockerImagesGone(dockerImages?: Container[]) {
   if (!dockerImages) {
     console.log('No docker images, so we can delete the image version build');
     return true;
@@ -135,10 +145,10 @@ async function dockerImagesGone(dockerImages?: AWS.Imagebuilder.ContainerList) {
       console.log(`Checking if ${repoName}:${version} exists`);
 
       try {
-        const response = await ecr.describeImages({
+        const response = await ecr.send(new DescribeEcrImagesCommand({
           repositoryName: repoName,
           imageIds: [{ imageTag: version }],
-        }).promise();
+        }));
 
         if (response.imageDetails && response.imageDetails.length > 0) {
           // image still available
@@ -173,9 +183,9 @@ export async function handler(event: ReaperInput, _context: AWSLambda.Context) {
 
       if (await amisGone(imageBuildVersion.outputResources?.amis) && await dockerImagesGone(imageBuildVersion.outputResources?.containers)) {
         console.log('Deleting image version build', imageBuildVersion.arn);
-        await ib.deleteImage({
+        await ib.send(new DeleteImageCommand({
           imageBuildVersionArn: imageBuildVersion.arn,
-        }).promise();
+        }));
       }
     }
   }
