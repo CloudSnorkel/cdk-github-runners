@@ -1,9 +1,14 @@
+import {
+  DeleteSnapshotCommand,
+  DeregisterImageCommand,
+  DescribeImagesCommand,
+  DescribeLaunchTemplateVersionsCommand,
+  EC2Client,
+} from '@aws-sdk/client-ec2';
 import * as AWSLambda from 'aws-lambda';
-import * as AWS from 'aws-sdk';
 import { customResourceRespond } from '../../lambda-helpers';
 
-
-const ec2 = new AWS.EC2();
+const ec2 = new EC2Client();
 
 type DeleteAmiInput = {
   RequestType: 'Scheduled';
@@ -14,7 +19,7 @@ type DeleteAmiInput = {
 
 async function deleteAmis(launchTemplateId: string, stackName: string, builderName: string, deleteAll: boolean) {
   // this runs daily and images are built once a week, so there shouldn't be a need for pagination
-  const images = await ec2.describeImages({
+  const images = await ec2.send(new DescribeImagesCommand({
     Owners: ['self'],
     Filters: [
       {
@@ -26,7 +31,7 @@ async function deleteAmis(launchTemplateId: string, stackName: string, builderNa
         Values: [builderName],
       },
     ],
-  }).promise();
+  }));
 
   let imagesToDelete = images.Images ?? [];
 
@@ -35,10 +40,10 @@ async function deleteAmis(launchTemplateId: string, stackName: string, builderNa
 
   if (!deleteAll) {
     // get launch template information to filter out the active image
-    const launchTemplates = await ec2.describeLaunchTemplateVersions({
+    const launchTemplates = await ec2.send(new DescribeLaunchTemplateVersionsCommand({
       LaunchTemplateId: launchTemplateId,
       Versions: ['$Default'],
-    }).promise();
+    }));
     if (!launchTemplates.LaunchTemplateVersions) {
       console.error(`Unable to describe launch template ${launchTemplateId}`);
       return;
@@ -62,17 +67,17 @@ async function deleteAmis(launchTemplateId: string, stackName: string, builderNa
 
     console.log(`Deregistering ${image.ImageId}`);
 
-    await ec2.deregisterImage({
+    await ec2.send(new DeregisterImageCommand({
       ImageId: image.ImageId,
-    }).promise();
+    }));
 
     for (const blockMapping of image.BlockDeviceMappings ?? []) {
       if (blockMapping.Ebs?.SnapshotId) {
         console.log(`Deleting ${blockMapping.Ebs.SnapshotId}`);
 
-        await ec2.deleteSnapshot({
+        await ec2.send(new DeleteSnapshotCommand({
           SnapshotId: blockMapping.Ebs.SnapshotId,
-        }).promise();
+        }));
       }
     }
   }
