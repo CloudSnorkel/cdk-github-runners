@@ -71,11 +71,16 @@ async function handlePat(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayPr
   if (!body.pat || !body.domain) {
     return response(400, 'Invalid personal access token');
   }
+  if (!body.runnerLevel) {
+    return response(400, 'Invalid runner regisration level');
+  }
 
   await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(<GitHubSecrets>{
     domain: body.domain,
     appId: -1,
     personalAuthToken: body.pat,
+    runnerLevel: body.runnerLevel,
+
   }));
   await updateSecretValue(process.env.SETUP_SECRET_ARN, JSON.stringify({ token: '' }));
 
@@ -114,7 +119,7 @@ async function handleNewApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
 async function handleExistingApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayProxyResultV2> {
   const body = decodeBody(event);
 
-  if (!body.appid || !body.pk || !body.domain) {
+  if (!body.appid || !body.pk || !body.domain || !body.runnerLevel) {
     return response(400, 'Missing fields');
   }
 
@@ -122,6 +127,7 @@ async function handleExistingApp(event: ApiGatewayEvent): Promise<AWSLambda.APIG
     domain: body.domain,
     appId: body.appid,
     personalAuthToken: '',
+    runnerLevel: body.runnerLevel,
   }));
   await updateSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN, body.pk as string);
   await updateSecretValue(process.env.SETUP_SECRET_ARN, JSON.stringify({ token: '' }));

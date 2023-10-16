@@ -117,6 +117,7 @@
           return postJson('pat', {
             pat: pat,
             domain: rightDomain,
+            runnerLevel,
           });
       }
     }
