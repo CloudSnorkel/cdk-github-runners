@@ -1,5 +1,5 @@
 import { RequestError } from '@octokit/request-error';
-import { getOctokit } from './lambda-github';
+import { GitHubSecrets, getOctokit } from './lambda-github';
 import { StepFunctionLambdaInput } from './lambda-helpers';
 
 class RunnerTokenError extends Error {
@@ -18,14 +18,21 @@ export async function handler(event: StepFunctionLambdaInput) {
       octokit,
     } = await getOctokit(event.installationId);
 
-    const response = await octokit.rest.actions.createRegistrationTokenForRepo({
-      owner: event.owner,
-      repo: event.repo,
-    });
+    let response;
+    if ((githubSecrets as GitHubSecrets).runnerLevel === 'repo') {
+      response = await octokit.rest.actions.createRegistrationTokenForRepo({
+        owner: event.owner,
+        repo: event.repo,
+      });
+    } else if ((githubSecrets as GitHubSecrets).runnerLevel === 'org') {
+      response = await octokit.rest.actions.createRegistrationTokenForOrg({
+        org: event.owner,
+      });
+    }
 
     return {
       domain: githubSecrets.domain,
-      token: response.data.token,
+      token: response!.data.token,
     };
   } catch (error) {
     console.error(error);
