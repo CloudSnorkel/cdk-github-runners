@@ -60,11 +60,51 @@ EOF
   /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2
 }
 action () {
-  if [ "$(< RUNNER_VERSION)" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
-  sudo -Hu runner /home/runner/config.sh --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{},cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "{}" || exit 1
+  # Define variables for injected parameters
+  taskToken="$1"
+  logGroupName="$2"
+  runnerNamePath="$3"
+  githubDomainPath="$4"
+  ownerPath="$5"
+  repoPath="$6"
+  runnerTokenPath="$7"
+  labels="$8"
+  runnerNamePath2="$9"
+  labels2="${10}"
+  runnerLevel="${11}"
+
+  # Determine the value of RUNNER_FLAGS
+  if [ "$(< RUNNER_VERSION)" = "latest" ]; then
+    RUNNER_FLAGS=""
+  else
+    RUNNER_FLAGS="--disableupdate"
+  fi
+
+  # Construct the URL and labels templates
+  url="https/$githubDomainPath/$ownerPath/$repoPath"
+  labelsTemplate="$labels,cdkghr:started:$(date +%s)"
+
+  # Define the registration URL based on runnerLevel
+  if [ "$runnerLevel" = "org" ]; then
+    registrationURL="https://$githubDomainPath/$ownerPath"
+  elif [ "$runnerLevel" = "repo" ]; then
+    registrationURL="https://$githubDomainPath/$ownerPath/$repoPath"
+  else
+    echo "Invalid runnerLevel: $runnerLevel"
+    exit 1
+  fi
+
+  # Execute the configuration command for runner registration
+  sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" || exit 1
+
+  # Execute the run command
   sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
-  STATUS=$(grep -Phors "finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*" /home/runner/_diag/ | tail -n1)
-  [ -n "$STATUS" ] && echo CDKGHA JOB DONE "{}" "$STATUS"
+
+  # Retrieve the status
+  STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \K.*" /home/runner/_diag/ | tail -n1)
+
+  # Check and print the job status
+  [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$labels2" "$STATUS"
 }
 heartbeat &
 if setup_logs && action | tee /var/log/runner.log 2>&1; then
@@ -108,7 +148,7 @@ function setup_logs () {
 }
 function action () {
   cd /actions
-  $RunnerVersion = Get-Content RUNNER_VERSION -Raw 
+  $RunnerVersion = Get-Content RUNNER_VERSION -Raw
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
   ./config.cmd --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "{}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
   if ($LASTEXITCODE -ne 0) { return 1 }
@@ -366,6 +406,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       this.labels.join(','),
       parameters.runnerNamePath,
       this.labels.join(','),
+      parameters.runnerLevel,
     ];
 
     const passUserData = new stepfunctions.Pass(this, `${this.labels.join(', ')} data`, {
@@ -390,7 +431,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
     rootDeviceResource.node.addDependency(this.amiBuilder);
     const subnetRunners = this.subnets.map((subnet, index) => {
-      return new stepfunctions_tasks.CallAwsService(this, `${this.labels.join(', ')} subnet${index+1}`, {
+      return new stepfunctions_tasks.CallAwsService(this, `${this.labels.join(', ')} subnet${index + 1}`, {
         comment: subnet.subnetId,
         integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         service: 'ec2',
@@ -442,7 +483,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
 
     // chain up the rest of the subnets
     for (let i = 1; i < subnetRunners.length; i++) {
-      subnetRunners[i-1].addCatch(subnetRunners[i], {
+      subnetRunners[i - 1].addCatch(subnetRunners[i], {
         errors: ['Ec2.Ec2Exception', 'States.Timeout'],
         resultPath: stepfunctions.JsonPath.stringAt('$.lastSubnetError'),
       });
