@@ -5,12 +5,25 @@
   let domain = 'INSERT_DOMAIN_HERE';
   let auth: undefined | 'newApp' | 'existingApp' | 'pat';
   let appScope: 'user' | 'org' = 'user';
+  let runnerLevel: 'repo' | 'org';
   let org = 'ORGANIZATION';
   let existingAppId: string = '';
   let existingAppPk: string = '';
   let pat: string = '';
   let success: boolean;
   let result: string | undefined;
+
+  const repositoryPermissions = {
+    actions: 'write',
+    administration: 'write',
+    deployments: 'read',
+  };
+
+  const organizationPermissions = {
+    actions: 'write',
+    organization_self_hosted_runners: 'write',
+    deployments: 'read',
+  };
 
   const manifest = {
     url: 'https://github.com/CloudSnorkel/cdk-github-runners',
@@ -19,11 +32,7 @@
     },
     redirect_url: 'INSERT_BASE_URL_HERE/complete-new-app',
     public: false,
-    default_permissions: {
-      actions: 'write',
-      administration: 'write',
-      deployments: 'read',
-    },
+    default_permissions: repositoryPermissions || organizationPermissions,
     default_events: [
       'workflow_job',
     ],
@@ -89,6 +98,7 @@
 
     function promise(): Promise<string> {
       const rightDomain = instance === 'ghes' ? domain : 'github.com';
+      manifest.default_permissions = runnerLevel === 'repo' ? repositoryPermissions : organizationPermissions;
       switch (auth) {
         case 'newApp':
           return postJson('domain', { domain: rightDomain })
@@ -260,6 +270,48 @@
                    placeholder="Token e.g. ghp_abcdefghijklmnopqrstuvwxyz1234567890">
           </div>
         {/if}
+
+
+        <h3>Choose Registration Level</h3>
+        <div class="px-3 py-3">
+          <p>
+            You can configure the github app to register the runners at the
+            repository or organization level. <br>
+            The main difference are the
+            permissions assigned to the github app.<br>
+          </p>
+          <ul>
+            <li>
+              Repository level: the github app will
+              have full <b>administrative</b> access to the selected
+              repositories.
+            </li>
+            <li>
+              Organization level: the github app will have only the "self-hosted
+              github runner" permission to register runners in the organization. (Recommended for organizations)
+            </li>
+        </ul>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              bind:group={runnerLevel}
+              value="repo"
+              id="repo"
+            />
+            <label class="form-check-label" for="repo">Repository</label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              bind:group={runnerLevel}
+              value="org"
+              id="org"
+            />
+            <label class="form-check-label" for="org">Organization</label>
+          </div>
+        </div>
 
         <h2>Finish Setup</h2>
         <div class="px-3 py-3">
