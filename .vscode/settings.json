@@ -1,0 +1,10 @@
+{
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "eslint.format.enable": true,
+    "prettier.enable": false,
+    "svelte.plugin.svelte.format.enable": false,
+    "svelte.plugin.svelte.enable": false,
+}
