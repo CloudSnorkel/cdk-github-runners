@@ -106,6 +106,7 @@ async function handleNewApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
     domain: new URL(newApp.data.html_url).host,
     appId: newApp.data.id,
     personalAuthToken: '',
+    runnerLevel: githubSecrets.runnerLevel,
   }));
   await updateSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN, newApp.data.pem);
   await updateSecretValue(process.env.WEBHOOK_SECRET_ARN, JSON.stringify({
