@@ -32,7 +32,7 @@
     },
     redirect_url: "INSERT_BASE_URL_HERE/complete-new-app",
     public: false,
-    default_permissions: repositoryPermissions || organizationPermissions,
+    default_permissions: repositoryPermissions as Object,
     default_events: ["workflow_job"],
   };
 
