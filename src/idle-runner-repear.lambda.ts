@@ -1,6 +1,6 @@
+import { DescribeExecutionCommand, SFNClient, StopExecutionCommand } from '@aws-sdk/client-sfn';
 import { Octokit } from '@octokit/rest';
 import * as AWSLambda from 'aws-lambda';
-import * as AWS from 'aws-sdk';
 import { getOctokit, getRunner } from './lambda-github';
 
 interface IdleReaperLambdaInput {
@@ -12,7 +12,7 @@ interface IdleReaperLambdaInput {
   readonly maxIdleSeconds: number;
 }
 
-const sfn = new AWS.StepFunctions();
+const sfn = new SFNClient();
 
 export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSBatchResponse> {
   const result: AWSLambda.SQSBatchResponse = { batchItemFailures: [] };
@@ -25,7 +25,7 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
     const retryLater = () => result.batchItemFailures.push({ itemIdentifier: record.messageId });
 
     // check if step function is still running
-    const execution = await sfn.describeExecution({ executionArn: input.executionArn }).promise();
+    const execution = await sfn.send(new DescribeExecutionCommand({ executionArn: input.executionArn }));
     if (execution.status != 'RUNNING') {
       // no need to test again as runner already finished
       console.log('Runner already finished');
@@ -76,11 +76,11 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
             // stop step function first, so it's marked as aborted with the proper error
             // if we delete the runner first, the step function will be marked as failed with a generic error
             console.log(`Stopping step function ${input.executionArn}...`);
-            await sfn.stopExecution({
+            await sfn.send(new StopExecutionCommand({
               executionArn: input.executionArn,
               error: 'IdleRunner',
               cause: `Runner ${input.runnerName} on ${input.owner}/${input.repo} is idle for too long (${diffMs / 1000} seconds and limit is ${input.maxIdleSeconds} seconds)`,
-            }).promise();
+            }));
           } catch (e) {
             console.error(`Failed to stop step function ${input.executionArn}: ${e}`);
             retryLater();
