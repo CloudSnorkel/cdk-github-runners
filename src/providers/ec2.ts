@@ -31,6 +31,15 @@ import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 // each `{}` is a variable coming from `params` below
 const linuxUserDataTemplate = `#!/bin/bash -x
 TASK_TOKEN="{}"
+logGroupName="{}"
+runnerNamePath="{}"
+githubDomainPath="{}"
+ownerPath="{}"
+repoPath="{}"
+runnerTokenPath="{}"
+labels="{}"
+runnerLevel="{}"
+
 heartbeat () {
   while true; do
     aws stepfunctions send-task-heartbeat --task-token "$TASK_TOKEN"
@@ -47,8 +56,8 @@ setup_logs () {
           "collect_list": [
             {
               "file_path": "/var/log/runner.log",
-              "log_group_name": "{}",
-              "log_stream_name": "{}",
+              "log_group_name": "$logGroupName",
+              "log_stream_name": "$runnerNamePath",
               "timezone": "UTC"
             }
           ]
@@ -60,19 +69,6 @@ EOF
   /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2
 }
 action () {
-  # Define variables for injected parameters
-  taskToken="$1"
-  logGroupName="$2"
-  runnerNamePath="$3"
-  githubDomainPath="$4"
-  ownerPath="$5"
-  repoPath="$6"
-  runnerTokenPath="$7"
-  labels="$8"
-  runnerNamePath2="$9"
-  labels2="${10}"
-  runnerLevel="${11}"
-
   # Determine the value of RUNNER_FLAGS
   if [ "$(< RUNNER_VERSION)" = "latest" ]; then
     RUNNER_FLAGS=""
@@ -80,10 +76,7 @@ action () {
     RUNNER_FLAGS="--disableupdate"
   fi
 
-  # Construct the URL and labels templates
-  url="https/$githubDomainPath/$ownerPath/$repoPath"
   labelsTemplate="$labels,cdkghr:started:$(date +%s)"
-
   # Define the registration URL based on runnerLevel
   if [ "$runnerLevel" = "org" ]; then
     registrationURL="https://$githubDomainPath/$ownerPath"
@@ -104,7 +97,7 @@ action () {
   STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \K.*" /home/runner/_diag/ | tail -n1)
 
   # Check and print the job status
-  [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$labels2" "$STATUS"
+  [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$labels" "$STATUS"
 }
 heartbeat &
 if setup_logs && action | tee /var/log/runner.log 2>&1; then
@@ -403,8 +396,6 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       parameters.ownerPath,
       parameters.repoPath,
       parameters.runnerTokenPath,
-      this.labels.join(','),
-      parameters.runnerNamePath,
       this.labels.join(','),
       parameters.runnerLevel,
     ];
