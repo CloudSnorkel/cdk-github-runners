@@ -18,23 +18,28 @@ export async function handler(event: StepFunctionLambdaInput) {
       octokit,
     } = await getOctokit(event.installationId);
 
-    let response;
     if ((githubSecrets as GitHubSecrets).runnerLevel === 'repo') {
-      response = await octokit.rest.actions.createRegistrationTokenForRepo({
+      const response = await octokit.rest.actions.createRegistrationTokenForRepo({
         owner: event.owner,
         repo: event.repo,
       });
+      return {
+        domain: githubSecrets.domain,
+        runnerLevel: githubSecrets.runnerLevel,
+        token: response.data.token,
+      };
     } else if ((githubSecrets as GitHubSecrets).runnerLevel === 'org') {
-      response = await octokit.rest.actions.createRegistrationTokenForOrg({
+      const response = await octokit.rest.actions.createRegistrationTokenForOrg({
         org: event.owner,
       });
+      return {
+        domain: githubSecrets.domain,
+        runnerLevel: githubSecrets.runnerLevel,
+        token: response.data.token,
+      };
+    } else {
+      throw new RunnerTokenError('Invalid runner level');
     }
-
-    return {
-      domain: githubSecrets.domain,
-      runnerLevel: githubSecrets.runnerLevel,
-      token: response!.data.token,
-    };
   } catch (error) {
     console.error(error);
     const reqError = <RequestError>error;
