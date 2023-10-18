@@ -7998,6 +7998,7 @@ const runnerRuntimeParameters: RunnerRuntimeParameters = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.githubDomainPath">githubDomainPath</a></code> | <code>string</code> | Path to GitHub domain. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.ownerPath">ownerPath</a></code> | <code>string</code> | Path to repository owner name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.repoPath">repoPath</a></code> | <code>string</code> | Path to repository name. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerLevel">runnerLevel</a></code> | <code>string</code> | Level to register runner at. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerNamePath">runnerNamePath</a></code> | <code>string</code> | Path to desired runner name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerTokenPath">runnerTokenPath</a></code> | <code>string</code> | Path to runner token used to register token. |
 
@@ -8038,6 +8039,20 @@ public readonly repoPath: string;
 - *Type:* string
 
 Path to repository name.
+
+---
+
+##### `runnerLevel`<sup>Required</sup> <a name="runnerLevel" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerLevel"></a>
+
+```typescript
+public readonly runnerLevel: string;
+```
+
+- *Type:* string
+
+Level to register runner at.
+
+Can be either 'repo' or 'org'.
 
 ---
 
