@@ -1,6 +1,6 @@
 import { RequestError } from '@octokit/request-error';
-import { GitHubSecrets, getOctokit } from './lambda-github';
-import { StepFunctionLambdaInput } from './lambda-helpers';
+import { getOctokit } from './lambda-github';
+import { StepFunctionLambdaInput, getSecretJsonValue } from './lambda-helpers';
 
 class RunnerTokenError extends Error {
   constructor(msg: string) {
@@ -13,30 +13,12 @@ class RunnerTokenError extends Error {
 
 export async function handler(event: StepFunctionLambdaInput) {
   try {
-    const {
-      githubSecrets,
-      octokit,
-    } = await getOctokit(event.installationId);
+    const githubRunnerLevel = await getSecretJsonValue(process.env.GITHUB_RUNNER_LEVEL_ARN);
 
-    if ((githubSecrets as GitHubSecrets).runnerLevel === 'repo') {
-      const response = await octokit.rest.actions.createRegistrationTokenForRepo({
-        owner: event.owner,
-        repo: event.repo,
-      });
-      return {
-        domain: githubSecrets.domain,
-        runnerLevel: githubSecrets.runnerLevel,
-        token: response.data.token,
-      };
-    } else if ((githubSecrets as GitHubSecrets).runnerLevel === 'org') {
-      const response = await octokit.rest.actions.createRegistrationTokenForOrg({
-        org: event.owner,
-      });
-      return {
-        domain: githubSecrets.domain,
-        runnerLevel: githubSecrets.runnerLevel,
-        token: response.data.token,
-      };
+    if (githubRunnerLevel.runnerLevel === 'repo') {
+      return await getRegistrationTokenForRepo(event, githubRunnerLevel);
+    } else if (githubRunnerLevel.runnerLevel === 'org') {
+      return await getRegistrationTokenForOrg(event, githubRunnerLevel);
     } else {
       throw new RunnerTokenError('Invalid runner level');
     }
@@ -45,4 +27,34 @@ export async function handler(event: StepFunctionLambdaInput) {
     const reqError = <RequestError>error;
     throw new RunnerTokenError(reqError.message);
   }
+}
+async function getRegistrationTokenForOrg(event: StepFunctionLambdaInput, githubRunnerLevel: any) {
+  const {
+    githubSecrets,
+    octokit,
+  } = await getOctokit(event.installationId);
+  const response = await octokit.rest.actions.createRegistrationTokenForOrg({
+    org: event.owner,
+  });
+  return {
+    domain: githubSecrets.domain,
+    runnerLevel: githubRunnerLevel.runnerLevel,
+    token: response.data.token,
+  };
+}
+
+async function getRegistrationTokenForRepo(event: StepFunctionLambdaInput, githubRunnerLevel: any) {
+  const {
+    githubSecrets,
+    octokit,
+  } = await getOctokit(event.installationId);
+  const response = await octokit.rest.actions.createRegistrationTokenForRepo({
+    owner: event.owner,
+    repo: event.repo,
+  });
+  return {
+    domain: githubSecrets.domain,
+    runnerLevel: githubRunnerLevel.runnerLevel,
+    token: response.data.token,
+  };
 }

@@ -61,8 +61,8 @@ async function handleDomain(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
 
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   githubSecrets.domain = body.domain;
-  githubSecrets.runnerLevel = body.runnerLevel;
   await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(githubSecrets));
+  await updateSecretValue(process.env.GITHUB_RUNNER_LEVEL_ARN, JSON.stringify({ runnerLevel: body.runnerLevel }));
   return response(200, 'Domain set');
 }
 
@@ -71,16 +71,11 @@ async function handlePat(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayPr
   if (!body.pat || !body.domain) {
     return response(400, 'Invalid personal access token');
   }
-  if (!body.runnerLevel) {
-    return response(400, 'Invalid runner regisration level');
-  }
 
   await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(<GitHubSecrets>{
     domain: body.domain,
     appId: -1,
     personalAuthToken: body.pat,
-    runnerLevel: body.runnerLevel,
-
   }));
   await updateSecretValue(process.env.SETUP_SECRET_ARN, JSON.stringify({ token: '' }));
 
@@ -106,7 +101,6 @@ async function handleNewApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
     domain: new URL(newApp.data.html_url).host,
     appId: newApp.data.id,
     personalAuthToken: '',
-    runnerLevel: githubSecrets.runnerLevel,
   }));
   await updateSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN, newApp.data.pem);
   await updateSecretValue(process.env.WEBHOOK_SECRET_ARN, JSON.stringify({
@@ -128,8 +122,8 @@ async function handleExistingApp(event: ApiGatewayEvent): Promise<AWSLambda.APIG
     domain: body.domain,
     appId: body.appid,
     personalAuthToken: '',
-    runnerLevel: body.runnerLevel,
   }));
+  await updateSecretValue(process.env.GITHUB_RUNNER_LEVEL_ARN, JSON.stringify({ runnerLevel: body.runnerLevel }));
   await updateSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN, body.pk as string);
   await updateSecretValue(process.env.SETUP_SECRET_ARN, JSON.stringify({ token: '' }));
 
