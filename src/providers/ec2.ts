@@ -113,6 +113,14 @@ poweroff
 // each `{}` is a variable coming from `params` below and their order should match the linux script
 const windowsUserDataTemplate = `<powershell>
 $TASK_TOKEN = "{}"
+$logGroupName="{}"
+$runnerNamePath="{}"
+$githubDomainPath="{}"
+$ownerPath="{}"
+$repoPath="{}"
+$runnerTokenPath="{}"
+$labels="{}"
+$runnerLevel="{}"
 Start-Job -ScriptBlock {
   while (1) {
     aws stepfunctions send-task-heartbeat --task-token "$using:TASK_TOKEN"
@@ -128,8 +136,8 @@ function setup_logs () {
          "collect_list": [
             {
               "file_path": "/actions/runner.log",
-              "log_group_name": "{}",
-              "log_stream_name": "{}",
+              "log_group_name": "$logGroupName",
+              "log_stream_name": "$runnerNamePath",
               "timezone": "UTC"
             }
           ]
@@ -143,13 +151,33 @@ function action () {
   cd /actions
   $RunnerVersion = Get-Content RUNNER_VERSION -Raw
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
-  ./config.cmd --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "{}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+
+  # Set registrationUrl based on runnerLevel
+  if ($runnerLevel -eq "org") {
+      $registrationUrl = "https://\${githubDomainPath}/\${ownerPath}"
+  }
+  elseif ($runnerLevel -eq "repo") {
+      $registrationUrl = "https://\${githubDomainPath}/\${ownerPath}/\${repoPath}"
+  }
+  else {
+      Write-Host "Invalid runnerLevel: $runnerLevel"
+      return 1
+  }
+
+  ./config.cmd --unattended --url $registrationUrl --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+
   if ($LASTEXITCODE -ne 0) { return 1 }
   ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
   if ($LASTEXITCODE -ne 0) { return 2 }
-  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1
-  if ($STATUS) { echo "CDKGHA JOB DONE {} $STATUS" | Out-File -Encoding ASCII -Append /actions/runner.log }
+
+  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1
+
+  if ($STATUS) {
+      echo "CDKGHA JOB DONE \${labels} $STATUS" | Out-File -Encoding ASCII -Append /actions/runner.log
+  }
+
   return 0
+
 }
 setup_logs
 $r = action
