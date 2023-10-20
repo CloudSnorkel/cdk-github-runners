@@ -14,7 +14,7 @@ export HOME=/tmp/home
 # start runner
 if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
 if [ "${RUNNER_LEVEL}" = "org" ]; then REGISTRATION_URL="https://${GITHUB_DOMAIN}/${OWNER}"; elif [ "${RUNNER_LEVEL}" = "repo" ]; then REGISTRATION_URL="https://${GITHUB_DOMAIN}/${OWNER}/${REPO}"; else echo "Invalid runnerLevel: ${RUNNER_LEVEL}"; exit 1; fi
-./config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" --name "${RUNNER_NAME}" ${RUNNER_FLAGS}
+./config.sh --unattended --url $REGISTRATION_URL --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" --name "${RUNNER_NAME}" ${RUNNER_FLAGS}
 echo Config done
 ./run.sh
 echo Run done

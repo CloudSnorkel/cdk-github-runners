@@ -255,8 +255,8 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
             this.dind ? 'nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &' : '',
             this.dind ? 'timeout 15 sh -c "until docker info; do echo .; sleep 1; done"' : '',
             'if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi',
-            'if [ "${RUNNER_LEVEL}" = "org" ]; then REGISTRATION_URL="https://$githubDomainPath/$ownerPath"; elif [ "${RUNNER_LEVEL}" = "repo" ]; then REGISTRATION_URL="https://$githubDomainPath/$ownerPath/$repoPath"; else echo "Invalid runnerLevel: ${RUNNER_LEVEL}"; exit 1; fi',
-            'sudo -Hu runner /home/runner/config.sh --unattended --url ${REGISTRATION_URL} --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" ${RUNNER_FLAGS} --name "${RUNNER_NAME}"',
+            'if [ "${RUNNER_LEVEL}" = "org" ]; then REGISTRATION_URL="https://${GITHUB_DOMAIN}/${OWNER}"; elif [ "${RUNNER_LEVEL}" = "repo" ]; then REGISTRATION_URL="https://${GITHUB_DOMAIN}/${OWNER}/${REPO}"; else echo "Invalid runnerLevel: ${RUNNER_LEVEL}"; exit 1; fi',
+            'sudo -Hu runner /home/runner/config.sh --unattended --url $REGISTRATION_URL --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" ${RUNNER_FLAGS} --name "${RUNNER_NAME}"',
           ],
         },
         build: {
@@ -276,7 +276,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       buildSpec.phases.install.commands = [
         'cd \\actions',
         'if (${Env:RUNNER_VERSION} -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }',
-        'if ($RUNNER_LEVEL -eq "org") { $REGISTRATION_URL = "https://\${githubDomainPath}/\${ownerPath}" } elseif ($RUNNER_LEVEL -eq "repo") { $REGISTRATION_URL = "https://\${githubDomainPath}/\${ownerPath}/\${repoPath}" } else { Write-Host "Invalid runnerLevel: $RUNNER_LEVEL"; return 1 }',
+        'if ($RUNNER_LEVEL -eq "org") { $REGISTRATION_URL = "https://\${GITHUB_DOMAIN}/\${OWNER}" } elseif ($RUNNER_LEVEL -eq "repo") { $REGISTRATION_URL = "https://\${GITHUB_DOMAIN}/\${OWNER}/\${REPO}" } else { Write-Host "Invalid runnerLevel: $RUNNER_LEVEL"; return 1 }',
         './config.cmd --unattended --url $REGISTRATION_URL --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat %s)" ${RunnerFlags} --name "${Env:RUNNER_NAME}"',
       ];
       buildSpec.phases.build.commands = [
