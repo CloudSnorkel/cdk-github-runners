@@ -1,7 +1,7 @@
 import { RequestError } from '@octokit/request-error';
+import { Octokit } from '@octokit/rest';
 import { getOctokit } from './lambda-github';
 import { StepFunctionLambdaInput, getSecretJsonValue } from './lambda-helpers';
-import { Octokit } from '@octokit/rest';
 
 class RunnerTokenError extends Error {
   constructor(msg: string) {
