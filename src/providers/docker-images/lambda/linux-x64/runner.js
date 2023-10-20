@@ -11,6 +11,7 @@ exports.handler = async (event, context) => {
         RUNNER_TOKEN: event.token,
         RUNNER_NAME: event.runnerName,
         RUNNER_LABEL: event.label,
+        RUNNER_LEVEL: event.runnerLevel,
       },
     });
     shellScript.stdout.on('data', (data) => {
