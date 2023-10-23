@@ -81,7 +81,7 @@ jobs:
             ------
 
             *Automatically created by projen via the "upgrade-snapshot" workflow*
-          branch: github-actions/upgrade-snapshot
+          branch: ${{ github.event.workflow_run.head_branch }}-upgrade-snapshot
           title: "chore(deps): update snapshot for dependencies upgrade"
           body: |-
             Update snapshot. See details in [workflow run].
