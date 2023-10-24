@@ -21,10 +21,13 @@ export async function handler(event: StepFunctionLambdaInput) {
     const githubRunnerLevel = await getSecretJsonValue(process.env.GITHUB_RUNNER_LEVEL_ARN);
 
     let token: string;
+    let registrationUrl: string;
     if (githubRunnerLevel.runnerLevel === 'repo') {
       token = await getRegistrationTokenForRepo(octokit, event.owner, event.repo);
+      registrationUrl = `https://${githubSecrets.domain}/${event.owner}/${event.repo}`;
     } else if (githubRunnerLevel.runnerLevel === 'org') {
       token = await getRegistrationTokenForOrg(octokit, event.owner);
+      registrationUrl = `https://${githubSecrets.domain}/${event.owner}`;
     } else {
       throw new RunnerTokenError('Invalid runner level');
     }
@@ -32,6 +35,7 @@ export async function handler(event: StepFunctionLambdaInput) {
       domain: githubSecrets.domain,
       runnerLevel: githubRunnerLevel.runnerLevel,
       token,
+      registrationUrl,
     };
   } catch (error) {
     console.error(error);

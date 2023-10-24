@@ -568,6 +568,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
                 name: 'RUNNER_LEVEL',
                 value: parameters.runnerLevel,
               },
+              {
+                name: 'REGISTRATION_URL',
+                value: parameters.registrationUrl,
+              },
             ],
           },
         ],

@@ -214,7 +214,6 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
       `${dindCommand}
         cd /home/runner &&
         if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
-        if [ "$RUNNER_LEVEL" = "org" ]; then REGISTRATION_URL="https://$GITHUB_DOMAIN/$OWNER"; elif [ "$RUNNER_LEVEL" = "repo" ]; then REGISTRATION_URL="https://$GITHUB_DOMAIN/$OWNER/$REPO"; else echo "Invalid runnerLevel: $RUNNER_LEVEL"; exit 1; fi &&
         ./config.sh --unattended --url $REGISTRATION_URL --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" &&
         ./run.sh &&
         STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" _diag/ | tail -n1) &&
@@ -225,7 +224,6 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
       'powershell', '-Command',
       `cd \\actions ;
         if ($Env:RUNNER_VERSION -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ;
-        if ($RUNNER_LEVEL -eq "org") { $REGISTRATION_URL = "https://\${GITHUB_DOMAIN}/\${OWNER}" } elseif ($RUNNER_LEVEL -eq "repo") { $REGISTRATION_URL = "https://\${GITHUB_DOMAIN}/\${OWNER}/\${REPO}" } else { Write-Host "Invalid runnerLevel: $RUNNER_LEVEL"; return 1 };
         ./config.cmd --unattended --url $REGISTRATION_URL --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL},cdkghr:started:\$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${Env:RUNNER_NAME}" ;
         ./run.cmd ;
         $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;
@@ -496,6 +494,10 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
               {
                 name: 'RUNNER_LEVEL',
                 value: parameters.runnerLevel,
+              },
+              {
+                name: 'REGISTRATION_URL',
+                value: parameters.registrationUrl,
               },
             ],
           },

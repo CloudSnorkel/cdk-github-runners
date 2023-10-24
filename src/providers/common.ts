@@ -332,6 +332,11 @@ export interface RunnerRuntimeParameters {
    */
   readonly runnerLevel: string;
 
+  /**
+   * Repository url to register runner at.
+   */
+  readonly registrationUrl: string;
+
 }
 
 /**

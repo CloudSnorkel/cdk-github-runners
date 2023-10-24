@@ -39,6 +39,7 @@ repoPath="{}"
 runnerTokenPath="{}"
 labels="{}"
 runnerLevel="{}"
+registrationURL="{}"
 
 heartbeat () {
   while true; do
@@ -77,15 +78,6 @@ action () {
   fi
 
   labelsTemplate="$labels,cdkghr:started:$(date +%s)"
-  # Define the registration URL based on runnerLevel
-  if [ "$runnerLevel" = "org" ]; then
-    registrationURL="https://$githubDomainPath/$ownerPath"
-  elif [ "$runnerLevel" = "repo" ]; then
-    registrationURL="https://$githubDomainPath/$ownerPath/$repoPath"
-  else
-    echo "Invalid runnerLevel: $runnerLevel"
-    exit 1
-  fi
 
   # Execute the configuration command for runner registration
   sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" || exit 1
@@ -121,6 +113,8 @@ $repoPath="{}"
 $runnerTokenPath="{}"
 $labels="{}"
 $runnerLevel="{}"
+$registrationURL="{}"
+
 Start-Job -ScriptBlock {
   while (1) {
     aws stepfunctions send-task-heartbeat --task-token "$using:TASK_TOKEN"
@@ -426,6 +420,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       parameters.runnerTokenPath,
       this.labels.join(','),
       parameters.runnerLevel,
+      parameters.registrationUrl,
     ];
 
     const passUserData = new stepfunctions.Pass(this, `${this.labels.join(', ')} data`, {
