@@ -145,19 +145,6 @@ function action () {
   cd /actions
   $RunnerVersion = Get-Content RUNNER_VERSION -Raw
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
-
-  # Set registrationUrl based on runnerLevel
-  if ($runnerLevel -eq "org") {
-      $registrationUrl = "https://\${githubDomainPath}/\${ownerPath}"
-  }
-  elseif ($runnerLevel -eq "repo") {
-      $registrationUrl = "https://\${githubDomainPath}/\${ownerPath}/\${repoPath}"
-  }
-  else {
-      Write-Host "Invalid runnerLevel: $runnerLevel"
-      return 1
-  }
-
   ./config.cmd --unattended --url $registrationUrl --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
 
   if ($LASTEXITCODE -ne 0) { return 1 }
