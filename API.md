@@ -8012,6 +8012,7 @@ const runnerRuntimeParameters: RunnerRuntimeParameters = { ... }
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.githubDomainPath">githubDomainPath</a></code> | <code>string</code> | Path to GitHub domain. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.ownerPath">ownerPath</a></code> | <code>string</code> | Path to repository owner name. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.registrationUrl">registrationUrl</a></code> | <code>string</code> | Repository url to register runner at. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.repoPath">repoPath</a></code> | <code>string</code> | Path to repository name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerLevel">runnerLevel</a></code> | <code>string</code> | Level to register runner at. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerNamePath">runnerNamePath</a></code> | <code>string</code> | Path to desired runner name. |
@@ -8042,6 +8043,18 @@ public readonly ownerPath: string;
 - *Type:* string
 
 Path to repository owner name.
+
+---
+
+##### `registrationUrl`<sup>Required</sup> <a name="registrationUrl" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.registrationUrl"></a>
+
+```typescript
+public readonly registrationUrl: string;
+```
+
+- *Type:* string
+
+Repository url to register runner at.
 
 ---
 
