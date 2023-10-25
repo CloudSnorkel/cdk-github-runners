@@ -41,6 +41,7 @@
     auth_,
     existingAppId_,
     existingAppPk_,
+    runnerLevel_,
     pat_,
     success_
   ) {
@@ -54,7 +55,7 @@
       return false;
     }
     if (auth_ === "existingApp") {
-      return existingAppId_ === "" || existingAppPk_ === "";
+      return existingAppId_ === "" || existingAppPk_ === "" || runnerLevel_ === undefined;
     }
     if (auth_ === "pat") {
       return pat_ === "";
@@ -314,7 +315,9 @@
           {/if}
         {:else if auth === "existingApp"}
           <h3>Existing App Details</h3>
+
           <div class="px-3 py-3">
+
             <p>
               Based on the level you selected to register your runners, the
               github app requires the following permissions:
@@ -329,6 +332,10 @@
                 <code>organization: self hosted runners</code>
               </li>
             </ul>
+
+
+
+
             <p>
               Don't forget to set up the webhook and its secret as described in
               <a
@@ -359,6 +366,36 @@
                 />
               </div>
             </div>
+            <div class="form-group row px-3 py-2">
+              <label for="pk" class="col-sm-2 col-form-label">Registration Level</label
+                >
+                <div class="col-sm-10">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  bind:group={runnerLevel}
+                  value="repo"
+                  id="repo"
+                />
+                <label class="form-check-label" for="repo">Repository</label>
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  bind:group={runnerLevel}
+                  value="org"
+                  id="org"
+                />
+                <label class="form-check-label" for="org">Organization</label>
+              </div>
+              </div>
+            </div>
+
+
+
+
           </div>
         {:else if auth === "pat"}
           <h2>Personal Access Token</h2>
@@ -459,6 +496,7 @@
               auth,
               existingAppId,
               existingAppPk,
+              runnerLevel,
               pat,
               success
             )}
