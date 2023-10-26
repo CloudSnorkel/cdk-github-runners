@@ -90,7 +90,7 @@ export class Secrets extends Construct {
           secretStringTemplate: JSON.stringify({
             runnerLevel: 'repo',
           }),
-          generateStringKey: 'runnerLevel',
+          generateStringKey: 'dummy',
           includeSpace: false,
           excludePunctuation: true,
         },
