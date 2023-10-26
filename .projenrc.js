@@ -1,6 +1,7 @@
 const { awscdk } = require('projen');
 const { CdkConfig } = require('projen/lib/awscdk');
 const { Stability } = require('projen/lib/cdk/jsii-project');
+const { NpmAccess } = require('projen/lib/javascript');
 
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Amir Szekely',
@@ -48,6 +49,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   jsiiVersion: '5.0.x',
   typescriptVersion: '4.9.x',
   releaseToNpm: true,
+  npmAccess: NpmAccess.PUBLIC,
   publishToPypi: {
     distName: 'cloudsnorkel.cdk-github-runners',
     module: 'cloudsnorkel.cdk_github_runners',
