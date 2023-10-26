@@ -432,7 +432,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
     rootDeviceResource.node.addDependency(this.amiBuilder);
     const subnetRunners = this.subnets.map((subnet, index) => {
-      return new stepfunctions_tasks.CallAwsService(this, `${this.labels.join(', ')} subnet${index + 1}`, {
+      return new stepfunctions_tasks.CallAwsService(this, `${this.labels.join(', ')} subnet${index+1}`, {
         comment: subnet.subnetId,
         integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         service: 'ec2',
@@ -484,7 +484,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
 
     // chain up the rest of the subnets
     for (let i = 1; i < subnetRunners.length; i++) {
-      subnetRunners[i - 1].addCatch(subnetRunners[i], {
+      subnetRunners[i-1].addCatch(subnetRunners[i], {
         errors: ['Ec2.Ec2Exception', 'States.Timeout'],
         resultPath: stepfunctions.JsonPath.stringAt('$.lastSubnetError'),
       });
