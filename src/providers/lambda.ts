@@ -327,7 +327,6 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
           githubDomain: parameters.githubDomainPath,
           owner: parameters.ownerPath,
           repo: parameters.repoPath,
-          runnerLevel: parameters.runnerLevel,
           registrationUrl: parameters.registrationUrl,
         }),
       },

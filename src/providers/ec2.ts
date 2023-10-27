@@ -38,7 +38,6 @@ ownerPath="{}"
 repoPath="{}"
 runnerTokenPath="{}"
 labels="{}"
-runnerLevel="{}"
 registrationURL="{}"
 
 heartbeat () {
@@ -112,7 +111,6 @@ $ownerPath="{}"
 $repoPath="{}"
 $runnerTokenPath="{}"
 $labels="{}"
-$runnerLevel="{}"
 $registrationURL="{}"
 
 Start-Job -ScriptBlock {
@@ -145,7 +143,7 @@ function action () {
   cd /actions
   $RunnerVersion = Get-Content RUNNER_VERSION -Raw
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
-  ./config.cmd --unattended --url $registrationUrl --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
 
   if ($LASTEXITCODE -ne 0) { return 1 }
   ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
@@ -406,7 +404,6 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       parameters.repoPath,
       parameters.runnerTokenPath,
       this.labels.join(','),
-      parameters.runnerLevel,
       parameters.registrationUrl,
     ];
 

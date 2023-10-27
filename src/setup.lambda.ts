@@ -56,7 +56,7 @@ async function handleDomain(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
     return response(400, 'Invalid domain');
   }
   if (!body.runnerLevel) {
-    return response(400, 'Invalid runner regisration level');
+    return response(400, 'Invalid runner registration level');
   }
 
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);

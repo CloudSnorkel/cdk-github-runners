@@ -214,7 +214,7 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
       `${dindCommand}
         cd /home/runner &&
         if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
-        ./config.sh --unattended --url $REGISTRATION_URL --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" &&
+        ./config.sh --unattended --url "$REGISTRATION_URL" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" &&
         ./run.sh &&
         STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" _diag/ | tail -n1) &&
         [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"`,
@@ -490,10 +490,6 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
               {
                 name: 'REPO',
                 value: parameters.repoPath,
-              },
-              {
-                name: 'RUNNER_LEVEL',
-                value: parameters.runnerLevel,
               },
               {
                 name: 'REGISTRATION_URL',
