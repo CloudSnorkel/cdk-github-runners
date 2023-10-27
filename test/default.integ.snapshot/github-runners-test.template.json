@@ -14128,7 +14128,7 @@
    "Properties": {
     "GenerateSecretString": {
      "ExcludePunctuation": true,
-     "GenerateStringKey": "runnerLevel",
+     "GenerateStringKey": "dummy",
      "IncludeSpace": false,
      "SecretStringTemplate": "{\"runnerLevel\":\"repo\"}"
     }
