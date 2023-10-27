@@ -22,7 +22,7 @@ export async function handler(event: StepFunctionLambdaInput) {
 
     let token: string;
     let registrationUrl: string;
-    if (githubRunnerLevel.runnerLevel === 'repo') {
+    if (githubRunnerLevel.runnerLevel === 'repo' || githubRunnerLevel.runnerLevel === undefined) {
       token = await getRegistrationTokenForRepo(octokit, event.owner, event.repo);
       registrationUrl = `https://${githubSecrets.domain}/${event.owner}/${event.repo}`;
     } else if (githubRunnerLevel.runnerLevel === 'org') {
