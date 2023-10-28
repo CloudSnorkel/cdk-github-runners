@@ -316,30 +316,6 @@
           <h3>Existing App Details</h3>
 
           <div class="px-3 py-3">
-
-            <p>
-              Based on the level you selected to register your runners, the
-              github app requires the following permissions:
-            </p>
-            <ul>
-              <li>
-                Repository level: <code>actions</code> and
-                <code>administration</code>
-              </li>
-              <li>
-                Organization level: <code>actions</code> and
-                <code>organization: self hosted runners</code>
-              </li>
-            </ul>
-
-
-            <p>
-              Don't forget to set up the webhook and its secret as described in
-              <a
-                href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md"
-                >SETUP_GITHUB.md</a
-              >.
-            </p>
             <div class="form-group row px-3 py-2">
               <label for="appid" class="col-sm-2 col-form-label">App Id</label>
               <div class="col-sm-10">
@@ -352,8 +328,7 @@
               </div>
             </div>
             <div class="form-group row px-3 py-2">
-              <label for="pk" class="col-sm-2 col-form-label">Private Key</label
-              >
+              <label for="pk" class="col-sm-2 col-form-label">Private Key</label>
               <div class="col-sm-10">
                 <textarea
                   class="form-control"
@@ -364,33 +339,40 @@
               </div>
             </div>
             <div class="form-group row px-3 py-2">
-              <label for="pk" class="col-sm-2 col-form-label">Registration Level</label
-                >
-                <div class="col-sm-10">
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  bind:group={runnerLevel}
-                  value="repo"
-                  id="repo"
-                />
-                <label class="form-check-label" for="repo">Repository</label>
-              </div>
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  bind:group={runnerLevel}
-                  value="org"
-                  id="org"
-                />
-                <label class="form-check-label" for="org">Organization</label>
-              </div>
+              <div class="col-sm-2 col-form-label">Registration Level</div>
+              <div class="col-sm-10">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    bind:group={runnerLevel}
+                    value="repo"
+                    id="repo"
+                  />
+                  <label class="form-check-label" for="repo">Repository</label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    bind:group={runnerLevel}
+                    value="org"
+                    id="org"
+                  />
+                  <label class="form-check-label" for="org">Organization</label>
+                </div>
               </div>
             </div>
 
+            <h4>Required Permissions</h4>
+            <p>The existing app must have the following permissions.</p>
+            <pre>{JSON.stringify(runnerLevel === 'repo' ? repositoryPermissions : organizationPermissions, undefined, 2)}</pre>
 
+            <h4>Webhook</h4>
+            <p>
+              Don't forget to set up the webhook and its secret as described in <a
+                href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md">SETUP_GITHUB.md</a>.
+            </p>
           </div>
         {:else if auth === 'pat'}
           <h2>Personal Access Token</h2>
@@ -415,24 +397,33 @@
         {/if}
 
         {#if appScope === 'org' && auth === 'newApp'}
-          <h3>Choose Registration Level</h3>
+          <h3>Registration Level</h3>
           <div class="px-3 py-3">
             <p>
-              You can configure the github app to register the runners at the
-              repository or organization level. <br />
-              The main difference are the permissions assigned to the github app.<br
-              />
+              Would you like runners to be registered on repository level, or on organization level?
             </p>
             <ul>
               <li>
-                Repository level: the github app will have full <b
-                  >administrative</b
-                > access to the selected repositories.
+                Registering runners on repository level requires the <code>administration</code>
+                <a href="https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/autoscaling-with-self-hosted-runners#authentication-requirements">permission</a>.
               </li>
               <li>
-                Organization level: the github app will have only the
-                "self-hosted github runner" permission to register runners in
-                the organization. (Recommended for organizations)
+                Registering runners on organization level only requires the <code>organization_self_hosted_runners</code>
+                <a href="https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/autoscaling-with-self-hosted-runners#authentication-requirements">permission</a>
+                which is more fine-grained.
+              </li>
+              <li>
+                Registering runners on organization level means any repository can use them, even if the app wasn't
+                installed on those repositories.
+              </li>
+              <li>
+                Do not use organization level registration if you don't fully trust all repositories in your organization.
+              </li>
+              <li>
+                Use organization level to reduce the permission scope this new app is given.
+              </li>
+              <li>
+                When in doubt, use the default repository level registration.
               </li>
             </ul>
             <div class="form-check">
