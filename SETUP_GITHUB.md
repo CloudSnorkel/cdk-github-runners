@@ -14,12 +14,12 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
    1. Choose Organization app
    2. Type in the organization slug (ORGANIZATION from https://github.com/ORGANIZATION/REPO)
    3. Choose the registration level for the runners
-      1. If you want to register your runners on the on the repository level, choose Repository
+      1. If you want to register your runners on the repository level, choose Repository
       2. If you want to register your runners on the organization level, choose Organization. (recommended)
 6. Click Create GitHub App to take you to GitHub to finish the setup
 7. Follow the instructions on GitHub
-8.  When brought back to the setup wizard, click the install link
-9.  Install the new app on your desired repositories
+8. When brought back to the setup wizard, click the install link
+9. Install the new app on your desired repositories
 
 ### Manually
 
@@ -31,24 +31,24 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
     1. For Webhook URL use the value of `github.webhook.url` from `status.json`
     2. Open the URL in `github.webhook.secretUrl` from `status.json`, retrieve the secret value, and use it for webhook secret
 4. Setup registration level for runners:
-   1. If you want to register your runners on the on the repository level assign these permsisions:
+   1. If you want to register your runners on repository level assign these permissions:
        1. Repository    -> Actions: Read and write
        2. Repository    -> Administration: Read and write
        3. Repository    -> Deployments: Read-only
-    2. If you want to register your runners on the on the organization level
+    2. If you want to register your runners on organization level
        1. Repository    -> Actions: Read and write
        2. Organization  -> Self-hosted runners: Read and write
        3. Repository    -> Deployments: Read-only
-
 5. In the event subscription section enable:
     1. Workflow job
 6. Under "Where can this GitHub App be installed?" select "Only on this account"
 7. Click the Create button
-8.  From the new app page generate a private key and save the downloaded key
-9.  On the top left go to Install App page and install the app on the desired account or organization
+8. From the new app page generate a private key and save the downloaded key
+9. On the top left go to Install App page and install the app on the desired account or organization
 10. Open the URL in `github.auth.secretUrl` from `status.json` and edit the secret value
     1. If you're using a self-hosted GitHub instance, put its domain in `domain` (e.g. `github.mycompany.com`)
     2. Put the new application id in `appId` (e.g. `34789562`)
+    3. If using organization level registration, add `runnerLevel` with `org` as the value.
     3. Ignore/delete `dummy` and **leave `personalAuthToken` empty**
 11. Open the URL in `github.auth.privateKeySecretUrl` from `status.json` and edit the secret value
     1. Open the downloaded private key with any text editor
