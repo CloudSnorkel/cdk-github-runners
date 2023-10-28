@@ -13,6 +13,7 @@ export interface GitHubSecrets {
   domain: string;
   appId: number;
   personalAuthToken: string;
+  runnerLevel: 'repo' | 'org';
 }
 
 const octokitCache: {

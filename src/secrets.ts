@@ -26,15 +26,6 @@ export class Secrets extends Construct {
    */
   readonly githubPrivateKey: secretsmanager.Secret;
 
-
-  /**
-   * GitHub registration level
-   *
-   * This secret is meant to store the registration level of the runner, which is either org or repo.
-   */
-  readonly githubRunnerRegistrationLevel: secretsmanager.Secret;
-
-
   /**
    * Setup secret used to authenticate user for our setup wizard. Should be empty after setup has been completed.
    */
@@ -65,6 +56,8 @@ export class Secrets extends Construct {
             domain: 'github.com',
             appId: '',
             personalAuthToken: '',
+            // we can't uncomment the following because changing the template overrides existing values on version upgrade :(
+            // runnerLevel: 'repo'
           }),
           generateStringKey: 'dummy',
           includeSpace: false,
@@ -79,21 +72,6 @@ export class Secrets extends Construct {
       'GitHub Private Key',
       {
         secretStringValue: cdk.SecretValue.unsafePlainText('-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----'),
-      },
-    );
-
-    this.githubRunnerRegistrationLevel = new secretsmanager.Secret(
-      this,
-      'GitHub Runner Registration Level',
-      {
-        generateSecretString: {
-          secretStringTemplate: JSON.stringify({
-            runnerLevel: 'repo',
-          }),
-          generateStringKey: 'dummy',
-          includeSpace: false,
-          excludePunctuation: true,
-        },
       },
     );
 

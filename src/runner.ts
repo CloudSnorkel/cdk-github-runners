@@ -457,7 +457,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         description: 'Get token from GitHub Actions used to start new self-hosted runner',
         environment: {
           GITHUB_SECRET_ARN: this.secrets.github.secretArn,
-          GITHUB_RUNNER_LEVEL_ARN: this.secrets.githubRunnerRegistrationLevel.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
           ...this.extraLambdaEnv,
         },
@@ -469,7 +468,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     this.secrets.github.grantRead(func);
     this.secrets.githubPrivateKey.grantRead(func);
-    this.secrets.githubRunnerRegistrationLevel.grantRead(func);
 
     return func;
   }
@@ -539,7 +537,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     this.secrets.github.grantRead(statusFunction);
     this.secrets.githubPrivateKey.grantRead(statusFunction);
     this.secrets.setup.grantRead(statusFunction);
-    this.secrets.githubRunnerRegistrationLevel.grantRead(statusFunction);
     this.orchestrator.grantRead(statusFunction);
 
     new cdk.CfnOutput(
@@ -575,7 +572,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           WEBHOOK_SECRET_ARN: this.secrets.webhook.secretArn,
           GITHUB_SECRET_ARN: this.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
-          GITHUB_RUNNER_LEVEL_ARN: this.secrets.githubRunnerRegistrationLevel.secretArn,
           WEBHOOK_URL: this.webhook.url,
           ...this.extraLambdaEnv,
         },
@@ -593,8 +589,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     this.secrets.githubPrivateKey.grantWrite(setupFunction);
     this.secrets.setup.grantRead(setupFunction);
     this.secrets.setup.grantWrite(setupFunction);
-    this.secrets.githubRunnerRegistrationLevel.grantRead(setupFunction);
-    this.secrets.githubRunnerRegistrationLevel.grantWrite(setupFunction);
 
     const access = this.props?.setupAccess ?? LambdaAccess.lambdaUrl();
     return access.bind(this, 'setup access', setupFunction);

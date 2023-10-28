@@ -1,7 +1,7 @@
 import { RequestError } from '@octokit/request-error';
 import { Octokit } from '@octokit/rest';
 import { getOctokit } from './lambda-github';
-import { StepFunctionLambdaInput, getSecretJsonValue } from './lambda-helpers';
+import { StepFunctionLambdaInput } from './lambda-helpers';
 
 class RunnerTokenError extends Error {
   constructor(msg: string) {
@@ -18,17 +18,17 @@ export async function handler(event: StepFunctionLambdaInput) {
       githubSecrets,
       octokit,
     } = await getOctokit(event.installationId);
-    const githubRunnerLevel = await getSecretJsonValue(process.env.GITHUB_RUNNER_LEVEL_ARN);
 
     let token: string;
     let registrationUrl: string;
-    if (githubRunnerLevel.runnerLevel === 'repo' || githubRunnerLevel.runnerLevel === undefined) {
+    if (githubSecrets.runnerLevel === 'repo' || githubSecrets.runnerLevel === undefined) {
       token = await getRegistrationTokenForRepo(octokit, event.owner, event.repo);
       registrationUrl = `https://${githubSecrets.domain}/${event.owner}/${event.repo}`;
-    } else if (githubRunnerLevel.runnerLevel === 'org') {
+    } else if (githubSecrets.runnerLevel === 'org') {
       token = await getRegistrationTokenForOrg(octokit, event.owner);
       registrationUrl = `https://${githubSecrets.domain}/${event.owner}`;
     } else {
+      // TODO the catch below expects RequestError
       throw new RunnerTokenError('Invalid runner level');
     }
     return {

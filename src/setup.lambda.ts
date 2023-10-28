@@ -61,8 +61,8 @@ async function handleDomain(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
 
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   githubSecrets.domain = body.domain;
+  githubSecrets.runnerLevel = body.runnerLevel;
   await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(githubSecrets));
-  await updateSecretValue(process.env.GITHUB_RUNNER_LEVEL_ARN, JSON.stringify({ runnerLevel: body.runnerLevel }));
   return response(200, 'Domain set');
 }
 
@@ -122,8 +122,8 @@ async function handleExistingApp(event: ApiGatewayEvent): Promise<AWSLambda.APIG
     domain: body.domain,
     appId: body.appid,
     personalAuthToken: '',
+    runnerLevel: body.runnerLevel,
   }));
-  await updateSecretValue(process.env.GITHUB_RUNNER_LEVEL_ARN, JSON.stringify({ runnerLevel: body.runnerLevel }));
   await updateSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN, body.pk as string);
   await updateSecretValue(process.env.SETUP_SECRET_ARN, JSON.stringify({ token: '' }));
 
