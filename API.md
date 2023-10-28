@@ -7993,7 +7993,7 @@ public readonly retryOptions: ProviderRetryOptions;
 Workflow job parameters as parsed from the webhook event. Pass these into your runner executor and run something like:.
 
 ```sh
-./config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --name "${RUNNER_NAME}" --disableupdate
+./config.sh --unattended --url "{REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --name "${RUNNER_NAME}" --disableupdate
 ```
 
 All parameters are specified as step function paths and therefore must be used only in step function task parameters.
@@ -8012,9 +8012,8 @@ const runnerRuntimeParameters: RunnerRuntimeParameters = { ... }
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.githubDomainPath">githubDomainPath</a></code> | <code>string</code> | Path to GitHub domain. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.ownerPath">ownerPath</a></code> | <code>string</code> | Path to repository owner name. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.registrationUrl">registrationUrl</a></code> | <code>string</code> | Repository url to register runner at. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.registrationUrl">registrationUrl</a></code> | <code>string</code> | Repository or organization URL to register runner at. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.repoPath">repoPath</a></code> | <code>string</code> | Path to repository name. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerLevel">runnerLevel</a></code> | <code>string</code> | Level to register runner at. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerNamePath">runnerNamePath</a></code> | <code>string</code> | Path to desired runner name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerTokenPath">runnerTokenPath</a></code> | <code>string</code> | Path to runner token used to register token. |
 
@@ -8054,7 +8053,7 @@ public readonly registrationUrl: string;
 
 - *Type:* string
 
-Repository url to register runner at.
+Repository or organization URL to register runner at.
 
 ---
 
@@ -8067,20 +8066,6 @@ public readonly repoPath: string;
 - *Type:* string
 
 Path to repository name.
-
----
-
-##### `runnerLevel`<sup>Required</sup> <a name="runnerLevel" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerLevel"></a>
-
-```typescript
-public readonly runnerLevel: string;
-```
-
-- *Type:* string
-
-Level to register runner at.
-
-Can be either 'repo' or 'org'.
 
 ---
 
