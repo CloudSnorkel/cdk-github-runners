@@ -55,7 +55,7 @@ async function handleDomain(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
   if (!body.domain) {
     return response(400, 'Invalid domain');
   }
-  if (!body.runnerLevel) {
+  if (body.runnerLevel !== 'repo' && body.runnerLevel !== 'org') {
     return response(400, 'Invalid runner registration level');
   }
 
@@ -114,7 +114,7 @@ async function handleNewApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
 async function handleExistingApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayProxyResultV2> {
   const body = decodeBody(event);
 
-  if (!body.appid || !body.pk || !body.domain || !body.runnerLevel) {
+  if (!body.appid || !body.pk || !body.domain || (body.runnerLevel !== 'repo' && body.runnerLevel !== 'org')) {
     return response(400, 'Missing fields');
   }
 
