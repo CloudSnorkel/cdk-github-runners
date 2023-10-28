@@ -5,7 +5,7 @@
   let domain = 'INSERT_DOMAIN_HERE';
   let auth: undefined | 'newApp' | 'existingApp' | 'pat';
   let appScope: 'user' | 'org' = 'user';
-  let runnerLevel: 'repo' | 'org';
+  let runnerLevel: 'repo' | 'org' = 'repo';
   let org = 'ORGANIZATION';
   let existingAppId: string = '';
   let existingAppPk: string = '';
