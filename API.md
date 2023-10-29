@@ -4693,7 +4693,6 @@ Any object.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.github">github</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | Authentication secret for GitHub containing either app details or personal access token. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.githubPrivateKey">githubPrivateKey</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | GitHub app private key. Not needed when using personal access tokens. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.githubRunnerRegistrationLevel">githubRunnerRegistrationLevel</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | GitHub registration level. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.setup">setup</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | Setup secret used to authenticate user for our setup wizard. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets.property.webhook">webhook</a></code> | <code>aws-cdk-lib.aws_secretsmanager.Secret</code> | Webhook secret used to confirm events are coming from GitHub and nowhere else. |
 
@@ -4739,20 +4738,6 @@ public readonly githubPrivateKey: Secret;
 GitHub app private key. Not needed when using personal access tokens.
 
 This secret is meant to be edited by the user after being created. It is separate than the main GitHub secret because inserting private keys into JSON is hard.
-
----
-
-##### `githubRunnerRegistrationLevel`<sup>Required</sup> <a name="githubRunnerRegistrationLevel" id="@cloudsnorkel/cdk-github-runners.Secrets.property.githubRunnerRegistrationLevel"></a>
-
-```typescript
-public readonly githubRunnerRegistrationLevel: Secret;
-```
-
-- *Type:* aws-cdk-lib.aws_secretsmanager.Secret
-
-GitHub registration level.
-
-This secret is meant to store the registration level of the runner, which is either org or repo.
 
 ---
 
