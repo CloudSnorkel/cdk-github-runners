@@ -43,12 +43,10 @@ export async function handler(event: StepFunctionLambdaInput) {
   }
 }
 async function getRegistrationTokenForOrg(octokit: Octokit, owner: string): Promise<string> {
-
   const response = await octokit.rest.actions.createRegistrationTokenForOrg({
     org: owner,
   });
   return response.data.token;
-
 }
 
 async function getRegistrationTokenForRepo(octokit: Octokit, owner: string, repo: string): Promise<string> {
@@ -57,5 +55,4 @@ async function getRegistrationTokenForRepo(octokit: Octokit, owner: string, repo
     repo: repo,
   });
   return response.data.token;
-
 }

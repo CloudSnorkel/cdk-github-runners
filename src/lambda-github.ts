@@ -13,7 +13,7 @@ export interface GitHubSecrets {
   domain: string;
   appId: number;
   personalAuthToken: string;
-  runnerLevel: 'repo' | 'org';
+  runnerLevel?: 'repo' | 'org'; // undefined is for backwards compatibility and should be treated as 'repo'
 }
 
 const octokitCache: {
@@ -22,7 +22,7 @@ const octokitCache: {
   octokit?: Octokit;
 } = {};
 
-export async function getOctokit(installationId?: number): Promise<{ octokit: Octokit; githubSecrets: any }> {
+export async function getOctokit(installationId?: number): Promise<{ octokit: Octokit; githubSecrets: GitHubSecrets }> {
   if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
     throw new Error('Missing environment variables');
   }
