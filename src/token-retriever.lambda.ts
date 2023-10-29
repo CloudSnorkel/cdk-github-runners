@@ -1,4 +1,3 @@
-import { RequestError } from '@octokit/request-error';
 import { Octokit } from '@octokit/rest';
 import { getOctokit } from './lambda-github';
 import { StepFunctionLambdaInput } from './lambda-helpers';
@@ -28,7 +27,6 @@ export async function handler(event: StepFunctionLambdaInput) {
       token = await getRegistrationTokenForOrg(octokit, event.owner);
       registrationUrl = `https://${githubSecrets.domain}/${event.owner}`;
     } else {
-      // TODO the catch below expects RequestError
       throw new RunnerTokenError('Invalid runner level');
     }
     return {
@@ -38,8 +36,7 @@ export async function handler(event: StepFunctionLambdaInput) {
     };
   } catch (error) {
     console.error(error);
-    const reqError = <RequestError>error;
-    throw new RunnerTokenError(reqError.message);
+    throw new RunnerTokenError((<Error>error).message);
   }
 }
 async function getRegistrationTokenForOrg(octokit: Octokit, owner: string): Promise<string> {
