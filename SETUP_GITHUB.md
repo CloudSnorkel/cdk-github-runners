@@ -28,7 +28,7 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 3. Setup webhook under the webhook section
     1. For Webhook URL use the value of `github.webhook.url` from `status.json`
     2. Open the URL in `github.webhook.secretUrl` from `status.json`, retrieve the secret value, and use it for webhook secret
-4. In the repository permissions section enable:
+4. In the permissions section enable:
    1. Repository    -> Actions: Read and write
    2. Repository    -> Administration: Read and write
    3. Repository    -> Deployments: Read-only
