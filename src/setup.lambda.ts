@@ -97,11 +97,12 @@ async function handleNewApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
   const baseUrl = baseUrlFromDomain(githubSecrets.domain);
   const newApp = await new Octokit({ baseUrl }).rest.apps.createFromManifest({ code });
 
-  await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(<GitHubSecrets>{
-    domain: new URL(newApp.data.html_url).host,
-    appId: newApp.data.id,
-    personalAuthToken: '',
-  }));
+  githubSecrets.appId = newApp.data.id;
+  githubSecrets.domain = new URL(newApp.data.html_url).host; // just in case it's different
+  githubSecrets.personalAuthToken = '';
+  // don't update runnerLevel as it was set by handleDomain() above
+
+  await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(githubSecrets));
   await updateSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN, newApp.data.pem);
   await updateSecretValue(process.env.WEBHOOK_SECRET_ARN, JSON.stringify({
     webhookSecret: newApp.data.webhook_secret,
