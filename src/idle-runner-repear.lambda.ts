@@ -1,7 +1,7 @@
 import { DescribeExecutionCommand, SFNClient, StopExecutionCommand } from '@aws-sdk/client-sfn';
 import { Octokit } from '@octokit/rest';
 import * as AWSLambda from 'aws-lambda';
-import { getOctokit, getRunner } from './lambda-github';
+import { deleteRunner, getOctokit, getRunner } from './lambda-github';
 
 interface IdleReaperLambdaInput {
   readonly executionArn: string;
@@ -16,7 +16,8 @@ const sfn = new SFNClient();
 
 export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSBatchResponse> {
   const result: AWSLambda.SQSBatchResponse = { batchItemFailures: [] };
-  const octokitCache: { [key: number]: Octokit } = {};
+  let octokitCache: Octokit | undefined;
+  let runnerLevel: 'repo' | 'org' | undefined;
 
   for (const record of event.Records) {
     const input = JSON.parse(record.body) as IdleReaperLambdaInput;
@@ -33,15 +34,16 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
     }
 
     // get github access
-    let octokit: Octokit;
-    if (octokitCache[input.installationId ?? -1]) {
-      octokit = octokitCache[input.installationId ?? -1];
-    } else {
-      octokit = octokitCache[input.installationId ?? -1] = (await getOctokit(input.installationId)).octokit;
+    if (!octokitCache) {
+      // getOctokit calls secrets manager every time, so cache the result
+      const { octokit, githubSecrets } = await getOctokit(input.installationId);
+      // TODO if installationId changes during normal operations, we may have some records with good installationId, and some with bad
+      octokitCache = octokit;
+      runnerLevel = githubSecrets.runnerLevel;
     }
 
     // find runner
-    const runner = await getRunner(octokit, input.owner, input.repo, input.runnerName);
+    const runner = await getRunner(octokitCache, runnerLevel, input.owner, input.repo, input.runnerName);
     if (!runner) {
       console.error(`Runner not running yet for ${input.owner}/${input.repo}:${input.runnerName}`);
       retryLater();
@@ -89,11 +91,7 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
 
           try {
             console.log(`Deleting runner ${runner.id}...`);
-            await octokit.rest.actions.deleteSelfHostedRunnerFromRepo({
-              owner: input.owner,
-              repo: input.repo,
-              runner_id: runner.id,
-            });
+            await deleteRunner(octokitCache, runnerLevel, input.owner, input.repo, runner.id);
           } catch (e) {
             console.error(`Failed to delete runner ${runner.id}: ${e}`);
             retryLater();
