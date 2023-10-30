@@ -76,6 +76,7 @@ async function handlePat(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayPr
     domain: body.domain,
     appId: -1,
     personalAuthToken: body.pat,
+    runnerLevel: 'repo',
   }));
   await updateSecretValue(process.env.SETUP_SECRET_ARN, JSON.stringify({ token: '' }));
 
