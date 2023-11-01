@@ -564,6 +564,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
                 name: 'REPO',
                 value: parameters.repoPath,
               },
+              {
+                name: 'REGISTRATION_URL',
+                value: parameters.registrationUrl,
+              },
             ],
           },
         ],

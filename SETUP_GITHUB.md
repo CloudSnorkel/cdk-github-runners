@@ -13,6 +13,7 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 5. If you want to create an app for your organization:
    1. Choose Organization app
    2. Type in the organization slug (ORGANIZATION from https://github.com/ORGANIZATION/REPO)
+   3. Choose registration level for the runners
 6. Click Create GitHub App to take you to GitHub to finish the setup
 7. Follow the instructions on GitHub
 8. When brought back to the setup wizard, click the install link
@@ -27,10 +28,12 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 3. Setup webhook under the webhook section
     1. For Webhook URL use the value of `github.webhook.url` from `status.json`
     2. Open the URL in `github.webhook.secretUrl` from `status.json`, retrieve the secret value, and use it for webhook secret
-4. In the repository permissions section enable:
-    1. Actions: Read and write
-    2. Administration: Read and write
-    3. Deployments: Read-only
+4. In the permissions section enable:
+   1. Repository    -> Actions: Read and write
+   2. Repository    -> Administration: Read and write
+   3. Repository    -> Deployments: Read-only
+   4. Repository    -> Administration: Read and write (only for repository level runners)
+   5. Organization  -> Self-hosted runners: Read and write (only for organization level runners)
 5. In the event subscription section enable:
     1. Workflow job
 6. Under "Where can this GitHub App be installed?" select "Only on this account"
@@ -40,7 +43,8 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 10. Open the URL in `github.auth.secretUrl` from `status.json` and edit the secret value
     1. If you're using a self-hosted GitHub instance, put its domain in `domain` (e.g. `github.mycompany.com`)
     2. Put the new application id in `appId` (e.g. `34789562`)
-    3. Ignore/delete `dummy` and **leave `personalAuthToken` empty**
+    3. If using organization level registration, add `runnerLevel` with `org` as the value
+    4. Ignore/delete `dummy` and **leave `personalAuthToken` empty**
 11. Open the URL in `github.auth.privateKeySecretUrl` from `status.json` and edit the secret value
     1. Open the downloaded private key with any text editor
     2. Copy the text from the private key as-is into the secret

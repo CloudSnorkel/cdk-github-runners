@@ -9,10 +9,13 @@ export function baseUrlFromDomain(domain: string): string {
   return `https://${domain}/api/v3`;
 }
 
+type RunnerLevel = 'repo' | 'org' | undefined; // undefined is for backwards compatibility and should be treated as 'repo'
+
 export interface GitHubSecrets {
   domain: string;
   appId: number;
   personalAuthToken: string;
+  runnerLevel: RunnerLevel;
 }
 
 const octokitCache: {
@@ -21,7 +24,7 @@ const octokitCache: {
   octokit?: Octokit;
 } = {};
 
-export async function getOctokit(installationId?: number): Promise<{ octokit: Octokit; githubSecrets: any }> {
+export async function getOctokit(installationId?: number): Promise<{ octokit: Octokit; githubSecrets: GitHubSecrets }> {
   if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
     throw new Error('Missing environment variables');
   }
@@ -83,27 +86,23 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Oc
   };
 }
 
-interface GitHubRunner {
-  readonly id: number;
-  readonly name: string;
-  readonly os: string;
-  readonly status: string;
-  readonly busy: boolean;
-  readonly labels: {
-    readonly id: number;
-    readonly name: string;
-    readonly type: string;
-  }[];
-}
-
-export async function getRunner(octokit: any, owner: string, repo: string, name: string): Promise<GitHubRunner | undefined> {
+export async function getRunner(octokit: Octokit, runnerLevel: RunnerLevel, owner: string, repo: string, name: string) {
   let page = 1;
   while (true) {
-    const runners = await octokit.request('GET /repos/{owner}/{repo}/actions/runners?per_page=100&page={page}', {
-      page: page,
-      owner: owner,
-      repo: repo,
-    });
+    let runners;
+
+    if ((runnerLevel ?? 'repo') === 'repo') {
+      runners = await octokit.rest.actions.listSelfHostedRunnersForRepo({
+        page: page,
+        owner: owner,
+        repo: repo,
+      });
+    } else {
+      runners = await octokit.rest.actions.listSelfHostedRunnersForOrg({
+        page: page,
+        org: owner,
+      });
+    }
 
     if (runners.data.runners.length == 0) {
       return;
@@ -116,5 +115,20 @@ export async function getRunner(octokit: any, owner: string, repo: string, name:
     }
 
     page++;
+  }
+}
+
+export async function deleteRunner(octokit: Octokit, runnerLevel: RunnerLevel, owner: string, repo: string, runnerId: number) {
+  if ((runnerLevel ?? 'repo') === 'repo') {
+    await octokit.rest.actions.deleteSelfHostedRunnerFromRepo({
+      owner: owner,
+      repo: repo,
+      runner_id: runnerId,
+    });
+  } else {
+    await octokit.rest.actions.deleteSelfHostedRunnerFromOrg({
+      org: owner,
+      runner_id: runnerId,
+    });
   }
 }

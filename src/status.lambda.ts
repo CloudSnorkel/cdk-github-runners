@@ -131,6 +131,7 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
         secretUrl: secretArnToUrl(process.env.SETUP_SECRET_ARN),
       },
       domain: 'Unknown',
+      runnerLevel: 'Unknown',
       webhook: {
         url: process.env.WEBHOOK_URL,
         status: 'Unable to check',
@@ -221,6 +222,9 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
   // calculate base url
   let baseUrl = baseUrlFromDomain(githubSecrets.domain);
   status.github.domain = githubSecrets.domain;
+
+  // copy runner level
+  status.github.runnerLevel = githubSecrets.runnerLevel ?? 'repo';
 
   if (githubSecrets.personalAuthToken) {
     // try authenticating with personal access token
