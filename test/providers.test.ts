@@ -145,4 +145,61 @@ describe('ECS provider', () => {
     // don't create our own autoscaling group when capacity provider is specified
     template.resourceCountIs('AWS::AutoScaling::AutoScalingGroup', 1);
   });
+
+  test('Memory reservation', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test');
+
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+    // test that not specifying any memory settings uses the default values
+    new EcsRunnerProvider(stack, 'nothing', {
+      vpc: vpc,
+      securityGroups: [sg],
+    });
+
+    // test that specifying memory limit overrides the default value
+    new EcsRunnerProvider(stack, 'with limit', {
+      vpc: vpc,
+      securityGroups: [sg],
+      memoryLimitMiB: 2048,
+    });
+
+    // test that specifying memory reservation removes the default value of memory limit
+    new EcsRunnerProvider(stack, 'with res', {
+      vpc: vpc,
+      securityGroups: [sg],
+      memoryReservationMiB: 1024,
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties('AWS::ECS::TaskDefinition', Match.objectLike({
+      ContainerDefinitions: [
+        {
+          Memory: 3500,
+          MemoryReservation: Match.absent(),
+        },
+      ],
+    }));
+
+    template.hasResourceProperties('AWS::ECS::TaskDefinition', Match.objectLike({
+      ContainerDefinitions: [
+        {
+          Memory: 2048,
+          MemoryReservation: Match.absent(),
+        },
+      ],
+    }));
+
+    template.hasResourceProperties('AWS::ECS::TaskDefinition', Match.objectLike({
+      ContainerDefinitions: [
+        {
+          Memory: Match.absent(),
+          MemoryReservation: 1024,
+        },
+      ],
+    }));
+  });
 });
