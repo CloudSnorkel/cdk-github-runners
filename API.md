@@ -6048,6 +6048,7 @@ const ecsRunnerProviderProps: EcsRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.maxInstances">maxInstances</a></code> | <code>number</code> | The maximum number of instances to run in the cluster. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | The amount (in MiB) of memory used by the task. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.memoryReservationMiB">memoryReservationMiB</a></code> | <code>number</code> | The soft limit (in MiB) of memory to reserve for the container. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.minInstances">minInstances</a></code> | <code>number</code> | The minimum number of instances to run in the cluster. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spot">spot</a></code> | <code>boolean</code> | Use spot capacity. |
@@ -6230,9 +6231,22 @@ public readonly memoryLimitMiB: number;
 ```
 
 - *Type:* number
-- *Default:* 3500
+- *Default:* 3500, unless `memoryReservationMiB` is used and then it's undefined
 
 The amount (in MiB) of memory used by the task.
+
+---
+
+##### `memoryReservationMiB`<sup>Optional</sup> <a name="memoryReservationMiB" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.memoryReservationMiB"></a>
+
+```typescript
+public readonly memoryReservationMiB: number;
+```
+
+- *Type:* number
+- *Default:* undefined
+
+The soft limit (in MiB) of memory to reserve for the container.
 
 ---
 
