@@ -14210,7 +14210,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "ebd66521f7707416a2314f3992a1a42a7f541ab52230e26a4acc432f427fccdb.zip"
+     "S3Key": "55fa540663fb148449ff8e69e6714a999c7cdf65c9e9d70c6552e446df2ee091.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -14336,7 +14336,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "b26f28f551ac2491b40644d9a14ebd34da8580595a57de9052a62bfa878c7117.zip"
+     "S3Key": "a6415b13fc0ead8dcbbaa38561792b06cf124668a075c899a04241a27f99c674.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -14577,7 +14577,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "4751eb769bdf1292f88a2557519ab174a3ca375411a89d24ebc1e22748dfe958.zip"
+     "S3Key": "f3a2f738d463f47fd186b28e37459038b70223eb7be12923edfcaeeb4e3741cc.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -16745,7 +16745,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "83c34056f7ca98a7a7401c127f51561df0e313e9211eee11806198ac48bb44bb.zip"
+     "S3Key": "9786b9ff499424eae269392998c47ab19d0f067169178f9c5bb28b79b8f7ea1c.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -16769,6 +16769,7 @@
        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
       },
       "SUPPORTED_LABELS": "[{\"provider\":\"github-runners-test/CodeBuildx64\",\"labels\":[\"codebuild-x64\"]},{\"provider\":\"github-runners-test/CodeBuildARM\",\"labels\":[\"codebuild\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/CodeBuildWindows\",\"labels\":[\"codebuild\",\"windows\",\"x64\"]},{\"provider\":\"github-runners-test/ECS\",\"labels\":[\"ecs\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/ECS ARM64\",\"labels\":[\"ecs\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/ECS Windows\",\"labels\":[\"ecs\",\"windows\",\"x64\"]},{\"provider\":\"github-runners-test/Lambda\",\"labels\":[\"lambda\",\"x64\"]},{\"provider\":\"github-runners-test/LambdaARM\",\"labels\":[\"lambda\",\"arm64\"]},{\"provider\":\"github-runners-test/Fargate\",\"labels\":[\"fargate\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/Fargate-x64-spot\",\"labels\":[\"fargate-spot\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/Fargate-arm64\",\"labels\":[\"fargate\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/Fargate-arm64-spot\",\"labels\":[\"fargate-spot\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/Fargate-Windows\",\"labels\":[\"fargate\",\"windows\",\"x64\"]},{\"provider\":\"github-runners-test/EC2 Linux\",\"labels\":[\"ec2\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/EC2 Spot Linux\",\"labels\":[\"ec2-spot\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/EC2 Linux arm64\",\"labels\":[\"ec2\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/EC2 Windows\",\"labels\":[\"ec2\",\"windows\",\"x64\"]}]",
+      "REQUIRE_SELF_HOSTED_LABEL": "1",
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },
@@ -16944,7 +16945,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "bafd1154716caaeecd7525bc676d0c407a3cf2e8390f428920d4df62aad1f2d6.zip"
+     "S3Key": "cbd98f229a324959b7084d3048e2ad85b5ae8b0a38a5f0e756385402002f44db.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -17271,7 +17272,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "94d03c5283a29868854475d01f11716b0f76bfbe83b287642b956ac44adc762f.zip"
+     "S3Key": "d606565feb80beb0c087a09d0b757e36713686a1d48545e20b8823d27325bdfa.zip"
     },
     "Role": {
      "Fn::GetAtt": [
