@@ -44,6 +44,15 @@ export interface GitHubRunnersProps {
   readonly providers?: IRunnerProvider[];
 
   /**
+   * Whether to require the `self-hosted` label. If `true`, the runner will only start if the workflow job explicitly requests the `self-hosted` label.
+   *
+   * Be careful when setting this to `false`. Avoid setting up providers with generic label requirements like `linux` as they may match workflows that are not meant to run on self-hosted runners.
+   *
+   * @default true
+   */
+  readonly requireSelfHostedLabel?: boolean;
+
+  /**
    * VPC used for all management functions. Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
    *
    * Make sure the selected VPC and subnets have access to the following with either NAT Gateway or VPC Endpoints:
@@ -303,6 +312,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           labels: p.labels,
         };
       }),
+      requireSelfHostedLabel: this.props?.requireSelfHostedLabel ?? true,
     });
 
     this.setupUrl = this.setupFunction();

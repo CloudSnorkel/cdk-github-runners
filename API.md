@@ -6645,6 +6645,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.idleTimeout">idleTimeout</a></code> | <code>aws-cdk-lib.Duration</code> | Time to wait before stopping a runner that remains idle. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.logOptions">logOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions">LogOptions</a></code> | Logging options for the state machine that manages the runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | List of runner providers to use. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.requireSelfHostedLabel">requireSelfHostedLabel</a></code> | <code>boolean</code> | Whether to require the `self-hosted` label. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to all management functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups attached to all management functions. |
@@ -6743,6 +6744,23 @@ public readonly providers: IRunnerProvider[];
 List of runner providers to use.
 
 At least one provider is required. Provider will be selected when its label matches the labels requested by the workflow job.
+
+---
+
+##### `requireSelfHostedLabel`<sup>Optional</sup> <a name="requireSelfHostedLabel" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.requireSelfHostedLabel"></a>
+
+```typescript
+public readonly requireSelfHostedLabel: boolean;
+```
+
+- *Type:* boolean
+- *Default:* true
+
+Whether to require the `self-hosted` label.
+
+If `true`, the runner will only start if the workflow job explicitly requests the `self-hosted` label.
+
+Be careful when setting this to `false`. Avoid setting up providers with generic label requirements like `linux` as they may match workflows that are not meant to run on self-hosted runners.
 
 ---
 

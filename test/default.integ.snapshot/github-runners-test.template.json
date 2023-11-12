@@ -16745,7 +16745,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "83c34056f7ca98a7a7401c127f51561df0e313e9211eee11806198ac48bb44bb.zip"
+     "S3Key": "1ae421d770fc3b9cd562495f1b16de0bb1ab09455ed34d8ad0a79d50b6ecc5e9.zip"
     },
     "Role": {
      "Fn::GetAtt": [
@@ -16769,6 +16769,7 @@
        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
       },
       "SUPPORTED_LABELS": "[{\"provider\":\"github-runners-test/CodeBuildx64\",\"labels\":[\"codebuild-x64\"]},{\"provider\":\"github-runners-test/CodeBuildARM\",\"labels\":[\"codebuild\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/CodeBuildWindows\",\"labels\":[\"codebuild\",\"windows\",\"x64\"]},{\"provider\":\"github-runners-test/ECS\",\"labels\":[\"ecs\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/ECS ARM64\",\"labels\":[\"ecs\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/ECS Windows\",\"labels\":[\"ecs\",\"windows\",\"x64\"]},{\"provider\":\"github-runners-test/Lambda\",\"labels\":[\"lambda\",\"x64\"]},{\"provider\":\"github-runners-test/LambdaARM\",\"labels\":[\"lambda\",\"arm64\"]},{\"provider\":\"github-runners-test/Fargate\",\"labels\":[\"fargate\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/Fargate-x64-spot\",\"labels\":[\"fargate-spot\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/Fargate-arm64\",\"labels\":[\"fargate\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/Fargate-arm64-spot\",\"labels\":[\"fargate-spot\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/Fargate-Windows\",\"labels\":[\"fargate\",\"windows\",\"x64\"]},{\"provider\":\"github-runners-test/EC2 Linux\",\"labels\":[\"ec2\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/EC2 Spot Linux\",\"labels\":[\"ec2-spot\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/EC2 Linux arm64\",\"labels\":[\"ec2\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/EC2 Windows\",\"labels\":[\"ec2\",\"windows\",\"x64\"]}]",
+      "REQUIRE_SELF_HOSTED_LABEL": "1",
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },
