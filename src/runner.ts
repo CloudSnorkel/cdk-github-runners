@@ -44,7 +44,9 @@ export interface GitHubRunnersProps {
   readonly providers?: IRunnerProvider[];
 
   /**
-   * Whether to require the `self-hosted` label. If true, the runner will only start if the workflow job explicitly requests the `self-hosted` label.
+   * Whether to require the `self-hosted` label. If `true`, the runner will only start if the workflow job explicitly requests the `self-hosted` label.
+   *
+   * Be careful when setting this to `false`. Avoid setting up providers with generic label requirements like `linux` as they may match workflows that are not meant to run on self-hosted runners.
    *
    * @default true
    */
