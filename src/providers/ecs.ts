@@ -222,7 +222,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    *  * `RunnerImageComponent.docker()`
    *  * `RunnerImageComponent.githubRunner()`
    */
-  public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps): RunnerImageBuilder {
+  public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     return RunnerImageBuilder.new(scope, id, {
       os: Os.LINUX_UBUNTU,
       architecture: Architecture.X86_64,
