@@ -4,7 +4,7 @@ import { Construct } from 'constructs';
 import { AwsImageBuilderRunnerImageBuilderProps } from './aws-image-builder';
 import { CodeBuildRunnerImageBuilderProps } from './codebuild';
 import { RunnerImageComponent } from './components';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers/common';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
 
 /**
  * @internal
@@ -279,9 +279,30 @@ export interface IRunnerImageBuilder {
 }
 
 /**
+ * Interface for constructs that build an image that can be used in {@link IRunnerProvider}. The image can be configured by adding or removing components. The image builder can be configured by adding grants or allowing connections.
+ *
+ * An image can be a Docker image or AMI.
+ */
+export interface IConfigurableRunnerImageBuilder extends IRunnerImageBuilder, ec2.IConnectable, iam.IGrantable {
+  /**
+   * Add a component to the image builder. The component will be added to the end of the list of components.
+   *
+   * @param component component to add
+   */
+  addComponent(component: RunnerImageComponent): void;
+
+  /**
+   * Remove a component from the image builder. Removal is done by component name. Multiple components with the same name will all be removed.
+   *
+   * @param component component to remove
+   */
+  removeComponent(component: RunnerImageComponent): void;
+}
+
+/**
  * @internal
  */
-export abstract class RunnerImageBuilderBase extends Construct implements ec2.IConnectable, iam.IGrantable, IRunnerImageBuilder {
+export abstract class RunnerImageBuilderBase extends Construct implements IConfigurableRunnerImageBuilder {
   protected components: RunnerImageComponent[] = [];
 
   protected constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
@@ -299,20 +320,10 @@ export abstract class RunnerImageBuilderBase extends Construct implements ec2.IC
   abstract get connections(): ec2.Connections;
   abstract get grantPrincipal(): iam.IPrincipal;
 
-  /**
-   * Add a component to the image builder. The component will be added to the end of the list of components.
-   *
-   * @param component component to add
-   */
   public addComponent(component: RunnerImageComponent) {
     this.components.push(component);
   }
 
-  /**
-   * Remove a component from the image builder. Removal is done by component name. Multiple components with the same name will all be removed.
-   *
-   * @param component component to remove
-   */
   public removeComponent(component: RunnerImageComponent) {
     this.components = this.components.filter(c => c.name !== component.name);
   }
