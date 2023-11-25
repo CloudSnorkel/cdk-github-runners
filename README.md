@@ -179,19 +179,13 @@ new GitHubRunners(this, 'runners', {
 Another way to customize runners is by modifying the image used to spin them up. The image contains the [runner][5], any required dependencies, and integration code with the provider. You may choose to customize this image by adding more packages, for example.
 
 ```typescript
-const myBuilder = CodeBuildRunnerProvider.imageBuilder(this, 'image builder', {
-   dockerfilePath: FargateRunner.LINUX_X64_DOCKERFILE_PATH,
-   runnerVersion: RunnerVersion.specific('2.291.0'),
-   rebuildInterval: Duration.days(14),
-});
+const myBuilder = FargateRunnerProvider.imageBuilder(this, 'image builder');
 myBuilder.addComponent(
-  RunnerImageComponent.custom({ commands: ['apt install -y nginx xz-utils'] })
+  RunnerImageComponent.custom({ commands: ['apt install -y nginx xz-utils'] }),
 );
 
 const myProvider = new FargateRunnerProvider(this, 'fargate runner', {
    labels: ['customized-fargate'],
-   vpc: vpc,
-   securityGroups: [runnerSg],
    imageBuilder: myBuilder,
 });
 
@@ -219,24 +213,20 @@ Windows images can also be customized the same way.
 const myWindowsBuilder = FargateRunnerProvider.imageBuilder(this, 'Windows image builder', {
    architecture: Architecture.X86_64,
    os: Os.WINDOWS,
-   runnerVersion: RunnerVersion.specific('2.291.0'),
-   rebuildInterval: Duration.days(14),
 });
 myWindowsBuilder.addComponent(
-        RunnerImageComponent.custom({
-           name: 'Ninja',
-           commands: [
-              'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-win.zip" -OutFile ninja.zip',
-              'Expand-Archive ninja.zip -DestinationPath C:\\actions',
-              'del ninja.zip',
-           ],
-        })
+   RunnerImageComponent.custom({
+     name: 'Ninja',
+     commands: [
+       'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-win.zip" -OutFile ninja.zip',
+       'Expand-Archive ninja.zip -DestinationPath C:\\actions',
+       'del ninja.zip',
+     ],
+   }),
 );
 
 const myProvider = new FargateRunnerProvider(this, 'fargate runner', {
    labels: ['customized-windows-fargate'],
-   vpc: vpc,
-   securityGroups: [runnerSg],
    imageBuilder: myWindowsBuilder,
 });
 

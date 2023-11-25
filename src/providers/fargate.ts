@@ -265,7 +265,13 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-arm64');
 
   /**
-   * Create new image builder that builds Fargate specific runner images using Ubuntu.
+   * Create new image builder that builds Fargate specific runner images.
+   *
+   * You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+   *
+   * You can add components to the image builder by calling `imageBuilder.addComponent()`.
+   *
+   * The default OS is Ubuntu running on x64 architecture.
    *
    * Included components:
    *  * `RunnerImageComponent.requiredPackages()`

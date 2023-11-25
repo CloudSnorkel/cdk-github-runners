@@ -147,7 +147,13 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-arm64');
 
   /**
-   * Create new image builder that builds Lambda specific runner images using Amazon Linux 2.
+   * Create new image builder that builds Lambda specific runner images.
+   *
+   * You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+   *
+   * You can add components to the image builder by calling `imageBuilder.addComponent()`.
+   *
+   * The default OS is Amazon Linux 2 running on x64 architecture.
    *
    * Included components:
    *  * `RunnerImageComponent.requiredPackages()`

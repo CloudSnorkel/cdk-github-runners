@@ -631,7 +631,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.imageBuilder">imageBuilder</a></code> | Create new image builder that builds CodeBuild specific runner images using Ubuntu. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.imageBuilder">imageBuilder</a></code> | Create new image builder that builds CodeBuild specific runner images. |
 
 ---
 
@@ -661,7 +661,13 @@ import { CodeBuildRunner } from '@cloudsnorkel/cdk-github-runners'
 CodeBuildRunner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
 
-Create new image builder that builds CodeBuild specific runner images using Ubuntu.
+Create new image builder that builds CodeBuild specific runner images.
+
+You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+
+You can add components to the image builder by calling `imageBuilder.addComponent()`.
+
+The default OS is Ubuntu running on x64 architecture.
 
 Included components:
  * `RunnerImageComponent.requiredPackages()`
@@ -997,7 +1003,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds CodeBuild specific runner images using Ubuntu. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds CodeBuild specific runner images. |
 
 ---
 
@@ -1027,7 +1033,13 @@ import { CodeBuildRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
 CodeBuildRunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
 
-Create new image builder that builds CodeBuild specific runner images using Ubuntu.
+Create new image builder that builds CodeBuild specific runner images.
+
+You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+
+You can add components to the image builder by calling `imageBuilder.addComponent()`.
+
+The default OS is Ubuntu running on x64 architecture.
 
 Included components:
  * `RunnerImageComponent.requiredPackages()`
@@ -1566,7 +1578,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.imageBuilder">imageBuilder</a></code> | Create new image builder that builds EC2 specific runner images using Ubuntu. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.imageBuilder">imageBuilder</a></code> | Create new image builder that builds EC2 specific runner images. |
 
 ---
 
@@ -1596,7 +1608,13 @@ import { Ec2Runner } from '@cloudsnorkel/cdk-github-runners'
 Ec2Runner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
 
-Create new image builder that builds EC2 specific runner images using Ubuntu.
+Create new image builder that builds EC2 specific runner images.
+
+You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+
+You can add components to the image builder by calling `imageBuilder.addComponent()`.
+
+The default OS is Ubuntu running on x64 architecture.
 
 Included components:
  * `RunnerImageComponent.requiredPackages()`
@@ -1842,7 +1860,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds EC2 specific runner images using Ubuntu. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds EC2 specific runner images. |
 
 ---
 
@@ -1872,7 +1890,13 @@ import { Ec2RunnerProvider } from '@cloudsnorkel/cdk-github-runners'
 Ec2RunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
 
-Create new image builder that builds EC2 specific runner images using Ubuntu.
+Create new image builder that builds EC2 specific runner images.
+
+You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+
+You can add components to the image builder by calling `imageBuilder.addComponent()`.
+
+The default OS is Ubuntu running on x64 architecture.
 
 Included components:
  * `RunnerImageComponent.requiredPackages()`
@@ -2110,7 +2134,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds ECS specific runner images using Ubuntu. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds ECS specific runner images. |
 
 ---
 
@@ -2140,7 +2164,13 @@ import { EcsRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
 EcsRunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
 
-Create new image builder that builds ECS specific runner images using Ubuntu.
+Create new image builder that builds ECS specific runner images.
+
+You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+
+You can add components to the image builder by calling `imageBuilder.addComponent()`.
+
+The default OS is Ubuntu running on x64 architecture.
 
 Included components:
  * `RunnerImageComponent.requiredPackages()`
@@ -2368,7 +2398,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.imageBuilder">imageBuilder</a></code> | Create new image builder that builds Fargate specific runner images using Ubuntu. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.imageBuilder">imageBuilder</a></code> | Create new image builder that builds Fargate specific runner images. |
 
 ---
 
@@ -2398,7 +2428,13 @@ import { FargateRunner } from '@cloudsnorkel/cdk-github-runners'
 FargateRunner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
 
-Create new image builder that builds Fargate specific runner images using Ubuntu.
+Create new image builder that builds Fargate specific runner images.
+
+You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+
+You can add components to the image builder by calling `imageBuilder.addComponent()`.
+
+The default OS is Ubuntu running on x64 architecture.
 
 Included components:
  * `RunnerImageComponent.requiredPackages()`
@@ -2815,7 +2851,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds Fargate specific runner images using Ubuntu. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds Fargate specific runner images. |
 
 ---
 
@@ -2845,7 +2881,13 @@ import { FargateRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
 FargateRunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
 
-Create new image builder that builds Fargate specific runner images using Ubuntu.
+Create new image builder that builds Fargate specific runner images.
+
+You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+
+You can add components to the image builder by calling `imageBuilder.addComponent()`.
+
+The default OS is Ubuntu running on x64 architecture.
 
 Included components:
  * `RunnerImageComponent.requiredPackages()`
@@ -3798,7 +3840,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.imageBuilder">imageBuilder</a></code> | Create new image builder that builds Lambda specific runner images using Amazon Linux 2. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.imageBuilder">imageBuilder</a></code> | Create new image builder that builds Lambda specific runner images. |
 
 ---
 
@@ -3828,7 +3870,13 @@ import { LambdaRunner } from '@cloudsnorkel/cdk-github-runners'
 LambdaRunner.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
 
-Create new image builder that builds Lambda specific runner images using Amazon Linux 2.
+Create new image builder that builds Lambda specific runner images.
+
+You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+
+You can add components to the image builder by calling `imageBuilder.addComponent()`.
+
+The default OS is Amazon Linux 2 running on x64 architecture.
 
 Included components:
  * `RunnerImageComponent.requiredPackages()`
@@ -4158,7 +4206,7 @@ Also gives the status function any needed permissions to query the Docker image 
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds Lambda specific runner images using Amazon Linux 2. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds Lambda specific runner images. |
 
 ---
 
@@ -4188,7 +4236,13 @@ import { LambdaRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
 LambdaRunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
 ```
 
-Create new image builder that builds Lambda specific runner images using Amazon Linux 2.
+Create new image builder that builds Lambda specific runner images.
+
+You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+
+You can add components to the image builder by calling `imageBuilder.addComponent()`.
+
+The default OS is Amazon Linux 2 running on x64 architecture.
 
 Included components:
  * `RunnerImageComponent.requiredPackages()`
