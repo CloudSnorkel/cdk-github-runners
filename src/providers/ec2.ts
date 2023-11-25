@@ -275,7 +275,13 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
  */
 export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   /**
-   * Create new image builder that builds EC2 specific runner images using Ubuntu.
+   * Create new image builder that builds EC2 specific runner images.
+   *
+   * You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+   *
+   * You can add components to the image builder by calling `imageBuilder.addComponent()`.
+   *
+   * The default OS is Ubuntu running on x64 architecture.
    *
    * Included components:
    *  * `RunnerImageComponent.requiredPackages()`

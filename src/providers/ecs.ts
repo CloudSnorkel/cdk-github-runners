@@ -211,7 +211,13 @@ class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
  */
 export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   /**
-   * Create new image builder that builds ECS specific runner images using Ubuntu.
+   * Create new image builder that builds ECS specific runner images.
+   *
+   * You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+   *
+   * You can add components to the image builder by calling `imageBuilder.addComponent()`.
+   *
+   * The default OS is Ubuntu running on x64 architecture.
    *
    * Included components:
    *  * `RunnerImageComponent.requiredPackages()`
