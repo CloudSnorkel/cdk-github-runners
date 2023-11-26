@@ -7,7 +7,7 @@ import { Architecture, Os, RunnerVersion } from '../providers';
 
 export interface RunnerImageComponentCustomProps {
   /**
-   * Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent}.
+   * Component name used for (1) image build logging and (2) identifier for {@link IConfigurableRunnerImageBuilder.removeComponent}.
    *
    * Name must only contain alphanumeric characters and dashes.
    */
@@ -493,7 +493,7 @@ export abstract class RunnerImageComponent {
   /**
    * Component name.
    *
-   * Used to identify component in image build logs, and for {@link RunnerImageBuilder.removeComponent}
+   * Used to identify component in image build logs, and for {@link IConfigurableRunnerImageBuilder.removeComponent}
    */
   abstract readonly name: string;
 
