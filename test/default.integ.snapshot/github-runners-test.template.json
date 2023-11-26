@@ -8674,7 +8674,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "2a6fb5c4ee4e80409248d39060d1e4529ff32dd5347fd2af9db5bd64f923a18a.zip"
+     "S3Key": "2dd30d0564f58d0d86550d44455883dabdababcb520c404817cd9193ac0a5161.zip"
     },
     "Description": "Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion",
     "Environment": {
