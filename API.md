@@ -7947,7 +7947,7 @@ const runnerImageComponentCustomProps: RunnerImageComponentCustomProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.assets">assets</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageAsset">RunnerImageAsset</a>[]</code> | Assets to copy into the built image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.commands">commands</a></code> | <code>string[]</code> | Commands to run in the built image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.dockerCommands">dockerCommands</a></code> | <code>string[]</code> | Docker commands to run in the built image. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.name">name</a></code> | <code>string</code> | Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent }. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponentCustomProps.property.name">name</a></code> | <code>string</code> | Component name used for (1) image build logging and (2) identifier for {@link IConfigurableRunnerImageBuilder.removeComponent }. |
 
 ---
 
@@ -7999,7 +7999,7 @@ public readonly name: string;
 
 - *Type:* string
 
-Component name used for (1) image build logging and (2) identifier for {@link ImageRunnerBuilder.removeComponent }.
+Component name used for (1) image build logging and (2) identifier for {@link IConfigurableRunnerImageBuilder.removeComponent }.
 
 Name must only contain alphanumeric characters and dashes.
 
@@ -9096,7 +9096,7 @@ public readonly name: string;
 
 Component name.
 
-Used to identify component in image build logs, and for {@link RunnerImageBuilder.removeComponent }
+Used to identify component in image build logs, and for {@link IConfigurableRunnerImageBuilder.removeComponent }
 
 ---
 
