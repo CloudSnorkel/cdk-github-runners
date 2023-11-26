@@ -2,7 +2,7 @@ import { aws_ecr as ecr, aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './builder';
 import { ImageBuilderObjectBase } from './common';
-import { Os } from '../../providers/common';
+import { Os } from '../../providers';
 import { uniqueImageBuilderName } from '../common';
 
 /**
@@ -55,11 +55,10 @@ export interface ContainerRecipeProperties {
 export class ContainerRecipe extends ImageBuilderObjectBase {
   public readonly arn: string;
   public readonly name: string;
+  public readonly version: string;
 
   constructor(scope: Construct, id: string, props: ContainerRecipeProperties) {
     super(scope, id);
-
-    const name = uniqueImageBuilderName(this);
 
     let components = props.components.map(component => {
       return {
@@ -67,13 +66,16 @@ export class ContainerRecipe extends ImageBuilderObjectBase {
       };
     });
 
+    this.name = uniqueImageBuilderName(this);
+    this.version = this.generateVersion('ContainerRecipe', this.name, {
+      platform: props.platform,
+      components,
+      dockerfileTemplate: props.dockerfileTemplate,
+    });
+
     const recipe = new imagebuilder.CfnContainerRecipe(this, 'Recipe', {
-      name: name,
-      version: this.version('ContainerRecipe', name, {
-        platform: props.platform,
-        components,
-        dockerfileTemplate: props.dockerfileTemplate,
-      }),
+      name: this.name,
+      version: this.version,
       parentImage: props.parentImage ?? 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64',
       components,
       containerType: 'DOCKER',
@@ -85,7 +87,6 @@ export class ContainerRecipe extends ImageBuilderObjectBase {
     });
 
     this.arn = recipe.attrArn;
-    this.name = name;
   }
 }
 

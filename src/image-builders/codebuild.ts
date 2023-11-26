@@ -19,9 +19,9 @@ import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
 import { defaultBaseDockerImage } from './aws-image-builder';
+import { BuildImageFunction } from './build-image-function';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
-import { BuildImageFunction } from '../providers/build-image-function';
 import { singletonLambda } from '../utils';
 
 
@@ -109,6 +109,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       imageScanOnPush: true,
       imageTagMutability: TagMutability.MUTABLE,
       removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteImages: true,
       lifecycleRules: [
         {
           description: 'Remove untagged images that have been replaced by CodeBuild',
@@ -165,7 +166,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     // permissions
     this.repository.grantPullPush(project);
 
-    // call CodeBuild during deployment and delete all images from repository during destruction
+    // call CodeBuild during deployment
     const cr = this.customResource(project, buildSpec.toBuildSpec());
 
     // rebuild image on a schedule
@@ -313,10 +314,6 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         new iam.PolicyStatement({
           actions: ['codebuild:StartBuild'],
           resources: [project.projectArn],
-        }),
-        new iam.PolicyStatement({
-          actions: ['ecr:BatchDeleteImage', 'ecr:ListImages'],
-          resources: [this.repository.repositoryArn],
         }),
       ],
     });

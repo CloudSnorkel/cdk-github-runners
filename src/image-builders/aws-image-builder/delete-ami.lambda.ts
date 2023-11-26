@@ -2,7 +2,6 @@ import {
   DeleteSnapshotCommand,
   DeregisterImageCommand,
   DescribeImagesCommand,
-  DescribeLaunchTemplateVersionsCommand,
   EC2Client,
 } from '@aws-sdk/client-ec2';
 import * as AWSLambda from 'aws-lambda';
@@ -10,15 +9,8 @@ import { customResourceRespond } from '../../lambda-helpers';
 
 const ec2 = new EC2Client();
 
-type DeleteAmiInput = {
-  RequestType: 'Scheduled';
-  StackName: string;
-  BuilderName: string;
-  LaunchTemplateId: string;
-}
-
-async function deleteAmis(launchTemplateId: string, stackName: string, builderName: string, deleteAll: boolean) {
-  // this runs daily and images are built once a week, so there shouldn't be a need for pagination
+async function deleteAmis(stackName: string, builderName: string) {
+  // lifecycle rule runs daily and images are built once a week, so there shouldn't be a need for pagination
   const images = await ec2.send(new DescribeImagesCommand({
     Owners: ['self'],
     Filters: [
@@ -37,26 +29,6 @@ async function deleteAmis(launchTemplateId: string, stackName: string, builderNa
 
   console.log(`Found ${imagesToDelete.length} AMIs`);
   console.log(JSON.stringify(imagesToDelete.map(i => i.ImageId)));
-
-  if (!deleteAll) {
-    // get launch template information to filter out the active image
-    const launchTemplates = await ec2.send(new DescribeLaunchTemplateVersionsCommand({
-      LaunchTemplateId: launchTemplateId,
-      Versions: ['$Default'],
-    }));
-    if (!launchTemplates.LaunchTemplateVersions) {
-      console.error(`Unable to describe launch template ${launchTemplateId}`);
-      return;
-    }
-    const launchTemplate = launchTemplates.LaunchTemplateVersions[0];
-
-    // non-active images
-    imagesToDelete = imagesToDelete.filter(i => i.ImageId != launchTemplate.LaunchTemplateData?.ImageId);
-    // images older than two days to avoid race conditions where an image is created while we're cleaning up
-    imagesToDelete = imagesToDelete.filter(i => i.CreationDate && Date.parse(i.CreationDate) < (Date.now() - 1000 * 60 * 60 * 48));
-
-    console.log(`${imagesToDelete.length} AMIs left after filtering by date and excluding AMI used by launch template`);
-  }
 
   // delete all that we found
   for (const image of imagesToDelete) {
@@ -83,27 +55,22 @@ async function deleteAmis(launchTemplateId: string, stackName: string, builderNa
   }
 }
 
-export async function handler(event: DeleteAmiInput | AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
+export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   try {
     console.log(JSON.stringify({ ...event, ResponseURL: '...' }));
 
     switch (event.RequestType) {
-      case 'Scheduled':
-        await deleteAmis(event.LaunchTemplateId, event.StackName, event.BuilderName, false);
-        return;
       case 'Create':
       case 'Update':
         await customResourceRespond(event, 'SUCCESS', 'OK', 'DeleteAmis', {});
         break;
       case 'Delete':
-        await deleteAmis('', event.ResourceProperties.StackName, event.ResourceProperties.BuilderName, true);
+        await deleteAmis(event.ResourceProperties.StackName, event.ResourceProperties.BuilderName);
         await customResourceRespond(event, 'SUCCESS', 'OK', event.PhysicalResourceId, {});
         break;
     }
   } catch (e) {
     console.error(e);
-    if (event.RequestType != 'Scheduled') {
-      await customResourceRespond(event, 'FAILED', (e as Error).message || 'Internal Error', context.logStreamName, {});
-    }
+    await customResourceRespond(event, 'FAILED', (e as Error).message || 'Internal Error', context.logStreamName, {});
   }
 }
