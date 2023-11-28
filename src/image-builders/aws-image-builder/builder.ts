@@ -373,7 +373,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     const image = this.createImage(infra, dist, log, undefined, recipe.arn);
     this.createPipeline(infra, dist, log, undefined, recipe.arn);
 
-    this.imageCleaner(recipe, image, repository);
+    this.dockerImageCleaner(recipe, image, repository);
 
     this.boundDockerImage = {
       imageRepository: repository,
@@ -388,7 +388,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return this.boundDockerImage;
   }
 
-  private imageCleaner(recipe: ContainerRecipe, image: imagebuilder.CfnImage, repository: ecr.IRepository) {
+  private dockerImageCleaner(recipe: ContainerRecipe, image: imagebuilder.CfnImage, repository: ecr.IRepository) {
     // delete all left over dockers images on
     const crHandler = singletonLambda(BuildImageFunction, this, 'build-image', {
       description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
@@ -428,9 +428,24 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       description: `Delete old GitHub Runner Docker images for ${this.node.path}`,
       executionRole: new iam.Role(this, 'Lifecycle Policy Docker Role', {
         assumedBy: new iam.ServicePrincipal('imagebuilder.amazonaws.com'),
-        managedPolicies: [
-          iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/EC2ImageBuilderLifecycleExecutionPolicy'),
-        ],
+        inlinePolicies: {
+          ib: new iam.PolicyDocument({
+            statements: [
+              new iam.PolicyStatement({
+                actions: ['tag:GetResources', 'imagebuilder:DeleteImage'],
+                resources: ['*'], // Image Builder doesn't support scoping this :(
+              }),
+            ],
+          }),
+          ecr: new iam.PolicyDocument({
+            statements: [
+              new iam.PolicyStatement({
+                actions: ['ecr:BatchGetImage', 'ecr:BatchDeleteImage'],
+                resources: [repository.repositoryArn],
+              }),
+            ],
+          }),
+        },
       }).roleArn,
       policyDetails: [{
         action: {
@@ -635,8 +650,18 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       description: 'Delete old GitHub Runner AMIs',
       initialPolicy: [
         new iam.PolicyStatement({
-          actions: ['ec2:DescribeImages', 'ec2:DeregisterImage', 'ec2:DeleteSnapshot'],
+          actions: ['ec2:DescribeImages'],
           resources: ['*'],
+        }),
+        new iam.PolicyStatement({
+          actions: ['ec2:DeregisterImage', 'ec2:DeleteSnapshot'],
+          resources: ['*'],
+          conditions: {
+            StringEquals: {
+              'aws:ResourceTag/GitHubRunners:Stack': stackName,
+              'aws:ResourceTag/GitHubRunners:Builder': builderName,
+            },
+          },
         }),
       ],
       timeout: cdk.Duration.minutes(5),
@@ -659,9 +684,34 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       description: `Delete old GitHub Runner AMIs for ${this.node.path}`,
       executionRole: new iam.Role(this, 'Lifecycle Policy AMI Role', {
         assumedBy: new iam.ServicePrincipal('imagebuilder.amazonaws.com'),
-        managedPolicies: [
-          iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/EC2ImageBuilderLifecycleExecutionPolicy'),
-        ],
+        inlinePolicies: {
+          ib: new iam.PolicyDocument({
+            statements: [
+              new iam.PolicyStatement({
+                actions: ['tag:GetResources', 'imagebuilder:DeleteImage'],
+                resources: ['*'], // Image Builder doesn't support scoping this :(
+              }),
+            ],
+          }),
+          ami: new iam.PolicyDocument({
+            statements: [
+              new iam.PolicyStatement({
+                actions: ['ec2:DescribeImages', 'ec2:DescribeImageAttribute'],
+                resources: ['*'],
+              }),
+              new iam.PolicyStatement({
+                actions: ['ec2:DeregisterImage', 'ec2:DeleteSnapshot'],
+                resources: ['*'],
+                conditions: {
+                  StringEquals: {
+                    'aws:ResourceTag/GitHubRunners:Stack': stackName,
+                    'aws:ResourceTag/GitHubRunners:Builder': builderName,
+                  },
+                },
+              }),
+            ],
+          }),
+        },
       }).roleArn,
       policyDetails: [{
         action: {
