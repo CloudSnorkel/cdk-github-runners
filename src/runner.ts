@@ -445,7 +445,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       this,
       'Runner Orchestrator',
       {
-        definition: queueIdleReaperTask.next(runProviders),
+        definitionBody: stepfunctions.DefinitionBody.fromChainable(queueIdleReaperTask.next(runProviders)),
         logs: logOptions,
       },
     );
