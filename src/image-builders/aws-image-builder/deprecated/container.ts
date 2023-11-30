@@ -16,8 +16,8 @@ import { ImageBuilderBase } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../providers';
-import { BuildImageFunction } from '../../../providers/build-image-function';
 import { singletonLambda } from '../../../utils';
+import { BuildImageFunction } from '../../build-image-function';
 import { uniqueImageBuilderName } from '../../common';
 import { ImageBuilderComponent } from '../builder';
 import { ContainerRecipe } from '../container';
@@ -177,6 +177,7 @@ export class ContainerImageBuilder extends ImageBuilderBase {
       imageScanOnPush: true,
       imageTagMutability: TagMutability.MUTABLE,
       removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteImages: true,
       lifecycleRules: [
         {
           description: 'Remove all but the latest image',

@@ -17,14 +17,12 @@
     "bundle:image-builders/aws-image-builder/delete-ami.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/delete-ami.lambda:watch",
     "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda": "npx projen bundle:image-builders/aws-image-builder/filter-failed-builds.lambda",
     "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/filter-failed-builds.lambda:watch",
-    "bundle:image-builders/aws-image-builder/reaper.lambda": "npx projen bundle:image-builders/aws-image-builder/reaper.lambda",
-    "bundle:image-builders/aws-image-builder/reaper.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/reaper.lambda:watch",
     "bundle:image-builders/aws-image-builder/versioner.lambda": "npx projen bundle:image-builders/aws-image-builder/versioner.lambda",
     "bundle:image-builders/aws-image-builder/versioner.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/versioner.lambda:watch",
+    "bundle:image-builders/build-image.lambda": "npx projen bundle:image-builders/build-image.lambda",
+    "bundle:image-builders/build-image.lambda:watch": "npx projen bundle:image-builders/build-image.lambda:watch",
     "bundle:providers/ami-root-device.lambda": "npx projen bundle:providers/ami-root-device.lambda",
     "bundle:providers/ami-root-device.lambda:watch": "npx projen bundle:providers/ami-root-device.lambda:watch",
-    "bundle:providers/build-image.lambda": "npx projen bundle:providers/build-image.lambda",
-    "bundle:providers/build-image.lambda:watch": "npx projen bundle:providers/build-image.lambda:watch",
     "bundle:providers/update-lambda.lambda": "npx projen bundle:providers/update-lambda.lambda",
     "bundle:providers/update-lambda.lambda:watch": "npx projen bundle:providers/update-lambda.lambda:watch",
     "bundle:setup.lambda": "npx projen bundle:setup.lambda",
@@ -95,7 +93,7 @@
     "@typescript-eslint/eslint-plugin": "^6",
     "@typescript-eslint/parser": "^6",
     "aws-cdk": "^2",
-    "aws-cdk-lib": "2.77.0",
+    "aws-cdk-lib": "2.110.0",
     "bootstrap": "^5.2.0",
     "constructs": "10.0.5",
     "esbuild": "^0.19.8",
@@ -124,7 +122,7 @@
     "vite-plugin-singlefile": "^0.13.5"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.77.0",
+    "aws-cdk-lib": "^2.110.0",
     "constructs": "^10.0.5"
   },
   "keywords": [

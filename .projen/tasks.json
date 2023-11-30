@@ -58,16 +58,13 @@
           "spawn": "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda"
         },
         {
-          "spawn": "bundle:image-builders/aws-image-builder/reaper.lambda"
-        },
-        {
           "spawn": "bundle:image-builders/aws-image-builder/versioner.lambda"
         },
         {
-          "spawn": "bundle:providers/ami-root-device.lambda"
+          "spawn": "bundle:image-builders/build-image.lambda"
         },
         {
-          "spawn": "bundle:providers/build-image.lambda"
+          "spawn": "bundle:providers/ami-root-device.lambda"
         },
         {
           "spawn": "bundle:providers/update-lambda.lambda"
@@ -167,24 +164,6 @@
         }
       ]
     },
-    "bundle:image-builders/aws-image-builder/reaper.lambda": {
-      "name": "bundle:image-builders/aws-image-builder/reaper.lambda",
-      "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/reaper.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/reaper.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/reaper.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
-        }
-      ]
-    },
-    "bundle:image-builders/aws-image-builder/reaper.lambda:watch": {
-      "name": "bundle:image-builders/aws-image-builder/reaper.lambda:watch",
-      "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/reaper.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/reaper.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/reaper.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
-        }
-      ]
-    },
     "bundle:image-builders/aws-image-builder/versioner.lambda": {
       "name": "bundle:image-builders/aws-image-builder/versioner.lambda",
       "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/versioner.lambda.ts",
@@ -203,6 +182,24 @@
         }
       ]
     },
+    "bundle:image-builders/build-image.lambda": {
+      "name": "bundle:image-builders/build-image.lambda",
+      "description": "Create a JavaScript bundle from src/image-builders/build-image.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/image-builders/build-image.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/build-image.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+        }
+      ]
+    },
+    "bundle:image-builders/build-image.lambda:watch": {
+      "name": "bundle:image-builders/build-image.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/image-builders/build-image.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/image-builders/build-image.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/build-image.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+        }
+      ]
+    },
     "bundle:providers/ami-root-device.lambda": {
       "name": "bundle:providers/ami-root-device.lambda",
       "description": "Create a JavaScript bundle from src/providers/ami-root-device.lambda.ts",
@@ -218,24 +215,6 @@
       "steps": [
         {
           "exec": "esbuild --bundle src/providers/ami-root-device.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/providers/ami-root-device.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
-        }
-      ]
-    },
-    "bundle:providers/build-image.lambda": {
-      "name": "bundle:providers/build-image.lambda",
-      "description": "Create a JavaScript bundle from src/providers/build-image.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/providers/build-image.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/providers/build-image.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
-        }
-      ]
-    },
-    "bundle:providers/build-image.lambda:watch": {
-      "name": "bundle:providers/build-image.lambda:watch",
-      "description": "Continuously update the JavaScript bundle from src/providers/build-image.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/providers/build-image.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/providers/build-image.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
