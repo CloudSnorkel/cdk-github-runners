@@ -1,7 +1,43 @@
 {
   "dependencies": [
     {
-      "name": "@aws-sdk/types",
+      "name": "@aws-sdk/client-cloudformation",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-codebuild",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-ec2",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-ecr",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-imagebuilder",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-lambda",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-secrets-manager",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-sfn",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-sns",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-ssm",
       "type": "build"
     },
     {
@@ -40,7 +76,7 @@
     },
     {
       "name": "@types/node",
-      "version": "^16",
+      "version": "^18",
       "type": "build"
     },
     {
@@ -58,17 +94,8 @@
       "type": "build"
     },
     {
-      "name": "aws-cdk-lib",
-      "version": "2.77.0",
-      "type": "build"
-    },
-    {
       "name": "aws-cdk",
       "version": "^2",
-      "type": "build"
-    },
-    {
-      "name": "aws-sdk",
       "type": "build"
     },
     {
@@ -77,16 +104,7 @@
       "type": "build"
     },
     {
-      "name": "constructs",
-      "version": "10.0.5",
-      "type": "build"
-    },
-    {
       "name": "esbuild",
-      "type": "build"
-    },
-    {
-      "name": "eslint-import-resolver-node",
       "type": "build"
     },
     {
@@ -136,11 +154,6 @@
     {
       "name": "jsii",
       "version": "5.0.x",
-      "type": "build"
-    },
-    {
-      "name": "npm-check-updates",
-      "version": "^16",
       "type": "build"
     },
     {
@@ -201,7 +214,7 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": "^2.77.0",
+      "version": "^2.110.0",
       "type": "peer"
     },
     {

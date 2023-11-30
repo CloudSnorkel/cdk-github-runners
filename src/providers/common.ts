@@ -296,7 +296,7 @@ export interface RunnerProviderProps {
  * Workflow job parameters as parsed from the webhook event. Pass these into your runner executor and run something like:
  *
  * ```sh
- * ./config.sh --unattended --url "https://${GITHUB_DOMAIN}/${OWNER}/${REPO}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --name "${RUNNER_NAME}" --disableupdate
+ * ./config.sh --unattended --url "{REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --name "${RUNNER_NAME}" --disableupdate
  * ```
  *
  * All parameters are specified as step function paths and therefore must be used only in step function task parameters.
@@ -326,6 +326,12 @@ export interface RunnerRuntimeParameters {
    * Path to repository name.
    */
   readonly repoPath: string;
+
+  /**
+   * Repository or organization URL to register runner at.
+   */
+  readonly registrationUrl: string;
+
 }
 
 /**

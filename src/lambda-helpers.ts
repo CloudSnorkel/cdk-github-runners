@@ -1,4 +1,4 @@
-import * as AWS from 'aws-sdk';
+import { SecretsManagerClient, GetSecretValueCommand, UpdateSecretCommand } from '@aws-sdk/client-secrets-manager';
 
 export interface StepFunctionLambdaInput {
   readonly owner: string;
@@ -12,14 +12,14 @@ export interface StepFunctionLambdaInput {
   };
 }
 
-const sm = new AWS.SecretsManager();
+const sm = new SecretsManagerClient();
 
 export async function getSecretValue(arn: string | undefined) {
   if (!arn) {
     throw new Error('Missing secret ARN');
   }
 
-  const secret = await sm.getSecretValue({ SecretId: arn }).promise();
+  const secret = await sm.send(new GetSecretValueCommand({ SecretId: arn }));
 
   if (!secret.SecretString) {
     throw new Error(`No SecretString in ${arn}`);
@@ -37,7 +37,7 @@ export async function updateSecretValue(arn: string | undefined, value: string) 
     throw new Error('Missing secret ARN');
   }
 
-  await sm.updateSecret({ SecretId: arn, SecretString: value }).promise();
+  await sm.send(new UpdateSecretCommand({ SecretId: arn, SecretString: value }));
 }
 
 export async function customResourceRespond(event: AWSLambda.CloudFormationCustomResourceEvent, responseStatus: string,

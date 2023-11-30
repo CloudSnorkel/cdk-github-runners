@@ -1,11 +1,11 @@
 import * as crypto from 'crypto';
+import { SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import * as AWSLambda from 'aws-lambda';
-import * as AWS from 'aws-sdk';
 import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
 import { SupportedLabels } from './webhook';
 
-const sf = new AWS.StepFunctions();
+const sf = new SFNClient();
 
 // TODO use @octokit/webhooks?
 
@@ -84,7 +84,7 @@ function matchLabelsToProvider(labels: string[]) {
 }
 
 export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
-  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SUPPORTED_LABELS) {
+  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SUPPORTED_LABELS || !process.env.REQUIRE_SELF_HOSTED_LABEL) {
     throw new Error('Missing environment variables');
   }
 
@@ -136,19 +136,11 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     };
   }
 
-  if (!payload.workflow_job.labels.includes('self-hosted')) {
+  if (process.env.REQUIRE_SELF_HOSTED_LABEL === '1' && !payload.workflow_job.labels.includes('self-hosted')) {
     console.log(`Ignoring labels "${payload.workflow_job.labels}", expecting "self-hosted"`);
     return {
       statusCode: 200,
       body: 'OK. No runner started (no "self-hosted" label).',
-    };
-  }
-
-  if (await isDeploymentPending(payload)) {
-    console.log('Ignoring job as its deployment is still pending');
-    return {
-      statusCode: 200,
-      body: 'OK. No runner started (deployment pending).',
     };
   }
 
@@ -159,6 +151,15 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     return {
       statusCode: 200,
       body: 'OK. No runner started (no provider with matching labels).',
+    };
+  }
+
+  // don't start runners for a deployment that's still pending as GitHub will send another event when it's ready
+  if (await isDeploymentPending(payload)) {
+    console.log('Ignoring job as its deployment is still pending');
+    return {
+      statusCode: 200,
+      body: 'OK. No runner started (deployment pending).',
     };
   }
 
@@ -174,12 +175,12 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     labels: payload.workflow_job.labels,
     provider: provider,
   });
-  const execution = await sf.startExecution({
+  const execution = await sf.send(new StartExecutionCommand({
     stateMachineArn: process.env.STEP_FUNCTION_ARN,
     input: input,
     // name is not random so multiple execution of this webhook won't cause multiple builders to start
     name: executionName,
-  }).promise();
+  }));
 
   console.log(`Started ${execution.executionArn}`);
   console.log(input);

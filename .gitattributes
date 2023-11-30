@@ -17,11 +17,11 @@
 /.gitignore linguist-generated
 /.mergify.yml linguist-generated
 /.npmignore linguist-generated
-/.npmrc linguist-generated
 /.projen/** linguist-generated
 /.projen/deps.json linguist-generated
 /.projen/files.json linguist-generated
 /.projen/tasks.json linguist-generated
+/.vscode/settings.json linguist-generated
 /API.md linguist-generated
 /cdk.json linguist-generated
 /LICENSE linguist-generated
@@ -30,10 +30,9 @@
 /src/idle-runner-repear-function.ts linguist-generated
 /src/image-builders/aws-image-builder/delete-ami-function.ts linguist-generated
 /src/image-builders/aws-image-builder/filter-failed-builds-function.ts linguist-generated
-/src/image-builders/aws-image-builder/reaper-function.ts linguist-generated
 /src/image-builders/aws-image-builder/versioner-function.ts linguist-generated
+/src/image-builders/build-image-function.ts linguist-generated
 /src/providers/ami-root-device-function.ts linguist-generated
-/src/providers/build-image-function.ts linguist-generated
 /src/providers/update-lambda-function.ts linguist-generated
 /src/setup-function.ts linguist-generated
 /src/status-function.ts linguist-generated

@@ -18,9 +18,9 @@ import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
+import { BuildImageFunction } from './build-image-function';
 import { IRunnerImageBuilder } from './common';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
-import { BuildImageFunction } from '../providers/build-image-function';
 import { singletonLambda } from '../utils';
 
 /*
@@ -195,6 +195,7 @@ export class CodeBuildImageBuilder extends Construct implements IRunnerImageBuil
       imageScanOnPush: true,
       imageTagMutability: TagMutability.MUTABLE,
       removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteImages: true,
       lifecycleRules: [
         {
           description: 'Remove untagged images that have been replaced by CodeBuild',

@@ -1,5 +1,5 @@
 import { RequestError } from '@octokit/request-error';
-import { getOctokit, getRunner } from './lambda-github';
+import { deleteRunner, getOctokit, getRunner } from './lambda-github';
 import { StepFunctionLambdaInput } from './lambda-helpers';
 
 class RunnerBusy extends Error {
@@ -20,10 +20,10 @@ class ReraisedError extends Error {
 }
 
 export async function handler(event: StepFunctionLambdaInput) {
-  const { octokit } = await getOctokit(event.installationId);
+  const { octokit, githubSecrets } = await getOctokit(event.installationId);
 
   // find runner id
-  const runner = await getRunner(octokit, event.owner, event.repo, event.runnerName);
+  const runner = await getRunner(octokit, githubSecrets.runnerLevel, event.owner, event.repo, event.runnerName);
   if (!runner) {
     console.error(`Unable to find runner id for ${event.owner}/${event.repo}:${event.runnerName}`);
     throw new ReraisedError(event);
@@ -36,11 +36,7 @@ export async function handler(event: StepFunctionLambdaInput) {
   // we try removing it anyway for cases where a job wasn't accepted, and just in case it wasn't removed.
   // repos have a limited number of self-hosted runners, so we can't leave dead ones behind.
   try {
-    await octokit.rest.actions.deleteSelfHostedRunnerFromRepo({
-      owner: event.owner,
-      repo: event.repo,
-      runner_id: runner.id,
-    });
+    await deleteRunner(octokit, githubSecrets.runnerLevel, event.owner, event.repo, runner.id);
   } catch (e) {
     const reqError = <RequestError>e;
     if (reqError.message.includes('is still running a job')) {

@@ -5,12 +5,32 @@
   let domain = 'INSERT_DOMAIN_HERE';
   let auth: undefined | 'newApp' | 'existingApp' | 'pat';
   let appScope: 'user' | 'org' = 'user';
+  let runnerLevel: 'repo' | 'org' = 'repo';
   let org = 'ORGANIZATION';
   let existingAppId: string = '';
   let existingAppPk: string = '';
   let pat: string = '';
   let success: boolean;
   let result: string | undefined;
+
+  interface Permissions {
+    actions: 'write' | 'read';
+    administration?: 'write' | 'read';
+    organization_self_hosted_runners?: 'write' | 'read';
+    deployments: 'write' | 'read';
+  };
+
+  const repositoryPermissions: Permissions = {
+    actions: 'write',
+    administration: 'write',
+    deployments: 'read',
+  };
+
+  const organizationPermissions: Permissions = {
+    actions: 'write',
+    organization_self_hosted_runners: 'write',
+    deployments: 'read',
+  };
 
   const manifest = {
     url: 'https://github.com/CloudSnorkel/cdk-github-runners',
@@ -19,17 +39,13 @@
     },
     redirect_url: 'INSERT_BASE_URL_HERE/complete-new-app',
     public: false,
-    default_permissions: {
-      actions: 'write',
-      administration: 'write',
-      deployments: 'read',
-    },
+    default_permissions: <Permissions>repositoryPermissions,
     default_events: [
       'workflow_job',
     ],
   };
 
-  function isSubmitDisabled(instance_, auth_, existingAppId_, existingAppPk_, pat_, success_) {
+  function isSubmitDisabled(instance_, auth_, existingAppId_, existingAppPk_, runnerLevel_, pat_, success_) {
     if (success_) {
       return true;
     }
@@ -40,7 +56,7 @@
       return false;
     }
     if (auth_ === 'existingApp') {
-      return existingAppId_ === '' || existingAppPk_ === '';
+      return existingAppId_ === '' || existingAppPk_ === '' || runnerLevel_ === undefined;
     }
     if (auth_ === 'pat') {
       return pat_ === '';
@@ -89,9 +105,13 @@
 
     function promise(): Promise<string> {
       const rightDomain = instance === 'ghes' ? domain : 'github.com';
+      manifest.default_permissions =
+        runnerLevel === 'repo'
+          ? repositoryPermissions
+          : organizationPermissions;
       switch (auth) {
         case 'newApp':
-          return postJson('domain', { domain: rightDomain })
+          return postJson('domain', { domain: rightDomain, runnerLevel })
             .then(_ => {
               (document.getElementById('appform') as HTMLFormElement).submit();
               return Promise.resolve('Redirecting to GitHub...');
@@ -101,6 +121,7 @@
             appid: existingAppId,
             pk: existingAppPk,
             domain: rightDomain,
+            runnerLevel,
           });
         case 'pat':
           return postJson('pat', {
@@ -232,10 +253,6 @@
         {:else if auth === 'existingApp'}
           <h3>Existing App Details</h3>
           <div class="px-3 py-3">
-            <p>Existing apps must have <code>actions</code> and <code>administration</code> write
-              permissions. Don't forget to set up the webhook and its secret as described in <a
-                href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md">SETUP_GITHUB.md</a>.
-            </p>
             <div class="form-group row px-3 py-2">
               <label for="appid" class="col-sm-2 col-form-label">App Id</label>
               <div class="col-sm-10">
@@ -248,6 +265,41 @@
                 <textarea class="form-control" id="pk" bind:value={existingAppPk} rows="10"></textarea>
               </div>
             </div>
+            <div class="form-group row px-3 py-2">
+              <div class="col-sm-2 col-form-label">Registration Level</div>
+              <div class="col-sm-10">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    bind:group={runnerLevel}
+                    value="repo"
+                    id="repo"
+                  />
+                  <label class="form-check-label" for="repo">Repository</label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    bind:group={runnerLevel}
+                    value="org"
+                    id="org"
+                  />
+                  <label class="form-check-label" for="org">Organization</label>
+                </div>
+              </div>
+            </div>
+
+            <h4>Required Permissions</h4>
+            <p>The existing app must have the following permissions.</p>
+            <pre>{JSON.stringify(runnerLevel === 'repo' ? repositoryPermissions : organizationPermissions, undefined, 2)}</pre>
+
+            <h4>Webhook</h4>
+            <p>
+              Don't forget to set up the webhook and its secret as described in <a
+                href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md">SETUP_GITHUB.md</a>.
+            </p>
           </div>
         {:else if auth === 'pat'}
           <h2>Personal Access Token</h2>
@@ -258,6 +310,59 @@
             </p>
             <input class="form-control" bind:value={pat}
                    placeholder="Token e.g. ghp_abcdefghijklmnopqrstuvwxyz1234567890">
+          </div>
+        {/if}
+
+        {#if appScope === 'org' && auth === 'newApp'}
+          <h3>Registration Level</h3>
+          <div class="px-3 py-3">
+            <p>
+              Would you like runners to be registered on repository level, or on organization level?
+            </p>
+            <ul>
+              <li>
+                Registering runners on repository level requires the <code>administration</code>
+                <a href="https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/autoscaling-with-self-hosted-runners#authentication-requirements">permission</a>.
+              </li>
+              <li>
+                Registering runners on organization level only requires the <code>organization_self_hosted_runners</code>
+                <a href="https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/autoscaling-with-self-hosted-runners#authentication-requirements">permission</a>
+                which is more fine-grained.
+              </li>
+              <li>
+                Registering runners on organization level means any repository can use them, even if the app wasn't
+                installed on those repositories.
+              </li>
+              <li>
+                Do not use organization level registration if you don't fully trust all repositories in your organization.
+              </li>
+              <li>
+                Use organization level to reduce the permission scope this new app is given.
+              </li>
+              <li>
+                When in doubt, use the default repository level registration.
+              </li>
+            </ul>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                bind:group={runnerLevel}
+                value="repo"
+                id="repo"
+              />
+              <label class="form-check-label" for="repo">Repository</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                bind:group={runnerLevel}
+                value="org"
+                id="org"
+              />
+              <label class="form-check-label" for="org">Organization</label>
+            </div>
           </div>
         {/if}
 
@@ -277,7 +382,7 @@
               implications before continuing.</p>
           {/if}
           <button type="submit" class="btn btn-success"
-                  disabled={isSubmitDisabled(instance, auth, existingAppId, existingAppPk, pat, success)}>
+                  disabled={isSubmitDisabled(instance, auth, existingAppId, existingAppPk, runnerLevel, pat, success)}>
             {submitText(auth)}
           </button>
         </div>

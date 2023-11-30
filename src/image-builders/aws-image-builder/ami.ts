@@ -39,16 +39,22 @@ interface AmiRecipeProperties {
 export class AmiRecipe extends ImageBuilderObjectBase {
   public readonly arn: string;
   public readonly name: string;
+  public readonly version: string;
 
   constructor(scope: Construct, id: string, props: AmiRecipeProperties) {
     super(scope, id);
-
-    const name = uniqueImageBuilderName(this);
 
     let components = props.components.map(component => {
       return {
         componentArn: component.arn,
       };
+    });
+
+    this.name = uniqueImageBuilderName(this);
+    this.version = this.generateVersion('ImageRecipe', this.name, {
+      platform: props.platform,
+      components,
+      parentAmi: props.baseAmi,
     });
 
     let workingDirectory;
@@ -61,19 +67,14 @@ export class AmiRecipe extends ImageBuilderObjectBase {
     }
 
     const recipe = new imagebuilder.CfnImageRecipe(this, 'Recipe', {
-      name: name,
-      version: this.version('ImageRecipe', name, {
-        platform: props.platform,
-        components,
-        parentAmi: props.baseAmi,
-      }),
+      name: this.name,
+      version: this.version,
       parentImage: props.baseAmi,
       components,
       workingDirectory,
     });
 
     this.arn = recipe.attrArn;
-    this.name = name;
   }
 }
 

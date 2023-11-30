@@ -38,6 +38,11 @@ export interface GithubWebhookHandlerProps {
    * List of supported label combinations.
    */
   readonly supportedLabels: SupportedLabels[];
+
+  /**
+   * Whether to require the "self-hosted" label.
+   */
+  readonly requireSelfHostedLabel: boolean;
 }
 
 /**
@@ -71,6 +76,7 @@ export class GithubWebhookHandler extends Construct {
           GITHUB_SECRET_ARN: props.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: props.secrets.githubPrivateKey.secretArn,
           SUPPORTED_LABELS: JSON.stringify(props.supportedLabels),
+          REQUIRE_SELF_HOSTED_LABEL: props.requireSelfHostedLabel ? '1' : '0',
         },
         timeout: cdk.Duration.seconds(30),
         logRetention: logs.RetentionDays.ONE_MONTH,

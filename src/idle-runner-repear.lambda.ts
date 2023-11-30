@@ -1,7 +1,7 @@
+import { DescribeExecutionCommand, SFNClient, StopExecutionCommand } from '@aws-sdk/client-sfn';
 import { Octokit } from '@octokit/rest';
 import * as AWSLambda from 'aws-lambda';
-import * as AWS from 'aws-sdk';
-import { getOctokit, getRunner } from './lambda-github';
+import { deleteRunner, getOctokit, getRunner } from './lambda-github';
 
 interface IdleReaperLambdaInput {
   readonly executionArn: string;
@@ -12,11 +12,12 @@ interface IdleReaperLambdaInput {
   readonly maxIdleSeconds: number;
 }
 
-const sfn = new AWS.StepFunctions();
+const sfn = new SFNClient();
 
 export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSBatchResponse> {
   const result: AWSLambda.SQSBatchResponse = { batchItemFailures: [] };
-  const octokitCache: { [key: number]: Octokit } = {};
+  let octokitCache: Octokit | undefined;
+  let runnerLevel: 'repo' | 'org' | undefined;
 
   for (const record of event.Records) {
     const input = JSON.parse(record.body) as IdleReaperLambdaInput;
@@ -25,7 +26,7 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
     const retryLater = () => result.batchItemFailures.push({ itemIdentifier: record.messageId });
 
     // check if step function is still running
-    const execution = await sfn.describeExecution({ executionArn: input.executionArn }).promise();
+    const execution = await sfn.send(new DescribeExecutionCommand({ executionArn: input.executionArn }));
     if (execution.status != 'RUNNING') {
       // no need to test again as runner already finished
       console.log('Runner already finished');
@@ -33,15 +34,16 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
     }
 
     // get github access
-    let octokit: Octokit;
-    if (octokitCache[input.installationId ?? -1]) {
-      octokit = octokitCache[input.installationId ?? -1];
-    } else {
-      octokit = octokitCache[input.installationId ?? -1] = (await getOctokit(input.installationId)).octokit;
+    if (!octokitCache) {
+      // getOctokit calls secrets manager every time, so cache the result
+      const { octokit, githubSecrets } = await getOctokit(input.installationId);
+      // TODO if installationId changes during normal operations, we may have some records with good installationId, and some with bad
+      octokitCache = octokit;
+      runnerLevel = githubSecrets.runnerLevel;
     }
 
     // find runner
-    const runner = await getRunner(octokit, input.owner, input.repo, input.runnerName);
+    const runner = await getRunner(octokitCache, runnerLevel, input.owner, input.repo, input.runnerName);
     if (!runner) {
       console.error(`Runner not running yet for ${input.owner}/${input.repo}:${input.runnerName}`);
       retryLater();
@@ -76,11 +78,11 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
             // stop step function first, so it's marked as aborted with the proper error
             // if we delete the runner first, the step function will be marked as failed with a generic error
             console.log(`Stopping step function ${input.executionArn}...`);
-            await sfn.stopExecution({
+            await sfn.send(new StopExecutionCommand({
               executionArn: input.executionArn,
               error: 'IdleRunner',
               cause: `Runner ${input.runnerName} on ${input.owner}/${input.repo} is idle for too long (${diffMs / 1000} seconds and limit is ${input.maxIdleSeconds} seconds)`,
-            }).promise();
+            }));
           } catch (e) {
             console.error(`Failed to stop step function ${input.executionArn}: ${e}`);
             retryLater();
@@ -89,11 +91,7 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
 
           try {
             console.log(`Deleting runner ${runner.id}...`);
-            await octokit.rest.actions.deleteSelfHostedRunnerFromRepo({
-              owner: input.owner,
-              repo: input.repo,
-              runner_id: runner.id,
-            });
+            await deleteRunner(octokitCache, runnerLevel, input.owner, input.repo, runner.id);
           } catch (e) {
             console.error(`Failed to delete runner ${runner.id}: ${e}`);
             retryLater();

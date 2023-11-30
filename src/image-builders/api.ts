@@ -2,8 +2,8 @@ import { Annotations } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { AwsImageBuilderRunnerImageBuilder } from './aws-image-builder';
 import { CodeBuildRunnerImageBuilder } from './codebuild';
-import { RunnerImageBuilderBase, RunnerImageBuilderProps, RunnerImageBuilderType } from './common';
-import { Os } from '../providers/common';
+import { IConfigurableRunnerImageBuilder, RunnerImageBuilderBase, RunnerImageBuilderProps, RunnerImageBuilderType } from './common';
+import { Os } from '../providers';
 
 /**
  * GitHub Runner image builder. Builds a Docker image or AMI with GitHub Runner and other requirements installed.
@@ -16,7 +16,7 @@ export abstract class RunnerImageBuilder extends RunnerImageBuilderBase {
   /**
    * Create a new image builder based on the provided properties. The implementation will differ based on the OS, architecture, and requested builder type.
    */
-  static new(scope: Construct, id: string, props?: RunnerImageBuilderProps): RunnerImageBuilder {
+  static new(scope: Construct, id: string, props?: RunnerImageBuilderProps): IConfigurableRunnerImageBuilder {
     if (props?.components && props.runnerVersion) {
       Annotations.of(scope).addWarning('runnerVersion is ignored when components are specified. The runner version will be determined by the components.');
     }

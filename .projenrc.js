@@ -1,12 +1,13 @@
 const { awscdk } = require('projen');
 const { CdkConfig } = require('projen/lib/awscdk');
 const { Stability } = require('projen/lib/cdk/jsii-project');
+const { NpmAccess } = require('projen/lib/javascript');
 
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Amir Szekely',
   authorAddress: 'amir@cloudsnorkel.com',
   stability: Stability.EXPERIMENTAL,
-  cdkVersion: '2.77.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode, 2.77.0 for node 16
+  cdkVersion: '2.110.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode, 2.77.0 for node 16, 2.110.0 for ib lifecycle
   defaultReleaseBranch: 'main',
   name: '@cloudsnorkel/cdk-github-runners',
   repositoryUrl: 'https://github.com/CloudSnorkel/cdk-github-runners.git',
@@ -18,8 +19,16 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@octokit/auth-app',
     '@octokit/request-error',
     '@octokit/rest',
-    'aws-sdk',
-    '@aws-sdk/types',
+    '@aws-sdk/client-cloudformation',
+    '@aws-sdk/client-codebuild',
+    '@aws-sdk/client-ec2',
+    '@aws-sdk/client-ecr',
+    '@aws-sdk/client-imagebuilder',
+    '@aws-sdk/client-lambda',
+    '@aws-sdk/client-secrets-manager',
+    '@aws-sdk/client-sns',
+    '@aws-sdk/client-ssm',
+    '@aws-sdk/client-sfn',
     '@types/aws-lambda',
     'semver',
     '@types/semver',
@@ -40,6 +49,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   jsiiVersion: '5.0.x',
   typescriptVersion: '4.9.x',
   releaseToNpm: true,
+  npmAccess: NpmAccess.PUBLIC,
   publishToPypi: {
     distName: 'cloudsnorkel.cdk-github-runners',
     module: 'cloudsnorkel.cdk_github_runners',
@@ -141,5 +151,17 @@ cdkConfig.json.addDeletionOverride('output');
 // allow lambda utility files to import dev dependencies
 project.eslint.allowDevDeps('src/lambda-helpers.ts');
 project.eslint.allowDevDeps('src/lambda-github.ts');
+
+// vscode auto formatting
+project.vscode.settings.addSettings({
+  'editor.formatOnSave': true,
+  'editor.codeActionsOnSave': {
+    'source.fixAll.eslint': true,
+  },
+  'eslint.format.enable': true,
+  'prettier.enable': false,
+  'svelte.plugin.svelte.format.enable': false,
+  'svelte.plugin.svelte.enable': false,
+});
 
 project.synth();

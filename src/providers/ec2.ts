@@ -31,6 +31,15 @@ import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 // each `{}` is a variable coming from `params` below
 const linuxUserDataTemplate = `#!/bin/bash -x
 TASK_TOKEN="{}"
+logGroupName="{}"
+runnerNamePath="{}"
+githubDomainPath="{}"
+ownerPath="{}"
+repoPath="{}"
+runnerTokenPath="{}"
+labels="{}"
+registrationURL="{}"
+
 heartbeat () {
   while true; do
     aws stepfunctions send-task-heartbeat --task-token "$TASK_TOKEN"
@@ -47,8 +56,8 @@ setup_logs () {
           "collect_list": [
             {
               "file_path": "/var/log/runner.log",
-              "log_group_name": "{}",
-              "log_stream_name": "{}",
+              "log_group_name": "$logGroupName",
+              "log_stream_name": "$runnerNamePath",
               "timezone": "UTC"
             }
           ]
@@ -60,11 +69,26 @@ EOF
   /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2
 }
 action () {
-  if [ "$(< RUNNER_VERSION)" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
-  sudo -Hu runner /home/runner/config.sh --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{},cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "{}" || exit 1
+  # Determine the value of RUNNER_FLAGS
+  if [ "$(< RUNNER_VERSION)" = "latest" ]; then
+    RUNNER_FLAGS=""
+  else
+    RUNNER_FLAGS="--disableupdate"
+  fi
+
+  labelsTemplate="$labels,cdkghr:started:$(date +%s)"
+
+  # Execute the configuration command for runner registration
+  sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" || exit 1
+
+  # Execute the run command
   sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
-  STATUS=$(grep -Phors "finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*" /home/runner/_diag/ | tail -n1)
-  [ -n "$STATUS" ] && echo CDKGHA JOB DONE "{}" "$STATUS"
+
+  # Retrieve the status
+  STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \K.*" /home/runner/_diag/ | tail -n1)
+
+  # Check and print the job status
+  [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$labels" "$STATUS"
 }
 heartbeat &
 if setup_logs && action | tee /var/log/runner.log 2>&1; then
@@ -80,6 +104,15 @@ poweroff
 // each `{}` is a variable coming from `params` below and their order should match the linux script
 const windowsUserDataTemplate = `<powershell>
 $TASK_TOKEN = "{}"
+$logGroupName="{}"
+$runnerNamePath="{}"
+$githubDomainPath="{}"
+$ownerPath="{}"
+$repoPath="{}"
+$runnerTokenPath="{}"
+$labels="{}"
+$registrationURL="{}"
+
 Start-Job -ScriptBlock {
   while (1) {
     aws stepfunctions send-task-heartbeat --task-token "$using:TASK_TOKEN"
@@ -95,8 +128,8 @@ function setup_logs () {
          "collect_list": [
             {
               "file_path": "/actions/runner.log",
-              "log_group_name": "{}",
-              "log_stream_name": "{}",
+              "log_group_name": "$logGroupName",
+              "log_stream_name": "$runnerNamePath",
               "timezone": "UTC"
             }
           ]
@@ -108,15 +141,22 @@ function setup_logs () {
 }
 function action () {
   cd /actions
-  $RunnerVersion = Get-Content RUNNER_VERSION -Raw 
+  $RunnerVersion = Get-Content RUNNER_VERSION -Raw
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
-  ./config.cmd --unattended --url "https://{}/{}/{}" --token "{}" --ephemeral --work _work --labels "{},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "{}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+
   if ($LASTEXITCODE -ne 0) { return 1 }
   ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
   if ($LASTEXITCODE -ne 0) { return 2 }
-  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1
-  if ($STATUS) { echo "CDKGHA JOB DONE {} $STATUS" | Out-File -Encoding ASCII -Append /actions/runner.log }
+
+  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1
+
+  if ($STATUS) {
+      echo "CDKGHA JOB DONE \${labels} $STATUS" | Out-File -Encoding ASCII -Append /actions/runner.log
+  }
+
   return 0
+
 }
 setup_logs
 $r = action
@@ -235,7 +275,13 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
  */
 export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   /**
-   * Create new image builder that builds EC2 specific runner images using Ubuntu.
+   * Create new image builder that builds EC2 specific runner images.
+   *
+   * You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+   *
+   * You can add components to the image builder by calling `imageBuilder.addComponent()`.
+   *
+   * The default OS is Ubuntu running on x64 architecture.
    *
    * Included components:
    *  * `RunnerImageComponent.requiredPackages()`
@@ -364,8 +410,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       parameters.repoPath,
       parameters.runnerTokenPath,
       this.labels.join(','),
-      parameters.runnerNamePath,
-      this.labels.join(','),
+      parameters.registrationUrl,
     ];
 
     const passUserData = new stepfunctions.Pass(this, `${this.labels.join(', ')} data`, {

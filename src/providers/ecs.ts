@@ -110,9 +110,16 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
   /**
    * The amount (in MiB) of memory used by the task.
    *
-   * @default 3500
+   * @default 3500, unless `memoryReservationMiB` is used and then it's undefined
    */
   readonly memoryLimitMiB?: number;
+
+  /**
+   * The soft limit (in MiB) of memory to reserve for the container.
+   *
+   * @default undefined
+   */
+  readonly memoryReservationMiB?: number;
 
   /**
    * Instance type of ECS cluster instances. Only used when creating a new cluster.
@@ -204,7 +211,13 @@ class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
  */
 export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   /**
-   * Create new image builder that builds ECS specific runner images using Ubuntu.
+   * Create new image builder that builds ECS specific runner images.
+   *
+   * You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+   *
+   * You can add components to the image builder by calling `imageBuilder.addComponent()`.
+   *
+   * The default OS is Ubuntu running on x64 architecture.
    *
    * Included components:
    *  * `RunnerImageComponent.requiredPackages()`
@@ -215,7 +228,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    *  * `RunnerImageComponent.docker()`
    *  * `RunnerImageComponent.githubRunner()`
    */
-  public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps): RunnerImageBuilder {
+  public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     return RunnerImageBuilder.new(scope, id, {
       os: Os.LINUX_UBUNTU,
       architecture: Architecture.X86_64,
@@ -412,7 +425,8 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       {
         image: ecs.AssetImage.fromEcrRepository(image.imageRepository, image.imageTag),
         cpu: props?.cpu ?? 1024,
-        memoryLimitMiB: props?.memoryLimitMiB ?? 3500,
+        memoryLimitMiB: props?.memoryLimitMiB ?? (props?.memoryReservationMiB ? undefined : 3500),
+        memoryReservationMiB: props?.memoryReservationMiB,
         logging: ecs.AwsLogDriver.awsLogs({
           logGroup: this.logGroup,
           streamPrefix: 'runner',
@@ -563,6 +577,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
               {
                 name: 'REPO',
                 value: parameters.repoPath,
+              },
+              {
+                name: 'REGISTRATION_URL',
+                value: parameters.registrationUrl,
               },
             ],
           },

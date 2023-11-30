@@ -56,6 +56,8 @@ export class Secrets extends Construct {
             domain: 'github.com',
             appId: '',
             personalAuthToken: '',
+            // we can't uncomment the following because changing the template overrides existing values on version upgrade :(
+            // runnerLevel: 'repo'
           }),
           generateStringKey: 'dummy',
           includeSpace: false,

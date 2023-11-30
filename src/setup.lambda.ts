@@ -55,11 +55,14 @@ async function handleDomain(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
   if (!body.domain) {
     return response(400, 'Invalid domain');
   }
+  if (body.runnerLevel !== 'repo' && body.runnerLevel !== 'org') {
+    return response(400, 'Invalid runner registration level');
+  }
 
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   githubSecrets.domain = body.domain;
+  githubSecrets.runnerLevel = body.runnerLevel;
   await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(githubSecrets));
-
   return response(200, 'Domain set');
 }
 
@@ -73,57 +76,60 @@ async function handlePat(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayPr
     domain: body.domain,
     appId: -1,
     personalAuthToken: body.pat,
+    runnerLevel: 'repo',
   }));
   await updateSecretValue(process.env.SETUP_SECRET_ARN, JSON.stringify({ token: '' }));
 
-  return response( 200, 'Personal access token set');
+  return response(200, 'Personal access token set');
 }
 
 async function handleNewApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayProxyResultV2> {
   if (!event.queryStringParameters) {
-    return response( 400, 'Invalid code');
+    return response(400, 'Invalid code');
   }
 
   const code = event.queryStringParameters.code;
 
   if (!code) {
-    return response( 400, 'Invalid code');
+    return response(400, 'Invalid code');
   }
 
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   const baseUrl = baseUrlFromDomain(githubSecrets.domain);
   const newApp = await new Octokit({ baseUrl }).rest.apps.createFromManifest({ code });
 
-  await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(<GitHubSecrets>{
-    domain: new URL(newApp.data.html_url).host,
-    appId: newApp.data.id,
-    personalAuthToken: '',
-  }));
+  githubSecrets.appId = newApp.data.id;
+  githubSecrets.domain = new URL(newApp.data.html_url).host; // just in case it's different
+  githubSecrets.personalAuthToken = '';
+  // don't update runnerLevel as it was set by handleDomain() above
+
+  await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(githubSecrets));
   await updateSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN, newApp.data.pem);
   await updateSecretValue(process.env.WEBHOOK_SECRET_ARN, JSON.stringify({
     webhookSecret: newApp.data.webhook_secret,
   }));
   await updateSecretValue(process.env.SETUP_SECRET_ARN, JSON.stringify({ token: '' }));
 
-  return response( 200, `New app set. <a href="${newApp.data.html_url}/installations/new">Install it</a> for your repositories.`);
+  return response(200, `New app set. <a href="${newApp.data.html_url}/installations/new">Install it</a> for your repositories.`);
 }
 
 async function handleExistingApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayProxyResultV2> {
   const body = decodeBody(event);
 
-  if (!body.appid || !body.pk || !body.domain) {
-    return response( 400, 'Missing fields');
+  if (!body.appid || !body.pk || !body.domain || (body.runnerLevel !== 'repo' && body.runnerLevel !== 'org')) {
+    return response(400, 'Missing fields');
   }
 
   await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(<GitHubSecrets>{
     domain: body.domain,
     appId: body.appid,
     personalAuthToken: '',
+    runnerLevel: body.runnerLevel,
   }));
   await updateSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN, body.pk as string);
   await updateSecretValue(process.env.SETUP_SECRET_ARN, JSON.stringify({ token: '' }));
 
-  return response( 200, 'Existing app set. Don\'t forget to set up the webhook.');
+  return response(200, 'Existing app set. Don\'t forget to set up the webhook.');
 }
 
 export async function handler(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayProxyResultV2> {

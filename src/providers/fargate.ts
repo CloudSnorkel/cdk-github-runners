@@ -214,7 +214,7 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
       `${dindCommand}
         cd /home/runner &&
         if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
-        ./config.sh --unattended --url "https://$GITHUB_DOMAIN/$OWNER/$REPO" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" && 
+        ./config.sh --unattended --url "$REGISTRATION_URL" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" &&
         ./run.sh &&
         STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" _diag/ | tail -n1) &&
         [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"`,
@@ -223,10 +223,10 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
     return [
       'powershell', '-Command',
       `cd \\actions ;
-        if ($Env:RUNNER_VERSION -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ; 
-        ./config.cmd --unattended --url "https://\${Env:GITHUB_DOMAIN}/\${Env:OWNER}/\${Env:REPO}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL},cdkghr:started:\$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${Env:RUNNER_NAME}" ; 
-        ./run.cmd ; 
-        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ; 
+        if ($Env:RUNNER_VERSION -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ;
+        ./config.cmd --unattended --url "\${Env:REGISTRATION_URL}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL},cdkghr:started:\$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${Env:RUNNER_NAME}" ;
+        ./run.cmd ;
+        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;
         if ($STATUS) { echo "CDKGHA JOB DONE $\{Env:RUNNER_LABEL\} $STATUS" }`,
     ];
   } else {
@@ -265,7 +265,13 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-arm64');
 
   /**
-   * Create new image builder that builds Fargate specific runner images using Ubuntu.
+   * Create new image builder that builds Fargate specific runner images.
+   *
+   * You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+   *
+   * You can add components to the image builder by calling `imageBuilder.addComponent()`.
+   *
+   * The default OS is Ubuntu running on x64 architecture.
    *
    * Included components:
    *  * `RunnerImageComponent.requiredPackages()`
@@ -275,7 +281,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
    *  * `RunnerImageComponent.awsCli()`
    *  * `RunnerImageComponent.githubRunner()`
    */
-  public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps): RunnerImageBuilder {
+  public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     return RunnerImageBuilder.new(scope, id, {
       os: Os.LINUX_UBUNTU,
       architecture: Architecture.X86_64,
@@ -490,6 +496,10 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
               {
                 name: 'REPO',
                 value: parameters.repoPath,
+              },
+              {
+                name: 'REGISTRATION_URL',
+                value: parameters.registrationUrl,
               },
             ],
           },

@@ -1,18 +1,21 @@
+import { CodeBuildClient, StartBuildCommand } from '@aws-sdk/client-codebuild';
+import {
+  DeleteImageCommand,
+  ImagebuilderClient,
+  ListImageBuildVersionsCommand,
+  ListImagesCommand as ListIbImagesCommand,
+} from '@aws-sdk/client-imagebuilder';
 import * as AWSLambda from 'aws-lambda';
-import * as AWS from 'aws-sdk';
 import { customResourceRespond } from '../lambda-helpers';
 
-const codebuild = new AWS.CodeBuild();
-const ecr = new AWS.ECR();
-const ib = new AWS.Imagebuilder();
-
+const codebuild = new CodeBuildClient();
+const ib = new ImagebuilderClient();
 
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   try {
     console.log(JSON.stringify({ ...event, ResponseURL: '...' }));
 
     const deleteOnly = event.ResourceProperties.DeleteOnly as boolean | undefined;
-    const repoName = event.ResourceProperties.RepoName;
     const projectName = event.ResourceProperties.ProjectName;
     const ibName = event.ResourceProperties.ImageBuilderName as string | undefined;
 
@@ -28,7 +31,7 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
         }
 
         console.log(`Starting CodeBuild project ${projectName}`);
-        await codebuild.startBuild({
+        await codebuild.send(new StartBuildCommand({
           projectName,
           environmentVariablesOverride: [
             {
@@ -52,29 +55,20 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
               value: event.ResponseURL,
             },
           ],
-        }).promise();
+        }));
         break;
       case 'Delete':
-        const ecrImages = await ecr.listImages({ repositoryName: repoName, maxResults: 100 }).promise();
-        if (ecrImages.imageIds && ecrImages.imageIds.length > 0) {
-          await ecr.batchDeleteImage({
-            imageIds: ecrImages.imageIds.map(i => {
-              return { imageDigest: i.imageDigest };
-            }),
-            repositoryName: repoName,
-          }).promise();
-        }
         if (ibName) {
-          const ibImages = await ib.listImages({ filters: [{ name: 'name', values: [ibName] }] }).promise();
+          const ibImages = await ib.send(new ListIbImagesCommand({ filters: [{ name: 'name', values: [ibName] }] }));
           if (ibImages.imageVersionList) {
             for (const v of ibImages.imageVersionList) {
               if (v.arn) {
-                const ibImageVersions = await ib.listImageBuildVersions({ imageVersionArn: v.arn }).promise();
+                const ibImageVersions = await ib.send(new ListImageBuildVersionsCommand({ imageVersionArn: v.arn }));
                 if (ibImageVersions.imageSummaryList) {
                   for (const vs of ibImageVersions.imageSummaryList) {
                     if (vs.arn) {
                       console.log(`Deleting ${vs.arn}`);
-                      await ib.deleteImage({ imageBuildVersionArn: vs.arn }).promise();
+                      await ib.send(new DeleteImageCommand({ imageBuildVersionArn: vs.arn }));
                     }
                   }
                 }
