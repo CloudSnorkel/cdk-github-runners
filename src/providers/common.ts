@@ -129,6 +129,11 @@ export class Os {
   public static readonly LINUX_AMAZON_2 = Os.of('Amazon Linux 2');
 
   /**
+   * Amazon Linux 2023
+   */
+  public static readonly LINUX_AMAZON_2023 = Os.of('Amazon Linux 2023');
+
+  /**
   * Windows
   */
   public static readonly WINDOWS = Os.of('Windows');

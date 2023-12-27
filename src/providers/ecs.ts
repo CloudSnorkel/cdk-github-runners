@@ -510,7 +510,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       return [`(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`];
     }
     return [
-      'yum install -y awscli',
+      'yum install -y awscli || dnf install -y awscli',
       `aws ecr get-login-password --region ${thisStack.region} | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`,
     ];
   }
