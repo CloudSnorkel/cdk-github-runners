@@ -11,6 +11,12 @@ cd /tmp/runner
 mkdir /tmp/home
 export HOME=/tmp/home
 
+# workaround for "Cannot get required symbol EVP_rc2_cbc from libssl"
+# lambda docker image for node.js comes with stripped down libssl.so pushed in LD_LIBRARY_PATH
+if [ -f /var/lang/lib/libssl.so ]; then
+  export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
+fi
+
 # start runner
 if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
 ./config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" --name "${RUNNER_NAME}" ${RUNNER_FLAGS}

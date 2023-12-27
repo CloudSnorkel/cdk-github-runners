@@ -99,6 +99,11 @@ export abstract class RunnerImageComponent {
             'yum update -y',
             'yum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils',
           ];
+        } else if (os.is(Os.LINUX_AMAZON_2023)) {
+          return [
+            'dnf upgrade -y',
+            'dnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils',
+          ];
         } else if (os.is(Os.WINDOWS)) {
           return [
             '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn\'',
@@ -125,7 +130,7 @@ export abstract class RunnerImageComponent {
             'adduser --system --disabled-password --home /home/runner --ingroup runner runner',
             'echo "%runner   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner',
           ];
-        } else if (os.is(Os.LINUX_AMAZON_2)) {
+        } else if (os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
           return [
             '/usr/sbin/groupadd runner',
             '/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner',
@@ -150,7 +155,7 @@ export abstract class RunnerImageComponent {
       name = 'AwsCli';
 
       getCommands(os: Os, architecture: Architecture) {
-        if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
+        if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
           let archUrl: string;
           if (architecture.is(Architecture.X86_64)) {
             archUrl = 'x86_64';
@@ -199,6 +204,11 @@ export abstract class RunnerImageComponent {
             'curl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo',
             'yum install -y gh',
           ];
+        } else if (os.is(Os.LINUX_AMAZON_2023)) {
+          return [
+            'curl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo',
+            'dnf install -y gh',
+          ];
         } else if (os.is(Os.WINDOWS)) {
           return [
             'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh',
@@ -234,6 +244,10 @@ export abstract class RunnerImageComponent {
           return [
             'yum install -y git',
           ];
+        } else if (os.is(Os.LINUX_AMAZON_2023)) {
+          return [
+            'dnf install -y git',
+          ];
         } else if (os.is(Os.WINDOWS)) {
           return [
             'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\latest-git',
@@ -264,7 +278,7 @@ export abstract class RunnerImageComponent {
       name = 'GithubRunner';
 
       getCommands(os: Os, architecture: Architecture) {
-        if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
+        if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
           let versionCommand: string;
           if (runnerVersion.is(RunnerVersion.latest())) {
             versionCommand = 'RUNNER_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest | grep -oE "[^/v]+$"`';
@@ -293,6 +307,8 @@ export abstract class RunnerImageComponent {
             commands.push('/home/runner/bin/installdependencies.sh');
           } else if (os.is(Os.LINUX_AMAZON_2)) {
             commands.push('yum install -y openssl-libs krb5-libs zlib libicu60');
+          } else if (os.is(Os.LINUX_AMAZON_2023)) {
+            commands.push('dnf install -y openssl-libs krb5-libs zlib libicu-67.1');
           }
 
           return commands;
@@ -351,6 +367,10 @@ export abstract class RunnerImageComponent {
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [
             'yum install -y docker',
+          ];
+        } else if (os.is(Os.LINUX_AMAZON_2023)) {
+          return [
+            'dnf install -y docker',
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [
@@ -419,7 +439,7 @@ export abstract class RunnerImageComponent {
           return [
             'update-ca-certificates',
           ];
-        } else if (os.is(Os.LINUX_AMAZON_2)) {
+        } else if (os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
           return [
             'update-ca-trust',
           ];
@@ -438,7 +458,7 @@ export abstract class RunnerImageComponent {
           return [
             { source, target: `/usr/local/share/ca-certificates/${name}.crt` },
           ];
-        } else if (os.is(Os.LINUX_AMAZON_2)) {
+        } else if (os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
           return [
             { source, target: `/etc/pki/ca-trust/source/anchors/${name}.crt` },
           ];
@@ -461,7 +481,7 @@ export abstract class RunnerImageComponent {
       name = 'Lambda-Entrypoint';
 
       getCommands(os: Os, _architecture: Architecture) {
-        if (!os.is(Os.LINUX_AMAZON_2) && !os.is(Os.LINUX_UBUNTU)) {
+        if (!os.is(Os.LINUX_AMAZON_2) && !os.is(Os.LINUX_AMAZON_2023) && !os.is(Os.LINUX_UBUNTU)) {
           throw new Error(`Unsupported OS for Lambda entrypoint: ${os.name}`);
         }
 
@@ -532,7 +552,7 @@ export abstract class RunnerImageComponent {
    */
   _asAwsImageBuilderComponent(scope: Construct, id: string, os: Os, architecture: Architecture) {
     let platform: 'Linux' | 'Windows';
-    if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
+    if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
       platform = 'Linux';
     } else if (os.is(Os.WINDOWS)) {
       platform = 'Windows';

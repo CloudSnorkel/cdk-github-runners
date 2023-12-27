@@ -164,7 +164,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    *  * `RunnerImageComponent.githubRunner()`
    *  * `RunnerImageComponent.lambdaEntrypoint()`
    *
-   *  Base Docker image: `public.ecr.aws/lambda/nodejs:16-x86_64` or `public.ecr.aws/lambda/nodejs:16-arm64`
+   *  Base Docker image: `public.ecr.aws/lambda/nodejs:20-x86_64` or `public.ecr.aws/lambda/nodejs:20-arm64`
    */
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     if (props?.os && !Os.LINUX_AMAZON_2.is(props.os) && !props?.baseDockerImage) {
@@ -172,13 +172,13 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       throw new Error('Lambda runner provider only supports Amazon Linux 2. Use a different provider or specify a custom `baseDockerImage` that supports your desired OS.');
     }
 
-    let baseDockerImage = 'public.ecr.aws/lambda/nodejs:16-x86_64';
+    let baseDockerImage = 'public.ecr.aws/lambda/nodejs:20-x86_64';
     if (props?.architecture === Architecture.ARM64) {
-      baseDockerImage = 'public.ecr.aws/lambda/nodejs:16-arm64';
+      baseDockerImage = 'public.ecr.aws/lambda/nodejs:20-arm64';
     }
 
     return RunnerImageBuilder.new(scope, id, {
-      os: Os.LINUX_AMAZON_2,
+      os: Os.LINUX_AMAZON_2023,
       architecture: props?.architecture ?? Architecture.X86_64,
       baseDockerImage,
       components: [
@@ -243,7 +243,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     const image = this.image = imageBuilder.bindDockerImage();
 
     let architecture: lambda.Architecture | undefined;
-    if (image.os.is(Os.LINUX_AMAZON_2) || image.os.is(Os.LINUX_UBUNTU)) {
+    if (image.os.is(Os.LINUX_AMAZON_2) || image.os.is(Os.LINUX_AMAZON_2023) || image.os.is(Os.LINUX_UBUNTU)) {
       if (image.architecture.is(Architecture.X86_64)) {
         architecture = lambda.Architecture.X86_64;
       }
