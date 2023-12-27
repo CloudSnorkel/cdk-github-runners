@@ -3887,7 +3887,7 @@ Included components:
  * `RunnerImageComponent.githubRunner()`
  * `RunnerImageComponent.lambdaEntrypoint()`
 
- Base Docker image: `public.ecr.aws/lambda/nodejs:16-x86_64` or `public.ecr.aws/lambda/nodejs:16-arm64`
+ Base Docker image: `public.ecr.aws/lambda/nodejs:20-x86_64` or `public.ecr.aws/lambda/nodejs:20-arm64`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.imageBuilder.parameter.scope"></a>
 
@@ -4253,7 +4253,7 @@ Included components:
  * `RunnerImageComponent.githubRunner()`
  * `RunnerImageComponent.lambdaEntrypoint()`
 
- Base Docker image: `public.ecr.aws/lambda/nodejs:16-x86_64` or `public.ecr.aws/lambda/nodejs:16-arm64`
+ Base Docker image: `public.ecr.aws/lambda/nodejs:20-x86_64` or `public.ecr.aws/lambda/nodejs:20-arm64`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -8733,6 +8733,7 @@ public readonly name: string;
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Os.property.LINUX">LINUX</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Linux. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Os.property.LINUX_AMAZON_2">LINUX_AMAZON_2</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Amazon Linux 2. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Os.property.LINUX_AMAZON_2023">LINUX_AMAZON_2023</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Amazon Linux 2023. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Os.property.LINUX_UBUNTU">LINUX_UBUNTU</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Ubuntu Linux. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Os.property.WINDOWS">WINDOWS</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Windows. |
 
@@ -8761,6 +8762,18 @@ public readonly LINUX_AMAZON_2: Os;
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
 
 Amazon Linux 2.
+
+---
+
+##### `LINUX_AMAZON_2023`<sup>Required</sup> <a name="LINUX_AMAZON_2023" id="@cloudsnorkel/cdk-github-runners.Os.property.LINUX_AMAZON_2023"></a>
+
+```typescript
+public readonly LINUX_AMAZON_2023: Os;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
+
+Amazon Linux 2023.
 
 ---
 
