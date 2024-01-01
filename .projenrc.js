@@ -46,7 +46,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   ],
   deps: [
   ],
-  jsiiVersion: '5.2.x',
+  jsiiVersion: '5.3.x',
   typescriptVersion: '4.9.x',
   releaseToNpm: true,
   npmAccess: NpmAccess.PUBLIC,
