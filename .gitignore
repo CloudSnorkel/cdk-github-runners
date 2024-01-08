@@ -35,7 +35,6 @@ cdk.out
 cdk.context.json
 /.idea
 status.json
-!/.projenrc.js
 /test-reports/
 junit.xml
 /coverage/
@@ -81,3 +80,4 @@ test/default.integ.snapshot/**/tree.json
 /cdk.out/
 .cdk.staging/
 !/.vscode/settings.json
+!/.projenrc.js
