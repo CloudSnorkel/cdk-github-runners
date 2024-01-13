@@ -134,6 +134,8 @@ project.gitignore.addPatterns('/setup/dist');
 project.addPackageIgnore('/setup');
 project.bundler.bundleTask.exec('vite build setup');
 project.bundler.bundleTask.exec('cp -r setup/dist/index.html assets/setup.lambda/index.html');
+project.eslint.addLintPattern('setup/src/*.ts');
+project.eslint.addLintPattern('setup/src/*.svelte');
 
 // support integ:default:watch -- https://github.com/projen/projen/issues/1347
 const cdkConfig = new CdkConfig(project, {
