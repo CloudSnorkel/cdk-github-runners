@@ -772,8 +772,13 @@ export class AwsImageBuilderFailedBuildNotifier implements cdk.IAspect {
   public visit(node: IConstruct): void {
     if (node instanceof AwsImageBuilderRunnerImageBuilder) {
       const builder = node as AwsImageBuilderRunnerImageBuilder;
-      const infra = builder.node.findChild('Infrastructure') as imagebuilder.CfnInfrastructureConfiguration;
-      infra.snsTopicArn = this.topic.topicArn;
+      const infraNode = builder.node.tryFindChild('Infrastructure');
+      if (infraNode) {
+        const infra = infraNode as imagebuilder.CfnInfrastructureConfiguration;
+        infra.snsTopicArn = this.topic.topicArn;
+      } else {
+        cdk.Annotations.of(builder).addWarning('Unused builder cannot get notifications of failed builds');
+      }
     }
   }
 }

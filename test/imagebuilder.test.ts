@@ -3,13 +3,17 @@ import { aws_ec2 as ec2 } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import {
   AmiBuilder,
-  Architecture, CodeBuildRunnerProvider,
+  Architecture,
+  CodeBuildRunnerProvider,
   ContainerImageBuilder,
   Ec2RunnerProvider,
-  FargateRunnerProvider, LambdaRunnerProvider,
+  FargateRunnerProvider,
+  GitHubRunners,
+  LambdaRunnerProvider,
   Os,
   RunnerImageBuilder,
-  RunnerImageBuilderType, RunnerImageComponent,
+  RunnerImageBuilderType,
+  RunnerImageComponent,
 } from '../src';
 
 test('AMI builder matching instance type (DEPRECATED)', () => {
@@ -317,4 +321,20 @@ test('Lambda image builder only accepts AMZL2', () => {
     os: Os.LINUX_UBUNTU,
     baseDockerImage: 'some-fake-ubuntu-image',
   });
+});
+
+test('Unused builder doesn\'t throw exceptions', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'test');
+
+  const vpc = new ec2.Vpc(stack, 'vpc');
+
+  LambdaRunnerProvider.imageBuilder(stack, 'codebuild builder');
+  Ec2RunnerProvider.imageBuilder(stack, 'ec2 image builder', { vpc });
+
+  new GitHubRunners(stack, 'runners', {
+    providers: [new LambdaRunnerProvider(stack, 'p1' /* not using builder on purpose */)],
+  }).failedImageBuildsTopic();
+
+  app.synth();
 });
