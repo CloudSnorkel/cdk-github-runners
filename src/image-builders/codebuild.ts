@@ -373,8 +373,13 @@ export class CodeBuildImageBuilderFailedBuildNotifier implements cdk.IAspect {
   public visit(node: IConstruct): void {
     if (node instanceof CodeBuildRunnerImageBuilder) {
       const builder = node as CodeBuildRunnerImageBuilder;
-      const project = builder.node.findChild('CodeBuild') as codebuild.Project;
-      project.notifyOnBuildFailed('BuildFailed', this.topic);
+      const projectNode = builder.node.tryFindChild('CodeBuild');
+      if (projectNode) {
+        const project = projectNode as codebuild.Project;
+        project.notifyOnBuildFailed('BuildFailed', this.topic);
+      } else {
+        cdk.Annotations.of(builder).addWarning('Unused builder cannot get notifications of failed builds');
+      }
     }
   }
 }
