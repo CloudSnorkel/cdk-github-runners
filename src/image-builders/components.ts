@@ -311,6 +311,8 @@ export abstract class RunnerImageComponent {
             commands.push('dnf install -y openssl-libs krb5-libs zlib libicu-67.1');
           }
 
+          commands.push('mkdir -p /opt/hostedtoolcache', 'chown runner /opt/hostedtoolcache');
+
           return commands;
         } else if (os.is(Os.WINDOWS)) {
           let runnerCommands: string[];
@@ -323,6 +325,8 @@ export abstract class RunnerImageComponent {
           } else {
             runnerCommands = [`$RUNNER_VERSION = '${runnerVersion.version}'`];
           }
+
+          runnerCommands.push('mkdir C:\\hostedtoolcache\\windows');
 
           return runnerCommands.concat([
             'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip" -OutFile actions.zip',
