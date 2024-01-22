@@ -5385,7 +5385,7 @@ public readonly buildImage: IBuildImage;
 ```
 
 - *Type:* aws-cdk-lib.aws_codebuild.IBuildImage
-- *Default:* Ubuntu 22.04 for x64 and Amazon Linux 2 for ARM64
+- *Default:* Amazon Linux 2023
 
 Build image to use in CodeBuild.
 
