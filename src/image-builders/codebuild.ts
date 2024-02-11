@@ -112,6 +112,12 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       autoDeleteImages: true,
       lifecycleRules: [
         {
+          description: 'Remove soci indexes for replaced images',
+          tagStatus: TagStatus.TAGGED,
+          tagPrefixList: ['sha256-'],
+          maxImageCount: 1,
+        },
+        {
           description: 'Remove untagged images that have been replaced by CodeBuild',
           tagStatus: TagStatus.UNTAGGED,
           maxImageAge: Duration.days(1),
