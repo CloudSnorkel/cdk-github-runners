@@ -406,7 +406,7 @@
     },
     "ImageTagMutability": "MUTABLE",
     "LifecyclePolicy": {
-     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove soci indexes for replaced images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"sha256-\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
     },
     "Tags": [
      {
@@ -1093,7 +1093,7 @@
     },
     "ImageTagMutability": "MUTABLE",
     "LifecyclePolicy": {
-     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove soci indexes for replaced images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"sha256-\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
     },
     "Tags": [
      {
@@ -1676,7 +1676,7 @@
     },
     "ImageTagMutability": "MUTABLE",
     "LifecyclePolicy": {
-     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove soci indexes for replaced images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"sha256-\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
     },
     "RepositoryPolicyText": {
      "Statement": [
@@ -4553,7 +4553,7 @@
     },
     "ImageTagMutability": "MUTABLE",
     "LifecyclePolicy": {
-     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove soci indexes for replaced images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"sha256-\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
     },
     "Tags": [
      {
@@ -5136,7 +5136,7 @@
     },
     "ImageTagMutability": "MUTABLE",
     "LifecyclePolicy": {
-     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove soci indexes for replaced images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"sha256-\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
     },
     "Tags": [
      {
@@ -5719,7 +5719,7 @@
     },
     "ImageTagMutability": "MUTABLE",
     "LifecyclePolicy": {
-     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove soci indexes for replaced images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"sha256-\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
     },
     "RepositoryPolicyText": {
      "Statement": [
