@@ -344,6 +344,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   private readonly vpc: ec2.IVpc;
   private readonly subnets: ec2.ISubnet[];
   private readonly securityGroups: ec2.ISecurityGroup[];
+  private readonly launchTemplate: ec2.LaunchTemplate;
 
   constructor(scope: Construct, id: string, props?: Ec2RunnerProviderProps) {
     super(scope, id, props);
@@ -356,17 +357,6 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.storageSize = props?.storageSize ?? cdk.Size.gibibytes(30); // 30 is the minimum for Windows
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;
-
-    this.amiBuilder = props?.imageBuilder ?? props?.amiBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
-      vpc: props?.vpc,
-      subnetSelection: props?.subnetSelection,
-      securityGroups: this.securityGroups,
-    });
-    this.ami = this.amiBuilder.bindAmi();
-
-    if (!this.ami.architecture.instanceTypeMatch(this.instanceType)) {
-      throw new Error(`AMI architecture (${this.ami.architecture.name}) doesn't match runner instance type (${this.instanceType} / ${this.instanceType.architecture})`);
-    }
 
     this.grantPrincipal = this.role = new iam.Role(this, 'Role', {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
@@ -391,6 +381,43 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       },
     );
     this.logGroup.grantWrite(this);
+
+    // TODO FML
+    const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
+    rootDeviceResource.node.addDependency(this.amiBuilder);
+
+    this.launchTemplate = new ec2.LaunchTemplate(this, 'Launch Template', {
+      instanceType: props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE),
+      role: this.role,
+      userData: ec2.UserData.custom(''), // TODO update user data to use tags
+      instanceInitiatedShutdownBehavior: ec2.InstanceInitiatedShutdownBehavior.TERMINATE,
+      requireImdsv2: true,
+      instanceMetadataTags: true,
+      blockDevices: [{
+        deviceName: rootDeviceResource.ref,
+        volume: ec2.BlockDeviceVolume.ebs(this.storageSize.toGibibytes()),
+      }],
+      spotOptions: this.spot ? {
+        requestType: ec2.SpotRequestType.ONE_TIME,
+        maxPrice: this.spotMaxPrice ? Number(this.spotMaxPrice) : undefined, // TODO prop should be number
+      } : undefined,
+    });
+
+
+    // TODO override network interfaces with subnet, security group, etc.
+    // this.launchTemplate.
+    //this.securityGroups.map(sg => this.launchTemplate.addSecurityGroup(sg));
+
+    this.amiBuilder = props?.imageBuilder ?? props?.amiBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
+      vpc: props?.vpc,
+      subnetSelection: props?.subnetSelection,
+      securityGroups: this.securityGroups,
+    });
+    this.ami = this.amiBuilder.bindAmi({ launchTemplate: this.launchTemplate });
+
+    if (!this.ami.architecture.instanceTypeMatch(this.instanceType)) {
+      throw new Error(`AMI architecture (${this.ami.architecture.name}) doesn't match runner instance type (${this.instanceType} / ${this.instanceType.architecture})`);
+    }
   }
 
   /**
@@ -431,57 +458,32 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     // if someone can figure out a good way to use Map for this, please open a PR
 
     // build a state for each subnet we want to try
-    const instanceProfile = new iam.CfnInstanceProfile(this, 'Instance Profile', {
-      roles: [this.role.roleName],
-    });
-    const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
-    rootDeviceResource.node.addDependency(this.amiBuilder);
     const subnetRunners = this.subnets.map((subnet, index) => {
       return new stepfunctions_tasks.CallAwsService(this, `${this.labels.join(', ')} subnet${index+1}`, {
         comment: subnet.subnetId,
         integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         service: 'ec2',
-        action: 'runInstances',
+        action: 'createFleet',
         heartbeatTimeout: stepfunctions.Timeout.duration(Duration.minutes(10)),
         // TODO somehow create launch template with security group, profile, user data, tags in imds, etc.
         parameters: {
           LaunchTemplate: {
-            // TODO update builder to update our launch templates?
-            LaunchTemplateId: this.ami.launchTemplate.launchTemplateId,
+            LaunchTemplateId: this.launchTemplate.launchTemplateId,
           },
           MinCount: 1,
           MaxCount: 1,
-          InstanceType: this.instanceType.toString(),
-          UserData: stepfunctions.JsonPath.base64Encode(
-            stepfunctions.JsonPath.format(
-              stepfunctions.JsonPath.stringAt('$.ec2.userdataTemplate'),
-              ...params,
-            ),
-          ),
-          InstanceInitiatedShutdownBehavior: ec2.InstanceInitiatedShutdownBehavior.TERMINATE,
-          IamInstanceProfile: {
-            Arn: instanceProfile.attrArn,
-          },
-          MetadataOptions: {
-            HttpTokens: 'required',
-            // TODO InstanceMetadataTags: 'enabled'
-          },
-          SecurityGroupIds: this.securityGroups.map(sg => sg.securityGroupId),
-          SubnetId: subnet.subnetId,
-          BlockDeviceMappings: [{
-            DeviceName: rootDeviceResource.ref,
-            Ebs: {
-              DeleteOnTermination: true,
-              VolumeSize: this.storageSize.toGibibytes(),
+          Type: 'instant',
+          TagSpecification: [
+            {
+              ResourceType: 'instance',
+              Tags: [
+                {
+                  Key: '',
+                  Value: '',
+                },
+              ],
             },
-          }],
-          InstanceMarketOptions: this.spot ? {
-            MarketType: 'spot',
-            SpotOptions: {
-              MaxPrice: this.spotMaxPrice,
-              SpotInstanceType: 'one-time',
-            },
-          } : undefined,
+          ],
         },
         iamResources: ['*'],
       });
