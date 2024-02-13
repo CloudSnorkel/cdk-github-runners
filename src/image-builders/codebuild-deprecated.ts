@@ -19,7 +19,7 @@ import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import { BuildImageFunction } from './build-image-function';
-import { IRunnerImageBuilder } from './common';
+import { BindAmiProps, IRunnerImageBuilder } from './common';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
 import { singletonLambda } from '../utils';
 
@@ -527,7 +527,7 @@ export class CodeBuildImageBuilder extends Construct implements IRunnerImageBuil
     });
   }
 
-  bindAmi(): RunnerAmi {
+  bindAmi(_?: BindAmiProps): RunnerAmi {
     throw new Error('CodeBuildImageBuilder does not support building AMIs');
   }
 }

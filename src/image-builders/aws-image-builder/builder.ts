@@ -23,7 +23,7 @@ import { ImageBuilderObjectBase } from './common';
 import { ContainerRecipe, defaultBaseDockerImage } from './container';
 import { DeleteAmiFunction } from './delete-ami-function';
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers';
+import { Architecture, BindAmiProps, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers';
 import { singletonLambda } from '../../utils';
 import { BuildImageFunction } from '../build-image-function';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps, uniqueImageBuilderName } from '../common';
@@ -252,6 +252,8 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
 export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   private boundDockerImage?: RunnerImage;
   private boundAmi?: RunnerAmi;
+  private boundDistribution?: imagebuilder.CfnDistributionConfiguration;
+  private boundDistributionLaunchTemplateCount = 0;
   private readonly os: Os;
   private readonly architecture: Architecture;
   private readonly baseImage: string;
@@ -578,8 +580,9 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return this.role;
   }
 
-  bindAmi(): RunnerAmi {
+  bindAmi(props?: BindAmiProps): RunnerAmi {
     if (this.boundAmi) {
+      this.addLaunchTemplateToDistribution(props?.launchTemplate);
       return this.boundAmi;
     }
 
@@ -590,7 +593,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     const stackName = cdk.Stack.of(this).stackName;
     const builderName = this.node.path;
 
-    const dist = new imagebuilder.CfnDistributionConfiguration(this, 'AMI Distribution', {
+    this.boundDistribution = new imagebuilder.CfnDistributionConfiguration(this, 'AMI Distribution', {
       name: uniqueImageBuilderName(this),
       // description: this.description,
       distributions: [
@@ -608,14 +611,12 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
               'GitHubRunners:Builder': builderName,
             },
           },
-          launchTemplateConfigurations: [
-            {
-              launchTemplateId: launchTemplate.launchTemplateId,
-            },
-          ],
+          launchTemplateConfigurations: [],
         },
       ],
     });
+    this.addLaunchTemplateToDistribution(launchTemplate);
+    this.addLaunchTemplateToDistribution(props?.launchTemplate);
 
     const recipe = new AmiRecipe(this, 'Ami Recipe', {
       platform: this.platform(),
@@ -629,8 +630,8 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilder'),
     ]);
-    this.createImage(infra, dist, log, recipe.arn, undefined);
-    this.createPipeline(infra, dist, log, recipe.arn, undefined);
+    this.createImage(infra, this.boundDistribution, log, recipe.arn, undefined);
+    this.createPipeline(infra, this.boundDistribution, log, recipe.arn, undefined);
 
     this.boundAmi = {
       launchTemplate: launchTemplate,
@@ -744,6 +745,13 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     }
 
     return this.boundComponents;
+  }
+
+  private addLaunchTemplateToDistribution(launchTemplate?: ec2.ILaunchTemplate) {
+    if (launchTemplate && this.boundDistribution) {
+      this.boundDistribution.addPropertyOverride(`Distributions.0.LaunchTemplateConfigurations.${this.boundDistributionLaunchTemplateCount}.LaunchTemplateId`, launchTemplate.launchTemplateId);
+      this.boundDistributionLaunchTemplateCount++;
+    }
   }
 }
 

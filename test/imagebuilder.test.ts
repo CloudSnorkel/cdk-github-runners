@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2 } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, CfnElement } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import {
   AmiBuilder,
@@ -337,4 +337,49 @@ test('Unused builder doesn\'t throw exceptions', () => {
   }).failedImageBuildsTopic();
 
   app.synth();
+});
+
+test('Adding more launch templates to the same builder', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'test');
+
+  const vpc = new ec2.Vpc(stack, 'vpc');
+
+  const builder = Ec2RunnerProvider.imageBuilder(stack, 'builder', { vpc });
+
+  const boundAmi = builder.bindAmi();
+  const lt1 = new ec2.LaunchTemplate(stack, 'lt1');
+  const lt2 = new ec2.LaunchTemplate(stack, 'lt2');
+
+  builder.bindAmi();
+  builder.bindAmi({ launchTemplate: lt1 });
+  builder.bindAmi({ launchTemplate: lt2 });
+
+  const builder2 = Ec2RunnerProvider.imageBuilder(stack, 'builder2', { vpc });
+  const boundAmi2 = builder2.bindAmi({ launchTemplate: lt1 });
+
+  const template = Template.fromStack(stack);
+
+  template.hasResourceProperties('AWS::ImageBuilder::DistributionConfiguration', {
+    Distributions: [
+      {
+        LaunchTemplateConfigurations: [
+          { LaunchTemplateId: { Ref: stack.getLogicalId(boundAmi.launchTemplate.node.defaultChild as CfnElement) } },
+          { LaunchTemplateId: { Ref: stack.getLogicalId(lt1.node.defaultChild as CfnElement) } },
+          { LaunchTemplateId: { Ref: stack.getLogicalId(lt2.node.defaultChild as CfnElement) } },
+        ],
+      },
+    ],
+  });
+
+  template.hasResourceProperties('AWS::ImageBuilder::DistributionConfiguration', {
+    Distributions: [
+      {
+        LaunchTemplateConfigurations: [
+          { LaunchTemplateId: { Ref: stack.getLogicalId(boundAmi2.launchTemplate.node.defaultChild as CfnElement) } },
+          { LaunchTemplateId: { Ref: stack.getLogicalId(lt1.node.defaultChild as CfnElement) } },
+        ],
+      },
+    ],
+  });
 });
