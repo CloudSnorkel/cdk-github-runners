@@ -39,7 +39,7 @@ export interface CodeBuildRunnerImageBuilderProps {
    *
    * The only action taken in CodeBuild is running `docker build`. You would therefore not need to change this setting often.
    *
-   * @default Ubuntu 22.04 for x64 and Amazon Linux 2 for ARM64
+   * @default Amazon Linux 2023
    */
   readonly buildImage?: codebuild.IBuildImage;
 
@@ -111,6 +111,12 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteImages: true,
       lifecycleRules: [
+        {
+          description: 'Remove soci indexes for replaced images',
+          tagStatus: TagStatus.TAGGED,
+          tagPrefixList: ['sha256-'],
+          maxImageCount: 1,
+        },
         {
           description: 'Remove untagged images that have been replaced by CodeBuild',
           tagStatus: TagStatus.UNTAGGED,
@@ -189,9 +195,9 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     if (this.os.is(Os.LINUX_UBUNTU) || this.os.is(Os.LINUX_AMAZON_2) || this.os.is(Os.LINUX_AMAZON_2023) || this.os.is(Os.LINUX)) {
       // CodeBuild just runs `docker build` so its OS doesn't really matter
       if (this.architecture.is(Architecture.X86_64)) {
-        return codebuild.LinuxBuildImage.STANDARD_6_0;
+        return codebuild.LinuxBuildImage.AMAZON_LINUX_2_5;
       } else if (this.architecture.is(Architecture.ARM64)) {
-        return codebuild.LinuxArmBuildImage.AMAZON_LINUX_2_STANDARD_2_0;
+        return codebuild.LinuxArmBuildImage.AMAZON_LINUX_2_STANDARD_3_0;
       }
     }
     if (this.os.is(Os.WINDOWS)) {
@@ -250,6 +256,15 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private getBuildSpec(repository: ecr.Repository): codebuild.BuildSpec {
     const thisStack = cdk.Stack.of(this);
 
+    let archUrl;
+    if (this.architecture.is(Architecture.X86_64)) {
+      archUrl = 'x86_64';
+    } else if (this.architecture.is(Architecture.ARM64)) {
+      archUrl = 'arm64';
+    } else {
+      throw new Error(`Unsupported architecture for required CodeBuild: ${this.architecture.name}`);
+    }
+
     return codebuild.BuildSpec.fromObject({
       version: '0.2',
       env: {
@@ -296,6 +311,12 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
               '}\n' +
               'EOF',
             'if [ "$RESPONSE_URL" != "unspecified" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$RESPONSE_URL"; fi',
+            // generate and push soci index
+            // we do this after finishing the build, so we don't have to wait. it's also not required, so it's ok if it fails
+            'docker rmi "$REPO_URI"', // it downloads the image again to /tmp, so save on space
+            'LATEST_SOCI_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`',
+            `curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz`,
+            './standalone-soci-indexer "$REPO_URI"',
           ],
         },
       },
