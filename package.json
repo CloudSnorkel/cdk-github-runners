@@ -107,7 +107,7 @@
     "jsii-diff": "^1.94.0",
     "jsii-docgen": "^10.3.17",
     "jsii-pacmak": "^1.94.0",
-    "jsii-rosetta": "^5.3.16",
+    "jsii-rosetta": "5.3.x",
     "projen": "^0.79.24",
     "sass": "^1.54.0",
     "semver": "^7.6.0",
