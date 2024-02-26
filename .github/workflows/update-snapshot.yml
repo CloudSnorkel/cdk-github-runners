@@ -14,12 +14,12 @@ jobs:
       CI: "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18.x
       - name: Install dependencies
@@ -50,13 +50,13 @@ jobs:
           git diff --staged -U0 | grep '"path":' | cut -d '"' -f 4 | xargs -rL 2 diff -ruN > /tmp/assets.diff
       - name: Upload assets.diff
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: assets.diff
           path: /tmp/assets.diff
       - name: Upload snapshot
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: snapshot
           path: test/default.integ.snapshot
@@ -68,7 +68,7 @@ jobs:
       # create a PR against the dependencies update PR for a proper snapshot
       - name: Create Pull Request
         if: steps.create_patch.outputs.patch_created
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.PROJEN_GITHUB_TOKEN }}
           commit-message: |-
