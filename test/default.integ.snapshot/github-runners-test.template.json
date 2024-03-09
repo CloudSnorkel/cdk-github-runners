@@ -3405,7 +3405,8 @@
        {
         "LaunchTemplateId": {
          "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
-        }
+        },
+        "SetDefaultVersion": true
        }
       ],
       "Region": {
@@ -6416,7 +6417,8 @@
        {
         "LaunchTemplateId": {
          "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
-        }
+        },
+        "SetDefaultVersion": true
        }
       ],
       "Region": {
@@ -7529,7 +7531,8 @@
        {
         "LaunchTemplateId": {
          "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
-        }
+        },
+        "SetDefaultVersion": true
        }
       ],
       "Region": {
