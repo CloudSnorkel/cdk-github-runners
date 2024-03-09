@@ -659,7 +659,6 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
           conditions: {
             StringEquals: {
               'aws:ResourceTag/GitHubRunners:Stack': stackName,
-              'aws:ResourceTag/GitHubRunners:Builder': builderName,
             },
           },
         }),
