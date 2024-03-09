@@ -13582,8 +13582,7 @@
        ],
        "Condition": {
         "StringEquals": {
-         "aws:ResourceTag/GitHubRunners:Stack": "github-runners-test",
-         "aws:ResourceTag/GitHubRunners:Builder": "github-runners-test/AMI Linux Builder"
+         "aws:ResourceTag/GitHubRunners:Stack": "github-runners-test"
         }
        },
        "Effect": "Allow",
