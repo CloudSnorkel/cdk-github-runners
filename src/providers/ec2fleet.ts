@@ -1,3 +1,6 @@
+// TODO do we really need a separate ec2 and fleet provider?
+
+import { CreateFleetCommandInput } from '@aws-sdk/client-ec2';
 import * as cdk from 'aws-cdk-lib';
 import {
   aws_ec2 as ec2,
@@ -13,7 +16,6 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
-  amiRootDevice,
   Architecture,
   BaseProvider,
   IRunnerProvider,
@@ -28,7 +30,6 @@ import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, Runne
 import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
 // this script is specifically made so `poweroff` is absolutely always called
-// each `{}` is a variable coming from `params` below
 const linuxUserDataTemplate = `#!/bin/bash -x
 IMDS_TOKEN=\`curl -sX PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60"\`
 TASK_TOKEN=\`curl -sH "X-aws-ec2-metadata-token: $IMDS_TOKEN" http://169.254.169.254/latest/meta-data/tags/instance/GitHubRunners:args:taskToken\`
@@ -99,8 +100,7 @@ else
   aws stepfunctions send-task-failure --task-token "$TASK_TOKEN"
 fi
 sleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
-poweroff
-`.replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
+poweroff`;
 
 // this script is specifically made so `poweroff` is absolutely always called
 // each `{}` is a variable coming from `params` below and their order should match the linux script
@@ -176,7 +176,7 @@ Stop-Computer -ComputerName localhost -Force
 /**
  * Properties for {@link Ec2RunnerProvider} construct.
  */
-export interface Ec2RunnerProviderProps extends RunnerProviderProps {
+export interface Ec2FleetRunnerProviderProps extends RunnerProviderProps {
   /**
    * Runner image builder used to build AMI containing GitHub Runner and all requirements.
    *
@@ -275,7 +275,7 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
-export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
+export class Ec2FleetRunnerProvider extends BaseProvider implements IRunnerProvider {
   /**
    * Create new image builder that builds EC2 specific runner images.
    *
@@ -346,7 +346,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   private readonly securityGroups: ec2.ISecurityGroup[];
   private readonly launchTemplate: ec2.LaunchTemplate;
 
-  constructor(scope: Construct, id: string, props?: Ec2RunnerProviderProps) {
+  constructor(scope: Construct, id: string, props?: Ec2FleetRunnerProviderProps) {
     super(scope, id, props);
 
     this.labels = props?.labels ?? ['ec2'];
@@ -383,18 +383,18 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.logGroup.grantWrite(this);
 
     // TODO FML
-    const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
-    rootDeviceResource.node.addDependency(this.amiBuilder);
+    // const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
+    // rootDeviceResource.node.addDependency(this.amiBuilder);
 
     this.launchTemplate = new ec2.LaunchTemplate(this, 'Launch Template', {
       instanceType: props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE),
       role: this.role,
-      userData: ec2.UserData.custom(''), // TODO update user data to use tags
+      userData: ec2.UserData.custom(linuxUserDataTemplate),
       instanceInitiatedShutdownBehavior: ec2.InstanceInitiatedShutdownBehavior.TERMINATE,
       requireImdsv2: true,
       instanceMetadataTags: true,
       blockDevices: [{
-        deviceName: rootDeviceResource.ref,
+        deviceName: '/dev/sda1', // TODO rootDeviceResource.ref,
         volume: ec2.BlockDeviceVolume.ebs(this.storageSize.toGibibytes()),
       }],
       spotOptions: this.spot ? {
@@ -403,17 +403,16 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       } : undefined,
     });
 
+    this.securityGroups.map(sg => this.launchTemplate.addSecurityGroup(sg));
 
-    // TODO override network interfaces with subnet, security group, etc.
-    // this.launchTemplate.
-    //this.securityGroups.map(sg => this.launchTemplate.addSecurityGroup(sg));
-
-    this.amiBuilder = props?.imageBuilder ?? props?.amiBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
+    this.amiBuilder = props?.imageBuilder ?? props?.amiBuilder ?? Ec2FleetRunnerProvider.imageBuilder(this, 'Ami Builder', {
       vpc: props?.vpc,
       subnetSelection: props?.subnetSelection,
       securityGroups: this.securityGroups,
     });
     this.ami = this.amiBuilder.bindAmi({ launchTemplate: this.launchTemplate });
+
+    // TODO using an existing image builder will not update the launch template on deploy -- make AWS::ImageBuilder::Image get new id on adding launch templates (or changing them?)
 
     if (!this.ami.architecture.instanceTypeMatch(this.instanceType)) {
       throw new Error(`AMI architecture (${this.ami.architecture.name}) doesn't match runner instance type (${this.instanceType} / ${this.instanceType.architecture})`);
@@ -430,17 +429,6 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     // we need to build user data in two steps because passing the template as the first parameter to stepfunctions.JsonPath.format fails on syntax
 
-    const params = [
-      stepfunctions.JsonPath.taskToken,
-      this.logGroup.logGroupName,
-      parameters.runnerNamePath,
-      parameters.githubDomainPath,
-      parameters.ownerPath,
-      parameters.repoPath,
-      parameters.runnerTokenPath,
-      this.labels.join(','),
-      parameters.registrationUrl,
-    ];
 
     const passUserData = new stepfunctions.Pass(this, `${this.labels.join(', ')} data`, {
       parameters: {
@@ -466,20 +454,71 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
         action: 'createFleet',
         heartbeatTimeout: stepfunctions.Timeout.duration(Duration.minutes(10)),
         // TODO somehow create launch template with security group, profile, user data, tags in imds, etc.
-        parameters: {
-          LaunchTemplate: {
-            LaunchTemplateId: this.launchTemplate.launchTemplateId,
+        parameters: <CreateFleetCommandInput>{
+          TargetCapacitySpecification: {
+            TotalTargetCapacity: 1,
+            // TargetCapacityUnitType: 'units',
+            DefaultTargetCapacityType: this.spot ? 'spot' : 'on-demand',
           },
-          MinCount: 1,
-          MaxCount: 1,
+          LaunchTemplateConfigs: [
+            // TODO let user specify these
+            {
+              LaunchTemplateSpecification: {
+                LaunchTemplateId: this.launchTemplate.launchTemplateId,
+                Version: '$Latest', // TODO latest or default? -- latest for last created by cdk, default for last created by image builder
+              },
+              Overrides: [
+                {
+                  SubnetId: subnet.subnetId,
+                  // TODO AMI from image builder launch template ImageId: this.ami.launchTemplate.imageId,
+                  ImageId: 'ami-049d60fa777700d2b',
+                },
+              ],
+              // TODO Overrides
+            },
+          ],
           Type: 'instant',
-          TagSpecification: [
+          TagSpecifications: [
             {
               ResourceType: 'instance',
               Tags: [
                 {
-                  Key: '',
-                  Value: '',
+                  Key: 'GitHubRunners:args:taskToken',
+                  // TODO Tag value exceeds the maximum length of 256 characters (Service: Ec2, Status Code: 400, Request ID: a60d7844-a5ae-49d2-aeeb-d36df39cf0fc)
+                  // Value: stepfunctions.JsonPath.taskToken,
+                  Value: 'nope',
+                },
+                {
+                  Key: 'GitHubRunners:args:logGroupName',
+                  Value: this.logGroup.logGroupName,
+                },
+                {
+                  Key: 'GitHubRunners:args:runnerNamePath',
+                  Value: parameters.runnerNamePath,
+                },
+                {
+                  Key: 'GitHubRunners:args:githubDomainPath',
+                  Value: parameters.githubDomainPath,
+                },
+                {
+                  Key: 'GitHubRunners:args:ownerPath',
+                  Value: parameters.ownerPath,
+                },
+                {
+                  Key: 'GitHubRunners:args:repoPath',
+                  Value: parameters.repoPath,
+                },
+                {
+                  Key: 'GitHubRunners:args:runnerTokenPath',
+                  Value: parameters.runnerTokenPath,
+                },
+                {
+                  Key: 'GitHubRunners:args:labels',
+                  Value: this.labels.join(','),
+                },
+                {
+                  Key: 'GitHubRunners:args:registrationURL',
+                  Value: parameters.registrationUrl,
                 },
               ],
             },
@@ -560,8 +599,3 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   }
 }
 
-/**
- * @deprecated use {@link Ec2RunnerProvider}
- */
-export class Ec2Runner extends Ec2RunnerProvider {
-}
