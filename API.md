@@ -8824,7 +8824,7 @@ public readonly name: string;
 
 ##### ~~`LINUX`~~<sup>Required</sup> <a name="LINUX" id="@cloudsnorkel/cdk-github-runners.Os.property.LINUX"></a>
 
-- *Deprecated:* use {@link LINUX_UBUNTU } or {@link LINUX_AMAZON_2 }
+- *Deprecated:* use {@link LINUX_UBUNTU } or {@link LINUX_AMAZON_2 } or {@link LINUX_AMAZON_2023 }
 
 ```typescript
 public readonly LINUX: Os;
