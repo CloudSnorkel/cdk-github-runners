@@ -97,12 +97,12 @@ export abstract class RunnerImageComponent {
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [
             'yum update -y',
-            'yum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils',
+            'yum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils amazon-cloudwatch-agent',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2023)) {
           return [
             'dnf upgrade -y',
-            'dnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils',
+            'dnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils amazon-cloudwatch-agent',
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [
@@ -371,10 +371,18 @@ export abstract class RunnerImageComponent {
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [
             'yum install -y docker',
+            'sudo usermod -a -G docker runner',
+            'curl -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr \'[:upper:]\' \'[:lower:]\')-$(uname -m)',
+            'chmod +x /usr/bin/docker-compose',
+            'ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2023)) {
           return [
             'dnf install -y docker',
+            'sudo usermod -a -G docker runner',
+            'curl -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr \'[:upper:]\' \'[:lower:]\')-$(uname -m)',
+            'chmod +x /usr/bin/docker-compose',
+            'ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose',
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [
