@@ -459,15 +459,15 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     let ssmPath: string;
     let found = false;
 
-    if (this.image.os.is(Os.LINUX) || this.image.os.is(Os.LINUX_UBUNTU) || this.image.os.is(Os.LINUX_AMAZON_2)) {
+    if (this.image.os.isIn(Os.ALL_LINUX_VERSIONS)) {
       if (this.image.architecture.is(Architecture.X86_64)) {
         baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.STANDARD);
-        ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id';
+        ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id';
         found = true;
       }
       if (this.image.architecture.is(Architecture.ARM64)) {
         baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.ARM);
-        ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2/arm64/recommended/image_id';
+        ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/arm64/recommended/image_id';
         found = true;
       }
     }
@@ -547,7 +547,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         cluster: this.cluster,
         launchTarget: new EcsEc2LaunchTarget({
           capacityProvider: this.capacityProvider.capacityProviderName,
-          enableExecute: this.image.os.is(Os.LINUX) || this.image.os.is(Os.LINUX_UBUNTU) || this.image.os.is(Os.LINUX_AMAZON_2),
+          enableExecute: this.image.os.isIn(Os.ALL_LINUX_VERSIONS),
         }),
         assignPublicIp: this.assignPublicIp,
         containerOverrides: [

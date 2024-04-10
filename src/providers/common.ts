@@ -114,7 +114,7 @@ export class Os {
   /**
   * Linux
   *
-  * @deprecated use {@link LINUX_UBUNTU} or {@link LINUX_AMAZON_2}
+  * @deprecated use {@link LINUX_UBUNTU} or {@link LINUX_AMAZON_2} or {@link LINUX_AMAZON_2023}
   */
   public static readonly LINUX = Os.of('Linux');
 
@@ -132,6 +132,11 @@ export class Os {
    * Amazon Linux 2023
    */
   public static readonly LINUX_AMAZON_2023 = Os.of('Amazon Linux 2023');
+
+  /**
+   * @internal
+   */
+  public static readonly ALL_LINUX_VERSIONS = [Os.LINUX, Os.LINUX_UBUNTU, Os.LINUX_AMAZON_2, Os.LINUX_AMAZON_2023];
 
   /**
   * Windows

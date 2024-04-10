@@ -202,7 +202,7 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
  * @internal
  */
 export function ecsRunCommand(os: Os, dind: boolean): string[] {
-  if (os.is(Os.LINUX) || os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2)) {
+  if (os.isIn(Os.ALL_LINUX_VERSIONS)) {
     let dindCommand = '';
     if (dind) {
       dindCommand = 'nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & ' +
@@ -399,7 +399,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
     }
 
     let os: ecs.OperatingSystemFamily;
-    if (image.os.is(Os.LINUX) || image.os.is(Os.LINUX_UBUNTU) || image.os.is(Os.LINUX_AMAZON_2)) {
+    if (image.os.isIn(Os.ALL_LINUX_VERSIONS)) {
       os = ecs.OperatingSystemFamily.LINUX;
     } else if (image.os.is(Os.WINDOWS)) {
       os = ecs.OperatingSystemFamily.WINDOWS_SERVER_2019_CORE;
@@ -464,7 +464,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
         cluster: this.cluster,
         launchTarget: new EcsFargateLaunchTarget({
           spot: this.spot,
-          enableExecute: this.image.os.is(Os.LINUX) || this.image.os.is(Os.LINUX_UBUNTU) || this.image.os.is(Os.LINUX_AMAZON_2),
+          enableExecute: this.image.os.isIn(Os.ALL_LINUX_VERSIONS),
         }),
         subnets: this.subnetSelection,
         assignPublicIp: this.assignPublicIp,

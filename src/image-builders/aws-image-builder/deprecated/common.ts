@@ -46,7 +46,7 @@ export abstract class ImageBuilderBase extends Construct implements IRunnerImage
     // platform
     if (this.os.is(Os.WINDOWS)) {
       this.platform = 'Windows';
-    } else if (this.os.is(Os.LINUX) || this.os.is(Os.LINUX_UBUNTU) || this.os.is(Os.LINUX_UBUNTU)) {
+    } else if (this.os.isIn(Os.ALL_LINUX_VERSIONS)) {
       this.platform = 'Linux';
     } else {
       throw new Error(`Unsupported OS: ${this.os.name}.`);
