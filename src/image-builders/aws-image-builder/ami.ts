@@ -113,6 +113,15 @@ export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architect
     });
   }
 
+  if (os.is(Os.LINUX_AMAZON_2023)) {
+    return stack.formatArn({
+      service: 'imagebuilder',
+      resource: 'image',
+      account: 'aws',
+      resourceName: `amazon-linux-2023-${arch}/x.x.x`,
+    });
+  }
+
   if (os.is(Os.WINDOWS)) {
     return stack.formatArn({
       service: 'imagebuilder',
