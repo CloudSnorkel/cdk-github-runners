@@ -459,7 +459,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     let ssmPath: string;
     let found = false;
 
-    if (this.image.os.isIn(Os.ALL_LINUX_VERSIONS)) {
+    if (this.image.os.isIn(Os._ALL_LINUX_VERSIONS)) {
       if (this.image.architecture.is(Architecture.X86_64)) {
         baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.STANDARD);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id';
@@ -547,7 +547,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         cluster: this.cluster,
         launchTarget: new EcsEc2LaunchTarget({
           capacityProvider: this.capacityProvider.capacityProviderName,
-          enableExecute: this.image.os.isIn(Os.ALL_LINUX_VERSIONS),
+          enableExecute: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
         }),
         assignPublicIp: this.assignPublicIp,
         containerOverrides: [

@@ -28,7 +28,7 @@ export abstract class RunnerImageBuilder extends RunnerImageBuilderBase {
     }
 
     const os = props?.os ?? Os.LINUX_UBUNTU;
-    if (os.isIn(Os.ALL_LINUX_VERSIONS)) {
+    if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
       return new CodeBuildRunnerImageBuilder(scope, id, props);
     } else if (os.is(Os.WINDOWS)) {
       return new AwsImageBuilderRunnerImageBuilder(scope, id, props);

@@ -243,7 +243,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     const image = this.image = imageBuilder.bindDockerImage();
 
     let architecture: lambda.Architecture | undefined;
-    if (image.os.isIn(Os.ALL_LINUX_VERSIONS)) {
+    if (image.os.isIn(Os._ALL_LINUX_VERSIONS)) {
       if (image.architecture.is(Architecture.X86_64)) {
         architecture = lambda.Architecture.X86_64;
       }

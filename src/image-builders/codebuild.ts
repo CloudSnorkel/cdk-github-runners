@@ -192,7 +192,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   }
 
   private getDefaultBuildImage(): codebuild.IBuildImage {
-    if (this.os.isIn(Os.ALL_LINUX_VERSIONS)) {
+    if (this.os.isIn(Os._ALL_LINUX_VERSIONS)) {
       // CodeBuild just runs `docker build` so its OS doesn't really matter
       if (this.architecture.is(Architecture.X86_64)) {
         return codebuild.LinuxBuildImage.AMAZON_LINUX_2_5;

@@ -293,7 +293,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
 
     // choose build image
     let buildImage: codebuild.IBuildImage | undefined;
-    if (image.os.isIn(Os.ALL_LINUX_VERSIONS)) {
+    if (image.os.isIn(Os._ALL_LINUX_VERSIONS)) {
       if (image.architecture.is(Architecture.X86_64)) {
         buildImage = codebuild.LinuxBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);
       } else if (image.architecture.is(Architecture.ARM64)) {

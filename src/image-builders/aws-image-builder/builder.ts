@@ -351,7 +351,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     if (this.os.is(Os.WINDOWS)) {
       return 'Windows';
     }
-    if (this.os.isIn(Os.ALL_LINUX_VERSIONS)) {
+    if (this.os.isIn(Os._ALL_LINUX_VERSIONS)) {
       return 'Linux';
     }
     throw new Error(`OS ${this.os.name} is not supported by AWS Image Builder`);

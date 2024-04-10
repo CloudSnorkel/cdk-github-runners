@@ -136,7 +136,7 @@ export class Os {
   /**
    * @internal
    */
-  public static readonly ALL_LINUX_VERSIONS = [Os.LINUX, Os.LINUX_UBUNTU, Os.LINUX_AMAZON_2, Os.LINUX_AMAZON_2023];
+  public static readonly _ALL_LINUX_VERSIONS = [Os.LINUX, Os.LINUX_UBUNTU, Os.LINUX_AMAZON_2, Os.LINUX_AMAZON_2023];
 
   /**
   * Windows
