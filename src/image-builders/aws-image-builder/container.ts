@@ -102,6 +102,8 @@ export function defaultBaseDockerImage(os: Os) {
     return 'public.ecr.aws/lts/ubuntu:22.04';
   } else if (os.is(Os.LINUX_AMAZON_2)) {
     return 'public.ecr.aws/amazonlinux/amazonlinux:2';
+  } else if (os.is(Os.LINUX_AMAZON_2023)) {
+    return 'public.ecr.aws/amazonlinux/amazonlinux:2023';
   } else {
     throw new Error(`OS ${os.name} not supported for Docker runner image`);
   }
