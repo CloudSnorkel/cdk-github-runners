@@ -583,6 +583,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       iamResources: ['*'],
       resultPath: stepfunctions.JsonPath.stringAt('$.instance'),
       resultSelector: {
+        // TODO retry on this failing? if the call fails, there is nothing here
         'id.$': '$.Instances[0].InstanceIds[0]',
       },
     });
@@ -623,11 +624,18 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     }));
 
     stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
-      actions: ['ec2:createTags'],
-      resources: [cdk.Stack.of(this).formatArn({
-        service: 'ec2',
-        resource: '*',
-      })],
+      actions: ['ec2:CreateTags', 'ec2:RunInstances'],
+      resources: [
+        cdk.Stack.of(this).formatArn({
+          service: 'ec2',
+          resource: '*',
+        }),
+        cdk.Stack.of(this).formatArn({
+          service: 'ec2',
+          account: '',
+          resource: 'image/*',
+        }),
+      ],
     }));
 
     stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
