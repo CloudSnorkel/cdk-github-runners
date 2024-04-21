@@ -1,21 +1,20 @@
 // TODO do we really need a separate ec2 and fleet provider?
+// TODO let user specify fleet launch templates? something useful
 
-import { CreateFleetCommandInput } from '@aws-sdk/client-ec2';
 import * as cdk from 'aws-cdk-lib';
 import {
   aws_ec2 as ec2,
   aws_iam as iam,
   aws_logs as logs,
+  aws_ssm as ssm,
   aws_stepfunctions as stepfunctions,
-  aws_stepfunctions_tasks as stepfunctions_tasks,
-  Duration,
+  aws_stepfunctions_tasks as stepfunctions_tasks, Duration,
   RemovalPolicy,
   Stack,
 } from 'aws-cdk-lib';
-import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
+  amiRootDevice,
   Architecture,
   BaseProvider,
   IRunnerProvider,
@@ -28,149 +27,6 @@ import {
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageBuilderType, RunnerImageComponent } from '../image-builders';
 import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
-
-// this script is specifically made so `poweroff` is absolutely always called
-const linuxUserDataTemplate = `#!/bin/bash -x
-IMDS_TOKEN=\`curl -sX PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60"\`
-TASK_TOKEN=\`curl -sH "X-aws-ec2-metadata-token: $IMDS_TOKEN" http://169.254.169.254/latest/meta-data/tags/instance/GitHubRunners:args:taskToken\`
-logGroupName=\`curl -sH "X-aws-ec2-metadata-token: $IMDS_TOKEN" http://169.254.169.254/latest/meta-data/tags/instance/GitHubRunners:args:logGroupName\`
-runnerNamePath=\`curl -sH "X-aws-ec2-metadata-token: $IMDS_TOKEN" http://169.254.169.254/latest/meta-data/tags/instance/GitHubRunners:args:runnerNamePath\`
-githubDomainPath=\`curl -sH "X-aws-ec2-metadata-token: $IMDS_TOKEN" http://169.254.169.254/latest/meta-data/tags/instance/GitHubRunners:args:githubDomainPath\`
-ownerPath=\`curl -sH "X-aws-ec2-metadata-token: $IMDS_TOKEN" http://169.254.169.254/latest/meta-data/tags/instance/GitHubRunners:args:ownerPath\`
-repoPath=\`curl -sH "X-aws-ec2-metadata-token: $IMDS_TOKEN" http://169.254.169.254/latest/meta-data/tags/instance/GitHubRunners:args:repoPath\`
-runnerTokenPath=\`curl -sH "X-aws-ec2-metadata-token: $IMDS_TOKEN" http://169.254.169.254/latest/meta-data/tags/instance/GitHubRunners:args:runnerTokenPath\`
-labels=\`curl -sH "X-aws-ec2-metadata-token: $IMDS_TOKEN" http://169.254.169.254/latest/meta-data/tags/instance/GitHubRunners:args:labels\`
-registrationURL=\`curl -sH "X-aws-ec2-metadata-token: $IMDS_TOKEN" http://169.254.169.254/latest/meta-data/tags/instance/GitHubRunners:args:registrationURL\`
-unset IMDS_TOKEN
-
-heartbeat () {
-  while true; do
-    aws stepfunctions send-task-heartbeat --task-token "$TASK_TOKEN"
-    sleep 60
-  done
-}
-setup_logs () {
-  cat <<EOF > /tmp/log.conf || exit 1
-  {
-    "logs": {
-      "log_stream_name": "unknown",
-      "logs_collected": {
-        "files": {
-          "collect_list": [
-            {
-              "file_path": "/var/log/runner.log",
-              "log_group_name": "$logGroupName",
-              "log_stream_name": "$runnerNamePath",
-              "timezone": "UTC"
-            }
-          ]
-        }
-      }
-    }
-  }
-EOF
-  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2
-}
-action () {
-  # Determine the value of RUNNER_FLAGS
-  if [ "$(< RUNNER_VERSION)" = "latest" ]; then
-    RUNNER_FLAGS=""
-  else
-    RUNNER_FLAGS="--disableupdate"
-  fi
-
-  labelsTemplate="$labels,cdkghr:started:$(date +%s)"
-
-  # Execute the configuration command for runner registration
-  sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" || exit 1
-
-  # Execute the run command
-  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
-
-  # Retrieve the status
-  STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \K.*" /home/runner/_diag/ | tail -n1)
-
-  # Check and print the job status
-  [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$labels" "$STATUS"
-}
-heartbeat &
-if setup_logs && action | tee /var/log/runner.log 2>&1; then
-  aws stepfunctions send-task-success --task-token "$TASK_TOKEN" --task-output '{"ok": true}'
-else
-  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN"
-fi
-sleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
-poweroff`;
-
-// this script is specifically made so `poweroff` is absolutely always called
-// each `{}` is a variable coming from `params` below and their order should match the linux script
-const windowsUserDataTemplate = `<powershell>
-$TASK_TOKEN = "{}"
-$logGroupName="{}"
-$runnerNamePath="{}"
-$githubDomainPath="{}"
-$ownerPath="{}"
-$repoPath="{}"
-$runnerTokenPath="{}"
-$labels="{}"
-$registrationURL="{}"
-
-Start-Job -ScriptBlock {
-  while (1) {
-    aws stepfunctions send-task-heartbeat --task-token "$using:TASK_TOKEN"
-    sleep 60
-  }
-}
-function setup_logs () {
-  echo '{
-    "logs": {
-      "log_stream_name": "unknown",
-      "logs_collected": {
-        "files": {
-         "collect_list": [
-            {
-              "file_path": "/actions/runner.log",
-              "log_group_name": "$logGroupName",
-              "log_stream_name": "$runnerNamePath",
-              "timezone": "UTC"
-            }
-          ]
-        }
-      }
-    }
-  }' | Out-File -Encoding ASCII $Env:TEMP/log.conf
-  & "C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf
-}
-function action () {
-  cd /actions
-  $RunnerVersion = Get-Content RUNNER_VERSION -Raw
-  if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
-  ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
-
-  if ($LASTEXITCODE -ne 0) { return 1 }
-  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
-  if ($LASTEXITCODE -ne 0) { return 2 }
-
-  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1
-
-  if ($STATUS) {
-      echo "CDKGHA JOB DONE \${labels} $STATUS" | Out-File -Encoding ASCII -Append /actions/runner.log
-  }
-
-  return 0
-
-}
-setup_logs
-$r = action
-if ($r -eq 0) {
-  aws stepfunctions send-task-success --task-token "$TASK_TOKEN" --task-output '{ }'
-} else {
-  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN"
-}
-Start-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
-Stop-Computer -ComputerName localhost -Force
-</powershell>
-`.replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
 
 
 /**
@@ -345,10 +201,12 @@ export class Ec2FleetRunnerProvider extends BaseProvider implements IRunnerProvi
   private readonly subnets: ec2.ISubnet[];
   private readonly securityGroups: ec2.ISecurityGroup[];
   private readonly launchTemplate: ec2.LaunchTemplate;
+  private readonly document: ssm.CfnDocument;
 
   constructor(scope: Construct, id: string, props?: Ec2FleetRunnerProviderProps) {
     super(scope, id, props);
 
+    // read parameters
     this.labels = props?.labels ?? ['ec2'];
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'Default VPC', { isDefault: true });
     this.securityGroups = props?.securityGroup ? [props.securityGroup] : (props?.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })]);
@@ -358,65 +216,302 @@ export class Ec2FleetRunnerProvider extends BaseProvider implements IRunnerProvi
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;
 
+    // instance role
     this.grantPrincipal = this.role = new iam.Role(this, 'Role', {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
-    });
-    this.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
-      actions: ['states:SendTaskFailure', 'states:SendTaskSuccess', 'states:SendTaskHeartbeat'],
-      resources: ['*'], // no support for stateMachine.stateMachineArn :(
-      conditions: {
-        StringEquals: {
-          'aws:ResourceTag/aws:cloudformation:stack-id': cdk.Stack.of(this).stackId,
-        },
+      inlinePolicies: {
+        stepfunctions: new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              actions: ['states:SendTaskHeartbeat'],
+              resources: ['*'], // no support for stateMachine.stateMachineArn :(
+              conditions: {
+                StringEquals: {
+                  'aws:ResourceTag/aws:cloudformation:stack-id': cdk.Stack.of(this).stackId,
+                },
+              },
+            }),
+          ],
+        }),
       },
-    }));
+    });
     this.grantPrincipal.addToPrincipalPolicy(MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT);
 
-    this.logGroup = new logs.LogGroup(
-      this,
-      'Logs',
-      {
-        retention: props?.logRetention ?? RetentionDays.ONE_MONTH,
-        removalPolicy: RemovalPolicy.DESTROY,
-      },
-    );
-    this.logGroup.grantWrite(this);
-
-    // TODO FML
-    // const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
-    // rootDeviceResource.node.addDependency(this.amiBuilder);
-
-    this.launchTemplate = new ec2.LaunchTemplate(this, 'Launch Template', {
-      instanceType: props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE),
-      role: this.role,
-      userData: ec2.UserData.custom(linuxUserDataTemplate),
-      instanceInitiatedShutdownBehavior: ec2.InstanceInitiatedShutdownBehavior.TERMINATE,
-      requireImdsv2: true,
-      instanceMetadataTags: true,
-      blockDevices: [{
-        deviceName: '/dev/sda1', // TODO rootDeviceResource.ref,
-        volume: ec2.BlockDeviceVolume.ebs(this.storageSize.toGibibytes()),
-      }],
-      spotOptions: this.spot ? {
-        requestType: ec2.SpotRequestType.ONE_TIME,
-        maxPrice: this.spotMaxPrice ? Number(this.spotMaxPrice) : undefined, // TODO prop should be number
-      } : undefined,
-    });
-
-    this.securityGroups.map(sg => this.launchTemplate.addSecurityGroup(sg));
-
+    // build ami
     this.amiBuilder = props?.imageBuilder ?? props?.amiBuilder ?? Ec2FleetRunnerProvider.imageBuilder(this, 'Ami Builder', {
       vpc: props?.vpc,
       subnetSelection: props?.subnetSelection,
       securityGroups: this.securityGroups,
     });
-    this.ami = this.amiBuilder.bindAmi({ launchTemplate: this.launchTemplate });
-
-    // TODO using an existing image builder will not update the launch template on deploy -- make AWS::ImageBuilder::Image get new id on adding launch templates (or changing them?)
+    this.ami = this.amiBuilder.bindAmi();
 
     if (!this.ami.architecture.instanceTypeMatch(this.instanceType)) {
       throw new Error(`AMI architecture (${this.ami.architecture.name}) doesn't match runner instance type (${this.instanceType} / ${this.instanceType.architecture})`);
     }
+
+    // figure out root device
+    const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
+    rootDeviceResource.node.addDependency(this.amiBuilder);
+
+    // launch template (ami will be added later with override)
+    this.launchTemplate = new ec2.LaunchTemplate(this, 'Launch Template', {
+      instanceType: this.instanceType,
+      role: this.role,
+      instanceInitiatedShutdownBehavior: ec2.InstanceInitiatedShutdownBehavior.TERMINATE,
+      requireImdsv2: true,
+      instanceMetadataTags: true,
+      blockDevices: [{
+        deviceName: rootDeviceResource.ref,
+        volume: ec2.BlockDeviceVolume.ebs(this.storageSize.toGibibytes(), {
+          deleteOnTermination: true,
+        }),
+      }],
+      spotOptions: this.spot ? {
+        requestType: ec2.SpotRequestType.ONE_TIME,
+        maxPrice: this.spotMaxPrice ? Number(this.spotMaxPrice) : undefined, // TODO prop should be number
+      } : undefined,
+      userData: ec2.UserData.forLinux(),
+    });
+    this.launchTemplate.userData!.addCommands(`{
+      sleep 600
+      if [ ! -e /home/runner/STARTED ]; then
+        echo "Runner didn't connect to SSM, powering off"
+        sudo poweroff
+      fi
+    } &`);
+
+    // role specifically for ssm document
+    const ssmRole = new iam.Role(this, 'Ssm Role', {
+      assumedBy: new iam.ServicePrincipal('ssm.amazonaws.com'),
+      inlinePolicies: {
+        stepfunctions: new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              actions: ['states:SendTaskFailure', 'states:SendTaskSuccess'],
+              resources: ['*'], // no support for stateMachine.stateMachineArn :(
+              conditions: {
+                StringEquals: {
+                  'aws:ResourceTag/aws:cloudformation:stack-id': cdk.Stack.of(this).stackId,
+                },
+              },
+            }),
+          ],
+        }),
+        ssm: new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              actions: ['ssm:SendCommand'],
+              resources: [
+                '*',
+                // {
+                //   'Fn::Sub': 'arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*',
+                // },
+                // {
+                //   'Fn::Sub': 'arn:aws:ssm:${AWS::Region}::document/AWS-RunShellScript',
+                // },
+                // {
+                //   'Fn::Sub': 'arn:aws:ssm:${AWS::Region}::document/AWS-RunPowerShellScript',
+                // },
+              ],
+            }),
+            new iam.PolicyStatement({
+              actions: ['ssm:DescribeInstanceInformation'],
+              resources: ['*'],
+            }),
+            new iam.PolicyStatement({
+              actions: [
+                'ssm:ListCommands',
+                'ssm:ListCommandInvocations',
+              ],
+              resources: [
+                '*',
+                // {
+                //   'Fn::Sub': 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:*',
+                // },
+              ],
+            }),
+          ],
+        }),
+        ec2: new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              actions: ['ec2:TerminateInstances'],
+              resources: ['*'],
+              conditions: {
+                StringEquals: {
+                  'aws:ResourceTag/aws:ec2launchtemplate:id': this.launchTemplate.launchTemplateId,
+                },
+              },
+            }),
+          ],
+        }),
+      },
+    });
+
+    // log group for runner
+    this.logGroup = new logs.LogGroup(
+      this,
+      'Logs',
+      {
+        retention: props?.logRetention ?? logs.RetentionDays.ONE_MONTH,
+        removalPolicy: RemovalPolicy.DESTROY,
+      },
+    );
+    this.logGroup.grantWrite(this.role);
+    this.logGroup.grant(this.role, 'logs:CreateLogGroup');
+
+    // ssm document that starts runner, updates step function, and terminates the instance
+    this.document = new ssm.CfnDocument(this, 'Automation', {
+      // name: 'SfnRunCommandByTargets',
+      documentType: 'Automation',
+      targetType: '/AWS::EC2::Host',
+      content: {
+        description: 'TODO github runners',
+        schemaVersion: '0.3',
+        assumeRole: ssmRole.roleArn,
+        parameters: {
+          instanceId: {
+            type: 'String',
+            description: 'Instance id where runner should be executed',
+          },
+          taskToken: {
+            type: 'String',
+            description: 'Step Function task token for callback response',
+          },
+          runnerName: {
+            type: 'String',
+            description: 'Runner name',
+          },
+          runnerToken: {
+            type: 'String',
+            description: 'Runner token used to register runner on GitHub',
+          },
+          labels: {
+            type: 'String',
+            description: 'Labels to assign to runner',
+          },
+          registrationUrl: {
+            type: 'String',
+            description: 'Full URL to use for runner registration',
+          },
+        },
+        mainSteps: [
+          // {
+          //   name: 'Branch',
+          //   action: 'aws:branch',
+          //   inputs: {
+          //     Choices: [
+          //       {
+          //         NextStep: 'RunCommand_Powershell',
+          //         Variable: '{{ shell }}',
+          //         StringEquals: 'PowerShell',
+          //       },
+          //     ],
+          //     Default: 'RunCommand_Shell',
+          //   },
+          // },
+          {
+            name: 'RunCommand',
+            action: 'aws:runCommand',
+            inputs: {
+              DocumentName: 'AWS-RunShellScript',
+              InstanceIds: ['{{ instanceId }}'],
+              // TODO no execution timeout
+              Parameters: {
+                commands: [
+                  'set -ex',
+                  // tell user data that we started
+                  'touch /home/runner/STARTED',
+                  // send heartbeat
+                  `{
+                    while true; do
+                      aws stepfunctions send-task-heartbeat --task-token "{{ taskToken }}"
+                      sleep 60
+                    done
+                  } &`,
+                  // decide if we should update runner
+                  `if [ "$(cat RUNNER_VERSION)" = "latest" ]; then
+                    RUNNER_FLAGS=""
+                  else
+                    RUNNER_FLAGS="--disableupdate"
+                  fi`,
+                  // configure runner
+                  'sudo -Hu runner /home/runner/config.sh --unattended --url "{{ registrationUrl }}" --token "{{ runnerToken }}" --ephemeral --work _work --labels "{{ labels }},cdkghr:started:$(date +%s)" $RUNNER_FLAGS --name "{{ runnerName }}" || exit 1',
+                  // start runner without exposing task token and other possibly sensitive environment variables
+                  'sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2',
+                  // print whether job was successful for our metric filter
+                  `STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" /home/runner/_diag/ | tail -n1)
+                  [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$labels" "$STATUS"`,
+                ],
+                workingDirectory: '/home/runner',
+              },
+              CloudWatchOutputConfig: {
+                CloudWatchLogGroupName: this.logGroup.logGroupName,
+                CloudWatchOutputEnabled: true,
+              },
+            },
+            nextStep: 'SendTaskSuccess',
+            onFailure: 'step:SendTaskFailure',
+            onCancel: 'step:SendTaskFailure',
+          },
+          // {
+          //   name: 'RunCommand_Powershell',
+          //   action: 'aws:runCommand',
+          //   inputs: {
+          //     DocumentName: 'AWS-RunPowerShellScript',
+          //     Parameters: {
+          //       commands: ['echo hello'],
+          //       workingDirectory: 'C:/actions',
+          //     },
+          //     InstanceIds: ['{{instanceId}}'],
+          //   },
+          //   nextStep: 'SendTaskSuccess',
+          //   onFailure: 'step:SendTaskFailure_PowerShell',
+          //   onCancel: 'step:SendTaskFailure_PowerShell',
+          // },
+          {
+            name: 'SendTaskSuccess',
+            action: 'aws:executeAwsApi',
+            inputs: {
+              Service: 'stepfunctions',
+              Api: 'send_task_success',
+              taskToken: '{{ taskToken }}',
+              output: '{}',
+            },
+            timeoutSeconds: 50,
+            nextStep: 'TerminateInstance',
+            onFailure: 'step:TerminateInstance',
+            onCancel: 'step:TerminateInstance',
+          },
+          {
+            name: 'SendTaskFailure',
+            action: 'aws:executeAwsApi',
+            inputs: {
+              Service: 'stepfunctions',
+              Api: 'send_task_failure',
+              taskToken: '{{ taskToken }}',
+              error: 'Automation document failure',
+              cause: 'RunCommand failed, check command execution id {{RunCommand.CommandId}} for more details',
+            },
+            timeoutSeconds: 50,
+            nextStep: 'TerminateInstance',
+            onFailure: 'step:TerminateInstance',
+            onCancel: 'step:TerminateInstance',
+          },
+          {
+            name: 'TerminateInstance',
+            action: 'aws:executeAwsApi',
+            inputs: {
+              Service: 'ec2',
+              Api: 'terminate_instances',
+              InstanceIds: ['{{ instanceId }}'],
+            },
+            timeoutSeconds: 50,
+            isEnd: true,
+          },
+        ],
+      },
+    });
   }
 
   /**
@@ -427,119 +522,77 @@ export class Ec2FleetRunnerProvider extends BaseProvider implements IRunnerProvi
    * @param parameters workflow job details
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    // we need to build user data in two steps because passing the template as the first parameter to stepfunctions.JsonPath.format fails on syntax
+    const stepNamePrefix = this.labels.join(', ');
 
-
-    const passUserData = new stepfunctions.Pass(this, `${this.labels.join(', ')} data`, {
+    // get ami from builder launch template
+    const getAmi = new stepfunctions_tasks.CallAwsService(this, `${stepNamePrefix} Get AMI`, {
+      service: 'ec2',
+      action: 'describeLaunchTemplateVersions',
       parameters: {
-        userdataTemplate: this.ami.os.is(Os.WINDOWS) ? windowsUserDataTemplate : linuxUserDataTemplate,
+        LaunchTemplateId: this.ami.launchTemplate.launchTemplateId,
+        Versions: ['$Latest'],
       },
-      resultPath: stepfunctions.JsonPath.stringAt('$.ec2'),
+      iamResources: ['*'],
+      resultPath: stepfunctions.JsonPath.stringAt('$.instanceInput'),
+      resultSelector: {
+        'ami.$': '$.LaunchTemplateVersions[0].LaunchTemplateData.ImageId',
+      },
     });
 
-    // we use ec2:RunInstances because we must
-    // we can't use fleets because they don't let us override user data, security groups or even disk size
-    // we can't use requestSpotInstances because it doesn't support launch templates, and it's deprecated
-    // ec2:RunInstances also seemed like the only one to immediately return an error when spot capacity is not available
-
-    // we build a complicated chain of states here because ec2:RunInstances can only try one subnet at a time
-    // if someone can figure out a good way to use Map for this, please open a PR
-
-    // build a state for each subnet we want to try
-    const subnetRunners = this.subnets.map((subnet, index) => {
-      return new stepfunctions_tasks.CallAwsService(this, `${this.labels.join(', ')} subnet${index+1}`, {
-        comment: subnet.subnetId,
-        integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-        service: 'ec2',
-        action: 'createFleet',
-        heartbeatTimeout: stepfunctions.Timeout.duration(Duration.minutes(10)),
-        // TODO somehow create launch template with security group, profile, user data, tags in imds, etc.
-        parameters: <CreateFleetCommandInput>{
-          TargetCapacitySpecification: {
-            TotalTargetCapacity: 1,
-            // TargetCapacityUnitType: 'units',
-            DefaultTargetCapacityType: this.spot ? 'spot' : 'on-demand',
-          },
-          LaunchTemplateConfigs: [
-            // TODO let user specify these
-            {
-              LaunchTemplateSpecification: {
-                LaunchTemplateId: this.launchTemplate.launchTemplateId,
-                Version: '$Latest', // TODO latest or default? -- latest for last created by cdk, default for last created by image builder
-              },
-              Overrides: [
-                {
-                  SubnetId: subnet.subnetId,
-                  // TODO AMI from image builder launch template ImageId: this.ami.launchTemplate.imageId,
-                  ImageId: 'ami-049d60fa777700d2b',
-                },
-              ],
-              // TODO Overrides
-            },
-          ],
-          Type: 'instant',
-          TagSpecifications: [
-            {
-              ResourceType: 'instance',
-              Tags: [
-                {
-                  Key: 'GitHubRunners:args:taskToken',
-                  // TODO Tag value exceeds the maximum length of 256 characters (Service: Ec2, Status Code: 400, Request ID: a60d7844-a5ae-49d2-aeeb-d36df39cf0fc)
-                  // Value: stepfunctions.JsonPath.taskToken,
-                  Value: 'nope',
-                },
-                {
-                  Key: 'GitHubRunners:args:logGroupName',
-                  Value: this.logGroup.logGroupName,
-                },
-                {
-                  Key: 'GitHubRunners:args:runnerNamePath',
-                  Value: parameters.runnerNamePath,
-                },
-                {
-                  Key: 'GitHubRunners:args:githubDomainPath',
-                  Value: parameters.githubDomainPath,
-                },
-                {
-                  Key: 'GitHubRunners:args:ownerPath',
-                  Value: parameters.ownerPath,
-                },
-                {
-                  Key: 'GitHubRunners:args:repoPath',
-                  Value: parameters.repoPath,
-                },
-                {
-                  Key: 'GitHubRunners:args:runnerTokenPath',
-                  Value: parameters.runnerTokenPath,
-                },
-                {
-                  Key: 'GitHubRunners:args:labels',
-                  Value: this.labels.join(','),
-                },
-                {
-                  Key: 'GitHubRunners:args:registrationURL',
-                  Value: parameters.registrationUrl,
-                },
-              ],
-            },
-          ],
+    // create fleet with override per subnet
+    const fleet = new stepfunctions_tasks.CallAwsService(this, `${stepNamePrefix} Fleet`, {
+      service: 'ec2',
+      action: 'createFleet',
+      parameters: {
+        TargetCapacitySpecification: {
+          TotalTargetCapacity: 1,
+          // TargetCapacityUnitType: 'units',
+          DefaultTargetCapacityType: this.spot ? 'spot' : 'on-demand',
         },
-        iamResources: ['*'],
-      });
+        LaunchTemplateConfigs: [{
+          LaunchTemplateSpecification: {
+            LaunchTemplateId: this.launchTemplate.launchTemplateId,
+            Version: '$Latest',
+          },
+          Overrides: this.subnets.map(subnet => {
+            return {
+              SubnetId: subnet.subnetId,
+              WeightedCapacity: 1,
+              ImageId: stepfunctions.JsonPath.stringAt('$.instanceInput.ami'),
+            };
+          }),
+        }],
+        Type: 'instant',
+      },
+      iamResources: ['*'],
+      resultPath: stepfunctions.JsonPath.stringAt('$.instance'),
+      resultSelector: {
+        'id.$': '$.Instances[0].InstanceIds[0]',
+      },
     });
 
-    // start with the first subnet
-    passUserData.next(subnetRunners[0]);
+    // use ssm to start runner in newly launched instance
+    const runDocument = new stepfunctions_tasks.CallAwsService(this, `${stepNamePrefix} SSM`, {
+      // comment: subnet.subnetId,
+      integrationPattern: stepfunctions.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+      service: 'ssm',
+      action: 'startAutomationExecution',
+      heartbeatTimeout: stepfunctions.Timeout.duration(Duration.minutes(10)),
+      parameters: {
+        DocumentName: this.document.ref,
+        Parameters: {
+          instanceId: stepfunctions.JsonPath.array(stepfunctions.JsonPath.stringAt('$.instance.id')),
+          taskToken: stepfunctions.JsonPath.array(stepfunctions.JsonPath.taskToken),
+          runnerName: stepfunctions.JsonPath.array(parameters.runnerNamePath),
+          runnerToken: stepfunctions.JsonPath.array(parameters.runnerTokenPath),
+          labels: stepfunctions.JsonPath.array(this.labels.join(',')),
+          registrationUrl: stepfunctions.JsonPath.array(parameters.registrationUrl),
+        },
+      },
+      iamResources: ['*'],
+    });
 
-    // chain up the rest of the subnets
-    for (let i = 1; i < subnetRunners.length; i++) {
-      subnetRunners[i-1].addCatch(subnetRunners[i], {
-        errors: ['Ec2.Ec2Exception', 'States.Timeout'],
-        resultPath: stepfunctions.JsonPath.stringAt('$.lastSubnetError'),
-      });
-    }
-
-    return passUserData;
+    return getAmi.next(fleet).next(runDocument);
   }
 
   grantStateMachine(stateMachineRole: iam.IGrantable) {

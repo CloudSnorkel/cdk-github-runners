@@ -252,18 +252,6 @@ export enum RunnerImageBuilderType {
 }
 
 /**
- * Properties for RunnerImageBuilder.bindAmi().
- */
-export interface BindAmiProps {
-  /**
-   * Launch template to update with new generated AMI when available.
-   *
-   * @note Do not pass the same launch template to multiple builders. They will overwrite each other's AMIs.
-   */
-  readonly launchTemplate?: ec2.ILaunchTemplate;
-}
-
-/**
  * Interface for constructs that build an image that can be used in {@link IRunnerProvider}.
  *
  * An image can be a Docker image or AMI.
@@ -287,7 +275,7 @@ export interface IRunnerImageBuilder {
    *
    * The AMI can be further updated over time manually or using a schedule as long as it is always written to the same launch template.
    */
-  bindAmi(props?: BindAmiProps): RunnerAmi;
+  bindAmi(): RunnerAmi;
 }
 
 /**
@@ -327,7 +315,7 @@ export abstract class RunnerImageBuilderBase extends Construct implements IConfi
 
   abstract bindDockerImage(): RunnerImage;
 
-  abstract bindAmi(props?: BindAmiProps): RunnerAmi;
+  abstract bindAmi(): RunnerAmi;
 
   abstract get connections(): ec2.Connections;
   abstract get grantPrincipal(): iam.IPrincipal;

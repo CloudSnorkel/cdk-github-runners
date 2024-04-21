@@ -15,7 +15,7 @@ import { Construct } from 'constructs';
 import { ImageBuilderBase } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
-import { Architecture, BindAmiProps, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../providers';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../providers';
 import { singletonLambda } from '../../../utils';
 import { uniqueImageBuilderName } from '../../common';
 import { AmiRecipe, defaultBaseAmi } from '../ami';
@@ -151,8 +151,6 @@ export interface AmiBuilderProps {
  */
 export class AmiBuilder extends ImageBuilderBase {
   private boundAmi?: RunnerAmi;
-  private boundDistribution?: imagebuilder.CfnDistributionConfiguration;
-  private boundDistributionLaunchTemplateCount = 0;
 
   constructor(scope: Construct, id: string, props?: AmiBuilderProps) {
     super(scope, id, {
@@ -250,9 +248,8 @@ export class AmiBuilder extends ImageBuilderBase {
   /**
    * Called by IRunnerProvider to finalize settings and create the AMI builder.
    */
-  bindAmi(props?: BindAmiProps): RunnerAmi {
+  bindAmi(): RunnerAmi {
     if (this.boundAmi) {
-      this.addLaunchTemplateToDistribution(props?.launchTemplate);
       return this.boundAmi;
     }
 
@@ -263,7 +260,7 @@ export class AmiBuilder extends ImageBuilderBase {
     const stackName = cdk.Stack.of(this).stackName;
     const builderName = this.node.path;
 
-    this.boundDistribution = new imagebuilder.CfnDistributionConfiguration(this, 'Distribution', {
+    const dist = new imagebuilder.CfnDistributionConfiguration(this, 'Distribution', {
       name: uniqueImageBuilderName(this),
       description: this.description,
       distributions: [
@@ -281,12 +278,14 @@ export class AmiBuilder extends ImageBuilderBase {
               'GitHubRunners:Builder': builderName,
             },
           },
-          launchTemplateConfigurations: [],
+          launchTemplateConfigurations: [
+            {
+              launchTemplateId: launchTemplate.launchTemplateId,
+            },
+          ],
         },
       ],
     });
-    this.addLaunchTemplateToDistribution(launchTemplate);
-    this.addLaunchTemplateToDistribution(props?.launchTemplate);
 
     const recipe = new AmiRecipe(this, 'Ami Recipe', {
       platform: this.platform,
@@ -300,8 +299,8 @@ export class AmiBuilder extends ImageBuilderBase {
       iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilder'),
     ]);
-    this.createImage(infra, this.boundDistribution, log, recipe.arn, undefined);
-    this.createPipeline(infra, this.boundDistribution, log, recipe.arn, undefined);
+    this.createImage(infra, dist, log, recipe.arn, undefined);
+    this.createPipeline(infra, dist, log, recipe.arn, undefined);
 
     this.boundAmi = {
       launchTemplate: launchTemplate,
@@ -356,12 +355,5 @@ export class AmiBuilder extends ImageBuilderBase {
 
   bindDockerImage(): RunnerImage {
     throw new Error('AmiBuilder cannot be used to build Docker images');
-  }
-
-  private addLaunchTemplateToDistribution(launchTemplate?: ec2.ILaunchTemplate) {
-    if (launchTemplate && this.boundDistribution) {
-      this.boundDistribution.addPropertyOverride(`Distributions.0.LaunchTemplateConfigurations.${this.boundDistributionLaunchTemplateCount}.LaunchTemplateId`, launchTemplate.launchTemplateId);
-      this.boundDistributionLaunchTemplateCount++;
-    }
   }
 }

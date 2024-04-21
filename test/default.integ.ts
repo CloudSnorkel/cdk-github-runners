@@ -17,6 +17,7 @@ import {
   Os,
   RunnerImageComponent,
 } from '../src';
+import { Ec2FleetRunnerProvider } from '../src/providers/ec2fleet';
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
@@ -126,6 +127,11 @@ const runners = new GitHubRunners(stack, 'runners', {
     new CodeBuildRunnerProvider(stack, 'CodeBuildx64', {
       label: 'codebuild-x64',
       imageBuilder: codeBuildImageBuilder,
+    }),
+    new Ec2FleetRunnerProvider(stack, 'Fleet', {
+      labels: ['ec2fleet', 'linux', 'x64'],
+      imageBuilder: amiX64Builder,
+      vpc,
     }),
     new CodeBuildRunnerProvider(stack, 'CodeBuildARM', {
       labels: ['codebuild', 'linux', 'arm64'],

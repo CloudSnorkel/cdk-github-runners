@@ -33,9 +33,6 @@ const linuxUserDataTemplate = `#!/bin/bash -x
 TASK_TOKEN="{}"
 logGroupName="{}"
 runnerNamePath="{}"
-githubDomainPath="{}"
-ownerPath="{}"
-repoPath="{}"
 runnerTokenPath="{}"
 labels="{}"
 registrationURL="{}"
@@ -106,9 +103,6 @@ const windowsUserDataTemplate = `<powershell>
 $TASK_TOKEN = "{}"
 $logGroupName="{}"
 $runnerNamePath="{}"
-$githubDomainPath="{}"
-$ownerPath="{}"
-$repoPath="{}"
 $runnerTokenPath="{}"
 $labels="{}"
 $registrationURL="{}"
@@ -405,9 +399,6 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       stepfunctions.JsonPath.taskToken,
       this.logGroup.logGroupName,
       parameters.runnerNamePath,
-      parameters.githubDomainPath,
-      parameters.ownerPath,
-      parameters.repoPath,
       parameters.runnerTokenPath,
       this.labels.join(','),
       parameters.registrationUrl,

@@ -15,7 +15,7 @@ import { Construct } from 'constructs';
 import { ImageBuilderBase } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
 import { WindowsComponents } from './windows-components';
-import { Architecture, BindAmiProps, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../providers';
+import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../providers';
 import { singletonLambda } from '../../../utils';
 import { BuildImageFunction } from '../../build-image-function';
 import { uniqueImageBuilderName } from '../../common';
@@ -338,7 +338,7 @@ export class ContainerImageBuilder extends ImageBuilderBase {
     return cr;
   }
 
-  bindAmi(_?: BindAmiProps): RunnerAmi {
+  bindAmi(): RunnerAmi {
     throw new Error('ContainerImageBuilder cannot be used to build AMIs');
   }
 }
