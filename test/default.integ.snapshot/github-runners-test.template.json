@@ -13839,7 +13839,6 @@
          "{{ instanceId }}"
         ],
         "Parameters": {
-         "executionTimeout": "30",
          "workingDirectory": "/home/runner",
          "commands": [
           "set -ex",
@@ -14629,7 +14628,6 @@
          "{{ instanceId }}"
         ],
         "Parameters": {
-         "executionTimeout": "30",
          "workingDirectory": "/home/runner",
          "commands": [
           "set -ex",
@@ -15186,7 +15184,6 @@
          "{{ instanceId }}"
         ],
         "Parameters": {
-         "executionTimeout": "30",
          "workingDirectory": "/home/runner",
          "commands": [
           "set -ex",
@@ -15743,7 +15740,6 @@
          "{{ instanceId }}"
         ],
         "Parameters": {
-         "executionTimeout": "30",
          "workingDirectory": "C:\\actions",
          "commands": [
           "New-Item STARTED",
