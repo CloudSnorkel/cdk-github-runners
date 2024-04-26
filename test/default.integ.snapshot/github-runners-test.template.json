@@ -13839,15 +13839,16 @@
          "{{ instanceId }}"
         ],
         "Parameters": {
+         "executionTimeout": "30",
          "workingDirectory": "/home/runner",
          "commands": [
           "set -ex",
           "touch /home/runner/STARTED",
-          "{\n                    while true; do\n                      aws stepfunctions send-task-heartbeat --task-token \"{{ taskToken }}\"\n                      sleep 60\n                    done\n                  } &",
+          "{\n                    while true; do\n                      aws stepfunctions send-task-heartbeat --task-token \"{{ taskToken }}\"\n                      sleep 60\n                    done\n                  } >/dev/null 2>&1 &",
           "if [ \"$(cat RUNNER_VERSION)\" = \"latest\" ]; then\n                    RUNNER_FLAGS=\"\"\n                  else\n                    RUNNER_FLAGS=\"--disableupdate\"\n                  fi",
           "sudo -Hu runner /home/runner/config.sh --unattended --url \"{{ registrationUrl }}\" --token \"{{ runnerToken }}\" --ephemeral --work _work --labels \"{{ labels }},cdkghr:started:$(date +%s)\" $RUNNER_FLAGS --name \"{{ runnerName }}\" || exit 1",
           "sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2",
-          "STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" /home/runner/_diag/ | tail -n1)\n                  [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$labels\" \"$STATUS\""
+          "STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" /home/runner/_diag/ | tail -n1)\n                  [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"{{ labels }}\" \"$STATUS\""
          ]
         },
         "CloudWatchOutputConfig": {
@@ -14628,15 +14629,16 @@
          "{{ instanceId }}"
         ],
         "Parameters": {
+         "executionTimeout": "30",
          "workingDirectory": "/home/runner",
          "commands": [
           "set -ex",
           "touch /home/runner/STARTED",
-          "{\n                    while true; do\n                      aws stepfunctions send-task-heartbeat --task-token \"{{ taskToken }}\"\n                      sleep 60\n                    done\n                  } &",
+          "{\n                    while true; do\n                      aws stepfunctions send-task-heartbeat --task-token \"{{ taskToken }}\"\n                      sleep 60\n                    done\n                  } >/dev/null 2>&1 &",
           "if [ \"$(cat RUNNER_VERSION)\" = \"latest\" ]; then\n                    RUNNER_FLAGS=\"\"\n                  else\n                    RUNNER_FLAGS=\"--disableupdate\"\n                  fi",
           "sudo -Hu runner /home/runner/config.sh --unattended --url \"{{ registrationUrl }}\" --token \"{{ runnerToken }}\" --ephemeral --work _work --labels \"{{ labels }},cdkghr:started:$(date +%s)\" $RUNNER_FLAGS --name \"{{ runnerName }}\" || exit 1",
           "sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2",
-          "STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" /home/runner/_diag/ | tail -n1)\n                  [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$labels\" \"$STATUS\""
+          "STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" /home/runner/_diag/ | tail -n1)\n                  [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"{{ labels }}\" \"$STATUS\""
          ]
         },
         "CloudWatchOutputConfig": {
@@ -15184,15 +15186,16 @@
          "{{ instanceId }}"
         ],
         "Parameters": {
+         "executionTimeout": "30",
          "workingDirectory": "/home/runner",
          "commands": [
           "set -ex",
           "touch /home/runner/STARTED",
-          "{\n                    while true; do\n                      aws stepfunctions send-task-heartbeat --task-token \"{{ taskToken }}\"\n                      sleep 60\n                    done\n                  } &",
+          "{\n                    while true; do\n                      aws stepfunctions send-task-heartbeat --task-token \"{{ taskToken }}\"\n                      sleep 60\n                    done\n                  } >/dev/null 2>&1 &",
           "if [ \"$(cat RUNNER_VERSION)\" = \"latest\" ]; then\n                    RUNNER_FLAGS=\"\"\n                  else\n                    RUNNER_FLAGS=\"--disableupdate\"\n                  fi",
           "sudo -Hu runner /home/runner/config.sh --unattended --url \"{{ registrationUrl }}\" --token \"{{ runnerToken }}\" --ephemeral --work _work --labels \"{{ labels }},cdkghr:started:$(date +%s)\" $RUNNER_FLAGS --name \"{{ runnerName }}\" || exit 1",
           "sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2",
-          "STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" /home/runner/_diag/ | tail -n1)\n                  [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$labels\" \"$STATUS\""
+          "STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" /home/runner/_diag/ | tail -n1)\n                  [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"{{ labels }}\" \"$STATUS\""
          ]
         },
         "CloudWatchOutputConfig": {
@@ -15740,6 +15743,7 @@
          "{{ instanceId }}"
         ],
         "Parameters": {
+         "executionTimeout": "30",
          "workingDirectory": "C:\\actions",
          "commands": [
           "New-Item STARTED",
@@ -18079,7 +18083,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"ec2, linux, x64 Get AMI\":{\"Next\":\"ec2, linux, x64 Fleet\",\"Type\":\"Task\",\"ResultPath\":\"$.instanceInput\",\"ResultSelector\":{\"ami.$\":\"$.LaunchTemplateVersions[0].LaunchTemplateData.ImageId\"},\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,windows,x64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"EnableExecuteCommand\":false,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"ec2, linux, x64 Get AMI\":{\"Next\":\"ec2, linux, x64 Fleet\",\"Type\":\"Task\",\"ResultPath\":\"$.ami\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -18087,7 +18091,7 @@
        {
         "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
        },
-       "\",\"Versions\":[\"$Latest\"]}},\"ec2, linux, x64 Fleet\":{\"Next\":\"ec2, linux, x64 SSM\",\"Type\":\"Task\",\"ResultPath\":\"$.instance\",\"ResultSelector\":{\"id.$\":\"$.Instances[0].InstanceIds[0]\"},\"Resource\":\"arn:",
+       "\",\"Versions\":[\"$Latest\"]}},\"ec2, linux, x64 Fleet\":{\"Next\":\"ec2, linux, x64 SSM\",\"Type\":\"Task\",\"ResultPath\":\"$.instance\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -18099,11 +18103,11 @@
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
-       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.instanceInput.ami\"},{\"SubnetId\":\"",
+       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.ami.LaunchTemplateVersions[0].LaunchTemplateData.ImageId\"},{\"SubnetId\":\"",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.instanceInput.ami\"}]}],\"Type\":\"instant\"}},\"ec2, linux, x64 SSM\":{\"End\":true,\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.ami.LaunchTemplateVersions[0].LaunchTemplateData.ImageId\"}]}],\"Type\":\"instant\"}},\"ec2, linux, x64 SSM\":{\"End\":true,\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -18111,7 +18115,7 @@
        {
         "Ref": "EC2LinuxAutomation2C6F2077"
        },
-       "\",\"Parameters\":{\"instanceId.$\":\"States.Array($.instance.id)\",\"taskToken.$\":\"States.Array($$.Task.Token)\",\"runnerName.$\":\"States.Array($$.Execution.Name)\",\"runnerToken.$\":\"States.Array($.runner.token)\",\"labels.$\":\"States.Array('ec2,linux,x64')\",\"registrationUrl.$\":\"States.Array($.runner.registrationUrl)\"}}},\"ec2-spot, linux, x64 Get AMI\":{\"Next\":\"ec2-spot, linux, x64 Fleet\",\"Type\":\"Task\",\"ResultPath\":\"$.instanceInput\",\"ResultSelector\":{\"ami.$\":\"$.LaunchTemplateVersions[0].LaunchTemplateData.ImageId\"},\"Resource\":\"arn:",
+       "\",\"Parameters\":{\"instanceId.$\":\"States.Array($.instance.Instances[0].InstanceIds[0])\",\"taskToken.$\":\"States.Array($$.Task.Token)\",\"runnerName.$\":\"States.Array($$.Execution.Name)\",\"runnerToken.$\":\"States.Array($.runner.token)\",\"labels.$\":\"States.Array('ec2,linux,x64')\",\"registrationUrl.$\":\"States.Array($.runner.registrationUrl)\"}}},\"ec2-spot, linux, x64 Get AMI\":{\"Next\":\"ec2-spot, linux, x64 Fleet\",\"Type\":\"Task\",\"ResultPath\":\"$.ami\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -18119,7 +18123,7 @@
        {
         "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
        },
-       "\",\"Versions\":[\"$Latest\"]}},\"ec2-spot, linux, x64 Fleet\":{\"Next\":\"ec2-spot, linux, x64 SSM\",\"Type\":\"Task\",\"ResultPath\":\"$.instance\",\"ResultSelector\":{\"id.$\":\"$.Instances[0].InstanceIds[0]\"},\"Resource\":\"arn:",
+       "\",\"Versions\":[\"$Latest\"]}},\"ec2-spot, linux, x64 Fleet\":{\"Next\":\"ec2-spot, linux, x64 SSM\",\"Type\":\"Task\",\"ResultPath\":\"$.instance\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -18131,11 +18135,11 @@
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
-       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.instanceInput.ami\"},{\"SubnetId\":\"",
+       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.ami.LaunchTemplateVersions[0].LaunchTemplateData.ImageId\"},{\"SubnetId\":\"",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.instanceInput.ami\"}]}],\"Type\":\"instant\"}},\"ec2-spot, linux, x64 SSM\":{\"End\":true,\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.ami.LaunchTemplateVersions[0].LaunchTemplateData.ImageId\"}]}],\"Type\":\"instant\"}},\"ec2-spot, linux, x64 SSM\":{\"End\":true,\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -18143,7 +18147,7 @@
        {
         "Ref": "EC2SpotLinuxAutomation1255B0E6"
        },
-       "\",\"Parameters\":{\"instanceId.$\":\"States.Array($.instance.id)\",\"taskToken.$\":\"States.Array($$.Task.Token)\",\"runnerName.$\":\"States.Array($$.Execution.Name)\",\"runnerToken.$\":\"States.Array($.runner.token)\",\"labels.$\":\"States.Array('ec2-spot,linux,x64')\",\"registrationUrl.$\":\"States.Array($.runner.registrationUrl)\"}}},\"ec2, linux, arm64 Get AMI\":{\"Next\":\"ec2, linux, arm64 Fleet\",\"Type\":\"Task\",\"ResultPath\":\"$.instanceInput\",\"ResultSelector\":{\"ami.$\":\"$.LaunchTemplateVersions[0].LaunchTemplateData.ImageId\"},\"Resource\":\"arn:",
+       "\",\"Parameters\":{\"instanceId.$\":\"States.Array($.instance.Instances[0].InstanceIds[0])\",\"taskToken.$\":\"States.Array($$.Task.Token)\",\"runnerName.$\":\"States.Array($$.Execution.Name)\",\"runnerToken.$\":\"States.Array($.runner.token)\",\"labels.$\":\"States.Array('ec2-spot,linux,x64')\",\"registrationUrl.$\":\"States.Array($.runner.registrationUrl)\"}}},\"ec2, linux, arm64 Get AMI\":{\"Next\":\"ec2, linux, arm64 Fleet\",\"Type\":\"Task\",\"ResultPath\":\"$.ami\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -18151,7 +18155,7 @@
        {
         "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
        },
-       "\",\"Versions\":[\"$Latest\"]}},\"ec2, linux, arm64 Fleet\":{\"Next\":\"ec2, linux, arm64 SSM\",\"Type\":\"Task\",\"ResultPath\":\"$.instance\",\"ResultSelector\":{\"id.$\":\"$.Instances[0].InstanceIds[0]\"},\"Resource\":\"arn:",
+       "\",\"Versions\":[\"$Latest\"]}},\"ec2, linux, arm64 Fleet\":{\"Next\":\"ec2, linux, arm64 SSM\",\"Type\":\"Task\",\"ResultPath\":\"$.instance\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -18163,11 +18167,11 @@
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
-       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.instanceInput.ami\"},{\"SubnetId\":\"",
+       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.ami.LaunchTemplateVersions[0].LaunchTemplateData.ImageId\"},{\"SubnetId\":\"",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.instanceInput.ami\"}]}],\"Type\":\"instant\"}},\"ec2, linux, arm64 SSM\":{\"End\":true,\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.ami.LaunchTemplateVersions[0].LaunchTemplateData.ImageId\"}]}],\"Type\":\"instant\"}},\"ec2, linux, arm64 SSM\":{\"End\":true,\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -18175,7 +18179,7 @@
        {
         "Ref": "EC2Linuxarm64Automation0232B49F"
        },
-       "\",\"Parameters\":{\"instanceId.$\":\"States.Array($.instance.id)\",\"taskToken.$\":\"States.Array($$.Task.Token)\",\"runnerName.$\":\"States.Array($$.Execution.Name)\",\"runnerToken.$\":\"States.Array($.runner.token)\",\"labels.$\":\"States.Array('ec2,linux,arm64')\",\"registrationUrl.$\":\"States.Array($.runner.registrationUrl)\"}}},\"ec2, windows, x64 Get AMI\":{\"Next\":\"ec2, windows, x64 Fleet\",\"Type\":\"Task\",\"ResultPath\":\"$.instanceInput\",\"ResultSelector\":{\"ami.$\":\"$.LaunchTemplateVersions[0].LaunchTemplateData.ImageId\"},\"Resource\":\"arn:",
+       "\",\"Parameters\":{\"instanceId.$\":\"States.Array($.instance.Instances[0].InstanceIds[0])\",\"taskToken.$\":\"States.Array($$.Task.Token)\",\"runnerName.$\":\"States.Array($$.Execution.Name)\",\"runnerToken.$\":\"States.Array($.runner.token)\",\"labels.$\":\"States.Array('ec2,linux,arm64')\",\"registrationUrl.$\":\"States.Array($.runner.registrationUrl)\"}}},\"ec2, windows, x64 Get AMI\":{\"Next\":\"ec2, windows, x64 Fleet\",\"Type\":\"Task\",\"ResultPath\":\"$.ami\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -18183,7 +18187,7 @@
        {
         "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
        },
-       "\",\"Versions\":[\"$Latest\"]}},\"ec2, windows, x64 Fleet\":{\"Next\":\"ec2, windows, x64 SSM\",\"Type\":\"Task\",\"ResultPath\":\"$.instance\",\"ResultSelector\":{\"id.$\":\"$.Instances[0].InstanceIds[0]\"},\"Resource\":\"arn:",
+       "\",\"Versions\":[\"$Latest\"]}},\"ec2, windows, x64 Fleet\":{\"Next\":\"ec2, windows, x64 SSM\",\"Type\":\"Task\",\"ResultPath\":\"$.instance\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -18195,11 +18199,11 @@
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
-       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.instanceInput.ami\"},{\"SubnetId\":\"",
+       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.ami.LaunchTemplateVersions[0].LaunchTemplateData.ImageId\"},{\"SubnetId\":\"",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
-       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.instanceInput.ami\"}]}],\"Type\":\"instant\"}},\"ec2, windows, x64 SSM\":{\"End\":true,\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+       "\",\"WeightedCapacity\":1,\"ImageId.$\":\"$.ami.LaunchTemplateVersions[0].LaunchTemplateData.ImageId\"}]}],\"Type\":\"instant\"}},\"ec2, windows, x64 SSM\":{\"End\":true,\"Type\":\"Task\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -18207,7 +18211,7 @@
        {
         "Ref": "EC2WindowsAutomationC493D3FB"
        },
-       "\",\"Parameters\":{\"instanceId.$\":\"States.Array($.instance.id)\",\"taskToken.$\":\"States.Array($$.Task.Token)\",\"runnerName.$\":\"States.Array($$.Execution.Name)\",\"runnerToken.$\":\"States.Array($.runner.token)\",\"labels.$\":\"States.Array('ec2,windows,x64')\",\"registrationUrl.$\":\"States.Array($.runner.registrationUrl)\"}}}}}]},\"Delete Failed Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       "\",\"Parameters\":{\"instanceId.$\":\"States.Array($.instance.Instances[0].InstanceIds[0])\",\"taskToken.$\":\"States.Array($$.Task.Token)\",\"runnerName.$\":\"States.Array($$.Execution.Name)\",\"runnerToken.$\":\"States.Array($.runner.token)\",\"labels.$\":\"States.Array('ec2,windows,x64')\",\"registrationUrl.$\":\"States.Array($.runner.registrationUrl)\"}}}}}]},\"Delete Failed Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnersdeleterunner7F8D5293",

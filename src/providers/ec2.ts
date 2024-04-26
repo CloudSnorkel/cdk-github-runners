@@ -399,6 +399,8 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
               DocumentName: this.ami.os.is(Os.WINDOWS) ? 'AWS-RunPowerShellScript' : 'AWS-RunShellScript',
               InstanceIds: ['{{ instanceId }}'],
               Parameters: {
+                // TODO let ec2 instance send success/failure as ssm document is time limited
+                // TODO also terminate from step function on failure
                 // TODO executionTimeout: '0', // no timeout
                 workingDirectory: this.ami.os.is(Os.WINDOWS) ? 'C:\\actions' : '/home/runner',
                 commands: this.ami.os.is(Os.WINDOWS) ? [ // *** windows
@@ -436,7 +438,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
                       aws stepfunctions send-task-heartbeat --task-token "{{ taskToken }}"
                       sleep 60
                     done
-                  } &`,
+                  } >/dev/null 2>&1 &`,
                   // decide if we should update runner
                   `if [ "$(cat RUNNER_VERSION)" = "latest" ]; then
                     RUNNER_FLAGS=""
@@ -449,7 +451,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
                   'sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2',
                   // print whether job was successful for our metric filter
                   `STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" /home/runner/_diag/ | tail -n1)
-                  [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$labels" "$STATUS"`,
+                  [ -n "$STATUS" ] && echo CDKGHA JOB DONE "{{ labels }}" "$STATUS"`,
                 ],
               },
               CloudWatchOutputConfig: {
@@ -549,10 +551,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
         Versions: ['$Latest'],
       },
       iamResources: ['*'],
-      resultPath: stepfunctions.JsonPath.stringAt('$.instanceInput'),
-      resultSelector: {
-        'ami.$': '$.LaunchTemplateVersions[0].LaunchTemplateData.ImageId',
-      },
+      resultPath: stepfunctions.JsonPath.stringAt('$.ami'),
     });
 
     // create fleet with override per subnet
@@ -574,7 +573,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
             return {
               SubnetId: subnet.subnetId,
               WeightedCapacity: 1,
-              ImageId: stepfunctions.JsonPath.stringAt('$.instanceInput.ami'),
+              ImageId: stepfunctions.JsonPath.stringAt('$.ami.LaunchTemplateVersions[0].LaunchTemplateData.ImageId'),
             };
           }),
         }],
@@ -582,10 +581,6 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       },
       iamResources: ['*'],
       resultPath: stepfunctions.JsonPath.stringAt('$.instance'),
-      resultSelector: {
-        // TODO retry on this failing? if the call fails, there is nothing here
-        'id.$': '$.Instances[0].InstanceIds[0]',
-      },
     });
 
     // use ssm to start runner in newly launched instance
@@ -598,7 +593,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       parameters: {
         DocumentName: this.document.ref,
         Parameters: {
-          instanceId: stepfunctions.JsonPath.array(stepfunctions.JsonPath.stringAt('$.instance.id')),
+          instanceId: stepfunctions.JsonPath.array(stepfunctions.JsonPath.stringAt('$.instance.Instances[0].InstanceIds[0]')),
           taskToken: stepfunctions.JsonPath.array(stepfunctions.JsonPath.taskToken),
           runnerName: stepfunctions.JsonPath.array(parameters.runnerNamePath),
           runnerToken: stepfunctions.JsonPath.array(parameters.runnerTokenPath),
