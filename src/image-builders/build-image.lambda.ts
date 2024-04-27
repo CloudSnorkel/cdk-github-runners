@@ -11,55 +11,48 @@ import { customResourceRespond } from '../lambda-helpers';
 const codebuild = new CodeBuildClient();
 const ib = new ImagebuilderClient();
 
+/**
+ * @internal
+ */
+export interface BuildImageFunctionProperties {
+  ServiceToken: string;
+  DeleteOnly?: boolean;
+  RepoName: string;
+  ProjectName: string;
+  ImageBuilderName?: string;
+  WaitHandle?: string;
+}
+
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   try {
     console.log(JSON.stringify({ ...event, ResponseURL: '...' }));
 
-    const deleteOnly = event.ResourceProperties.DeleteOnly as boolean | undefined;
-    const projectName = event.ResourceProperties.ProjectName;
-    const ibName = event.ResourceProperties.ImageBuilderName as string | undefined;
-
-    // let physicalResourceId: string;
-    // let data: { [key: string]: string } = {};
+    const props = event.ResourceProperties as BuildImageFunctionProperties;
 
     switch (event.RequestType) {
       case 'Create':
       case 'Update':
-        if (deleteOnly) {
+        if (props.DeleteOnly) {
           await customResourceRespond(event, 'SUCCESS', 'OK', 'Deleter', {});
           break;
         }
 
-        console.log(`Starting CodeBuild project ${projectName}`);
-        await codebuild.send(new StartBuildCommand({
-          projectName,
+        console.log(`Starting CodeBuild project ${props.ProjectName}`);
+        const cbRes = await codebuild.send(new StartBuildCommand({
+          projectName: props.ProjectName,
           environmentVariablesOverride: [
             {
               type: 'PLAINTEXT',
-              name: 'STACK_ID',
-              value: event.StackId,
-            },
-            {
-              type: 'PLAINTEXT',
-              name: 'REQUEST_ID',
-              value: event.RequestId,
-            },
-            {
-              type: 'PLAINTEXT',
-              name: 'LOGICAL_RESOURCE_ID',
-              value: event.LogicalResourceId,
-            },
-            {
-              type: 'PLAINTEXT',
-              name: 'RESPONSE_URL',
-              value: event.ResponseURL,
+              name: 'WAIT_HANDLE',
+              value: props.WaitHandle!,
             },
           ],
         }));
+        await customResourceRespond(event, 'SUCCESS', 'OK', cbRes.build?.id ?? 'build', {});
         break;
       case 'Delete':
-        if (ibName) {
-          const ibImages = await ib.send(new ListIbImagesCommand({ filters: [{ name: 'name', values: [ibName] }] }));
+        if (props.ImageBuilderName) {
+          const ibImages = await ib.send(new ListIbImagesCommand({ filters: [{ name: 'name', values: [props.ImageBuilderName] }] }));
           if (ibImages.imageVersionList) {
             for (const v of ibImages.imageVersionList) {
               if (v.arn) {

@@ -18,6 +18,7 @@ import { WindowsComponents } from './windows-components';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../providers';
 import { singletonLambda } from '../../../utils';
 import { BuildImageFunction } from '../../build-image-function';
+import { BuildImageFunctionProperties } from '../../build-image.lambda';
 import { uniqueImageBuilderName } from '../../common';
 import { ImageBuilderComponent } from '../builder';
 import { ContainerRecipe } from '../container';
@@ -323,7 +324,7 @@ export class ContainerImageBuilder extends ImageBuilderBase {
     const cr = new CustomResource(this, 'Deleter', {
       serviceToken: crHandler.functionArn,
       resourceType: 'Custom::ImageDeleter',
-      properties: {
+      properties: <BuildImageFunctionProperties>{
         RepoName: this.repository.repositoryName,
         ImageBuilderName: recipeName, // we don't use image.name because CloudFormation complains if it was deleted already
         DeleteOnly: true,
