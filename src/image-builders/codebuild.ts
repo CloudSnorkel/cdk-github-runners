@@ -1,6 +1,8 @@
+import * as crypto from 'node:crypto';
 import * as cdk from 'aws-cdk-lib';
 import {
   Annotations,
+  aws_cloudformation as cloudformation,
   aws_codebuild as codebuild,
   aws_ec2 as ec2,
   aws_ecr as ecr,
@@ -20,6 +22,7 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
 import { defaultBaseDockerImage } from './aws-image-builder';
 import { BuildImageFunction } from './build-image-function';
+import { BuildImageFunctionProperties } from './build-image.lambda';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
 import { singletonLambda } from '../utils';
@@ -99,6 +102,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         'See https://github.com/aws/containers-roadmap/issues/1160');
     }
 
+    // check timeout
+    if (this.timeout.toSeconds() > Duration.hours(8).toSeconds()) {
+      Annotations.of(this).addError('CodeBuild runner image builder timeout must 8 hours or less.');
+    }
+
     // create service role for CodeBuild
     this.role = new iam.Role(this, 'Role', {
       assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com'),
@@ -146,7 +154,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     );
 
     // generate buildSpec
-    const buildSpec = this.getBuildSpec(this.repository);
+    const [buildSpec, buildSpecHash] = this.getBuildSpec(this.repository);
 
     // create CodeBuild project that builds Dockerfile and pushes to repository
     const project = new codebuild.Project(this, 'CodeBuild', {
@@ -173,7 +181,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.repository.grantPullPush(project);
 
     // call CodeBuild during deployment
-    const cr = this.customResource(project, buildSpec.toBuildSpec());
+    const completedImage = this.customResource(project, buildSpecHash);
 
     // rebuild image on a schedule
     this.rebuildImageOnSchedule(project, this.rebuildInterval);
@@ -186,7 +194,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       os: this.os,
       logGroup,
       runnerVersion: RunnerVersion.specific('unknown'),
-      _dependable: cr.getAttString('Random'),
+      _dependable: completedImage,
     };
     return this.boundDockerImage;
   }
@@ -253,7 +261,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     return commands;
   }
 
-  private getBuildSpec(repository: ecr.Repository): codebuild.BuildSpec {
+  private getBuildSpec(repository: ecr.Repository): [codebuild.BuildSpec, string] {
     const thisStack = cdk.Stack.of(this);
 
     let archUrl;
@@ -265,16 +273,19 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       throw new Error(`Unsupported architecture for required CodeBuild: ${this.architecture.name}`);
     }
 
-    return codebuild.BuildSpec.fromObject({
+    const commands = this.getDockerfileGenerationCommands();
+
+    const buildSpecVersion = 'v1'; // change this every time the build spec changes
+    const hashedComponents = commands.concat(buildSpecVersion, this.architecture.name, this.baseImage, this.os.name);
+    const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
+
+    const buildSpec = codebuild.BuildSpec.fromObject({
       version: '0.2',
       env: {
         variables: {
           REPO_ARN: repository.repositoryArn,
           REPO_URI: repository.repositoryUri,
-          STACK_ID: 'unspecified',
-          REQUEST_ID: 'unspecified',
-          LOGICAL_RESOURCE_ID: 'unspecified',
-          RESPONSE_URL: 'unspecified',
+          WAIT_HANDLE: 'unspecified',
           BASH_ENV: 'codebuild-log.sh',
         },
         shell: 'bash',
@@ -287,7 +298,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
           ],
         },
         build: {
-          commands: this.getDockerfileGenerationCommands().concat(
+          commands: commands.concat(
             'docker build --progress plain . -t "$REPO_URI"',
             'docker push "$REPO_URI"',
           ),
@@ -295,22 +306,19 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         post_build: {
           commands: [
             'rm -f codebuild-log.sh && STATUS="SUCCESS"',
-            'if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS="FAILED"; fi',
+            'if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS="FAILURE"; fi',
             'cat <<EOF > /tmp/payload.json\n' +
               '{\n' +
-              '  "StackId": "$STACK_ID",\n' +
-              '  "RequestId": "$REQUEST_ID",\n' +
-              '  "LogicalResourceId": "$LOGICAL_RESOURCE_ID",\n' +
-              '  "PhysicalResourceId": "$REPO_ARN",\n' +
               '  "Status": "$STATUS",\n' +
+              '  "UniqueId": "build",\n' +
               // we remove non-printable characters from the log because CloudFormation doesn't like them
               // https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1601
               '  "Reason": `sed \'s/[^[:print:]]//g\' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\n' +
               // for lambda always get a new value because there is always a new image hash
-              '  "Data": {"Random": "$RANDOM"}\n' +
+              '  "Data": "$RANDOM"\n' +
               '}\n' +
               'EOF',
-            'if [ "$RESPONSE_URL" != "unspecified" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$RESPONSE_URL"; fi',
+            'if [ "$WAIT_HANDLE" != "unspecified" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$WAIT_HANDLE"; fi',
             // generate and push soci index
             // we do this after finishing the build, so we don't have to wait. it's also not required, so it's ok if it fails
             'docker rmi "$REPO_URI"', // it downloads the image again to /tmp, so save on space
@@ -321,9 +329,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         },
       },
     });
+
+    return [buildSpec, hash];
   }
 
-  private customResource(project: codebuild.Project, buildSpec: string) {
+  private customResource(project: codebuild.Project, buildSpecHash: string) {
     const crHandler = singletonLambda(BuildImageFunction, this, 'build-image', {
       description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
       timeout: cdk.Duration.minutes(3),
@@ -340,15 +350,24 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     });
     crHandler.role!.attachInlinePolicy(policy);
 
+    // Wait handle lets us wait for longer than an hour for the image build to complete.
+    // We generate a new wait handle for build spec changes to guarantee a new image is built.
+    // This also helps make sure the changes are good. If they have a bug, the deployment will fail instead of just the scheduled build.
+    // Finally, it's recommended by CloudFormation docs to not reuse wait handles or old responses may interfere in some cases.
+    const handle = new cloudformation.CfnWaitConditionHandle(this, `Build Wait Handle ${buildSpecHash}`);
+    const wait = new cloudformation.CfnWaitCondition(this, `Build Wait ${buildSpecHash}`, {
+      handle: handle.ref,
+      timeout: this.timeout.toSeconds().toString(), // don't wait longer than the build timeout
+      count: 1,
+    });
+
     const cr = new CustomResource(this, 'Builder', {
       serviceToken: crHandler.functionArn,
       resourceType: 'Custom::ImageBuilder',
-      properties: {
+      properties: <BuildImageFunctionProperties>{
         RepoName: this.repository.repositoryName,
         ProjectName: project.projectName,
-        // We include the full buildSpec so the image is built immediately on changes, and we don't have to wait for its scheduled build.
-        // This also helps make sure the changes are good. If they have a bug, the deployment will fail instead of just the scheduled build.
-        BuildSpec: buildSpec,
+        WaitHandle: handle.ref,
       },
     });
 
@@ -359,7 +378,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     cr.node.addDependency(crHandler.role!);
     cr.node.addDependency(crHandler);
 
-    return cr;
+    return wait.ref; // user needs to wait on wait handle which is triggered when the image is built
   }
 
   private rebuildImageOnSchedule(project: codebuild.Project, rebuildInterval?: Duration) {
