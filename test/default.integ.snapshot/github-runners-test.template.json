@@ -18746,7 +18746,7 @@
      },
      "S3Key": "97a52dd61d3f204877c7a944f14423bdbdec7587794ab63213506581ffb19976.zip"
     },
-    "Description": "Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion",
+    "Description": "Custom resource handler that discovers the boot drive device name for a given AMI",
     "Environment": {
      "Variables": {
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
