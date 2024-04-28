@@ -215,7 +215,8 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     throw new Error(`Unable to find CodeBuild image for ${this.os.name}/${this.architecture.name}`);
   }
 
-  private getDockerfileGenerationCommands() {
+  private getDockerfileGenerationCommands(): [string[], string[]] {
+    let hashedComponents: string[] = [];
     let commands = [];
     let dockerfile = `FROM ${this.baseImage}\nVOLUME /var/lib/docker\n`;
 
@@ -242,6 +243,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         }
 
         dockerfile += `COPY asset${i}-${componentName}-${j} ${assetDescriptors[j].target}\n`;
+        hashedComponents.push(`__ ASSET FILE ${asset.assetHash} ${i}-${componentName}-${j} ${assetDescriptors[j].target}`);
 
         asset.grantRead(this);
       }
@@ -250,15 +252,18 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       const script = '#!/bin/bash\nset -exuo pipefail\n' + componentCommands.join('\n');
       commands.push(`cat > component${i}-${componentName}.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\n${script}\nEOFGITHUBRUNNERSDOCKERFILE`);
       commands.push(`chmod +x component${i}-${componentName}.sh`);
+      hashedComponents.push(`__ COMMAND ${i} ${componentName} ${script}`);
       dockerfile += `COPY component${i}-${componentName}.sh /tmp\n`;
       dockerfile += `RUN /tmp/component${i}-${componentName}.sh\n`;
 
-      dockerfile += this.components[i].getDockerCommands(this.os, this.architecture).join('\n') + '\n';
+      const dockerCommands = this.components[i].getDockerCommands(this.os, this.architecture);
+      dockerfile += dockerCommands.join('\n') + '\n';
+      hashedComponents.push(`__ DOCKER COMMAND ${i} ${dockerCommands.join('\n')}`);
     }
 
     commands.push(`cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\n${dockerfile}\nEOFGITHUBRUNNERSDOCKERFILE`);
 
-    return commands;
+    return [commands, hashedComponents];
   }
 
   private getBuildSpec(repository: ecr.Repository): [codebuild.BuildSpec, string] {
@@ -273,10 +278,10 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       throw new Error(`Unsupported architecture for required CodeBuild: ${this.architecture.name}`);
     }
 
-    const commands = this.getDockerfileGenerationCommands();
+    const [commands, commandsHashedComponents] = this.getDockerfileGenerationCommands();
 
     const buildSpecVersion = 'v1'; // change this every time the build spec changes
-    const hashedComponents = commands.concat(buildSpecVersion, this.architecture.name, this.baseImage, this.os.name);
+    const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, this.baseImage, this.os.name);
     const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
 
     const buildSpec = codebuild.BuildSpec.fromObject({

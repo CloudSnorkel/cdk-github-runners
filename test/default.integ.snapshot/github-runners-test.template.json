@@ -645,15 +645,15 @@
     ]
    }
   },
-  "FargatebuilderBuildWaitHandle0780380d65E2D81803": {
+  "FargatebuilderBuildWaitHandlee9b48b53b046D10B49": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderBuildWait0780380d659413C463": {
+  "FargatebuilderBuildWaite9b48b53b0466E49EC": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderBuildWaitHandle0780380d65E2D81803"
+     "Ref": "FargatebuilderBuildWaitHandlee9b48b53b046D10B49"
     },
     "Timeout": "3600"
    }
@@ -674,7 +674,7 @@
      "Ref": "FargatebuilderCodeBuild4F182743"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderBuildWaitHandle0780380d65E2D81803"
+     "Ref": "FargatebuilderBuildWaitHandlee9b48b53b046D10B49"
     }
    },
    "DependsOn": [
@@ -1279,15 +1279,15 @@
     ]
    }
   },
-  "FargatebuilderarmBuildWaitHandle7c08978ae76D768214": {
+  "FargatebuilderarmBuildWaitHandle14f2590137C304974C": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderarmBuildWait7c08978ae76DC9C89F": {
+  "FargatebuilderarmBuildWait14f2590137A61AB4A5": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderarmBuildWaitHandle7c08978ae76D768214"
+     "Ref": "FargatebuilderarmBuildWaitHandle14f2590137C304974C"
     },
     "Timeout": "3600"
    }
@@ -1308,7 +1308,7 @@
      "Ref": "FargatebuilderarmCodeBuild0D30679A"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderarmBuildWaitHandle7c08978ae76D768214"
+     "Ref": "FargatebuilderarmBuildWaitHandle14f2590137C304974C"
     }
    },
    "DependsOn": [
@@ -1950,15 +1950,15 @@
     ]
    }
   },
-  "LambdaImageBuilderx64BuildWaitHandle2f63c7d6a2A2457637": {
+  "LambdaImageBuilderx64BuildWaitHandlee60b59c83b820DD19E": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderx64BuildWait2f63c7d6a24C1963D9": {
+  "LambdaImageBuilderx64BuildWaite60b59c83b93F7F541": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle2f63c7d6a2A2457637"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandlee60b59c83b820DD19E"
     },
     "Timeout": "3600"
    }
@@ -1979,7 +1979,7 @@
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle2f63c7d6a2A2457637"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandlee60b59c83b820DD19E"
     }
    },
    "DependsOn": [
@@ -4626,15 +4626,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderBuildWaitHandleb5a5a851799EDD3CCB": {
+  "CodeBuildImageBuilderBuildWaitHandle660bc88ba881285995": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderBuildWaitb5a5a85179378E476B": {
+  "CodeBuildImageBuilderBuildWait660bc88ba86204F75B": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandleb5a5a851799EDD3CCB"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle660bc88ba881285995"
     },
     "Timeout": "3600"
    }
@@ -4655,7 +4655,7 @@
      "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandleb5a5a851799EDD3CCB"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle660bc88ba881285995"
     }
    },
    "DependsOn": [
@@ -5156,15 +5156,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderarmBuildWaitHandle9b5ea99fd5DE72167F": {
+  "CodeBuildImageBuilderarmBuildWaitHandle30228bd95a95706AA0": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderarmBuildWait9b5ea99fd53C340B08": {
+  "CodeBuildImageBuilderarmBuildWait30228bd95a41015307": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle9b5ea99fd5DE72167F"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle30228bd95a95706AA0"
     },
     "Timeout": "3600"
    }
@@ -5185,7 +5185,7 @@
      "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle9b5ea99fd5DE72167F"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle30228bd95a95706AA0"
     }
    },
    "DependsOn": [
@@ -5827,15 +5827,15 @@
     ]
    }
   },
-  "LambdaImageBuilderzBuildWaitHandle169e3bd7e10B7BEF57": {
+  "LambdaImageBuilderzBuildWaitHandle5f7b5267feD8C0B0BB": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderzBuildWait169e3bd7e14C086212": {
+  "LambdaImageBuilderzBuildWait5f7b5267fe0B16F329": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle169e3bd7e10B7BEF57"
+     "Ref": "LambdaImageBuilderzBuildWaitHandle5f7b5267feD8C0B0BB"
     },
     "Timeout": "3600"
    }
@@ -5856,7 +5856,7 @@
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle169e3bd7e10B7BEF57"
+     "Ref": "LambdaImageBuilderzBuildWaitHandle5f7b5267feD8C0B0BB"
     }
    },
    "DependsOn": [
@@ -11016,7 +11016,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderx64BuildWait2f63c7d6a24C1963D9"
+        "Ref": "LambdaImageBuilderx64BuildWaite60b59c83b93F7F541"
        },
        "\"}}"
       ]
@@ -11477,7 +11477,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderzBuildWait169e3bd7e14C086212"
+        "Ref": "LambdaImageBuilderzBuildWait5f7b5267fe0B16F329"
        },
        "\"}}"
       ]
