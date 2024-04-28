@@ -102,6 +102,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         'See https://github.com/aws/containers-roadmap/issues/1160');
     }
 
+    // check timeout
+    if (this.timeout.toSeconds() > Duration.hours(8).toSeconds()) {
+      Annotations.of(this).addError('CodeBuild runner image builder timeout must 8 hours or less.');
+    }
+
     // create service role for CodeBuild
     this.role = new iam.Role(this, 'Role', {
       assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com'),
@@ -149,7 +154,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     );
 
     // generate buildSpec
-    const buildSpec = this.getBuildSpec(this.repository);
+    const [buildSpec, buildSpecHash] = this.getBuildSpec(this.repository);
 
     // create CodeBuild project that builds Dockerfile and pushes to repository
     const project = new codebuild.Project(this, 'CodeBuild', {
@@ -176,7 +181,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.repository.grantPullPush(project);
 
     // call CodeBuild during deployment
-    const completedImage = this.customResource(project, buildSpec.toBuildSpec());
+    const completedImage = this.customResource(project, buildSpecHash);
 
     // rebuild image on a schedule
     this.rebuildImageOnSchedule(project, this.rebuildInterval);
@@ -256,7 +261,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     return commands;
   }
 
-  private getBuildSpec(repository: ecr.Repository): codebuild.BuildSpec {
+  private getBuildSpec(repository: ecr.Repository): [codebuild.BuildSpec, string] {
     const thisStack = cdk.Stack.of(this);
 
     let archUrl;
@@ -268,7 +273,13 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       throw new Error(`Unsupported architecture for required CodeBuild: ${this.architecture.name}`);
     }
 
-    return codebuild.BuildSpec.fromObject({
+    const commands = this.getDockerfileGenerationCommands();
+
+    const buildSpecVersion = 'v1'; // change this every time the build spec changes
+    const hashedComponents = commands.concat(buildSpecVersion, this.architecture.name, this.baseImage, this.os.name);
+    const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
+
+    const buildSpec = codebuild.BuildSpec.fromObject({
       version: '0.2',
       env: {
         variables: {
@@ -287,7 +298,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
           ],
         },
         build: {
-          commands: this.getDockerfileGenerationCommands().concat(
+          commands: commands.concat(
             'docker build --progress plain . -t "$REPO_URI"',
             'docker push "$REPO_URI"',
           ),
@@ -318,9 +329,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         },
       },
     });
+
+    return [buildSpec, hash];
   }
 
-  private customResource(project: codebuild.Project, buildSpec: string) {
+  private customResource(project: codebuild.Project, buildSpecHash: string) {
     const crHandler = singletonLambda(BuildImageFunction, this, 'build-image', {
       description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
       timeout: cdk.Duration.minutes(3),
@@ -341,11 +354,10 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     // We generate a new wait handle for build spec changes to guarantee a new image is built.
     // This also helps make sure the changes are good. If they have a bug, the deployment will fail instead of just the scheduled build.
     // Finally, it's recommended by CloudFormation docs to not reuse wait handles or old responses may interfere in some cases.
-    const uniq = crypto.createHash('md5').update(buildSpec).digest('hex').slice(0, 10);
-    const handle = new cloudformation.CfnWaitConditionHandle(this, `Build Wait Handle ${uniq}`);
-    const wait = new cloudformation.CfnWaitCondition(this, `Build Wait ${uniq}`, {
+    const handle = new cloudformation.CfnWaitConditionHandle(this, `Build Wait Handle ${buildSpecHash}`);
+    const wait = new cloudformation.CfnWaitCondition(this, `Build Wait ${buildSpecHash}`, {
       handle: handle.ref,
-      timeout: '43200', // 12 hours (max allowed)
+      timeout: this.timeout.toSeconds().toString(), // don't wait longer than the build timeout
       count: 1,
     });
 
