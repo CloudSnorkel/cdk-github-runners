@@ -508,7 +508,7 @@ export abstract class BaseProvider extends Construct {
  */
 export function amiRootDevice(scope: Construct, ami?: string) {
   const crHandler = singletonLambda(AmiRootDeviceFunction, scope, 'AMI Root Device Reader', {
-    description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
+    description: 'Custom resource handler that discovers the boot drive device name for a given AMI',
     timeout: cdk.Duration.minutes(1),
     logRetention: logs.RetentionDays.ONE_MONTH,
     initialPolicy: [
