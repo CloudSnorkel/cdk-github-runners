@@ -41,10 +41,8 @@ export interface ContainerRecipeProperties {
 
   /**
    * Parent image for the new Docker Image.
-   *
-   * @default 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64'
    */
-  readonly parentImage?: string;
+  readonly parentImage: string;
 }
 
 /**
@@ -76,7 +74,8 @@ export class ContainerRecipe extends ImageBuilderObjectBase {
     const recipe = new imagebuilder.CfnContainerRecipe(this, 'Recipe', {
       name: this.name,
       version: this.version,
-      parentImage: props.parentImage ?? 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64',
+      parentImage: props.parentImage,
+      platformOverride: props.platform == 'Linux' ? 'Linux' : undefined,
       components,
       containerType: 'DOCKER',
       targetRepository: {

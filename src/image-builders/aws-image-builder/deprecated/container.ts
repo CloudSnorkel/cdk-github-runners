@@ -151,7 +151,7 @@ export interface ContainerImageBuilderProps {
  */
 export class ContainerImageBuilder extends ImageBuilderBase {
   readonly repository: ecr.IRepository;
-  private readonly parentImage: string | undefined;
+  private readonly parentImage: string;
   private boundImage?: RunnerImage;
 
   constructor(scope: Construct, id: string, props?: ContainerImageBuilderProps) {
@@ -171,7 +171,7 @@ export class ContainerImageBuilder extends ImageBuilderBase {
       imageTypeName: 'image',
     });
 
-    this.parentImage = props?.parentImage;
+    this.parentImage = props?.parentImage ?? 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64';
 
     // create repository that only keeps one tag
     this.repository = new ecr.Repository(this, 'Repository', {
