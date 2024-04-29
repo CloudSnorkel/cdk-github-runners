@@ -75,6 +75,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private readonly computeType: codebuild.ComputeType;
   private readonly rebuildInterval: cdk.Duration;
   private readonly role: iam.Role;
+  private readonly waitOnDeploy: boolean;
 
   constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     super(scope, id, props);
@@ -95,6 +96,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.computeType = props?.codeBuildOptions?.computeType ?? ComputeType.SMALL;
     this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
     this.buildImage = props?.codeBuildOptions?.buildImage ?? this.getDefaultBuildImage();
+    this.waitOnDeploy = props?.waitOnDeploy ?? true;
 
     // warn against isolated networks
     if (props?.subnetSelection?.subnetType == ec2.SubnetType.PRIVATE_ISOLATED) {
@@ -355,16 +357,23 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     });
     crHandler.role!.attachInlinePolicy(policy);
 
-    // Wait handle lets us wait for longer than an hour for the image build to complete.
-    // We generate a new wait handle for build spec changes to guarantee a new image is built.
-    // This also helps make sure the changes are good. If they have a bug, the deployment will fail instead of just the scheduled build.
-    // Finally, it's recommended by CloudFormation docs to not reuse wait handles or old responses may interfere in some cases.
-    const handle = new cloudformation.CfnWaitConditionHandle(this, `Build Wait Handle ${buildSpecHash}`);
-    const wait = new cloudformation.CfnWaitCondition(this, `Build Wait ${buildSpecHash}`, {
-      handle: handle.ref,
-      timeout: this.timeout.toSeconds().toString(), // don't wait longer than the build timeout
-      count: 1,
-    });
+    let waitHandleRef= 'unspecified';
+    let waitDependable = '';
+
+    if (this.waitOnDeploy) {
+      // Wait handle lets us wait for longer than an hour for the image build to complete.
+      // We generate a new wait handle for build spec changes to guarantee a new image is built.
+      // This also helps make sure the changes are good. If they have a bug, the deployment will fail instead of just the scheduled build.
+      // Finally, it's recommended by CloudFormation docs to not reuse wait handles or old responses may interfere in some cases.
+      const handle = new cloudformation.CfnWaitConditionHandle(this, `Build Wait Handle ${buildSpecHash}`);
+      const wait = new cloudformation.CfnWaitCondition(this, `Build Wait ${buildSpecHash}`, {
+        handle: handle.ref,
+        timeout: this.timeout.toSeconds().toString(), // don't wait longer than the build timeout
+        count: 1,
+      });
+      waitHandleRef = handle.ref;
+      waitDependable = wait.ref;
+    }
 
     const cr = new CustomResource(this, 'Builder', {
       serviceToken: crHandler.functionArn,
@@ -372,7 +381,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       properties: <BuildImageFunctionProperties>{
         RepoName: this.repository.repositoryName,
         ProjectName: project.projectName,
-        WaitHandle: handle.ref,
+        WaitHandle: waitHandleRef,
       },
     });
 
@@ -383,7 +392,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     cr.node.addDependency(crHandler.role!);
     cr.node.addDependency(crHandler);
 
-    return wait.ref; // user needs to wait on wait handle which is triggered when the image is built
+    return waitDependable; // user needs to wait on wait handle which is triggered when the image is built
   }
 
   private rebuildImageOnSchedule(project: codebuild.Project, rebuildInterval?: Duration) {
