@@ -259,7 +259,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     if (!image._dependable) {
       // AWS Image Builder can't get us dependable images and there is no point in using it anyway. CodeBuild is so much faster.
       // This may change if Lambda starts supporting Windows images. Then we would need AWS Image Builder.
-      cdk.Annotations.of(this).addError('Lambda provider can only work with images built by CodeBuild and not AWS Image Builder');
+      cdk.Annotations.of(this).addError('Lambda provider can only work with images built by CodeBuild and not AWS Image Builder. `waitOnDeploy: false` is also not supported.');
     }
 
     // get image digest and make sure to get it every time the lambda function might be updated
