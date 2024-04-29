@@ -2885,41 +2885,6 @@
     "WindowsImageBuilderInfrastructureFF99A30B"
    ]
   },
-  "WindowsImageBuilderDockerPipeline3613721A": {
-   "Type": "AWS::ImageBuilder::ImagePipeline",
-   "Properties": {
-    "ContainerRecipeArn": {
-     "Fn::GetAtt": [
-      "WindowsImageBuilderContainerRecipeB2A421D7",
-      "Arn"
-     ]
-    },
-    "DistributionConfigurationArn": {
-     "Fn::GetAtt": [
-      "WindowsImageBuilderDockerDistributionCDE69DC2",
-      "Arn"
-     ]
-    },
-    "ImageTestsConfiguration": {
-     "ImageTestsEnabled": false
-    },
-    "InfrastructureConfigurationArn": {
-     "Fn::GetAtt": [
-      "WindowsImageBuilderInfrastructureFF99A30B",
-      "Arn"
-     ]
-    },
-    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
-    "Schedule": {
-     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
-     "ScheduleExpression": "rate(7 days)"
-    }
-   },
-   "DependsOn": [
-    "WindowsImageBuilderDockerLogE660E23E",
-    "WindowsImageBuilderInfrastructureFF99A30B"
-   ]
-  },
   "WindowsImageBuilderCRPolicy81A41F62": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
@@ -3063,6 +3028,41 @@
     },
     "ResourceType": "CONTAINER_IMAGE"
    }
+  },
+  "WindowsImageBuilderDockerPipeline3613721A": {
+   "Type": "AWS::ImageBuilder::ImagePipeline",
+   "Properties": {
+    "ContainerRecipeArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderContainerRecipeB2A421D7",
+      "Arn"
+     ]
+    },
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderDockerDistributionCDE69DC2",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    },
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderInfrastructureFF99A30B",
+      "Arn"
+     ]
+    },
+    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "Schedule": {
+     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
+     "ScheduleExpression": "rate(7 days)"
+    }
+   },
+   "DependsOn": [
+    "WindowsImageBuilderDockerLogE660E23E",
+    "WindowsImageBuilderInfrastructureFF99A30B"
+   ]
   },
   "AMILinuxBuilderSGEDC86329": {
    "Type": "AWS::EC2::SecurityGroup",

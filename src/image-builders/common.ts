@@ -233,6 +233,17 @@ export interface RunnerImageBuilderProps {
    * Options specific to AWS Image Builder. Only used when builderType is RunnerImageBuilderType.AWS_IMAGE_BUILDER.
    */
   readonly awsImageBuilderOptions?: AwsImageBuilderRunnerImageBuilderProps;
+
+  /**
+   * Wait for image to finish building during deployment. It's usually best to leave this enabled to ensure everything is ready once deployment is done. However, it can be disabled to speed up deployment in case where you have a lot of image components that can take a long time to build.
+   *
+   * Disabling this option means a finished deployment is not ready to be used. You will have to wait for the image to finish building before the system can be used.
+   *
+   * Disabling this option may also mean any changes to settings or components can take up to a week (default rebuild interval) to take effect.
+   *
+   * @default true
+   */
+  readonly waitOnDeploy?: boolean;
 }
 
 export enum RunnerImageBuilderType {
