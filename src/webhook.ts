@@ -1,8 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_logs as logs, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
+import { aws_lambda as lambda, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
 import { Secrets } from './secrets';
+import { singletonLogGroup, SingletonLogType } from './utils';
 import { WebhookHandlerFunction } from './webhook-handler-function';
 
 /**
@@ -78,8 +79,9 @@ export class GithubWebhookHandler extends Construct {
           SUPPORTED_LABELS: JSON.stringify(props.supportedLabels),
           REQUIRE_SELF_HOSTED_LABEL: props.requireSelfHostedLabel ? '1' : '0',
         },
-        timeout: cdk.Duration.seconds(30),
-        logRetention: logs.RetentionDays.ONE_MONTH,
+        timeout: cdk.Duration.seconds(31),
+        logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
+        logFormat: lambda.LogFormat.JSON,
       },
     );
 

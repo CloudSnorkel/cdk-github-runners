@@ -25,7 +25,7 @@ export interface BuildImageFunctionProperties {
 
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   try {
-    console.log(JSON.stringify({ ...event, ResponseURL: '...' }));
+    console.log({ ...event, ResponseURL: '...' });
 
     const props = event.ResourceProperties as BuildImageFunctionProperties;
 

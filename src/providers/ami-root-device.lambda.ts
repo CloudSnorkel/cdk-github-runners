@@ -29,7 +29,7 @@ async function handleAmi(event: AWSLambda.CloudFormationCustomResourceEvent, ami
 
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   try {
-    console.log(JSON.stringify({ ...event, ResponseURL: '...' }));
+    console.log({ ...event, ResponseURL: '...' });
 
     const ami = event.ResourceProperties.Ami as string;
 

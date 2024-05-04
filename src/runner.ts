@@ -29,6 +29,7 @@ import { Secrets } from './secrets';
 import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
 import { TokenRetrieverFunction } from './token-retriever-function';
+import { singletonLogGroup, SingletonLogType } from './utils';
 import { GithubWebhookHandler } from './webhook';
 
 
@@ -471,7 +472,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.seconds(30),
-        logRetention: logs.RetentionDays.ONE_MONTH,
+        logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
+        logFormat: lambda.LogFormat.JSON,
         ...this.extraLambdaProps,
       },
     );
@@ -494,7 +496,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.seconds(30),
-        logRetention: logs.RetentionDays.ONE_MONTH,
+        logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
+        logFormat: lambda.LogFormat.JSON,
         ...this.extraLambdaProps,
       },
     );
@@ -524,7 +527,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.minutes(3),
-        logRetention: logs.RetentionDays.ONE_MONTH,
+        logGroup: singletonLogGroup(this, SingletonLogType.SETUP),
+        logFormat: lambda.LogFormat.JSON,
         ...this.extraLambdaProps,
       },
     );
@@ -586,7 +590,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           ...this.extraLambdaEnv,
         },
         timeout: cdk.Duration.minutes(3),
-        logRetention: logs.RetentionDays.ONE_MONTH,
+        logGroup: singletonLogGroup(this, SingletonLogType.SETUP),
+        logFormat: lambda.LogFormat.JSON,
         ...this.extraLambdaProps,
       },
     );
@@ -629,7 +634,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
         ...this.extraLambdaEnv,
       },
-      logRetention: logs.RetentionDays.ONE_MONTH,
+      logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
+      logFormat: lambda.LogFormat.JSON,
       timeout: cdk.Duration.minutes(5),
       ...this.extraLambdaProps,
     });
@@ -783,11 +789,33 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       queryDefinitionName: 'GitHub Runners/Webhook errors',
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
-        parseStatements: [
-          '@message /^(?<timestamp>[^\\s]+)\\t(?<requestId>[^\\s]+)\\t(?<level>[^\\s]+)\\t(?<message>.+$)/',
+        filterStatements: [
+          `strcontains(@logStream, "${this.webhook.handler.functionName}")`,
+          'level = "ERROR"',
         ],
+        sort: '@timestamp desc',
+        limit: 100,
+      }),
+    });
+
+    new logs.QueryDefinition(this, 'Orchestration errors', {
+      queryDefinitionName: 'GitHub Runners/Orchestration errors',
+      logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
+      queryString: new logs.QueryString({
         filterStatements: [
           'level = "ERROR"',
+        ],
+        sort: '@timestamp desc',
+        limit: 100,
+      }),
+    });
+
+    new logs.QueryDefinition(this, 'Runner image build errors', {
+      queryDefinitionName: 'GitHub Runners/Runner image build errors',
+      logGroups: [singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD)],
+      queryString: new logs.QueryString({
+        filterStatements: [
+          'strcontains(message, "error") or strcontains(message, "ERROR") or strcontains(message, "Error") or level = "ERROR"',
         ],
         sort: '@timestamp desc',
         limit: 100,
@@ -798,11 +826,10 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       queryDefinitionName: 'GitHub Runners/Ignored webhooks',
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
-        parseStatements: [
-          '@message /^(?<timestamp>[^\\s]+)\\t(?<requestId>[^\\s]+)\\t(?<level>[^\\s]+)\\t(?<message>.+$)/',
-        ],
+        fields: ['@timestamp', 'message.notice'],
         filterStatements: [
-          'strcontains(message, "Ignoring")',
+          `strcontains(@logStream, "${this.webhook.handler.functionName}")`,
+          'strcontains(message.notice, "Ignoring")',
         ],
         sort: '@timestamp desc',
         limit: 100,
@@ -813,11 +840,10 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       queryDefinitionName: 'GitHub Runners/Ignored jobs based on labels',
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
-        parseStatements: [
-          '@message /^(?<timestamp>[^\\s]+)\\t(?<requestId>[^\\s]+)\\t(?<level>[^\\s]+)\\t(?<message>.+$)/',
-        ],
+        fields: ['@timestamp', 'message.notice'],
         filterStatements: [
-          'strcontains(message, "Ignoring labels")',
+          `strcontains(@logStream, "${this.webhook.handler.functionName}")`,
+          'strcontains(message.notice, "Ignoring labels")',
         ],
         sort: '@timestamp desc',
         limit: 100,
@@ -828,9 +854,10 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       queryDefinitionName: 'GitHub Runners/Webhook started runners',
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
-        fields: ['@timestamp', '@message'],
+        fields: ['@timestamp', 'message.sfnInput.jobUrl', 'message.sfnInput.labels', 'message.sfnInput.provider'],
         filterStatements: [
-          'jobUrl like /http.*/',
+          `strcontains(@logStream, "${this.webhook.handler.functionName}")`,
+          'message.sfnInput.jobUrl like /http.*/',
         ],
         sort: '@timestamp desc',
         limit: 100,

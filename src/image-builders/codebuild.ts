@@ -9,6 +9,7 @@ import {
   aws_events as events,
   aws_events_targets as events_targets,
   aws_iam as iam,
+  aws_lambda as lambda,
   aws_logs as logs,
   aws_s3_assets as s3_assets,
   aws_sns as sns,
@@ -25,7 +26,7 @@ import { BuildImageFunction } from './build-image-function';
 import { BuildImageFunctionProperties } from './build-image.lambda';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
-import { singletonLambda } from '../utils';
+import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
 
 
 export interface CodeBuildRunnerImageBuilderProps {
@@ -344,7 +345,8 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     const crHandler = singletonLambda(BuildImageFunction, this, 'build-image', {
       description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
       timeout: cdk.Duration.minutes(3),
-      logRetention: logs.RetentionDays.ONE_MONTH,
+      logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
+      logFormat: lambda.LogFormat.JSON,
     });
 
     const policy = new iam.Policy(this, 'CR Policy', {
