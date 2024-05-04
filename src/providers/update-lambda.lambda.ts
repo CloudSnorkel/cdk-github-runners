@@ -13,7 +13,7 @@ function sleep(ms: number) {
 }
 
 export async function handler(event: Input) {
-  console.log(JSON.stringify(event));
+  console.log(event);
 
   while (true) {
     try {

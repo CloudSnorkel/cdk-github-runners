@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_iam as iam, aws_logs as logs, CustomResource } from 'aws-cdk-lib';
+import { aws_iam as iam, aws_lambda as lambda, CustomResource } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { VersionerFunction } from './versioner-function';
-import { singletonLambda } from '../../utils';
+import { singletonLogGroup, singletonLambda, SingletonLogType } from '../../utils';
 
 /**
  * @internal
@@ -38,7 +38,8 @@ export abstract class ImageBuilderObjectBase extends cdk.Resource {
           resources: ['*'],
         }),
       ],
-      logRetention: logs.RetentionDays.ONE_MONTH,
+      logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
+      logFormat: lambda.LogFormat.JSON,
       timeout: cdk.Duration.minutes(5),
     });
   }

@@ -27,13 +27,18 @@ async function deleteAmis(stackName: string, builderName: string) {
 
   let imagesToDelete = images.Images ?? [];
 
-  console.log(`Found ${imagesToDelete.length} AMIs`);
-  console.log(JSON.stringify(imagesToDelete.map(i => i.ImageId)));
+  console.log({
+    notice: `Found ${imagesToDelete.length} AMIs`,
+    images: imagesToDelete.map(i => i.ImageId),
+  });
 
   // delete all that we found
   for (const image of imagesToDelete) {
     if (!image.ImageId) {
-      console.warn(`No image id? ${JSON.stringify(image)}`);
+      console.warn({
+        notice: 'No image id?',
+        image,
+      });
       continue;
     }
 
@@ -57,7 +62,7 @@ async function deleteAmis(stackName: string, builderName: string) {
 
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   try {
-    console.log(JSON.stringify({ ...event, ResponseURL: '...' }));
+    console.log({ ...event, ResponseURL: '...' });
 
     switch (event.RequestType) {
       case 'Create':

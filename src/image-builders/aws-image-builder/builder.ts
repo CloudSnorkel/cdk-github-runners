@@ -6,6 +6,7 @@ import {
   aws_events as events,
   aws_iam as iam,
   aws_imagebuilder as imagebuilder,
+  aws_lambda as lambda,
   aws_logs as logs,
   aws_s3_assets as s3_assets,
   aws_sns as sns,
@@ -24,7 +25,7 @@ import { ContainerRecipe, defaultBaseDockerImage } from './container';
 import { DeleteAmiFunction } from './delete-ami-function';
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers';
-import { singletonLambda } from '../../utils';
+import { singletonLogGroup, singletonLambda, SingletonLogType } from '../../utils';
 import { BuildImageFunction } from '../build-image-function';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps, uniqueImageBuilderName } from '../common';
 
@@ -444,7 +445,8 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     const crHandler = singletonLambda(BuildImageFunction, this, 'build-image', {
       description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
       timeout: cdk.Duration.minutes(3),
-      logRetention: logs.RetentionDays.ONE_MONTH,
+      logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
+      logFormat: lambda.LogFormat.JSON,
     });
 
     const policy = new iam.Policy(this, 'CR Policy', {
@@ -785,7 +787,8 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
         }),
       ],
       timeout: cdk.Duration.minutes(5),
-      logRetention: logs.RetentionDays.ONE_MONTH,
+      logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
+      logFormat: lambda.LogFormat.JSON,
     });
 
     // delete all AMIs when this construct is removed
@@ -871,10 +874,11 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
  * @internal
  */
 export class AwsImageBuilderFailedBuildNotifier implements cdk.IAspect {
-  public static createFilteringTopic(scope: Construct, targetTopic: sns.Topic) {
+  public static createFilteringTopic(scope: Construct, targetTopic: sns.Topic): sns.ITopic {
     const topic = new sns.Topic(scope, 'Image Builder Builds');
     const filter = new FilterFailedBuildsFunction(scope, 'Image Builder Builds Filter', {
-      logRetention: logs.RetentionDays.ONE_MONTH,
+      logGroup: singletonLogGroup(scope, SingletonLogType.RUNNER_IMAGE_BUILD),
+      logFormat: lambda.LogFormat.JSON,
       environment: {
         TARGET_TOPIC_ARN: targetTopic.topicArn,
       },
