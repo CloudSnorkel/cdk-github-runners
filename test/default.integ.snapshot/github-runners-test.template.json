@@ -401,39 +401,15 @@
   "FargatebuilderRepository8F7BA13C": {
    "Type": "AWS::ECR::Repository",
    "Properties": {
+    "EmptyOnDelete": true,
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
     "ImageTagMutability": "MUTABLE",
     "LifecyclePolicy": {
      "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove soci indexes for replaced images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"sha256-\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
-    },
-    "Tags": [
-     {
-      "Key": "aws-cdk:auto-delete-images",
-      "Value": "true"
-     }
-    ]
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
-  "FargatebuilderRepositoryAutoDeleteImagesCustomResourceDEEFD51A": {
-   "Type": "Custom::ECRAutoDeleteImages",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "CustomECRAutoDeleteImagesCustomResourceProviderHandler8D89C030",
-      "Arn"
-     ]
-    },
-    "RepositoryName": {
-     "Ref": "FargatebuilderRepository8F7BA13C"
     }
    },
-   "DependsOn": [
-    "FargatebuilderRepository8F7BA13C"
-   ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
@@ -726,110 +702,6 @@
     ]
    }
   },
-  "CustomECRAutoDeleteImagesCustomResourceProviderRole665F2773": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Version": "2012-10-17",
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "lambda.amazonaws.com"
-       }
-      }
-     ]
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-     }
-    ],
-    "Policies": [
-     {
-      "PolicyName": "Inline",
-      "PolicyDocument": {
-       "Version": "2012-10-17",
-       "Statement": [
-        {
-         "Effect": "Allow",
-         "Action": [
-          "ecr:BatchDeleteImage",
-          "ecr:DescribeRepositories",
-          "ecr:ListImages",
-          "ecr:ListTagsForResource"
-         ],
-         "Resource": [
-          {
-           "Fn::Join": [
-            "",
-            [
-             "arn:",
-             {
-              "Ref": "AWS::Partition"
-             },
-             ":ecr:",
-             {
-              "Ref": "AWS::Region"
-             },
-             ":",
-             {
-              "Ref": "AWS::AccountId"
-             },
-             ":repository/*"
-            ]
-           ]
-          }
-         ],
-         "Condition": {
-          "StringEquals": {
-           "ecr:ResourceTag/aws-cdk:auto-delete-images": "true"
-          }
-         }
-        }
-       ]
-      }
-     }
-    ]
-   }
-  },
-  "CustomECRAutoDeleteImagesCustomResourceProviderHandler8D89C030": {
-   "Type": "AWS::Lambda::Function",
-   "Properties": {
-    "Code": {
-     "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-     },
-     "S3Key": "e024e432dbd64a0923f6308842181e502c39dd8287ee2dbae98472ec78a5097f.zip"
-    },
-    "Timeout": 900,
-    "MemorySize": 128,
-    "Handler": "index.handler",
-    "Role": {
-     "Fn::GetAtt": [
-      "CustomECRAutoDeleteImagesCustomResourceProviderRole665F2773",
-      "Arn"
-     ]
-    },
-    "Runtime": "nodejs18.x",
-    "Description": {
-     "Fn::Join": [
-      "",
-      [
-       "Lambda function for auto-deleting images in ",
-       {
-        "Ref": "FargatebuilderRepository8F7BA13C"
-       },
-       " repository."
-      ]
-     ]
-    }
-   },
-   "DependsOn": [
-    "CustomECRAutoDeleteImagesCustomResourceProviderRole665F2773"
-   ]
-  },
   "FargatebuilderarmRoleB6343E8F": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -1034,39 +906,15 @@
   "FargatebuilderarmRepository77DCC132": {
    "Type": "AWS::ECR::Repository",
    "Properties": {
+    "EmptyOnDelete": true,
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
     "ImageTagMutability": "MUTABLE",
     "LifecyclePolicy": {
      "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove soci indexes for replaced images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"sha256-\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
-    },
-    "Tags": [
-     {
-      "Key": "aws-cdk:auto-delete-images",
-      "Value": "true"
-     }
-    ]
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
-  "FargatebuilderarmRepositoryAutoDeleteImagesCustomResourceE3273D64": {
-   "Type": "Custom::ECRAutoDeleteImages",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "CustomECRAutoDeleteImagesCustomResourceProviderHandler8D89C030",
-      "Arn"
-     ]
-    },
-    "RepositoryName": {
-     "Ref": "FargatebuilderarmRepository77DCC132"
     }
    },
-   "DependsOn": [
-    "FargatebuilderarmRepository77DCC132"
-   ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
@@ -1563,6 +1411,7 @@
   "LambdaImageBuilderx64Repository57F632F1": {
    "Type": "AWS::ECR::Repository",
    "Properties": {
+    "EmptyOnDelete": true,
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
@@ -1585,35 +1434,8 @@
       }
      ],
      "Version": "2012-10-17"
-    },
-    "Tags": [
-     {
-      "Key": "aws-cdk:auto-delete-images",
-      "Value": "true"
-     }
-    ]
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
-  "LambdaImageBuilderx64RepositoryAutoDeleteImagesCustomResourceA51951B1": {
-   "Type": "Custom::ECRAutoDeleteImages",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "CustomECRAutoDeleteImagesCustomResourceProviderHandler8D89C030",
-      "Arn"
-     ]
-    },
-    "RepositoryName": {
-     "Ref": "LambdaImageBuilderx64Repository57F632F1"
     }
    },
-   "DependsOn": [
-    "LambdaImageBuilderx64RepositoryPushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98EAF8930B2",
-    "LambdaImageBuilderx64RepositoryPushrule1C711F47",
-    "LambdaImageBuilderx64Repository57F632F1"
-   ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
@@ -2148,36 +1970,12 @@
   "WindowsImageBuilderRepositoryA4CBB6D8": {
    "Type": "AWS::ECR::Repository",
    "Properties": {
+    "EmptyOnDelete": true,
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
-    "ImageTagMutability": "MUTABLE",
-    "Tags": [
-     {
-      "Key": "aws-cdk:auto-delete-images",
-      "Value": "true"
-     }
-    ]
+    "ImageTagMutability": "MUTABLE"
    },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
-  "WindowsImageBuilderRepositoryAutoDeleteImagesCustomResource98CA4881": {
-   "Type": "Custom::ECRAutoDeleteImages",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "CustomECRAutoDeleteImagesCustomResourceProviderHandler8D89C030",
-      "Arn"
-     ]
-    },
-    "RepositoryName": {
-     "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
-    }
-   },
-   "DependsOn": [
-    "WindowsImageBuilderRepositoryA4CBB6D8"
-   ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
@@ -4378,39 +4176,15 @@
   "CodeBuildImageBuilderRepository9DE3B6F0": {
    "Type": "AWS::ECR::Repository",
    "Properties": {
+    "EmptyOnDelete": true,
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
     "ImageTagMutability": "MUTABLE",
     "LifecyclePolicy": {
      "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove soci indexes for replaced images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"sha256-\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
-    },
-    "Tags": [
-     {
-      "Key": "aws-cdk:auto-delete-images",
-      "Value": "true"
-     }
-    ]
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
-  "CodeBuildImageBuilderRepositoryAutoDeleteImagesCustomResource3B66B45C": {
-   "Type": "Custom::ECRAutoDeleteImages",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "CustomECRAutoDeleteImagesCustomResourceProviderHandler8D89C030",
-      "Arn"
-     ]
-    },
-    "RepositoryName": {
-     "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
     }
    },
-   "DependsOn": [
-    "CodeBuildImageBuilderRepository9DE3B6F0"
-   ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
@@ -4907,39 +4681,15 @@
   "CodeBuildImageBuilderarmRepositoryE967421B": {
    "Type": "AWS::ECR::Repository",
    "Properties": {
+    "EmptyOnDelete": true,
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
     "ImageTagMutability": "MUTABLE",
     "LifecyclePolicy": {
      "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove soci indexes for replaced images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"sha256-\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
-    },
-    "Tags": [
-     {
-      "Key": "aws-cdk:auto-delete-images",
-      "Value": "true"
-     }
-    ]
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
-  "CodeBuildImageBuilderarmRepositoryAutoDeleteImagesCustomResourceAD2DA193": {
-   "Type": "Custom::ECRAutoDeleteImages",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "CustomECRAutoDeleteImagesCustomResourceProviderHandler8D89C030",
-      "Arn"
-     ]
-    },
-    "RepositoryName": {
-     "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
     }
    },
-   "DependsOn": [
-    "CodeBuildImageBuilderarmRepositoryE967421B"
-   ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
@@ -5436,6 +5186,7 @@
   "LambdaImageBuilderzRepository7C7AD146": {
    "Type": "AWS::ECR::Repository",
    "Properties": {
+    "EmptyOnDelete": true,
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
@@ -5458,35 +5209,8 @@
       }
      ],
      "Version": "2012-10-17"
-    },
-    "Tags": [
-     {
-      "Key": "aws-cdk:auto-delete-images",
-      "Value": "true"
-     }
-    ]
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
-  "LambdaImageBuilderzRepositoryAutoDeleteImagesCustomResource077910D7": {
-   "Type": "Custom::ECRAutoDeleteImages",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "CustomECRAutoDeleteImagesCustomResourceProviderHandler8D89C030",
-      "Arn"
-     ]
-    },
-    "RepositoryName": {
-     "Ref": "LambdaImageBuilderzRepository7C7AD146"
     }
    },
-   "DependsOn": [
-    "LambdaImageBuilderzRepositoryPushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98E002B5DB7",
-    "LambdaImageBuilderzRepositoryPushruleA1F1B44F",
-    "LambdaImageBuilderzRepository7C7AD146"
-   ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
