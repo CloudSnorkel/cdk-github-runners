@@ -1,8 +1,10 @@
-import { aws_iam as iam, aws_lambda as lambda } from 'aws-cdk-lib';
+import { aws_iam as iam, aws_lambda as lambda, aws_logs as logs } from 'aws-cdk-lib';
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 /**
+ * Initialize or return a singleton Lambda function instance.
+ *
  * @internal
  */
 export function singletonLambda<FunctionType extends lambda.Function>(
@@ -17,6 +19,35 @@ export function singletonLambda<FunctionType extends lambda.Function>(
   }
 
   return new functionType(cdk.Stack.of(scope), constructName, props);
+}
+
+/**
+ * Central log group type.
+ *
+ * @internal
+ */
+export enum SingletonLogType {
+  RUNNER_IMAGE_BUILD = 'Runner Image Build Helpers Log',
+  ORCHESTRATOR = 'Orchestrator Log',
+  SETUP = 'Setup Log',
+}
+
+/**
+ * Initialize or return central log group instance.
+ *
+ * @internal
+ */
+export function singletonLogGroup(scope: Construct, type: SingletonLogType): logs.ILogGroup {
+  const existing = cdk.Stack.of(scope).node.tryFindChild(type);
+  if (existing) {
+    // Just assume this is true
+    return existing as logs.ILogGroup;
+  }
+
+  return new logs.LogGroup(cdk.Stack.of(scope), type, {
+    retention: logs.RetentionDays.ONE_MONTH,
+    removalPolicy: cdk.RemovalPolicy.DESTROY,
+  });
 }
 
 /**

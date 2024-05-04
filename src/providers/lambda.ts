@@ -26,7 +26,7 @@ import {
 } from './common';
 import { UpdateLambdaFunction } from './update-lambda-function';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
-import { singletonLambda } from '../utils';
+import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
 
 export interface LambdaRunnerProviderProps extends RunnerProviderProps {
   /**
@@ -259,7 +259,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     if (!image._dependable) {
       // AWS Image Builder can't get us dependable images and there is no point in using it anyway. CodeBuild is so much faster.
       // This may change if Lambda starts supporting Windows images. Then we would need AWS Image Builder.
-      cdk.Annotations.of(this).addError('Lambda provider can only work with images built by CodeBuild and not AWS Image Builder');
+      cdk.Annotations.of(this).addError('Lambda provider can only work with images built by CodeBuild and not AWS Image Builder. `waitOnDeploy: false` is also not supported.');
     }
 
     // get image digest and make sure to get it every time the lambda function might be updated
@@ -282,6 +282,11 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       dependable: image._dependable,
     });
 
+    this.logGroup = new logs.LogGroup(this, 'Log', {
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      retention: props?.logRetention ?? RetentionDays.ONE_MONTH,
+    });
+
     this.function = new lambda.DockerImageFunction(
       this,
       'Function',
@@ -296,12 +301,11 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
         timeout: props?.timeout || cdk.Duration.minutes(15),
         memorySize: props?.memorySize || 2048,
         ephemeralStorageSize: props?.ephemeralStorageSize || cdk.Size.gibibytes(10),
-        logRetention: props?.logRetention || RetentionDays.ONE_MONTH,
+        logGroup: this.logGroup,
       },
     );
 
     this.grantPrincipal = this.function.grantPrincipal;
-    this.logGroup = this.function.logGroup;
 
     this.addImageUpdater(image);
   }
@@ -321,7 +325,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    * @param parameters workflow job details
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    const invoke = new stepfunctions_tasks.LambdaInvoke(
+    return new stepfunctions_tasks.LambdaInvoke(
       this,
       this.labels.join(', '),
       {
@@ -337,8 +341,6 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
         }),
       },
     );
-
-    return invoke;
   }
 
   private addImageUpdater(image: RunnerImage) {
@@ -348,7 +350,8 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     const updater = singletonLambda(UpdateLambdaFunction, this, 'update-lambda', {
       description: 'Function that updates a GitHub Actions runner function with the latest image digest after the image has been rebuilt',
       timeout: cdk.Duration.minutes(15),
-      logRetention: logs.RetentionDays.ONE_MONTH,
+      logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
+      logFormat: lambda.LogFormat.JSON,
     });
 
     updater.addToRolePolicy(new iam.PolicyStatement({
@@ -445,7 +448,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       }),
       resourceType: 'Custom::EcrImageDigest',
       installLatestAwsSdk: false, // no need and it takes 60 seconds
-      logRetention: RetentionDays.ONE_MONTH,
+      logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
     });
 
     // mark this resource as retainable, as there is nothing to do on delete

@@ -213,7 +213,7 @@
           <h3>New App Settings</h3>
           <div class="px-3 py-3">
             <p>Choose whether to create a new personal app or organization app. A private personal app can
-              only be used for repositories under your user. A private origination app can only be used
+              only be used for repositories under your user. A private organization app can only be used
               for repositories under that organization.</p>
             <div class="form-check">
               <input class="form-check-input" type="radio" bind:group={appScope} value="user"

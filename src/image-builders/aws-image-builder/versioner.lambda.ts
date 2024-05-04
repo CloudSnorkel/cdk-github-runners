@@ -31,7 +31,7 @@ export function increaseVersion(allVersions: string[]) {
 }
 
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
-  console.log(JSON.stringify({ ...event, ResponseURL: '...' }));
+  console.log({ ...event, ResponseURL: '...' });
 
   try {
     const objectType = event.ResourceProperties.ObjectType;

@@ -3,6 +3,7 @@ import {
   aws_ec2 as ec2,
   aws_ecr as ecr,
   aws_iam as iam,
+  aws_lambda as lambda,
   aws_logs as logs,
   aws_stepfunctions as stepfunctions,
   CustomResource,
@@ -10,7 +11,7 @@ import {
 } from 'aws-cdk-lib';
 import { Construct, IConstruct } from 'constructs';
 import { AmiRootDeviceFunction } from './ami-root-device-function';
-import { singletonLambda } from '../utils';
+import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
 
 /**
  * Defines desired GitHub Actions runner version.
@@ -508,9 +509,10 @@ export abstract class BaseProvider extends Construct {
  */
 export function amiRootDevice(scope: Construct, ami?: string) {
   const crHandler = singletonLambda(AmiRootDeviceFunction, scope, 'AMI Root Device Reader', {
-    description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
+    description: 'Custom resource handler that discovers the boot drive device name for a given AMI',
     timeout: cdk.Duration.minutes(1),
-    logRetention: logs.RetentionDays.ONE_MONTH,
+    logGroup: singletonLogGroup(scope, SingletonLogType.RUNNER_IMAGE_BUILD),
+    logFormat: lambda.LogFormat.JSON,
     initialPolicy: [
       new iam.PolicyStatement({
         actions: [

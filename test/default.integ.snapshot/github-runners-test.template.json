@@ -531,7 +531,7 @@
         {
          "Ref": "FargatebuilderRepository8F7BA13C"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
+        "\",\n      \"WAIT_HANDLE\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
         {
          "Ref": "AWS::AccountId"
         },
@@ -543,7 +543,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
+        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -645,6 +645,19 @@
     ]
    }
   },
+  "FargatebuilderBuildWaitHandlee9b48b53b046D10B49": {
+   "Type": "AWS::CloudFormation::WaitConditionHandle"
+  },
+  "FargatebuilderBuildWaite9b48b53b0466E49EC": {
+   "Type": "AWS::CloudFormation::WaitCondition",
+   "Properties": {
+    "Count": 1,
+    "Handle": {
+     "Ref": "FargatebuilderBuildWaitHandlee9b48b53b046D10B49"
+    },
+    "Timeout": "3600"
+   }
+  },
   "FargatebuilderBuilder0834CD0B": {
    "Type": "Custom::ImageBuilder",
    "Properties": {
@@ -660,78 +673,11 @@
     "ProjectName": {
      "Ref": "FargatebuilderCodeBuild4F182743"
     },
-    "BuildSpec": {
-     "Fn::Join": [
-      "",
-      [
-       "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
-       {
-        "Fn::GetAtt": [
-         "FargatebuilderRepository8F7BA13C",
-         "Arn"
-        ]
-       },
-       "\",\n      \"REPO_URI\": \"",
-       {
-        "Fn::Select": [
-         4,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "FargatebuilderRepository8F7BA13C",
-             "Arn"
-            ]
-           }
-          ]
-         }
-        ]
-       },
-       ".dkr.ecr.",
-       {
-        "Fn::Select": [
-         3,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "FargatebuilderRepository8F7BA13C",
-             "Arn"
-            ]
-           }
-          ]
-         }
-        ]
-       },
-       ".",
-       {
-        "Ref": "AWS::URLSuffix"
-       },
-       "/",
-       {
-        "Ref": "FargatebuilderRepository8F7BA13C"
-       },
-       "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ".dkr.ecr.",
-       {
-        "Ref": "AWS::Region"
-       },
-       ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
-       {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
-       },
-       " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
-      ]
-     ]
+    "WaitHandle": {
+     "Ref": "FargatebuilderBuildWaitHandlee9b48b53b046D10B49"
     }
    },
    "DependsOn": [
-    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "FargatebuilderCodeBuildBuildFailed1D2D3785",
@@ -1218,7 +1164,7 @@
         {
          "Ref": "FargatebuilderarmRepository77DCC132"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
+        "\",\n      \"WAIT_HANDLE\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
         {
          "Ref": "AWS::AccountId"
         },
@@ -1230,7 +1176,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
+        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -1332,6 +1278,19 @@
     ]
    }
   },
+  "FargatebuilderarmBuildWaitHandle14f2590137C304974C": {
+   "Type": "AWS::CloudFormation::WaitConditionHandle"
+  },
+  "FargatebuilderarmBuildWait14f2590137A61AB4A5": {
+   "Type": "AWS::CloudFormation::WaitCondition",
+   "Properties": {
+    "Count": 1,
+    "Handle": {
+     "Ref": "FargatebuilderarmBuildWaitHandle14f2590137C304974C"
+    },
+    "Timeout": "3600"
+   }
+  },
   "FargatebuilderarmBuilder48D1AF5A": {
    "Type": "Custom::ImageBuilder",
    "Properties": {
@@ -1347,78 +1306,11 @@
     "ProjectName": {
      "Ref": "FargatebuilderarmCodeBuild0D30679A"
     },
-    "BuildSpec": {
-     "Fn::Join": [
-      "",
-      [
-       "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
-       {
-        "Fn::GetAtt": [
-         "FargatebuilderarmRepository77DCC132",
-         "Arn"
-        ]
-       },
-       "\",\n      \"REPO_URI\": \"",
-       {
-        "Fn::Select": [
-         4,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "FargatebuilderarmRepository77DCC132",
-             "Arn"
-            ]
-           }
-          ]
-         }
-        ]
-       },
-       ".dkr.ecr.",
-       {
-        "Fn::Select": [
-         3,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "FargatebuilderarmRepository77DCC132",
-             "Arn"
-            ]
-           }
-          ]
-         }
-        ]
-       },
-       ".",
-       {
-        "Ref": "AWS::URLSuffix"
-       },
-       "/",
-       {
-        "Ref": "FargatebuilderarmRepository77DCC132"
-       },
-       "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ".dkr.ecr.",
-       {
-        "Ref": "AWS::Region"
-       },
-       ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
-       {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
-       },
-       " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
-      ]
-     ]
+    "WaitHandle": {
+     "Ref": "FargatebuilderarmBuildWaitHandle14f2590137C304974C"
     }
    },
    "DependsOn": [
-    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "FargatebuilderarmCodeBuildBuildFailed264992E6",
@@ -1934,7 +1826,7 @@
         {
          "Ref": "LambdaImageBuilderx64Repository57F632F1"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
+        "\",\n      \"WAIT_HANDLE\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
         {
          "Ref": "AWS::AccountId"
         },
@@ -1954,7 +1846,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:20-x86_64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:20-x86_64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -2056,6 +1948,19 @@
     ]
    }
   },
+  "LambdaImageBuilderx64BuildWaitHandlee60b59c83b820DD19E": {
+   "Type": "AWS::CloudFormation::WaitConditionHandle"
+  },
+  "LambdaImageBuilderx64BuildWaite60b59c83b93F7F541": {
+   "Type": "AWS::CloudFormation::WaitCondition",
+   "Properties": {
+    "Count": 1,
+    "Handle": {
+     "Ref": "LambdaImageBuilderx64BuildWaitHandlee60b59c83b820DD19E"
+    },
+    "Timeout": "3600"
+   }
+  },
   "LambdaImageBuilderx64Builder42F384AF": {
    "Type": "Custom::ImageBuilder",
    "Properties": {
@@ -2071,86 +1976,11 @@
     "ProjectName": {
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
-    "BuildSpec": {
-     "Fn::Join": [
-      "",
-      [
-       "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
-       {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderx64Repository57F632F1",
-         "Arn"
-        ]
-       },
-       "\",\n      \"REPO_URI\": \"",
-       {
-        "Fn::Select": [
-         4,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "LambdaImageBuilderx64Repository57F632F1",
-             "Arn"
-            ]
-           }
-          ]
-         }
-        ]
-       },
-       ".dkr.ecr.",
-       {
-        "Fn::Select": [
-         3,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "LambdaImageBuilderx64Repository57F632F1",
-             "Arn"
-            ]
-           }
-          ]
-         }
-        ]
-       },
-       ".",
-       {
-        "Ref": "AWS::URLSuffix"
-       },
-       "/",
-       {
-        "Ref": "LambdaImageBuilderx64Repository57F632F1"
-       },
-       "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ".dkr.ecr.",
-       {
-        "Ref": "AWS::Region"
-       },
-       ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils amazon-cloudwatch-agent\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\ndnf install -y openssl-libs krb5-libs zlib libicu-67.1\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
-       {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/68628bab8c925c01632702a86513d4b22840e7fbb138f290bab11c2c2d54c489.js"
-       },
-       " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
-       {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/66540a3450c33faeefad87df9de8684f624030603c76336933c519972d85a072.sh"
-       },
-       " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
-       {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
-       },
-       " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:20-x86_64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
-      ]
-     ]
+    "WaitHandle": {
+     "Ref": "LambdaImageBuilderx64BuildWaitHandlee60b59c83b820DD19E"
     }
    },
    "DependsOn": [
-    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "LambdaImageBuilderx64CodeBuildBuildFailed7E839416",
@@ -3052,41 +2882,6 @@
     "WindowsImageBuilderInfrastructureFF99A30B"
    ]
   },
-  "WindowsImageBuilderDockerPipeline3613721A": {
-   "Type": "AWS::ImageBuilder::ImagePipeline",
-   "Properties": {
-    "ContainerRecipeArn": {
-     "Fn::GetAtt": [
-      "WindowsImageBuilderContainerRecipeB2A421D7",
-      "Arn"
-     ]
-    },
-    "DistributionConfigurationArn": {
-     "Fn::GetAtt": [
-      "WindowsImageBuilderDockerDistributionCDE69DC2",
-      "Arn"
-     ]
-    },
-    "ImageTestsConfiguration": {
-     "ImageTestsEnabled": false
-    },
-    "InfrastructureConfigurationArn": {
-     "Fn::GetAtt": [
-      "WindowsImageBuilderInfrastructureFF99A30B",
-      "Arn"
-     ]
-    },
-    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
-    "Schedule": {
-     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
-     "ScheduleExpression": "rate(7 days)"
-    }
-   },
-   "DependsOn": [
-    "WindowsImageBuilderDockerLogE660E23E",
-    "WindowsImageBuilderInfrastructureFF99A30B"
-   ]
-  },
   "WindowsImageBuilderCRPolicy81A41F62": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
@@ -3128,7 +2923,6 @@
     "DeleteOnly": true
    },
    "DependsOn": [
-    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "WindowsImageBuilderCRPolicy81A41F62",
@@ -3230,6 +3024,41 @@
     },
     "ResourceType": "CONTAINER_IMAGE"
    }
+  },
+  "WindowsImageBuilderDockerPipeline3613721A": {
+   "Type": "AWS::ImageBuilder::ImagePipeline",
+   "Properties": {
+    "ContainerRecipeArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderContainerRecipeB2A421D7",
+      "Arn"
+     ]
+    },
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderDockerDistributionCDE69DC2",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    },
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderInfrastructureFF99A30B",
+      "Arn"
+     ]
+    },
+    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "Schedule": {
+     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
+     "ScheduleExpression": "rate(7 days)"
+    }
+   },
+   "DependsOn": [
+    "WindowsImageBuilderDockerLogE660E23E",
+    "WindowsImageBuilderInfrastructureFF99A30B"
+   ]
   },
   "AMILinuxBuilderSGEDC86329": {
    "Type": "AWS::EC2::SecurityGroup",
@@ -4679,7 +4508,7 @@
         {
          "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
+        "\",\n      \"WAIT_HANDLE\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
         {
          "Ref": "AWS::AccountId"
         },
@@ -4691,7 +4520,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -4793,6 +4622,19 @@
     ]
    }
   },
+  "CodeBuildImageBuilderBuildWaitHandle660bc88ba881285995": {
+   "Type": "AWS::CloudFormation::WaitConditionHandle"
+  },
+  "CodeBuildImageBuilderBuildWait660bc88ba86204F75B": {
+   "Type": "AWS::CloudFormation::WaitCondition",
+   "Properties": {
+    "Count": 1,
+    "Handle": {
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle660bc88ba881285995"
+    },
+    "Timeout": "3600"
+   }
+  },
   "CodeBuildImageBuilderB8638EC8": {
    "Type": "Custom::ImageBuilder",
    "Properties": {
@@ -4808,78 +4650,11 @@
     "ProjectName": {
      "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
     },
-    "BuildSpec": {
-     "Fn::Join": [
-      "",
-      [
-       "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
-       {
-        "Fn::GetAtt": [
-         "CodeBuildImageBuilderRepository9DE3B6F0",
-         "Arn"
-        ]
-       },
-       "\",\n      \"REPO_URI\": \"",
-       {
-        "Fn::Select": [
-         4,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "CodeBuildImageBuilderRepository9DE3B6F0",
-             "Arn"
-            ]
-           }
-          ]
-         }
-        ]
-       },
-       ".dkr.ecr.",
-       {
-        "Fn::Select": [
-         3,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "CodeBuildImageBuilderRepository9DE3B6F0",
-             "Arn"
-            ]
-           }
-          ]
-         }
-        ]
-       },
-       ".",
-       {
-        "Ref": "AWS::URLSuffix"
-       },
-       "/",
-       {
-        "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
-       },
-       "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ".dkr.ecr.",
-       {
-        "Ref": "AWS::Region"
-       },
-       ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"cat > component6-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-GithubRunner.sh\",\n        \"aws s3 cp ",
-       {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
-       },
-       " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
-      ]
-     ]
+    "WaitHandle": {
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle660bc88ba881285995"
     }
    },
    "DependsOn": [
-    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "CodeBuildImageBuilderCodeBuildBuildFailed9B205D70",
@@ -5262,7 +5037,7 @@
         {
          "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
+        "\",\n      \"WAIT_HANDLE\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
         {
          "Ref": "AWS::AccountId"
         },
@@ -5274,7 +5049,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -5376,6 +5151,19 @@
     ]
    }
   },
+  "CodeBuildImageBuilderarmBuildWaitHandle30228bd95a95706AA0": {
+   "Type": "AWS::CloudFormation::WaitConditionHandle"
+  },
+  "CodeBuildImageBuilderarmBuildWait30228bd95a41015307": {
+   "Type": "AWS::CloudFormation::WaitCondition",
+   "Properties": {
+    "Count": 1,
+    "Handle": {
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle30228bd95a95706AA0"
+    },
+    "Timeout": "3600"
+   }
+  },
   "CodeBuildImageBuilderarmBuilder755EB37D": {
    "Type": "Custom::ImageBuilder",
    "Properties": {
@@ -5391,78 +5179,11 @@
     "ProjectName": {
      "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
     },
-    "BuildSpec": {
-     "Fn::Join": [
-      "",
-      [
-       "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
-       {
-        "Fn::GetAtt": [
-         "CodeBuildImageBuilderarmRepositoryE967421B",
-         "Arn"
-        ]
-       },
-       "\",\n      \"REPO_URI\": \"",
-       {
-        "Fn::Select": [
-         4,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "CodeBuildImageBuilderarmRepositoryE967421B",
-             "Arn"
-            ]
-           }
-          ]
-         }
-        ]
-       },
-       ".dkr.ecr.",
-       {
-        "Fn::Select": [
-         3,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "CodeBuildImageBuilderarmRepositoryE967421B",
-             "Arn"
-            ]
-           }
-          ]
-         }
-        ]
-       },
-       ".",
-       {
-        "Ref": "AWS::URLSuffix"
-       },
-       "/",
-       {
-        "Ref": "CodeBuildImageBuilderarmRepositoryE967421B"
-       },
-       "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ".dkr.ecr.",
-       {
-        "Ref": "AWS::Region"
-       },
-       ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\ncurl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\\ndpkg -i -E /tmp/amazon-cloudwatch-agent.deb\\nrm /tmp/amazon-cloudwatch-agent.deb\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"cat > component6-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-GithubRunner.sh\",\n        \"aws s3 cp ",
-       {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
-       },
-       " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
-      ]
-     ]
+    "WaitHandle": {
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle30228bd95a95706AA0"
     }
    },
    "DependsOn": [
-    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "CodeBuildImageBuilderarmCodeBuildBuildFailed7605ECB2",
@@ -5978,7 +5699,7 @@
         {
          "Ref": "LambdaImageBuilderzRepository7C7AD146"
         },
-        "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
+        "\",\n      \"WAIT_HANDLE\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
         {
          "Ref": "AWS::AccountId"
         },
@@ -5998,7 +5719,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:20-arm64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:20-arm64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -6100,6 +5821,19 @@
     ]
    }
   },
+  "LambdaImageBuilderzBuildWaitHandle5f7b5267feD8C0B0BB": {
+   "Type": "AWS::CloudFormation::WaitConditionHandle"
+  },
+  "LambdaImageBuilderzBuildWait5f7b5267fe0B16F329": {
+   "Type": "AWS::CloudFormation::WaitCondition",
+   "Properties": {
+    "Count": 1,
+    "Handle": {
+     "Ref": "LambdaImageBuilderzBuildWaitHandle5f7b5267feD8C0B0BB"
+    },
+    "Timeout": "3600"
+   }
+  },
   "LambdaImageBuilderzBuilder235DD147": {
    "Type": "Custom::ImageBuilder",
    "Properties": {
@@ -6115,86 +5849,11 @@
     "ProjectName": {
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
-    "BuildSpec": {
-     "Fn::Join": [
-      "",
-      [
-       "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
-       {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderzRepository7C7AD146",
-         "Arn"
-        ]
-       },
-       "\",\n      \"REPO_URI\": \"",
-       {
-        "Fn::Select": [
-         4,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "LambdaImageBuilderzRepository7C7AD146",
-             "Arn"
-            ]
-           }
-          ]
-         }
-        ]
-       },
-       ".dkr.ecr.",
-       {
-        "Fn::Select": [
-         3,
-         {
-          "Fn::Split": [
-           ":",
-           {
-            "Fn::GetAtt": [
-             "LambdaImageBuilderzRepository7C7AD146",
-             "Arn"
-            ]
-           }
-          ]
-         }
-        ]
-       },
-       ".",
-       {
-        "Ref": "AWS::URLSuffix"
-       },
-       "/",
-       {
-        "Ref": "LambdaImageBuilderzRepository7C7AD146"
-       },
-       "\",\n      \"STACK_ID\": \"unspecified\",\n      \"REQUEST_ID\": \"unspecified\",\n      \"LOGICAL_RESOURCE_ID\": \"unspecified\",\n      \"RESPONSE_URL\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ".dkr.ecr.",
-       {
-        "Ref": "AWS::Region"
-       },
-       ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils amazon-cloudwatch-agent\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\ndnf install -y openssl-libs krb5-libs zlib libicu-67.1\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
-       {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/68628bab8c925c01632702a86513d4b22840e7fbb138f290bab11c2c2d54c489.js"
-       },
-       " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
-       {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/66540a3450c33faeefad87df9de8684f624030603c76336933c519972d85a072.sh"
-       },
-       " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
-       {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
-       },
-       " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:20-arm64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILED\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"StackId\\\": \\\"$STACK_ID\\\",\\n  \\\"RequestId\\\": \\\"$REQUEST_ID\\\",\\n  \\\"LogicalResourceId\\\": \\\"$LOGICAL_RESOURCE_ID\\\",\\n  \\\"PhysicalResourceId\\\": \\\"$REPO_ARN\\\",\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": {\\\"Random\\\": \\\"$RANDOM\\\"}\\n}\\nEOF\",\n        \"if [ \\\"$RESPONSE_URL\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$RESPONSE_URL\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
-      ]
-     ]
+    "WaitHandle": {
+     "Ref": "LambdaImageBuilderzBuildWaitHandle5f7b5267feD8C0B0BB"
     }
    },
    "DependsOn": [
-    "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "LambdaImageBuilderzCodeBuildBuildFailedFBCC1CE8",
@@ -8772,6 +8431,14 @@
     "TimeoutInMinutes": 60
    }
   },
+  "RunnerImageBuildHelpersLog13186633": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
   "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -8810,7 +8477,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "2dd30d0564f58d0d86550d44455883dabdababcb520c404817cd9193ac0a5161.zip"
+     "S3Key": "49da49fecc381582a88d129f442ac0d6a461bbfd60d0eb1eb772c61d22e78e60.zip"
     },
     "Description": "Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion",
     "Environment": {
@@ -8819,6 +8486,12 @@
      }
     },
     "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "RunnerImageBuildHelpersLog13186633"
+     }
+    },
     "Role": {
      "Fn::GetAtt": [
       "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
@@ -8830,108 +8503,6 @@
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
-   ]
-  },
-  "buildimagedcc036c8876b451ea2c1552f9e06e9e1LogRetention13129CEB": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
-  },
-  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "lambda.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-       ]
-      ]
-     }
-    ]
-   }
-  },
-  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": [
-        "logs:PutRetentionPolicy",
-        "logs:DeleteRetentionPolicy"
-       ],
-       "Effect": "Allow",
-       "Resource": "*"
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
-    "Roles": [
-     {
-      "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
-     }
-    ]
-   }
-  },
-  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
-   "Type": "AWS::Lambda::Function",
-   "Properties": {
-    "Handler": "index.handler",
-    "Runtime": "nodejs18.x",
-    "Timeout": 900,
-    "Code": {
-     "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-     },
-     "S3Key": "5bc602ecde93c947efe5899ae355f999986a1acbe610b1c0b9c468d738857555.zip"
-    },
-    "Role": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
-      "Arn"
-     ]
-    }
-   },
-   "DependsOn": [
-    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
-    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
    ]
   },
   "CodeBuildARMLogs7C7FC5A7": {
@@ -9553,7 +9124,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "a080dc61c6f346aa8d265f2519e7e93f1be13ae0c0671e5b1dfa03130ae72795.zip"
+     "S3Key": "deaec75154c038cd6fec17fd19b905a08bb9a78b97bc2e0fd132505eda22c650.zip"
     },
     "Description": "Custom resource handler that bumps up Image Builder versions",
     "Environment": {
@@ -9562,6 +9133,12 @@
      }
     },
     "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "RunnerImageBuildHelpersLog13186633"
+     }
+    },
     "Role": {
      "Fn::GetAtt": [
       "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58",
@@ -9575,29 +9152,6 @@
     "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy93D80BBD",
     "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58"
    ]
-  },
-  "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1LogRetentionA8337CBD": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
   },
   "ECSsecuritygroup76605212": {
    "Type": "AWS::EC2::SecurityGroup",
@@ -11350,10 +10904,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\",\"dependable\":\"",
        {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderx64Builder42F384AF",
-         "Random"
-        ]
+        "Ref": "LambdaImageBuilderx64BuildWaite60b59c83b93F7F541"
        },
        "\"}}"
       ]
@@ -11399,6 +10950,41 @@
     "Roles": [
      {
       "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+     }
+    ]
+   }
+  },
+  "LambdaLog2764B04F": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "LambdaLogLogfilter1003281A": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "LambdaLog2764B04F"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
      }
     ]
    }
@@ -11511,6 +11097,11 @@
     "EphemeralStorage": {
      "Size": 10240
     },
+    "LoggingConfig": {
+     "LogGroup": {
+      "Ref": "LambdaLog2764B04F"
+     }
+    },
     "MemorySize": 2048,
     "PackageType": "Image",
     "Role": {
@@ -11524,59 +11115,6 @@
    "DependsOn": [
     "LambdaFunctionServiceRoleB1826A50"
    ]
-  },
-  "LambdaFunctionLogRetentionB6D78D6D": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "LambdaFunction9233991D"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
-  },
-  "LambdaFunctionLogGroupLogGroupfilter60E487A5": {
-   "Type": "AWS::Logs::MetricFilter",
-   "Properties": {
-    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
-    "LogGroupName": {
-     "Fn::GetAtt": [
-      "LambdaFunctionLogRetentionB6D78D6D",
-      "LogGroupName"
-     ]
-    },
-    "MetricTransformations": [
-     {
-      "Dimensions": [
-       {
-        "Key": "ProviderLabels",
-        "Value": "$labels"
-       },
-       {
-        "Key": "Status",
-        "Value": "$status"
-       }
-      ],
-      "MetricName": "JobCompleted",
-      "MetricNamespace": "GitHubRunners",
-      "MetricValue": "1",
-      "Unit": "Count"
-     }
-    ]
-   }
   },
   "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2": {
    "Type": "AWS::IAM::Role",
@@ -11616,9 +11154,14 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "17c16a3854838fd3ff4bda08146122a6701f33b9c86ae17f415ad0dc47a97544.zip"
+     "S3Key": "ed6cd104ff5f101d06dae8cb2b87cc6e6d69b9a22055b467ea6cae10ff023023.zip"
     },
     "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogGroup": {
+      "Ref": "RunnerImageBuildHelpersLog13186633"
+     }
+    },
     "Role": {
      "Fn::GetAtt": [
       "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
@@ -11631,29 +11174,6 @@
    "DependsOn": [
     "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
    ]
-  },
-  "AWS679f53fac002430cb0da5b7982bd2287LogRetentionCE72797A": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "AWS679f53fac002430cb0da5b7982bd22872D164C4C"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
   },
   "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE163ADCA": {
    "Type": "AWS::IAM::Role",
@@ -11729,7 +11249,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "1d96057090c75f1428c11ddf65870ca9f79152d00b3ae875b2d8cb2114c365ab.zip"
+     "S3Key": "aa9b0a3f0625b484074bb9cb369382960e95d5721493cc6f1c6dc46797cd3aea.zip"
     },
     "Description": "Function that updates a GitHub Actions runner function with the latest image digest after the image has been rebuilt",
     "Environment": {
@@ -11738,6 +11258,12 @@
      }
     },
     "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "RunnerImageBuildHelpersLog13186633"
+     }
+    },
     "Role": {
      "Fn::GetAtt": [
       "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE163ADCA",
@@ -11751,29 +11277,6 @@
     "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy1EF644A6",
     "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE163ADCA"
    ]
-  },
-  "updatelambdadcc036c8876b451ea2c1552f9e06e9e1LogRetentionEF9C436F": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "updatelambdadcc036c8876b451ea2c1552f9e06e9e180810ABA"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
   },
   "LambdaARMImageDigestReaderF3DD55C4": {
    "Type": "Custom::EcrImageDigest",
@@ -11814,10 +11317,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\",\"dependable\":\"",
        {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderzBuilder235DD147",
-         "Random"
-        ]
+        "Ref": "LambdaImageBuilderzBuildWait5f7b5267fe0B16F329"
        },
        "\"}}"
       ]
@@ -11863,6 +11363,41 @@
     "Roles": [
      {
       "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+     }
+    ]
+   }
+  },
+  "LambdaARMLogAA2DA09F": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "LambdaARMLogLogfilterE0BE5E30": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "LambdaARMLogAA2DA09F"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
      }
     ]
    }
@@ -11975,6 +11510,11 @@
     "EphemeralStorage": {
      "Size": 10240
     },
+    "LoggingConfig": {
+     "LogGroup": {
+      "Ref": "LambdaARMLogAA2DA09F"
+     }
+    },
     "MemorySize": 2048,
     "PackageType": "Image",
     "Role": {
@@ -11988,59 +11528,6 @@
    "DependsOn": [
     "LambdaARMFunctionServiceRole136069A0"
    ]
-  },
-  "LambdaARMFunctionLogRetention67E9FEF8": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "LambdaARMFunctionDD4B5FF7"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
-  },
-  "LambdaARMFunctionLogGroupLogGroupfilterD29D06B1": {
-   "Type": "AWS::Logs::MetricFilter",
-   "Properties": {
-    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
-    "LogGroupName": {
-     "Fn::GetAtt": [
-      "LambdaARMFunctionLogRetention67E9FEF8",
-      "LogGroupName"
-     ]
-    },
-    "MetricTransformations": [
-     {
-      "Dimensions": [
-       {
-        "Key": "ProviderLabels",
-        "Value": "$labels"
-       },
-       {
-        "Key": "Status",
-        "Value": "$status"
-       }
-      ],
-      "MetricName": "JobCompleted",
-      "MetricNamespace": "GitHubRunners",
-      "MetricValue": "1",
-      "Unit": "Count"
-     }
-    ]
-   }
   },
   "FargatesecuritygroupAFCAFD34": {
    "Type": "AWS::EC2::SecurityGroup",
@@ -13609,7 +13096,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "b1862470ac31c934803dff83368cf5cdec42c544fd77a6e8fc25d6d7e55befa4.zip"
+     "S3Key": "4a06647157afdd5917965dc4eb5ed09260934ebf02f976202d551d4a9a5cf2e7.zip"
     },
     "Description": "Delete old GitHub Runner AMIs",
     "Environment": {
@@ -13618,6 +13105,12 @@
      }
     },
     "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "RunnerImageBuildHelpersLog13186633"
+     }
+    },
     "Role": {
      "Fn::GetAtt": [
       "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F",
@@ -13631,29 +13124,6 @@
     "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0C44BF83",
     "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F"
    ]
-  },
-  "deleteamidcc036c8876b451ea2c1552f9e06e9e1LogRetention85F808EB": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "deleteamidcc036c8876b451ea2c1552f9e06e9e1BE713303"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
   },
   "EC2SpotLinuxSG8D846B64": {
    "Type": "AWS::EC2::SecurityGroup",
@@ -14343,6 +13813,12 @@
      }
     },
     "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    },
     "Role": {
      "Fn::GetAtt": [
       "runnerstokenretrieverServiceRole6099F71C",
@@ -14356,29 +13832,6 @@
     "runnerstokenretrieverServiceRoleDefaultPolicy24965D29",
     "runnerstokenretrieverServiceRole6099F71C"
    ]
-  },
-  "runnerstokenretrieverLogRetention05A536AD": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "runnerstokenretrieverD5E8392A"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
   },
   "runnersdeleterunnerServiceRole35856967": {
    "Type": "AWS::IAM::Role",
@@ -14469,6 +13922,12 @@
      }
     },
     "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    },
     "Role": {
      "Fn::GetAtt": [
       "runnersdeleterunnerServiceRole35856967",
@@ -14482,29 +13941,6 @@
     "runnersdeleterunnerServiceRoleDefaultPolicyECFB6BF7",
     "runnersdeleterunnerServiceRole35856967"
    ]
-  },
-  "runnersdeleterunnerLogRetention76F47082": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "runnersdeleterunner7F8D5293"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
   },
   "runnersIdleReaperServiceRoleA775758D": {
    "Type": "AWS::IAM::Role",
@@ -14695,7 +14131,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "dfe33c6b4de9a62d153ad3025abe39cb85d5fef9d1a6e4b54e79b96cdbfc64ea.zip"
+     "S3Key": "d90f56ab5772627b156240c90daa136819b2540625a789b227351862f504f8ce.zip"
     },
     "Description": "Stop idle GitHub runners to avoid paying for runners when the job was already canceled",
     "Environment": {
@@ -14710,6 +14146,12 @@
      }
     },
     "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    },
     "Role": {
      "Fn::GetAtt": [
       "runnersIdleReaperServiceRoleA775758D",
@@ -14723,29 +14165,6 @@
     "runnersIdleReaperServiceRoleDefaultPolicyE05BFDF0",
     "runnersIdleReaperServiceRoleA775758D"
    ]
-  },
-  "runnersIdleReaperLogRetention7C122308": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "runnersIdleReaper6FBF63A3"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
   },
   "runnersIdleReaperSqsEventSourcegithubrunnerstestrunnersIdleReaperQueue5E84F4E4B0DB6768": {
    "Type": "AWS::Lambda::EventSourceMapping",
@@ -16863,7 +16282,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "c4cf998f4a4344b3a5725ca42aeb71e5a87a4d26f4478bf4ac84666d7b306a69.zip"
+     "S3Key": "e7954c04f03129866fa75a1501b4d61587a381c13cc9b973c0a45c2f208b44d3.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -16886,6 +16305,12 @@
      }
     },
     "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    },
     "Role": {
      "Fn::GetAtt": [
       "runnersWebhookHandlerwebhookhandlerServiceRole03DB58D2",
@@ -16893,35 +16318,12 @@
      ]
     },
     "Runtime": "nodejs18.x",
-    "Timeout": 30
+    "Timeout": 31
    },
    "DependsOn": [
     "runnersWebhookHandlerwebhookhandlerServiceRoleDefaultPolicy1600452C",
     "runnersWebhookHandlerwebhookhandlerServiceRole03DB58D2"
    ]
-  },
-  "runnersWebhookHandlerwebhookhandlerLogRetention0F5ED260": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "runnersWebhookHandlerwebhookhandler22779A81"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
   },
   "runnersWebhookHandlerwebhookhandlerFunctionUrlC8FB3D17": {
    "Type": "AWS::Lambda::Url",
@@ -17063,7 +16465,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "0e3de9225b60eca88aa84f1c7fcf64e8e2a3b2c582117d87945a080c7e7e5949.zip"
+     "S3Key": "5987a611e9168843d79fb39ca673903e4f133351b42b7164b83e23c16c04ccc9.zip"
     },
     "Description": "Setup GitHub Actions integration with self-hosted runners",
     "Environment": {
@@ -17090,6 +16492,12 @@
      }
     },
     "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "SetupLog8A8B0E5C"
+     }
+    },
     "Role": {
      "Fn::GetAtt": [
       "runnerssetupServiceRole588BFE9A",
@@ -17103,29 +16511,6 @@
     "runnerssetupServiceRoleDefaultPolicy40EF213B",
     "runnerssetupServiceRole588BFE9A"
    ]
-  },
-  "runnerssetupLogRetentionA9A82D27": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "runnerssetup9896CB59"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
   },
   "runnerssetupFunctionUrlB8BC43E8": {
    "Type": "AWS::Lambda::Url",
@@ -17443,6 +16828,12 @@
      }
     },
     "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "SetupLog8A8B0E5C"
+     }
+    },
     "Role": {
      "Fn::GetAtt": [
       "runnersstatusServiceRole71A1ADB6",
@@ -17988,10 +17379,7 @@
        ]
       },
       "logGroup": {
-       "Fn::GetAtt": [
-        "LambdaFunctionLogRetentionB6D78D6D",
-        "LogGroupName"
-       ]
+       "Ref": "LambdaLog2764B04F"
       },
       "image": {
        "imageRepository": {
@@ -18061,10 +17449,7 @@
        ]
       },
       "logGroup": {
-       "Fn::GetAtt": [
-        "LambdaARMFunctionLogRetention67E9FEF8",
-        "LogGroupName"
-       ]
+       "Ref": "LambdaARMLogAA2DA09F"
       },
       "image": {
        "imageRepository": {
@@ -18766,29 +18151,6 @@
     ]
    }
   },
-  "runnersstatusLogRetention8EB4A773": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "runnersstatus1A5771C0"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
-  },
   "runnersFailedRunnerImageBuilds233D2237": {
    "Type": "AWS::SNS::Topic"
   },
@@ -18882,7 +18244,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "70d775c42043d1c5e737e2362a0d99627e98bd651ac5fd45d7275105bee1b54b.zip"
+     "S3Key": "f07c60cc451d4f0c652f687a1c8cd6cf21a2a8f6cd7ab6807e6ee06606ea4122.zip"
     },
     "Description": "src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
     "Environment": {
@@ -18894,6 +18256,12 @@
      }
     },
     "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "RunnerImageBuildHelpersLog13186633"
+     }
+    },
     "Role": {
      "Fn::GetAtt": [
       "runnersImageBuilderBuildsFilterServiceRoleED82BC5F",
@@ -18906,29 +18274,6 @@
     "runnersImageBuilderBuildsFilterServiceRoleDefaultPolicy4525F6C1",
     "runnersImageBuilderBuildsFilterServiceRoleED82BC5F"
    ]
-  },
-  "runnersImageBuilderBuildsFilterLogRetentionD5005098": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "runnersImageBuilderBuildsFilterD708AA06"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 30
-   }
   },
   "runnersImageBuilderBuildsFilterAllowInvokegithubrunnerstestrunnersImageBuilderBuilds109FC9E855AB30DD": {
    "Type": "AWS::Lambda::Permission",
@@ -18966,14 +18311,46 @@
    "Properties": {
     "LogGroupNames": [
      {
-      "Fn::GetAtt": [
-       "runnersWebhookHandlerwebhookhandlerLogRetention0F5ED260",
-       "LogGroupName"
-      ]
+      "Ref": "OrchestratorLogFB9610E7"
      }
     ],
     "Name": "GitHub Runners/Webhook errors",
-    "QueryString": "parse @message /^(?<timestamp>[^\\s]+)\\t(?<requestId>[^\\s]+)\\t(?<level>[^\\s]+)\\t(?<message>.+$)/\n| filter level = \"ERROR\"\n| sort @timestamp desc\n| limit 100"
+    "QueryString": {
+     "Fn::Join": [
+      "",
+      [
+       "filter strcontains(@logStream, \"",
+       {
+        "Ref": "runnersWebhookHandlerwebhookhandler22779A81"
+       },
+       "\")\n| filter level = \"ERROR\"\n| sort @timestamp desc\n| limit 100"
+      ]
+     ]
+    }
+   }
+  },
+  "runnersOrchestrationerrors9EFE206B": {
+   "Type": "AWS::Logs::QueryDefinition",
+   "Properties": {
+    "LogGroupNames": [
+     {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    ],
+    "Name": "GitHub Runners/Orchestration errors",
+    "QueryString": "filter level = \"ERROR\"\n| sort @timestamp desc\n| limit 100"
+   }
+  },
+  "runnersRunnerimagebuilderrorsC1D423F8": {
+   "Type": "AWS::Logs::QueryDefinition",
+   "Properties": {
+    "LogGroupNames": [
+     {
+      "Ref": "RunnerImageBuildHelpersLog13186633"
+     }
+    ],
+    "Name": "GitHub Runners/Runner image build errors",
+    "QueryString": "filter strcontains(message, \"error\") or strcontains(message, \"ERROR\") or strcontains(message, \"Error\") or level = \"ERROR\"\n| sort @timestamp desc\n| limit 100"
    }
   },
   "runnersIgnoredwebhooksAD368063": {
@@ -18981,14 +18358,22 @@
    "Properties": {
     "LogGroupNames": [
      {
-      "Fn::GetAtt": [
-       "runnersWebhookHandlerwebhookhandlerLogRetention0F5ED260",
-       "LogGroupName"
-      ]
+      "Ref": "OrchestratorLogFB9610E7"
      }
     ],
     "Name": "GitHub Runners/Ignored webhooks",
-    "QueryString": "parse @message /^(?<timestamp>[^\\s]+)\\t(?<requestId>[^\\s]+)\\t(?<level>[^\\s]+)\\t(?<message>.+$)/\n| filter strcontains(message, \"Ignoring\")\n| sort @timestamp desc\n| limit 100"
+    "QueryString": {
+     "Fn::Join": [
+      "",
+      [
+       "fields @timestamp, message.notice\n| filter strcontains(@logStream, \"",
+       {
+        "Ref": "runnersWebhookHandlerwebhookhandler22779A81"
+       },
+       "\")\n| filter strcontains(message.notice, \"Ignoring\")\n| sort @timestamp desc\n| limit 100"
+      ]
+     ]
+    }
    }
   },
   "runnersIgnoredjobsbasedonlabels120F3D1A": {
@@ -18996,14 +18381,22 @@
    "Properties": {
     "LogGroupNames": [
      {
-      "Fn::GetAtt": [
-       "runnersWebhookHandlerwebhookhandlerLogRetention0F5ED260",
-       "LogGroupName"
-      ]
+      "Ref": "OrchestratorLogFB9610E7"
      }
     ],
     "Name": "GitHub Runners/Ignored jobs based on labels",
-    "QueryString": "parse @message /^(?<timestamp>[^\\s]+)\\t(?<requestId>[^\\s]+)\\t(?<level>[^\\s]+)\\t(?<message>.+$)/\n| filter strcontains(message, \"Ignoring labels\")\n| sort @timestamp desc\n| limit 100"
+    "QueryString": {
+     "Fn::Join": [
+      "",
+      [
+       "fields @timestamp, message.notice\n| filter strcontains(@logStream, \"",
+       {
+        "Ref": "runnersWebhookHandlerwebhookhandler22779A81"
+       },
+       "\")\n| filter strcontains(message.notice, \"Ignoring labels\")\n| sort @timestamp desc\n| limit 100"
+      ]
+     ]
+    }
    }
   },
   "runnersWebhookstartedrunners63776EDF": {
@@ -19011,15 +18404,31 @@
    "Properties": {
     "LogGroupNames": [
      {
-      "Fn::GetAtt": [
-       "runnersWebhookHandlerwebhookhandlerLogRetention0F5ED260",
-       "LogGroupName"
-      ]
+      "Ref": "OrchestratorLogFB9610E7"
      }
     ],
     "Name": "GitHub Runners/Webhook started runners",
-    "QueryString": "fields @timestamp, @message\n| filter jobUrl like /http.*/\n| sort @timestamp desc\n| limit 100"
+    "QueryString": {
+     "Fn::Join": [
+      "",
+      [
+       "fields @timestamp, message.sfnInput.jobUrl, message.sfnInput.labels, message.sfnInput.provider\n| filter strcontains(@logStream, \"",
+       {
+        "Ref": "runnersWebhookHandlerwebhookhandler22779A81"
+       },
+       "\")\n| filter message.sfnInput.jobUrl like /http.*/\n| sort @timestamp desc\n| limit 100"
+      ]
+     ]
+    }
    }
+  },
+  "OrchestratorLogFB9610E7": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   },
   "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36": {
    "Type": "AWS::IAM::Role",
@@ -19084,15 +18493,21 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "97a52dd61d3f204877c7a944f14423bdbdec7587794ab63213506581ffb19976.zip"
+     "S3Key": "2b3e3110ffb96a7df77acaa663361ec1c03e985af62941397f4806ba6fbde75f.zip"
     },
-    "Description": "Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion",
+    "Description": "Custom resource handler that discovers the boot drive device name for a given AMI",
     "Environment": {
      "Variables": {
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },
     "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "RunnerImageBuildHelpersLog13186633"
+     }
+    },
     "Role": {
      "Fn::GetAtt": [
       "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36",
@@ -19107,28 +18522,13 @@
     "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36"
    ]
   },
-  "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1LogRetentionFC67AFCF": {
-   "Type": "Custom::LogRetention",
+  "SetupLog8A8B0E5C": {
+   "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C"
-       }
-      ]
-     ]
-    },
     "RetentionInDays": 30
-   }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
   }
  },
  "Parameters": {

@@ -7802,6 +7802,7 @@ const runnerImageBuilderProps: RunnerImageBuilderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security Groups to assign to this instance. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to build the image in. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.waitOnDeploy">waitOnDeploy</a></code> | <code>boolean</code> | Wait for image to finish building during deployment. |
 
 ---
 
@@ -8010,6 +8011,25 @@ public readonly vpc: IVpc;
 - *Default:* no VPC
 
 VPC to build the image in.
+
+---
+
+##### `waitOnDeploy`<sup>Optional</sup> <a name="waitOnDeploy" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.waitOnDeploy"></a>
+
+```typescript
+public readonly waitOnDeploy: boolean;
+```
+
+- *Type:* boolean
+- *Default:* true
+
+Wait for image to finish building during deployment.
+
+It's usually best to leave this enabled to ensure everything is ready once deployment is done. However, it can be disabled to speed up deployment in case where you have a lot of image components that can take a long time to build.
+
+Disabling this option means a finished deployment is not ready to be used. You will have to wait for the image to finish building before the system can be used.
+
+Disabling this option may also mean any changes to settings or components can take up to a week (default rebuild interval) to take effect.
 
 ---
 

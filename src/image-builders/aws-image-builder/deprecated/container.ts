@@ -18,6 +18,7 @@ import { WindowsComponents } from './windows-components';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../../providers';
 import { singletonLambda } from '../../../utils';
 import { BuildImageFunction } from '../../build-image-function';
+import { BuildImageFunctionProperties } from '../../build-image.lambda';
 import { uniqueImageBuilderName } from '../../common';
 import { ImageBuilderComponent } from '../builder';
 import { ContainerRecipe } from '../container';
@@ -150,7 +151,7 @@ export interface ContainerImageBuilderProps {
  */
 export class ContainerImageBuilder extends ImageBuilderBase {
   readonly repository: ecr.IRepository;
-  private readonly parentImage: string | undefined;
+  private readonly parentImage: string;
   private boundImage?: RunnerImage;
 
   constructor(scope: Construct, id: string, props?: ContainerImageBuilderProps) {
@@ -170,7 +171,7 @@ export class ContainerImageBuilder extends ImageBuilderBase {
       imageTypeName: 'image',
     });
 
-    this.parentImage = props?.parentImage;
+    this.parentImage = props?.parentImage ?? 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64';
 
     // create repository that only keeps one tag
     this.repository = new ecr.Repository(this, 'Repository', {
@@ -323,7 +324,7 @@ export class ContainerImageBuilder extends ImageBuilderBase {
     const cr = new CustomResource(this, 'Deleter', {
       serviceToken: crHandler.functionArn,
       resourceType: 'Custom::ImageDeleter',
-      properties: {
+      properties: <BuildImageFunctionProperties>{
         RepoName: this.repository.repositoryName,
         ImageBuilderName: recipeName, // we don't use image.name because CloudFormation complains if it was deleted already
         DeleteOnly: true,

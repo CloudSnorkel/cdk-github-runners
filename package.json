@@ -70,16 +70,16 @@
     "organization": false
   },
   "devDependencies": {
-    "@aws-sdk/client-cloudformation": "^3.556.0",
-    "@aws-sdk/client-codebuild": "^3.556.0",
-    "@aws-sdk/client-ec2": "^3.557.0",
-    "@aws-sdk/client-ecr": "^3.556.0",
-    "@aws-sdk/client-imagebuilder": "^3.556.0",
-    "@aws-sdk/client-lambda": "^3.556.0",
-    "@aws-sdk/client-secrets-manager": "^3.556.0",
-    "@aws-sdk/client-sfn": "^3.556.0",
-    "@aws-sdk/client-sns": "^3.556.0",
-    "@aws-sdk/client-ssm": "^3.556.0",
+    "@aws-sdk/client-cloudformation": "^3.564.0",
+    "@aws-sdk/client-codebuild": "^3.564.0",
+    "@aws-sdk/client-ec2": "^3.564.0",
+    "@aws-sdk/client-ecr": "^3.564.0",
+    "@aws-sdk/client-imagebuilder": "^3.564.0",
+    "@aws-sdk/client-lambda": "^3.564.0",
+    "@aws-sdk/client-secrets-manager": "^3.564.0",
+    "@aws-sdk/client-sfn": "^3.564.0",
+    "@aws-sdk/client-sns": "^3.564.0",
+    "@aws-sdk/client-ssm": "^3.564.0",
     "@octokit/auth-app": "^4.0.13",
     "@octokit/core": "^4.2.4",
     "@octokit/request-error": "^3.0.3",
@@ -93,7 +93,7 @@
     "@typescript-eslint/eslint-plugin": "^6",
     "@typescript-eslint/parser": "^6",
     "aws-cdk": "^2",
-    "aws-cdk-lib": "2.110.0",
+    "aws-cdk-lib": "2.123.0",
     "bootstrap": "^5.2.0",
     "constructs": "10.0.5",
     "esbuild": "^0.20.2",
@@ -108,7 +108,7 @@
     "jsii-docgen": "^10.4.1",
     "jsii-pacmak": "^1.97.0",
     "jsii-rosetta": "5.3.x",
-    "projen": "^0.81.1",
+    "projen": "^0.81.4",
     "sass": "^1.54.0",
     "semver": "^7.6.0",
     "standard-version": "^9",
@@ -122,7 +122,7 @@
     "vite-plugin-singlefile": "^0.13.5"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.110.0",
+    "aws-cdk-lib": "^2.123.0",
     "constructs": "^10.0.5"
   },
   "keywords": [
