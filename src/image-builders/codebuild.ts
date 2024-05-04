@@ -120,7 +120,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       imageScanOnPush: true,
       imageTagMutability: TagMutability.MUTABLE,
       removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteImages: true,
+      emptyOnDelete: true,
       lifecycleRules: [
         {
           description: 'Remove soci indexes for replaced images',

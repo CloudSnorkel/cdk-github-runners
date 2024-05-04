@@ -373,7 +373,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       imageScanOnPush: true,
       imageTagMutability: TagMutability.MUTABLE,
       removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteImages: true,
+      emptyOnDelete: true,
     });
 
     const dist = new imagebuilder.CfnDistributionConfiguration(this, 'Docker Distribution', {
