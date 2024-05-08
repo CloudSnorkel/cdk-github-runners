@@ -105,6 +105,12 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         'See https://github.com/aws/containers-roadmap/issues/1160');
     }
 
+    // error out on no-nat networks because the build will hang
+    if (props?.subnetSelection?.subnetType == ec2.SubnetType.PUBLIC) {
+      Annotations.of(this).addError('Public subnets do not work with CodeBuild as it cannot be assigned an IP. ' +
+        'See https://docs.aws.amazon.com/codebuild/latest/userguide/vpc-support.html#best-practices-for-vpcs');
+    }
+
     // check timeout
     if (this.timeout.toSeconds() > Duration.hours(8).toSeconds()) {
       Annotations.of(this).addError('CodeBuild runner image builder timeout must 8 hours or less.');

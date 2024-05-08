@@ -1,5 +1,6 @@
 import * as path from 'path';
 import {
+  Annotations,
   aws_codebuild as codebuild,
   aws_ec2 as ec2,
   aws_iam as iam,
@@ -225,6 +226,18 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
 
   constructor(scope: Construct, id: string, props?: CodeBuildRunnerProviderProps) {
     super(scope, id, props);
+
+    // warn against isolated networks
+    if (props?.subnetSelection?.subnetType == ec2.SubnetType.PRIVATE_ISOLATED) {
+      Annotations.of(this).addWarning('Private isolated subnets cannot pull from public ECR and VPC endpoint is not supported yet. ' +
+        'See https://github.com/aws/containers-roadmap/issues/1160');
+    }
+
+    // error out on no-nat networks because the build will hang
+    if (props?.subnetSelection?.subnetType == ec2.SubnetType.PUBLIC) {
+      Annotations.of(this).addError('Public subnets do not work with CodeBuild as it cannot be assigned an IP. ' +
+        'See https://docs.aws.amazon.com/codebuild/latest/userguide/vpc-support.html#best-practices-for-vpcs');
+    }
 
     this.labels = this.labelsFromProperties('codebuild', props?.label, props?.labels);
     this.vpc = props?.vpc;
