@@ -44,6 +44,7 @@ const extraFilesComponentLinux = RunnerImageComponent.custom({
     'touch /custom-file',
     'mkdir /custom-dir',
     'mv FUNDING.yml /custom-dir',
+    'echo HELLO=WORLD >> /home/runner/.env',
   ],
   assets: [
     {
@@ -65,21 +66,28 @@ const extraFilesComponentWindows = RunnerImageComponent.custom({
     },
   ],
 });
+const envComponent = RunnerImageComponent.environmentVariables({
+  HELLO: 'world',
+  FOO: 'bar',
+});
 
 const fargateX64Builder = FargateRunnerProvider.imageBuilder(stack, 'Fargate builder', {
   architecture: Architecture.X86_64,
 });
 fargateX64Builder.addComponent(extraFilesComponentLinux);
+fargateX64Builder.addComponent(envComponent);
 
 const fargateArm64Builder = FargateRunnerProvider.imageBuilder(stack, 'Fargate builder arm', {
   architecture: Architecture.ARM64,
 });
 fargateArm64Builder.addComponent(extraFilesComponentLinux);
+fargateArm64Builder.addComponent(envComponent);
 
 const lambdaImageBuilder = LambdaRunnerProvider.imageBuilder(stack, 'Lambda Image Builder x64', {
   architecture: Architecture.X86_64,
 });
 lambdaImageBuilder.addComponent(extraFilesComponentLinux);
+lambdaImageBuilder.addComponent(envComponent);
 
 const windowsImageBuilder = FargateRunnerProvider.imageBuilder(stack, 'Windows Image Builder', {
   os: Os.WINDOWS,
@@ -87,24 +95,29 @@ const windowsImageBuilder = FargateRunnerProvider.imageBuilder(stack, 'Windows I
   subnetSelection: { subnetType: ec2.SubnetType.PUBLIC },
 });
 windowsImageBuilder.addComponent(extraFilesComponentWindows);
+windowsImageBuilder.addComponent(envComponent);
 
 const amiX64Builder = Ec2RunnerProvider.imageBuilder(stack, 'AMI Linux Builder', {
   vpc,
 });
 amiX64Builder.addComponent(extraFilesComponentLinux);
+amiX64Builder.addComponent(envComponent);
 
 const codeBuildImageBuilder = CodeBuildRunnerProvider.imageBuilder(stack, 'CodeBuild Image Builder');
 codeBuildImageBuilder.addComponent(extraFilesComponentLinux);
+codeBuildImageBuilder.addComponent(envComponent);
 
 const codeBuildArm64ImageBuilder = CodeBuildRunnerProvider.imageBuilder(stack, 'CodeBuild Image Builder arm', {
   architecture: Architecture.ARM64,
 });
 codeBuildArm64ImageBuilder.addComponent(extraFilesComponentLinux);
+codeBuildArm64ImageBuilder.addComponent(envComponent);
 
 const lambdaArm64ImageBuilder = LambdaRunnerProvider.imageBuilder(stack, 'Lambda Image Builderz', {
   architecture: Architecture.ARM64,
 });
 lambdaArm64ImageBuilder.addComponent(extraFilesComponentLinux);
+lambdaArm64ImageBuilder.addComponent(envComponent);
 
 const ec2ImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'AMI Linux arm64 Builder', {
   architecture: Architecture.ARM64,
@@ -114,12 +127,14 @@ const ec2ImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'AMI Linux arm64 B
   vpc,
 });
 ec2ImageBuilder.addComponent(extraFilesComponentLinux);
+ec2ImageBuilder.addComponent(envComponent);
 
 const ec2WindowsImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'Windows EC2 Builder', {
   os: Os.WINDOWS,
   vpc,
 });
 ec2WindowsImageBuilder.addComponent(extraFilesComponentWindows);
+ec2WindowsImageBuilder.addComponent(envComponent);
 
 const runners = new GitHubRunners(stack, 'runners', {
   providers: [
@@ -239,5 +254,21 @@ const runners = new GitHubRunners(stack, 'runners', {
 runners.metricJobCompleted();
 runners.failedImageBuildsTopic();
 runners.createLogsInsightsQueries();
+
+// const myBuilderArm = FargateRunnerProvider.imageBuilder(stack, 'MyBuildArm', {
+//   architecture: Architecture.ARM64,
+//   os: Os.LINUX_UBUNTU,
+// });
+//
+// const codeBuildarm64 = new FargateRunnerProvider(stack, 'CodeBuildARM64', {
+//   labels: ['codebuildarm64'],
+//   imageBuilder: myBuilderArm,
+//   vpc,
+// });
+//
+//
+// new GitHubRunners(stack, 'rrrrr', {
+//   providers: [codeBuildarm64],
+// });
 
 app.synth();

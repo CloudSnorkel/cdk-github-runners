@@ -523,6 +523,37 @@ export abstract class RunnerImageComponent {
   }
 
   /**
+   * A component to add environment variables for jobs the runner executes.
+   *
+   * These variables only affect the jobs ran by the runner. They are not global. They do not affect other components.
+   *
+   * It is not recommended to us this component to pass secrets. Instead, use GitHub Secrets or AWS Secrets Manager.
+   *
+   * Must be used after the {@link githubRunner} component.
+   */
+  static environmentVariables(vars: Record<string, string>): RunnerImageComponent {
+    Object.entries(vars).forEach(e => {
+      if (e[0].includes('\n') || e[1].includes('\n')) {
+        throw new Error(`Environment variable cannot contain newlines: ${e}`);
+      }
+    });
+
+    return new class extends RunnerImageComponent {
+      name = 'EnvironmentVariables';
+
+      getCommands(os: Os, _architecture: Architecture) {
+        if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
+          return Object.entries(vars).map(e => `echo '${e[0]}=${e[1].replace(/'/g, "'\"'\"'")}' >> /home/runner/.env`);
+        } else if (os.is(Os.WINDOWS)) {
+          return Object.entries(vars).map(e => `Add-Content -Path C:\\actions\\.env -Value '${e[0]}=${e[1].replace(/'/g, "''")}'`);
+        } else {
+          throw new Error(`Unsupported OS for environment variables component: ${os.name}`);
+        }
+      }
+    };
+  }
+
+  /**
    * Component name.
    *
    * Used to identify component in image build logs, and for {@link IConfigurableRunnerImageBuilder.removeComponent}
