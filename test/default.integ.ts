@@ -44,7 +44,6 @@ const extraFilesComponentLinux = RunnerImageComponent.custom({
     'touch /custom-file',
     'mkdir /custom-dir',
     'mv FUNDING.yml /custom-dir',
-    'echo HELLO=WORLD >> /home/runner/.env',
   ],
   assets: [
     {
@@ -254,21 +253,5 @@ const runners = new GitHubRunners(stack, 'runners', {
 runners.metricJobCompleted();
 runners.failedImageBuildsTopic();
 runners.createLogsInsightsQueries();
-
-// const myBuilderArm = FargateRunnerProvider.imageBuilder(stack, 'MyBuildArm', {
-//   architecture: Architecture.ARM64,
-//   os: Os.LINUX_UBUNTU,
-// });
-//
-// const codeBuildarm64 = new FargateRunnerProvider(stack, 'CodeBuildARM64', {
-//   labels: ['codebuildarm64'],
-//   imageBuilder: myBuilderArm,
-//   vpc,
-// });
-//
-//
-// new GitHubRunners(stack, 'rrrrr', {
-//   providers: [codeBuildarm64],
-// });
 
 app.synth();
