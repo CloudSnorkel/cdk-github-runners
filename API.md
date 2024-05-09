@@ -9030,6 +9030,7 @@ Returns true if the image builder should be rebooted after this component is ins
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.custom">custom</a></code> | Define a custom component that can run commands in the image, copy files into the image, and run some Docker commands. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.docker">docker</a></code> | A component to install Docker. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.dockerInDocker">dockerInDocker</a></code> | A component to install Docker-in-Docker. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.environmentVariables">environmentVariables</a></code> | A component to add environment variables for jobs the runner executes. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.extraCertificates">extraCertificates</a></code> | A component to add a trusted certificate authority. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.git">git</a></code> | A component to install the GitHub CLI. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubCli">githubCli</a></code> | A component to install the GitHub CLI. |
@@ -9093,6 +9094,28 @@ RunnerImageComponent.dockerInDocker()
 ```
 
 A component to install Docker-in-Docker.
+
+##### `environmentVariables` <a name="environmentVariables" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.environmentVariables"></a>
+
+```typescript
+import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
+
+RunnerImageComponent.environmentVariables(vars: {[ key: string ]: string})
+```
+
+A component to add environment variables for jobs the runner executes.
+
+These variables only affect the jobs ran by the runner. They are not global. They do not affect other components.
+
+It is not recommended to use this component to pass secrets. Instead, use GitHub Secrets or AWS Secrets Manager.
+
+Must be used after the {@link githubRunner} component.
+
+###### `vars`<sup>Required</sup> <a name="vars" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.environmentVariables.parameter.vars"></a>
+
+- *Type:* {[ key: string ]: string}
+
+---
 
 ##### `extraCertificates` <a name="extraCertificates" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.extraCertificates"></a>
 
