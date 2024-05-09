@@ -527,7 +527,7 @@ export abstract class RunnerImageComponent {
    *
    * These variables only affect the jobs ran by the runner. They are not global. They do not affect other components.
    *
-   * It is not recommended to us this component to pass secrets. Instead, use GitHub Secrets or AWS Secrets Manager.
+   * It is not recommended to use this component to pass secrets. Instead, use GitHub Secrets or AWS Secrets Manager.
    *
    * Must be used after the {@link githubRunner} component.
    */
