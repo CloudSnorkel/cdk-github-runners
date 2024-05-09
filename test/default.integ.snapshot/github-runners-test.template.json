@@ -519,7 +519,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
+        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > component7-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\nCOPY component7-EnvironmentVariables.sh /tmp\\nRUN /tmp/component7-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -621,15 +621,15 @@
     ]
    }
   },
-  "FargatebuilderBuildWaitHandlee9b48b53b046D10B49": {
+  "FargatebuilderBuildWaitHandle299aea9d347328DA21": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderBuildWaite9b48b53b0466E49EC": {
+  "FargatebuilderBuildWait299aea9d34837E0B2C": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderBuildWaitHandlee9b48b53b046D10B49"
+     "Ref": "FargatebuilderBuildWaitHandle299aea9d347328DA21"
     },
     "Timeout": "3600"
    }
@@ -650,7 +650,7 @@
      "Ref": "FargatebuilderCodeBuild4F182743"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderBuildWaitHandlee9b48b53b046D10B49"
+     "Ref": "FargatebuilderBuildWaitHandle299aea9d347328DA21"
     }
    },
    "DependsOn": [
@@ -1024,7 +1024,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
+        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > component7-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\nCOPY component7-EnvironmentVariables.sh /tmp\\nRUN /tmp/component7-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -1126,15 +1126,15 @@
     ]
    }
   },
-  "FargatebuilderarmBuildWaitHandle14f2590137C304974C": {
+  "FargatebuilderarmBuildWaitHandlefa36b7cd881848EB0D": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderarmBuildWait14f2590137A61AB4A5": {
+  "FargatebuilderarmBuildWaitfa36b7cd888C958DFF": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderarmBuildWaitHandle14f2590137C304974C"
+     "Ref": "FargatebuilderarmBuildWaitHandlefa36b7cd881848EB0D"
     },
     "Timeout": "3600"
    }
@@ -1155,7 +1155,7 @@
      "Ref": "FargatebuilderarmCodeBuild0D30679A"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderarmBuildWaitHandle14f2590137C304974C"
+     "Ref": "FargatebuilderarmBuildWaitHandlefa36b7cd881848EB0D"
     }
    },
    "DependsOn": [
@@ -1668,7 +1668,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:20-x86_64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:20-x86_64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -1770,15 +1770,15 @@
     ]
    }
   },
-  "LambdaImageBuilderx64BuildWaitHandlee60b59c83b820DD19E": {
+  "LambdaImageBuilderx64BuildWaitHandle04253047704421FD57": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderx64BuildWaite60b59c83b93F7F541": {
+  "LambdaImageBuilderx64BuildWait0425304770B101FFCC": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandlee60b59c83b820DD19E"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandle04253047704421FD57"
     },
     "Timeout": "3600"
    }
@@ -1799,7 +1799,7 @@
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandlee60b59c83b820DD19E"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandle04253047704421FD57"
     }
    },
    "DependsOn": [
@@ -2448,6 +2448,66 @@
     }
    }
   },
+  "WindowsImageBuilderComponent7EnvironmentVariablesVersion87D8A6C5": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-WindowsImageBuilder-Component7EnvironmentVariables-40E688D7",
+    "VersionedData": {
+     "platform": "Windows",
+     "data": {
+      "name": "Component 7 EnvironmentVariables",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Download",
+          "action": "S3Download",
+          "inputs": []
+         },
+         {
+          "name": "Run",
+          "action": "ExecutePowerShell",
+          "inputs": {
+           "commands": [
+            "$ErrorActionPreference = 'Stop'",
+            "$ProgressPreference = 'SilentlyContinue'",
+            "Set-PSDebug -Trace 1",
+            "Add-Content -Path C:\\actions\\.env -Value 'HELLO=world'",
+            "Add-Content -Path C:\\actions\\.env -Value 'FOO=bar'"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Component 7 EnvironmentVariables"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "WindowsImageBuilderComponent7EnvironmentVariablesComponentE150D95A": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Data": "{\"name\":\"Component 7 EnvironmentVariables\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"Add-Content -Path C:\\\\actions\\\\.env -Value 'HELLO=world'\",\"Add-Content -Path C:\\\\actions\\\\.env -Value 'FOO=bar'\"]}}]}]}",
+    "Description": "Component 7 EnvironmentVariables",
+    "Name": "github-runners-test-WindowsImageBuilder-Component7EnvironmentVariables-40E688D7",
+    "Platform": "Windows",
+    "Version": {
+     "Ref": "WindowsImageBuilderComponent7EnvironmentVariablesVersion87D8A6C5"
+    }
+   }
+  },
   "WindowsImageBuilderContainerRecipeVersion13A2E3FD": {
    "Type": "Custom::ImageBuilder-ContainerRecipe-Version",
    "Properties": {
@@ -2517,6 +2577,14 @@
          "Arn"
         ]
        }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "WindowsImageBuilderComponent7EnvironmentVariablesComponentE150D95A",
+         "Arn"
+        ]
+       }
       }
      ],
      "dockerfileTemplate": "FROM {{{ imagebuilder:parentImage }}}\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}\nENV RUNNER_VERSION=latest\n"
@@ -2581,6 +2649,14 @@
       "ComponentArn": {
        "Fn::GetAtt": [
         "WindowsImageBuilderComponent6CustomUndefinedComponentC1AEB345",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "WindowsImageBuilderComponent7EnvironmentVariablesComponentE150D95A",
         "Arn"
        ]
       }
@@ -3547,6 +3623,64 @@
     }
    }
   },
+  "AMILinuxBuilderComponent8EnvironmentVariablesVersionF1224095": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxBuilder-Component8EnvironmentVariables-E5B16A88",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "Component 8 EnvironmentVariables",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Download",
+          "action": "S3Download",
+          "inputs": []
+         },
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "echo 'HELLO=world' >> /home/runner/.env",
+            "echo 'FOO=bar' >> /home/runner/.env"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Component 8 EnvironmentVariables"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxBuilderComponent8EnvironmentVariablesComponentEAC6EDDC": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Data": "{\"name\":\"Component 8 EnvironmentVariables\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"echo 'HELLO=world' >> /home/runner/.env\",\"echo 'FOO=bar' >> /home/runner/.env\"]}}]}]}",
+    "Description": "Component 8 EnvironmentVariables",
+    "Name": "github-runners-test-AMILinuxBuilder-Component8EnvironmentVariables-E5B16A88",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxBuilderComponent8EnvironmentVariablesVersionF1224095"
+    }
+   }
+  },
   "AMILinuxBuilderAmiRecipeVersionFBE9C9AE": {
    "Type": "Custom::ImageBuilder-ImageRecipe-Version",
    "Properties": {
@@ -3621,6 +3755,14 @@
        "componentArn": {
         "Fn::GetAtt": [
          "AMILinuxBuilderComponent7CustomUndefinedComponent90421257",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxBuilderComponent8EnvironmentVariablesComponentEAC6EDDC",
          "Arn"
         ]
        }
@@ -3711,6 +3853,14 @@
       "ComponentArn": {
        "Fn::GetAtt": [
         "AMILinuxBuilderComponent7CustomUndefinedComponent90421257",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxBuilderComponent8EnvironmentVariablesComponentEAC6EDDC",
         "Arn"
        ]
       }
@@ -4294,7 +4444,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -4396,15 +4546,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderBuildWaitHandle660bc88ba881285995": {
+  "CodeBuildImageBuilderBuildWaitHandle7c730baca54A566A20": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderBuildWait660bc88ba86204F75B": {
+  "CodeBuildImageBuilderBuildWait7c730baca5A6E3CF52": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandle660bc88ba881285995"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle7c730baca54A566A20"
     },
     "Timeout": "3600"
    }
@@ -4425,7 +4575,7 @@
      "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandle660bc88ba881285995"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle7c730baca54A566A20"
     }
    },
    "DependsOn": [
@@ -4799,7 +4949,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -4901,15 +5051,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderarmBuildWaitHandle30228bd95a95706AA0": {
+  "CodeBuildImageBuilderarmBuildWaitHandleb6de7c276413114824": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderarmBuildWait30228bd95a41015307": {
+  "CodeBuildImageBuilderarmBuildWaitb6de7c276498E2A68D": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle30228bd95a95706AA0"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandleb6de7c276413114824"
     },
     "Timeout": "3600"
    }
@@ -4930,7 +5080,7 @@
      "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle30228bd95a95706AA0"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandleb6de7c276413114824"
     }
    },
    "DependsOn": [
@@ -5443,7 +5593,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:20-arm64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lambda/nodejs:20-arm64\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 ${LAMBDA_TASK_ROOT}/runner.js\\nCOPY asset6-Lambda-Entrypoint-1 ${LAMBDA_TASK_ROOT}/runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nWORKDIR ${LAMBDA_TASK_ROOT}\\nCMD [\\\"runner.handler\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"docker rmi \\\"$REPO_URI\\\"\",\n        \"LATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\",\n        \"curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\",\n        \"./standalone-soci-indexer \\\"$REPO_URI\\\"\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -5545,15 +5695,15 @@
     ]
    }
   },
-  "LambdaImageBuilderzBuildWaitHandle5f7b5267feD8C0B0BB": {
+  "LambdaImageBuilderzBuildWaitHandle0a45e8282d494E5D62": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderzBuildWait5f7b5267fe0B16F329": {
+  "LambdaImageBuilderzBuildWait0a45e8282dD494F5CD": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle5f7b5267feD8C0B0BB"
+     "Ref": "LambdaImageBuilderzBuildWaitHandle0a45e8282d494E5D62"
     },
     "Timeout": "3600"
    }
@@ -5574,7 +5724,7 @@
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle5f7b5267feD8C0B0BB"
+     "Ref": "LambdaImageBuilderzBuildWaitHandle0a45e8282d494E5D62"
     }
    },
    "DependsOn": [
@@ -6315,6 +6465,64 @@
     }
    }
   },
+  "AMILinuxarm64BuilderComponent8EnvironmentVariablesVersion5C19B557": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-AMILinuxarm64Builder-Component8EnvironmentVariables-63F09A58",
+    "VersionedData": {
+     "platform": "Linux",
+     "data": {
+      "name": "Component 8 EnvironmentVariables",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Download",
+          "action": "S3Download",
+          "inputs": []
+         },
+         {
+          "name": "Run",
+          "action": "ExecuteBash",
+          "inputs": {
+           "commands": [
+            "set -ex",
+            "echo 'HELLO=world' >> /home/runner/.env",
+            "echo 'FOO=bar' >> /home/runner/.env"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Component 8 EnvironmentVariables"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "AMILinuxarm64BuilderComponent8EnvironmentVariablesComponent38F614F4": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Data": "{\"name\":\"Component 8 EnvironmentVariables\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"echo 'HELLO=world' >> /home/runner/.env\",\"echo 'FOO=bar' >> /home/runner/.env\"]}}]}]}",
+    "Description": "Component 8 EnvironmentVariables",
+    "Name": "github-runners-test-AMILinuxarm64Builder-Component8EnvironmentVariables-63F09A58",
+    "Platform": "Linux",
+    "Version": {
+     "Ref": "AMILinuxarm64BuilderComponent8EnvironmentVariablesVersion5C19B557"
+    }
+   }
+  },
   "AMILinuxarm64BuilderAmiRecipeVersion429E7646": {
    "Type": "Custom::ImageBuilder-ImageRecipe-Version",
    "Properties": {
@@ -6389,6 +6597,14 @@
        "componentArn": {
         "Fn::GetAtt": [
          "AMILinuxarm64BuilderComponent7CustomUndefinedComponent6F6F62D0",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "AMILinuxarm64BuilderComponent8EnvironmentVariablesComponent38F614F4",
          "Arn"
         ]
        }
@@ -6479,6 +6695,14 @@
       "ComponentArn": {
        "Fn::GetAtt": [
         "AMILinuxarm64BuilderComponent7CustomUndefinedComponent6F6F62D0",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "AMILinuxarm64BuilderComponent8EnvironmentVariablesComponent38F614F4",
         "Arn"
        ]
       }
@@ -7452,6 +7676,66 @@
     }
    }
   },
+  "WindowsEC2BuilderComponent8EnvironmentVariablesVersionAF108F48": {
+   "Type": "Custom::ImageBuilder-Component-Version",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
+      "Arn"
+     ]
+    },
+    "ObjectType": "Component",
+    "ObjectName": "github-runners-test-WindowsEC2Builder-Component8EnvironmentVariables-7CA632FA",
+    "VersionedData": {
+     "platform": "Windows",
+     "data": {
+      "name": "Component 8 EnvironmentVariables",
+      "schemaVersion": "1.0",
+      "phases": [
+       {
+        "name": "build",
+        "steps": [
+         {
+          "name": "Download",
+          "action": "S3Download",
+          "inputs": []
+         },
+         {
+          "name": "Run",
+          "action": "ExecutePowerShell",
+          "inputs": {
+           "commands": [
+            "$ErrorActionPreference = 'Stop'",
+            "$ProgressPreference = 'SilentlyContinue'",
+            "Set-PSDebug -Trace 1",
+            "Add-Content -Path C:\\actions\\.env -Value 'HELLO=world'",
+            "Add-Content -Path C:\\actions\\.env -Value 'FOO=bar'"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "description": "Component 8 EnvironmentVariables"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "WindowsEC2BuilderComponent8EnvironmentVariablesComponentE7D8F4A0": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Data": "{\"name\":\"Component 8 EnvironmentVariables\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"Add-Content -Path C:\\\\actions\\\\.env -Value 'HELLO=world'\",\"Add-Content -Path C:\\\\actions\\\\.env -Value 'FOO=bar'\"]}}]}]}",
+    "Description": "Component 8 EnvironmentVariables",
+    "Name": "github-runners-test-WindowsEC2Builder-Component8EnvironmentVariables-7CA632FA",
+    "Platform": "Windows",
+    "Version": {
+     "Ref": "WindowsEC2BuilderComponent8EnvironmentVariablesVersionAF108F48"
+    }
+   }
+  },
   "WindowsEC2BuilderAmiRecipeVersionEE5C2F0C": {
    "Type": "Custom::ImageBuilder-ImageRecipe-Version",
    "Properties": {
@@ -7526,6 +7810,14 @@
        "componentArn": {
         "Fn::GetAtt": [
          "WindowsEC2BuilderComponent7CustomUndefinedComponent83F7C59D",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "componentArn": {
+        "Fn::GetAtt": [
+         "WindowsEC2BuilderComponent8EnvironmentVariablesComponentE7D8F4A0",
          "Arn"
         ]
        }
@@ -7616,6 +7908,14 @@
       "ComponentArn": {
        "Fn::GetAtt": [
         "WindowsEC2BuilderComponent7CustomUndefinedComponent83F7C59D",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "WindowsEC2BuilderComponent8EnvironmentVariablesComponentE7D8F4A0",
         "Arn"
        ]
       }
@@ -10628,7 +10928,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderx64BuildWaite60b59c83b93F7F541"
+        "Ref": "LambdaImageBuilderx64BuildWait0425304770B101FFCC"
        },
        "\"}}"
       ]
@@ -11041,7 +11341,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderzBuildWait5f7b5267fe0B16F329"
+        "Ref": "LambdaImageBuilderzBuildWait0a45e8282dD494F5CD"
        },
        "\"}}"
       ]
@@ -12736,6 +13036,8 @@
     "AMILinuxBuilderComponent6GithubRunnerVersionBF146628",
     "AMILinuxBuilderComponent7CustomUndefinedComponent90421257",
     "AMILinuxBuilderComponent7CustomUndefinedVersion691E056E",
+    "AMILinuxBuilderComponent8EnvironmentVariablesComponentEAC6EDDC",
+    "AMILinuxBuilderComponent8EnvironmentVariablesVersionF1224095",
     "AMILinuxBuilderInfrastructure6FCD154A",
     "AMILinuxBuilderInstanceProfile3CA638BE",
     "AMILinuxBuilderLaunchtemplateA29452C4",
@@ -13021,6 +13323,8 @@
     "AMILinuxBuilderComponent6GithubRunnerVersionBF146628",
     "AMILinuxBuilderComponent7CustomUndefinedComponent90421257",
     "AMILinuxBuilderComponent7CustomUndefinedVersion691E056E",
+    "AMILinuxBuilderComponent8EnvironmentVariablesComponentEAC6EDDC",
+    "AMILinuxBuilderComponent8EnvironmentVariablesVersionF1224095",
     "AMILinuxBuilderInfrastructure6FCD154A",
     "AMILinuxBuilderInstanceProfile3CA638BE",
     "AMILinuxBuilderLaunchtemplateA29452C4",
@@ -13205,6 +13509,8 @@
     "AMILinuxarm64BuilderComponent6GithubRunnerVersionC728248D",
     "AMILinuxarm64BuilderComponent7CustomUndefinedComponent6F6F62D0",
     "AMILinuxarm64BuilderComponent7CustomUndefinedVersion5AA71C6E",
+    "AMILinuxarm64BuilderComponent8EnvironmentVariablesComponent38F614F4",
+    "AMILinuxarm64BuilderComponent8EnvironmentVariablesVersion5C19B557",
     "AMILinuxarm64BuilderInfrastructure80FA16D6",
     "AMILinuxarm64BuilderInstanceProfileCE3B6B09",
     "AMILinuxarm64BuilderLaunchtemplate8F5EFF44",
@@ -13389,6 +13695,8 @@
     "WindowsEC2BuilderComponent6GithubRunnerVersion068CC361",
     "WindowsEC2BuilderComponent7CustomUndefinedComponent83F7C59D",
     "WindowsEC2BuilderComponent7CustomUndefinedVersion96AF0127",
+    "WindowsEC2BuilderComponent8EnvironmentVariablesComponentE7D8F4A0",
+    "WindowsEC2BuilderComponent8EnvironmentVariablesVersionAF108F48",
     "WindowsEC2BuilderInfrastructure757D4FD7",
     "WindowsEC2BuilderInstanceProfileA8DBA763",
     "WindowsEC2BuilderLaunchtemplate0A66E9C2",

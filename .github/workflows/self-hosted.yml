@@ -102,7 +102,17 @@ jobs:
       - name: Check arch
         run: |
           if [ "${{ matrix.arch }}" != "${RUNNER_ARCH}" ]; then
-            echo "Expected RUNNER_ARCH to be ${{ matrix.arch }} but it's $RUNNER_ARCH"
+            echo "Expected \$RUNNER_ARCH to be '${{ matrix.arch }}' but it's '$RUNNER_ARCH'"
+            exit 1
+          fi
+      - name: Check env
+        run: |
+          if [ "$HELLO" != "world" ]; then
+            echo "Expected '\$HELLO' to be 'world' but it's '$HELLO'"
+            exit 1
+          fi
+          if [ "$FOO" != "bar" ]; then
+            echo "Expected '\$FOO' to be 'bar' but it's '$FOO'"
             exit 1
           fi
       - name: Checkout
@@ -191,7 +201,17 @@ jobs:
       - name: Check arch
         run: |
           if (Compare-Object "${{ matrix.arch }}" $Env:RUNNER_ARCH) {
-            Write-Host "Expected RUNNER_ARCH to be ${{ matrix.arch }} but it's $Env:RUNNER_ARCH"
+            Write-Host "Expected `$Env:RUNNER_ARCH to be '${{ matrix.arch }}' but it's '$Env:RUNNER_ARCH'"
+            exit 1
+          }
+      - name: Check env
+        run: |
+          if (Compare-Object "$Env:HELLO" world) {
+            Write-Host "Expected `$Env:HELLO to be 'world' but it's '$Env:HELLO'"
+            exit 1
+          }
+          if (Compare-Object "$Env:FOO" bar) {
+            Write-Host "Expected `$Env:FOO to be 'bar' but it's '$Env:FOO'"
             exit 1
           }
       - name: Checkout
