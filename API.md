@@ -7794,6 +7794,7 @@ const runnerImageBuilderProps: RunnerImageBuilderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.builderType">builderType</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderType">RunnerImageBuilderType</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.codeBuildOptions">codeBuildOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerImageBuilderProps">CodeBuildRunnerImageBuilderProps</a></code> | Options specific to CodeBuild image builder. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.components">components</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent">RunnerImageComponent</a>[]</code> | Components to install on the image. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.dockerSetupCommands">dockerSetupCommands</a></code> | <code>string[]</code> | Additional commands to run on the build host before starting the Docker runner image build. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.logRemovalPolicy">logRemovalPolicy</a></code> | <code>aws-cdk-lib.RemovalPolicy</code> | Removal policy for logs of image builds. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.os">os</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Image OS. |
@@ -7859,6 +7860,8 @@ public readonly baseDockerImage: string;
 
 Base image from which Docker runner images will be built.
 
+When using private images from a different account or not on ECR, you may need to include additional setup commands with {@link dockerSetupCommands}.
+
 ---
 
 ##### `builderType`<sup>Optional</sup> <a name="builderType" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.builderType"></a>
@@ -7896,6 +7899,21 @@ public readonly components: RunnerImageComponent[];
 - *Default:* none
 
 Components to install on the image.
+
+---
+
+##### `dockerSetupCommands`<sup>Optional</sup> <a name="dockerSetupCommands" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.dockerSetupCommands"></a>
+
+```typescript
+public readonly dockerSetupCommands: string[];
+```
+
+- *Type:* string[]
+- *Default:* []
+
+Additional commands to run on the build host before starting the Docker runner image build.
+
+Use this to execute commands such as `docker login` or `aws ecr get-login-password` to pull private base images.
 
 ---
 
