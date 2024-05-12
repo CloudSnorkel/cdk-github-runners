@@ -1,9 +1,13 @@
 import {
   ImagebuilderClient,
-  ListComponentsCommand, ListComponentsResponse,
-  ListContainerRecipesCommand, ListContainerRecipesResponse,
+  ListComponentsCommand,
+  ListComponentsResponse,
+  ListContainerRecipesCommand,
+  ListContainerRecipesResponse,
   ListImageRecipesCommand,
   ListImageRecipesResponse,
+  ListWorkflowsCommand,
+  ListWorkflowsResponse,
 } from '@aws-sdk/client-imagebuilder';
 import * as AWSLambda from 'aws-lambda';
 import { inc, maxSatisfying } from 'semver';
@@ -82,6 +86,20 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
                   nextToken: result.nextToken,
                 }));
                 allVersions = allVersions.concat(result.containerRecipeSummaryList!.map(i => i.arn?.split('/').pop() || '1.0.0'));
+              } while (result.nextToken);
+              break;
+            }
+            case 'Workflow': {
+              let result: ListWorkflowsResponse = {};
+              do {
+                result = await ib.send(new ListWorkflowsCommand({
+                  filters: [{
+                    name: 'name',
+                    values: [objectName],
+                  }],
+                  nextToken: result.nextToken,
+                }));
+                allVersions = allVersions.concat(result.workflowVersionList!.map(i => i.arn?.split('/').pop() || '1.0.0'));
               } while (result.nextToken);
               break;
             }
