@@ -9125,7 +9125,8 @@
        "Action": [
         "imagebuilder:ListComponents",
         "imagebuilder:ListContainerRecipes",
-        "imagebuilder:ListImageRecipes"
+        "imagebuilder:ListImageRecipes",
+        "imagebuilder:ListWorkflows"
        ],
        "Effect": "Allow",
        "Resource": "*"
@@ -9148,7 +9149,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "deaec75154c038cd6fec17fd19b905a08bb9a78b97bc2e0fd132505eda22c650.zip"
+     "S3Key": "e11957e91069e38a8e846330a30f318c4bd52e5184eb9e1989f2fb1ee51f792d.zip"
     },
     "Description": "Custom resource handler that bumps up Image Builder versions",
     "Environment": {

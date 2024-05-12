@@ -12,7 +12,7 @@ export abstract class ImageBuilderObjectBase extends cdk.Resource {
     super(scope, id);
   }
 
-  protected generateVersion(type: 'Component' | 'ImageRecipe' | 'ContainerRecipe', name: string, data: any): string {
+  protected generateVersion(type: 'Component' | 'ImageRecipe' | 'ContainerRecipe' | 'Workflow', name: string, data: any): string {
     return new CustomResource(this, 'Version', {
       serviceToken: this.versionFunction().functionArn,
       resourceType: `Custom::ImageBuilder-${type}-Version`,
@@ -34,6 +34,7 @@ export abstract class ImageBuilderObjectBase extends cdk.Resource {
             'imagebuilder:ListComponents',
             'imagebuilder:ListContainerRecipes',
             'imagebuilder:ListImageRecipes',
+            'imagebuilder:ListWorkflows',
           ],
           resources: ['*'],
         }),

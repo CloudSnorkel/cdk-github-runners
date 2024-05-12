@@ -24,6 +24,7 @@ import { ImageBuilderObjectBase } from './common';
 import { ContainerRecipe, defaultBaseDockerImage } from './container';
 import { DeleteAmiFunction } from './delete-ami-function';
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
+import { generateBuildWorkflowWithDockerSetupCommands } from './workflow';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers';
 import { singletonLogGroup, singletonLambda, SingletonLogType } from '../../utils';
 import { BuildImageFunction } from '../build-image-function';
@@ -311,6 +312,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   private readonly role: iam.Role;
   private readonly fastLaunchOptions?: FastLaunchOptions;
   private readonly waitOnDeploy: boolean;
+  private readonly dockerSetupCommands: string[];
 
   constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     super(scope, id, props);
@@ -332,6 +334,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.instanceType = props?.awsImageBuilderOptions?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
     this.fastLaunchOptions = props?.awsImageBuilderOptions?.fastLaunchOptions;
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
+    this.dockerSetupCommands = props?.dockerSetupCommands??[];
 
     // confirm instance type
     if (!this.architecture.instanceTypeMatch(this.instanceType)) {
@@ -597,6 +600,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
 
   protected createPipeline(infra: imagebuilder.CfnInfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
     imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImagePipeline {
+    // set schedule
     let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
     if (this.rebuildInterval.toDays() > 0) {
       scheduleOptions = {
@@ -604,6 +608,23 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
         pipelineExecutionStartCondition: 'EXPRESSION_MATCH_ONLY',
       };
     }
+
+    // generate workflows, if needed
+    let workflows: imagebuilder.CfnImagePipeline.WorkflowConfigurationProperty[] | undefined;
+    let executionRole: iam.IRole | undefined;
+    if (this.dockerSetupCommands.length > 0) {
+      workflows = [{
+        workflowArn: generateBuildWorkflowWithDockerSetupCommands(this, 'Build', this.dockerSetupCommands).arn,
+      }];
+      executionRole = iam.Role.fromRoleArn(this, 'Image Builder Role', cdk.Stack.of(this).formatArn({
+        service: 'iam',
+        region: '',
+        resource: 'role',
+        resourceName: 'aws-service-role/imagebuilder.amazonaws.com/AWSServiceRoleForImageBuilder',
+      }));
+    }
+
+    // generate pipeline
     const pipeline = new imagebuilder.CfnImagePipeline(this, this.amiOrContainerId('Pipeline', imageRecipeArn, containerRecipeArn), {
       name: uniqueImageBuilderName(this),
       // description: this.description,
@@ -615,6 +636,8 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       imageTestsConfiguration: {
         imageTestsEnabled: false,
       },
+      workflows: workflows,
+      executionRole: executionRole?.roleArn,
     });
     pipeline.node.addDependency(infra);
     pipeline.node.addDependency(log);

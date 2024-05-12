@@ -77,6 +77,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private readonly rebuildInterval: cdk.Duration;
   private readonly role: iam.Role;
   private readonly waitOnDeploy: boolean;
+  private readonly dockerSetupCommands: string[];
 
   constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     super(scope, id, props);
@@ -98,6 +99,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
     this.buildImage = props?.codeBuildOptions?.buildImage ?? this.getDefaultBuildImage();
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
+    this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
 
     // warn against isolated networks
     if (props?.subnetSelection?.subnetType == ec2.SubnetType.PRIVATE_ISOLATED) {
@@ -309,7 +311,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
           commands: [
             'echo "exec > >(tee -a /tmp/codebuild.log) 2>&1" > codebuild-log.sh',
             `aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`,
-          ],
+          ].concat(this.dockerSetupCommands),
         },
         build: {
           commands: commands.concat(

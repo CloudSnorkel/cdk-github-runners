@@ -146,9 +146,20 @@ export interface RunnerImageBuilderProps {
   /**
    * Base image from which Docker runner images will be built.
    *
+   * When using private images from a different account or not on ECR, you may need to include additional setup commands with {@link dockerSetupCommands}.
+   *
    * @default public.ecr.aws/lts/ubuntu:22.04 for Os.LINUX_UBUNTU, public.ecr.aws/amazonlinux/amazonlinux:2 for Os.LINUX_AMAZON_2, mcr.microsoft.com/windows/servercore:ltsc2019-amd64 for Os.WINDOWS
    */
   readonly baseDockerImage?: string;
+
+  /**
+   * Additional commands to run on the build host before starting the Docker runner image build.
+   *
+   * Use this to execute commands such as `docker login` or `aws ecr get-login-password` to pull private base images.
+   *
+   * @default []
+   */
+  readonly dockerSetupCommands?: string[];
 
   /**
    * Base AMI from which runner AMIs will be built.
