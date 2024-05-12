@@ -334,7 +334,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.instanceType = props?.awsImageBuilderOptions?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
     this.fastLaunchOptions = props?.awsImageBuilderOptions?.fastLaunchOptions;
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
-    this.dockerSetupCommands = props?.dockerSetupCommands??[];
+    this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
 
     // confirm instance type
     if (!this.architecture.instanceTypeMatch(this.instanceType)) {
