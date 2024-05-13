@@ -113,6 +113,10 @@ $runnerTokenPath="{}"
 $labels="{}"
 $registrationURL="{}"
 
+# EC2Launch only starts ssm agent after user data is done, so we need to start it ourselves (it is disabled by default)
+Set-Service -StartupType Manual AmazonSSMAgent
+Start-Service AmazonSSMAgent
+
 Start-Job -ScriptBlock {
   while (1) {
     aws stepfunctions send-task-heartbeat --task-token "$using:TASK_TOKEN"
