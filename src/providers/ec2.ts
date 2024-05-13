@@ -120,23 +120,23 @@ Start-Job -ScriptBlock {
   }
 }
 function setup_logs () {
-  echo '{
-    "logs": {
-      "log_stream_name": "unknown",
-      "logs_collected": {
-        "files": {
-         "collect_list": [
+  echo "{
+    \`"logs\`": {
+      \`"log_stream_name\`": \`"unknown\`",
+      \`"logs_collected\`": {
+        \`"files\`": {
+         \`"collect_list\`": [
             {
-              "file_path": "/actions/runner.log",
-              "log_group_name": "$logGroupName",
-              "log_stream_name": "$runnerNamePath",
-              "timezone": "UTC"
+              \`"file_path\`": \`"/actions/runner.log\`",
+              \`"log_group_name\`": \`"$logGroupName\`",
+              \`"log_stream_name\`": \`"$runnerNamePath\`",
+              \`"timezone\`": \`"UTC\`"
             }
           ]
         }
       }
     }
-  }' | Out-File -Encoding ASCII $Env:TEMP/log.conf
+  }" | Out-File -Encoding ASCII $Env:TEMP/log.conf
   & "C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf
 }
 function action () {
@@ -156,7 +156,6 @@ function action () {
   }
 
   return 0
-
 }
 setup_logs
 $r = action
