@@ -70,7 +70,7 @@ export abstract class ImageBuilderBase extends Construct implements IRunnerImage
     }
 
     // instance type
-    this.instanceType = props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
+    this.instanceType = props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
     if (!this.architecture.instanceTypeMatch(this.instanceType)) {
       throw new Error(`Builder architecture (${this.architecture.name}) doesn't match selected instance type (${this.instanceType} / ${this.instanceType.architecture})`);
     }

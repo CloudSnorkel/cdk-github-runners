@@ -2718,7 +2718,7 @@
      "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
     },
     "InstanceTypes": [
-     "m5.large"
+     "m6i.large"
     ],
     "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
     "SecurityGroupIds": [
@@ -3930,7 +3930,7 @@
      "Ref": "AMILinuxBuilderInstanceProfile3CA638BE"
     },
     "InstanceTypes": [
-     "m5.large"
+     "m6i.large"
     ],
     "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
     "SecurityGroupIds": [
@@ -7996,7 +7996,7 @@
      "Ref": "WindowsEC2BuilderInstanceProfileA8DBA763"
     },
     "InstanceTypes": [
-     "m5.large"
+     "m6i.large"
     ],
     "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
     "SecurityGroupIds": [
@@ -9368,7 +9368,7 @@
        "SpotInstanceType": "one-time"
       }
      },
-     "InstanceType": "m5.large",
+     "InstanceType": "m6i.large",
      "MetadataOptions": {
       "HttpTokens": "required"
      },
@@ -10506,7 +10506,7 @@
       }
      },
      "ImageId": "resolve:ssm:/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized/image_id",
-     "InstanceType": "m5.large",
+     "InstanceType": "m6i.large",
      "MetadataOptions": {
       "HttpTokens": "required"
      },
@@ -15929,7 +15929,7 @@
        {
         "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
        },
-       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m5.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
+       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m6i.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
        {
         "Ref": "EC2LinuxLogsC4CD8F14"
        },
@@ -15967,7 +15967,7 @@
        {
         "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
        },
-       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m5.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
+       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m6i.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
        {
         "Ref": "EC2LinuxLogsC4CD8F14"
        },
@@ -16005,7 +16005,7 @@
        {
         "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
        },
-       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m5.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
+       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m6i.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
        {
         "Ref": "EC2SpotLinuxLogsF78D5F0E"
        },
@@ -16043,7 +16043,7 @@
        {
         "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
        },
-       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m5.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
+       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m6i.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
        {
         "Ref": "EC2SpotLinuxLogsF78D5F0E"
        },
@@ -16157,7 +16157,7 @@
        {
         "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
        },
-       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m5.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
+       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m6i.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
        {
         "Ref": "EC2WindowsLogsDC1F2ABF"
        },
@@ -16195,7 +16195,7 @@
        {
         "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
        },
-       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m5.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
+       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m6i.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
        {
         "Ref": "EC2WindowsLogsDC1F2ABF"
        },

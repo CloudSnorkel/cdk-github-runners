@@ -85,7 +85,7 @@ export interface ImageBuilderBaseProps {
   /**
    * The instance type used to build the image.
    *
-   * @default m5.large
+   * @default m6i.large
    */
   readonly instanceType?: ec2.InstanceType;
 

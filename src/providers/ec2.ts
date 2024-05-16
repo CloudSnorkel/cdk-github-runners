@@ -206,7 +206,7 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
   /**
    * Instance type for launched runner instances.
    *
-   * @default m5.large
+   * @default m6i.large
    */
   readonly instanceType?: ec2.InstanceType;
 
@@ -353,7 +353,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'Default VPC', { isDefault: true });
     this.securityGroups = props?.securityGroup ? [props.securityGroup] : (props?.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })]);
     this.subnets = props?.subnet ? [props.subnet] : this.vpc.selectSubnets(props?.subnetSelection).subnets;
-    this.instanceType = props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
+    this.instanceType = props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
     this.storageSize = props?.storageSize ?? cdk.Size.gibibytes(30); // 30 is the minimum for Windows
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;

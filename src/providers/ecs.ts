@@ -124,7 +124,7 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
   /**
    * Instance type of ECS cluster instances. Only used when creating a new cluster.
    *
-   * @default m5.large or m6g.large
+   * @default m6i.large or m6g.large
    */
   readonly instanceType?: ec2.InstanceType;
 
@@ -445,7 +445,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
 
   private defaultClusterInstanceType() {
     if (this.image.architecture.is(Architecture.X86_64)) {
-      return ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
+      return ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
     }
     if (this.image.architecture.is(Architecture.ARM64)) {
       return ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE);
