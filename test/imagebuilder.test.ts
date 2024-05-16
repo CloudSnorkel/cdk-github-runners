@@ -28,7 +28,7 @@ test('AMI builder matching instance type (DEPRECATED)', () => {
       architecture: Architecture.ARM64,
       vpc,
     });
-  }).toThrowError('Builder architecture (ARM64) doesn\'t match selected instance type (m5.large / x86_64)');
+  }).toThrowError('Builder architecture (ARM64) doesn\'t match selected instance type (m6i.large / x86_64)');
 });
 
 test('AMI builder matching instance type', () => {
@@ -44,7 +44,7 @@ test('AMI builder matching instance type', () => {
       vpc,
       builderType: RunnerImageBuilderType.AWS_IMAGE_BUILDER,
     });
-  }).toThrowError('Builder architecture (ARM64) doesn\'t match selected instance type (m5.large / x86_64)');
+  }).toThrowError('Builder architecture (ARM64) doesn\'t match selected instance type (m6i.large / x86_64)');
 });
 
 test('AMI builder supported OS', () => {

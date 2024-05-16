@@ -34,7 +34,7 @@ export interface AwsImageBuilderRunnerImageBuilderProps {
   /**
    * The instance type used to build the image.
    *
-   * @default m5.large
+   * @default m6i.large
    */
   readonly instanceType?: ec2.InstanceType;
 
@@ -331,7 +331,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.subnetSelection = props?.subnetSelection;
     this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
     this.baseAmi = props?.baseAmi ?? defaultBaseAmi(this, this.os, this.architecture);
-    this.instanceType = props?.awsImageBuilderOptions?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE);
+    this.instanceType = props?.awsImageBuilderOptions?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
     this.fastLaunchOptions = props?.awsImageBuilderOptions?.fastLaunchOptions;
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
     this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
