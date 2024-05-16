@@ -4884,7 +4884,7 @@ public readonly instanceType: InstanceType;
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.InstanceType
-- *Default:* m5.large
+- *Default:* m6i.large
 
 The instance type used to build the image.
 
@@ -5145,7 +5145,7 @@ public readonly instanceType: InstanceType;
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.InstanceType
-- *Default:* m5.large
+- *Default:* m6i.large
 
 The instance type used to build the image.
 
@@ -5701,7 +5701,7 @@ public readonly instanceType: InstanceType;
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.InstanceType
-- *Default:* m5.large
+- *Default:* m6i.large
 
 The instance type used to build the image.
 
@@ -5949,7 +5949,7 @@ public readonly instanceType: InstanceType;
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.InstanceType
-- *Default:* m5.large
+- *Default:* m6i.large
 
 Instance type for launched runner instances.
 
@@ -6250,7 +6250,7 @@ public readonly instanceType: InstanceType;
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.InstanceType
-- *Default:* m5.large or m6g.large
+- *Default:* m6i.large or m6g.large
 
 Instance type of ECS cluster instances.
 
