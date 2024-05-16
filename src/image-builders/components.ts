@@ -326,7 +326,23 @@ export abstract class RunnerImageComponent {
             runnerCommands = [`$RUNNER_VERSION = '${runnerVersion.version}'`];
           }
 
-          runnerCommands.push('mkdir C:\\hostedtoolcache\\windows');
+          runnerCommands = runnerCommands.concat([
+            // create directories
+            'mkdir C:\\hostedtoolcache\\windows',
+            'mkdir C:\\tools',
+            // download zstd and extract to C:\tools
+            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/facebook/zstd/releases/latest > $Env:TEMP\\latest-zstd',
+            '$LatestUrl = Get-Content $Env:TEMP\\latest-zstd',
+            '$ZSTD_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
+            'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/facebook/zstd/releases/download/v$ZSTD_VERSION/zstd-v$ZSTD_VERSION-win64.zip" -OutFile zstd.zip',
+            'Expand-Archive zstd.zip -DestinationPath C:\\tools',
+            'Move-Item -Path C:\\tools\\zstd-v$ZSTD_VERSION-win64\\zstd.exe C:\\tools',
+            'Remove-Item -LiteralPath "C:\\tools\\zstd-v$ZSTD_VERSION-win64" -Force -Recurse',
+            'del zstd.zip',
+            // add C:\tools to PATH
+            '$persistedPaths = [Environment]::GetEnvironmentVariable(\'Path\', [EnvironmentVariableTarget]::Machine)',
+            '[Environment]::SetEnvironmentVariable("PATH", $persistedPaths + ";C:\\tools", [EnvironmentVariableTarget]::Machine)',
+          ]);
 
           return runnerCommands.concat([
             'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip" -OutFile actions.zip',
