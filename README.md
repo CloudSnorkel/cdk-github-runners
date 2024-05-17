@@ -292,6 +292,18 @@ Other useful metrics to track:
 1. Use `GitHubRunners.metricJobCompleted()` to get a metric for the number of completed jobs broken down by labels and job success.
 2. Use `GitHubRunners.metricTime()` to get a metric for the total time a runner is running. This includes the overhead of starting the runner.
 
+## Contributing
+
+If you use and love this project, please consider contributing.
+
+1. If you see something, say something. [Issues][16] help improve the quality of the project.
+  * Include relevant logs and package versions for bugs.
+  * When possible, describe the use-case behind feature requests.
+3. [Pull requests][17] are welcome.
+  * Run `npm run build` before submitting to make sure all tests pass.
+  * Allow edits from maintainers so small adjustments can be made easily.
+3. Consider [sponsoring][15] the project to show your support and optionally get your name listed below.
+
 ## Other Options
 
 1. [philips-labs/terraform-aws-github-runner][3] if you're using Terraform
@@ -312,3 +324,6 @@ Other useful metrics to track:
 [12]: https://www.nuget.org/packages/CloudSnorkel.Cdk.Github.Runners/
 [13]: https://constructs.dev/packages/@cloudsnorkel/cdk-github-runners/
 [14]: https://docs.github.com/en/actions/hosting-your-own-runners/autoscaling-with-self-hosted-runners#using-ephemeral-runners-for-autoscaling
+[15]: https://github.com/sponsors/CloudSnorkel
+[16]: https://github.com/CloudSnorkel/cdk-github-runners/issues
+[17]: https://github.com/CloudSnorkel/cdk-github-runners/pulls
