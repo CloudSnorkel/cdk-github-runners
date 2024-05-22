@@ -4,7 +4,6 @@ on:
   workflow_run:
     workflows: [build]
     types: [completed]
-    #branches: [github-actions/upgrade-main]
 
 jobs:
   on-failure:
@@ -29,7 +28,9 @@ jobs:
           npm run bundle
           npm run integ:default:snapshot
       - name: Switch to branch
-        run: git checkout ${{ github.event.workflow_run.head_branch }}
+        env:
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: git checkout "$BRANCH"
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
       - name: Snapshot branch
@@ -82,7 +83,7 @@ jobs:
 
             *Automatically created by projen via the "upgrade-snapshot" workflow*
           branch: ${{ github.event.workflow_run.head_branch }}-upgrade-snapshot
-          title: "chore(deps): update snapshot for dependencies upgrade"
+          title: "chore(deps): update snapshot"
           body: |-
             Update snapshot. See details in [workflow run].
 
