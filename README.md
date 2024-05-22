@@ -10,11 +10,11 @@
 
 Use this CDK construct to create ephemeral [self-hosted GitHub runners][1] on-demand inside your AWS account.
 
-* Easy to configure GitHub integration with a web-based interface
-* Customizable runners with decent defaults
-* Multiple runner configurations controlled by labels
-* Everything fully hosted in your account
-* Automatically updated build environment with latest runner version
+* 🧩 Easy to configure GitHub integration with a web-based interface
+* 🧠 Customizable runners with decent defaults
+* 🏃🏻 Multiple runner configurations controlled by labels
+* 🔐 Everything fully hosted in your account
+* 🔃 Automatically updated build environment with latest runner version
 
 Self-hosted runners in AWS are useful when:
 
@@ -296,13 +296,13 @@ Other useful metrics to track:
 
 If you use and love this project, please consider contributing.
 
-1. If you see something, say something. [Issues][16] help improve the quality of the project.
-  * Include relevant logs and package versions for bugs.
-  * When possible, describe the use-case behind feature requests.
-3. [Pull requests][17] are welcome.
-  * Run `npm run build` before submitting to make sure all tests pass.
-  * Allow edits from maintainers so small adjustments can be made easily.
-3. Consider [sponsoring][15] the project to show your support and optionally get your name listed below.
+1. 🪳 If you see something, say something. [Issues][16] help improve the quality of the project.
+   * Include relevant logs and package versions for bugs.
+   * When possible, describe the use-case behind feature requests.
+1. 🛠️ [Pull requests][17] are welcome.
+   * Run `npm run build` before submitting to make sure all tests pass.
+   * Allow edits from maintainers so small adjustments can be made easily.
+1. 💵 Consider [sponsoring][15] the project to show your support and optionally get your name listed below.
 
 ## Other Options
 
