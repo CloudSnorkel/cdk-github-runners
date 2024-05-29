@@ -485,6 +485,8 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, ICons
 export abstract class BaseProvider extends Construct {
   protected constructor(scope: Construct, id: string, _props?: RunnerProviderProps) {
     super(scope, id);
+
+    cdk.Tags.of(this).add('GitHubRunners:Provider', this.node.path);
   }
 
   protected labelsFromProperties(defaultLabel: string, propsLabel: string | undefined, propsLabels: string[] | undefined): string[] {

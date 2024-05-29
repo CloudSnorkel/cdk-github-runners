@@ -8202,7 +8202,13 @@
   "CodeBuildx64LogsA21ECD59": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/CodeBuildx64"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -8248,7 +8254,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/CodeBuildx64"
+     }
+    ]
    }
   },
   "CodeBuildx64CodeBuildRoleDefaultPolicy221DA642": {
@@ -8474,6 +8486,12 @@
      "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"REGISTRATION_URL\": \"unspecified\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"${REGISTRATION_URL}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/CodeBuildx64"
+     }
+    ],
     "TimeoutInMinutes": 60
    }
   },
@@ -8554,7 +8572,13 @@
   "CodeBuildARMLogs7C7FC5A7": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/CodeBuildARM"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -8600,7 +8624,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/CodeBuildARM"
+     }
+    ]
    }
   },
   "CodeBuildARMCodeBuildRoleDefaultPolicyFC84CEAE": {
@@ -8826,13 +8856,25 @@
      "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"REGISTRATION_URL\": \"unspecified\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"${REGISTRATION_URL}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/CodeBuildARM"
+     }
+    ],
     "TimeoutInMinutes": 60
    }
   },
   "CodeBuildWindowsLogsF4DD93A5": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/CodeBuildWindows"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -8878,7 +8920,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/CodeBuildWindows"
+     }
+    ]
    }
   },
   "CodeBuildWindowsCodeBuildRoleDefaultPolicyA932AC4D": {
@@ -9104,6 +9152,12 @@
      "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"REGISTRATION_URL\": \"unspecified\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"if (${Env:RUNNER_VERSION} -eq \\\"latest\\\") { $RunnerFlags = \\\"\\\" } else { $RunnerFlags = \\\"--disableupdate\\\" }\",\n        \"./config.cmd --unattended --url \\\"${Env:REGISTRATION_URL}\\\" --token \\\"${Env:RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat %s)\\\" ${RunnerFlags} --name \\\"${Env:RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"./run.cmd\",\n        \"$STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1\",\n        \"if ($STATUS) { echo \\\"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\\\" }\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/CodeBuildWindows"
+     }
+    ],
     "TimeoutInMinutes": 60
    }
   },
@@ -9211,13 +9265,27 @@
       "IpProtocol": "-1"
      }
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS"
+     }
+    ],
     "VpcId": {
      "Ref": "Vpc8378EB38"
     }
    }
   },
   "ECScluster20BC0B82": {
-   "Type": "AWS::ECS::Cluster"
+   "Type": "AWS::ECS::Cluster",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS"
+     }
+    ]
+   }
   },
   "ECScluster9E223943": {
    "Type": "AWS::ECS::ClusterCapacityProviderAssociations",
@@ -9247,7 +9315,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS"
+     }
+    ]
    }
   },
   "ECSLaunchTemplateRoleDefaultPolicyA6578409": {
@@ -9385,6 +9459,10 @@
        "ResourceType": "instance",
        "Tags": [
         {
+         "Key": "GitHubRunners:Provider",
+         "Value": "github-runners-test/ECS"
+        },
+        {
          "Key": "Name",
          "Value": "github-runners-test/ECS/Launch Template"
         }
@@ -9393,6 +9471,10 @@
       {
        "ResourceType": "volume",
        "Tags": [
+        {
+         "Key": "GitHubRunners:Provider",
+         "Value": "github-runners-test/ECS"
+        },
         {
          "Key": "Name",
          "Value": "github-runners-test/ECS/Launch Template"
@@ -9474,6 +9556,10 @@
       "ResourceType": "launch-template",
       "Tags": [
        {
+        "Key": "GitHubRunners:Provider",
+        "Value": "github-runners-test/ECS"
+       },
+       {
         "Key": "Name",
         "Value": "github-runners-test/ECS/Launch Template"
        }
@@ -9503,6 +9589,13 @@
     "MaxSize": "1",
     "MinSize": "0",
     "NewInstancesProtectedFromScaleIn": true,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "PropagateAtLaunch": true,
+      "Value": "github-runners-test/ECS"
+     }
+    ],
     "VPCZoneIdentifier": [
      {
       "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
@@ -9530,13 +9623,25 @@
       "TargetCapacity": 100
      },
      "ManagedTerminationProtection": "ENABLED"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS"
+     }
+    ]
    }
   },
   "ECSlogs71446134": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -9582,7 +9687,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS"
+     }
+    ]
    }
   },
   "ECStaskTaskRoleDefaultPolicy46A3CB3A": {
@@ -9702,6 +9813,12 @@
     "RequiresCompatibilities": [
      "EC2"
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS"
+     }
+    ],
     "TaskRoleArn": {
      "Fn::GetAtt": [
       "ECStaskTaskRoleFE831ECD",
@@ -9724,7 +9841,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS"
+     }
+    ]
    }
   },
   "ECStaskExecutionRoleDefaultPolicy564C1271": {
@@ -9786,13 +9909,27 @@
       "IpProtocol": "-1"
      }
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS ARM64"
+     }
+    ],
     "VpcId": {
      "Ref": "Vpc8378EB38"
     }
    }
   },
   "ECSARM64cluster4ECAA083": {
-   "Type": "AWS::ECS::Cluster"
+   "Type": "AWS::ECS::Cluster",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS ARM64"
+     }
+    ]
+   }
   },
   "ECSARM64cluster43E75409": {
    "Type": "AWS::ECS::ClusterCapacityProviderAssociations",
@@ -9822,7 +9959,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS ARM64"
+     }
+    ]
    }
   },
   "ECSARM64LaunchTemplateRoleDefaultPolicy0705A7AA": {
@@ -9954,6 +10097,10 @@
        "ResourceType": "instance",
        "Tags": [
         {
+         "Key": "GitHubRunners:Provider",
+         "Value": "github-runners-test/ECS ARM64"
+        },
+        {
          "Key": "Name",
          "Value": "github-runners-test/ECS ARM64/Launch Template"
         }
@@ -9962,6 +10109,10 @@
       {
        "ResourceType": "volume",
        "Tags": [
+        {
+         "Key": "GitHubRunners:Provider",
+         "Value": "github-runners-test/ECS ARM64"
+        },
         {
          "Key": "Name",
          "Value": "github-runners-test/ECS ARM64/Launch Template"
@@ -10043,6 +10194,10 @@
       "ResourceType": "launch-template",
       "Tags": [
        {
+        "Key": "GitHubRunners:Provider",
+        "Value": "github-runners-test/ECS ARM64"
+       },
+       {
         "Key": "Name",
         "Value": "github-runners-test/ECS ARM64/Launch Template"
        }
@@ -10072,6 +10227,13 @@
     "MaxSize": "1",
     "MinSize": "0",
     "NewInstancesProtectedFromScaleIn": true,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "PropagateAtLaunch": true,
+      "Value": "github-runners-test/ECS ARM64"
+     }
+    ],
     "VPCZoneIdentifier": [
      {
       "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
@@ -10099,13 +10261,25 @@
       "TargetCapacity": 100
      },
      "ManagedTerminationProtection": "ENABLED"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS ARM64"
+     }
+    ]
    }
   },
   "ECSARM64logs1A2F1E00": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS ARM64"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -10151,7 +10325,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS ARM64"
+     }
+    ]
    }
   },
   "ECSARM64taskTaskRoleDefaultPolicyD893D7DC": {
@@ -10271,6 +10451,12 @@
     "RequiresCompatibilities": [
      "EC2"
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS ARM64"
+     }
+    ],
     "TaskRoleArn": {
      "Fn::GetAtt": [
       "ECSARM64taskTaskRole23B1CB4E",
@@ -10293,7 +10479,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS ARM64"
+     }
+    ]
    }
   },
   "ECSARM64taskExecutionRoleDefaultPolicy17294239": {
@@ -10355,13 +10547,27 @@
       "IpProtocol": "-1"
      }
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS Windows"
+     }
+    ],
     "VpcId": {
      "Ref": "Vpc8378EB38"
     }
    }
   },
   "ECSWindowscluster14061F74": {
-   "Type": "AWS::ECS::Cluster"
+   "Type": "AWS::ECS::Cluster",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS Windows"
+     }
+    ]
+   }
   },
   "ECSWindowscluster49B54894": {
    "Type": "AWS::ECS::ClusterCapacityProviderAssociations",
@@ -10391,7 +10597,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS Windows"
+     }
+    ]
    }
   },
   "ECSWindowsLaunchTemplateRoleDefaultPolicy48457459": {
@@ -10523,6 +10735,10 @@
        "ResourceType": "instance",
        "Tags": [
         {
+         "Key": "GitHubRunners:Provider",
+         "Value": "github-runners-test/ECS Windows"
+        },
+        {
          "Key": "Name",
          "Value": "github-runners-test/ECS Windows/Launch Template"
         }
@@ -10531,6 +10747,10 @@
       {
        "ResourceType": "volume",
        "Tags": [
+        {
+         "Key": "GitHubRunners:Provider",
+         "Value": "github-runners-test/ECS Windows"
+        },
         {
          "Key": "Name",
          "Value": "github-runners-test/ECS Windows/Launch Template"
@@ -10612,6 +10832,10 @@
       "ResourceType": "launch-template",
       "Tags": [
        {
+        "Key": "GitHubRunners:Provider",
+        "Value": "github-runners-test/ECS Windows"
+       },
+       {
         "Key": "Name",
         "Value": "github-runners-test/ECS Windows/Launch Template"
        }
@@ -10641,6 +10865,13 @@
     "MaxSize": "1",
     "MinSize": "0",
     "NewInstancesProtectedFromScaleIn": true,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "PropagateAtLaunch": true,
+      "Value": "github-runners-test/ECS Windows"
+     }
+    ],
     "VPCZoneIdentifier": [
      {
       "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
@@ -10668,13 +10899,25 @@
       "TargetCapacity": 100
      },
      "ManagedTerminationProtection": "ENABLED"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS Windows"
+     }
+    ]
    }
   },
   "ECSWindowslogs83D9D352": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS Windows"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -10720,7 +10963,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS Windows"
+     }
+    ]
    }
   },
   "ECSWindowstaskTaskRoleDefaultPolicy529AC984": {
@@ -10839,6 +11088,12 @@
     "RequiresCompatibilities": [
      "EC2"
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS Windows"
+     }
+    ],
     "TaskRoleArn": {
      "Fn::GetAtt": [
       "ECSWindowstaskTaskRole17C8DA48",
@@ -10861,7 +11116,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/ECS Windows"
+     }
+    ]
    }
   },
   "ECSWindowstaskExecutionRoleDefaultPolicyA46C9687": {
@@ -11004,7 +11265,13 @@
   "LambdaLog2764B04F": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Lambda"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -11063,6 +11330,12 @@
         ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
        ]
       ]
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Lambda"
      }
     ]
    }
@@ -11157,6 +11430,12 @@
       "Arn"
      ]
     },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Lambda"
+     }
+    ],
     "Timeout": 900
    },
    "DependsOn": [
@@ -11417,7 +11696,13 @@
   "LambdaARMLogAA2DA09F": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/LambdaARM"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -11476,6 +11761,12 @@
         ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
        ]
       ]
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/LambdaARM"
      }
     ]
    }
@@ -11570,6 +11861,12 @@
       "Arn"
      ]
     },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/LambdaARM"
+     }
+    ],
     "Timeout": 900
    },
    "DependsOn": [
@@ -11587,6 +11884,12 @@
       "IpProtocol": "-1"
      }
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate"
+     }
+    ],
     "VpcId": {
      "Ref": "Vpc8378EB38"
     }
@@ -11595,7 +11898,13 @@
   "FargatelogsCB753638": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -11641,7 +11950,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate"
+     }
+    ]
    }
   },
   "FargatetaskTaskRoleDefaultPolicy4E176780": {
@@ -11766,6 +12081,12 @@
      "CpuArchitecture": "X86_64",
      "OperatingSystemFamily": "LINUX"
     },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate"
+     }
+    ],
     "TaskRoleArn": {
      "Fn::GetAtt": [
       "FargatetaskTaskRoleEFFCDAF8",
@@ -11788,7 +12109,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate"
+     }
+    ]
    }
   },
   "FargatetaskExecutionRoleDefaultPolicy72A5073A": {
@@ -11850,6 +12177,12 @@
       "IpProtocol": "-1"
      }
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-x64-spot"
+     }
+    ],
     "VpcId": {
      "Ref": "Vpc8378EB38"
     }
@@ -11858,7 +12191,13 @@
   "Fargatex64spotlogs0BCF618B": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-x64-spot"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -11904,7 +12243,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-x64-spot"
+     }
+    ]
    }
   },
   "Fargatex64spottaskTaskRoleDefaultPolicyDBB9916E": {
@@ -12029,6 +12374,12 @@
      "CpuArchitecture": "X86_64",
      "OperatingSystemFamily": "LINUX"
     },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-x64-spot"
+     }
+    ],
     "TaskRoleArn": {
      "Fn::GetAtt": [
       "Fargatex64spottaskTaskRole02893C25",
@@ -12051,7 +12402,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-x64-spot"
+     }
+    ]
    }
   },
   "Fargatex64spottaskExecutionRoleDefaultPolicyA51A696A": {
@@ -12113,6 +12470,12 @@
       "IpProtocol": "-1"
      }
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-arm64"
+     }
+    ],
     "VpcId": {
      "Ref": "Vpc8378EB38"
     }
@@ -12121,7 +12484,13 @@
   "Fargatearm64logs00171A52": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-arm64"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -12167,7 +12536,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-arm64"
+     }
+    ]
    }
   },
   "Fargatearm64taskTaskRoleDefaultPolicy0D37729A": {
@@ -12292,6 +12667,12 @@
      "CpuArchitecture": "ARM64",
      "OperatingSystemFamily": "LINUX"
     },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-arm64"
+     }
+    ],
     "TaskRoleArn": {
      "Fn::GetAtt": [
       "Fargatearm64taskTaskRoleD3C2CD58",
@@ -12314,7 +12695,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-arm64"
+     }
+    ]
    }
   },
   "Fargatearm64taskExecutionRoleDefaultPolicy0E3D42DB": {
@@ -12376,6 +12763,12 @@
       "IpProtocol": "-1"
      }
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-arm64-spot"
+     }
+    ],
     "VpcId": {
      "Ref": "Vpc8378EB38"
     }
@@ -12384,7 +12777,13 @@
   "Fargatearm64spotlogsEFCCEC59": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-arm64-spot"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -12430,7 +12829,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-arm64-spot"
+     }
+    ]
    }
   },
   "Fargatearm64spottaskTaskRoleDefaultPolicyB8772E50": {
@@ -12555,6 +12960,12 @@
      "CpuArchitecture": "ARM64",
      "OperatingSystemFamily": "LINUX"
     },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-arm64-spot"
+     }
+    ],
     "TaskRoleArn": {
      "Fn::GetAtt": [
       "Fargatearm64spottaskTaskRole0F078C81",
@@ -12577,7 +12988,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-arm64-spot"
+     }
+    ]
    }
   },
   "Fargatearm64spottaskExecutionRoleDefaultPolicyB9BB282A": {
@@ -12639,6 +13056,12 @@
       "IpProtocol": "-1"
      }
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-Windows"
+     }
+    ],
     "VpcId": {
      "Ref": "Vpc8378EB38"
     }
@@ -12647,7 +13070,13 @@
   "FargateWindowslogs52881DBF": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-Windows"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -12693,7 +13122,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-Windows"
+     }
+    ]
    }
   },
   "FargateWindowstaskTaskRoleDefaultPolicy17F0249C": {
@@ -12814,6 +13249,12 @@
      "CpuArchitecture": "X86_64",
      "OperatingSystemFamily": "WINDOWS_SERVER_2019_CORE"
     },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-Windows"
+     }
+    ],
     "TaskRoleArn": {
      "Fn::GetAtt": [
       "FargateWindowstaskTaskRole364508C8",
@@ -12836,7 +13277,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/Fargate-Windows"
+     }
+    ]
    }
   },
   "FargateWindowstaskExecutionRoleDefaultPolicy2EF7D3FD": {
@@ -12898,6 +13345,12 @@
       "IpProtocol": "-1"
      }
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Linux"
+     }
+    ],
     "VpcId": {
      "Ref": "Vpc8378EB38"
     }
@@ -12917,7 +13370,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Linux"
+     }
+    ]
    }
   },
   "EC2LinuxRoleDefaultPolicy1369791B": {
@@ -12980,7 +13439,13 @@
   "EC2LinuxLogsC4CD8F14": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Linux"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -13185,6 +13650,12 @@
       "IpProtocol": "-1"
      }
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Spot Linux"
+     }
+    ],
     "VpcId": {
      "Ref": "Vpc8378EB38"
     }
@@ -13204,7 +13675,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Spot Linux"
+     }
+    ]
    }
   },
   "EC2SpotLinuxRoleDefaultPolicy061AD1D0": {
@@ -13267,7 +13744,13 @@
   "EC2SpotLinuxLogsF78D5F0E": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Spot Linux"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -13371,6 +13854,12 @@
       "IpProtocol": "-1"
      }
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Linux arm64"
+     }
+    ],
     "VpcId": {
      "Ref": "Vpc8378EB38"
     }
@@ -13390,7 +13879,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Linux arm64"
+     }
+    ]
    }
   },
   "EC2Linuxarm64RoleDefaultPolicyDE9193C3": {
@@ -13453,7 +13948,13 @@
   "EC2Linuxarm64Logs577E371E": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Linux arm64"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -13557,6 +14058,12 @@
       "IpProtocol": "-1"
      }
     ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Windows"
+     }
+    ],
     "VpcId": {
      "Ref": "Vpc8378EB38"
     }
@@ -13576,7 +14083,13 @@
       }
      ],
      "Version": "2012-10-17"
-    }
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Windows"
+     }
+    ]
    }
   },
   "EC2WindowsRoleDefaultPolicyB6A15409": {
@@ -13639,7 +14152,13 @@
   "EC2WindowsLogsDC1F2ABF": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "RetentionInDays": 30
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Windows"
+     }
+    ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -15955,7 +16474,7 @@
        {
         "Ref": "EC2LinuxAMIRootDevice26D5E56E"
        },
-       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, linux, x64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Linux\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Linux\"}]}]}},\"ec2, linux, x64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
@@ -15993,7 +16512,7 @@
        {
         "Ref": "EC2LinuxAMIRootDevice26D5E56E"
        },
-       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2-spot, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nlogGroupName=\\\"{}\\\"\\nrunnerNamePath=\\\"{}\\\"\\ngithubDomainPath=\\\"{}\\\"\\nownerPath=\\\"{}\\\"\\nrepoPath=\\\"{}\\\"\\nrunnerTokenPath=\\\"{}\\\"\\nlabels=\\\"{}\\\"\\nregistrationURL=\\\"{}\\\"\\n\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  # Determine the value of RUNNER_FLAGS\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then\\n    RUNNER_FLAGS=\\\"\\\"\\n  else\\n    RUNNER_FLAGS=\\\"--disableupdate\\\"\\n  fi\\n\\n  labelsTemplate=\\\"$labels,cdkghr:started:$(date +%s)\\\"\\n\\n  # Execute the configuration command for runner registration\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"$registrationURL\\\" --token \\\"$runnerTokenPath\\\" --ephemeral --work _work --labels \\\"$labelsTemplate\\\" $RUNNER_FLAGS --name \\\"$runnerNamePath\\\" || exit 1\\n\\n  # Execute the run command\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\n  # Retrieve the status\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: K.*\\\" /home/runner/_diag/ | tail -n1)\\n\\n  # Check and print the job status\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$labels\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2-spot, linux, x64 subnet1\"},\"ec2-spot, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2-spot, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Linux\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Linux\"}]}]}},\"ec2-spot, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nlogGroupName=\\\"{}\\\"\\nrunnerNamePath=\\\"{}\\\"\\ngithubDomainPath=\\\"{}\\\"\\nownerPath=\\\"{}\\\"\\nrepoPath=\\\"{}\\\"\\nrunnerTokenPath=\\\"{}\\\"\\nlabels=\\\"{}\\\"\\nregistrationURL=\\\"{}\\\"\\n\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  # Determine the value of RUNNER_FLAGS\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then\\n    RUNNER_FLAGS=\\\"\\\"\\n  else\\n    RUNNER_FLAGS=\\\"--disableupdate\\\"\\n  fi\\n\\n  labelsTemplate=\\\"$labels,cdkghr:started:$(date +%s)\\\"\\n\\n  # Execute the configuration command for runner registration\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"$registrationURL\\\" --token \\\"$runnerTokenPath\\\" --ephemeral --work _work --labels \\\"$labelsTemplate\\\" $RUNNER_FLAGS --name \\\"$runnerNamePath\\\" || exit 1\\n\\n  # Execute the run command\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\n  # Retrieve the status\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: K.*\\\" /home/runner/_diag/ | tail -n1)\\n\\n  # Check and print the job status\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$labels\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2-spot, linux, x64 subnet1\"},\"ec2-spot, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2-spot, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -16031,7 +16550,7 @@
        {
         "Ref": "EC2SpotLinuxAMIRootDeviceC8A06843"
        },
-       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}},\"ec2-spot, linux, x64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}},\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Spot Linux\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Spot Linux\"}]}]}},\"ec2-spot, linux, x64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
@@ -16069,7 +16588,7 @@
        {
         "Ref": "EC2SpotLinuxAMIRootDeviceC8A06843"
        },
-       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}}}},\"ec2, linux, arm64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nlogGroupName=\\\"{}\\\"\\nrunnerNamePath=\\\"{}\\\"\\ngithubDomainPath=\\\"{}\\\"\\nownerPath=\\\"{}\\\"\\nrepoPath=\\\"{}\\\"\\nrunnerTokenPath=\\\"{}\\\"\\nlabels=\\\"{}\\\"\\nregistrationURL=\\\"{}\\\"\\n\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  # Determine the value of RUNNER_FLAGS\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then\\n    RUNNER_FLAGS=\\\"\\\"\\n  else\\n    RUNNER_FLAGS=\\\"--disableupdate\\\"\\n  fi\\n\\n  labelsTemplate=\\\"$labels,cdkghr:started:$(date +%s)\\\"\\n\\n  # Execute the configuration command for runner registration\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"$registrationURL\\\" --token \\\"$runnerTokenPath\\\" --ephemeral --work _work --labels \\\"$labelsTemplate\\\" $RUNNER_FLAGS --name \\\"$runnerNamePath\\\" || exit 1\\n\\n  # Execute the run command\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\n  # Retrieve the status\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: K.*\\\" /home/runner/_diag/ | tail -n1)\\n\\n  # Check and print the job status\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$labels\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2, linux, arm64 subnet1\"},\"ec2, linux, arm64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, arm64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"InstanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}},\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Spot Linux\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Spot Linux\"}]}]}},\"ec2, linux, arm64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nlogGroupName=\\\"{}\\\"\\nrunnerNamePath=\\\"{}\\\"\\ngithubDomainPath=\\\"{}\\\"\\nownerPath=\\\"{}\\\"\\nrepoPath=\\\"{}\\\"\\nrunnerTokenPath=\\\"{}\\\"\\nlabels=\\\"{}\\\"\\nregistrationURL=\\\"{}\\\"\\n\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  # Determine the value of RUNNER_FLAGS\\n  if [ \\\"$(< RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then\\n    RUNNER_FLAGS=\\\"\\\"\\n  else\\n    RUNNER_FLAGS=\\\"--disableupdate\\\"\\n  fi\\n\\n  labelsTemplate=\\\"$labels,cdkghr:started:$(date +%s)\\\"\\n\\n  # Execute the configuration command for runner registration\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"$registrationURL\\\" --token \\\"$runnerTokenPath\\\" --ephemeral --work _work --labels \\\"$labelsTemplate\\\" $RUNNER_FLAGS --name \\\"$runnerNamePath\\\" || exit 1\\n\\n  # Execute the run command\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\n  # Retrieve the status\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: K.*\\\" /home/runner/_diag/ | tail -n1)\\n\\n  # Check and print the job status\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$labels\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2, linux, arm64 subnet1\"},\"ec2, linux, arm64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, arm64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -16107,7 +16626,7 @@
        {
         "Ref": "EC2Linuxarm64AMIRootDevice3046D37D"
        },
-       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, linux, arm64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Linux arm64\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Linux arm64\"}]}]}},\"ec2, linux, arm64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
@@ -16145,7 +16664,7 @@
        {
         "Ref": "EC2Linuxarm64AMIRootDevice3046D37D"
        },
-       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, windows, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\n$logGroupName=\\\"{}\\\"\\n$runnerNamePath=\\\"{}\\\"\\n$githubDomainPath=\\\"{}\\\"\\n$ownerPath=\\\"{}\\\"\\n$repoPath=\\\"{}\\\"\\n$runnerTokenPath=\\\"{}\\\"\\n$labels=\\\"{}\\\"\\n$registrationURL=\\\"{}\\\"\\n\\n# EC2Launch only starts ssm agent after user data is done, so we need to start it ourselves (it is disabled by default)\\nSet-Service -StartupType Manual AmazonSSMAgent\\nStart-Service AmazonSSMAgent\\n\\nStart-Job -ScriptBlock \\\\{\\n  while (1) \\\\{\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    sleep 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  echo \\\"\\\\{\\n    `\\\"logs`\\\": \\\\{\\n      `\\\"log_stream_name`\\\": `\\\"unknown`\\\",\\n      `\\\"logs_collected`\\\": \\\\{\\n        `\\\"files`\\\": \\\\{\\n         `\\\"collect_list`\\\": [\\n            \\\\{\\n              `\\\"file_path`\\\": `\\\"/actions/runner.log`\\\",\\n              `\\\"log_group_name`\\\": `\\\"$logGroupName`\\\",\\n              `\\\"log_stream_name`\\\": `\\\"$runnerNamePath`\\\",\\n              `\\\"timezone`\\\": `\\\"UTC`\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\\" | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  $RunnerVersion = Get-Content RUNNER_VERSION -Raw\\n  if ($RunnerVersion -eq \\\"latest\\\") \\\\{ $RunnerFlags = \\\"\\\" \\\\} else \\\\{ $RunnerFlags = \\\"--disableupdate\\\" \\\\}\\n  ./config.cmd --unattended --url \\\"$\\\\{registrationUrl\\\\}\\\" --token \\\"$\\\\{runnerTokenPath\\\\}\\\" --ephemeral --work _work --labels \\\"$\\\\{labels\\\\},cdkghr:started:$(Get-Date -UFormat +%s)\\\" $RunnerFlags --name \\\"$\\\\{runnerNamePath\\\\}\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n\\n  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %\\\\{$_.Matches.Groups[1].Value\\\\} | Select-Object -Last 1\\n\\n  if ($STATUS) \\\\{\\n      echo \\\"CDKGHA JOB DONE $\\\\{labels\\\\} $STATUS\\\" | Out-File -Encoding ASCII -Append /actions/runner.log\\n  \\\\}\\n\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}'\\n\\\\} else \\\\{\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\n\\\\}\\nStart-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"ec2, windows, x64 subnet1\"},\"ec2, windows, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, windows, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Linux arm64\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Linux arm64\"}]}]}},\"ec2, windows, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\n$logGroupName=\\\"{}\\\"\\n$runnerNamePath=\\\"{}\\\"\\n$githubDomainPath=\\\"{}\\\"\\n$ownerPath=\\\"{}\\\"\\n$repoPath=\\\"{}\\\"\\n$runnerTokenPath=\\\"{}\\\"\\n$labels=\\\"{}\\\"\\n$registrationURL=\\\"{}\\\"\\n\\n# EC2Launch only starts ssm agent after user data is done, so we need to start it ourselves (it is disabled by default)\\nSet-Service -StartupType Manual AmazonSSMAgent\\nStart-Service AmazonSSMAgent\\n\\nStart-Job -ScriptBlock \\\\{\\n  while (1) \\\\{\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    sleep 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  echo \\\"\\\\{\\n    `\\\"logs`\\\": \\\\{\\n      `\\\"log_stream_name`\\\": `\\\"unknown`\\\",\\n      `\\\"logs_collected`\\\": \\\\{\\n        `\\\"files`\\\": \\\\{\\n         `\\\"collect_list`\\\": [\\n            \\\\{\\n              `\\\"file_path`\\\": `\\\"/actions/runner.log`\\\",\\n              `\\\"log_group_name`\\\": `\\\"$logGroupName`\\\",\\n              `\\\"log_stream_name`\\\": `\\\"$runnerNamePath`\\\",\\n              `\\\"timezone`\\\": `\\\"UTC`\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\\" | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  $RunnerVersion = Get-Content RUNNER_VERSION -Raw\\n  if ($RunnerVersion -eq \\\"latest\\\") \\\\{ $RunnerFlags = \\\"\\\" \\\\} else \\\\{ $RunnerFlags = \\\"--disableupdate\\\" \\\\}\\n  ./config.cmd --unattended --url \\\"$\\\\{registrationUrl\\\\}\\\" --token \\\"$\\\\{runnerTokenPath\\\\}\\\" --ephemeral --work _work --labels \\\"$\\\\{labels\\\\},cdkghr:started:$(Get-Date -UFormat +%s)\\\" $RunnerFlags --name \\\"$\\\\{runnerNamePath\\\\}\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n\\n  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %\\\\{$_.Matches.Groups[1].Value\\\\} | Select-Object -Last 1\\n\\n  if ($STATUS) \\\\{\\n      echo \\\"CDKGHA JOB DONE $\\\\{labels\\\\} $STATUS\\\" | Out-File -Encoding ASCII -Append /actions/runner.log\\n  \\\\}\\n\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}'\\n\\\\} else \\\\{\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\n\\\\}\\nStart-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"ec2, windows, x64 subnet1\"},\"ec2, windows, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, windows, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -16183,7 +16702,7 @@
        {
         "Ref": "EC2WindowsAMIRootDevice9FFC971A"
        },
-       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}},\"ec2, windows, x64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows\"}]}]}},\"ec2, windows, x64 subnet2\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
@@ -16221,7 +16740,7 @@
        {
         "Ref": "EC2WindowsAMIRootDevice9FFC971A"
        },
-       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}]}}}}]},\"Delete Failed Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows\"}]}]}}}}]},\"Delete Failed Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnersdeleterunner7F8D5293",
