@@ -486,6 +486,10 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
               Tags: [{
                 Key: 'GitHubRunners:Provider',
                 Value: this.node.path,
+              },
+              {
+                Key: 'GitHubRunners:OwnerPath',
+                Value: parameters.ownerPath,
               }],
             },
             {
