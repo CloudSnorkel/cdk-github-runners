@@ -490,6 +490,10 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
               {
                 Key: 'GitHubRunners:OwnerPath',
                 Value: parameters.ownerPath,
+              },
+              {
+                Key: 'GitHubRunners:RepoPath',
+                Value: parameters.repoPath,
               }],
             },
             {
