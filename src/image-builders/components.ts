@@ -509,7 +509,7 @@ export abstract class RunnerImageComponent {
       name = 'Lambda-Entrypoint';
 
       getCommands(os: Os, _architecture: Architecture) {
-        if (!os.is(Os.LINUX_AMAZON_2) && !os.is(Os.LINUX_AMAZON_2023) && !os.is(Os.LINUX_UBUNTU)) {
+        if (!os.isIn(Os._ALL_LINUX_VERSIONS)) {
           throw new Error(`Unsupported OS for Lambda entrypoint: ${os.name}`);
         }
 
@@ -519,20 +519,19 @@ export abstract class RunnerImageComponent {
       getAssets(_os: Os, _architecture: Architecture): RunnerImageAsset[] {
         return [
           {
-            source: path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-x64', 'runner.js'),
-            target: '${LAMBDA_TASK_ROOT}/runner.js',
+            source: path.join(__dirname, '..', '..', 'assets', 'providers', 'lambda-bootstrap.sh'),
+            target: '/bootstrap.sh',
           },
           {
-            source: path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-x64', 'runner.sh'),
-            target: '${LAMBDA_TASK_ROOT}/runner.sh',
+            source: path.join(__dirname, '..', '..', 'assets', 'providers', 'lambda-runner.sh'),
+            target: '/runner.sh',
           },
         ];
       }
 
       getDockerCommands(_os: Os, _architecture: Architecture): string[] {
         return [
-          'WORKDIR ${LAMBDA_TASK_ROOT}',
-          'CMD ["runner.handler"]',
+          'ENTRYPOINT ["bash", "/bootstrap.sh"]',
         ];
       }
     };
