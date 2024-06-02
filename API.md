@@ -3876,7 +3876,7 @@ You can customize the OS, architecture, VPC, subnet, security groups, etc. by pa
 
 You can add components to the image builder by calling `imageBuilder.addComponent()`.
 
-The default OS is Amazon Linux 2 running on x64 architecture.
+The default OS is Amazon Linux 2023 running on x64 architecture.
 
 Included components:
  * `RunnerImageComponent.requiredPackages()`
@@ -3886,8 +3886,6 @@ Included components:
  * `RunnerImageComponent.awsCli()`
  * `RunnerImageComponent.githubRunner()`
  * `RunnerImageComponent.lambdaEntrypoint()`
-
- Base Docker image: `public.ecr.aws/lambda/nodejs:20-x86_64` or `public.ecr.aws/lambda/nodejs:20-arm64`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.imageBuilder.parameter.scope"></a>
 
@@ -4242,7 +4240,7 @@ You can customize the OS, architecture, VPC, subnet, security groups, etc. by pa
 
 You can add components to the image builder by calling `imageBuilder.addComponent()`.
 
-The default OS is Amazon Linux 2 running on x64 architecture.
+The default OS is Amazon Linux 2023 running on x64 architecture.
 
 Included components:
  * `RunnerImageComponent.requiredPackages()`
@@ -4252,8 +4250,6 @@ Included components:
  * `RunnerImageComponent.awsCli()`
  * `RunnerImageComponent.githubRunner()`
  * `RunnerImageComponent.lambdaEntrypoint()`
-
- Base Docker image: `public.ecr.aws/lambda/nodejs:20-x86_64` or `public.ecr.aws/lambda/nodejs:20-arm64`
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.imageBuilder.parameter.scope"></a>
 
