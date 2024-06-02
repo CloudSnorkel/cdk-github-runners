@@ -1658,7 +1658,7 @@
         },
         ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils amazon-cloudwatch-agent\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\ndnf install -y openssl-libs krb5-libs zlib libicu-67.1\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/650306c64f992f45fb5e5e6c1ac7099b348d38a7354feef8e5d35177e0d480b4.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/2fc3b84da69dcc5adb6dc4721b50c1166474fa7e5fd5f242e833d12ac28e09d9.sh"
         },
         " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
         {
@@ -1770,15 +1770,15 @@
     ]
    }
   },
-  "LambdaImageBuilderx64BuildWaitHandle75ac2d141161FEA0FA": {
+  "LambdaImageBuilderx64BuildWaitHandleabc1a2cf4eBF42E433": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderx64BuildWait75ac2d1411BBFF61CA": {
+  "LambdaImageBuilderx64BuildWaitabc1a2cf4e6C943A34": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle75ac2d141161FEA0FA"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandleabc1a2cf4eBF42E433"
     },
     "Timeout": "3600"
    }
@@ -1799,7 +1799,7 @@
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle75ac2d141161FEA0FA"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandleabc1a2cf4eBF42E433"
     }
    },
    "DependsOn": [
@@ -5594,7 +5594,7 @@
         },
         ".amazonaws.com\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils amazon-cloudwatch-agent\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\ndnf install -y openssl-libs krb5-libs zlib libicu-67.1\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/650306c64f992f45fb5e5e6c1ac7099b348d38a7354feef8e5d35177e0d480b4.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/2fc3b84da69dcc5adb6dc4721b50c1166474fa7e5fd5f242e833d12ac28e09d9.sh"
         },
         " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
         {
@@ -5706,15 +5706,15 @@
     ]
    }
   },
-  "LambdaImageBuilderzBuildWaitHandle7c2939a502ABBB1603": {
+  "LambdaImageBuilderzBuildWaitHandlee9b9180134313DC046": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderzBuildWait7c2939a502F6DC1CC9": {
+  "LambdaImageBuilderzBuildWaite9b918013451CEF311": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle7c2939a502ABBB1603"
+     "Ref": "LambdaImageBuilderzBuildWaitHandlee9b9180134313DC046"
     },
     "Timeout": "3600"
    }
@@ -5735,7 +5735,7 @@
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle7c2939a502ABBB1603"
+     "Ref": "LambdaImageBuilderzBuildWaitHandlee9b9180134313DC046"
     }
    },
    "DependsOn": [
@@ -11212,7 +11212,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderx64BuildWait75ac2d1411BBFF61CA"
+        "Ref": "LambdaImageBuilderx64BuildWaitabc1a2cf4e6C943A34"
        },
        "\"}}"
       ]
@@ -11643,7 +11643,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderzBuildWait7c2939a502F6DC1CC9"
+        "Ref": "LambdaImageBuilderzBuildWaite9b918013451CEF311"
        },
        "\"}}"
       ]
