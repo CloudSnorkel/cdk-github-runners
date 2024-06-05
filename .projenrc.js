@@ -119,6 +119,7 @@ releaseWorkflow.file.addDeletionOverride('on.push');
 
 // bundle docker images
 project.bundler.bundleTask.exec('cp -r src/providers/docker-images assets');
+project.bundler.bundleTask.exec('cp -r src/providers/lambda-*.sh assets/providers');
 
 // set proper line endings
 project.gitattributes.addAttributes('*.js', 'eol=lf');
