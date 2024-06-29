@@ -1,16 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import {
-  aws_ec2 as ec2,
-  aws_events as events,
-  aws_events_targets as events_targets,
-  aws_iam as iam,
-  aws_imagebuilder as imagebuilder,
-  aws_logs as logs,
-  CustomResource,
-  Duration,
-  RemovalPolicy,
-  Stack,
-} from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_iam as iam, aws_imagebuilder as imagebuilder, aws_logs as logs, Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderBase } from './common';
 import { LinuxUbuntuComponents } from './linux-components';
@@ -20,7 +9,7 @@ import { singletonLambda } from '../../../utils';
 import { uniqueImageBuilderName } from '../../common';
 import { AmiRecipe, defaultBaseAmi } from '../ami';
 import { ImageBuilderComponent } from '../builder';
-import { DeleteAmiFunction } from '../delete-ami-function';
+import { DeleteResourcesFunction } from '../delete-resources-function';
 
 /**
  * Properties for {@link AmiBuilder} construct.
@@ -120,7 +109,7 @@ export interface AmiBuilderProps {
 }
 
 /**
- * An AMI builder that uses AWS Image Builder to build AMIs pre-baked with all the GitHub Actions runner requirements. Builders can be used with {@link Ec2Runner}.
+ * An AMI builder that uses AWS Image Builder to build AMIs pre-baked with all the GitHub Actions runner requirements. Builders can be used with {@link Ec2RunnerProvider}.
  *
  * Each builder re-runs automatically at a set interval to make sure the AMIs contain the latest versions of everything.
  *
@@ -147,7 +136,7 @@ export interface AmiBuilderProps {
  * });
  * ```
  *
- * @deprecated use RunnerImageBuilder
+ * @deprecated use RunnerImageBuilder, e.g. with Ec2RunnerProvider.imageBuilder()
  */
 export class AmiBuilder extends ImageBuilderBase {
   private boundAmi?: RunnerAmi;
@@ -292,6 +281,10 @@ export class AmiBuilder extends ImageBuilderBase {
       components: this.components,
       architecture: this.architecture,
       baseAmi: defaultBaseAmi(this, this.os, this.architecture),
+      tags: {
+        'GitHubRunners:Stack': stackName,
+        'GitHubRunners:Builder': builderName,
+      },
     });
 
     const log = this.createLog(recipe.name);
@@ -310,46 +303,22 @@ export class AmiBuilder extends ImageBuilderBase {
       runnerVersion: this.runnerVersion,
     };
 
-    this.imageCleaner(launchTemplate, stackName, builderName);
+    this.imageCleaner();
 
     return this.boundAmi;
   }
 
-  private imageCleaner(launchTemplate: ec2.LaunchTemplate, stackName: string, builderName: string) {
-    const deleter = singletonLambda(DeleteAmiFunction, this, 'delete-ami', {
-      description: 'Delete old GitHub Runner AMIs',
-      initialPolicy: [
-        new iam.PolicyStatement({
-          actions: ['ec2:DescribeLaunchTemplateVersions', 'ec2:DescribeImages', 'ec2:DeregisterImage', 'ec2:DeleteSnapshot'],
-          resources: ['*'],
-        }),
-      ],
+  private imageCleaner() {
+    // the lambda no longer implements the schedule feature
+    // this hasn't worked since https://github.com/CloudSnorkel/cdk-github-runners/pull/476
+    cdk.Annotations.of(this).addWarning('The AMI cleaner for this deprecated class has been broken since v0.12.0 (PR #476) and will not delete any AMIs. Please manually delete old AMIs and upgrade to e.g. Ec2RunnerProvider.imageBuilder() instead of AmiBuilder.');
+
+    // we keep the lambda itself around, in case the user doesn't have any other instances of it
+    // if there are no other instances of it, the custom resource will be deleted with the original lambda source code which may delete the AMIs on its way out
+    singletonLambda(DeleteResourcesFunction, this, 'delete-ami', {
+      description: 'Delete old GitHub Runner AMIs (defunct)',
       timeout: cdk.Duration.minutes(5),
       logRetention: logs.RetentionDays.ONE_MONTH,
-    });
-
-    // delete old AMIs on schedule
-    const eventRule = new events.Rule(this, 'Delete AMI Schedule', {
-      schedule: events.Schedule.rate(cdk.Duration.days(1)),
-      description: `Delete old AMIs for ${builderName}`,
-    });
-    eventRule.addTarget(new events_targets.LambdaFunction(deleter, {
-      event: events.RuleTargetInput.fromObject({
-        RequestType: 'Scheduled',
-        LaunchTemplateId: launchTemplate.launchTemplateId,
-        StackName: stackName,
-        BuilderName: builderName,
-      }),
-    }));
-
-    // delete all AMIs when this construct is removed
-    new CustomResource(this, 'AMI Deleter', {
-      serviceToken: deleter.functionArn,
-      resourceType: 'Custom::AmiDeleter',
-      properties: {
-        StackName: stackName,
-        BuilderName: builderName,
-      },
     });
   }
 

@@ -8,6 +8,8 @@ import { uniqueImageBuilderName } from '../common';
 
 /**
  * Properties for AmiRecipe construct.
+ *
+ * @internal
  */
 interface AmiRecipeProperties {
   /**
@@ -29,6 +31,11 @@ interface AmiRecipeProperties {
    * Components to add to target container image.
    */
   readonly components: ImageBuilderComponent[];
+
+  /**
+   * Tags to apply to the recipe and image.
+   */
+  readonly tags: { [key: string]: string };
 }
 
 /**
@@ -55,6 +62,7 @@ export class AmiRecipe extends ImageBuilderObjectBase {
       platform: props.platform,
       components,
       parentAmi: props.baseAmi,
+      tags: props.tags,
     });
 
     let workingDirectory;
@@ -72,6 +80,7 @@ export class AmiRecipe extends ImageBuilderObjectBase {
       parentImage: props.baseAmi,
       components,
       workingDirectory,
+      tags: props.tags,
     });
 
     this.arn = recipe.attrArn;

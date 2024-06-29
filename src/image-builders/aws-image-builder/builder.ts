@@ -22,7 +22,8 @@ import { Construct, IConstruct } from 'constructs';
 import { AmiRecipe, defaultBaseAmi } from './ami';
 import { ImageBuilderObjectBase } from './common';
 import { ContainerRecipe, defaultBaseDockerImage } from './container';
-import { DeleteAmiFunction } from './delete-ami-function';
+import { DeleteResourcesFunction } from './delete-resources-function';
+import { DeleteResourcesProps } from './delete-resources.lambda';
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
 import { generateBuildWorkflowWithDockerSetupCommands } from './workflow';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers';
@@ -313,6 +314,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   private readonly fastLaunchOptions?: FastLaunchOptions;
   private readonly waitOnDeploy: boolean;
   private readonly dockerSetupCommands: string[];
+  private readonly tags: { [key: string]: string };
 
   constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     super(scope, id, props);
@@ -335,6 +337,12 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.fastLaunchOptions = props?.awsImageBuilderOptions?.fastLaunchOptions;
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
     this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
+
+    // tags for finding resources
+    this.tags = {
+      'GitHubRunners:Stack': cdk.Stack.of(this).stackName,
+      'GitHubRunners:Builder': this.node.path,
+    };
 
     // confirm instance type
     if (!this.architecture.instanceTypeMatch(this.instanceType)) {
@@ -394,6 +402,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
           },
         },
       ],
+      tags: this.tags,
     });
 
     let dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
@@ -413,6 +422,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       targetRepository: repository,
       dockerfileTemplate: dockerfileTemplate,
       parentImage: this.baseImage,
+      tags: this.tags,
     });
 
     const log = this.createLog('Docker Log', recipe.name);
@@ -422,11 +432,9 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     ]);
 
     if (this.waitOnDeploy) {
-      const image = this.createImage(infra, dist, log, undefined, recipe.arn);
-      this.dockerImageCleaner(recipe, image, repository);
-    } else {
-      this.dockerImageCleaner(recipe, undefined, repository);
+      this.createImage(infra, dist, log, undefined, recipe.arn);
     }
+    this.dockerImageCleaner(recipe, repository);
 
     this.createPipeline(infra, dist, log, undefined, recipe.arn);
 
@@ -443,42 +451,25 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return this.boundDockerImage;
   }
 
-  private dockerImageCleaner(recipe: ContainerRecipe, image: imagebuilder.CfnImage | undefined, repository: ecr.IRepository) {
-    // delete all left over dockers images on
-    const crHandler = singletonLambda(BuildImageFunction, this, 'build-image', {
-      description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
+  private dockerImageCleaner(recipe: ContainerRecipe, repository: ecr.IRepository) {
+    // this is here to provide safe upgrade from old cdk-github-runners versions
+    // this lambda was used by a custom resource to delete all images builds on cleanup
+    // if we remove the custom resource and the lambda, the old images will be deleted on update
+    // keeping the lambda but removing the permissions will make sure that deletion will fail
+    const oldDeleter = singletonLambda(BuildImageFunction, this, 'build-image', {
+      description: 'Custom resource handler that triggers CodeBuild to build runner images',
       timeout: cdk.Duration.minutes(3),
       logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
       logFormat: lambda.LogFormat.JSON,
     });
+    oldDeleter.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.DENY,
+      actions: ['imagebuilder:DeleteImage'],
+      resources: ['*'],
+    }));
 
-    const policy = new iam.Policy(this, 'CR Policy', {
-      statements: [
-        new iam.PolicyStatement({
-          actions: ['imagebuilder:ListImages', 'imagebuilder:ListImageBuildVersions', 'imagebuilder:DeleteImage'],
-          resources: ['*'], // Image Builder doesn't support scoping this :(
-        }),
-      ],
-    });
-    crHandler.role?.attachInlinePolicy(policy);
-
-    const cr = new CustomResource(this, 'Deleter', {
-      serviceToken: crHandler.functionArn,
-      resourceType: 'Custom::ImageDeleter',
-      properties: {
-        RepoName: repository.repositoryName,
-        ImageBuilderName: recipe.name, // we don't use image.name because CloudFormation complains if it was deleted already
-        // TODO pass version too and then when a new version is deployed, it will delete the old one (careful with upgrades)
-        DeleteOnly: true,
-      },
-    });
-
-    // add dependencies to make sure resources are there when we need them
-    if (image !== undefined) {
-      cr.node.addDependency(image);
-    }
-    cr.node.addDependency(policy);
-    cr.node.addDependency(crHandler);
+    // delete old version on update and on stack deletion
+    this.imageCleaner(recipe.name.toLowerCase(), recipe.version);
 
     // delete old docker images + IB resources daily
     new imagebuilder.CfnLifecyclePolicy(this, 'Lifecycle Policy Docker', {
@@ -522,7 +513,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
         recipes: [
           {
             name: recipe.name,
-            semanticVersion: recipe.version, // docs say it's optional, but it's not
+            semanticVersion: recipe.version,
           },
         ],
       },
@@ -581,9 +572,16 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       imageTestsConfiguration: {
         imageTestsEnabled: false,
       },
+      tags: this.tags,
     });
     image.node.addDependency(infra);
     image.node.addDependency(log);
+
+    // do not delete the image as it will be deleted by imageCleaner().
+    // if we delete it here, imageCleaner() won't be able to find the image.
+    // if imageCleaner() can't find the image, it won't be able to delete the linked AMI/Docker image.
+    // use RETAIN_ON_UPDATE_OR_DELETE, so everything is cleaned only on rollback.
+    image.applyRemovalPolicy(RemovalPolicy.RETAIN_ON_UPDATE_OR_DELETE);
 
     return image;
   }
@@ -638,6 +636,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       },
       workflows: workflows,
       executionRole: executionRole?.roleArn,
+      tags: this.tags,
     });
     pipeline.node.addDependency(infra);
     pipeline.node.addDependency(log);
@@ -759,6 +758,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
           fastLaunchConfigurations: fastLaunchConfigs.length > 0 ? fastLaunchConfigs : undefined,
         },
       ],
+      tags: this.tags,
     });
 
     const recipe = new AmiRecipe(this, 'Ami Recipe', {
@@ -766,6 +766,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       components: this.bindComponents(),
       architecture: this.architecture,
       baseAmi: this.baseAmi,
+      tags: this.tags,
     });
 
     const log = this.createLog('Ami Log', recipe.name);
@@ -792,37 +793,33 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   }
 
   private amiCleaner(recipe: AmiRecipe, stackName: string, builderName: string) {
-    const deleter = singletonLambda(DeleteAmiFunction, this, 'delete-ami', {
-      description: 'Delete old GitHub Runner AMIs',
-      initialPolicy: [
-        new iam.PolicyStatement({
-          actions: ['ec2:DescribeImages'],
-          resources: ['*'],
-        }),
-        new iam.PolicyStatement({
-          actions: ['ec2:DeregisterImage', 'ec2:DeleteSnapshot'],
-          resources: ['*'],
-          conditions: {
-            StringEquals: {
-              'aws:ResourceTag/GitHubRunners:Stack': stackName,
-            },
-          },
-        }),
-      ],
-      timeout: cdk.Duration.minutes(5),
-      logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
-      logFormat: lambda.LogFormat.JSON,
-    });
+    // this is here to provide safe upgrade from old cdk-github-runners versions
+    // this lambda was used by a custom resource to delete all amis when the builder was removed
+    // if we remove the custom resource, role and lambda, all amis will be deleted on update
+    // keeping the just role but removing the permissions along with the custom resource will make sure that deletion will fail
+    const stack = cdk.Stack.of(this);
+    if (stack.node.tryFindChild('delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1') == undefined) {
+      const role = new iam.Role(stack, 'delete-ami-dcc036c8-876b-451e-a2c1-552f9e06e9e1', {
+        description: 'Empty role to prevent deletion of AMIs on cdk-github-runners upgrade',
+        assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+        inlinePolicies: {
+          deny: new iam.PolicyDocument({
+            statements: [
+              new iam.PolicyStatement({
+                actions: ['ec2:DeregisterImage', 'ec2:DeleteSnapshot'],
+                resources: ['*'],
+                effect: iam.Effect.DENY,
+              }),
+            ],
+          }),
+        },
+      });
+      const l1role: iam.CfnRole = role.node.defaultChild as iam.CfnRole;
+      l1role.overrideLogicalId('deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F');
+    }
 
-    // delete all AMIs when this construct is removed
-    new CustomResource(this, 'AMI Deleter', {
-      serviceToken: deleter.functionArn,
-      resourceType: 'Custom::AmiDeleter',
-      properties: {
-        StackName: stackName,
-        BuilderName: builderName,
-      },
-    });
+    // delete old version on update and on stack deletion
+    this.imageCleaner(recipe.name.toLowerCase(), recipe.version);
 
     // delete old AMIs + IB resources daily
     new imagebuilder.CfnLifecyclePolicy(this, 'Lifecycle Policy AMI', {
@@ -890,6 +887,54 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     }
 
     return this.boundComponents;
+  }
+
+  private imageCleaner(recipeName: string, version: string) {
+    const cleanerFunction = singletonLambda(DeleteResourcesFunction, this, 'aws-image-builder-delete-resources', {
+      description: 'Custom resource handler that deletes resources of old versions of EC2 Image Builder images',
+      initialPolicy: [
+        new iam.PolicyStatement({
+          actions: [
+            'imagebuilder:ListImageBuildVersions',
+            'imagebuilder:DeleteImage',
+          ],
+          resources: ['*'],
+        }),
+        new iam.PolicyStatement({
+          actions: ['ec2:DescribeImages'],
+          resources: ['*'],
+        }),
+        new iam.PolicyStatement({
+          actions: ['ec2:DeregisterImage', 'ec2:DeleteSnapshot'],
+          resources: ['*'],
+          conditions: {
+            StringEquals: {
+              'aws:ResourceTag/GitHubRunners:Stack': cdk.Stack.of(this).stackName,
+            },
+          },
+        }),
+        new iam.PolicyStatement({
+          actions: ['ecr:BatchDeleteImage'],
+          resources: ['*'],
+        }),
+      ],
+      logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
+      logFormat: lambda.LogFormat.JSON,
+      timeout: cdk.Duration.minutes(10),
+    });
+
+    new CustomResource(this, 'Image Cleaner', {
+      serviceToken: cleanerFunction.functionArn,
+      resourceType: 'Custom::ImageBuilder-Delete-Resources',
+      properties: <DeleteResourcesProps>{
+        ImageVersionArn: cdk.Stack.of(this).formatArn({
+          service: 'imagebuilder',
+          resource: 'image',
+          resourceName: `${recipeName}/${version}`,
+          arnFormat: cdk.ArnFormat.SLASH_RESOURCE_NAME,
+        }),
+      },
+    });
   }
 }
 
