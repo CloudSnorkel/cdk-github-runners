@@ -8,7 +8,7 @@
 
 An AMI builder that uses AWS Image Builder to build AMIs pre-baked with all the GitHub Actions runner requirements.
 
-Builders can be used with {@link Ec2Runner }.
+Builders can be used with {@link Ec2RunnerProvider }.
 
 Each builder re-runs automatically at a set interval to make sure the AMIs contain the latest versions of everything.
 
@@ -197,7 +197,7 @@ Any object.
 
 ##### ~~`node`~~<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.property.node"></a>
 
-- *Deprecated:* use RunnerImageBuilder
+- *Deprecated:* use RunnerImageBuilder, e.g. with Ec2RunnerProvider.imageBuilder()
 
 ```typescript
 public readonly node: Node;
@@ -211,7 +211,7 @@ The tree node.
 
 ##### ~~`connections`~~<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.AmiBuilder.property.connections"></a>
 
-- *Deprecated:* use RunnerImageBuilder
+- *Deprecated:* use RunnerImageBuilder, e.g. with Ec2RunnerProvider.imageBuilder()
 
 ```typescript
 public readonly connections: Connections;
