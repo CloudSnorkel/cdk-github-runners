@@ -195,7 +195,7 @@ export class CodeBuildImageBuilder extends Construct implements IRunnerImageBuil
       imageScanOnPush: true,
       imageTagMutability: TagMutability.MUTABLE,
       removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteImages: true,
+      emptyOnDelete: true,
       lifecycleRules: [
         {
           description: 'Remove untagged images that have been replaced by CodeBuild',

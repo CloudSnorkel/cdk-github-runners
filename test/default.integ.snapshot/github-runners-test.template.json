@@ -2788,7 +2788,7 @@
    "UpdateReplacePolicy": "Retain",
    "DeletionPolicy": "RetainExceptOnCreate"
   },
-  "WindowsImageBuilderImageCleaner85091EB6": {
+  "WindowsImageBuilderContainerCleaner9CB998CD": {
    "Type": "Custom::ImageBuilder-Delete-Resources",
    "Properties": {
     "ServiceToken": {

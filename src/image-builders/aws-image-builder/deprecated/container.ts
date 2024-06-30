@@ -176,7 +176,7 @@ export class ContainerImageBuilder extends ImageBuilderBase {
       imageScanOnPush: true,
       imageTagMutability: TagMutability.MUTABLE,
       removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteImages: true,
+      emptyOnDelete: true,
       lifecycleRules: [
         {
           description: 'Remove all but the latest image',

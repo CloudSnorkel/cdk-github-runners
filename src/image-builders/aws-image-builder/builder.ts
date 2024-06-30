@@ -469,7 +469,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     }));
 
     // delete old version on update and on stack deletion
-    this.imageCleaner(recipe.name.toLowerCase(), recipe.version);
+    this.imageCleaner('Container', recipe.name.toLowerCase(), recipe.version);
 
     // delete old docker images + IB resources daily
     new imagebuilder.CfnLifecyclePolicy(this, 'Lifecycle Policy Docker', {
@@ -819,7 +819,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     }
 
     // delete old version on update and on stack deletion
-    this.imageCleaner(recipe.name.toLowerCase(), recipe.version);
+    this.imageCleaner('Image', recipe.name.toLowerCase(), recipe.version);
 
     // delete old AMIs + IB resources daily
     new imagebuilder.CfnLifecyclePolicy(this, 'Lifecycle Policy AMI', {
@@ -889,7 +889,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return this.boundComponents;
   }
 
-  private imageCleaner(recipeName: string, version: string) {
+  private imageCleaner(type: 'Container' | 'Image', recipeName: string, version: string) {
     const cleanerFunction = singletonLambda(DeleteResourcesFunction, this, 'aws-image-builder-delete-resources', {
       description: 'Custom resource handler that deletes resources of old versions of EC2 Image Builder images',
       initialPolicy: [
@@ -923,7 +923,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       timeout: cdk.Duration.minutes(10),
     });
 
-    new CustomResource(this, 'Image Cleaner', {
+    new CustomResource(this, `${type} Cleaner`, {
       serviceToken: cleanerFunction.functionArn,
       resourceType: 'Custom::ImageBuilder-Delete-Resources',
       properties: <DeleteResourcesProps>{
