@@ -65,9 +65,14 @@ You can also create your own provider by implementing `IRunnerProvider`.
    ```
    ### Use
    ```python
+   from aws_cdk import App, Stack
    from cloudsnorkel.cdk_github_runners import GitHubRunners
    
-   GitHubRunners(self, "runners")
+   app = App()
+   stack = Stack(app, "github-runners")
+   GitHubRunners(stack, "runners")
+   
+   app.synth()
    ```
    </details>
    <details><summary>TypeScript or JavaScript</summary>
@@ -79,9 +84,14 @@ You can also create your own provider by implementing `IRunnerProvider`.
    ```
    ### Use
    ```typescript
+   import { App, Stack } from 'aws-cdk-lib';
    import { GitHubRunners } from '@cloudsnorkel/cdk-github-runners';
    
-   new GitHubRunners(this, "runners");
+   const app = new App();
+   const stack = new Stack(app, 'github-runners');
+   new GitHubRunners(stack, 'runners');
+   
+   app.synth();
    ```
    </details>
    <details><summary>Java</summary>
@@ -96,9 +106,19 @@ You can also create your own provider by implementing `IRunnerProvider`.
    ```
    ### Use
    ```java
+   import software.amazon.awscdk.App;
+   import software.amazon.awscdk.Stack;
    import com.cloudsnorkel.cdk.github.runners.GitHubRunners;
    
-   GitHubRunners.Builder.create(this, "runners").build();
+   public class Example {
+     public static void main(String[] args){
+       App app = new App();
+       Stack stack = new Stack(app, "github-runners");
+       GitHubRunners.Builder.create(stack, "runners").build();
+   
+       app.synth();
+     }
+   } 
    ```
    </details>
    <details><summary>Go</summary>
@@ -110,9 +130,21 @@ You can also create your own provider by implementing `IRunnerProvider`.
    ```
    ### Use
    ```go
-   import "github.com/CloudSnorkel/cdk-github-runners-go/cloudsnorkelcdkgithubrunners"
+   package main
+
+   import (
+     "github.com/CloudSnorkel/cdk-github-runners-go/cloudsnorkelcdkgithubrunners"
+     "github.com/aws/aws-cdk-go/awscdk/v2"
+     "github.com/aws/jsii-runtime-go"
+   )
    
-   NewGitHubRunners(this, jsii.String("runners"))
+   func main() {
+     app := awscdk.NewApp(nil)
+     stack := awscdk.NewStack(app, jsii.String("github-runners"), &awscdk.StackProps{})
+     cloudsnorkelcdkgithubrunners.NewGitHubRunners(stack, jsii.String("runners"), &cloudsnorkelcdkgithubrunners.GitHubRunnersProps{})
+   
+     app.Synth(nil)
+   }
    ```
    </details>
    <details><summary>.NET</summary>
@@ -124,9 +156,22 @@ You can also create your own provider by implementing `IRunnerProvider`.
    ```
    ### Use
    ```csharp
+   using Amazon.CDK;
    using CloudSnorkel;
    
-   new GitHubRunners(this, "runners");
+   namespace Example
+   {
+     sealed class Program
+     {
+       public static void Main(string[] args)
+       {
+         var app = new App();
+         var stack = new Stack(app, "github-runners");
+         new GitHubRunners(stack, "runners");
+         app.Synth();
+       }
+     }
+   }
    ```
    </details>
 2. Use `GitHubRunners` construct in your code (starting with default arguments is fine)
