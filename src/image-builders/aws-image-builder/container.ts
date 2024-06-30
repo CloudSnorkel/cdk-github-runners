@@ -43,6 +43,11 @@ export interface ContainerRecipeProperties {
    * Parent image for the new Docker Image.
    */
   readonly parentImage: string;
+
+  /**
+   * Tags to apply to the recipe and image.
+   */
+  readonly tags: { [key: string]: string };
 }
 
 /**
@@ -69,6 +74,7 @@ export class ContainerRecipe extends ImageBuilderObjectBase {
       platform: props.platform,
       components,
       dockerfileTemplate: props.dockerfileTemplate,
+      tags: props.tags,
     });
 
     const recipe = new imagebuilder.CfnContainerRecipe(this, 'Recipe', {
@@ -83,6 +89,7 @@ export class ContainerRecipe extends ImageBuilderObjectBase {
         repositoryName: props.targetRepository.repositoryName,
       },
       dockerfileTemplateData: props.dockerfileTemplate,
+      tags: props.tags,
     });
 
     this.arn = recipe.attrArn;

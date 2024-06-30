@@ -86,6 +86,7 @@ export function generateBuildWorkflowWithDockerSetupCommands(scope: Construct, i
           },
         },
         {
+          // this is the part we add
           name: 'DockerSetup',
           action: 'RunCommand',
           onFailure: 'Abort',

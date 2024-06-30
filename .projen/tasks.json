@@ -52,7 +52,7 @@
           "spawn": "bundle:idle-runner-repear.lambda"
         },
         {
-          "spawn": "bundle:image-builders/aws-image-builder/delete-ami.lambda"
+          "spawn": "bundle:image-builders/aws-image-builder/delete-resources.lambda"
         },
         {
           "spawn": "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda"
@@ -131,21 +131,21 @@
         }
       ]
     },
-    "bundle:image-builders/aws-image-builder/delete-ami.lambda": {
-      "name": "bundle:image-builders/aws-image-builder/delete-ami.lambda",
-      "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/delete-ami.lambda.ts",
+    "bundle:image-builders/aws-image-builder/delete-resources.lambda": {
+      "name": "bundle:image-builders/aws-image-builder/delete-resources.lambda",
+      "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/delete-resources.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-ami.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-ami.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-resources.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-resources.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
-    "bundle:image-builders/aws-image-builder/delete-ami.lambda:watch": {
-      "name": "bundle:image-builders/aws-image-builder/delete-ami.lambda:watch",
-      "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/delete-ami.lambda.ts",
+    "bundle:image-builders/aws-image-builder/delete-resources.lambda:watch": {
+      "name": "bundle:image-builders/aws-image-builder/delete-resources.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/delete-resources.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-ami.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-ami.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-resources.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-resources.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },

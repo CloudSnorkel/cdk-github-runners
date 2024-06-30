@@ -351,7 +351,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
   private customResource(project: codebuild.Project, buildSpecHash: string) {
     const crHandler = singletonLambda(BuildImageFunction, this, 'build-image', {
-      description: 'Custom resource handler that triggers CodeBuild to build runner images, and cleans-up images on deletion',
+      description: 'Custom resource handler that triggers CodeBuild to build runner images',
       timeout: cdk.Duration.minutes(3),
       logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
       logFormat: lambda.LogFormat.JSON,
