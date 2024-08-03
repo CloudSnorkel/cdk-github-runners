@@ -167,4 +167,7 @@ project.vscode.settings.addSettings({
   'svelte.plugin.svelte.enable': false,
 });
 
+// funding
+project.package.addField('funding', 'https://github.com/sponsors/CloudSnorkel');
+
 project.synth();
