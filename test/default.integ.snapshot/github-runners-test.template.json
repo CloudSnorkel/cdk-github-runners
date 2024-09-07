@@ -16625,7 +16625,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}]}},\"fargate, windows, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,arm64\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"EnableExecuteCommand\":true,\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}]}},\"fargate, windows, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
