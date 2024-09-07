@@ -208,7 +208,7 @@ const runners = new GitHubRunners(stack, 'runners', {
     }),
     new FargateRunnerProvider(stack, 'Fargate-arm64-spot', {
       labels: ['fargate-spot', 'linux', 'arm64'],
-      // TODO never available -- spot: true,
+      spot: true,
       cpu: 256,
       memoryLimitMiB: 512,
       imageBuilder: fargateArm64Builder,
