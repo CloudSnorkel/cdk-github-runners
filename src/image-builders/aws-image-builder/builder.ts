@@ -40,6 +40,15 @@ export interface AwsImageBuilderRunnerImageBuilderProps {
   readonly instanceType?: ec2.InstanceType;
 
   /**
+   * Size of volume available for builder instances. This modifies the boot volume size and doesn't add any additional volumes.
+   *
+   * Use this if you're building images with big components and need more space.
+   *
+   * @default default size for AMI (usually 30GB for Linux and 50GB for Windows)
+   */
+  readonly storageSize?: cdk.Size;
+
+  /**
    * Options for fast launch.
    *
    * This is only supported for Windows AMIs.
@@ -312,6 +321,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   private infrastructure: imagebuilder.CfnInfrastructureConfiguration | undefined;
   private readonly role: iam.Role;
   private readonly fastLaunchOptions?: FastLaunchOptions;
+  private readonly storageSize?: cdk.Size;
   private readonly waitOnDeploy: boolean;
   private readonly dockerSetupCommands: string[];
   private readonly tags: { [key: string]: string };
@@ -335,6 +345,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.baseAmi = props?.baseAmi ?? defaultBaseAmi(this, this.os, this.architecture);
     this.instanceType = props?.awsImageBuilderOptions?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
     this.fastLaunchOptions = props?.awsImageBuilderOptions?.fastLaunchOptions;
+    this.storageSize = props?.awsImageBuilderOptions?.storageSize;
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
     this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
 
@@ -766,6 +777,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       components: this.bindComponents(),
       architecture: this.architecture,
       baseAmi: this.baseAmi,
+      storageSize: this.storageSize,
       tags: this.tags,
     });
 

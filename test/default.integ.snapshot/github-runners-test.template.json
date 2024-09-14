@@ -3708,6 +3708,35 @@
     }
    }
   },
+  "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374": {
+   "Type": "Custom::AmiRootDevice",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C",
+      "Arn"
+     ]
+    },
+    "Ami": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":imagebuilder:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":aws:image/ubuntu-server-22-lts-x86/x.x.x"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
   "AMILinuxBuilderAmiRecipeVersionFBE9C9AE": {
    "Type": "Custom::ImageBuilder-ImageRecipe-Version",
    "Properties": {
@@ -3814,7 +3843,18 @@
      "tags": {
       "GitHubRunners:Stack": "github-runners-test",
       "GitHubRunners:Builder": "github-runners-test/AMI Linux Builder"
-     }
+     },
+     "blockDeviceMappings": [
+      {
+       "deviceName": {
+        "Ref": "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374"
+       },
+       "ebs": {
+        "volumeSize": 33,
+        "deleteOnTermination": true
+       }
+      }
+     ]
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3823,6 +3863,17 @@
   "AMILinuxBuilderAmiRecipe7C7ED6C7": {
    "Type": "AWS::ImageBuilder::ImageRecipe",
    "Properties": {
+    "BlockDeviceMappings": [
+     {
+      "DeviceName": {
+       "Ref": "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374"
+      },
+      "Ebs": {
+       "DeleteOnTermination": true,
+       "VolumeSize": 33
+      }
+     }
+    ],
     "Components": [
      {
       "ComponentArn": {
@@ -13785,6 +13836,7 @@
     "AMILinuxBuilderAMIImage93D83DE5",
     "AMILinuxBuilderAmiLog0DB16E38",
     "AMILinuxBuilderAMIPipelineEC5051DF",
+    "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374",
     "AMILinuxBuilderAmiRecipe7C7ED6C7",
     "AMILinuxBuilderAmiRecipeVersionFBE9C9AE",
     "AMILinuxBuilderComponent0RequiredPackagesComponent6D0029EE",
@@ -13817,6 +13869,99 @@
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicyDC1762B6": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ssm:GetParameter",
+        "ec2:DescribeImages",
+        "ec2:DescribeLaunchTemplateVersions",
+        "imagebuilder:GetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicyDC1762B6",
+    "Roles": [
+     {
+      "Ref": "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36"
+     }
+    ]
+   }
+  },
+  "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "88cc171bf3103a3b98ba0006fc7e5c6fdfd338c03591b344bb4cf60f1a9da18c.zip"
+    },
+    "Description": "Custom resource handler that discovers the boot drive device name for a given AMI",
+    "Environment": {
+     "Variables": {
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "RunnerImageBuildHelpersLog13186633"
+     }
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs18.x",
+    "Timeout": 60
+   },
+   "DependsOn": [
+    "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicyDC1762B6",
+    "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36"
+   ]
   },
   "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F": {
    "Type": "AWS::IAM::Role",
@@ -14025,6 +14170,7 @@
     "AMILinuxBuilderAMIImage93D83DE5",
     "AMILinuxBuilderAmiLog0DB16E38",
     "AMILinuxBuilderAMIPipelineEC5051DF",
+    "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374",
     "AMILinuxBuilderAmiRecipe7C7ED6C7",
     "AMILinuxBuilderAmiRecipeVersionFBE9C9AE",
     "AMILinuxBuilderComponent0RequiredPackagesComponent6D0029EE",
@@ -19218,98 +19364,6 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
-  },
-  "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "lambda.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-       ]
-      ]
-     }
-    ]
-   }
-  },
-  "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicyDC1762B6": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": [
-        "ssm:GetParameter",
-        "ec2:DescribeImages",
-        "ec2:DescribeLaunchTemplateVersions"
-       ],
-       "Effect": "Allow",
-       "Resource": "*"
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicyDC1762B6",
-    "Roles": [
-     {
-      "Ref": "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36"
-     }
-    ]
-   }
-  },
-  "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C": {
-   "Type": "AWS::Lambda::Function",
-   "Properties": {
-    "Code": {
-     "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-     },
-     "S3Key": "2b3e3110ffb96a7df77acaa663361ec1c03e985af62941397f4806ba6fbde75f.zip"
-    },
-    "Description": "Custom resource handler that discovers the boot drive device name for a given AMI",
-    "Environment": {
-     "Variables": {
-      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
-     }
-    },
-    "Handler": "index.handler",
-    "LoggingConfig": {
-     "LogFormat": "JSON",
-     "LogGroup": {
-      "Ref": "RunnerImageBuildHelpersLog13186633"
-     }
-    },
-    "Role": {
-     "Fn::GetAtt": [
-      "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36",
-      "Arn"
-     ]
-    },
-    "Runtime": "nodejs18.x",
-    "Timeout": 60
-   },
-   "DependsOn": [
-    "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicyDC1762B6",
-    "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36"
-   ]
   },
   "SetupLog8A8B0E5C": {
    "Type": "AWS::Logs::LogGroup",

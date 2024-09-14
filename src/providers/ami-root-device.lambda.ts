@@ -1,10 +1,12 @@
 import { DescribeImagesCommand, DescribeLaunchTemplateVersionsCommand, EC2Client } from '@aws-sdk/client-ec2';
+import { GetImageCommand, ImagebuilderClient } from '@aws-sdk/client-imagebuilder';
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
 import * as AWSLambda from 'aws-lambda';
 import { customResourceRespond } from '../lambda-helpers';
 
 const ssm = new SSMClient();
 const ec2 = new EC2Client();
+const ib = new ImagebuilderClient();
 
 
 async function handleAmi(event: AWSLambda.CloudFormationCustomResourceEvent, ami: string) {
@@ -72,6 +74,20 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
           }
 
           await handleAmi(event, lts.LaunchTemplateVersions[0].LaunchTemplateData.ImageId);
+          break;
+        }
+
+        if (ami.match('^arn:aws[^:]*:imagebuilder:[^:]+:[^:]+:image/.*$')) {
+          console.log(`Checking Image Builder ${ami}`);
+
+          const img = await ib.send(new GetImageCommand({ imageBuildVersionArn: ami }));
+          const actualAmi = img.image?.outputResources?.amis?.[0]?.image;
+          if (!actualAmi) {
+            await customResourceRespond(event, 'FAILED', `${ami} doesn't have an AMI`, 'ERROR', {});
+            break;
+          }
+
+          await handleAmi(event, actualAmi);
           break;
         }
 

@@ -5116,6 +5116,7 @@ const awsImageBuilderRunnerImageBuilderProps: AwsImageBuilderRunnerImageBuilderP
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.fastLaunchOptions">fastLaunchOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.FastLaunchOptions">FastLaunchOptions</a></code> | Options for fast launch. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.instanceType">instanceType</a></code> | <code>aws-cdk-lib.aws_ec2.InstanceType</code> | The instance type used to build the image. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for builder instances. This modifies the boot volume size and doesn't add any additional volumes. |
 
 ---
 
@@ -5144,6 +5145,21 @@ public readonly instanceType: InstanceType;
 - *Default:* m6i.large
 
 The instance type used to build the image.
+
+---
+
+##### `storageSize`<sup>Optional</sup> <a name="storageSize" id="@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.storageSize"></a>
+
+```typescript
+public readonly storageSize: Size;
+```
+
+- *Type:* aws-cdk-lib.Size
+- *Default:* default size for AMI (usually 30GB for Linux and 50GB for Windows)
+
+Size of volume available for builder instances. This modifies the boot volume size and doesn't add any additional volumes.
+
+Use this if you're building images with big components and need more space.
 
 ---
 

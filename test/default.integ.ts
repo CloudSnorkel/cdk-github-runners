@@ -98,6 +98,9 @@ windowsImageBuilder.addComponent(envComponent);
 
 const amiX64Builder = Ec2RunnerProvider.imageBuilder(stack, 'AMI Linux Builder', {
   vpc,
+  awsImageBuilderOptions: {
+    storageSize: cdk.Size.gibibytes(33),
+  },
 });
 amiX64Builder.addComponent(extraFilesComponentLinux);
 amiX64Builder.addComponent(envComponent);
