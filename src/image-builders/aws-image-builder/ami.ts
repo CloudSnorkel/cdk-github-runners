@@ -3,7 +3,7 @@ import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './builder';
 import { ImageBuilderObjectBase } from './common';
-import { Architecture, Os } from '../../providers';
+import { amiRootDevice, Architecture, Os } from '../../providers';
 import { uniqueImageBuilderName } from '../common';
 
 /**
@@ -26,6 +26,11 @@ interface AmiRecipeProperties {
    * Base AMI to use for the new runner AMI.
    */
   readonly baseAmi: string;
+
+  /**
+   * Storage size for the builder.
+   */
+  readonly storageSize?: cdk.Size;
 
   /**
    * Components to add to target container image.
@@ -57,12 +62,23 @@ export class AmiRecipe extends ImageBuilderObjectBase {
       };
     });
 
+    const blockDeviceMappings = props.storageSize ? [
+      {
+        deviceName: amiRootDevice(this, props.baseAmi).ref,
+        ebs: {
+          volumeSize: props.storageSize.toGibibytes(),
+          deleteOnTermination: true,
+        },
+      },
+    ] : undefined;
+
     this.name = uniqueImageBuilderName(this);
     this.version = this.generateVersion('ImageRecipe', this.name, {
       platform: props.platform,
       components,
       parentAmi: props.baseAmi,
       tags: props.tags,
+      blockDeviceMappings,
     });
 
     let workingDirectory;
@@ -81,6 +97,7 @@ export class AmiRecipe extends ImageBuilderObjectBase {
       components,
       workingDirectory,
       tags: props.tags,
+      blockDeviceMappings,
     });
 
     this.arn = recipe.attrArn;

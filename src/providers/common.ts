@@ -507,6 +507,8 @@ export abstract class BaseProvider extends Construct {
 /**
  * Use custom resource to determine the root device name of a given AMI, Launch Template, or SSM parameter pointing to AMI.
  *
+ * TODO move somewhere more common as it's used by both providers and AMI builder now
+ *
  * @internal
  */
 export function amiRootDevice(scope: Construct, ami?: string) {
@@ -521,6 +523,7 @@ export function amiRootDevice(scope: Construct, ami?: string) {
           'ssm:GetParameter',
           'ec2:DescribeImages',
           'ec2:DescribeLaunchTemplateVersions',
+          'imagebuilder:GetImage',
         ],
         resources: ['*'],
       }),
