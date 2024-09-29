@@ -5891,6 +5891,7 @@ const ec2RunnerProviderProps: Ec2RunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to launched runner instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.spot">spot</a></code> | <code>boolean</code> | Use spot instances to save money. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.spotMaxPrice">spotMaxPrice</a></code> | <code>string</code> | Set a maximum price for spot instances. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.storageOptions">storageOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.StorageOptions">StorageOptions</a></code> | Options for runner instance storage volume. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for launched runner instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnet">subnet</a></code> | <code>aws-cdk-lib.aws_ec2.ISubnet</code> | Subnet where the runner instances will be launched. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
@@ -6040,6 +6041,18 @@ Set a maximum price for spot instances.
 
 ---
 
+##### `storageOptions`<sup>Optional</sup> <a name="storageOptions" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.storageOptions"></a>
+
+```typescript
+public readonly storageOptions: StorageOptions;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.StorageOptions">StorageOptions</a>
+
+Options for runner instance storage volume.
+
+---
+
 ##### `storageSize`<sup>Optional</sup> <a name="storageSize" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.storageSize"></a>
 
 ```typescript
@@ -6131,6 +6144,7 @@ const ecsRunnerProviderProps: EcsRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spot">spot</a></code> | <code>boolean</code> | Use spot capacity. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spotMaxPrice">spotMaxPrice</a></code> | <code>string</code> | Maximum price for spot instances. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.storageOptions">storageOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.StorageOptions">StorageOptions</a></code> | Options for runner instance storage volume. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for launched cluster instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets to run the runners in. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
@@ -6378,6 +6392,18 @@ public readonly spotMaxPrice: string;
 - *Type:* string
 
 Maximum price for spot instances.
+
+---
+
+##### `storageOptions`<sup>Optional</sup> <a name="storageOptions" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.storageOptions"></a>
+
+```typescript
+public readonly storageOptions: StorageOptions;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.StorageOptions">StorageOptions</a>
+
+Options for runner instance storage volume.
 
 ---
 
@@ -8292,6 +8318,78 @@ public readonly runnerTokenPath: string;
 - *Type:* string
 
 Path to runner token used to register token.
+
+---
+
+### StorageOptions <a name="StorageOptions" id="@cloudsnorkel/cdk-github-runners.StorageOptions"></a>
+
+Storage options for the runner instance.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.StorageOptions.Initializer"></a>
+
+```typescript
+import { StorageOptions } from '@cloudsnorkel/cdk-github-runners'
+
+const storageOptions: StorageOptions = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.StorageOptions.property.iops">iops</a></code> | <code>number</code> | The number of I/O operations per second (IOPS) to provision for the volume. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.StorageOptions.property.throughput">throughput</a></code> | <code>number</code> | The throughput that the volume supports, in MiB/s Takes a minimum of 125 and maximum of 1000. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.StorageOptions.property.volumeType">volumeType</a></code> | <code>aws-cdk-lib.aws_ec2.EbsDeviceVolumeType</code> | The EBS volume type. |
+
+---
+
+##### `iops`<sup>Optional</sup> <a name="iops" id="@cloudsnorkel/cdk-github-runners.StorageOptions.property.iops"></a>
+
+```typescript
+public readonly iops: number;
+```
+
+- *Type:* number
+- *Default:* none, required for `EbsDeviceVolumeType.IO1`
+
+The number of I/O operations per second (IOPS) to provision for the volume.
+
+Must only be set for `volumeType`: `EbsDeviceVolumeType.IO1`
+
+The maximum ratio of IOPS to volume size (in GiB) is 50:1, so for 5,000 provisioned IOPS,
+you need at least 100 GiB storage on the volume.
+
+> [https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html)
+
+---
+
+##### `throughput`<sup>Optional</sup> <a name="throughput" id="@cloudsnorkel/cdk-github-runners.StorageOptions.property.throughput"></a>
+
+```typescript
+public readonly throughput: number;
+```
+
+- *Type:* number
+- *Default:* 125 MiB/s. Only valid on gp3 volumes.
+
+The throughput that the volume supports, in MiB/s Takes a minimum of 125 and maximum of 1000.
+
+> [https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-volume.html#cfn-ec2-volume-throughput](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-volume.html#cfn-ec2-volume-throughput)
+
+---
+
+##### `volumeType`<sup>Optional</sup> <a name="volumeType" id="@cloudsnorkel/cdk-github-runners.StorageOptions.property.volumeType"></a>
+
+```typescript
+public readonly volumeType: EbsDeviceVolumeType;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.EbsDeviceVolumeType
+- *Default:* `EbsDeviceVolumeType.GP2`
+
+The EBS volume type.
+
+> [https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html)
 
 ---
 
