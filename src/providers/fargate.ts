@@ -165,7 +165,6 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
  */
 interface EcsFargateLaunchTargetProps {
   readonly spot: boolean;
-  readonly enableExecute: boolean;
 }
 
 /**
@@ -187,7 +186,6 @@ class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
     return {
       parameters: {
         PropagateTags: ecs.PropagatedTagSource.TASK_DEFINITION,
-        EnableExecuteCommand: this.props.enableExecute,
         CapacityProviderStrategy: [
           {
             CapacityProvider: this.props.spot ? 'FARGATE_SPOT' : 'FARGATE',
@@ -464,8 +462,8 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
         cluster: this.cluster,
         launchTarget: new EcsFargateLaunchTarget({
           spot: this.spot,
-          enableExecute: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
         }),
+        enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
         subnets: this.subnetSelection,
         assignPublicIp: this.assignPublicIp,
         securityGroups: this.securityGroups,
