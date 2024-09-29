@@ -25,6 +25,7 @@ import {
   RunnerProviderProps,
   RunnerRuntimeParameters,
   RunnerVersion,
+  StorageOptions,
 } from './common';
 import { ecsRunCommand } from './fargate';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
@@ -150,6 +151,11 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
    * @default default size for AMI (usually 30GB for Linux and 50GB for Windows)
    */
   readonly storageSize?: cdk.Size;
+
+  /**
+   * Options for runner instance storage volume.
+   */
+  readonly storageOptions?: StorageOptions;
 
   /**
    * Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. Disabling this can
@@ -340,6 +346,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       },
     );
 
+    if (props?.storageOptions && !props?.storageSize) {
+      throw new Error('storageSize is required when storageOptions are specified');
+    }
+
     const imageBuilder = props?.imageBuilder ?? EcsRunnerProvider.imageBuilder(this, 'Image Builder');
     const image = this.image = imageBuilder.bindDockerImage();
 
@@ -360,8 +370,11 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
             deviceName: amiRootDevice(this, this.defaultClusterInstanceAmi().getImage(this).imageId).ref,
             volume: {
               ebsDevice: {
-                volumeSize: props.storageSize.toGibibytes(),
                 deleteOnTermination: true,
+                volumeSize: props.storageSize.toGibibytes(),
+                volumeType: props.storageOptions?.volumeType,
+                iops: props.storageOptions?.iops,
+                throughput: props.storageOptions?.throughput,
               },
             },
           },

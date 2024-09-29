@@ -9,6 +9,7 @@ import {
   CustomResource,
   Duration,
 } from 'aws-cdk-lib';
+import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2/lib/volume';
 import { Construct, IConstruct } from 'constructs';
 import { AmiRootDeviceFunction } from './ami-root-device-function';
 import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
@@ -475,6 +476,41 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, ICons
    * @param statusFunctionRole grantable for the status function
    */
   status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus;
+}
+
+/**
+ * Storage options for the runner instance.
+ */
+export interface StorageOptions {
+  /**
+   * The EBS volume type
+   * @see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html
+   *
+   * @default `EbsDeviceVolumeType.GP2`
+   */
+  readonly volumeType?: EbsDeviceVolumeType;
+
+  /**
+   * The number of I/O operations per second (IOPS) to provision for the volume.
+   *
+   * Must only be set for `volumeType`: `EbsDeviceVolumeType.IO1`
+   *
+   * The maximum ratio of IOPS to volume size (in GiB) is 50:1, so for 5,000 provisioned IOPS,
+   * you need at least 100 GiB storage on the volume.
+   *
+   * @see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html
+   *
+   * @default - none, required for `EbsDeviceVolumeType.IO1`
+   */
+  readonly iops?: number;
+
+  /**
+   * The throughput that the volume supports, in MiB/s
+   * Takes a minimum of 125 and maximum of 1000.
+   * @see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-volume.html#cfn-ec2-volume-throughput
+   * @default - 125 MiB/s. Only valid on gp3 volumes.
+   */
+  readonly throughput?: number;
 }
 
 /**

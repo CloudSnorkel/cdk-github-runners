@@ -23,6 +23,7 @@ import {
   RunnerProviderProps,
   RunnerRuntimeParameters,
   RunnerVersion,
+  StorageOptions,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageBuilderType, RunnerImageComponent } from '../image-builders';
 import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
@@ -218,6 +219,11 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
   readonly storageSize?: cdk.Size;
 
   /**
+   * Options for runner instance storage volume.
+   */
+  readonly storageOptions?: StorageOptions;
+
+  /**
    * Security Group to assign to launched runner instances.
    *
    * @default a new security group
@@ -340,6 +346,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   private readonly role: iam.Role;
   private readonly instanceType: ec2.InstanceType;
   private readonly storageSize: cdk.Size;
+  private readonly storageOptions?: StorageOptions;
   private readonly spot: boolean;
   private readonly spotMaxPrice: string | undefined;
   private readonly vpc: ec2.IVpc;
@@ -355,6 +362,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.subnets = props?.subnet ? [props.subnet] : this.vpc.selectSubnets(props?.subnetSelection).subnets;
     this.instanceType = props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
     this.storageSize = props?.storageSize ?? cdk.Size.gibibytes(30); // 30 is the minimum for Windows
+    this.storageOptions = props?.storageOptions;
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;
 
@@ -471,6 +479,9 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
             Ebs: {
               DeleteOnTermination: true,
               VolumeSize: this.storageSize.toGibibytes(),
+              VolumeType: this.storageOptions?.volumeType,
+              Iops: this.storageOptions?.iops,
+              Throughput: this.storageOptions?.throughput,
             },
           }],
           InstanceMarketOptions: this.spot ? {
