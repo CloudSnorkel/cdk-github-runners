@@ -40,7 +40,7 @@ export abstract class ImageBuilderObjectBase extends cdk.Resource {
         }),
       ],
       logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
-      logFormat: lambda.LogFormat.JSON,
+      loggingFormat: lambda.LoggingFormat.JSON,
       timeout: cdk.Duration.minutes(5),
     });
   }

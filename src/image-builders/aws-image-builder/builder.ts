@@ -471,7 +471,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       description: 'Custom resource handler that triggers CodeBuild to build runner images',
       timeout: cdk.Duration.minutes(3),
       logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
-      logFormat: lambda.LogFormat.JSON,
+      loggingFormat: lambda.LoggingFormat.JSON,
     });
     oldDeleter.addToRolePolicy(new iam.PolicyStatement({
       effect: iam.Effect.DENY,
@@ -931,7 +931,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
         }),
       ],
       logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
-      logFormat: lambda.LogFormat.JSON,
+      loggingFormat: lambda.LoggingFormat.JSON,
       timeout: cdk.Duration.minutes(10),
     });
 
@@ -958,7 +958,7 @@ export class AwsImageBuilderFailedBuildNotifier implements cdk.IAspect {
     const topic = new sns.Topic(scope, 'Image Builder Builds');
     const filter = new FilterFailedBuildsFunction(scope, 'Image Builder Builds Filter', {
       logGroup: singletonLogGroup(scope, SingletonLogType.RUNNER_IMAGE_BUILD),
-      logFormat: lambda.LogFormat.JSON,
+      loggingFormat: lambda.LoggingFormat.JSON,
       environment: {
         TARGET_TOPIC_ARN: targetTopic.topicArn,
       },
