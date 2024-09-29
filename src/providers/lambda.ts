@@ -338,7 +338,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       description: 'Function that updates a GitHub Actions runner function with the latest image digest after the image has been rebuilt',
       timeout: cdk.Duration.minutes(15),
       logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
-      logFormat: lambda.LogFormat.JSON,
+      loggingFormat: lambda.LoggingFormat.JSON,
     });
 
     updater.addToRolePolicy(new iam.PolicyStatement({

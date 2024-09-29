@@ -174,7 +174,6 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
 
 interface EcsEc2LaunchTargetProps {
   readonly capacityProvider: string;
-  readonly enableExecute: boolean;
 }
 
 class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
@@ -189,7 +188,6 @@ class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
     return {
       parameters: {
         PropagateTags: ecs.PropagatedTagSource.TASK_DEFINITION,
-        EnableExecuteCommand: this.props.enableExecute,
         CapacityProviderStrategy: [
           {
             CapacityProvider: this.props.capacityProvider,
@@ -547,8 +545,8 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         cluster: this.cluster,
         launchTarget: new EcsEc2LaunchTarget({
           capacityProvider: this.capacityProvider.capacityProviderName,
-          enableExecute: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
         }),
+        enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
         assignPublicIp: this.assignPublicIp,
         containerOverrides: [
           {

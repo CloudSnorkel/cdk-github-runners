@@ -473,7 +473,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         },
         timeout: cdk.Duration.seconds(30),
         logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
-        logFormat: lambda.LogFormat.JSON,
+        loggingFormat: lambda.LoggingFormat.JSON,
         ...this.extraLambdaProps,
       },
     );
@@ -497,7 +497,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         },
         timeout: cdk.Duration.seconds(30),
         logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
-        logFormat: lambda.LogFormat.JSON,
+        loggingFormat: lambda.LoggingFormat.JSON,
         ...this.extraLambdaProps,
       },
     );
@@ -528,7 +528,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         },
         timeout: cdk.Duration.minutes(3),
         logGroup: singletonLogGroup(this, SingletonLogType.SETUP),
-        logFormat: lambda.LogFormat.JSON,
+        loggingFormat: lambda.LoggingFormat.JSON,
         ...this.extraLambdaProps,
       },
     );
@@ -591,7 +591,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         },
         timeout: cdk.Duration.minutes(3),
         logGroup: singletonLogGroup(this, SingletonLogType.SETUP),
-        logFormat: lambda.LogFormat.JSON,
+        loggingFormat: lambda.LoggingFormat.JSON,
         ...this.extraLambdaProps,
       },
     );
@@ -635,7 +635,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         ...this.extraLambdaEnv,
       },
       logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
-      logFormat: lambda.LogFormat.JSON,
+      loggingFormat: lambda.LoggingFormat.JSON,
       timeout: cdk.Duration.minutes(5),
       ...this.extraLambdaProps,
     });

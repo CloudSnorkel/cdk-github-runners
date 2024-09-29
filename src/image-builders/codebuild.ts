@@ -354,7 +354,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       description: 'Custom resource handler that triggers CodeBuild to build runner images',
       timeout: cdk.Duration.minutes(3),
       logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
-      logFormat: lambda.LogFormat.JSON,
+      loggingFormat: lambda.LoggingFormat.JSON,
     });
 
     const policy = new iam.Policy(this, 'CR Policy', {

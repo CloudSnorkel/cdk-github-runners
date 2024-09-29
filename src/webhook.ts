@@ -81,7 +81,7 @@ export class GithubWebhookHandler extends Construct {
         },
         timeout: cdk.Duration.seconds(31),
         logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
-        logFormat: lambda.LogFormat.JSON,
+        loggingFormat: lambda.LoggingFormat.JSON,
       },
     );
 

@@ -516,7 +516,7 @@ export function amiRootDevice(scope: Construct, ami?: string) {
     description: 'Custom resource handler that discovers the boot drive device name for a given AMI',
     timeout: cdk.Duration.minutes(1),
     logGroup: singletonLogGroup(scope, SingletonLogType.RUNNER_IMAGE_BUILD),
-    logFormat: lambda.LogFormat.JSON,
+    loggingFormat: lambda.LoggingFormat.JSON,
     initialPolicy: [
       new iam.PolicyStatement({
         actions: [
