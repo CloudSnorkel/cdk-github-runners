@@ -76,7 +76,7 @@
     },
     {
       "name": "@types/node",
-      "version": "^18",
+      "version": "ts4.9",
       "type": "build"
     },
     {
