@@ -1,6 +1,6 @@
 {
   "name": "@cloudsnorkel/cdk-github-runners",
-  "description": "CDK construct to create GitHub Actions self-hosted runners. A webhook listens to events and creates ephemeral runners on the fly.",
+  "description": "CDK construct to create GitHub Actions self-hosted runners. Creates ephemeral runners on demand. Easy to deploy and highly customizable.",
   "repository": {
     "type": "git",
     "url": "https://github.com/CloudSnorkel/cdk-github-runners.git"
