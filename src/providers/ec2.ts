@@ -40,6 +40,7 @@ repoPath="{}"
 runnerTokenPath="{}"
 labels="{}"
 registrationURL="{}"
+runnerGroup="{}"
 
 heartbeat () {
   while true; do
@@ -80,7 +81,7 @@ action () {
   labelsTemplate="$labels,cdkghr:started:$(date +%s)"
 
   # Execute the configuration command for runner registration
-  sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" || exit 1
+  sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup || exit 1
 
   # Execute the run command
   sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
@@ -113,6 +114,7 @@ $repoPath="{}"
 $runnerTokenPath="{}"
 $labels="{}"
 $registrationURL="{}"
+$runnerGroup="{}"
 
 # EC2Launch only starts ssm agent after user data is done, so we need to start it ourselves (it is disabled by default)
 Set-Service -StartupType Manual AmazonSSMAgent
@@ -148,7 +150,7 @@ function action () {
   cd /actions
   $RunnerVersion = Get-Content RUNNER_VERSION -Raw
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
-  ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" \${runnerGroup} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
 
   if ($LASTEXITCODE -ne 0) { return 1 }
   ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
@@ -203,6 +205,16 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
    * @default ['ec2']
    */
   readonly labels?: string[];
+
+  /**
+   * GitHub Actions runner group name.
+   *
+   * If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
+   * requires a paid GitHub account.
+   *
+   * @default undefined
+   */
+  readonly group?: string;
 
   /**
    * Instance type for launched runner instances.
@@ -341,6 +353,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     'States.Timeout',
   ];
 
+  private readonly group?: string;
   private readonly amiBuilder: IRunnerImageBuilder;
   private readonly ami: RunnerAmi;
   private readonly role: iam.Role;
@@ -357,6 +370,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     super(scope, id, props);
 
     this.labels = props?.labels ?? ['ec2'];
+    this.group = props?.group;
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'Default VPC', { isDefault: true });
     this.securityGroups = props?.securityGroup ? [props.securityGroup] : (props?.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })]);
     this.subnets = props?.subnet ? [props.subnet] : this.vpc.selectSubnets(props?.subnetSelection).subnets;
@@ -422,6 +436,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       parameters.runnerTokenPath,
       this.labels.join(','),
       parameters.registrationUrl,
+      this.group ? `--runnergroup ${this.group}` : '',
     ];
 
     const passUserData = new stepfunctions.Pass(this, `${this.labels.join(', ')} data`, {

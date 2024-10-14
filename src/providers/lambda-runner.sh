@@ -16,6 +16,7 @@ RUNNER_TOKEN=$(echo "$1" | jq -r .token)
 RUNNER_NAME=$(echo "$1" | jq -r .runnerName)
 RUNNER_LABEL=$(echo "$1" | jq -r .label)
 REGISTRATION_URL=$(echo "$1" | jq -r .registrationUrl)
+RUNNER_GROUP=$(echo "$1" | jq -r .group)
 
 # copy runner code (it needs a writable directory)
 cp -r /home/runner /tmp/
@@ -27,7 +28,7 @@ export HOME=/tmp/home
 
 # start runner
 if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
-./config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" --name "${RUNNER_NAME}" ${RUNNER_FLAGS}
+./config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" --name "${RUNNER_NAME}" ${RUNNER_FLAGS} ${RUNNER_GROUP}
 echo Config done
 ./run.sh
 echo Run done

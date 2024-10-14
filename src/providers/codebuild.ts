@@ -60,6 +60,16 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
   readonly labels?: string[];
 
   /**
+   * GitHub Actions runner group name.
+   *
+   * If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
+   * requires a paid GitHub account.
+   *
+   * @default undefined
+   */
+  readonly group?: string;
+
+  /**
    * VPC to launch the runners in.
    *
    * @default no VPC
@@ -220,6 +230,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
     'CodeBuild.AccountLimitExceededException',
   ];
 
+  private readonly group?: string;
   private readonly vpc?: ec2.IVpc;
   private readonly securityGroups?: ec2.ISecurityGroup[];
   private readonly dind: boolean;
@@ -240,6 +251,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
     }
 
     this.labels = this.labelsFromProperties('codebuild', props?.label, props?.labels);
+    this.group = props?.group;
     this.vpc = props?.vpc;
     if (props?.securityGroup) {
       this.securityGroups = [props.securityGroup];
@@ -274,7 +286,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
             this.dind ? 'nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &' : '',
             this.dind ? 'timeout 15 sh -c "until docker info; do echo .; sleep 1; done"' : '',
             'if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi',
-            'sudo -Hu runner /home/runner/config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" ${RUNNER_FLAGS} --name "${RUNNER_NAME}"',
+            'sudo -Hu runner /home/runner/config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" ${RUNNER_FLAGS} --name "${RUNNER_NAME}" ${RUNNER_GROUP}',
           ],
         },
         build: {
@@ -294,7 +306,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       buildSpec.phases.install.commands = [
         'cd \\actions',
         'if (${Env:RUNNER_VERSION} -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }',
-        './config.cmd --unattended --url "${Env:REGISTRATION_URL}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat %s)" ${RunnerFlags} --name "${Env:RUNNER_NAME}"',
+        './config.cmd --unattended --url "${Env:REGISTRATION_URL}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat %s)" ${RunnerFlags} --name "${Env:RUNNER_NAME}" ${Env:RUNNER_GROUP}',
       ];
       buildSpec.phases.build.commands = [
         'cd \\actions',
@@ -388,6 +400,10 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
           RUNNER_LABEL: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
             value: this.labels.join(','),
+          },
+          RUNNER_GROUP: {
+            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
+            value: this.group ? `--runnergroup ${this.group}` : '',
           },
           GITHUB_DOMAIN: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,

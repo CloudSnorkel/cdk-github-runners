@@ -56,6 +56,16 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
   readonly labels?: string[];
 
   /**
+   * GitHub Actions runner group name.
+   *
+   * If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
+   * requires a paid GitHub account.
+   *
+   * @default undefined
+   */
+  readonly group?: string;
+
+  /**
    * VPC to launch the runners in.
    *
    * @default default account VPC
@@ -321,6 +331,11 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    */
   private readonly dind: boolean;
 
+  /**
+   * Runner group name.
+   */
+  private readonly group?: string;
+
   readonly retryableErrors = [
     'Ecs.EcsException',
     'ECS.AmazonECSException',
@@ -332,6 +347,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     super(scope, id, props);
 
     this.labels = props?.labels ?? ['ecs'];
+    this.group = props?.group;
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
     this.subnetSelection = props?.subnetSelection;
     this.securityGroups = props?.securityGroups ?? [new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc })];
@@ -576,6 +592,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
               {
                 name: 'RUNNER_LABEL',
                 value: this.labels.join(','),
+              },
+              {
+                name: 'RUNNER_GROUP',
+                value: this.group ? `--runnergroup ${this.group}` : '',
               },
               {
                 name: 'GITHUB_DOMAIN',

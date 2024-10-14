@@ -60,6 +60,16 @@ export interface LambdaRunnerProviderProps extends RunnerProviderProps {
   readonly labels?: string[];
 
   /**
+   * GitHub Actions runner group name.
+   *
+   * If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
+   * requires a paid GitHub account.
+   *
+   * @default undefined
+   */
+  readonly group?: string;
+
+  /**
    * The amount of memory, in MB, that is allocated to your Lambda function.
    * Lambda uses this value to proportionally allocate the amount of CPU
    * power. For more information, see Resource Model in the AWS Lambda
@@ -216,6 +226,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     'Lambda.TooManyRequestsException',
   ];
 
+  private readonly group?: string;
   private readonly vpc?: ec2.IVpc;
   private readonly securityGroups?: ec2.ISecurityGroup[];
 
@@ -223,6 +234,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     super(scope, id, props);
 
     this.labels = this.labelsFromProperties('lambda', props?.label, props?.labels);
+    this.group = props?.group;
     this.vpc = props?.vpc;
     this.securityGroups = props?.securityGroup ? [props.securityGroup] : props?.securityGroups;
 
@@ -325,6 +337,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
           owner: parameters.ownerPath,
           repo: parameters.repoPath,
           registrationUrl: parameters.registrationUrl,
+          group: this.group ? `--runnergroup ${this.group}` : '',
         }),
       },
     );
