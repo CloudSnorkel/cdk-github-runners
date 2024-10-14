@@ -1664,7 +1664,7 @@
         },
         " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/914d4fe73199c3182a0fa42b5c35cbfc70e883a96d7cc0abd00b8d9d744c7a18.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/7be6b27ef13a5bba7f44b1d9c6e50fc2c68fdb40d51cef42cee01f27c38842a9.sh"
         },
         " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
         {
@@ -1772,15 +1772,15 @@
     ]
    }
   },
-  "LambdaImageBuilderx64BuildWaitHandled2db383bb661DB1459": {
+  "LambdaImageBuilderx64BuildWaitHandleabc1a2cf4eBF42E433": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderx64BuildWaitd2db383bb617503B46": {
+  "LambdaImageBuilderx64BuildWaitabc1a2cf4e6C943A34": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandled2db383bb661DB1459"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandleabc1a2cf4eBF42E433"
     },
     "Timeout": "3600"
    }
@@ -1801,7 +1801,7 @@
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandled2db383bb661DB1459"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandleabc1a2cf4eBF42E433"
     }
    },
    "DependsOn": [
@@ -5706,7 +5706,7 @@
         },
         " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/914d4fe73199c3182a0fa42b5c35cbfc70e883a96d7cc0abd00b8d9d744c7a18.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/7be6b27ef13a5bba7f44b1d9c6e50fc2c68fdb40d51cef42cee01f27c38842a9.sh"
         },
         " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
         {
@@ -5814,15 +5814,15 @@
     ]
    }
   },
-  "LambdaImageBuilderzBuildWaitHandlee2162ea88189AD543C": {
+  "LambdaImageBuilderzBuildWaitHandlee9b9180134313DC046": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderzBuildWaite2162ea8810AB0A15E": {
+  "LambdaImageBuilderzBuildWaite9b918013451CEF311": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandlee2162ea88189AD543C"
+     "Ref": "LambdaImageBuilderzBuildWaitHandlee9b9180134313DC046"
     },
     "Timeout": "3600"
    }
@@ -5843,7 +5843,7 @@
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandlee2162ea88189AD543C"
+     "Ref": "LambdaImageBuilderzBuildWaitHandlee9b9180134313DC046"
     }
    },
    "DependsOn": [
@@ -11664,7 +11664,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderx64BuildWaitd2db383bb617503B46"
+        "Ref": "LambdaImageBuilderx64BuildWaitabc1a2cf4e6C943A34"
        },
        "\"}}"
       ]
@@ -12103,7 +12103,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderzBuildWaite2162ea8810AB0A15E"
+        "Ref": "LambdaImageBuilderzBuildWaite9b918013451CEF311"
        },
        "\"}}"
       ]
