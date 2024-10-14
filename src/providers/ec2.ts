@@ -71,7 +71,7 @@ EOF
 }
 action () {
   # Determine the value of RUNNER_FLAGS
-  if [ "$(< RUNNER_VERSION)" = "latest" ]; then
+  if [ "$(< /home/runner/RUNNER_VERSION)" = "latest" ]; then
     RUNNER_FLAGS=""
   else
     RUNNER_FLAGS="--disableupdate"
@@ -146,7 +146,7 @@ function setup_logs () {
 }
 function action () {
   cd /actions
-  $RunnerVersion = Get-Content RUNNER_VERSION -Raw
+  $RunnerVersion = Get-Content /actions/RUNNER_VERSION -Raw
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
   ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
 
