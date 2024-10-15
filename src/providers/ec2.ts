@@ -212,6 +212,10 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
    * If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
    * requires a paid GitHub account.
    *
+   * The group must exist or the runner will not start.
+   *
+   * Users will still be able to trigger this runner with the correct labels. But the runner will only be able to run jobs from repos allowed to use the group.
+   *
    * @default undefined
    */
   readonly group?: string;
