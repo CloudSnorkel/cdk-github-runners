@@ -11459,7 +11459,7 @@
       "Command": [
        "powershell",
        "-Command",
-       "cd \\actions ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ;\n        ./config.cmd --unattended --url \"${Env:REGISTRATION_URL}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"${Env:RUNNER_NAME} ${Env:RUNNER_GROUP}\" ;\n        ./run.cmd ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
+       "cd \\actions ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ;\n        ./config.cmd --unattended --url \"${Env:REGISTRATION_URL}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"${Env:RUNNER_NAME}\" ${Env:RUNNER_GROUP} ;\n        ./run.cmd ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -13625,7 +13625,7 @@
       "Command": [
        "powershell",
        "-Command",
-       "cd \\actions ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ;\n        ./config.cmd --unattended --url \"${Env:REGISTRATION_URL}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"${Env:RUNNER_NAME} ${Env:RUNNER_GROUP}\" ;\n        ./run.cmd ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
+       "cd \\actions ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ;\n        ./config.cmd --unattended --url \"${Env:REGISTRATION_URL}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"${Env:RUNNER_NAME}\" ${Env:RUNNER_GROUP} ;\n        ./run.cmd ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
       ],
       "Essential": true,
       "Image": {
