@@ -188,7 +188,7 @@ You can also create your own provider by implementing `IRunnerProvider`.
 5. Execute the status command (you may need to specify `--profile` too) and open the resulting `status.json` file
 6. Open the URL in `github.setup.url` from `status.json` or [manually setup GitHub](SETUP_GITHUB.md) integration as an app or with personal access token
 7. Run status command again to confirm `github.auth.status` and `github.webhook.status` are OK
-8. Trigger a GitHub action that has a `self-hosted` label with `runs-on: [self-hosted, linux, codebuild]` or similar
+8. Trigger a GitHub action that has a `self-hosted` label with `runs-on: [self-hosted, codebuild]` (or non-default labels you set in step 2)
 9. If the action is not successful, see [troubleshooting](#Troubleshooting)
 
 [![Demo](demo-thumbnail.jpg)](https://youtu.be/wlyv_3V8lIw)
