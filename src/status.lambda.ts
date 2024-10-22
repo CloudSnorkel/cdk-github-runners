@@ -271,7 +271,12 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
 
     // get app url
     try {
-      const app = (await appOctokit.request('GET /app')).data;
+      const appRes = await appOctokit.request('GET /app');
+      const app = appRes.data;
+      if (!app) {
+        status.github.auth.status = `Unable to get app: ${appRes}`;
+        return safeReturnValue(event, status);
+      }
       status.github.auth.app.url = app.html_url;
     } catch (e) {
       status.github.auth.status = `Unable to get app details: ${e}`;
