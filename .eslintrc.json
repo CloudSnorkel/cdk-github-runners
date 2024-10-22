@@ -160,7 +160,8 @@
           "src/token-retriever.lambda.ts",
           "src/webhook-handler.lambda.ts",
           "src/lambda-helpers.ts",
-          "src/lambda-github.ts"
+          "src/lambda-github.ts",
+          "setup/src/main.ts"
         ],
         "optionalDependencies": false,
         "peerDependencies": true
