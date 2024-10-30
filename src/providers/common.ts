@@ -9,7 +9,7 @@ import {
   CustomResource,
   Duration,
 } from 'aws-cdk-lib';
-import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2/lib/volume';
+import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
 import { Construct, IConstruct } from 'constructs';
 import { AmiRootDeviceFunction } from './ami-root-device-function';
 import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
