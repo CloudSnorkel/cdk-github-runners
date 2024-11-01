@@ -386,8 +386,8 @@ export abstract class RunnerImageComponent {
           ];
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [
-            'yum install -y docker',
-            'sudo usermod -a -G docker runner',
+            'amazon-linux-extras install docker',
+            'usermod -a -G docker runner',
             'curl -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr \'[:upper:]\' \'[:lower:]\')-$(uname -m)',
             'chmod +x /usr/bin/docker-compose',
             'ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose',
@@ -395,7 +395,7 @@ export abstract class RunnerImageComponent {
         } else if (os.is(Os.LINUX_AMAZON_2023)) {
           return [
             'dnf install -y docker',
-            'sudo usermod -a -G docker runner',
+            'usermod -a -G docker runner',
             'curl -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr \'[:upper:]\' \'[:lower:]\')-$(uname -m)',
             'chmod +x /usr/bin/docker-compose',
             'ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose',
