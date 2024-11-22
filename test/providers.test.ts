@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
-import { CodeBuildRunnerProvider, EcsRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
+import { CodeBuildRunnerProvider, Ec2RunnerProvider, EcsRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
 
 test('CodeBuild provider', () => {
   const app = new cdk.App();
@@ -201,5 +201,44 @@ describe('ECS provider', () => {
         },
       ],
     }));
+  });
+});
+
+describe('EC2 provider', () => {
+  test('Storage size mismatch', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test');
+
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+    const ib = Ec2RunnerProvider.imageBuilder(stack, 'builder', {
+      vpc: vpc,
+      awsImageBuilderOptions: {
+        storageSize: cdk.Size.gibibytes(50),
+      },
+    });
+
+    expect(() => {
+      new Ec2RunnerProvider(stack, 'provider 1', {
+        vpc: vpc,
+        securityGroups: [sg],
+        imageBuilder: ib,
+      });
+    }).toThrow('Runner storage size (30 GiB) must be at least the same as the image builder storage size (50 GiB)');
+
+    new Ec2RunnerProvider(stack, 'provider 2', {
+      vpc: vpc,
+      securityGroups: [sg],
+      imageBuilder: ib,
+      storageSize: cdk.Size.gibibytes(50),
+    });
+
+    new Ec2RunnerProvider(stack, 'provider 3', {
+      vpc: vpc,
+      securityGroups: [sg],
+      imageBuilder: ib,
+      storageSize: cdk.Size.gibibytes(500),
+    });
   });
 });

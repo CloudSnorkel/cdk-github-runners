@@ -25,7 +25,14 @@ import {
   RunnerVersion,
   StorageOptions,
 } from './common';
-import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageBuilderType, RunnerImageComponent } from '../image-builders';
+import {
+  AwsImageBuilderRunnerImageBuilder,
+  IRunnerImageBuilder,
+  RunnerImageBuilder,
+  RunnerImageBuilderProps,
+  RunnerImageBuilderType,
+  RunnerImageComponent,
+} from '../image-builders';
 import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
 // this script is specifically made so `poweroff` is absolutely always called
@@ -390,6 +397,12 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       securityGroups: this.securityGroups,
     });
     this.ami = this.amiBuilder.bindAmi();
+
+    if (this.amiBuilder instanceof AwsImageBuilderRunnerImageBuilder) {
+      if (this.amiBuilder.storageSize && this.storageSize.toBytes() < this.amiBuilder.storageSize.toBytes()) {
+        throw new Error(`Runner storage size (${this.storageSize.toGibibytes()} GiB) must be at least the same as the image builder storage size (${this.amiBuilder.storageSize.toGibibytes()} GiB)`);
+      }
+    }
 
     if (!this.ami.architecture.instanceTypeMatch(this.instanceType)) {
       throw new Error(`AMI architecture (${this.ami.architecture.name}) doesn't match runner instance type (${this.instanceType} / ${this.instanceType.architecture})`);
