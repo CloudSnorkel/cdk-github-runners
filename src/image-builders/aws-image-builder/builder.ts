@@ -321,7 +321,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   private infrastructure: imagebuilder.CfnInfrastructureConfiguration | undefined;
   private readonly role: iam.Role;
   private readonly fastLaunchOptions?: FastLaunchOptions;
-  private readonly storageSize?: cdk.Size;
+  public readonly storageSize?: cdk.Size;
   private readonly waitOnDeploy: boolean;
   private readonly dockerSetupCommands: string[];
   private readonly tags: { [key: string]: string };
