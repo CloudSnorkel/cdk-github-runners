@@ -39,7 +39,7 @@ test('CodeBuild provider privileged', () => {
     Environment: {
       PrivilegedMode: true,
     },
-  }), 2/*runners*/+3/*image builders*/);
+  }), 2/*runners*/ + 3/*image builders*/);
 
   template.hasResourceProperties('AWS::CodeBuild::Project', Match.objectLike({
     Environment: {
@@ -73,6 +73,7 @@ test('Fargate provider', () => {
   new FargateRunnerProvider(stack, 'provider', {
     vpc: vpc,
     securityGroups: [sg],
+    ephemeralStorageGiB: 100,
   });
 
   const template = Template.fromStack(stack);
@@ -87,6 +88,7 @@ test('Fargate provider', () => {
         Name: 'runner',
       },
     ],
+    EphemeralStorage: { SizeInGiB: 100 },
   }));
 });
 

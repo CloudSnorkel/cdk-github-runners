@@ -435,7 +435,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       {
         cpu: props?.cpu ?? 1024,
         memoryLimitMiB: props?.memoryLimitMiB ?? 2048,
-        ephemeralStorageGiB: props?.ephemeralStorageGiB ?? !image.os.is(Os.WINDOWS) ? 25 : undefined,
+        ephemeralStorageGiB: props?.ephemeralStorageGiB ?? (!image.os.is(Os.WINDOWS) ? 25 : undefined),
         runtimePlatform: {
           operatingSystemFamily: os,
           cpuArchitecture: arch,
