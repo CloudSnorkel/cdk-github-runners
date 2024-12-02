@@ -72,7 +72,7 @@
   "devDependencies": {
     "@aws-sdk/client-cloudformation": "^3.699.0",
     "@aws-sdk/client-codebuild": "^3.699.0",
-    "@aws-sdk/client-ec2": "^3.699.0",
+    "@aws-sdk/client-ec2": "^3.701.0",
     "@aws-sdk/client-ecr": "^3.699.0",
     "@aws-sdk/client-imagebuilder": "^3.699.0",
     "@aws-sdk/client-lambda": "^3.699.0",
@@ -87,7 +87,7 @@
     "@stylistic/eslint-plugin": "^2",
     "@sveltejs/vite-plugin-svelte": "^4",
     "@tsconfig/svelte": "^5",
-    "@types/aws-lambda": "^8.10.145",
+    "@types/aws-lambda": "^8.10.146",
     "@types/jest": "^29",
     "@types/node": "ts5.6",
     "@types/semver": "^7.5.8",
