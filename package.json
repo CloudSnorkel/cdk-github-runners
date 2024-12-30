@@ -73,7 +73,7 @@
     "@aws-sdk/client-cloudformation": "^3.716.0",
     "@aws-sdk/client-codebuild": "^3.716.0",
     "@aws-sdk/client-ec2": "^3.716.0",
-    "@aws-sdk/client-ecr": "^3.716.0",
+    "@aws-sdk/client-ecr": "^3.720.0",
     "@aws-sdk/client-imagebuilder": "^3.716.0",
     "@aws-sdk/client-lambda": "^3.716.0",
     "@aws-sdk/client-secrets-manager": "^3.716.0",
