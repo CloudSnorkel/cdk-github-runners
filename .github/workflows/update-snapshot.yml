@@ -49,6 +49,10 @@ jobs:
         continue-on-error: true
         run: |-
           git diff --staged -U0 | grep '"path":' | cut -d '"' -f 4 | xargs -rL 2 diff -ruN > /tmp/assets.diff
+      - name: List diff files
+        if: steps.create_patch.outputs.patch_created
+        run: |-
+          grep ^diff /tmp/assets.diff
       - name: Upload assets.diff
         if: steps.create_patch.outputs.patch_created
         uses: actions/upload-artifact@v4
