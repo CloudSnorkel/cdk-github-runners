@@ -25,7 +25,6 @@ jobs:
         run: yarn install --check-files --frozen-lockfile
       - name: Snapshot main
         run: |
-          npm run bundle
           npm run integ:default:snapshot
       - name: Switch to branch
         env:
@@ -35,7 +34,6 @@ jobs:
         run: yarn install --check-files --frozen-lockfile
       - name: Snapshot branch
         run: |
-          npm run bundle
           npm run integ:default:snapshot
       - name: Find mutations
         id: create_patch
