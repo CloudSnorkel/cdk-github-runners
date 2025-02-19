@@ -1,5 +1,5 @@
-# The labels used here are meant to be used only with CloudSnorkel's AWS account.
-# We have a deployment of this construct with all the matching providers for testing.
+# This tests against providers/labels deployed by test/default.integ.ts
+# If you want to run this on your account, you will first have to integration test and set it up to point to your fork.
 
 name: self-hosted integration test
 
