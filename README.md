@@ -296,6 +296,12 @@ new GitHubRunners(this, 'runners', {
 });
 ```
 
+## Examples
+
+Beyond the code snippets above, the fullest example available is the [integration test](test/default.integ.ts).
+
+If you have more to share, please open a PR adding them to the `examples` folder.
+
 ## Architecture
 
 ![Architecture diagram](architecture.svg)
