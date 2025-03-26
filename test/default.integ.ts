@@ -6,7 +6,6 @@
 
 import * as cdk from 'aws-cdk-lib';
 import { aws_codebuild as codebuild, aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
-import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
 import {
   Architecture,
   CodeBuildRunnerProvider,
@@ -163,7 +162,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       spot: true,
       storageSize: cdk.Size.gibibytes(40),
       storageOptions: {
-        volumeType: EbsDeviceVolumeType.GP3,
+        volumeType: ec2.EbsDeviceVolumeType.GP3,
         iops: 1500,
         throughput: 150,
       },
@@ -241,7 +240,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       vpc,
       storageSize: cdk.Size.gibibytes(40),
       storageOptions: {
-        volumeType: EbsDeviceVolumeType.GP3,
+        volumeType: ec2.EbsDeviceVolumeType.GP3,
         iops: 3000,
         throughput: 200,
       },
