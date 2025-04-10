@@ -48,6 +48,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   ],
   jsiiVersion: '5.5.x',
   typescriptVersion: '5.6.x',
+  lambdaOptions: { runtime: awscdk.LambdaRuntime.NODEJS_22_X },
   releaseToNpm: true,
   npmAccess: NpmAccess.PUBLIC,
   publishToPypi: {
