@@ -101,7 +101,7 @@
       "description": "Create a JavaScript bundle from src/delete-failed-runner.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/delete-failed-runner.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/delete-failed-runner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/delete-failed-runner.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/delete-failed-runner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -110,7 +110,7 @@
       "description": "Continuously update the JavaScript bundle from src/delete-failed-runner.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/delete-failed-runner.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/delete-failed-runner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/delete-failed-runner.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/delete-failed-runner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -119,7 +119,7 @@
       "description": "Create a JavaScript bundle from src/idle-runner-repear.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/idle-runner-repear.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/idle-runner-repear.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/idle-runner-repear.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/idle-runner-repear.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -128,7 +128,7 @@
       "description": "Continuously update the JavaScript bundle from src/idle-runner-repear.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/idle-runner-repear.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/idle-runner-repear.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/idle-runner-repear.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/idle-runner-repear.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -137,7 +137,7 @@
       "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/delete-resources.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-resources.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-resources.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-resources.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-resources.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -146,7 +146,7 @@
       "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/delete-resources.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-resources.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-resources.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-resources.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-resources.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -155,7 +155,7 @@
       "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -164,7 +164,7 @@
       "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -173,7 +173,7 @@
       "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/versioner.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/versioner.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/versioner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/versioner.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/versioner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -182,7 +182,7 @@
       "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/versioner.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/versioner.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/versioner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/versioner.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/versioner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -191,7 +191,7 @@
       "description": "Create a JavaScript bundle from src/image-builders/build-image.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/build-image.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/build-image.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/image-builders/build-image.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/build-image.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -200,7 +200,7 @@
       "description": "Continuously update the JavaScript bundle from src/image-builders/build-image.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/build-image.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/image-builders/build-image.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/image-builders/build-image.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/build-image.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -209,7 +209,7 @@
       "description": "Create a JavaScript bundle from src/providers/ami-root-device.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/providers/ami-root-device.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/providers/ami-root-device.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/providers/ami-root-device.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/ami-root-device.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -218,7 +218,7 @@
       "description": "Continuously update the JavaScript bundle from src/providers/ami-root-device.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/providers/ami-root-device.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/providers/ami-root-device.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/providers/ami-root-device.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/ami-root-device.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -227,7 +227,7 @@
       "description": "Create a JavaScript bundle from src/providers/update-lambda.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/providers/update-lambda.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/providers/update-lambda.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/providers/update-lambda.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/update-lambda.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -236,7 +236,7 @@
       "description": "Continuously update the JavaScript bundle from src/providers/update-lambda.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/providers/update-lambda.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/providers/update-lambda.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/providers/update-lambda.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/update-lambda.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -245,7 +245,7 @@
       "description": "Create a JavaScript bundle from src/setup.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/setup.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/setup.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/setup.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/setup.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -254,7 +254,7 @@
       "description": "Continuously update the JavaScript bundle from src/setup.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/setup.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/setup.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/setup.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/setup.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -263,7 +263,7 @@
       "description": "Create a JavaScript bundle from src/status.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/status.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/status.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/status.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/status.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -272,7 +272,7 @@
       "description": "Continuously update the JavaScript bundle from src/status.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/status.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/status.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/status.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/status.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -281,7 +281,7 @@
       "description": "Create a JavaScript bundle from src/token-retriever.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/token-retriever.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/token-retriever.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/token-retriever.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/token-retriever.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -290,7 +290,7 @@
       "description": "Continuously update the JavaScript bundle from src/token-retriever.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/token-retriever.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/token-retriever.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/token-retriever.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/token-retriever.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -299,7 +299,7 @@
       "description": "Create a JavaScript bundle from src/webhook-handler.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/webhook-handler.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/webhook-handler.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/webhook-handler.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-handler.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -308,7 +308,7 @@
       "description": "Continuously update the JavaScript bundle from src/webhook-handler.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/webhook-handler.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/webhook-handler.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/webhook-handler.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-handler.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
