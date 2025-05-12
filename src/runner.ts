@@ -262,7 +262,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private readonly webhook: GithubWebhookHandler;
   private readonly orchestrator: stepfunctions.StateMachine;
   private readonly setupUrl: string;
-  private readonly extraLambdaEnv: {[p: string]: string} = {};
+  private readonly extraLambdaEnv: { [p: string]: string } = {};
   private readonly extraLambdaProps: lambda.FunctionOptions;
   private stateMachineLogGroup?: logs.LogGroup;
   private jobsCompletedMetricFilters?: logs.MetricFilter[];
