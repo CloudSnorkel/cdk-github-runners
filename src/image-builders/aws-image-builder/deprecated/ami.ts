@@ -161,7 +161,7 @@ export class AmiBuilder extends ImageBuilderBase {
     // add all basic components
     if (this.os.is(Os.WINDOWS)) {
       this.addBaseWindowsComponents(props?.installDocker ?? true);
-    } else if (this.os.is(Os.LINUX) || this.os.is(Os.LINUX_UBUNTU)) {
+    } else if (this.os.is(Os.LINUX) || this.os.isUbuntu()) {
       this.addBaseLinuxComponents(props?.installDocker ?? true);
     } else {
       throw new Error(`Unsupported OS for AMI builder: ${this.os.name}`);

@@ -76,7 +76,7 @@ export abstract class RunnerImageComponent {
       name = 'RequiredPackages';
 
       getCommands(os: Os, architecture: Architecture): string[] {
-        if (os.is(Os.LINUX_UBUNTU)) {
+        if (os.isUbuntu()) {
           let archUrl;
           if (architecture.is(Architecture.X86_64)) {
             archUrl = 'amd64';
@@ -124,7 +124,7 @@ export abstract class RunnerImageComponent {
       name = 'RunnerUser';
 
       getCommands(os: Os, _architecture: Architecture): string[] {
-        if (os.is(Os.LINUX_UBUNTU)) {
+        if (os.isUbuntu()) {
           return [
             'addgroup runner',
             'adduser --system --disabled-password --home /home/runner --ingroup runner runner',
@@ -155,7 +155,7 @@ export abstract class RunnerImageComponent {
       name = 'AwsCli';
 
       getCommands(os: Os, architecture: Architecture) {
-        if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
+        if (os.isUbuntu() || os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
           let archUrl: string;
           if (architecture.is(Architecture.X86_64)) {
             archUrl = 'x86_64';
@@ -191,7 +191,7 @@ export abstract class RunnerImageComponent {
       name = 'GithubCli';
 
       getCommands(os: Os, architecture: Architecture) {
-        if (os.is(Os.LINUX_UBUNTU)) {
+        if (os.isUbuntu()) {
           return [
             'curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg',
             'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] ' +
@@ -234,7 +234,7 @@ export abstract class RunnerImageComponent {
       name = 'Git';
 
       getCommands(os: Os, architecture: Architecture) {
-        if (os.is(Os.LINUX_UBUNTU)) {
+        if (os.isUbuntu()) {
           return [
             'add-apt-repository ppa:git-core/ppa',
             'apt-get update',
@@ -278,7 +278,7 @@ export abstract class RunnerImageComponent {
       name = 'GithubRunner';
 
       getCommands(os: Os, architecture: Architecture) {
-        if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
+        if (os.isUbuntu() || os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
           let versionCommand: string;
           if (runnerVersion.is(RunnerVersion.latest())) {
             versionCommand = 'RUNNER_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest | grep -oE "[^/v]+$"`';
@@ -303,7 +303,7 @@ export abstract class RunnerImageComponent {
             `echo -n ${runnerVersion.version} > /home/runner/RUNNER_VERSION`,
           ];
 
-          if (os.is(Os.LINUX_UBUNTU)) {
+          if (os.isUbuntu()) {
             commands.push('/home/runner/bin/installdependencies.sh');
           } else if (os.is(Os.LINUX_AMAZON_2)) {
             commands.push('yum install -y openssl-libs krb5-libs zlib libicu60');
@@ -373,12 +373,12 @@ export abstract class RunnerImageComponent {
       name = 'Docker';
 
       getCommands(os: Os, architecture: Architecture) {
-        if (os.is(Os.LINUX_UBUNTU)) {
+        if (os.isUbuntu()) {
           return [
             'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg',
             'echo ' +
-                '  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ' +
-                '  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null',
+            '  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ' +
+            '  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null',
             'apt-get update',
             'DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin',
             'usermod -aG docker runner',
@@ -463,7 +463,7 @@ export abstract class RunnerImageComponent {
           throw new Error(`Invalid certificate name: ${name}. Name must only contain alphanumeric characters, dashes and underscores.`);
         }
 
-        if (os.is(Os.LINUX_UBUNTU)) {
+        if (os.isUbuntu()) {
           return [
             'update-ca-certificates',
           ];
@@ -482,7 +482,7 @@ export abstract class RunnerImageComponent {
       }
 
       getAssets(os: Os, _architecture: Architecture): RunnerImageAsset[] {
-        if (os.is(Os.LINUX_UBUNTU)) {
+        if (os.isUbuntu()) {
           return [
             { source, target: `/usr/local/share/ca-certificates/${name}.crt` },
           ];
@@ -610,7 +610,7 @@ export abstract class RunnerImageComponent {
    */
   _asAwsImageBuilderComponent(scope: Construct, id: string, os: Os, architecture: Architecture) {
     let platform: 'Linux' | 'Windows';
-    if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
+    if (os.isUbuntu() || os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
       platform = 'Linux';
     } else if (os.is(Os.WINDOWS)) {
       platform = 'Windows';

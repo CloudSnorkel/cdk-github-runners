@@ -130,6 +130,15 @@ export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architect
     });
   }
 
+  if (os.is(Os.LINUX_UBUNTU_2404)) {
+    return stack.formatArn({
+      service: 'imagebuilder',
+      resource: 'image',
+      account: 'aws',
+      resourceName: `ubuntu-server-24-lts-${arch}/x.x.x`,
+    });
+  }
+
   if (os.is(Os.LINUX_AMAZON_2)) {
     return stack.formatArn({
       service: 'imagebuilder',

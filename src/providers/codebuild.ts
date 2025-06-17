@@ -186,6 +186,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
    *  * `RunnerImageComponent.githubRunner()`
    */
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
+    // TODO: Johan - hur ska vi hantera Ubuntu 24.04
     return RunnerImageBuilder.new(scope, id, {
       os: Os.LINUX_UBUNTU,
       architecture: Architecture.X86_64,
