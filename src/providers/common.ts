@@ -121,9 +121,14 @@ export class Os {
   public static readonly LINUX = Os.of('Linux');
 
   /**
-   * Ubuntu Linux 22.04
+   * Ubuntu Linux
    */
   public static readonly LINUX_UBUNTU = Os.of('Ubuntu Linux');
+
+  /**
+  * Ubuntu Linux 22.04
+  */
+  public static readonly LINUX_UBUNTU_2204 = Os.of('Ubuntu Linux 22.04');
 
   /**
    * Ubuntu Linux 24.04
@@ -143,7 +148,7 @@ export class Os {
   /**
    * @internal
    */
-  public static readonly _ALL_LINUX_VERSIONS = [Os.LINUX, Os.LINUX_UBUNTU, Os.LINUX_UBUNTU_2404, Os.LINUX_AMAZON_2, Os.LINUX_AMAZON_2023];
+  public static readonly _ALL_LINUX_VERSIONS = [Os.LINUX, Os.LINUX_UBUNTU, Os.LINUX_UBUNTU_2204, Os.LINUX_UBUNTU_2404, Os.LINUX_AMAZON_2, Os.LINUX_AMAZON_2023];
 
   /**
      * @internal
@@ -153,7 +158,7 @@ export class Os {
   /**
      * @internal
      */
-  public static readonly _ALL_LINUX_UBUNTU_VERSIONS = [Os.LINUX_UBUNTU, Os.LINUX_UBUNTU_2404];
+  public static readonly _ALL_LINUX_UBUNTU_VERSIONS = [Os.LINUX_UBUNTU, Os.LINUX_UBUNTU_2204, Os.LINUX_UBUNTU_2404];
 
   /**
   * Windows

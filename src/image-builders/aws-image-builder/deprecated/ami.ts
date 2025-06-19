@@ -144,7 +144,7 @@ export class AmiBuilder extends ImageBuilderBase {
   constructor(scope: Construct, id: string, props?: AmiBuilderProps) {
     super(scope, id, {
       os: props?.os,
-      supportedOs: [Os.LINUX, Os.LINUX_UBUNTU, Os.LINUX_AMAZON_2, Os.WINDOWS],
+      supportedOs: [Os.LINUX, Os.LINUX_UBUNTU, Os.LINUX_UBUNTU_2204, Os.LINUX_AMAZON_2, Os.WINDOWS],
       architecture: props?.architecture,
       supportedArchitectures: [Architecture.X86_64, Architecture.ARM64],
       instanceType: props?.instanceType,
@@ -161,7 +161,7 @@ export class AmiBuilder extends ImageBuilderBase {
     // add all basic components
     if (this.os.is(Os.WINDOWS)) {
       this.addBaseWindowsComponents(props?.installDocker ?? true);
-    } else if (this.os.is(Os.LINUX) || this.os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
+    } else if (this.os.is(Os.LINUX) || this.os.is(Os.LINUX_UBUNTU_2204)) {
       this.addBaseLinuxComponents(props?.installDocker ?? true);
     } else {
       throw new Error(`Unsupported OS for AMI builder: ${this.os.name}`);
