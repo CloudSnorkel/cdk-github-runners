@@ -148,6 +148,11 @@ export class Os {
   /**
      * @internal
      */
+  public static readonly _ALL_LINUX_AMAZON_VERSIONS = [Os.LINUX_AMAZON_2, Os.LINUX_AMAZON_2023];
+
+  /**
+     * @internal
+     */
   public static readonly _ALL_LINUX_UBUNTU_VERSIONS = [Os.LINUX_UBUNTU, Os.LINUX_UBUNTU_2404];
 
   /**

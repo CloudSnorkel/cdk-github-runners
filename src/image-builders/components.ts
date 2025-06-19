@@ -130,7 +130,7 @@ export abstract class RunnerImageComponent {
             'adduser --system --disabled-password --home /home/runner --ingroup runner runner',
             'echo "%runner   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner',
           ];
-        } else if (os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
+        } else if (os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
           return [
             '/usr/sbin/groupadd runner',
             '/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner',
@@ -155,7 +155,7 @@ export abstract class RunnerImageComponent {
       name = 'AwsCli';
 
       getCommands(os: Os, architecture: Architecture) {
-        if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS) || os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
+        if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS) || os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
           let archUrl: string;
           if (architecture.is(Architecture.X86_64)) {
             archUrl = 'x86_64';
@@ -278,7 +278,7 @@ export abstract class RunnerImageComponent {
       name = 'GithubRunner';
 
       getCommands(os: Os, architecture: Architecture) {
-        if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS) || os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
+        if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS) || os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
           let versionCommand: string;
           if (runnerVersion.is(RunnerVersion.latest())) {
             versionCommand = 'RUNNER_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest | grep -oE "[^/v]+$"`';
@@ -467,7 +467,7 @@ export abstract class RunnerImageComponent {
           return [
             'update-ca-certificates',
           ];
-        } else if (os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
+        } else if (os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
           return [
             'update-ca-trust',
           ];
@@ -486,7 +486,7 @@ export abstract class RunnerImageComponent {
           return [
             { source, target: `/usr/local/share/ca-certificates/${name}.crt` },
           ];
-        } else if (os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
+        } else if (os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
           return [
             { source, target: `/etc/pki/ca-trust/source/anchors/${name}.crt` },
           ];
@@ -610,7 +610,7 @@ export abstract class RunnerImageComponent {
    */
   _asAwsImageBuilderComponent(scope: Construct, id: string, os: Os, architecture: Architecture) {
     let platform: 'Linux' | 'Windows';
-    if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS) || os.is(Os.LINUX_AMAZON_2) || os.is(Os.LINUX_AMAZON_2023)) {
+    if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS) || os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
       platform = 'Linux';
     } else if (os.is(Os.WINDOWS)) {
       platform = 'Windows';
