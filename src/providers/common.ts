@@ -172,15 +172,6 @@ export class Os {
   }
 
   /**
-  * Checks if the given OS is an Ubuntu Linux OS.
-  *
-  * @param os OS to compare
-  */
-  public isUbuntu() {
-    return this.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)
-  }
-
-  /**
    * Checks if this OS is in a given list.
    *
    * @param oses list of OS to check
