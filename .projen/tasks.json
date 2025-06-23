@@ -53,13 +53,16 @@
           "spawn": "bundle:idle-runner-repear.lambda"
         },
         {
-          "spawn": "bundle:image-builders/aws-image-builder/delete-resources.lambda"
+          "spawn": "bundle:setup.lambda"
         },
         {
-          "spawn": "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda"
+          "spawn": "bundle:status.lambda"
         },
         {
-          "spawn": "bundle:image-builders/aws-image-builder/versioner.lambda"
+          "spawn": "bundle:token-retriever.lambda"
+        },
+        {
+          "spawn": "bundle:webhook-handler.lambda"
         },
         {
           "spawn": "bundle:image-builders/build-image.lambda"
@@ -71,16 +74,13 @@
           "spawn": "bundle:providers/update-lambda.lambda"
         },
         {
-          "spawn": "bundle:setup.lambda"
+          "spawn": "bundle:image-builders/aws-image-builder/delete-resources.lambda"
         },
         {
-          "spawn": "bundle:status.lambda"
+          "spawn": "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda"
         },
         {
-          "spawn": "bundle:token-retriever.lambda"
-        },
-        {
-          "spawn": "bundle:webhook-handler.lambda"
+          "spawn": "bundle:image-builders/aws-image-builder/versioner.lambda"
         },
         {
           "exec": "cp -r src/providers/docker-images assets"
