@@ -176,9 +176,9 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
   }
 
   // set execution name which is also used as runner name which are limited to 64 characters
-  let executionName = payload.repository.full_name.replace('/', '-').slice(0, 50);
-  let deliveryId = getHeader(event, 'x-github-delivery') ?? `${Math.random()}`;
-  executionName = `${executionName}-${deliveryId.slice(0, 63-executionName.length)}`;
+  const deliveryId = getHeader(event, 'x-github-delivery') ?? `${Math.random()}`;
+  const repoNameTruncated = payload.repository.name.slice(0, 64 - deliveryId.length - 1);
+  const executionName = `${repoNameTruncated}-${deliveryId}`;
   // start execution
   const input = {
     owner: payload.repository.owner.login,
