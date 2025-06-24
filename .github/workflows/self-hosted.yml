@@ -20,6 +20,14 @@ jobs:
             sudo: true
             # test for https://github.com/CloudSnorkel/cdk-github-runners/issues/380
             environment: env-test
+          - name: codebuild ubuntu 2404 x64
+            os: linux
+            arch: X64
+            runs-on: [self-hosted, codebuild-ubuntu-2404-x64]
+            docker: true
+            sudo: true
+            # test for https://github.com/CloudSnorkel/cdk-github-runners/issues/380
+            environment: env-test
           - name: codebuild arm64
             os: linux
             arch: ARM64
@@ -30,6 +38,12 @@ jobs:
             os: linux
             arch: X64
             runs-on: [self-hosted, linux, ecs, X64]
+            docker: true
+            sudo: true
+          - name: ecs ubuntu 2404 x64
+            os: linux
+            arch: X64
+            runs-on: [self-hosted, ubuntu-2404, ecs, X64]
             docker: true
             sudo: true
           - name: ecs arm64

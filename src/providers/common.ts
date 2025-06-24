@@ -116,7 +116,7 @@ export class Os {
   /**
   * Linux
   *
-  * @deprecated use {@link LINUX_UBUNTU} or {@link LINUX_AMAZON_2} or {@link LINUX_AMAZON_2023}
+  * @deprecated use {@link LINUX_UBUNTU}, {@link LINUX_UBUNTU_2404}, {@link LINUX_AMAZON_2} or {@link LINUX_AMAZON_2023}
   */
   public static readonly LINUX = Os.of('Linux');
 
@@ -124,6 +124,16 @@ export class Os {
    * Ubuntu Linux
    */
   public static readonly LINUX_UBUNTU = Os.of('Ubuntu Linux');
+
+  /**
+  * Ubuntu Linux 22.04
+  */
+  public static readonly LINUX_UBUNTU_2204 = Os.of('Ubuntu Linux 22.04');
+
+  /**
+   * Ubuntu Linux 24.04
+   */
+  public static readonly LINUX_UBUNTU_2404 = Os.of('Ubuntu Linux 24.04');
 
   /**
    * Amazon Linux 2
@@ -138,7 +148,18 @@ export class Os {
   /**
    * @internal
    */
-  public static readonly _ALL_LINUX_VERSIONS = [Os.LINUX, Os.LINUX_UBUNTU, Os.LINUX_AMAZON_2, Os.LINUX_AMAZON_2023];
+  public static readonly _ALL_LINUX_VERSIONS =
+    [Os.LINUX, Os.LINUX_UBUNTU, Os.LINUX_UBUNTU_2204, Os.LINUX_UBUNTU_2404, Os.LINUX_AMAZON_2, Os.LINUX_AMAZON_2023];
+
+  /**
+     * @internal
+     */
+  public static readonly _ALL_LINUX_AMAZON_VERSIONS = [Os.LINUX_AMAZON_2, Os.LINUX_AMAZON_2023];
+
+  /**
+     * @internal
+     */
+  public static readonly _ALL_LINUX_UBUNTU_VERSIONS = [Os.LINUX_UBUNTU, Os.LINUX_UBUNTU_2204, Os.LINUX_UBUNTU_2404];
 
   /**
   * Windows
