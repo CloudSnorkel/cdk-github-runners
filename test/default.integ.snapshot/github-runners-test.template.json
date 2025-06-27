@@ -18917,7 +18917,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "c6fffe9eed1e189aae8f120b864439a47ab93108695782641b29f593f3488c15.zip"
+     "S3Key": "3295ab72f032725272d76599b0bc8a26187eb36f6ac3c0c4088f250ad42b0549.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -18936,6 +18936,8 @@
       },
       "SUPPORTED_LABELS": "[{\"provider\":\"github-runners-test/CodeBuildx64\",\"labels\":[\"codebuild-x64\"]},{\"provider\":\"github-runners-test/CodeBuildUbuntu2404x64\",\"labels\":[\"codebuild-ubuntu-2404-x64\"]},{\"provider\":\"github-runners-test/CodeBuildARM\",\"labels\":[\"codebuild\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/CodeBuildWindows\",\"labels\":[\"codebuild\",\"windows\",\"x64\"]},{\"provider\":\"github-runners-test/ECS\",\"labels\":[\"ecs\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/ECS Ubuntu 2404\",\"labels\":[\"ecs\",\"ubuntu-2404\",\"x64\"]},{\"provider\":\"github-runners-test/ECS ARM64\",\"labels\":[\"ecs\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/ECS Windows\",\"labels\":[\"ecs\",\"windows\",\"x64\"]},{\"provider\":\"github-runners-test/Lambda\",\"labels\":[\"lambda\",\"x64\"]},{\"provider\":\"github-runners-test/LambdaARM\",\"labels\":[\"lambda\",\"arm64\"]},{\"provider\":\"github-runners-test/Fargate\",\"labels\":[\"fargate\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/Fargate-x64-spot\",\"labels\":[\"fargate-spot\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/Fargate-arm64\",\"labels\":[\"fargate\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/Fargate-arm64-spot\",\"labels\":[\"fargate-spot\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/Fargate-Windows\",\"labels\":[\"fargate\",\"windows\",\"x64\"]},{\"provider\":\"github-runners-test/EC2 Linux\",\"labels\":[\"ec2\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/EC2 Spot Linux\",\"labels\":[\"ec2-spot\",\"linux\",\"x64\"]},{\"provider\":\"github-runners-test/EC2 Linux arm64\",\"labels\":[\"ec2\",\"linux\",\"arm64\"]},{\"provider\":\"github-runners-test/EC2 Windows\",\"labels\":[\"ec2\",\"windows\",\"x64\"]}]",
       "REQUIRE_SELF_HOSTED_LABEL": "1",
+      "SKIP_ORG_NAME": "0",
+      "STRIP_HYPHEN_FROM_GUID": "0",
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },

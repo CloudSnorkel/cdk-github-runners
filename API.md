@@ -6513,6 +6513,60 @@ VPC to launch the runners in.
 
 ---
 
+### ExecutionNameOptions <a name="ExecutionNameOptions" id="@cloudsnorkel/cdk-github-runners.ExecutionNameOptions"></a>
+
+Defines options for constructing step function execution names.
+
+By default the execution name is constructed as `<org>-<repo>-<webhook-guid>`, where
+- `org` is the GitHub organization name
+- `repo` is the GitHub repository name
+- `webhook-guid` is a unique identifier for the webhook event
+
+Note that the execution name is limited to 64 characters, so the org and repo names may be truncated.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ExecutionNameOptions.Initializer"></a>
+
+```typescript
+import { ExecutionNameOptions } from '@cloudsnorkel/cdk-github-runners'
+
+const executionNameOptions: ExecutionNameOptions = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ExecutionNameOptions.property.skipOrgName">skipOrgName</a></code> | <code>boolean</code> | Skip the organization name, and just include the repo name in the execution name. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ExecutionNameOptions.property.stripHyphenFromGuid">stripHyphenFromGuid</a></code> | <code>boolean</code> | Strip hyphens from the webhook GUID, to allow less truncation in repo name. |
+
+---
+
+##### `skipOrgName`<sup>Optional</sup> <a name="skipOrgName" id="@cloudsnorkel/cdk-github-runners.ExecutionNameOptions.property.skipOrgName"></a>
+
+```typescript
+public readonly skipOrgName: boolean;
+```
+
+- *Type:* boolean
+- *Default:* false
+
+Skip the organization name, and just include the repo name in the execution name.
+
+---
+
+##### `stripHyphenFromGuid`<sup>Optional</sup> <a name="stripHyphenFromGuid" id="@cloudsnorkel/cdk-github-runners.ExecutionNameOptions.property.stripHyphenFromGuid"></a>
+
+```typescript
+public readonly stripHyphenFromGuid: boolean;
+```
+
+- *Type:* boolean
+- *Default:* false
+
+Strip hyphens from the webhook GUID, to allow less truncation in repo name.
+
+---
+
 ### FargateRunnerProviderProps <a name="FargateRunnerProviderProps" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps"></a>
 
 Properties for FargateRunnerProvider.
@@ -6896,6 +6950,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.allowPublicSubnet">allowPublicSubnet</a></code> | <code>boolean</code> | Allow management functions to run in public subnets. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.executionNameOptions">executionNameOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ExecutionNameOptions">ExecutionNameOptions</a></code> | Options for constructing step function execution names, which is also used as runner name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.extraCertificates">extraCertificates</a></code> | <code>string</code> | Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.idleTimeout">idleTimeout</a></code> | <code>aws-cdk-lib.Duration</code> | Time to wait before stopping a runner that remains idle. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.logOptions">logOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions">LogOptions</a></code> | Logging options for the state machine that manages the runners. |
@@ -6924,6 +6979,18 @@ public readonly allowPublicSubnet: boolean;
 Allow management functions to run in public subnets.
 
 Lambda Functions in a public subnet can NOT access the internet.
+
+---
+
+##### `executionNameOptions`<sup>Optional</sup> <a name="executionNameOptions" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.executionNameOptions"></a>
+
+```typescript
+public readonly executionNameOptions: ExecutionNameOptions;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ExecutionNameOptions">ExecutionNameOptions</a>
+
+Options for constructing step function execution names, which is also used as runner name.
 
 ---
 

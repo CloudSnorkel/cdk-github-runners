@@ -166,6 +166,37 @@ export interface GitHubRunnersProps {
    * @default retry 23 times up to about 24 hours
    */
   readonly retryOptions?: ProviderRetryOptions;
+
+  /**
+   * Options for constructing step function execution names, which is also used as runner name.
+   */
+  readonly executionNameOptions?: ExecutionNameOptions;
+}
+
+/**
+ * Defines options for constructing step function execution names.
+ * 
+ * By default the execution name is constructed as `<org>-<repo>-<webhook-guid>`, where
+ * - `org` is the GitHub organization name
+ * - `repo` is the GitHub repository name
+ * - `webhook-guid` is a unique identifier for the webhook event
+ * 
+ * Note that the execution name is limited to 64 characters, so the org and repo names may be truncated.
+ */
+export interface ExecutionNameOptions {
+  /**
+   * Skip the organization name, and just include the repo name in the execution name.
+   * 
+   * @default false
+   */
+  readonly skipOrgName?: boolean;
+
+  /**
+   * Strip hyphens from the webhook GUID, to allow less truncation in repo name.
+   * 
+   * @default false
+   */
+  readonly stripHyphenFromGuid?: boolean;
 }
 
 /**
@@ -314,6 +345,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         };
       }),
       requireSelfHostedLabel: this.props?.requireSelfHostedLabel ?? true,
+      skipOrgName: this.props?.executionNameOptions?.skipOrgName ?? false,
+      stripHyphenFromGuid: this.props?.executionNameOptions?.stripHyphenFromGuid ?? false,
     });
 
     this.setupUrl = this.setupFunction();

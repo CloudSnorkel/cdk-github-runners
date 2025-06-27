@@ -44,6 +44,16 @@ export interface GithubWebhookHandlerProps {
    * Whether to require the "self-hosted" label.
    */
   readonly requireSelfHostedLabel: boolean;
+
+  /**
+   * Whether to skip repo's organization name in the execution name.
+   */
+  readonly skipOrgName: boolean;
+
+  /**
+   * Strip hyphens from the webhook GUID, to allow less truncation in repo name.
+   */
+  readonly stripHyphenFromGuid: boolean;
 }
 
 /**
@@ -78,6 +88,8 @@ export class GithubWebhookHandler extends Construct {
           GITHUB_PRIVATE_KEY_SECRET_ARN: props.secrets.githubPrivateKey.secretArn,
           SUPPORTED_LABELS: JSON.stringify(props.supportedLabels),
           REQUIRE_SELF_HOSTED_LABEL: props.requireSelfHostedLabel ? '1' : '0',
+          SKIP_ORG_NAME: props.skipOrgName ? '1' : '0',
+          STRIP_HYPHEN_FROM_GUID: props.stripHyphenFromGuid ? '1' : '0',
         },
         timeout: cdk.Duration.seconds(31),
         logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
