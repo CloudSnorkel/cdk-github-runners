@@ -30,6 +30,7 @@ export enum SingletonLogType {
   RUNNER_IMAGE_BUILD = 'Runner Image Build Helpers Log',
   ORCHESTRATOR = 'Orchestrator Log',
   SETUP = 'Setup Log',
+  WEBHOOK_REDELIVERY = 'Webhook Redelivery Log',
 }
 
 /**

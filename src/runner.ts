@@ -31,6 +31,7 @@ import { StatusFunction } from './status-function';
 import { TokenRetrieverFunction } from './token-retriever-function';
 import { singletonLogGroup, SingletonLogType } from './utils';
 import { GithubWebhookHandler } from './webhook';
+import { GithubWebhookRedelivery } from './webhook-redelivery';
 
 
 /**
@@ -314,6 +315,9 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         };
       }),
       requireSelfHostedLabel: this.props?.requireSelfHostedLabel ?? true,
+    });
+    new GithubWebhookRedelivery(this, "Webhook Redelivery", {
+      secrets: this.secrets,
     });
 
     this.setupUrl = this.setupFunction();

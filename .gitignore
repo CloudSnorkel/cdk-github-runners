@@ -60,6 +60,7 @@ tsconfig.json
 !/src/status-function.ts
 !/src/token-retriever-function.ts
 !/src/webhook-handler-function.ts
+!/src/webhook-redelivery-function.ts
 !/src/image-builders/build-image-function.ts
 !/src/providers/ami-root-device-function.ts
 !/src/providers/update-lambda-function.ts

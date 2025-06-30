@@ -1,5 +1,6 @@
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
+import { Endpoints } from '@octokit/types';
 import { getSecretValue, getSecretJsonValue } from './lambda-helpers';
 
 export function baseUrlFromDomain(domain: string): string {
@@ -131,4 +132,80 @@ export async function deleteRunner(octokit: Octokit, runnerLevel: RunnerLevel, o
       runner_id: runnerId,
     });
   }
+}
+
+
+export type WebhookDeliveries = Endpoints['GET /app/hook/deliveries']['response']['data'];
+export type WebhookDelivery = WebhookDeliveries[number];
+export type WebhookDeliveryDetail = Endpoints['GET /app/hook/deliveries/{delivery_id}']['response']['data'];
+export type WorkflowJob = Endpoints['GET /repos/{owner}/{repo}/actions/jobs/{job_id}']['response']['data'];
+
+export async function getFailedDeliveries(
+  octokit: Octokit,
+  sinceDeliveryId: number,
+): Promise<{
+  failedDeliveries: WebhookDeliveries;
+  latestDeliveryId: number;
+}> {
+  const failedDeliveries: WebhookDeliveries = [];
+  if (sinceDeliveryId === 0) {
+    // If no last delivery ID was set, just fetch the latest delivery to get the latest ID
+    const deliveriesResponse = await octokit.rest.apps.listWebhookDeliveries({ per_page: 1 });
+    if (deliveriesResponse.status !== 200) {
+      throw new Error(`Failed to fetch webhook deliveries`);
+    }
+    return {
+      failedDeliveries,
+      latestDeliveryId: deliveriesResponse.data[0]?.id || 0,
+    };
+  }
+
+  let latestDeliveryId = 0;
+  let deliveryCountSinceLastCheck = 0;
+  for await (const response of octokit.paginate.iterator('GET /app/hook/deliveries')) {
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch webhook deliveries`);
+    }
+    latestDeliveryId = Math.max(latestDeliveryId, ...response.data.map((delivery) => delivery.id));
+
+    const deliveriesSinceLastCheck = response.data.filter((delivery) => delivery.id > sinceDeliveryId);
+    deliveryCountSinceLastCheck += deliveriesSinceLastCheck.length;
+    failedDeliveries.push(...deliveriesSinceLastCheck.filter((delivery) => delivery.status !== 'OK'));
+
+    if (deliveriesSinceLastCheck.length < response.data.length) {
+      break;
+    }
+  }
+  console.debug(
+    `Searched through ${deliveryCountSinceLastCheck} deliveries since last check, found ${failedDeliveries.length} failed`,
+  );
+
+  return {
+    failedDeliveries,
+    latestDeliveryId,
+  };
+}
+
+export async function getDeliveryDetail(
+  octokit: Octokit,
+  deliveryId: number,
+): Promise<WebhookDeliveryDetail> {
+  const response = await octokit.rest.apps.getWebhookDelivery({
+    delivery_id: deliveryId,
+  });
+  if (response.status !== 200) {
+    throw new Error(`Failed to fetch webhook delivery with ID ${deliveryId}`);
+  }
+  return response.data;
+}
+
+export async function redeliver(octokit: Octokit, deliveryId: number): Promise<void> {
+  const response = await octokit.rest.apps.redeliverWebhookDelivery({
+    delivery_id: deliveryId,
+  });
+
+  if (response.status !== 202) {
+    throw new Error(`Failed to redeliver webhook delivery with ID ${deliveryId}`);
+  }
+  console.log(`Successfully redelivered webhook delivery with ID ${deliveryId}`);
 }
