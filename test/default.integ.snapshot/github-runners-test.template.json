@@ -18917,7 +18917,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "e06de6259c6af030ae5a755de5dbd7de149a0b0de7f293373a01984b312bd2d9.zip"
+     "S3Key": "00120244ae5e4345094dc9fcef69d916ba0c883d912b264870bd3b2e3c09b423.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
