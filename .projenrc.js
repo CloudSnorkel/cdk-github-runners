@@ -62,7 +62,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     mavenGroupId: 'com.cloudsnorkel',
     mavenArtifactId: 'cdk.github.runners',
     javaPackage: 'com.cloudsnorkel.cdk.github.runners',
-    mavenEndpoint: 'https://central.sonatype.com',
+    mavenServerId: 'central-ossrh',
   },
   publishToNuget: {
     dotNetNamespace: 'CloudSnorkel',
