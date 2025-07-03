@@ -67,7 +67,14 @@ test('Signature verification', () => {
 
   const generatedName = generateExecutionName(
     {
-      workflow_job: { id: 'ea8a0021-6ba6-4986-9102-51c567e55733' },
+      headers: {
+        'content-type': 'application/json',
+        'x-github-event': 'workflow_job',
+        'x-hub-signature-256': 'sha256=57aa67ee965ce46922aa32fe939e794fbb6df5c93809bf46ed24fc13714a0506',
+        'x-github-delivery': 'ea8a0021-6ba6-4986-9102-51c567e55733',
+      },
+    },
+    {
       repository: { name: 'my-repo-name-that-is-very-long-and-should-be-truncated' },
     },
   );
