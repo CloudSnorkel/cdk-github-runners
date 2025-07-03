@@ -90,8 +90,8 @@ function matchLabelsToProvider(labels: string[]) {
  *
  * @internal
  */
-export function generateExecutionName(payload: any): string {
-  const deliveryId = payload.workflow_job?.id || `${Math.random()}`;
+export function generateExecutionName(event: any, payload: any): string {
+  const deliveryId = getHeader(event, 'x-github-delivery') ?? `${Math.random()}`;
   const repoNameTruncated = payload.repository.name.slice(0, 64 - deliveryId.length - 1);
   return `${repoNameTruncated}-${deliveryId}`;
 }
@@ -189,7 +189,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
   }
 
   // start execution
-  const executionName = generateExecutionName(payload);
+  const executionName = generateExecutionName(event, payload);
   const input = {
     owner: payload.repository.owner.login,
     repo: payload.repository.name,
