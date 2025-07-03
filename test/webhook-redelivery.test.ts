@@ -2,47 +2,47 @@ import { WebhookDelivery, WebhookDeliveryDetail } from '../src/lambda-github';
 import { shouldRedeliver } from '../src/webhook-redelivery.lambda';
 
 const WEBHOOK_DELIVERY = {
-  "id": 1001,
-  "guid": "1c27c573-3889-4501-a279-b788794f4876",
-  "delivered_at": "2025-06-23T00:21:41Z",
-  "redelivery": false,
-  "duration": 0.73,
-  "status": "502 Bad Gateway",
-  "status_code": 502,
-  "event": "workflow_job",
-  "action": "queued",
-  "installation_id": 12345,
-  "repository_id": 23456,
-  "throttled_at": null
+  id: 1001,
+  guid: '1c27c573-3889-4501-a279-b788794f4876',
+  delivered_at: '2025-06-23T00:21:41Z',
+  redelivery: false,
+  duration: 0.73,
+  status: '502 Bad Gateway',
+  status_code: 502,
+  event: 'workflow_job',
+  action: 'queued',
+  installation_id: 12345,
+  repository_id: 23456,
+  throttled_at: null,
 } satisfies WebhookDelivery;
 
 const WORKFLOW_JOB = {
-  "id": 2001,
-  "run_id": 3001,
-  "status": "queued",
-  "conclusion": null,
-  "created_at": "2025-06-23T00:21:40Z",
-  "started_at": "2025-06-23T00:21:40Z",
-  "completed_at": null,
-  "labels": [
-    "self-hosted",
-    "ubuntu-codebuild-large"
-  ]
+  id: 2001,
+  run_id: 3001,
+  status: 'queued',
+  conclusion: null,
+  created_at: '2025-06-23T00:21:40Z',
+  started_at: '2025-06-23T00:21:40Z',
+  completed_at: null,
+  labels: [
+    'self-hosted',
+    'ubuntu-codebuild-large',
+  ],
 };
 
 const WEBHOOK_DELIVERY_DETAIL: WebhookDeliveryDetail = {
   ...WEBHOOK_DELIVERY,
-  "request": {
-    "headers": {},
-    "payload": {
-      "action": "queued",
-      "workflow_job": WORKFLOW_JOB
-    }
+  request: {
+    headers: {},
+    payload: {
+      action: 'queued',
+      workflow_job: WORKFLOW_JOB,
+    },
   },
-  "response": {
-    "headers": {},
-    "payload": "Internal Server Error"
-  }
+  response: {
+    headers: {},
+    payload: 'Internal Server Error',
+  },
 };
 
 let mockedGetDeliveryDetail = Promise.resolve(WEBHOOK_DELIVERY_DETAIL);
@@ -82,10 +82,10 @@ describe('shouldRedeliver', () => {
           ...WEBHOOK_DELIVERY_DETAIL.request.payload,
           workflow_job: {
             ...WORKFLOW_JOB,
-            "labels": ["ubuntu-latest"]
-          }
-        }
-      }
+            labels: ['ubuntu-latest'],
+          },
+        },
+      },
     };
     mockedGetDeliveryDetail = Promise.resolve(deliveryDetail);
 
@@ -102,10 +102,10 @@ describe('shouldRedeliver', () => {
           ...WEBHOOK_DELIVERY_DETAIL.request.payload,
           workflow_job: {
             ...WORKFLOW_JOB,
-            started_at: "2025-06-22T23:51:40Z"
-          }
-        }
-      }
+            started_at: '2025-06-22T23:51:40Z',
+          },
+        },
+      },
     };
     mockedGetDeliveryDetail = Promise.resolve(deliveryDetail);
 
@@ -117,8 +117,8 @@ describe('shouldRedeliver', () => {
       ...WEBHOOK_DELIVERY_DETAIL,
       request: {
         ...WEBHOOK_DELIVERY_DETAIL.request,
-        payload: {}
-      }
+        payload: {},
+      },
     };
     mockedGetDeliveryDetail = Promise.resolve(invalidDeliveryDetail);
 

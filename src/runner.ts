@@ -316,7 +316,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       }),
       requireSelfHostedLabel: this.props?.requireSelfHostedLabel ?? true,
     });
-    new GithubWebhookRedelivery(this, "Webhook Redelivery", {
+    new GithubWebhookRedelivery(this, 'Webhook Redelivery', {
       secrets: this.secrets,
     });
 

@@ -144,15 +144,15 @@ export async function getFailedDeliveries(
   octokit: Octokit,
   sinceDeliveryId: number,
 ): Promise<{
-  failedDeliveries: WebhookDeliveries;
-  latestDeliveryId: number;
-}> {
+    failedDeliveries: WebhookDeliveries;
+    latestDeliveryId: number;
+  }> {
   const failedDeliveries: WebhookDeliveries = [];
   if (sinceDeliveryId === 0) {
     // If no last delivery ID was set, just fetch the latest delivery to get the latest ID
     const deliveriesResponse = await octokit.rest.apps.listWebhookDeliveries({ per_page: 1 });
     if (deliveriesResponse.status !== 200) {
-      throw new Error(`Failed to fetch webhook deliveries`);
+      throw new Error('Failed to fetch webhook deliveries');
     }
     return {
       failedDeliveries,
@@ -164,7 +164,7 @@ export async function getFailedDeliveries(
   let deliveryCountSinceLastCheck = 0;
   for await (const response of octokit.paginate.iterator('GET /app/hook/deliveries')) {
     if (response.status !== 200) {
-      throw new Error(`Failed to fetch webhook deliveries`);
+      throw new Error('Failed to fetch webhook deliveries');
     }
     latestDeliveryId = Math.max(latestDeliveryId, ...response.data.map((delivery) => delivery.id));
 

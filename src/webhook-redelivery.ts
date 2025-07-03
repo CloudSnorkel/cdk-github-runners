@@ -58,7 +58,7 @@ export class GithubWebhookRedelivery extends Construct {
     props.secrets.githubPrivateKey.grantRead(this.lambda);
     lastDeliveryIdParam.grantRead(this.lambda);
     lastDeliveryIdParam.grantWrite(this.lambda);
-    
+
     new events.Rule(this, 'Schedule', {
       schedule: events.Schedule.rate(cdk.Duration.minutes(5)),
       description: 'Schedule to run the webhook redelivery lambda every 5 minutes',
