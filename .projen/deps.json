@@ -57,10 +57,6 @@
       "type": "build"
     },
     {
-      "name": "@octokit/types",
-      "type": "build"
-    },
-    {
       "name": "@stylistic/eslint-plugin",
       "version": "^2",
       "type": "build"

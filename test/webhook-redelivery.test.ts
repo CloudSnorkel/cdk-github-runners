@@ -1,127 +1,141 @@
-import { WebhookDelivery, WebhookDeliveryDetail } from '../src/lambda-github';
-import { shouldRedeliver } from '../src/webhook-redelivery.lambda';
+import { Octokit } from '@octokit/rest';
+import { getAppOctokit, redeliver } from '../src/lambda-github';
+import { handler } from '../src/webhook-redelivery.lambda';
 
-const WEBHOOK_DELIVERY = {
-  id: 1001,
-  guid: '1c27c573-3889-4501-a279-b788794f4876',
-  delivered_at: '2025-06-23T00:21:41Z',
-  redelivery: false,
-  duration: 0.73,
-  status: '502 Bad Gateway',
-  status_code: 502,
-  event: 'workflow_job',
-  action: 'queued',
-  installation_id: 12345,
-  repository_id: 23456,
-  throttled_at: null,
-} satisfies WebhookDelivery;
-
-const WORKFLOW_JOB = {
-  id: 2001,
-  run_id: 3001,
-  status: 'queued',
-  conclusion: null,
-  created_at: '2025-06-23T00:21:40Z',
-  started_at: '2025-06-23T00:21:40Z',
-  completed_at: null,
-  labels: [
-    'self-hosted',
-    'ubuntu-codebuild-large',
-  ],
-};
-
-const WEBHOOK_DELIVERY_DETAIL: WebhookDeliveryDetail = {
-  ...WEBHOOK_DELIVERY,
-  request: {
-    headers: {},
-    payload: {
-      action: 'queued',
-      workflow_job: WORKFLOW_JOB,
-    },
-  },
-  response: {
-    headers: {},
-    payload: 'Internal Server Error',
-  },
-};
-
-let mockedGetDeliveryDetail = Promise.resolve(WEBHOOK_DELIVERY_DETAIL);
+// Mock the imported modules
 jest.mock('../src/lambda-github', () => ({
-  getDeliveryDetail: jest.fn().mockImplementation(() => mockedGetDeliveryDetail),
+  getAppOctokit: jest.fn(),
+  redeliver: jest.fn().mockResolvedValue(undefined),
 }));
 
-describe('shouldRedeliver', () => {
-  const octokit = {} as any; // Mock Octokit
+describe('webhook-redelivery lambda', () => {
+  // Create a mock Octokit instance
+  const mockIterator = jest.fn();
+  const mockOctokit = {
+    paginate: {
+      iterator: mockIterator,
+    },
+  } as unknown as Octokit;
 
   beforeEach(() => {
-    mockedGetDeliveryDetail = Promise.resolve(WEBHOOK_DELIVERY_DETAIL);
+    jest.clearAllMocks();
+    (getAppOctokit as jest.Mock).mockResolvedValue(mockOctokit);
   });
 
-  it('should return true for a delivery that failed the first time', async () => {
-    expect(await shouldRedeliver(octokit, WEBHOOK_DELIVERY)).toBe(true);
-  });
-
-  it('should return false when action is not queued', async () => {
-    const delivery = { ...WEBHOOK_DELIVERY, action: 'completed' };
-
-    expect(await shouldRedeliver(octokit, delivery)).toBe(false);
-  });
-
-  it('should return false for a non-workflow_job event', async () => {
-    const delivery = { ...WEBHOOK_DELIVERY, event: 'installation_repositories', action: 'added' };
-
-    expect(await shouldRedeliver(octokit, delivery)).toBe(false);
-  });
-
-  it('should return false when job does not request for self-hosted runner', async () => {
-    const deliveryDetail: WebhookDeliveryDetail = {
-      ...WEBHOOK_DELIVERY_DETAIL,
-      request: {
-        ...WEBHOOK_DELIVERY_DETAIL.request,
-        payload: {
-          ...WEBHOOK_DELIVERY_DETAIL.request.payload,
-          workflow_job: {
-            ...WORKFLOW_JOB,
-            labels: ['ubuntu-latest'],
-          },
-        },
+  it('should call paginate.iterator with the correct endpoint', async () => {
+    // Mock minimal successful response
+    mockIterator.mockImplementation(() => ({
+      [Symbol.asyncIterator]: async function* () {
+        yield { status: 200, data: [] };
       },
-    };
-    mockedGetDeliveryDetail = Promise.resolve(deliveryDetail);
+    }));
 
-    expect(await shouldRedeliver(octokit, WEBHOOK_DELIVERY)).toBe(false);
+    await handler();
+
+    expect(mockOctokit.paginate.iterator).toHaveBeenCalledWith('GET /app/hook/deliveries');
   });
 
-  it('should return false for a redelivery of a job that started more than 30 minutes ago', async () => {
-    const deliveryDetail: WebhookDeliveryDetail = {
-      ...WEBHOOK_DELIVERY_DETAIL,
-      redelivery: true,
-      request: {
-        ...WEBHOOK_DELIVERY_DETAIL.request,
-        payload: {
-          ...WEBHOOK_DELIVERY_DETAIL.request.payload,
-          workflow_job: {
-            ...WORKFLOW_JOB,
-            started_at: '2025-06-22T23:51:40Z',
-          },
-        },
-      },
-    };
-    mockedGetDeliveryDetail = Promise.resolve(deliveryDetail);
+  it('should redeliver failed deliveries within time limit', async () => {
+    const now = new Date();
 
-    expect(await shouldRedeliver(octokit, { ...WEBHOOK_DELIVERY, redelivery: true })).toBe(false);
+    // Mock webhook deliveries with one failure
+    mockIterator.mockImplementation(() => ({
+      [Symbol.asyncIterator]: async function* () {
+        yield {
+          status: 200,
+          data: [
+            {
+              id: 1001,
+              guid: 'guid-1',
+              status_code: 502,
+              delivered_at: now.toISOString(),
+              redelivery: false,
+            },
+            {
+              id: 1002,
+              guid: 'guid-2',
+              status_code: 200,
+              delivered_at: now.toISOString(),
+              redelivery: false,
+            },
+          ],
+        };
+      },
+    }));
+
+    await handler();
+
+    // Only the failed delivery should be redelivered
+    expect(redeliver).toHaveBeenCalledTimes(1);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 1001);
   });
 
-  it('should return false for a delivery with unexpected payload', async () => {
-    const invalidDeliveryDetail: WebhookDeliveryDetail = {
-      ...WEBHOOK_DELIVERY_DETAIL,
-      request: {
-        ...WEBHOOK_DELIVERY_DETAIL.request,
-        payload: {},
-      },
-    };
-    mockedGetDeliveryDetail = Promise.resolve(invalidDeliveryDetail);
+  it('should handle pagination of webhook deliveries', async () => {
+    const now = new Date();
 
-    expect(await shouldRedeliver(octokit, WEBHOOK_DELIVERY)).toBe(false);
+    // Mock multiple pages of webhook deliveries
+    mockIterator.mockImplementation(() => ({
+      [Symbol.asyncIterator]: async function* () {
+        yield {
+          status: 200,
+          data: [
+            { id: 1001, guid: 'guid-1', status_code: 502, delivered_at: now.toISOString(), redelivery: false },
+          ],
+        };
+        yield {
+          status: 200,
+          data: [
+            { id: 1002, guid: 'guid-3', status_code: 502, delivered_at: now.toISOString(), redelivery: false },
+          ],
+        };
+      },
+    }));
+
+    await handler();
+
+    // Both failed deliveries should be redelivered
+    expect(redeliver).toHaveBeenCalledTimes(2);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 1001);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 1002);
+  });
+
+  it('should stop paginating when finding deliveries older than the time limit', async () => {
+    const now = new Date();
+    const oldTime = new Date(now.getTime() - 2 * 60 * 60 * 1000); // 2 hours old
+
+    mockIterator.mockImplementation(() => ({
+      [Symbol.asyncIterator]: async function* () {
+        yield {
+          status: 200,
+          data: [
+            { id: 1001, guid: 'guid-1', status_code: 502, delivered_at: now.toISOString(), redelivery: false },
+            { id: 1002, guid: 'guid-2', status_code: 502, delivered_at: oldTime.toISOString(), redelivery: false },
+          ],
+        };
+        // This page should never be requested
+        yield {
+          status: 200,
+          data: [
+            { id: 1003, guid: 'guid-3', status_code: 502, delivered_at: oldTime.toISOString(), redelivery: false },
+          ],
+        };
+      },
+    }));
+
+    await handler();
+
+    // Only the first delivery should be redelivered
+    expect(redeliver).toHaveBeenCalledTimes(1);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 1001);
+  });
+
+  it('should throw error if fetching webhook deliveries fails', async () => {
+    mockIterator.mockImplementation(() => ({
+      [Symbol.asyncIterator]: async function* () {
+        yield { status: 500, data: [] };
+      },
+    }));
+
+    await expect(handler()).rejects.toThrow('Failed to fetch webhook deliveries');
   });
 });

@@ -1,7 +1,6 @@
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
-import { Endpoints } from '@octokit/types';
-import { getSecretValue, getSecretJsonValue } from './lambda-helpers';
+import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
 
 export function baseUrlFromDomain(domain: string): string {
   if (domain == 'github.com') {
@@ -19,6 +18,7 @@ export interface GitHubSecrets {
   runnerLevel: RunnerLevel;
 }
 
+// TODO improve cache to support multiple installations
 const octokitCache: {
   installationId?: number;
   secrets?: GitHubSecrets;
@@ -38,18 +38,23 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Oc
     // test and use cache
     try {
       await octokitCache.octokit.rest.meta.getOctocat();
-      console.log('Using cached octokit');
+      console.log({
+        notice: 'Using cached octokit',
+      });
       return {
         octokit: octokitCache.octokit,
         githubSecrets: octokitCache.secrets,
       };
     } catch (e) {
-      console.log('Octokit cache is invalid', e);
+      console.log({
+        notice: 'Octokit cache is invalid',
+        error: e,
+      });
       octokitCache.octokit = undefined;
     }
   }
 
-  let baseUrl = baseUrlFromDomain(githubSecrets.domain);
+  const baseUrl = baseUrlFromDomain(githubSecrets.domain);
 
   let token;
   if (githubSecrets.personalAuthToken) {
@@ -85,6 +90,35 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Oc
     octokit,
     githubSecrets,
   };
+}
+
+// This function is used to get the Octokit instance for the app itself, not for a specific installation.
+// With PAT authentication, it returns an Octokit instance with the personal access token.
+export async function getAppOctokit() {
+  if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
+    throw new Error('Missing environment variables');
+  }
+
+  const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
+  const baseUrl = baseUrlFromDomain(githubSecrets.domain);
+
+  if (githubSecrets.personalAuthToken) {
+    return new Octokit({
+      baseUrl,
+      auth: githubSecrets.personalAuthToken,
+    });
+  }
+
+  const privateKey = await getSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN);
+
+  return new Octokit({
+    baseUrl,
+    authStrategy: createAppAuth,
+    auth: {
+      appId: githubSecrets.appId,
+      privateKey: privateKey,
+    },
+  });
 }
 
 export async function getRunner(octokit: Octokit, runnerLevel: RunnerLevel, owner: string, repo: string, name: string) {
@@ -134,71 +168,6 @@ export async function deleteRunner(octokit: Octokit, runnerLevel: RunnerLevel, o
   }
 }
 
-
-export type WebhookDeliveries = Endpoints['GET /app/hook/deliveries']['response']['data'];
-export type WebhookDelivery = WebhookDeliveries[number];
-export type WebhookDeliveryDetail = Endpoints['GET /app/hook/deliveries/{delivery_id}']['response']['data'];
-export type WorkflowJob = Endpoints['GET /repos/{owner}/{repo}/actions/jobs/{job_id}']['response']['data'];
-
-export async function getFailedDeliveries(
-  octokit: Octokit,
-  sinceDeliveryId: number,
-): Promise<{
-    failedDeliveries: WebhookDeliveries;
-    latestDeliveryId: number;
-  }> {
-  const failedDeliveries: WebhookDeliveries = [];
-  if (sinceDeliveryId === 0) {
-    // If no last delivery ID was set, just fetch the latest delivery to get the latest ID
-    const deliveriesResponse = await octokit.rest.apps.listWebhookDeliveries({ per_page: 1 });
-    if (deliveriesResponse.status !== 200) {
-      throw new Error('Failed to fetch webhook deliveries');
-    }
-    return {
-      failedDeliveries,
-      latestDeliveryId: deliveriesResponse.data[0]?.id || 0,
-    };
-  }
-
-  let latestDeliveryId = 0;
-  let deliveryCountSinceLastCheck = 0;
-  for await (const response of octokit.paginate.iterator('GET /app/hook/deliveries')) {
-    if (response.status !== 200) {
-      throw new Error('Failed to fetch webhook deliveries');
-    }
-    latestDeliveryId = Math.max(latestDeliveryId, ...response.data.map((delivery) => delivery.id));
-
-    const deliveriesSinceLastCheck = response.data.filter((delivery) => delivery.id > sinceDeliveryId);
-    deliveryCountSinceLastCheck += deliveriesSinceLastCheck.length;
-    failedDeliveries.push(...deliveriesSinceLastCheck.filter((delivery) => delivery.status !== 'OK'));
-
-    if (deliveriesSinceLastCheck.length < response.data.length) {
-      break;
-    }
-  }
-  console.debug(
-    `Searched through ${deliveryCountSinceLastCheck} deliveries since last check, found ${failedDeliveries.length} failed`,
-  );
-
-  return {
-    failedDeliveries,
-    latestDeliveryId,
-  };
-}
-
-export async function getDeliveryDetail(
-  octokit: Octokit,
-  deliveryId: number,
-): Promise<WebhookDeliveryDetail> {
-  const response = await octokit.rest.apps.getWebhookDelivery({
-    delivery_id: deliveryId,
-  });
-  if (response.status !== 200) {
-    throw new Error(`Failed to fetch webhook delivery with ID ${deliveryId}`);
-  }
-  return response.data;
-}
-
 export async function redeliver(octokit: Octokit, deliveryId: number): Promise<void> {
   const response = await octokit.rest.apps.redeliverWebhookDelivery({
     delivery_id: deliveryId,
@@ -207,5 +176,8 @@ export async function redeliver(octokit: Octokit, deliveryId: number): Promise<v
   if (response.status !== 202) {
     throw new Error(`Failed to redeliver webhook delivery with ID ${deliveryId}`);
   }
-  console.log(`Successfully redelivered webhook delivery with ID ${deliveryId}`);
+  console.log({
+    notice: 'Successfully redelivered webhook delivery',
+    deliveryId,
+  });
 }

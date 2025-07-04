@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_lambda as lambda, aws_ssm as ssm, aws_events as events, aws_events_targets as events_targets } from 'aws-cdk-lib';
+import { aws_events as events, aws_events_targets as events_targets, aws_lambda as lambda } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Secrets } from './secrets';
 import { singletonLogGroup, SingletonLogType } from './utils';
@@ -31,12 +31,6 @@ export class GithubWebhookRedelivery extends Construct {
   constructor(scope: Construct, id: string, props: GithubWebhookRedeliveryProps) {
     super(scope, id);
 
-    const lastDeliveryIdParam = new ssm.StringParameter(this, 'LastDeliveryId', {
-      description: 'The last webhook delivery ID that was processed by the redelivery lambda',
-      allowedPattern: '^\\d+$',
-      stringValue: '0',
-    });
-
     this.lambda = new WebhookRedeliveryFunction(
       this,
       'Lambda',
@@ -45,19 +39,16 @@ export class GithubWebhookRedelivery extends Construct {
         environment: {
           GITHUB_SECRET_ARN: props.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: props.secrets.githubPrivateKey.secretArn,
-          LAST_DELIVERY_ID_PARAM: lastDeliveryIdParam.parameterName,
         },
         reservedConcurrentExecutions: 1, // avoid concurrent executions
         timeout: cdk.Duration.seconds(4.5 * 60), // 4.5 minutes
-        logGroup: singletonLogGroup(this, SingletonLogType.WEBHOOK_REDELIVERY),
+        logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
         loggingFormat: lambda.LoggingFormat.JSON,
       },
     );
 
     props.secrets.github.grantRead(this.lambda);
     props.secrets.githubPrivateKey.grantRead(this.lambda);
-    lastDeliveryIdParam.grantRead(this.lambda);
-    lastDeliveryIdParam.grantWrite(this.lambda);
 
     new events.Rule(this, 'Schedule', {
       schedule: events.Schedule.rate(cdk.Duration.minutes(5)),

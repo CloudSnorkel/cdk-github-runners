@@ -19,7 +19,6 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@octokit/auth-app',
     '@octokit/request-error',
     '@octokit/rest',
-    '@octokit/types',
     '@aws-sdk/client-cloudformation',
     '@aws-sdk/client-codebuild',
     '@aws-sdk/client-ec2',

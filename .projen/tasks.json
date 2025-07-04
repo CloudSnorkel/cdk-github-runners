@@ -692,13 +692,13 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-cloudformation,@aws-sdk/client-codebuild,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@octokit/types,@types/aws-lambda,@types/jest,@types/semver,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,projen,semver,ts-jest,ts-node"
+          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-cloudformation,@aws-sdk/client-codebuild,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@types/aws-lambda,@types/jest,@types/semver,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,projen,semver,ts-jest,ts-node"
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade @aws-sdk/client-cloudformation @aws-sdk/client-codebuild @aws-sdk/client-ec2 @aws-sdk/client-ecr @aws-sdk/client-imagebuilder @aws-sdk/client-lambda @aws-sdk/client-secrets-manager @aws-sdk/client-sfn @aws-sdk/client-sns @aws-sdk/client-ssm @octokit/auth-app @octokit/core @octokit/request-error @octokit/rest @octokit/types @stylistic/eslint-plugin @sveltejs/vite-plugin-svelte @tsconfig/svelte @types/aws-lambda @types/jest @types/node @types/semver @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk bootstrap commit-and-tag-version esbuild eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-svelte eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii projen sass semver svelte-check svelte-preprocess svelte ts-jest ts-node typescript vite-plugin-singlefile vite aws-cdk-lib constructs"
+          "exec": "yarn upgrade @aws-sdk/client-cloudformation @aws-sdk/client-codebuild @aws-sdk/client-ec2 @aws-sdk/client-ecr @aws-sdk/client-imagebuilder @aws-sdk/client-lambda @aws-sdk/client-secrets-manager @aws-sdk/client-sfn @aws-sdk/client-sns @aws-sdk/client-ssm @octokit/auth-app @octokit/core @octokit/request-error @octokit/rest @stylistic/eslint-plugin @sveltejs/vite-plugin-svelte @tsconfig/svelte @types/aws-lambda @types/jest @types/node @types/semver @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk bootstrap commit-and-tag-version esbuild eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-svelte eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii projen sass semver svelte-check svelte-preprocess svelte ts-jest ts-node typescript vite-plugin-singlefile vite aws-cdk-lib constructs"
         },
         {
           "exec": "npx projen"

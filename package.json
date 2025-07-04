@@ -86,7 +86,6 @@
     "@octokit/core": "^4.2.4",
     "@octokit/request-error": "^3.0.3",
     "@octokit/rest": "^19.0.13",
-    "@octokit/types": "^14.1.0",
     "@stylistic/eslint-plugin": "^2",
     "@sveltejs/vite-plugin-svelte": "^4",
     "@tsconfig/svelte": "^5",

@@ -1,5 +1,4 @@
-import { SecretsManagerClient, GetSecretValueCommand, UpdateSecretCommand } from '@aws-sdk/client-secrets-manager';
-import { GetParameterCommand, PutParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
+import { GetSecretValueCommand, SecretsManagerClient, UpdateSecretCommand } from '@aws-sdk/client-secrets-manager';
 
 export interface StepFunctionLambdaInput {
   readonly owner: string;
@@ -14,7 +13,6 @@ export interface StepFunctionLambdaInput {
 }
 
 const sm = new SecretsManagerClient();
-const ssm = new SSMClient();
 
 export async function getSecretValue(arn: string | undefined) {
   if (!arn) {
@@ -80,29 +78,4 @@ export async function customResourceRespond(event: AWSLambda.CloudFormationCusto
       reject(e);
     }
   });
-}
-
-export async function getLastDeliveryId(): Promise<number> {
-  if (!process.env.LAST_DELIVERY_ID_PARAM) {
-    throw new Error('Missing LAST_DELIVERY_ID_PARAM environment variable');
-  }
-
-  const paramName = process.env.LAST_DELIVERY_ID_PARAM;
-
-  const response = await ssm.send(new GetParameterCommand({ Name: paramName }));
-  if (!response.Parameter?.Value) {
-    throw new Error(`No Parameter.Value in ${paramName}`);
-  }
-
-  return parseInt(response.Parameter.Value, 10);
-}
-
-export async function setLastDeliveryId(id: number): Promise<void> {
-  if (!process.env.LAST_DELIVERY_ID_PARAM) {
-    throw new Error('Missing LAST_DELIVERY_ID_PARAM environment variable');
-  }
-
-  const paramName = process.env.LAST_DELIVERY_ID_PARAM;
-
-  await ssm.send(new PutParameterCommand({ Name: paramName, Value: id.toString(), Overwrite: true }));
 }

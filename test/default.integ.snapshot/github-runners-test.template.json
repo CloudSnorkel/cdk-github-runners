@@ -9263,7 +9263,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "1a76c8d42017f14c1e3941d50df4870d3f84472238259fb93515b06f37e9ee74.zip"
+     "S3Key": "2c61df9d7754f7f3edb5a4779da56c846513991ec9a4b73bb8a76ab1dfeb45f0.zip"
     },
     "Description": "Custom resource handler that triggers CodeBuild to build runner images",
     "Environment": {
@@ -10244,7 +10244,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "e5a233082761c2c256bba14f254d0215cae4617601c3e38bbedf2aef825df200.zip"
+     "S3Key": "11ba5fdbf506761b452f7afd98730582ffb1aa60f58faa05b2bbb67b64bb8954.zip"
     },
     "Description": "Custom resource handler that bumps up Image Builder versions",
     "Environment": {
@@ -10358,7 +10358,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "5579c62c221b122a36d99012051c04d8614a559eddd8025cfc3c020dbccbe179.zip"
+     "S3Key": "bfba719fe2a2764d7716a472198f4f8cbe46f6ea4616cd6ba0ebf26e75954814.zip"
     },
     "Description": "Custom resource handler that deletes resources of old versions of EC2 Image Builder images",
     "Environment": {
@@ -11123,7 +11123,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "fe480166cb92d9b0c8329955f420beddfaa287b57233d86622e7d9d28ff5d4d9.zip"
+     "S3Key": "88cc171bf3103a3b98ba0006fc7e5c6fdfd338c03591b344bb4cf60f1a9da18c.zip"
     },
     "Description": "Custom resource handler that discovers the boot drive device name for a given AMI",
     "Environment": {
@@ -16243,7 +16243,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "456f8cc5f58b1dba752868eee6ae7dd19602f238df94e20b77c9db2dc4e167c2.zip"
+     "S3Key": "ca422771f51dbd40beab6dcb76ae0e5b1c3a26a2a1208a07d51879376416e94a.zip"
     },
     "Description": "Get token from GitHub Actions used to start new self-hosted runner",
     "Environment": {
@@ -16352,7 +16352,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "213606818ea70c0b712d05a17ecadf49191bb915671f63208e5913e57dd20c59.zip"
+     "S3Key": "e3c565c3b6a2db8821af316b4e653d284a19012669b84d12ed1119ad65c11217.zip"
     },
     "Description": "Delete failed GitHub Actions runner on error",
     "Environment": {
@@ -16576,7 +16576,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "837f321976691a3b607dcac4ecae1db752018dea1d868ba976020536cb142581.zip"
+     "S3Key": "5b069e6e5343ff58cd62c24ac559d2dfdda84b5f42d7a3c54bc78dbbd1bef531.zip"
     },
     "Description": "Stop idle GitHub runners to avoid paying for runners when the job was already canceled",
     "Environment": {
@@ -18917,7 +18917,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "8b78ca4027e1a6272f8fd7e3c7eb0d5f0f10d3983da41f4a783d62bb513461f8.zip"
+     "S3Key": "61ad3e0ec487bbd04701ae0c5f75b6d381df3b93066b2d91d8bac368a4cab8f4.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -18986,15 +18986,6 @@
     "Principal": "*"
    }
   },
-  "runnersWebhookRedeliveryLastDeliveryId0F9C93B4": {
-   "Type": "AWS::SSM::Parameter",
-   "Properties": {
-    "AllowedPattern": "^\\d+$",
-    "Description": "The last webhook delivery ID that was processed by the redelivery lambda",
-    "Type": "String",
-    "Value": "0"
-   }
-  },
   "runnersWebhookRedeliveryLambdaServiceRole464CDD30": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -19050,65 +19041,6 @@
        "Resource": {
         "Ref": "runnersSecretsGitHubPrivateKey79498F91"
        }
-      },
-      {
-       "Action": [
-        "ssm:DescribeParameters",
-        "ssm:GetParameters",
-        "ssm:GetParameter",
-        "ssm:GetParameterHistory"
-       ],
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::Join": [
-         "",
-         [
-          "arn:",
-          {
-           "Ref": "AWS::Partition"
-          },
-          ":ssm:",
-          {
-           "Ref": "AWS::Region"
-          },
-          ":",
-          {
-           "Ref": "AWS::AccountId"
-          },
-          ":parameter/",
-          {
-           "Ref": "runnersWebhookRedeliveryLastDeliveryId0F9C93B4"
-          }
-         ]
-        ]
-       }
-      },
-      {
-       "Action": "ssm:PutParameter",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::Join": [
-         "",
-         [
-          "arn:",
-          {
-           "Ref": "AWS::Partition"
-          },
-          ":ssm:",
-          {
-           "Ref": "AWS::Region"
-          },
-          ":",
-          {
-           "Ref": "AWS::AccountId"
-          },
-          ":parameter/",
-          {
-           "Ref": "runnersWebhookRedeliveryLastDeliveryId0F9C93B4"
-          }
-         ]
-        ]
-       }
       }
      ],
      "Version": "2012-10-17"
@@ -19128,7 +19060,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "565286a76be28706ef9d4fc4551ae0569a4152b2f8e368fbd96e425ffb9a1b46.zip"
+     "S3Key": "f3b0dddd5e19c6d44b9bd4aed9858772c97fae23cf939dae6faedeceed2f42d6.zip"
     },
     "Description": "Check for GitHub webhook delivery failures and redeliver them",
     "Environment": {
@@ -19139,9 +19071,6 @@
       "GITHUB_PRIVATE_KEY_SECRET_ARN": {
        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
       },
-      "LAST_DELIVERY_ID_PARAM": {
-       "Ref": "runnersWebhookRedeliveryLastDeliveryId0F9C93B4"
-      },
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },
@@ -19149,7 +19078,7 @@
     "LoggingConfig": {
      "LogFormat": "JSON",
      "LogGroup": {
-      "Ref": "WebhookRedeliveryLog8D34ADEF"
+      "Ref": "OrchestratorLogFB9610E7"
      }
     },
     "ReservedConcurrentExecutions": 1,
@@ -19322,7 +19251,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "2699b85c16a406427c2631ef6bd3da16f7226065a5c9f702333e850038d8372f.zip"
+     "S3Key": "9ced2dec58c3e4e04f1a2fa940ef00ad4cf70f8060becb9fd9f471870654ac74.zip"
     },
     "Description": "Setup GitHub Actions integration with self-hosted runners",
     "Environment": {
@@ -19642,7 +19571,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "fe2cf37dbd7f16a6057794fcb59d3db20f76d0540e0dc49479821d7225b1b162.zip"
+     "S3Key": "428c15c559f993930de461adc5722790db87dcc912b622dd645b2cfcfb70018f.zip"
     },
     "Description": "Provide user with status about self-hosted GitHub Actions runners",
     "Environment": {
@@ -21461,14 +21390,6 @@
    }
   },
   "OrchestratorLogFB9610E7": {
-   "Type": "AWS::Logs::LogGroup",
-   "Properties": {
-    "RetentionInDays": 30
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
-  "WebhookRedeliveryLog8D34ADEF": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
     "RetentionInDays": 30
