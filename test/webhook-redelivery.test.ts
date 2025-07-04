@@ -47,6 +47,7 @@ describe('webhook-redelivery lambda', () => {
             {
               id: 1001,
               guid: 'guid-1',
+              status: 'Failed',
               status_code: 502,
               delivered_at: now.toISOString(),
               redelivery: false,
@@ -54,6 +55,7 @@ describe('webhook-redelivery lambda', () => {
             {
               id: 1002,
               guid: 'guid-2',
+              status: 'OK',
               status_code: 200,
               delivered_at: now.toISOString(),
               redelivery: false,
@@ -79,13 +81,13 @@ describe('webhook-redelivery lambda', () => {
         yield {
           status: 200,
           data: [
-            { id: 1001, guid: 'guid-1', status_code: 502, delivered_at: now.toISOString(), redelivery: false },
+            { id: 1001, guid: 'guid-1', status: 'Failed', status_code: 502, delivered_at: now.toISOString(), redelivery: false },
           ],
         };
         yield {
           status: 200,
           data: [
-            { id: 1002, guid: 'guid-3', status_code: 502, delivered_at: now.toISOString(), redelivery: false },
+            { id: 1002, guid: 'guid-3', status: 'Failed', status_code: 502, delivered_at: now.toISOString(), redelivery: false },
           ],
         };
       },
@@ -108,15 +110,15 @@ describe('webhook-redelivery lambda', () => {
         yield {
           status: 200,
           data: [
-            { id: 1001, guid: 'guid-1', status_code: 502, delivered_at: now.toISOString(), redelivery: false },
-            { id: 1002, guid: 'guid-2', status_code: 502, delivered_at: oldTime.toISOString(), redelivery: false },
+            { id: 1001, guid: 'guid-1', status: 'Failed', status_code: 502, delivered_at: now.toISOString(), redelivery: false },
+            { id: 1002, guid: 'guid-2', status: 'Failed', status_code: 502, delivered_at: oldTime.toISOString(), redelivery: false },
           ],
         };
         // This page should never be requested
         yield {
           status: 200,
           data: [
-            { id: 1003, guid: 'guid-3', status_code: 502, delivered_at: oldTime.toISOString(), redelivery: false },
+            { id: 1003, guid: 'guid-3', status: 'Failed', status_code: 502, delivered_at: oldTime.toISOString(), redelivery: false },
           ],
         };
       },

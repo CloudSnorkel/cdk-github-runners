@@ -22,15 +22,15 @@ async function summarizeDeliveries(octokit: Octokit, timeLimitMs: number) {
 
     for (const delivery of response.data) {
       const deliveredAt = new Date(delivery.delivered_at);
-      const success = delivery.status_code >= 200 && delivery.status_code < 300;
+      const success = delivery.status === 'OK';
       const previousDelivery = deliveries.get(delivery.guid);
 
       if (deliveredAt < timeLimit) {
-        // stop iterating when we find a delivery that is older than two hours
+        // stop iterating when we find a delivery that is older than the time limit
         console.info({
           notice: 'Stopping iteration over webhook deliveries',
           timeLimit: timeLimit,
-          stoppedBeforeDelivery: deliveredAt,
+          stoppedBeforeDeliveredAt: deliveredAt,
           stoppedBeforeGuid: delivery.guid,
           stoppedBeforeDeliveryId: delivery.id,
         });
