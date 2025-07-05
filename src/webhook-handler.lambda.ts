@@ -134,7 +134,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
   if (getHeader(event, 'x-github-event') !== 'workflow_job') {
     console.error(`This webhook only accepts workflow_job, got ${getHeader(event, 'x-github-event')}`);
     return {
-      statusCode: 400,
+      statusCode: 200,
       body: 'Expecting workflow_job',
     };
   }

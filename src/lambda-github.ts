@@ -93,7 +93,7 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Oc
 }
 
 // This function is used to get the Octokit instance for the app itself, not for a specific installation.
-// With PAT authentication, it returns an Octokit instance with the personal access token.
+// With PAT authentication, it returns undefined.
 export async function getAppOctokit() {
   if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
     throw new Error('Missing environment variables');
@@ -102,11 +102,8 @@ export async function getAppOctokit() {
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   const baseUrl = baseUrlFromDomain(githubSecrets.domain);
 
-  if (githubSecrets.personalAuthToken) {
-    return new Octokit({
-      baseUrl,
-      auth: githubSecrets.personalAuthToken,
-    });
+  if (githubSecrets.personalAuthToken || !githubSecrets.appId) {
+    return undefined;
   }
 
   const privateKey = await getSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN);

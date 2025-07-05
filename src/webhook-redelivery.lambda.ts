@@ -66,6 +66,13 @@ async function summarizeDeliveries(octokit: Octokit, timeLimitMs: number) {
 
 export async function handler() {
   const octokit = await getAppOctokit();
+  if (!octokit) {
+    console.info({
+      notice: 'Skipping webhook redelivery',
+      reason: 'App installation might not be configured or the app is not installed.',
+    });
+    return;
+  }
 
   for (const [delivery, details] of await summarizeDeliveries(octokit, 1000 * 60 * 60)) { // 1-hour time limit
     if (!details.success) { // if the delivery failed
