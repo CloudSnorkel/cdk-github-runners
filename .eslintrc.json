@@ -158,6 +158,7 @@
           "src/status.lambda.ts",
           "src/token-retriever.lambda.ts",
           "src/webhook-handler.lambda.ts",
+          "src/webhook-redelivery.lambda.ts",
           "src/image-builders/build-image.lambda.ts",
           "src/providers/ami-root-device.lambda.ts",
           "src/providers/update-lambda.lambda.ts",
