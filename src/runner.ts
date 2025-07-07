@@ -261,6 +261,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   readonly connections: ec2.Connections;
 
   private readonly webhook: GithubWebhookHandler;
+  private readonly redeliverer: GithubWebhookRedelivery;
   private readonly orchestrator: stepfunctions.StateMachine;
   private readonly setupUrl: string;
   private readonly extraLambdaEnv: { [p: string]: string } = {};
@@ -316,7 +317,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       }),
       requireSelfHostedLabel: this.props?.requireSelfHostedLabel ?? true,
     });
-    new GithubWebhookRedelivery(this, 'Webhook Redelivery', {
+    this.redeliverer = new GithubWebhookRedelivery(this, 'Webhook Redelivery', {
       secrets: this.secrets,
     });
 
@@ -862,6 +863,19 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         filterStatements: [
           `strcontains(@logStream, "${this.webhook.handler.functionName}")`,
           'message.sfnInput.jobUrl like /http.*/',
+        ],
+        sort: '@timestamp desc',
+        limit: 100,
+      }),
+    });
+
+    new logs.QueryDefinition(this, 'Webhook redeliveries', {
+      queryDefinitionName: 'GitHub Runners/Webhook redeliveries',
+      logGroups: [this.redeliverer.handler.logGroup],
+      queryString: new logs.QueryString({
+        fields: ['@timestamp', 'message.notice', 'message.deliveryId', 'message.guid'],
+        filterStatements: [
+          'isPresent(message.deliveryId)',
         ],
         sort: '@timestamp desc',
         limit: 100,

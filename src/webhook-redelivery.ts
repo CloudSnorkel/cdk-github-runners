@@ -26,12 +26,12 @@ export class GithubWebhookRedelivery extends Construct {
   /**
    * Webhook redelivery lambda function.
    */
-  readonly lambda: WebhookRedeliveryFunction;
+  readonly handler: WebhookRedeliveryFunction;
 
   constructor(scope: Construct, id: string, props: GithubWebhookRedeliveryProps) {
     super(scope, id);
 
-    this.lambda = new WebhookRedeliveryFunction(
+    this.handler = new WebhookRedeliveryFunction(
       this,
       'Lambda',
       {
@@ -47,14 +47,14 @@ export class GithubWebhookRedelivery extends Construct {
       },
     );
 
-    props.secrets.github.grantRead(this.lambda);
-    props.secrets.githubPrivateKey.grantRead(this.lambda);
+    props.secrets.github.grantRead(this.handler);
+    props.secrets.githubPrivateKey.grantRead(this.handler);
 
     new events.Rule(this, 'Schedule', {
       schedule: events.Schedule.rate(cdk.Duration.minutes(5)),
       description: 'Schedule to run the webhook redelivery lambda every 5 minutes',
       targets: [
-        new events_targets.LambdaFunction(this.lambda, {
+        new events_targets.LambdaFunction(this.handler, {
           retryAttempts: 0,
         }),
       ],

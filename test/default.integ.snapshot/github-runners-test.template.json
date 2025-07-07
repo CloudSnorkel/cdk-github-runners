@@ -21389,6 +21389,18 @@
     }
    }
   },
+  "runnersWebhookredeliveriesD3F14437": {
+   "Type": "AWS::Logs::QueryDefinition",
+   "Properties": {
+    "LogGroupNames": [
+     {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    ],
+    "Name": "GitHub Runners/Webhook redeliveries",
+    "QueryString": "fields @timestamp, message.notice, message.deliveryId, message.guid\n| filter isPresent(message.deliveryId)\n| sort @timestamp desc\n| limit 100"
+   }
+  },
   "OrchestratorLogFB9610E7": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
