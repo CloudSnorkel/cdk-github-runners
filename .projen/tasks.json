@@ -65,6 +65,9 @@
           "spawn": "bundle:webhook-handler.lambda"
         },
         {
+          "spawn": "bundle:webhook-redelivery.lambda"
+        },
+        {
           "spawn": "bundle:image-builders/build-image.lambda"
         },
         {
@@ -309,6 +312,24 @@
       "steps": [
         {
           "exec": "esbuild --bundle src/webhook-handler.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-handler.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+        }
+      ]
+    },
+    "bundle:webhook-redelivery.lambda": {
+      "name": "bundle:webhook-redelivery.lambda",
+      "description": "Create a JavaScript bundle from src/webhook-redelivery.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/webhook-redelivery.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-redelivery.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+        }
+      ]
+    },
+    "bundle:webhook-redelivery.lambda:watch": {
+      "name": "bundle:webhook-redelivery.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/webhook-redelivery.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/webhook-redelivery.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-redelivery.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
