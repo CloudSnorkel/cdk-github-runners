@@ -29,7 +29,7 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Oc
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
 
   // Create cache key from installation ID and secrets (hash to avoid exposing sensitive data by accident)
-  const cacheKey = createHash('md5').update(`${installationId || 'no-install'}-${githubSecrets.domain}-${githubSecrets.appId}-${githubSecrets.personalAuthToken}`).digest('hex');
+  const cacheKey = createHash('sha256').update(`${installationId || 'no-install'}-${githubSecrets.domain}-${githubSecrets.appId}-${githubSecrets.personalAuthToken}`).digest('hex');
 
   const cached = octokitCache.get(cacheKey);
   if (cached) {
