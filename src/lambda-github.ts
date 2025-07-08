@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
 import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
@@ -18,12 +19,7 @@ export interface GitHubSecrets {
   runnerLevel: RunnerLevel;
 }
 
-// TODO improve cache to support multiple installations
-const octokitCache: {
-  installationId?: number;
-  secrets?: GitHubSecrets;
-  octokit?: Octokit;
-} = {};
+const octokitCache = new Map<string, Octokit>();
 
 export async function getOctokit(installationId?: number): Promise<{ octokit: Octokit; githubSecrets: GitHubSecrets }> {
   if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
@@ -32,25 +28,27 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Oc
 
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
 
-  if (octokitCache.octokit && octokitCache.installationId == installationId && octokitCache.secrets &&
-    octokitCache.secrets.domain == githubSecrets.domain && octokitCache.secrets.appId == githubSecrets.appId &&
-    octokitCache.secrets.personalAuthToken == githubSecrets.personalAuthToken) {
-    // test and use cache
+  // Create cache key from installation ID and secrets (hash to avoid exposing sensitive data by accident)
+  const cacheKey = createHash('sha256').update(`${installationId || 'no-install'}-${githubSecrets.domain}-${githubSecrets.appId}-${githubSecrets.personalAuthToken}`).digest('hex');
+
+  const cached = octokitCache.get(cacheKey);
+  if (cached) {
     try {
-      await octokitCache.octokit.rest.meta.getOctocat();
+      // Test if the cached octokit is still valid
+      await cached.rest.meta.getOctocat();
       console.log({
         notice: 'Using cached octokit',
       });
       return {
-        octokit: octokitCache.octokit,
-        githubSecrets: octokitCache.secrets,
+        octokit: cached,
+        githubSecrets,
       };
     } catch (e) {
       console.log({
         notice: 'Octokit cache is invalid',
         error: e,
       });
-      octokitCache.octokit = undefined;
+      octokitCache.delete(cacheKey);
     }
   }
 
@@ -82,9 +80,8 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Oc
     auth: token,
   });
 
-  octokitCache.octokit = octokit;
-  octokitCache.installationId = installationId;
-  octokitCache.secrets = githubSecrets;
+  // Store in cache
+  octokitCache.set(cacheKey, octokit);
 
   return {
     octokit,
