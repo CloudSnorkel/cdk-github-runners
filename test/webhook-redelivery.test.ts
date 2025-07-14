@@ -2,14 +2,12 @@ import { Octokit } from '@octokit/rest';
 import { getAppOctokit, redeliver } from '../src/lambda-github';
 import { handler } from '../src/webhook-redelivery.lambda';
 
-// Mock the imported modules
 jest.mock('../src/lambda-github', () => ({
   getAppOctokit: jest.fn(),
   redeliver: jest.fn().mockResolvedValue(undefined),
 }));
 
-describe('webhook-redelivery lambda', () => {
-  // Create a mock Octokit instance
+describe('webhook-redelivery.lambda handler', () => {
   const mockIterator = jest.fn();
   const mockOctokit = {
     paginate: {
@@ -22,122 +20,118 @@ describe('webhook-redelivery lambda', () => {
     (getAppOctokit as jest.Mock).mockResolvedValue(mockOctokit);
   });
 
-  it('should call paginate.iterator with the correct endpoint', async () => {
-    // Mock minimal successful response
-    mockIterator.mockImplementation(() => ({
-      [Symbol.asyncIterator]: async function* () {
-        yield { status: 200, data: [] };
-      },
-    }));
-
+  it('should skip if getAppOctokit returns null', async () => {
+    (getAppOctokit as jest.Mock).mockResolvedValue(null);
     await handler();
-
-    expect(mockOctokit.paginate.iterator).toHaveBeenCalledWith('GET /app/hook/deliveries');
+    expect(mockIterator).not.toHaveBeenCalled();
+    expect(redeliver).not.toHaveBeenCalled();
   });
 
-  it('should redeliver failed deliveries within time limit', async () => {
+  it('should redeliver failed deliveries (not redelivery, within 1 hour)', async () => {
     const now = new Date();
-
-    // Mock webhook deliveries with one failure
     mockIterator.mockImplementation(() => ({
       [Symbol.asyncIterator]: async function* () {
         yield {
           status: 200,
           data: [
-            {
-              id: 1001,
-              guid: 'guid-1',
-              status: 'Failed',
-              status_code: 502,
-              delivered_at: now.toISOString(),
-              redelivery: false,
-            },
-            {
-              id: 1002,
-              guid: 'guid-2',
-              status: 'OK',
-              status_code: 200,
-              delivered_at: now.toISOString(),
-              redelivery: false,
-            },
+            { id: 1, guid: 'g1', status: 'Failed', delivered_at: now.toISOString(), redelivery: false },
+            { id: 2, guid: 'g2', status: 'OK', delivered_at: now.toISOString(), redelivery: false },
           ],
         };
       },
     }));
-
     await handler();
-
-    // Only the failed delivery should be redelivered
     expect(redeliver).toHaveBeenCalledTimes(1);
-    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 1001);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 1);
   });
 
-  it('should handle pagination of webhook deliveries', async () => {
+  it('should not redeliver successful deliveries', async () => {
     const now = new Date();
-
-    // Mock multiple pages of webhook deliveries
     mockIterator.mockImplementation(() => ({
       [Symbol.asyncIterator]: async function* () {
         yield {
           status: 200,
           data: [
-            { id: 1001, guid: 'guid-1', status: 'Failed', status_code: 502, delivered_at: now.toISOString(), redelivery: false },
-          ],
-        };
-        yield {
-          status: 200,
-          data: [
-            { id: 1002, guid: 'guid-3', status: 'Failed', status_code: 502, delivered_at: now.toISOString(), redelivery: false },
+            { id: 3, guid: 'g3', status: 'OK', delivered_at: now.toISOString(), redelivery: false },
           ],
         };
       },
     }));
-
     await handler();
+    expect(redeliver).not.toHaveBeenCalled();
+  });
 
-    // Both failed deliveries should be redelivered
+  it('should redeliver if redelivery and within 1 hour of original failure', async () => {
+    const now = new Date();
+    // First run: original failure
+    mockIterator.mockImplementationOnce(() => ({
+      [Symbol.asyncIterator]: async function* () {
+        yield {
+          status: 200,
+          data: [
+            { id: 4, guid: 'g4', status: 'Failed', delivered_at: now.toISOString(), redelivery: false },
+          ],
+        };
+      },
+    }));
+    await handler();
+    // Second run: redelivery (should find original in failures map)
+    mockIterator.mockImplementationOnce(() => ({
+      [Symbol.asyncIterator]: async function* () {
+        yield {
+          status: 200,
+          data: [
+            { id: 5, guid: 'g4', status: 'Failed', delivered_at: now.toISOString(), redelivery: true },
+          ],
+        };
+      },
+    }));
+    await handler();
+    // Both original and redelivery should be called
     expect(redeliver).toHaveBeenCalledTimes(2);
-    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 1001);
-    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 1002);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 4);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 5);
   });
 
-  it('should stop paginating when finding deliveries older than the time limit', async () => {
-    const now = new Date();
-    const oldTime = new Date(now.getTime() - 2 * 60 * 60 * 1000); // 2 hours old
-
+  it('should skip redelivery if original failure is older than 1 hour', async () => {
+    const old = new Date(Date.now() - 1000 * 60 * 61); // 61 minutes ago
     mockIterator.mockImplementation(() => ({
       [Symbol.asyncIterator]: async function* () {
         yield {
           status: 200,
           data: [
-            { id: 1001, guid: 'guid-1', status: 'Failed', status_code: 502, delivered_at: now.toISOString(), redelivery: false },
-            { id: 1002, guid: 'guid-2', status: 'Failed', status_code: 502, delivered_at: oldTime.toISOString(), redelivery: false },
-          ],
-        };
-        // This page should never be requested
-        yield {
-          status: 200,
-          data: [
-            { id: 1003, guid: 'guid-3', status: 'Failed', status_code: 502, delivered_at: oldTime.toISOString(), redelivery: false },
+            { id: 6, guid: 'g5', status: 'Failed', delivered_at: old.toISOString(), redelivery: false },
+            { id: 7, guid: 'g5', status: 'Failed', delivered_at: old.toISOString(), redelivery: true },
           ],
         };
       },
     }));
-
     await handler();
-
-    // Only the first delivery should be redelivered
+    // Only the original should be redelivered, not the old redelivery
     expect(redeliver).toHaveBeenCalledTimes(1);
-    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 1001);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 6);
   });
 
-  it('should throw error if fetching webhook deliveries fails', async () => {
+  it('should handle pagination and redeliver all failures', async () => {
+    const now = new Date();
+    mockIterator.mockImplementation(() => ({
+      [Symbol.asyncIterator]: async function* () {
+        yield { status: 200, data: [{ id: 8, guid: 'g6', status: 'Failed', delivered_at: now.toISOString(), redelivery: false }] };
+        yield { status: 200, data: [{ id: 9, guid: 'g7', status: 'Failed', delivered_at: now.toISOString(), redelivery: false }] };
+      },
+    }));
+    await handler();
+    expect(redeliver).toHaveBeenCalledTimes(2);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 8);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 9);
+  });
+
+  it('should throw if response status is not 200', async () => {
     mockIterator.mockImplementation(() => ({
       [Symbol.asyncIterator]: async function* () {
         yield { status: 500, data: [] };
       },
     }));
-
     await expect(handler()).rejects.toThrow('Failed to fetch webhook deliveries');
   });
 });

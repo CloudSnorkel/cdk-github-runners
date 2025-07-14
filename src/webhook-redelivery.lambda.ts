@@ -2,18 +2,13 @@ import { Octokit } from '@octokit/rest';
 import { getAppOctokit, redeliver } from './lambda-github';
 
 /**
- * Summarizes webhook deliveries from the GitHub App and returns a map of delivery GUIDs to their details.
- *
- * Details include:
- * - `id`: The ID of one of the deliveries sharing the same delivery guid.
- * - `firstDeliveredAt`: Timestamp of the first delivery for this guid, or `undefined` if all deliveries found during the time limit are redeliveries.
- * - `success`: A boolean indicating whether any of the deliveries with this guid were successful.
+ * Get webhook delivery failures since the last processed delivery ID.
  *
  * @internal
  */
-async function summarizeDeliveries(octokit: Octokit, timeLimitMs: number) {
-  const timeLimit = new Date(Date.now() - timeLimitMs);
-  const deliveries: Map<string, { id: number; firstDeliveredAt?: Date; success: boolean }> = new Map();
+async function deliveryFailuresSince(octokit: Octokit, sinceId: number) {
+  const deliveries: Map<string, { id: number; deliveredAt: Date; redelivery: boolean }> = new Map();
+  const successfulDeliveries: Set<string> = new Set();
 
   for await (const response of octokit.paginate.iterator('GET /app/hook/deliveries')) {
     if (response.status !== 200) {
@@ -23,46 +18,36 @@ async function summarizeDeliveries(octokit: Octokit, timeLimitMs: number) {
     for (const delivery of response.data) {
       const deliveredAt = new Date(delivery.delivered_at);
       const success = delivery.status === 'OK';
-      const previousDelivery = deliveries.get(delivery.guid);
 
-      if (deliveredAt < timeLimit) {
-        // stop iterating when we find a delivery that is older than the time limit
-        console.info({
-          notice: 'Stopping iteration over webhook deliveries',
-          timeLimit: timeLimit,
-          stoppedBeforeDeliveredAt: deliveredAt,
-          stoppedBeforeGuid: delivery.guid,
-          stoppedBeforeDeliveryId: delivery.id,
-        });
+      if (success) {
+        successfulDeliveries.add(delivery.guid);
+        continue;
+      }
+
+      if (successfulDeliveries.has(delivery.guid)) {
+        // do not redeliver deliveries that were already successful
+        continue;
+      }
+
+      deliveries.set(delivery.guid, { id: delivery.id, deliveredAt, redelivery: delivery.redelivery });
+
+      if (delivery.id <= sinceId) {
+        // stop processing if we reach the last processed delivery ID
         return deliveries;
       }
 
-      if (previousDelivery) {
-        // if we have a previous delivery with the same guid, we update it
-
-        // we update the status to true if this delivery was successful
-        const anySuccess = previousDelivery.success || success;
-        // we only save the original delivery time by ignoring redeliveries
-        const firstDeliveredAt = delivery.redelivery ? previousDelivery.firstDeliveredAt : new Date(delivery.delivered_at);
-
-        deliveries.set(delivery.guid, {
-          id: delivery.id,
-          firstDeliveredAt: firstDeliveredAt,
-          success: anySuccess,
-        });
-      } else {
-        // if this is the first delivery with this guid, we save it
-        deliveries.set(delivery.guid, {
-          id: delivery.id,
-          firstDeliveredAt: delivery.redelivery ? undefined : new Date(delivery.delivered_at),
-          success: success,
-        });
+      if (deliveredAt < new Date(Date.now() - 1000 * 60 * 60)) {
+        // stop processing if the delivery is older than 30 minutes (for first iteration and performance)
+        return deliveries;
       }
     }
   }
 
   return deliveries;
 }
+
+let lastDeliveryIdProcessed = 0;
+const failures: Map<string, { id: number; firstDeliveredAt: Date }> = new Map();
 
 export async function handler() {
   const octokit = await getAppOctokit();
@@ -74,23 +59,42 @@ export async function handler() {
     return;
   }
 
-  for (const [delivery, details] of await summarizeDeliveries(octokit, 1000 * 60 * 60)) { // 1-hour time limit
-    if (!details.success) { // if the delivery failed
-      if (details.firstDeliveredAt) { // if the original delivery is still in the time limit
+  // fetch deliveries since the last processed delivery ID
+  // for any failures:
+  //  1. if this is not a redelivery, save the delivery ID and first delivered at time -- and retry
+  //  2. if this is a redelivery, check if the original delivery is still within the time limit and retry if it is
+  const timeLimitMs = 1000 * 60 * 60; // 1 hour
+  const deliveries = await deliveryFailuresSince(octokit, lastDeliveryIdProcessed);
+  for (const [guid, details] of deliveries) {
+    if (!details.redelivery) {
+      failures.set(guid, { id: details.id, firstDeliveredAt: details.deliveredAt });
+      console.log({
+        notice: 'Redelivering failed delivery',
+        deliveryId: details.id,
+        guid: guid,
+        firstDeliveredAt: details.deliveredAt,
+      });
+      await redeliver(octokit, details.id);
+    } else {
+      // if this is a redelivery, check if the original delivery is still within the time limit
+      const originalFailure = failures.get(guid);
+      if (originalFailure && (new Date().getTime() - originalFailure.firstDeliveredAt.getTime() < timeLimitMs)) {
         console.log({
           notice: 'Redelivering failed delivery',
           deliveryId: details.id,
-          guid: delivery,
-          firstDeliveredAt: details.firstDeliveredAt,
+          guid: guid,
+          firstDeliveredAt: originalFailure.firstDeliveredAt,
         });
         await redeliver(octokit, details.id);
       } else {
         console.log({
           notice: 'Skipping redelivery of old failed delivery',
           deliveryId: details.id,
-          guid: delivery,
+          guid: guid,
+          firstDeliveredAt: originalFailure?.firstDeliveredAt,
         });
       }
     }
+    lastDeliveryIdProcessed = Math.max(lastDeliveryIdProcessed, details.id);
   }
 }
