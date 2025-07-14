@@ -44,6 +44,7 @@ export class GithubWebhookRedelivery extends Construct {
         timeout: cdk.Duration.seconds(4.5 * 60), // 4.5 minutes
         logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
         loggingFormat: lambda.LoggingFormat.JSON,
+        // applicationLogLevelV2: ApplicationLogLevel.DEBUG,
       },
     );
 

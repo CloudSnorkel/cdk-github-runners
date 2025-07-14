@@ -19,6 +19,37 @@ async function deliveryFailuresSince(octokit: Octokit, sinceId: number) {
       const deliveredAt = new Date(delivery.delivered_at);
       const success = delivery.status === 'OK';
 
+      if (delivery.id < sinceId) {
+        // stop processing if we reach the last processed delivery ID
+        console.debug({
+          notice: 'Reached last processed delivery ID',
+          sinceId: sinceId,
+          deliveryId: delivery.id,
+          guid: delivery.guid,
+        });
+        return deliveries;
+      }
+
+      if (deliveredAt.getTime() < Date.now() - 1000 * 60 * 30) {
+        // stop processing if the delivery is older than 30 minutes (for first iteration and performance)
+        console.debug({
+          notice: 'Stopping at old delivery',
+          deliveryId: delivery.id,
+          guid: delivery.guid,
+          deliveredAt: deliveredAt,
+        });
+        return deliveries;
+      }
+
+      console.log({
+        notice: 'Processing webhook delivery',
+        deliveryId: delivery.id,
+        guid: delivery.guid,
+        status: delivery.status,
+        deliveredAt: delivery.delivered_at,
+        redelivery: delivery.redelivery,
+      });
+
       if (success) {
         successfulDeliveries.add(delivery.guid);
         continue;
@@ -30,18 +61,15 @@ async function deliveryFailuresSince(octokit: Octokit, sinceId: number) {
       }
 
       deliveries.set(delivery.guid, { id: delivery.id, deliveredAt, redelivery: delivery.redelivery });
-
-      if (delivery.id <= sinceId) {
-        // stop processing if we reach the last processed delivery ID
-        return deliveries;
-      }
-
-      if (deliveredAt < new Date(Date.now() - 1000 * 60 * 60)) {
-        // stop processing if the delivery is older than 30 minutes (for first iteration and performance)
-        return deliveries;
-      }
     }
   }
+
+  console.debug({
+    notice: 'No more webhook deliveries to process',
+    deliveryId: 'DONE',
+    guid: 'DONE',
+    deliveredAt: 'DONE',
+  });
 
   return deliveries;
 }
