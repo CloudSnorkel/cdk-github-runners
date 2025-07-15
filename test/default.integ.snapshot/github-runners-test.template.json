@@ -16576,7 +16576,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "18e628820d6a7c938349a3dd7b437e0e1a8ef229dbbf7db7bdf8939ab272a353.zip"
+     "S3Key": "f15601e571741096c07e7b2e77420948fce7c3f22e7612119706ebbedab808ba.zip"
     },
     "Description": "Stop idle GitHub runners to avoid paying for runners when the job was already canceled",
     "Environment": {
