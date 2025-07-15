@@ -16625,7 +16625,8 @@
     },
     "FunctionResponseTypes": [
      "ReportBatchItemFailures"
-    ]
+    ],
+    "MaximumBatchingWindowInSeconds": 60
    }
   },
   "runnersIdleReaperQueue117EFB9F": {
