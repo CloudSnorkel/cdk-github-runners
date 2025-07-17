@@ -1,7 +1,7 @@
 import { DescribeExecutionCommand, SFNClient, StopExecutionCommand } from '@aws-sdk/client-sfn';
 import { Octokit } from '@octokit/rest';
 import * as AWSLambda from 'aws-lambda';
-import { deleteRunner, getOctokit, getRunner } from './lambda-github';
+import { deleteRunner, getOctokit, getRunner, GitHubSecrets } from './lambda-github';
 
 interface IdleReaperLambdaInput {
   readonly executionArn: string;
@@ -16,8 +16,7 @@ const sfn = new SFNClient();
 
 export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSBatchResponse> {
   const result: AWSLambda.SQSBatchResponse = { batchItemFailures: [] };
-  let octokitCache: Octokit | undefined;
-  let runnerLevel: 'repo' | 'org' | undefined;
+  const octokitCache = new Map<number | undefined, { octokit: Octokit; secrets: GitHubSecrets }>();
 
   for (const record of event.Records) {
     const input = JSON.parse(record.body) as IdleReaperLambdaInput;
@@ -40,16 +39,24 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
     }
 
     // get github access
-    if (!octokitCache) {
-      // getOctokit calls secrets manager every time, so cache the result
-      const { octokit, githubSecrets } = await getOctokit(input.installationId);
-      // TODO if installationId changes during normal operations, we may have some records with good installationId, and some with bad
-      octokitCache = octokit;
-      runnerLevel = githubSecrets.runnerLevel;
+    let octokit: Octokit;
+    let secrets: GitHubSecrets;
+    const cached = octokitCache.get(input.installationId);
+    if (cached) {
+      // use cached octokit
+      octokit = cached.octokit;
+      secrets = cached.secrets;
+    } else {
+      // getOctokit calls secrets manager and Github API every time, so cache the result
+      // this handler can work on multiple runners at once, so caching is important
+      const { octokit: newOctokit, githubSecrets: newSecrets } = await getOctokit(input.installationId);
+      octokit = newOctokit;
+      secrets = newSecrets;
+      octokitCache.set(input.installationId, { octokit, secrets });
     }
 
     // find runner
-    const runner = await getRunner(octokitCache, runnerLevel, input.owner, input.repo, input.runnerName);
+    const runner = await getRunner(octokit, secrets.runnerLevel, input.owner, input.repo, input.runnerName);
     if (!runner) {
       console.log({
         notice: 'Runner not running yet',
@@ -118,7 +125,7 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
               notice: `Deleting runner ${runner.id}...`,
               input,
             });
-            await deleteRunner(octokitCache, runnerLevel, input.owner, input.repo, runner.id);
+            await deleteRunner(octokit, secrets.runnerLevel, input.owner, input.repo, runner.id);
           } catch (e) {
             console.error({
               notice: `Failed to delete runner ${runner.id}: ${e}`,

@@ -657,6 +657,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     reaper.addEventSource(new lambda_event_sources.SqsEventSource(queue, {
       reportBatchItemFailures: true,
+      maxBatchingWindow: cdk.Duration.minutes(1),
     }));
 
     this.secrets.github.grantRead(reaper);
