@@ -111,20 +111,29 @@ export async function handler() {
     } else {
       // if this is a redelivery, check if the original delivery is still within the time limit
       const originalFailure = failures.get(guid);
-      if (originalFailure && (new Date().getTime() - originalFailure.firstDeliveredAt.getTime() < timeLimitMs)) {
-        console.log({
-          notice: 'Redelivering failed delivery',
-          deliveryId: details.id,
-          guid: guid,
-          firstDeliveredAt: originalFailure.firstDeliveredAt,
-        });
-        await redeliver(octokit, details.id);
+      if (originalFailure) {
+        if (new Date().getTime() - originalFailure.firstDeliveredAt.getTime() < timeLimitMs) {
+          console.log({
+            notice: 'Redelivering failed delivery',
+            deliveryId: details.id,
+            guid: guid,
+            firstDeliveredAt: originalFailure.firstDeliveredAt,
+          });
+          await redeliver(octokit, details.id);
+        } else {
+          failures.delete(guid); // no need to keep track of this anymore
+          console.log({
+            notice: 'Skipping redelivery of old failed delivery',
+            deliveryId: details.id,
+            guid: guid,
+            firstDeliveredAt: originalFailure?.firstDeliveredAt,
+          });
+        }
       } else {
         console.log({
           notice: 'Skipping redelivery of old failed delivery',
           deliveryId: details.id,
           guid: guid,
-          firstDeliveredAt: originalFailure?.firstDeliveredAt,
         });
       }
     }
