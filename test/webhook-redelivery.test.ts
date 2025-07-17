@@ -93,20 +93,42 @@ describe('webhook-redelivery.lambda handler', () => {
     expect(redeliver).toHaveBeenCalledWith(mockOctokit, 5);
   });
 
-  it('should skip redelivery if original failure is older than 1 hour', async () => {
-    const old = new Date(Date.now() - 1000 * 60 * 61); // 61 minutes ago
+  it('should skip redelivery if original failure is older than 3 hours', async () => {
+    const baseTime = Date.now();
+
+    jest.useFakeTimers();
+
+    const firstFailureTime = new Date(baseTime - 1000 * 60 * 60 * 4); // 4 hours ago
+    const redeliveryFailureTime = new Date(baseTime - 1000 * 60 * 20); // 20 minutes ago
+
+    // original delivery is within 30 minutes
+    jest.setSystemTime(firstFailureTime.getTime() + 1000 * 60 * 10); // Set time to 10 minutes after first failure
     mockIterator.mockImplementation(() => ({
       [Symbol.asyncIterator]: async function* () {
         yield {
           status: 200,
           data: [
-            { id: 6, guid: 'g5', status: 'Failed', delivered_at: old.toISOString(), redelivery: false },
-            { id: 7, guid: 'g5', status: 'Failed', delivered_at: old.toISOString(), redelivery: true },
+            { id: 6, guid: 'g5', status: 'Failed', delivered_at: firstFailureTime.toISOString(), redelivery: false },
           ],
         };
       },
     }));
     await handler();
+
+    // redelivery failure over 3 hours after the original failure
+    jest.setSystemTime(redeliveryFailureTime.getTime() + 1000 * 60 * 10); // Set time to 10 minutes after redelivery failure
+    mockIterator.mockImplementation(() => ({
+      [Symbol.asyncIterator]: async function* () {
+        yield {
+          status: 200,
+          data: [
+            { id: 7, guid: 'g5', status: 'Failed', delivered_at: redeliveryFailureTime.toISOString(), redelivery: true },
+          ],
+        };
+      },
+    }));
+    await handler();
+
     // Only the original should be redelivered, not the old redelivery
     expect(redeliver).toHaveBeenCalledTimes(1);
     expect(redeliver).toHaveBeenCalledWith(mockOctokit, 6);
