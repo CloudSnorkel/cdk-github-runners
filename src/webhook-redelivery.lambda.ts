@@ -21,7 +21,7 @@ async function newDeliveryFailures(octokit: Octokit, sinceId: number) {
       const deliveredAt = new Date(delivery.delivered_at);
       const success = delivery.status === 'OK';
 
-      if (delivery.id < sinceId) {
+      if (delivery.id <= sinceId) {
         // stop processing if we reach the last processed delivery ID
         console.debug({
           notice: 'Reached last processed delivery ID',
