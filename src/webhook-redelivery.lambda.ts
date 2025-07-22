@@ -11,6 +11,7 @@ async function newDeliveryFailures(octokit: Octokit, sinceId: number) {
   const successfulDeliveries: Set<string> = new Set();
   const timeLimitMs = 1000 * 60 * 30; // don't look at deliveries over 30 minutes old
   let lastId = 0;
+  let processedCount = 0;
 
   for await (const response of octokit.paginate.iterator('GET /app/hook/deliveries')) {
     if (response.status !== 200) {
@@ -23,11 +24,12 @@ async function newDeliveryFailures(octokit: Octokit, sinceId: number) {
 
       if (delivery.id <= sinceId) {
         // stop processing if we reach the last processed delivery ID
-        console.debug({
+        console.info({
           notice: 'Reached last processed delivery ID',
           sinceId: sinceId,
           deliveryId: delivery.id,
           guid: delivery.guid,
+          processedCount,
         });
         return { deliveries, lastId };
       }
@@ -36,11 +38,12 @@ async function newDeliveryFailures(octokit: Octokit, sinceId: number) {
 
       if (deliveredAt.getTime() < Date.now() - timeLimitMs) {
         // stop processing if the delivery is too old (for first iteration and performance of further iterations)
-        console.debug({
+        console.info({
           notice: 'Stopping at old delivery',
           deliveryId: delivery.id,
           guid: delivery.guid,
           deliveredAt: deliveredAt,
+          processedCount,
         });
         return { deliveries, lastId };
       }
@@ -53,6 +56,7 @@ async function newDeliveryFailures(octokit: Octokit, sinceId: number) {
         deliveredAt: delivery.delivered_at,
         redelivery: delivery.redelivery,
       });
+      processedCount++;
 
       if (success) {
         successfulDeliveries.add(delivery.guid);
@@ -68,11 +72,12 @@ async function newDeliveryFailures(octokit: Octokit, sinceId: number) {
     }
   }
 
-  console.debug({
+  console.info({
     notice: 'No more webhook deliveries to process',
     deliveryId: 'DONE',
     guid: 'DONE',
     deliveredAt: 'DONE',
+    processedCount,
   });
 
   return { deliveries, lastId };
