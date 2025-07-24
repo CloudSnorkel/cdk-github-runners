@@ -16243,7 +16243,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "e4a51d078087feb46347e5499b39286e7295e9bae36a148ef82c50550a8ccbd5.zip"
+     "S3Key": "268fe8eb092ad08bdbff12db77543450f80d66602712a37e97cc30aca0af038f.zip"
     },
     "Description": "Get token from GitHub Actions used to start new self-hosted runner",
     "Environment": {
@@ -16352,7 +16352,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "15b2a13f69033bdaa9c9a8b2f2c272e06a75aa7999869189e3b28173691af7cb.zip"
+     "S3Key": "8907f52d94260e17496c33cc6e7a72877e97366a7f66bac1489c4e512d4515f8.zip"
     },
     "Description": "Delete failed GitHub Actions runner on error",
     "Environment": {
@@ -16576,7 +16576,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "f15601e571741096c07e7b2e77420948fce7c3f22e7612119706ebbedab808ba.zip"
+     "S3Key": "7f192a8bdfa9cbecd502dde62ac8068d353ff256ad746adc129d86401eadba82.zip"
     },
     "Description": "Stop idle GitHub runners to avoid paying for runners when the job was already canceled",
     "Environment": {
@@ -18918,7 +18918,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "fad32a8d6a3f69a7cf89d4f24c17b4be85007a205cda5ea12297133f25224777.zip"
+     "S3Key": "b55c42198b2ffed3981e1725b0b4d80345d7c20d6defb7bf66b6fedcb9607d22.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -18985,6 +18985,157 @@
     },
     "FunctionUrlAuthType": "NONE",
     "Principal": "*"
+   }
+  },
+  "runnersWebhookRedeliveryLambdaServiceRole464CDD30": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "runnersWebhookRedeliveryLambdaServiceRoleDefaultPolicyEC808640": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubEFD96479"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "runnersWebhookRedeliveryLambdaServiceRoleDefaultPolicyEC808640",
+    "Roles": [
+     {
+      "Ref": "runnersWebhookRedeliveryLambdaServiceRole464CDD30"
+     }
+    ]
+   }
+  },
+  "runnersWebhookRedeliveryLambdaCF5EE41B": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "9a415784d8333f678a135bc53347164c372698aff6cb63570350c6aa92e71816.zip"
+    },
+    "Description": "Check for GitHub webhook delivery failures and redeliver them",
+    "Environment": {
+     "Variables": {
+      "GITHUB_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubEFD96479"
+      },
+      "GITHUB_PRIVATE_KEY_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+      },
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    },
+    "ReservedConcurrentExecutions": 1,
+    "Role": {
+     "Fn::GetAtt": [
+      "runnersWebhookRedeliveryLambdaServiceRole464CDD30",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Timeout": 270
+   },
+   "DependsOn": [
+    "runnersWebhookRedeliveryLambdaServiceRoleDefaultPolicyEC808640",
+    "runnersWebhookRedeliveryLambdaServiceRole464CDD30"
+   ]
+  },
+  "runnersWebhookRedeliverySchedule88D0314C": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Schedule to run the webhook redelivery lambda every 5 minutes",
+    "ScheduleExpression": "rate(5 minutes)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "runnersWebhookRedeliveryLambdaCF5EE41B",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "RetryPolicy": {
+       "MaximumRetryAttempts": 0
+      }
+     }
+    ]
+   }
+  },
+  "runnersWebhookRedeliveryScheduleAllowEventRulegithubrunnerstestrunnersWebhookRedeliveryLambdaC352F4E1E8F30E7D": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "runnersWebhookRedeliveryLambdaCF5EE41B",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "runnersWebhookRedeliverySchedule88D0314C",
+      "Arn"
+     ]
+    }
    }
   },
   "runnerssetupServiceRole588BFE9A": {
@@ -21237,6 +21388,18 @@
       ]
      ]
     }
+   }
+  },
+  "runnersWebhookredeliveriesD3F14437": {
+   "Type": "AWS::Logs::QueryDefinition",
+   "Properties": {
+    "LogGroupNames": [
+     {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    ],
+    "Name": "GitHub Runners/Webhook redeliveries",
+    "QueryString": "fields @timestamp, message.notice, message.deliveryId, message.guid\n| filter isPresent(message.deliveryId)\n| sort @timestamp desc\n| limit 100"
    }
   },
   "OrchestratorLogFB9610E7": {

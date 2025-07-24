@@ -39,6 +39,7 @@
 /src/status-function.ts linguist-generated
 /src/token-retriever-function.ts linguist-generated
 /src/webhook-handler-function.ts linguist-generated
+/src/webhook-redelivery-function.ts linguist-generated
 /tsconfig.dev.json linguist-generated
 /yarn.lock linguist-generated
 Dockerfile eol=lf

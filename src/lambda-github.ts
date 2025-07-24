@@ -1,7 +1,7 @@
 import { createHash } from 'crypto';
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
-import { getSecretValue, getSecretJsonValue } from './lambda-helpers';
+import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
 
 export function baseUrlFromDomain(domain: string): string {
   if (domain == 'github.com') {
@@ -36,18 +36,23 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Oc
     try {
       // Test if the cached octokit is still valid
       await cached.rest.meta.getOctocat();
-      console.log('Using cached octokit');
+      console.log({
+        notice: 'Using cached octokit',
+      });
       return {
         octokit: cached,
         githubSecrets,
       };
     } catch (e) {
-      console.log('Octokit cache is invalid', e);
+      console.log({
+        notice: 'Octokit cache is invalid',
+        error: e,
+      });
       octokitCache.delete(cacheKey);
     }
   }
 
-  let baseUrl = baseUrlFromDomain(githubSecrets.domain);
+  const baseUrl = baseUrlFromDomain(githubSecrets.domain);
 
   let token;
   if (githubSecrets.personalAuthToken) {
@@ -82,6 +87,32 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Oc
     octokit,
     githubSecrets,
   };
+}
+
+// This function is used to get the Octokit instance for the app itself, not for a specific installation.
+// With PAT authentication, it returns undefined.
+export async function getAppOctokit() {
+  if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
+    throw new Error('Missing environment variables');
+  }
+
+  const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
+  const baseUrl = baseUrlFromDomain(githubSecrets.domain);
+
+  if (githubSecrets.personalAuthToken || !githubSecrets.appId) {
+    return undefined;
+  }
+
+  const privateKey = await getSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN);
+
+  return new Octokit({
+    baseUrl,
+    authStrategy: createAppAuth,
+    auth: {
+      appId: githubSecrets.appId,
+      privateKey: privateKey,
+    },
+  });
 }
 
 export async function getRunner(octokit: Octokit, runnerLevel: RunnerLevel, owner: string, repo: string, name: string) {
@@ -129,4 +160,18 @@ export async function deleteRunner(octokit: Octokit, runnerLevel: RunnerLevel, o
       runner_id: runnerId,
     });
   }
+}
+
+export async function redeliver(octokit: Octokit, deliveryId: number) {
+  const response = await octokit.rest.apps.redeliverWebhookDelivery({
+    delivery_id: deliveryId,
+  });
+
+  if (response.status !== 202) {
+    throw new Error(`Failed to redeliver webhook delivery with ID ${deliveryId}`);
+  }
+  console.log({
+    notice: 'Successfully redelivered webhook delivery',
+    deliveryId,
+  });
 }
