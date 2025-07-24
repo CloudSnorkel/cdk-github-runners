@@ -18,6 +18,7 @@ describe('webhook-redelivery.lambda handler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (getAppOctokit as jest.Mock).mockResolvedValue(mockOctokit);
+    clearFailuresCache();
   });
 
   it('should skip if getAppOctokit returns null', async () => {
