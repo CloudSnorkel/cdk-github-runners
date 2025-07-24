@@ -162,7 +162,7 @@ export async function deleteRunner(octokit: Octokit, runnerLevel: RunnerLevel, o
   }
 }
 
-export async function redeliver(octokit: Octokit, deliveryId: number): Promise<void> {
+export async function redeliver(octokit: Octokit, deliveryId: number) {
   const response = await octokit.rest.apps.redeliverWebhookDelivery({
     delivery_id: deliveryId,
   });

@@ -86,6 +86,18 @@ async function newDeliveryFailures(octokit: Octokit, sinceId: number) {
 let lastDeliveryIdProcessed = 0;
 const failures: Map<string, { id: number; firstDeliveredAt: Date }> = new Map();
 
+/**
+ * Clear the cache of webhook delivery failures.
+ *
+ * For unit testing purposes only.
+ *
+ * @internal
+ */
+export function clearFailuresCache() {
+  lastDeliveryIdProcessed = 0;
+  failures.clear();
+}
+
 export async function handler() {
   const octokit = await getAppOctokit();
   if (!octokit) {

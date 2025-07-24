@@ -1,6 +1,6 @@
 import { Octokit } from '@octokit/rest';
 import { getAppOctokit, redeliver } from '../src/lambda-github';
-import { handler } from '../src/webhook-redelivery.lambda';
+import { clearFailuresCache, handler } from '../src/webhook-redelivery.lambda';
 
 jest.mock('../src/lambda-github', () => ({
   getAppOctokit: jest.fn(),
@@ -155,5 +155,31 @@ describe('webhook-redelivery.lambda handler', () => {
       },
     }));
     await expect(handler()).rejects.toThrow('Failed to fetch webhook deliveries');
+  });
+
+  it('should not redeliver already successful deliveries on lambda cold-start', async () => {
+    // normal redelivery
+    const now = new Date();
+    mockIterator.mockImplementation(() => ({
+      [Symbol.asyncIterator]: async function* () {
+        yield { status: 200, data: [{ id: 8, guid: 'g6', status: 'Failed', delivered_at: now.toISOString(), redelivery: false }] };
+      },
+    }));
+    await handler();
+    expect(redeliver).toHaveBeenCalledTimes(1);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 8);
+
+    // simulate cold-start
+    clearFailuresCache();
+
+    // second run should not redeliver the same delivery
+    mockIterator.mockImplementation(() => ({
+      [Symbol.asyncIterator]: async function* () {
+        yield { status: 200, data: [{ id: 9, guid: 'g6', status: 'OK', delivered_at: now.toISOString(), redelivery: true }] };
+        yield { status: 200, data: [{ id: 8, guid: 'g6', status: 'Failed', delivered_at: now.toISOString(), redelivery: false }] };
+      },
+    }));
+    await handler();
+    expect(redeliver).toHaveBeenCalledTimes(1); // should not redeliver the already processed delivery
   });
 });
