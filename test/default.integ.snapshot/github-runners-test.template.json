@@ -10358,7 +10358,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "bfba719fe2a2764d7716a472198f4f8cbe46f6ea4616cd6ba0ebf26e75954814.zip"
+     "S3Key": "b97c8701d090be54cf447e094fd55ece7c99b860476949ee5db7ceca6eeb2f6a.zip"
     },
     "Description": "Custom resource handler that deletes resources of old versions of EC2 Image Builder images",
     "Environment": {

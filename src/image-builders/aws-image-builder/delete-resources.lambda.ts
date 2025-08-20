@@ -1,4 +1,4 @@
-import { DeleteSnapshotCommand, DeregisterImageCommand, DescribeImagesCommand, EC2Client } from '@aws-sdk/client-ec2';
+import { DeregisterImageCommand, DescribeImagesCommand, EC2Client } from '@aws-sdk/client-ec2';
 import { BatchDeleteImageCommand, ECRClient } from '@aws-sdk/client-ecr';
 import { DeleteImageCommand, ImagebuilderClient, ListImageBuildVersionsCommand, ListImageBuildVersionsResponse } from '@aws-sdk/client-imagebuilder';
 import * as AWSLambda from 'aws-lambda';
@@ -69,21 +69,8 @@ async function deleteResources(props: DeleteResourcesProps) {
 
       await ec2.send(new DeregisterImageCommand({
         ImageId: imageId,
+        DeleteAssociatedSnapshots: true,
       }));
-
-      for (const blockMapping of imageDesc.Images[0].BlockDeviceMappings ?? []) {
-        if (blockMapping.Ebs?.SnapshotId) {
-          console.log({
-            notice: 'Deleting EBS snapshot',
-            image: imageId,
-            snapshot: blockMapping.Ebs.SnapshotId,
-          });
-
-          await ec2.send(new DeleteSnapshotCommand({
-            SnapshotId: blockMapping.Ebs.SnapshotId,
-          }));
-        }
-      }
     } catch (e) {
       console.warn({
         notice: 'Failed to delete AMI',
