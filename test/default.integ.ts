@@ -109,6 +109,12 @@ const codeBuildImageBuilder = CodeBuildRunnerProvider.imageBuilder(stack, 'CodeB
 codeBuildImageBuilder.addComponent(extraFilesComponentLinux);
 codeBuildImageBuilder.addComponent(envComponent);
 
+const codeBuildUbuntu2404ImageBuilder = CodeBuildRunnerProvider.imageBuilder(stack, 'CodeBuild Ubuntu 2404 Image Builder', {
+  os: Os.LINUX_UBUNTU_2404,
+});
+codeBuildUbuntu2404ImageBuilder.addComponent(extraFilesComponentLinux);
+codeBuildUbuntu2404ImageBuilder.addComponent(envComponent);
+
 const codeBuildArm64ImageBuilder = CodeBuildRunnerProvider.imageBuilder(stack, 'CodeBuild Image Builder arm', {
   architecture: Architecture.ARM64,
 });
@@ -144,6 +150,10 @@ const runners = new GitHubRunners(stack, 'runners', {
       label: 'codebuild-x64',
       imageBuilder: codeBuildImageBuilder,
     }),
+    new CodeBuildRunnerProvider(stack, 'CodeBuildUbuntu2404x64', {
+      labels: ['codebuild-ubuntu-2404-x64'],
+      imageBuilder: codeBuildUbuntu2404ImageBuilder,
+    }),
     new CodeBuildRunnerProvider(stack, 'CodeBuildARM', {
       labels: ['codebuild', 'linux', 'arm64'],
       computeType: codebuild.ComputeType.SMALL,
@@ -157,6 +167,19 @@ const runners = new GitHubRunners(stack, 'runners', {
     new EcsRunnerProvider(stack, 'ECS', {
       labels: ['ecs', 'linux', 'x64'],
       imageBuilder: codeBuildImageBuilder, // codebuild has dind
+      vpc,
+      maxInstances: 1,
+      spot: true,
+      storageSize: cdk.Size.gibibytes(40),
+      storageOptions: {
+        volumeType: ec2.EbsDeviceVolumeType.GP3,
+        iops: 1500,
+        throughput: 150,
+      },
+    }),
+    new EcsRunnerProvider(stack, 'ECS Ubuntu 2404', {
+      labels: ['ecs', 'ubuntu-2404', 'x64'],
+      imageBuilder: codeBuildUbuntu2404ImageBuilder, // codebuild has dind
       vpc,
       maxInstances: 1,
       spot: true,

@@ -1,4 +1,4 @@
-import { SecretsManagerClient, GetSecretValueCommand, UpdateSecretCommand } from '@aws-sdk/client-secrets-manager';
+import { GetSecretValueCommand, SecretsManagerClient, UpdateSecretCommand } from '@aws-sdk/client-secrets-manager';
 
 export interface StepFunctionLambdaInput {
   readonly owner: string;

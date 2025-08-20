@@ -121,12 +121,21 @@ export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architect
     throw new Error(`Unsupported architecture for base AMI: ${architecture.name}`);
   }
 
-  if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX)) {
+  if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_UBUNTU_2204) || os.is(Os.LINUX)) {
     return stack.formatArn({
       service: 'imagebuilder',
       resource: 'image',
       account: 'aws',
       resourceName: `ubuntu-server-22-lts-${arch}/x.x.x`,
+    });
+  }
+
+  if (os.is(Os.LINUX_UBUNTU_2404)) {
+    return stack.formatArn({
+      service: 'imagebuilder',
+      resource: 'image',
+      account: 'aws',
+      resourceName: `ubuntu-server-24-lts-${arch}/x.x.x`,
     });
   }
 

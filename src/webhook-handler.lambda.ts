@@ -83,6 +83,19 @@ function matchLabelsToProvider(labels: string[]) {
   return undefined;
 }
 
+/**
+ * Generate a unique execution name which is limited to 64 characters (also used as runner name).
+ *
+ * Exported for unit testing.
+ *
+ * @internal
+ */
+export function generateExecutionName(event: any, payload: any): string {
+  const deliveryId = getHeader(event, 'x-github-delivery') ?? `${Math.random()}`;
+  const repoNameTruncated = payload.repository.name.slice(0, 64 - deliveryId.length - 1);
+  return `${repoNameTruncated}-${deliveryId}`;
+}
+
 export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
   if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SUPPORTED_LABELS || !process.env.REQUIRE_SELF_HOSTED_LABEL) {
     throw new Error('Missing environment variables');
@@ -121,7 +134,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
   if (getHeader(event, 'x-github-event') !== 'workflow_job') {
     console.error(`This webhook only accepts workflow_job, got ${getHeader(event, 'x-github-event')}`);
     return {
-      statusCode: 400,
+      statusCode: 200,
       body: 'Expecting workflow_job',
     };
   }
@@ -175,11 +188,8 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     };
   }
 
-  // set execution name which is also used as runner name which are limited to 64 characters
-  let executionName = payload.repository.full_name.replace('/', '-').slice(0, 50);
-  let deliveryId = getHeader(event, 'x-github-delivery') ?? `${Math.random()}`;
-  executionName = `${executionName}-${deliveryId.slice(0, 63-executionName.length)}`;
   // start execution
+  const executionName = generateExecutionName(event, payload);
   const input = {
     owner: payload.repository.owner.login,
     repo: payload.repository.name,

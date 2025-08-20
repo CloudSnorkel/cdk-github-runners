@@ -1,4 +1,4 @@
-import { verifyBody } from '../src/webhook-handler.lambda';
+import { generateExecutionName, verifyBody } from '../src/webhook-handler.lambda';
 
 const EMPTY_EVENT = {
   version: '2.0',
@@ -64,4 +64,21 @@ test('Signature verification', () => {
       'secret',
     ),
   ).toBe('{"action":"queued"}');
+
+  const generatedName = generateExecutionName(
+    {
+      headers: {
+        'content-type': 'application/json',
+        'x-github-event': 'workflow_job',
+        'x-hub-signature-256': 'sha256=57aa67ee965ce46922aa32fe939e794fbb6df5c93809bf46ed24fc13714a0506',
+        'x-github-delivery': 'ea8a0021-6ba6-4986-9102-51c567e55733',
+      },
+    },
+    {
+      repository: { name: 'my-repo-name-that-is-very-long-and-should-be-truncated' },
+    },
+  );
+
+  expect(generatedName).toHaveLength(64);
+  expect(generatedName).toBe('my-repo-name-that-is-very-l-ea8a0021-6ba6-4986-9102-51c567e55733');
 });

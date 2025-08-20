@@ -7984,7 +7984,7 @@ public readonly baseAmi: string;
 ```
 
 - *Type:* string
-- *Default:* latest Ubuntu 22.04 AMI for Os.LINUX_UBUNTU, latest Amazon Linux 2 AMI for Os.LINUX_AMAZON_2, latest Windows Server 2022 AMI for Os.WINDOWS
+- *Default:* latest Ubuntu 22.04 AMI for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, Ubuntu 24.04 AMI for Os.LINUX_UBUNTU_2404, latest Amazon Linux 2 AMI for Os.LINUX_AMAZON_2, latest Windows Server 2022 AMI for Os.WINDOWS
 
 Base AMI from which runner AMIs will be built.
 
@@ -7999,7 +7999,7 @@ public readonly baseDockerImage: string;
 ```
 
 - *Type:* string
-- *Default:* public.ecr.aws/lts/ubuntu:22.04 for Os.LINUX_UBUNTU, public.ecr.aws/amazonlinux/amazonlinux:2 for Os.LINUX_AMAZON_2, mcr.microsoft.com/windows/servercore:ltsc2019-amd64 for Os.WINDOWS
+- *Default:* public.ecr.aws/lts/ubuntu:22.04 for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, public.ecr.aws/lts/ubuntu:24.04 for Os.LINUX_UBUNTU_2404, public.ecr.aws/amazonlinux/amazonlinux:2 for Os.LINUX_AMAZON_2, mcr.microsoft.com/windows/servercore:ltsc2019-amd64 for Os.WINDOWS
 
 Base image from which Docker runner images will be built.
 
@@ -9071,13 +9071,15 @@ public readonly name: string;
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Os.property.LINUX_AMAZON_2">LINUX_AMAZON_2</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Amazon Linux 2. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Os.property.LINUX_AMAZON_2023">LINUX_AMAZON_2023</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Amazon Linux 2023. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Os.property.LINUX_UBUNTU">LINUX_UBUNTU</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Ubuntu Linux. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Os.property.LINUX_UBUNTU_2204">LINUX_UBUNTU_2204</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Ubuntu Linux 22.04. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Os.property.LINUX_UBUNTU_2404">LINUX_UBUNTU_2404</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Ubuntu Linux 24.04. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Os.property.WINDOWS">WINDOWS</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | Windows. |
 
 ---
 
 ##### ~~`LINUX`~~<sup>Required</sup> <a name="LINUX" id="@cloudsnorkel/cdk-github-runners.Os.property.LINUX"></a>
 
-- *Deprecated:* use {@link LINUX_UBUNTU } or {@link LINUX_AMAZON_2 } or {@link LINUX_AMAZON_2023 }
+- *Deprecated:* use {@link LINUX_UBUNTU }, {@link LINUX_UBUNTU_2404 }, {@link LINUX_AMAZON_2 } or {@link LINUX_AMAZON_2023 }
 
 ```typescript
 public readonly LINUX: Os;
@@ -9122,6 +9124,30 @@ public readonly LINUX_UBUNTU: Os;
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
 
 Ubuntu Linux.
+
+---
+
+##### `LINUX_UBUNTU_2204`<sup>Required</sup> <a name="LINUX_UBUNTU_2204" id="@cloudsnorkel/cdk-github-runners.Os.property.LINUX_UBUNTU_2204"></a>
+
+```typescript
+public readonly LINUX_UBUNTU_2204: Os;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
+
+Ubuntu Linux 22.04.
+
+---
+
+##### `LINUX_UBUNTU_2404`<sup>Required</sup> <a name="LINUX_UBUNTU_2404" id="@cloudsnorkel/cdk-github-runners.Os.property.LINUX_UBUNTU_2404"></a>
+
+```typescript
+public readonly LINUX_UBUNTU_2404: Os;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
+
+Ubuntu Linux 24.04.
 
 ---
 
