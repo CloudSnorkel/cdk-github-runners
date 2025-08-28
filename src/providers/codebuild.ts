@@ -304,7 +304,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
     };
 
     const imageBuilder = props?.imageBuilder ?? CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder');
-    const image = this.image = imageBuilder.bindDockerImage();
+    const image = this.image = imageBuilder.bindDockerImage({ soci: true });
 
     if (image.os.is(Os.WINDOWS)) {
       buildSpec.phases.install.commands = [

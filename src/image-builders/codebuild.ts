@@ -24,7 +24,7 @@ import { Construct, IConstruct } from 'constructs';
 import { defaultBaseDockerImage } from './aws-image-builder';
 import { BuildImageFunction } from './build-image-function';
 import { BuildImageFunctionProperties } from './build-image.lambda';
-import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
+import { RunnerImageBuilderBase, RunnerImageBuilderProps, RunnerImageBuildOptions } from './common';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
 import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
 
@@ -149,7 +149,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     throw new Error('CodeBuild image builder cannot be used to build AMI');
   }
 
-  bindDockerImage(): RunnerImage {
+  bindDockerImage(options?: RunnerImageBuildOptions): RunnerImage {
     if (this.boundDockerImage) {
       return this.boundDockerImage;
     }
@@ -165,7 +165,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     );
 
     // generate buildSpec
-    const [buildSpec, buildSpecHash] = this.getBuildSpec(this.repository);
+    const [buildSpec, buildSpecHash] = this.getBuildSpec(this.repository, options);
 
     // create CodeBuild project that builds Dockerfile and pushes to repository
     const project = new codebuild.Project(this, 'CodeBuild', {
@@ -277,7 +277,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     return [commands, hashedComponents];
   }
 
-  private getBuildSpec(repository: ecr.Repository): [codebuild.BuildSpec, string] {
+  private getBuildSpec(repository: ecr.Repository, options?: RunnerImageBuildOptions): [codebuild.BuildSpec, string] {
     const thisStack = cdk.Stack.of(this);
 
     let archUrl;
@@ -291,9 +291,21 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
     const [commands, commandsHashedComponents] = this.getDockerfileGenerationCommands();
 
-    const buildSpecVersion = 'v1'; // change this every time the build spec changes
+    const buildSpecVersion = 'v2'; // change this every time the build spec changes
     const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, this.baseImage, this.os.name);
     const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
+
+    let sociCommands: string[] = [];
+    if (options?.soci ?? false) {
+      sociCommands = [
+        // generate and push soci index
+        // we do this after finishing the build, so we don't have to wait. it's also not required, so it's ok if it fails
+        'docker rmi "$REPO_URI"', // it downloads the image again to /tmp, so save on space
+        'LATEST_SOCI_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`',
+        `curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz`,
+        './standalone-soci-indexer "$REPO_URI"',
+      ];
+    }
 
     const buildSpec = codebuild.BuildSpec.fromObject({
       version: '0.2',
@@ -335,12 +347,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
               '}\n' +
               'EOF',
             'if [ "$WAIT_HANDLE" != "unspecified" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$WAIT_HANDLE"; fi',
-            // generate and push soci index
-            // we do this after finishing the build, so we don't have to wait. it's also not required, so it's ok if it fails
-            'docker rmi "$REPO_URI"', // it downloads the image again to /tmp, so save on space
-            'LATEST_SOCI_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`',
-            `curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz`,
-            './standalone-soci-indexer "$REPO_URI"',
+            ...sociCommands,
           ],
         },
       },

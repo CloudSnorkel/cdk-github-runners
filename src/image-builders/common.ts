@@ -273,6 +273,17 @@ export enum RunnerImageBuilderType {
   AWS_IMAGE_BUILDER = 'AwsImageBuilder',
 }
 
+export interface RunnerImageBuildOptions {
+  /**
+   * Build and push SOCI index for the built image. This makes starting containers from the image much faster, but adds extra time to the image build process.
+   *
+   * It is not supported by all runner providers. Lambda, for example, will fail when SOCI index is used.
+   *
+   * @default false
+   */
+  soci?: boolean;
+}
+
 /**
  * Interface for constructs that build an image that can be used in {@link IRunnerProvider}.
  *
@@ -287,8 +298,10 @@ export interface IRunnerImageBuilder {
    * It's important that the specified image tag be available at the time the repository is available. Providers usually assume the image is ready and will fail if it's not.
    *
    * The image can be further updated over time manually or using a schedule as long as it is always written to the same tag.
+   *
+   * @param options build options
    */
-  bindDockerImage(): RunnerImage;
+  bindDockerImage(options?: RunnerImageBuildOptions): RunnerImage;
 
   /**
    * Build and return an AMI with GitHub Runner installed in it.
