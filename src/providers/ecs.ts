@@ -371,7 +371,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     }
 
     const imageBuilder = props?.imageBuilder ?? EcsRunnerProvider.imageBuilder(this, 'Image Builder');
-    const image = this.image = imageBuilder.bindDockerImage({ soci: true });
+    const image = this.image = imageBuilder.bindDockerImage();
 
     if (props?.capacityProvider) {
       if (props?.minInstances || props?.maxInstances || props?.instanceType || props?.storageSize || props?.spot || props?.spotMaxPrice) {

@@ -401,7 +401,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
     this.spot = props?.spot ?? false;
 
     const imageBuilder = props?.imageBuilder ?? FargateRunnerProvider.imageBuilder(this, 'Image Builder');
-    const image = this.image = imageBuilder.bindDockerImage({ soci: true });
+    const image = this.image = imageBuilder.bindDockerImage();
 
     let arch: ecs.CpuArchitecture;
     if (image.architecture.is(Architecture.ARM64)) {
