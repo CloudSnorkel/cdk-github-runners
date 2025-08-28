@@ -883,4 +883,80 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       }),
     });
   }
+
+  /**
+   * Creates a CloudWatch dashboard with key metrics for GitHubRunners.
+   *
+   * @param name The name of the dashboard.
+   */
+  public createDashboard(name: string = 'GitHub-Runners'): cloudwatch.Dashboard {
+    const dashboard = new cloudwatch.Dashboard(this, 'Dashboard', {
+      dashboardName: name,
+    });
+
+    dashboard.addWidgets(
+      new cloudwatch.GraphWidget({
+        title: 'Successful jobs by label',
+        left: this.providers.map(p => new cloudwatch.Metric({
+          namespace: 'GitHubRunners',
+          metricName: 'JobCompleted',
+          dimensionsMap: {
+            ProviderLabels: p.labels.join(','),
+            Status: 'Succeeded',
+          },
+          label: p.labels.join(', '),
+          statistic: cloudwatch.Stats.SUM,
+        })),
+        stacked: true,
+        view: cloudwatch.GraphWidgetView.TIME_SERIES,
+        legendPosition: cloudwatch.LegendPosition.BOTTOM,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Failed jobs by label and failure',
+        left: this.providers.map(p => new cloudwatch.Metric({
+          namespace: 'GitHubRunners',
+          metricName: 'JobCompleted',
+          dimensionsMap: {
+            ProviderLabels: p.labels.join(','),
+          },
+          label: p.labels.join(', '),
+          statistic: cloudwatch.Stats.SUM,
+        })),
+        stacked: true,
+        view: cloudwatch.GraphWidgetView.TIME_SERIES,
+        legendPosition: cloudwatch.LegendPosition.BOTTOM,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Runner Succeeded',
+        left: [this.metricSucceeded()],
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Runner Failed',
+        left: [this.metricFailed()],
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Runner Execution Time (ms)',
+        left: [this.metricTime()],
+      }),
+    );
+
+    dashboard.addWidgets(new cloudwatch.LogQueryWidget({
+      logGroupNames: [this.webhook.handler.logGroup.logGroupName],
+      title: 'Recent Webhook Errors',
+      view: cloudwatch.LogQueryVisualizationType.TABLE,
+      queryString: new logs.QueryString({
+        filterStatements: [
+          `strcontains(@logStream, "${this.webhook.handler.functionName}")`,
+          'level = "ERROR"',
+        ],
+        sort: '@timestamp desc',
+        fields: ['@timestamp', 'message'],
+        limit: 20,
+      }).toString(),
+      width: 12,
+      height: 6,
+    }));
+
+    return dashboard;
+  }
 }

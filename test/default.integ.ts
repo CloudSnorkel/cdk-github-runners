@@ -292,5 +292,6 @@ const runners = new GitHubRunners(stack, 'runners', {
 runners.metricJobCompleted();
 runners.failedImageBuildsTopic();
 runners.createLogsInsightsQueries();
+runners.createDashboard();
 
 app.synth();
