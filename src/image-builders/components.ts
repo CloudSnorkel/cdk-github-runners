@@ -531,6 +531,7 @@ export abstract class RunnerImageComponent {
 
       getDockerCommands(_os: Os, _architecture: Architecture): string[] {
         return [
+          'LABEL DISABLE_SOCI=1', // hacky way to disable soci v2 indexing on lambda as lambda will fail to start with an index
           'ENTRYPOINT ["bash", "/bootstrap.sh"]',
         ];
       }

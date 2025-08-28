@@ -291,7 +291,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
     const [commands, commandsHashedComponents] = this.getDockerfileGenerationCommands();
 
-    const buildSpecVersion = 'v1'; // change this every time the build spec changes
+    const buildSpecVersion = 'v2'; // change this every time the build spec changes
     const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, this.baseImage, this.os.name);
     const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
 
@@ -337,10 +337,12 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
             'if [ "$WAIT_HANDLE" != "unspecified" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$WAIT_HANDLE"; fi',
             // generate and push soci index
             // we do this after finishing the build, so we don't have to wait. it's also not required, so it's ok if it fails
-            'docker rmi "$REPO_URI"', // it downloads the image again to /tmp, so save on space
-            'LATEST_SOCI_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`',
-            `curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz`,
-            './standalone-soci-indexer "$REPO_URI"',
+            'if [ `docker inspect --format=\'{{json .Config.Labels.DISABLE_SOCI}}\'` = null ]; then\n' +
+              'docker rmi "$REPO_URI"\n' + // it downloads the image again to /tmp, so save on space
+              'LATEST_SOCI_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
+              `curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
+              './standalone-soci-indexer "$REPO_URI"\n' +
+            'fi',
           ],
         },
       },
