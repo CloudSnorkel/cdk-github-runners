@@ -281,7 +281,7 @@ export interface RunnerImageBuildOptions {
    *
    * @default false
    */
-  soci?: boolean;
+  readonly soci?: boolean;
 }
 
 /**
