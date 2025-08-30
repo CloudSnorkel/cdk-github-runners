@@ -51,9 +51,11 @@ const project = new awscdk.AwsCdkConstructLibrary({
   lambdaOptions: { runtime: awscdk.LambdaRuntime.NODEJS_22_X },
   releaseToNpm: true,
   npmAccess: NpmAccess.PUBLIC,
+  npmTrustedPublishing: true,
   publishToPypi: {
     distName: 'cloudsnorkel.cdk-github-runners',
     module: 'cloudsnorkel.cdk_github_runners',
+    trustedPublishing: true,
   },
   publishToGo: {
     moduleName: 'github.com/CloudSnorkel/cdk-github-runners-go',
