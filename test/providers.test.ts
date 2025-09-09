@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_ecs as ecs, aws_stepfunctions as sfn } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import { CodeBuildRunnerProvider, Ec2RunnerProvider, EcsRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
@@ -203,6 +203,58 @@ describe('ECS provider', () => {
         },
       ],
     }));
+  });
+
+  test('passes PlacementStrategy to RunTask', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test');
+
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+    const provider = new EcsRunnerProvider(stack, 'providerPlacement', {
+      vpc,
+      securityGroups: [sg],
+      labels: ['ecs-placement'],
+      placementStrategy: [{ type: 'binpack', field: 'cpu' }],
+    });
+
+    const task = provider.getStepFunctionTask({
+      runnerTokenPath: '$.runner.token',
+      runnerNamePath: '$$.Execution.Name',
+      ownerPath: '$.owner',
+      repoPath: '$.repo',
+      registrationUrl: 'https://github.com',
+      githubDomainPath: 'github.com',
+    });
+
+    new sfn.StateMachine(stack, 'sm', {
+      definitionBody: sfn.DefinitionBody.fromChainable(task),
+    });
+
+    const template = Template.fromStack(stack);
+
+    function joinedDefString(tplJson: any): string {
+      const sms = Object.values(tplJson.Resources).filter((r: any) =>
+        r.Type === 'AWS::StepFunctions::StateMachine',
+      ) as any[];
+      if (sms.length !== 1) throw new Error(`expected 1 SM, got ${sms.length}`);
+      const def = sms[0].Properties.DefinitionString;
+      const parts = def?.['Fn::Join']?.[1];
+      if (!Array.isArray(parts)) throw new Error('unexpected DefinitionString shape');
+
+      return parts.map((p: any) => (typeof p === 'string' ? p : '')).join('');
+    }
+
+    const def = JSON.parse(joinedDefString(template.toJSON()));
+    const ecsPlacement = def?.States?.['ecs-placement'];
+    expect(ecsPlacement?.Type).toBe('Task');
+    const ps = ecsPlacement?.Parameters?.PlacementStrategy;
+    expect(Array.isArray(ps)).toBe(true);
+    expect(ps).toEqual(
+      expect.arrayContaining([expect.objectContaining({ Type: 'binpack', Field: 'cpu' })]),
+    );
+
   });
 });
 

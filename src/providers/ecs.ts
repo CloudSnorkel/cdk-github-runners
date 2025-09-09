@@ -190,10 +190,20 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
    * Maximum price for spot instances.
    */
   readonly spotMaxPrice?: string;
+
+  /**
+   * ECS placement strategies to pass to the RunTask state as-is.
+   *
+   * Example: [{ type: 'binpack', field: 'cpu' }]
+   *
+   * @default undefined (no placement strategy passed)
+   */
+  readonly placementStrategy?: ecs.CfnService.PlacementStrategyProperty[];
 }
 
 interface EcsEc2LaunchTargetProps {
   readonly capacityProvider: string;
+  readonly placementStrategy?: ecs.CfnService.PlacementStrategyProperty[];
 }
 
 class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
@@ -205,6 +215,18 @@ class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
    */
   public bind(_task: stepfunctions_tasks.EcsRunTask,
     _launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
+    let placementStrategy: { Type: string; Field?: string }[] | undefined = undefined;
+
+    if (this.props.placementStrategy && this.props.placementStrategy.length > 0) {
+      for (const strategy of this.props.placementStrategy) {
+        placementStrategy = placementStrategy ?? [];
+        placementStrategy.push({
+          Type: strategy.type,
+          Field: strategy.field,
+        });
+      }
+    }
+
     return {
       parameters: {
         PropagateTags: ecs.PropagatedTagSource.TASK_DEFINITION,
@@ -213,6 +235,7 @@ class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
             CapacityProvider: this.props.capacityProvider,
           },
         ],
+        PlacementStrategy: placementStrategy,
       },
     };
   }
@@ -340,6 +363,11 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    */
   private readonly group?: string;
 
+  /**
+   * Placement strategy JSON to pass to the RunTask state, if any.
+   */
+  private readonly placementStrategy?: ecs.CfnService.PlacementStrategyProperty[];
+
   readonly retryableErrors = [
     'Ecs.EcsException',
     'ECS.AmazonECSException',
@@ -357,6 +385,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     this.securityGroups = props?.securityGroups ?? [new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc })];
     this.connections = new ec2.Connections({ securityGroups: this.securityGroups });
     this.assignPublicIp = props?.assignPublicIp ?? true;
+    this.placementStrategy = props?.placementStrategy;
     this.cluster = props?.cluster ? props.cluster : new ecs.Cluster(
       this,
       'cluster',
@@ -578,6 +607,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         cluster: this.cluster,
         launchTarget: new EcsEc2LaunchTarget({
           capacityProvider: this.capacityProvider.capacityProviderName,
+          placementStrategy: this.placementStrategy,
         }),
         enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
         assignPublicIp: this.assignPublicIp,
