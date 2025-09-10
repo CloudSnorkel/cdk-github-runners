@@ -6184,6 +6184,7 @@ const ecsRunnerProviderProps: EcsRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | The amount (in MiB) of memory used by the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.memoryReservationMiB">memoryReservationMiB</a></code> | <code>number</code> | The soft limit (in MiB) of memory to reserve for the container. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.minInstances">minInstances</a></code> | <code>number</code> | The minimum number of instances to run in the cluster. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.placementStrategy">placementStrategy</a></code> | <code>aws-cdk-lib.aws_ecs.CfnService.PlacementStrategyProperty[]</code> | ECS placement strategies to pass to the RunTask state as-is. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spot">spot</a></code> | <code>boolean</code> | Use spot capacity. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spotMaxPrice">spotMaxPrice</a></code> | <code>string</code> | Maximum price for spot instances. |
@@ -6417,6 +6418,21 @@ public readonly minInstances: number;
 The minimum number of instances to run in the cluster.
 
 Only used when creating a new cluster.
+
+---
+
+##### `placementStrategy`<sup>Optional</sup> <a name="placementStrategy" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.placementStrategy"></a>
+
+```typescript
+public readonly placementStrategy: PlacementStrategyProperty[];
+```
+
+- *Type:* aws-cdk-lib.aws_ecs.CfnService.PlacementStrategyProperty[]
+- *Default:* undefined (no placement strategy passed)
+
+ECS placement strategies to pass to the RunTask state as-is.
+
+Example: [{ type: 'binpack', field: 'cpu' }]
 
 ---
 
