@@ -234,19 +234,18 @@ describe('ECS provider', () => {
 
     const template = Template.fromStack(stack);
 
-    function extractStateMachineDefinition(tplJson: any): string {
-      const sms = Object.values(tplJson.Resources).filter((r: any) =>
-        r.Type === 'AWS::StepFunctions::StateMachine',
-      ) as any[];
-      if (sms.length !== 1) throw new Error(`expected 1 SM, got ${sms.length}`);
-      const def = sms[0].Properties.DefinitionString;
+    function extractStateMachineDefinition(tmpl: Template): string {
+      const sms = tmpl.findResources('AWS::StepFunctions::StateMachine');
+      const smKeys = Object.keys(sms);
+      if (smKeys.length !== 1) throw new Error(`expected 1 SM, got ${smKeys.length}`);
+      const sm = sms[smKeys[0]];
+      const def = sm.Properties.DefinitionString;
       const parts = def?.['Fn::Join']?.[1];
       if (!Array.isArray(parts)) throw new Error('unexpected DefinitionString shape');
-
       return parts.map((p: any) => (typeof p === 'string' ? p : '')).join('');
     }
 
-    const def = JSON.parse(extractStateMachineDefinition(template.toJSON()));
+    const def = JSON.parse(extractStateMachineDefinition(template));
     const ecsPlacement = def?.States?.['ecs-placement'];
     expect(ecsPlacement?.Type).toBe('Task');
     const ps = ecsPlacement?.Parameters?.PlacementStrategy;
