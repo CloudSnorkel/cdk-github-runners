@@ -234,7 +234,7 @@ describe('ECS provider', () => {
 
     const template = Template.fromStack(stack);
 
-    function joinedDefString(tplJson: any): string {
+    function extractStateMachineDefinition(tplJson: any): string {
       const sms = Object.values(tplJson.Resources).filter((r: any) =>
         r.Type === 'AWS::StepFunctions::StateMachine',
       ) as any[];
@@ -246,7 +246,7 @@ describe('ECS provider', () => {
       return parts.map((p: any) => (typeof p === 'string' ? p : '')).join('');
     }
 
-    const def = JSON.parse(joinedDefString(template.toJSON()));
+    const def = JSON.parse(extractStateMachineDefinition(template.toJSON()));
     const ecsPlacement = def?.States?.['ecs-placement'];
     expect(ecsPlacement?.Type).toBe('Task');
     const ps = ecsPlacement?.Parameters?.PlacementStrategy;

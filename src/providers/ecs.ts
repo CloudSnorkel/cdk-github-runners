@@ -215,17 +215,13 @@ class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
    */
   public bind(_task: stepfunctions_tasks.EcsRunTask,
     _launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
-    let placementStrategy: { Type: string; Field?: string }[] | undefined = undefined;
-
-    if (this.props.placementStrategy && this.props.placementStrategy.length > 0) {
-      for (const strategy of this.props.placementStrategy) {
-        placementStrategy = placementStrategy ?? [];
-        placementStrategy.push({
-          Type: strategy.type,
-          Field: strategy.field,
-        });
-      }
-    }
+    const placementStrategy: { Type: string; Field?: string }[] | undefined = (() => {
+      const mapped = this.props.placementStrategy?.map(strategy => ({
+        Type: strategy.type,
+        Field: strategy.field,
+      }));
+      return (mapped && mapped.length > 0) ? mapped : undefined;
+    })();
 
     return {
       parameters: {
