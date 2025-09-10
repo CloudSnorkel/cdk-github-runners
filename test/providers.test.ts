@@ -253,7 +253,6 @@ describe('ECS provider', () => {
     expect(ps).toEqual(
       expect.arrayContaining([expect.objectContaining({ Type: 'binpack', Field: 'cpu' })]),
     );
-
   });
 });
 
