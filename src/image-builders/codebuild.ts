@@ -296,7 +296,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
 
     const buildSpec = codebuild.BuildSpec.fromObject({
-      version: '0.2',
+      version: 0.2,
       env: {
         variables: {
           REPO_ARN: repository.repositoryArn,

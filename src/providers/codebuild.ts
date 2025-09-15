@@ -272,7 +272,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
     this.dind = props?.dockerInDocker ?? true;
 
     let buildSpec = {
-      version: '0.2',
+      version: 0.2,
       env: {
         variables: {
           RUNNER_TOKEN: 'unspecified',
