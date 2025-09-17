@@ -216,7 +216,7 @@ describe('ECS provider', () => {
       vpc,
       securityGroups: [sg],
       labels: ['ecs-placement'],
-      placementStrategy: [{ type: 'binpack', field: 'cpu' }],
+      placementStrategies: [ecs.PlacementStrategy.packedByCpu()],
     });
 
     const task = provider.getStepFunctionTask({
@@ -250,9 +250,55 @@ describe('ECS provider', () => {
     expect(ecsPlacement?.Type).toBe('Task');
     const ps = ecsPlacement?.Parameters?.PlacementStrategy;
     expect(Array.isArray(ps)).toBe(true);
-    expect(ps).toEqual(
-      expect.arrayContaining([expect.objectContaining({ Type: 'binpack', Field: 'cpu' })]),
-    );
+    expect(ps).toEqual([{ Field: 'CPU', Type: 'binpack' }]);
+  });
+
+  test('passes PlacementConstraints to RunTask', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test');
+
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+    const provider = new EcsRunnerProvider(stack, 'providerPlacementConstraints', {
+      vpc,
+      securityGroups: [sg],
+      labels: ['ecs-constraints'],
+      placementConstraints: [ecs.PlacementConstraint.distinctInstances()],
+    });
+
+    const task = provider.getStepFunctionTask({
+      runnerTokenPath: '$.runner.token',
+      runnerNamePath: '$$.Execution.Name',
+      ownerPath: '$.owner',
+      repoPath: '$.repo',
+      registrationUrl: 'https://github.com',
+      githubDomainPath: 'github.com',
+    });
+
+    new sfn.StateMachine(stack, 'sm-constraints', {
+      definitionBody: sfn.DefinitionBody.fromChainable(task),
+    });
+
+    const template = Template.fromStack(stack);
+
+    function extractStateMachineDefinition(tmpl: Template): string {
+      const sms = tmpl.findResources('AWS::StepFunctions::StateMachine');
+      const smKeys = Object.keys(sms);
+      if (smKeys.length !== 1) throw new Error(`expected 1 SM, got ${smKeys.length}`);
+      const sm = sms[smKeys[0]];
+      const def = sm.Properties.DefinitionString;
+      const parts = def?.['Fn::Join']?.[1];
+      if (!Array.isArray(parts)) throw new Error('unexpected DefinitionString shape');
+      return parts.map((p: any) => (typeof p === 'string' ? p : '')).join('');
+    }
+
+    const def = JSON.parse(extractStateMachineDefinition(template));
+    const ecsTask = def?.States?.['ecs-constraints'];
+    expect(ecsTask?.Type).toBe('Task');
+    const pc = ecsTask?.Parameters?.PlacementConstraints;
+    expect(Array.isArray(pc)).toBe(true);
+    expect(pc).toEqual([{ Type: 'distinctInstance' }]);
   });
 });
 
