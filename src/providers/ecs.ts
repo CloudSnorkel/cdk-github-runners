@@ -190,14 +190,39 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
    * Maximum price for spot instances.
    */
   readonly spotMaxPrice?: string;
+
+  /**
+   * ECS placement strategies to influence task placement.
+   *
+   * Example: [ecs.PlacementStrategy.packedByCpu()]
+   *
+   * @default undefined (no placement strategies)
+   */
+  readonly placementStrategies?: ecs.PlacementStrategy[];
+
+  /**
+   * ECS placement constraints to influence task placement.
+   *
+   * Example: [ecs.PlacementConstraint.memberOf('ecs-placement')]
+   *
+   * @default undefined (no placement constraints)
+   */
+  readonly placementConstraints?: ecs.PlacementConstraint[];
 }
 
-interface EcsEc2LaunchTargetProps {
+interface EcsEc2LaunchTargetOptions extends stepfunctions_tasks.EcsEc2LaunchTargetOptions {
   readonly capacityProvider: string;
 }
 
-class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
-  constructor(readonly props: EcsEc2LaunchTargetProps) {
+/**
+ * Custom ECS EC2 launch target that allows specifying capacity provider strategy and propagating tags.
+ */
+class CustomEcsEc2LaunchTarget extends stepfunctions_tasks.EcsEc2LaunchTarget {
+  private readonly capacityProvider: string;
+
+  constructor(options: EcsEc2LaunchTargetOptions) {
+    super(options);
+    this.capacityProvider = options.capacityProvider;
   }
 
   /**
@@ -205,14 +230,18 @@ class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
    */
   public bind(_task: stepfunctions_tasks.EcsRunTask,
     _launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
+    const base = super.bind(_task, _launchTargetOptions);
     return {
+      ...base,
       parameters: {
+        ...(base.parameters ?? {}),
         PropagateTags: ecs.PropagatedTagSource.TASK_DEFINITION,
         CapacityProviderStrategy: [
           {
-            CapacityProvider: this.props.capacityProvider,
+            CapacityProvider: this.capacityProvider,
           },
         ],
+        LaunchType: undefined, // You may choose a capacity provider or a launch type but not both.
       },
     };
   }
@@ -340,6 +369,16 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    */
   private readonly group?: string;
 
+  /**
+   * ECS placement strategies to influence task placement.
+   */
+  private readonly placementStrategies?: ecs.PlacementStrategy[];
+
+  /**
+   * ECS placement constraints to influence task placement.
+   */
+  private readonly placementConstraints?: ecs.PlacementConstraint[];
+
   readonly retryableErrors = [
     'Ecs.EcsException',
     'ECS.AmazonECSException',
@@ -357,6 +396,8 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     this.securityGroups = props?.securityGroups ?? [new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc })];
     this.connections = new ec2.Connections({ securityGroups: this.securityGroups });
     this.assignPublicIp = props?.assignPublicIp ?? true;
+    this.placementStrategies = props?.placementStrategies;
+    this.placementConstraints = props?.placementConstraints;
     this.cluster = props?.cluster ? props.cluster : new ecs.Cluster(
       this,
       'cluster',
@@ -576,8 +617,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,
         cluster: this.cluster,
-        launchTarget: new EcsEc2LaunchTarget({
+        launchTarget: new CustomEcsEc2LaunchTarget({
           capacityProvider: this.capacityProvider.capacityProviderName,
+          placementStrategies: this.placementStrategies,
+          placementConstraints: this.placementConstraints,
         }),
         enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
         assignPublicIp: this.assignPublicIp,
