@@ -241,6 +241,7 @@ class CustomEcsEc2LaunchTarget extends stepfunctions_tasks.EcsEc2LaunchTarget {
             CapacityProvider: this.capacityProvider,
           },
         ],
+        LaunchType: undefined, // You may choose a capacity provider or a launch type but not both.
       },
     };
   }
