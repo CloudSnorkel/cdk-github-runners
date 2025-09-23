@@ -394,7 +394,7 @@ export class CodeBuildImageBuilder extends Construct implements IRunnerImageBuil
     const thisStack = cdk.Stack.of(this);
 
     return {
-      version: '0.2',
+      version: 0.2,
       env: {
         variables: {
           REPO_ARN: repository.repositoryArn,

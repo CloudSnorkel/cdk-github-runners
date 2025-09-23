@@ -296,7 +296,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
 
     const buildSpec = codebuild.BuildSpec.fromObject({
-      version: '0.2',
+      version: 0.2,
       env: {
         variables: {
           REPO_ARN: repository.repositoryArn,
@@ -337,7 +337,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
             'if [ "$WAIT_HANDLE" != "unspecified" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$WAIT_HANDLE"; fi',
             // generate and push soci index
             // we do this after finishing the build, so we don't have to wait. it's also not required, so it's ok if it fails
-            'if [ `docker inspect --format=\'{{json .Config.Labels.DISABLE_SOCI}}\'` = null ]; then\n' +
+            'if [ `docker inspect --format=\'{{json .Config.Labels.DISABLE_SOCI}}\' "$REPO_URI"` = "null" ]; then\n' +
               'docker rmi "$REPO_URI"\n' + // it downloads the image again to /tmp, so save on space
               'LATEST_SOCI_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
               `curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
