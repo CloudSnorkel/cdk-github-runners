@@ -2209,6 +2209,7 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.launchTemplate">launchTemplate</a></code> | <code>aws-cdk-lib.aws_ec2.LaunchTemplate</code> | Launch template for the created instance. |
 
 ---
 
@@ -2283,6 +2284,18 @@ public readonly retryableErrors: string[];
 - *Type:* string[]
 
 List of step functions errors that should be retried.
+
+---
+
+##### `launchTemplate`<sup>Optional</sup> <a name="launchTemplate" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.launchTemplate"></a>
+
+```typescript
+public readonly launchTemplate: LaunchTemplate;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.LaunchTemplate
+
+Launch template for the created instance.
 
 ---
 
@@ -6187,6 +6200,7 @@ const ecsRunnerProviderProps: EcsRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spot">spot</a></code> | <code>boolean</code> | Use spot capacity. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spotMaxPrice">spotMaxPrice</a></code> | <code>string</code> | Maximum price for spot instances. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.storageKey">storageKey</a></code> | <code>aws-cdk-lib.aws_kms.IKey</code> | Options for runner instance storage volume. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.storageOptions">storageOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.StorageOptions">StorageOptions</a></code> | Options for runner instance storage volume. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for launched cluster instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets to run the runners in. |
@@ -6455,6 +6469,18 @@ public readonly spotMaxPrice: string;
 - *Type:* string
 
 Maximum price for spot instances.
+
+---
+
+##### `storageKey`<sup>Optional</sup> <a name="storageKey" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.storageKey"></a>
+
+```typescript
+public readonly storageKey: IKey;
+```
+
+- *Type:* aws-cdk-lib.aws_kms.IKey
+
+Options for runner instance storage volume.
 
 ---
 
