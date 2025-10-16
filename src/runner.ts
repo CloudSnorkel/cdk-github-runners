@@ -731,7 +731,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       namespace: 'GitHubRunners',
       metricName: 'JobsCompleted',
       unit: cloudwatch.Unit.COUNT,
-      statistic: cloudwatch.Statistic.SUM,
+      statistic: cloudwatch.Stats.SUM,
       ...props,
     }).attachTo(this);
   }
