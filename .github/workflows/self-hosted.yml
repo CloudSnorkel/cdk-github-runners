@@ -43,7 +43,7 @@ jobs:
           - name: ecs ubuntu 2404 x64
             os: linux
             arch: X64
-            runs-on: [self-hosted, ubuntu-2404, ecs, X64]
+            runs-on: [self-hosted, ecs-ubuntu-2404, X64]
             docker: true
             sudo: true
           - name: ecs arm64
