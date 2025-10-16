@@ -1618,6 +1618,7 @@ The default OS is Ubuntu running on x64 architecture.
 
 Included components:
  * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.cloudWatchAgent()`
  * `RunnerImageComponent.runnerUser()`
  * `RunnerImageComponent.git()`
  * `RunnerImageComponent.githubCli()`
@@ -1900,6 +1901,7 @@ The default OS is Ubuntu running on x64 architecture.
 
 Included components:
  * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.cloudWatchAgent()`
  * `RunnerImageComponent.runnerUser()`
  * `RunnerImageComponent.git()`
  * `RunnerImageComponent.githubCli()`
@@ -9286,6 +9288,7 @@ Returns true if the image builder should be rebooted after this component is ins
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.awsCli">awsCli</a></code> | A component to install the AWS CLI. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.cloudWatchAgent">cloudWatchAgent</a></code> | A component to install CloudWatch Agent for the runner so we can send logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.custom">custom</a></code> | Define a custom component that can run commands in the image, copy files into the image, and run some Docker commands. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.docker">docker</a></code> | A component to install Docker. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.dockerInDocker">dockerInDocker</a></code> | A component to install Docker-in-Docker. |
@@ -9309,6 +9312,16 @@ RunnerImageComponent.awsCli()
 ```
 
 A component to install the AWS CLI.
+
+##### `cloudWatchAgent` <a name="cloudWatchAgent" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.cloudWatchAgent"></a>
+
+```typescript
+import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
+
+RunnerImageComponent.cloudWatchAgent()
+```
+
+A component to install CloudWatch Agent for the runner so we can send logs.
 
 ##### `custom` <a name="custom" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.custom"></a>
 
