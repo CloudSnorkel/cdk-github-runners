@@ -178,7 +178,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       },
     }),
     new EcsRunnerProvider(stack, 'ECS Ubuntu 2404', {
-      labels: ['ecs', 'ubuntu-2404', 'x64'],
+      labels: ['ecs-ubuntu-2404', 'x64'],
       imageBuilder: codeBuildUbuntu2404ImageBuilder, // codebuild has dind
       vpc,
       maxInstances: 1,
