@@ -317,6 +317,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
    *
    * Included components:
    *  * `RunnerImageComponent.requiredPackages()`
+   *  * `RunnerImageComponent.cloudWatchAgent()`
    *  * `RunnerImageComponent.runnerUser()`
    *  * `RunnerImageComponent.git()`
    *  * `RunnerImageComponent.githubCli()`
@@ -331,6 +332,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       builderType: RunnerImageBuilderType.AWS_IMAGE_BUILDER,
       components: [
         RunnerImageComponent.requiredPackages(),
+        RunnerImageComponent.cloudWatchAgent(),
         RunnerImageComponent.runnerUser(),
         RunnerImageComponent.git(),
         RunnerImageComponent.githubCli(),

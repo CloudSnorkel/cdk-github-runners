@@ -75,6 +75,39 @@ export abstract class RunnerImageComponent {
     return new class extends RunnerImageComponent {
       name = 'RequiredPackages';
 
+      getCommands(os: Os, _architecture: Architecture): string[] {
+        if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
+          return [
+            'apt-get update',
+            'DEBIAN_FRONTEND=noninteractive apt-get upgrade -y',
+            'DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates',
+          ];
+        } else if (os.is(Os.LINUX_AMAZON_2)) {
+          return [
+            'yum update -y',
+            'yum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils',
+          ];
+        } else if (os.is(Os.LINUX_AMAZON_2023)) {
+          return [
+            'dnf upgrade -y',
+            'dnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils',
+          ];
+        } else if (os.is(Os.WINDOWS)) {
+          return [];
+        }
+
+        throw new Error(`Unsupported OS for required packages: ${os.name}`);
+      }
+    };
+  }
+
+  /**
+   * A component to install CloudWatch Agent for the runner so we can send logs.
+   */
+  static cloudWatchAgent(): RunnerImageComponent {
+    return new class extends RunnerImageComponent {
+      name = 'CloudWatchAgent';
+
       getCommands(os: Os, architecture: Architecture): string[] {
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
           let archUrl;
@@ -87,22 +120,17 @@ export abstract class RunnerImageComponent {
           }
 
           return [
-            'apt-get update',
-            'DEBIAN_FRONTEND=noninteractive apt-get upgrade -y',
-            'DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates',
             `curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/${archUrl}/latest/amazon-cloudwatch-agent.deb`,
             'dpkg -i -E /tmp/amazon-cloudwatch-agent.deb',
             'rm /tmp/amazon-cloudwatch-agent.deb',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [
-            'yum update -y',
-            'yum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils amazon-cloudwatch-agent',
+            'yum install -y amazon-cloudwatch-agent',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2023)) {
           return [
-            'dnf upgrade -y',
-            'dnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils amazon-cloudwatch-agent',
+            'dnf install -y amazon-cloudwatch-agent',
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [
