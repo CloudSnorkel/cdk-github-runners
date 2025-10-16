@@ -6186,6 +6186,8 @@ const ecsRunnerProviderProps: EcsRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | The amount (in MiB) of memory used by the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.memoryReservationMiB">memoryReservationMiB</a></code> | <code>number</code> | The soft limit (in MiB) of memory to reserve for the container. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.minInstances">minInstances</a></code> | <code>number</code> | The minimum number of instances to run in the cluster. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.placementConstraints">placementConstraints</a></code> | <code>aws-cdk-lib.aws_ecs.PlacementConstraint[]</code> | ECS placement constraints to influence task placement. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.placementStrategies">placementStrategies</a></code> | <code>aws-cdk-lib.aws_ecs.PlacementStrategy[]</code> | ECS placement strategies to influence task placement. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spot">spot</a></code> | <code>boolean</code> | Use spot capacity. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.spotMaxPrice">spotMaxPrice</a></code> | <code>string</code> | Maximum price for spot instances. |
@@ -6419,6 +6421,36 @@ public readonly minInstances: number;
 The minimum number of instances to run in the cluster.
 
 Only used when creating a new cluster.
+
+---
+
+##### `placementConstraints`<sup>Optional</sup> <a name="placementConstraints" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.placementConstraints"></a>
+
+```typescript
+public readonly placementConstraints: PlacementConstraint[];
+```
+
+- *Type:* aws-cdk-lib.aws_ecs.PlacementConstraint[]
+- *Default:* undefined (no placement constraints)
+
+ECS placement constraints to influence task placement.
+
+Example: [ecs.PlacementConstraint.memberOf('ecs-placement')]
+
+---
+
+##### `placementStrategies`<sup>Optional</sup> <a name="placementStrategies" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.placementStrategies"></a>
+
+```typescript
+public readonly placementStrategies: PlacementStrategy[];
+```
+
+- *Type:* aws-cdk-lib.aws_ecs.PlacementStrategy[]
+- *Default:* undefined (no placement strategies)
+
+ECS placement strategies to influence task placement.
+
+Example: [ecs.PlacementStrategy.packedByCpu()]
 
 ---
 
