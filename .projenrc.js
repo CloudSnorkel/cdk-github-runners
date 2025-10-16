@@ -69,6 +69,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   publishToNuget: {
     dotNetNamespace: 'CloudSnorkel',
     packageId: 'CloudSnorkel.Cdk.Github.Runners',
+    trustedPublishing: true,
   },
   keywords: [
     'aws',
