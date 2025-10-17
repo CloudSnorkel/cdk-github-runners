@@ -112,7 +112,7 @@
     "jsii-docgen": "^10.5.0",
     "jsii-pacmak": "^1.115.0",
     "jsii-rosetta": "5.8.x",
-    "projen": "^0.97.2",
+    "projen": "^0.98.2",
     "sass": "^1.54.0",
     "semver": "^7.7.3",
     "svelte": "^5",

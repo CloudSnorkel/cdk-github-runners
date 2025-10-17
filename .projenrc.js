@@ -52,7 +52,6 @@ const project = new awscdk.AwsCdkConstructLibrary({
   releaseToNpm: true,
   npmAccess: NpmAccess.PUBLIC,
   npmTrustedPublishing: true,
-  workflowNodeVersion: '24.x', // required for npmTrustedPublishing
   publishToPypi: {
     distName: 'cloudsnorkel.cdk-github-runners',
     module: 'cloudsnorkel.cdk_github_runners',
