@@ -97,7 +97,7 @@
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
     "aws-cdk": "^2",
-    "aws-cdk-lib": "2.196.0",
+    "aws-cdk-lib": "2.224.0",
     "bootstrap": "^5.2.0",
     "commit-and-tag-version": "^12",
     "constructs": "10.0.5",
@@ -127,7 +127,7 @@
   },
   "peerDependencies": {
     "@aws-cdk/aws-imagebuilder-alpha": "^2.224.0-alpha.0",
-    "aws-cdk-lib": "^2.196.0",
+    "aws-cdk-lib": "^2.224.0",
     "constructs": "^10.0.5"
   },
   "keywords": [
