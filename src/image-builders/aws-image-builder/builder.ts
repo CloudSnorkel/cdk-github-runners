@@ -1,3 +1,4 @@
+import * as imagebuilder2 from '@aws-cdk/aws-imagebuilder-alpha';
 import * as cdk from 'aws-cdk-lib';
 import {
   Annotations,
@@ -27,7 +28,7 @@ import { DeleteResourcesProps } from './delete-resources.lambda';
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
 import { generateBuildWorkflowWithDockerSetupCommands } from './workflow';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers';
-import { singletonLogGroup, singletonLambda, SingletonLogType } from '../../utils';
+import { singletonLambda, singletonLogGroup, SingletonLogType } from '../../utils';
 import { BuildImageFunction } from '../build-image-function';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps, uniqueImageBuilderName } from '../common';
 
@@ -318,7 +319,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   private readonly rebuildInterval: cdk.Duration;
   private readonly boundComponents: ImageBuilderComponent[] = [];
   private readonly instanceType: ec2.InstanceType;
-  private infrastructure: imagebuilder.CfnInfrastructureConfiguration | undefined;
+  private infrastructure: imagebuilder2.InfrastructureConfiguration | undefined;
   private readonly role: iam.Role;
   private readonly fastLaunchOptions?: FastLaunchOptions;
   public readonly storageSize?: cdk.Size;
@@ -539,7 +540,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     });
   }
 
-  protected createInfrastructure(managedPolicies: iam.IManagedPolicy[]): imagebuilder.CfnInfrastructureConfiguration {
+  protected createInfrastructure(managedPolicies: iam.IManagedPolicy[]): imagebuilder2.InfrastructureConfiguration {
     if (this.infrastructure) {
       return this.infrastructure;
     }
@@ -552,31 +553,23 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       component.grantAssetsRead(this.role);
     }
 
-    this.infrastructure = new imagebuilder.CfnInfrastructureConfiguration(this, 'Infrastructure', {
-      name: uniqueImageBuilderName(this),
+    this.infrastructure = new imagebuilder2.InfrastructureConfiguration(this, 'Infrastructure', {
       // description: this.description,
-      subnetId: this.vpc?.selectSubnets(this.subnetSelection).subnetIds[0],
-      securityGroupIds: this.securityGroups?.map(sg => sg.securityGroupId),
-      instanceTypes: [this.instanceType.toString()],
-      instanceMetadataOptions: {
-        httpTokens: 'required',
-        // Container builds require a minimum of two hops.
-        httpPutResponseHopLimit: 2,
-      },
-      instanceProfileName: new iam.CfnInstanceProfile(this, 'Instance Profile', {
-        roles: [
-          this.role.roleName,
-        ],
-      }).ref,
+      subnetSelection: this.subnetSelection,
+      securityGroups: this.securityGroups,
+      instanceTypes: [this.instanceType],
+      httpTokens: imagebuilder2.HttpTokens.REQUIRED,
+      httpPutResponseHopLimit: 2, // Container builds require a minimum of two hops.
+      role: this.role,
     });
 
     return this.infrastructure;
   }
 
-  protected createImage(infra: imagebuilder.CfnInfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
+  protected createImage(infra: imagebuilder2.InfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
     imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImage {
     const image = new imagebuilder.CfnImage(this, this.amiOrContainerId('Image', imageRecipeArn, containerRecipeArn), {
-      infrastructureConfigurationArn: infra.attrArn,
+      infrastructureConfigurationArn: infra.infrastructureConfigurationArn,
       distributionConfigurationArn: dist.attrArn,
       imageRecipeArn,
       containerRecipeArn,
@@ -607,7 +600,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     throw new Error('Either imageRecipeArn or containerRecipeArn must be defined');
   }
 
-  protected createPipeline(infra: imagebuilder.CfnInfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
+  protected createPipeline(infra: imagebuilder2.InfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
     imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImagePipeline {
     // set schedule
     let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
@@ -637,7 +630,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     const pipeline = new imagebuilder.CfnImagePipeline(this, this.amiOrContainerId('Pipeline', imageRecipeArn, containerRecipeArn), {
       name: uniqueImageBuilderName(this),
       // description: this.description,
-      infrastructureConfigurationArn: infra.attrArn,
+      infrastructureConfigurationArn: infra.infrastructureConfigurationArn,
       distributionConfigurationArn: dist.attrArn,
       imageRecipeArn,
       containerRecipeArn,

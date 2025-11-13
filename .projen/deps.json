@@ -1,6 +1,10 @@
 {
   "dependencies": [
     {
+      "name": "@aws-cdk/aws-imagebuilder-alpha",
+      "type": "build"
+    },
+    {
       "name": "@aws-sdk/client-cloudformation",
       "type": "build"
     },

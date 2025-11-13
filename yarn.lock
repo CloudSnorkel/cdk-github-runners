@@ -28,6 +28,13 @@
   resolved "https://registry.yarnpkg.com/@aws-cdk/asset-node-proxy-agent-v6/-/asset-node-proxy-agent-v6-2.1.0.tgz#6d3c7860354d4856a7e75375f2f0ecab313b4989"
   integrity sha512-7bY3J8GCVxLupn/kNmpPc5VJz8grx+4RKfnnJiO1LG+uxkZfANZG3RMHhE+qQxxwkyQ9/MfPtTpf748UhR425A==
 
+"@aws-cdk/aws-imagebuilder-alpha@^2.224.0-alpha.0":
+  version "2.224.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-imagebuilder-alpha/-/aws-imagebuilder-alpha-2.224.0-alpha.0.tgz#84f76d3c89a88f7a6a9bb81293b246482e0f19da"
+  integrity sha512-ImW63cadwY9zmoYHAPBuGt+xBXXxdpmFkjtXqVTPTxPocHL2zztq6cbAzBy5Lv1DtvmJwHrE8UzAx4VY1gP8lA==
+  dependencies:
+    yaml "1.10.2"
+
 "@aws-cdk/cloud-assembly-schema@^36.0.5":
   version "36.3.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/cloud-assembly-schema/-/cloud-assembly-schema-36.3.0.tgz#17aeb389cbbff72f2b8d5b3b25d8d21d6ec3f0ef"
