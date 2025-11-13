@@ -435,7 +435,7 @@ export abstract class RunnerImageComponent {
             '$html = Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl',
             '$files = $html.Links.href | Where-Object { $_ -match \'^docker-[0-9\\.]+\\.zip$\' }',
             'if (-not $files) { Write-Error "No docker-*.zip files found." ; exit 1 }',
-            '$latest = $files | Sort-Object { [Version]($_ -replace \'^docker-|\\.zip$\') } -Descending | Select-Object -First 1',
+            '$latest = $files | Sort-Object { try { [Version]($_ -replace \'^docker-|\\.zip$\') } catch { [Version]"0.0.0" } } -Descending | Select-Object -First 1',
             // download static binaries
             'Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl$latest -OutFile docker.zip',
             // extract to C:\Program Files\Docker
