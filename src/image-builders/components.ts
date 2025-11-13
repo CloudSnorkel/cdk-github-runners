@@ -431,11 +431,13 @@ export abstract class RunnerImageComponent {
         } else if (os.is(Os.WINDOWS)) {
           return [
             // figure out latest docker version
-            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/moby/moby/releases/latest > $Env:TEMP\\latest-docker',
-            '$LatestUrl = Get-Content $Env:TEMP\\latest-docker',
-            '$DOCKER_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
+            '$BaseUrl = "https://download.docker.com/win/static/stable/x86_64/"',
+            '$html = Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl',
+            '$files = $html.Links.href | Where-Object { $_ -match \'^docker-[0-9\\.]+\\.zip$\' }',
+            'if (-not $files) { Write-Error "No docker-*.zip files found." ; exit 1 }',
+            '$latest = $files | Sort-Object { [Version]($_ -replace \'^docker-|\\.zip$\') } -Descending | Select-Object -First 1',
             // download static binaries
-            'Invoke-WebRequest -UseBasicParsing -Uri "https://download.docker.com/win/static/stable/x86_64/docker-${DOCKER_VERSION}.zip" -OutFile docker.zip',
+            'Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl$latest -OutFile docker.zip',
             // extract to C:\Program Files\Docker
             'Expand-Archive docker.zip -DestinationPath "$Env:ProgramFiles"',
             'del docker.zip',
