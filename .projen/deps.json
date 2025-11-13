@@ -1,10 +1,6 @@
 {
   "dependencies": [
     {
-      "name": "@aws-cdk/aws-imagebuilder-alpha",
-      "type": "build"
-    },
-    {
       "name": "@aws-sdk/client-cloudformation",
       "type": "build"
     },
@@ -223,8 +219,12 @@
       "type": "build"
     },
     {
+      "name": "@aws-cdk/aws-imagebuilder-alpha",
+      "type": "peer"
+    },
+    {
       "name": "aws-cdk-lib",
-      "version": "^2.155.0",
+      "version": "^2.196.0",
       "type": "peer"
     },
     {
