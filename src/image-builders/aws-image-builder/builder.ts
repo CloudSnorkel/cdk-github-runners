@@ -555,6 +555,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
 
     this.infrastructure = new imagebuilder2.InfrastructureConfiguration(this, 'Infrastructure', {
       // description: this.description,
+      vpc: this.vpc,
       subnetSelection: this.subnetSelection,
       securityGroups: this.securityGroups,
       instanceTypes: [this.instanceType],
@@ -971,7 +972,7 @@ export class AwsImageBuilderFailedBuildNotifier implements cdk.IAspect {
       const builder = node as AwsImageBuilderRunnerImageBuilder;
       const infraNode = builder.node.tryFindChild('Infrastructure');
       if (infraNode) {
-        const infra = infraNode as imagebuilder.CfnInfrastructureConfiguration;
+        const infra = infraNode.node.defaultChild as imagebuilder.CfnInfrastructureConfiguration;
         infra.snsTopicArn = this.topic.topicArn;
       } else {
         cdk.Annotations.of(builder).addWarning('Unused builder cannot get notifications of failed builds');
