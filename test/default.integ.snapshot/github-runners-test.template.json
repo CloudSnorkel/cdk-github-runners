@@ -2699,7 +2699,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "WindowsImageBuilderInstanceProfileBFCCEC08": {
+  "WindowsImageBuilderInfrastructureInstanceProfile253C95CE": {
    "Type": "AWS::IAM::InstanceProfile",
    "Properties": {
     "Roles": [
@@ -2709,7 +2709,7 @@
     ]
    }
   },
-  "WindowsImageBuilderInfrastructureFF99A30B": {
+  "WindowsImageBuilderInfrastructure14D24F2C": {
    "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
    "Properties": {
     "InstanceMetadataOptions": {
@@ -2717,12 +2717,12 @@
      "HttpTokens": "required"
     },
     "InstanceProfileName": {
-     "Ref": "WindowsImageBuilderInstanceProfileBFCCEC08"
+     "Ref": "WindowsImageBuilderInfrastructureInstanceProfile253C95CE"
     },
     "InstanceTypes": [
      "m6i.large"
     ],
-    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "Name": "github-runners-test-windowsimagebuilder-infrastructure-17f3ac1c",
     "SecurityGroupIds": [
      {
       "Fn::GetAtt": [
@@ -2759,7 +2759,7 @@
     },
     "InfrastructureConfigurationArn": {
      "Fn::GetAtt": [
-      "WindowsImageBuilderInfrastructureFF99A30B",
+      "WindowsImageBuilderInfrastructure14D24F2C",
       "Arn"
      ]
     },
@@ -2770,7 +2770,8 @@
    },
    "DependsOn": [
     "WindowsImageBuilderDockerLogE660E23E",
-    "WindowsImageBuilderInfrastructureFF99A30B"
+    "WindowsImageBuilderInfrastructureInstanceProfile253C95CE",
+    "WindowsImageBuilderInfrastructure14D24F2C"
    ],
    "UpdateReplacePolicy": "Retain",
    "DeletionPolicy": "RetainExceptOnCreate"
@@ -2925,7 +2926,7 @@
     },
     "InfrastructureConfigurationArn": {
      "Fn::GetAtt": [
-      "WindowsImageBuilderInfrastructureFF99A30B",
+      "WindowsImageBuilderInfrastructure14D24F2C",
       "Arn"
      ]
     },
@@ -2941,7 +2942,8 @@
    },
    "DependsOn": [
     "WindowsImageBuilderDockerLogE660E23E",
-    "WindowsImageBuilderInfrastructureFF99A30B"
+    "WindowsImageBuilderInfrastructureInstanceProfile253C95CE",
+    "WindowsImageBuilderInfrastructure14D24F2C"
    ]
   },
   "AMILinuxBuilderSGEDC86329": {
@@ -4043,7 +4045,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "AMILinuxBuilderInstanceProfile3CA638BE": {
+  "AMILinuxBuilderInfrastructureInstanceProfileB423D304": {
    "Type": "AWS::IAM::InstanceProfile",
    "Properties": {
     "Roles": [
@@ -4053,7 +4055,7 @@
     ]
    }
   },
-  "AMILinuxBuilderInfrastructure6FCD154A": {
+  "AMILinuxBuilderInfrastructure069F0561": {
    "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
    "Properties": {
     "InstanceMetadataOptions": {
@@ -4061,12 +4063,12 @@
      "HttpTokens": "required"
     },
     "InstanceProfileName": {
-     "Ref": "AMILinuxBuilderInstanceProfile3CA638BE"
+     "Ref": "AMILinuxBuilderInfrastructureInstanceProfileB423D304"
     },
     "InstanceTypes": [
      "m6i.large"
     ],
-    "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
+    "Name": "github-runners-test-amilinuxbuilder-infrastructure-52c63716",
     "SecurityGroupIds": [
      {
       "Fn::GetAtt": [
@@ -4103,7 +4105,7 @@
     },
     "InfrastructureConfigurationArn": {
      "Fn::GetAtt": [
-      "AMILinuxBuilderInfrastructure6FCD154A",
+      "AMILinuxBuilderInfrastructure069F0561",
       "Arn"
      ]
     },
@@ -4114,7 +4116,8 @@
    },
    "DependsOn": [
     "AMILinuxBuilderAmiLog0DB16E38",
-    "AMILinuxBuilderInfrastructure6FCD154A"
+    "AMILinuxBuilderInfrastructureInstanceProfileB423D304",
+    "AMILinuxBuilderInfrastructure069F0561"
    ],
    "UpdateReplacePolicy": "Retain",
    "DeletionPolicy": "RetainExceptOnCreate"
@@ -4139,7 +4142,7 @@
     },
     "InfrastructureConfigurationArn": {
      "Fn::GetAtt": [
-      "AMILinuxBuilderInfrastructure6FCD154A",
+      "AMILinuxBuilderInfrastructure069F0561",
       "Arn"
      ]
     },
@@ -4155,7 +4158,8 @@
    },
    "DependsOn": [
     "AMILinuxBuilderAmiLog0DB16E38",
-    "AMILinuxBuilderInfrastructure6FCD154A"
+    "AMILinuxBuilderInfrastructureInstanceProfileB423D304",
+    "AMILinuxBuilderInfrastructure069F0561"
    ]
   },
   "AMILinuxBuilderImageCleanerF1745EF6": {
@@ -7509,7 +7513,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "AMILinuxarm64BuilderInstanceProfileCE3B6B09": {
+  "AMILinuxarm64BuilderInfrastructureInstanceProfile7C4D69A7": {
    "Type": "AWS::IAM::InstanceProfile",
    "Properties": {
     "Roles": [
@@ -7519,7 +7523,7 @@
     ]
    }
   },
-  "AMILinuxarm64BuilderInfrastructure80FA16D6": {
+  "AMILinuxarm64BuilderInfrastructureA97EB3DD": {
    "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
    "Properties": {
     "InstanceMetadataOptions": {
@@ -7527,12 +7531,12 @@
      "HttpTokens": "required"
     },
     "InstanceProfileName": {
-     "Ref": "AMILinuxarm64BuilderInstanceProfileCE3B6B09"
+     "Ref": "AMILinuxarm64BuilderInfrastructureInstanceProfile7C4D69A7"
     },
     "InstanceTypes": [
      "m6g.large"
     ],
-    "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+    "Name": "github-runners-test-amilinuxarm64builder-infrastructure-4dd30f96",
     "SecurityGroupIds": [
      {
       "Fn::GetAtt": [
@@ -7569,7 +7573,7 @@
     },
     "InfrastructureConfigurationArn": {
      "Fn::GetAtt": [
-      "AMILinuxarm64BuilderInfrastructure80FA16D6",
+      "AMILinuxarm64BuilderInfrastructureA97EB3DD",
       "Arn"
      ]
     },
@@ -7580,7 +7584,8 @@
    },
    "DependsOn": [
     "AMILinuxarm64BuilderAmiLog84A9D94A",
-    "AMILinuxarm64BuilderInfrastructure80FA16D6"
+    "AMILinuxarm64BuilderInfrastructureInstanceProfile7C4D69A7",
+    "AMILinuxarm64BuilderInfrastructureA97EB3DD"
    ],
    "UpdateReplacePolicy": "Retain",
    "DeletionPolicy": "RetainExceptOnCreate"
@@ -7605,7 +7610,7 @@
     },
     "InfrastructureConfigurationArn": {
      "Fn::GetAtt": [
-      "AMILinuxarm64BuilderInfrastructure80FA16D6",
+      "AMILinuxarm64BuilderInfrastructureA97EB3DD",
       "Arn"
      ]
     },
@@ -7621,7 +7626,8 @@
    },
    "DependsOn": [
     "AMILinuxarm64BuilderAmiLog84A9D94A",
-    "AMILinuxarm64BuilderInfrastructure80FA16D6"
+    "AMILinuxarm64BuilderInfrastructureInstanceProfile7C4D69A7",
+    "AMILinuxarm64BuilderInfrastructureA97EB3DD"
    ]
   },
   "AMILinuxarm64BuilderImageCleanerA5DDFE7A": {
@@ -8841,7 +8847,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "WindowsEC2BuilderInstanceProfileA8DBA763": {
+  "WindowsEC2BuilderInfrastructureInstanceProfile8A9DECBA": {
    "Type": "AWS::IAM::InstanceProfile",
    "Properties": {
     "Roles": [
@@ -8851,7 +8857,7 @@
     ]
    }
   },
-  "WindowsEC2BuilderInfrastructure757D4FD7": {
+  "WindowsEC2BuilderInfrastructure4289B6D2": {
    "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
    "Properties": {
     "InstanceMetadataOptions": {
@@ -8859,12 +8865,12 @@
      "HttpTokens": "required"
     },
     "InstanceProfileName": {
-     "Ref": "WindowsEC2BuilderInstanceProfileA8DBA763"
+     "Ref": "WindowsEC2BuilderInfrastructureInstanceProfile8A9DECBA"
     },
     "InstanceTypes": [
      "m6i.large"
     ],
-    "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+    "Name": "github-runners-test-windowsec2builder-infrastructure-8e08e175",
     "SecurityGroupIds": [
      {
       "Fn::GetAtt": [
@@ -8901,7 +8907,7 @@
     },
     "InfrastructureConfigurationArn": {
      "Fn::GetAtt": [
-      "WindowsEC2BuilderInfrastructure757D4FD7",
+      "WindowsEC2BuilderInfrastructure4289B6D2",
       "Arn"
      ]
     },
@@ -8912,7 +8918,8 @@
    },
    "DependsOn": [
     "WindowsEC2BuilderAmiLog126E54B2",
-    "WindowsEC2BuilderInfrastructure757D4FD7"
+    "WindowsEC2BuilderInfrastructureInstanceProfile8A9DECBA",
+    "WindowsEC2BuilderInfrastructure4289B6D2"
    ],
    "UpdateReplacePolicy": "Retain",
    "DeletionPolicy": "RetainExceptOnCreate"
@@ -8937,7 +8944,7 @@
     },
     "InfrastructureConfigurationArn": {
      "Fn::GetAtt": [
-      "WindowsEC2BuilderInfrastructure757D4FD7",
+      "WindowsEC2BuilderInfrastructure4289B6D2",
       "Arn"
      ]
     },
@@ -8953,7 +8960,8 @@
    },
    "DependsOn": [
     "WindowsEC2BuilderAmiLog126E54B2",
-    "WindowsEC2BuilderInfrastructure757D4FD7"
+    "WindowsEC2BuilderInfrastructureInstanceProfile8A9DECBA",
+    "WindowsEC2BuilderInfrastructure4289B6D2"
    ]
   },
   "WindowsEC2BuilderImageCleanerEF537850": {
@@ -13602,7 +13610,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "97f30e67419a1676a2215492723e5add1aa491caf0cbe2dd878fc4fab0468cd4.zip"
+     "S3Key": "8d5e97812d0036272ba1fd5bb8772ff51f4712e58c75507e4a0db242bf680f1d.zip"
     },
     "Handler": "index.handler",
     "LoggingConfig": {
@@ -13616,15 +13624,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    },
+    "Runtime": "nodejs22.x",
     "Timeout": 120
    },
    "DependsOn": [
@@ -15659,8 +15659,8 @@
     "AMILinuxBuilderComponent9EnvironmentVariablesComponent59394D7E",
     "AMILinuxBuilderComponent9EnvironmentVariablesVersion008D0039",
     "AMILinuxBuilderImageCleanerF1745EF6",
-    "AMILinuxBuilderInfrastructure6FCD154A",
-    "AMILinuxBuilderInstanceProfile3CA638BE",
+    "AMILinuxBuilderInfrastructureInstanceProfileB423D304",
+    "AMILinuxBuilderInfrastructure069F0561",
     "AMILinuxBuilderLaunchtemplateA29452C4",
     "AMILinuxBuilderLifecyclePolicyAMIFB556CB2",
     "AMILinuxBuilderLifecyclePolicyAMIRole7BBFF711",
@@ -15902,8 +15902,8 @@
     "AMILinuxBuilderComponent9EnvironmentVariablesComponent59394D7E",
     "AMILinuxBuilderComponent9EnvironmentVariablesVersion008D0039",
     "AMILinuxBuilderImageCleanerF1745EF6",
-    "AMILinuxBuilderInfrastructure6FCD154A",
-    "AMILinuxBuilderInstanceProfile3CA638BE",
+    "AMILinuxBuilderInfrastructureInstanceProfileB423D304",
+    "AMILinuxBuilderInfrastructure069F0561",
     "AMILinuxBuilderLaunchtemplateA29452C4",
     "AMILinuxBuilderLifecyclePolicyAMIFB556CB2",
     "AMILinuxBuilderLifecyclePolicyAMIRole7BBFF711",
@@ -16108,8 +16108,8 @@
     "AMILinuxarm64BuilderComponent9EnvironmentVariablesComponent99728C6D",
     "AMILinuxarm64BuilderComponent9EnvironmentVariablesVersion30CC0910",
     "AMILinuxarm64BuilderImageCleanerA5DDFE7A",
-    "AMILinuxarm64BuilderInfrastructure80FA16D6",
-    "AMILinuxarm64BuilderInstanceProfileCE3B6B09",
+    "AMILinuxarm64BuilderInfrastructureInstanceProfile7C4D69A7",
+    "AMILinuxarm64BuilderInfrastructureA97EB3DD",
     "AMILinuxarm64BuilderLaunchtemplate8F5EFF44",
     "AMILinuxarm64BuilderLifecyclePolicyAMI44B6EABD",
     "AMILinuxarm64BuilderLifecyclePolicyAMIRole1D81BF43",
@@ -16314,8 +16314,8 @@
     "WindowsEC2BuilderComponent9EnvironmentVariablesComponentF10003FD",
     "WindowsEC2BuilderComponent9EnvironmentVariablesVersionCE6A1762",
     "WindowsEC2BuilderImageCleanerEF537850",
-    "WindowsEC2BuilderInfrastructure757D4FD7",
-    "WindowsEC2BuilderInstanceProfileA8DBA763",
+    "WindowsEC2BuilderInfrastructureInstanceProfile8A9DECBA",
+    "WindowsEC2BuilderInfrastructure4289B6D2",
     "WindowsEC2BuilderLaunchtemplate0A66E9C2",
     "WindowsEC2BuilderLifecyclePolicyAMIF732B3A7",
     "WindowsEC2BuilderLifecyclePolicyAMIRoleE85A7F2C",
@@ -19191,6 +19191,20 @@
     "Principal": "*"
    }
   },
+  "runnersWebhookHandlerwebhookhandlerinvokefunction76559985": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "runnersWebhookHandlerwebhookhandler22779A81",
+      "Arn"
+     ]
+    },
+    "InvokedViaFunctionUrl": true,
+    "Principal": "*"
+   }
+  },
   "runnersWebhookRedeliveryLambdaServiceRole464CDD30": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -19381,7 +19395,8 @@
       {
        "Action": [
         "secretsmanager:PutSecretValue",
-        "secretsmanager:UpdateSecret"
+        "secretsmanager:UpdateSecret",
+        "secretsmanager:UpdateSecretVersionStage"
        ],
        "Effect": "Allow",
        "Resource": {
@@ -19401,7 +19416,8 @@
       {
        "Action": [
         "secretsmanager:PutSecretValue",
-        "secretsmanager:UpdateSecret"
+        "secretsmanager:UpdateSecret",
+        "secretsmanager:UpdateSecretVersionStage"
        ],
        "Effect": "Allow",
        "Resource": {
@@ -19411,7 +19427,8 @@
       {
        "Action": [
         "secretsmanager:PutSecretValue",
-        "secretsmanager:UpdateSecret"
+        "secretsmanager:UpdateSecret",
+        "secretsmanager:UpdateSecretVersionStage"
        ],
        "Effect": "Allow",
        "Resource": {
@@ -19431,7 +19448,8 @@
       {
        "Action": [
         "secretsmanager:PutSecretValue",
-        "secretsmanager:UpdateSecret"
+        "secretsmanager:UpdateSecret",
+        "secretsmanager:UpdateSecretVersionStage"
        ],
        "Effect": "Allow",
        "Resource": {
@@ -19526,6 +19544,20 @@
      ]
     },
     "FunctionUrlAuthType": "NONE",
+    "Principal": "*"
+   }
+  },
+  "runnerssetupinvokefunctionC1E3C6E6": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "runnerssetup9896CB59",
+      "Arn"
+     ]
+    },
+    "InvokedViaFunctionUrl": true,
     "Principal": "*"
    }
   },
@@ -21639,130 +21671,6 @@
    "Type": "AWS::SSM::Parameter::Value<String>",
    "Default": "/cdk-bootstrap/hnb659fds/version",
    "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
-  }
- },
- "Mappings": {
-  "LatestNodeRuntimeMap": {
-   "af-south-1": {
-    "value": "nodejs20.x"
-   },
-   "ap-east-1": {
-    "value": "nodejs20.x"
-   },
-   "ap-northeast-1": {
-    "value": "nodejs20.x"
-   },
-   "ap-northeast-2": {
-    "value": "nodejs20.x"
-   },
-   "ap-northeast-3": {
-    "value": "nodejs20.x"
-   },
-   "ap-south-1": {
-    "value": "nodejs20.x"
-   },
-   "ap-south-2": {
-    "value": "nodejs20.x"
-   },
-   "ap-southeast-1": {
-    "value": "nodejs20.x"
-   },
-   "ap-southeast-2": {
-    "value": "nodejs20.x"
-   },
-   "ap-southeast-3": {
-    "value": "nodejs20.x"
-   },
-   "ap-southeast-4": {
-    "value": "nodejs20.x"
-   },
-   "ap-southeast-5": {
-    "value": "nodejs20.x"
-   },
-   "ap-southeast-7": {
-    "value": "nodejs20.x"
-   },
-   "ca-central-1": {
-    "value": "nodejs20.x"
-   },
-   "ca-west-1": {
-    "value": "nodejs20.x"
-   },
-   "cn-north-1": {
-    "value": "nodejs18.x"
-   },
-   "cn-northwest-1": {
-    "value": "nodejs18.x"
-   },
-   "eu-central-1": {
-    "value": "nodejs20.x"
-   },
-   "eu-central-2": {
-    "value": "nodejs20.x"
-   },
-   "eu-isoe-west-1": {
-    "value": "nodejs18.x"
-   },
-   "eu-north-1": {
-    "value": "nodejs20.x"
-   },
-   "eu-south-1": {
-    "value": "nodejs20.x"
-   },
-   "eu-south-2": {
-    "value": "nodejs20.x"
-   },
-   "eu-west-1": {
-    "value": "nodejs20.x"
-   },
-   "eu-west-2": {
-    "value": "nodejs20.x"
-   },
-   "eu-west-3": {
-    "value": "nodejs20.x"
-   },
-   "il-central-1": {
-    "value": "nodejs20.x"
-   },
-   "me-central-1": {
-    "value": "nodejs20.x"
-   },
-   "me-south-1": {
-    "value": "nodejs20.x"
-   },
-   "mx-central-1": {
-    "value": "nodejs20.x"
-   },
-   "sa-east-1": {
-    "value": "nodejs20.x"
-   },
-   "us-east-1": {
-    "value": "nodejs20.x"
-   },
-   "us-east-2": {
-    "value": "nodejs20.x"
-   },
-   "us-gov-east-1": {
-    "value": "nodejs18.x"
-   },
-   "us-gov-west-1": {
-    "value": "nodejs18.x"
-   },
-   "us-iso-east-1": {
-    "value": "nodejs18.x"
-   },
-   "us-iso-west-1": {
-    "value": "nodejs18.x"
-   },
-   "us-isob-east-1": {
-    "value": "nodejs18.x"
-   },
-   "us-west-1": {
-    "value": "nodejs20.x"
-   },
-   "us-west-2": {
-    "value": "nodejs20.x"
-   }
   }
  },
  "Outputs": {
