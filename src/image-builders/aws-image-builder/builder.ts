@@ -394,21 +394,13 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       emptyOnDelete: true,
     });
 
-    const dist = new imagebuilder.CfnDistributionConfiguration(this, 'Docker Distribution', {
-      name: uniqueImageBuilderName(this),
+    const dist = new imagebuilder2.DistributionConfiguration(this, 'Docker Distribution', {
       // description: this.description,
-      distributions: [
-        {
-          region: Stack.of(this).region,
-          containerDistributionConfiguration: {
-            ContainerTags: ['latest'],
-            TargetRepository: {
-              Service: 'ECR',
-              RepositoryName: repository.repositoryName,
-            },
-          },
-        },
-      ],
+      containerDistributions: [{
+        region: Stack.of(this).region,
+        containerTags: ['latest'],
+        containerRepository: imagebuilder2.Repository.fromEcr(repository),
+      }],
       tags: this.tags,
     });
 
@@ -562,11 +554,11 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return this.infrastructure;
   }
 
-  protected createImage(infra: imagebuilder2.InfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
+  protected createImage(infra: imagebuilder2.InfrastructureConfiguration, dist: imagebuilder2.DistributionConfiguration, log: logs.LogGroup,
     imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImage {
     const image = new imagebuilder.CfnImage(this, this.amiOrContainerId('Image', imageRecipeArn, containerRecipeArn), {
       infrastructureConfigurationArn: infra.infrastructureConfigurationArn,
-      distributionConfigurationArn: dist.attrArn,
+      distributionConfigurationArn: dist.distributionConfigurationArn,
       imageRecipeArn,
       containerRecipeArn,
       imageTestsConfiguration: {
@@ -596,7 +588,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     throw new Error('Either imageRecipeArn or containerRecipeArn must be defined');
   }
 
-  protected createPipeline(infra: imagebuilder2.InfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
+  protected createPipeline(infra: imagebuilder2.InfrastructureConfiguration, dist: imagebuilder2.DistributionConfiguration, log: logs.LogGroup,
     imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImagePipeline {
     // set schedule
     let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
@@ -627,7 +619,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       name: uniqueImageBuilderName(this),
       // description: this.description,
       infrastructureConfigurationArn: infra.infrastructureConfigurationArn,
-      distributionConfigurationArn: dist.attrArn,
+      distributionConfigurationArn: dist.distributionConfigurationArn,
       imageRecipeArn,
       containerRecipeArn,
       schedule: scheduleOptions,
@@ -664,11 +656,11 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       requireImdsv2: true,
     });
 
-    const launchTemplateConfigs: imagebuilder.CfnDistributionConfiguration.LaunchTemplateConfigurationProperty[] = [{
-      launchTemplateId: launchTemplate.launchTemplateId,
+    const launchTemplateConfigs: imagebuilder2.LaunchTemplateConfiguration[] = [{
+      launchTemplate: launchTemplate,
       setDefaultVersion: true,
     }];
-    const fastLaunchConfigs: imagebuilder.CfnDistributionConfiguration.FastLaunchConfigurationProperty[] = [];
+    const fastLaunchConfigs: imagebuilder2.FastLaunchConfiguration[] = [];
 
     if (this.fastLaunchOptions?.enabled ?? false) {
       if (!this.os.is(Os.WINDOWS)) {
@@ -716,48 +708,36 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
           }],
         }],
       });
+      const fastLaunchTemplateL2 = ec2.LaunchTemplate.fromLaunchTemplateAttributes(this, 'Fast Launch Template L2', {
+        launchTemplateId: fastLaunchTemplate.ref,
+      });
 
       launchTemplateConfigs.push({
-        launchTemplateId: fastLaunchTemplate.attrLaunchTemplateId,
+        launchTemplate: fastLaunchTemplateL2,
         setDefaultVersion: true,
       });
       fastLaunchConfigs.push({
-        enabled: true,
-        launchTemplate: {
-          launchTemplateId: fastLaunchTemplate.attrLaunchTemplateId,
-        },
+        launchTemplate: fastLaunchTemplateL2,
         maxParallelLaunches: this.fastLaunchOptions?.maxParallelLaunches ?? 6,
-        snapshotConfiguration: {
-          targetResourceCount: this.fastLaunchOptions?.targetResourceCount ?? 1,
-        },
+        targetSnapshotCount: this.fastLaunchOptions?.targetResourceCount ?? 1,
       });
     }
 
     const stackName = cdk.Stack.of(this).stackName;
     const builderName = this.node.path;
 
-    const dist = new imagebuilder.CfnDistributionConfiguration(this, 'AMI Distribution', {
-      name: uniqueImageBuilderName(this),
+    const dist = new imagebuilder2.DistributionConfiguration(this, 'AMI Distribution', {
       // description: this.description,
-      distributions: [
-        {
-          region: Stack.of(this).region,
-          amiDistributionConfiguration: {
-            Name: `${cdk.Names.uniqueResourceName(this, {
-              maxLength: 100,
-              separator: '-',
-              allowedSpecialCharacters: '_-',
-            })}-{{ imagebuilder:buildDate }}`,
-            AmiTags: {
-              'Name': this.node.id,
-              'GitHubRunners:Stack': stackName,
-              'GitHubRunners:Builder': builderName,
-            },
-          },
-          launchTemplateConfigurations: launchTemplateConfigs,
-          fastLaunchConfigurations: fastLaunchConfigs.length > 0 ? fastLaunchConfigs : undefined,
+      amiDistributions: [{
+        region: Stack.of(this).region,
+        amiTags: {
+          'Name': this.node.id,
+          'GitHubRunners:Stack': stackName,
+          'GitHubRunners:Builder': builderName,
         },
-      ],
+        launchTemplates: launchTemplateConfigs,
+        fastLaunchConfigurations: fastLaunchConfigs.length > 0 ? fastLaunchConfigs : undefined,
+      }],
       tags: this.tags,
     });
 

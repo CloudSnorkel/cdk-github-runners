@@ -1982,7 +1982,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "WindowsImageBuilderDockerDistributionCDE69DC2": {
+  "WindowsImageBuilderDockerDistributionE6B7F2F2": {
    "Type": "AWS::ImageBuilder::DistributionConfiguration",
    "Properties": {
     "Distributions": [
@@ -1992,10 +1992,10 @@
         "latest"
        ],
        "TargetRepository": {
-        "Service": "ECR",
         "RepositoryName": {
          "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
-        }
+        },
+        "Service": "ECR"
        }
       },
       "Region": {
@@ -2003,7 +2003,7 @@
       }
      }
     ],
-    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "Name": "github-runners-test-windowsimagebuilder-dockerdistribution-8c41c0cd",
     "Tags": {
      "GitHubRunners:Builder": "github-runners-test/Windows Image Builder",
      "GitHubRunners:Stack": "github-runners-test"
@@ -2338,7 +2338,7 @@
     },
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "WindowsImageBuilderDockerDistributionCDE69DC2",
+      "WindowsImageBuilderDockerDistributionE6B7F2F2",
       "Arn"
      ]
     },
@@ -2505,7 +2505,7 @@
     },
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "WindowsImageBuilderDockerDistributionCDE69DC2",
+      "WindowsImageBuilderDockerDistributionE6B7F2F2",
       "Arn"
      ]
     },
@@ -2691,13 +2691,12 @@
     ]
    }
   },
-  "AMILinuxBuilderAMIDistribution46435AF5": {
+  "AMILinuxBuilderAMIDistribution215F3A5C": {
    "Type": "AWS::ImageBuilder::DistributionConfiguration",
    "Properties": {
     "Distributions": [
      {
       "AmiDistributionConfiguration": {
-       "Name": "github-runners-test-AMILinuxBuilder-67243E6D-{{ imagebuilder:buildDate }}",
        "AmiTags": {
         "Name": "AMI Linux Builder",
         "GitHubRunners:Stack": "github-runners-test",
@@ -2717,7 +2716,7 @@
       }
      }
     ],
-    "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
+    "Name": "github-runners-test-amilinuxbuilder-amidistribution-f27cc043",
     "Tags": {
      "GitHubRunners:Builder": "github-runners-test/AMI Linux Builder",
      "GitHubRunners:Stack": "github-runners-test"
@@ -3172,7 +3171,7 @@
    "Properties": {
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "AMILinuxBuilderAMIDistribution46435AF5",
+      "AMILinuxBuilderAMIDistribution215F3A5C",
       "Arn"
      ]
     },
@@ -3209,7 +3208,7 @@
    "Properties": {
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "AMILinuxBuilderAMIDistribution46435AF5",
+      "AMILinuxBuilderAMIDistribution215F3A5C",
       "Arn"
      ]
     },
@@ -5704,13 +5703,12 @@
     ]
    }
   },
-  "AMILinuxarm64BuilderAMIDistribution2BDAF717": {
+  "AMILinuxarm64BuilderAMIDistributionE6989D01": {
    "Type": "AWS::ImageBuilder::DistributionConfiguration",
    "Properties": {
     "Distributions": [
      {
       "AmiDistributionConfiguration": {
-       "Name": "github-runners-test-AMILinuxarm64Builder-3F449283-{{ imagebuilder:buildDate }}",
        "AmiTags": {
         "Name": "AMI Linux arm64 Builder",
         "GitHubRunners:Stack": "github-runners-test",
@@ -5730,7 +5728,7 @@
       }
      }
     ],
-    "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+    "Name": "github-runners-test-amilinuxarm64builder-amidistribution-64ec726d",
     "Tags": {
      "GitHubRunners:Builder": "github-runners-test/AMI Linux arm64 Builder",
      "GitHubRunners:Stack": "github-runners-test"
@@ -6134,7 +6132,7 @@
    "Properties": {
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "AMILinuxarm64BuilderAMIDistribution2BDAF717",
+      "AMILinuxarm64BuilderAMIDistributionE6989D01",
       "Arn"
      ]
     },
@@ -6171,7 +6169,7 @@
    "Properties": {
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "AMILinuxarm64BuilderAMIDistribution2BDAF717",
+      "AMILinuxarm64BuilderAMIDistributionE6989D01",
       "Arn"
      ]
     },
@@ -6503,13 +6501,12 @@
     ]
    }
   },
-  "WindowsEC2BuilderAMIDistributionC7E428C1": {
+  "WindowsEC2BuilderAMIDistribution6B33DD89": {
    "Type": "AWS::ImageBuilder::DistributionConfiguration",
    "Properties": {
     "Distributions": [
      {
       "AmiDistributionConfiguration": {
-       "Name": "github-runners-test-WindowsEC2Builder-5FAF8285-{{ imagebuilder:buildDate }}",
        "AmiTags": {
         "Name": "Windows EC2 Builder",
         "GitHubRunners:Stack": "github-runners-test",
@@ -6529,7 +6526,7 @@
       }
      }
     ],
-    "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+    "Name": "github-runners-test-windowsec2builder-amidistribution-f20c96b4",
     "Tags": {
      "GitHubRunners:Builder": "github-runners-test/Windows EC2 Builder",
      "GitHubRunners:Stack": "github-runners-test"
@@ -6933,7 +6930,7 @@
    "Properties": {
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "WindowsEC2BuilderAMIDistributionC7E428C1",
+      "WindowsEC2BuilderAMIDistribution6B33DD89",
       "Arn"
      ]
     },
@@ -6970,7 +6967,7 @@
    "Properties": {
     "DistributionConfigurationArn": {
      "Fn::GetAtt": [
-      "WindowsEC2BuilderAMIDistributionC7E428C1",
+      "WindowsEC2BuilderAMIDistribution6B33DD89",
       "Arn"
      ]
     },
@@ -13672,7 +13669,7 @@
     }
    },
    "DependsOn": [
-    "AMILinuxBuilderAMIDistribution46435AF5",
+    "AMILinuxBuilderAMIDistribution215F3A5C",
     "AMILinuxBuilderAMIImage93D83DE5",
     "AMILinuxBuilderAmiLog0DB16E38",
     "AMILinuxBuilderAMIPipelineEC5051DF",
@@ -13905,7 +13902,7 @@
     }
    },
    "DependsOn": [
-    "AMILinuxBuilderAMIDistribution46435AF5",
+    "AMILinuxBuilderAMIDistribution215F3A5C",
     "AMILinuxBuilderAMIImage93D83DE5",
     "AMILinuxBuilderAmiLog0DB16E38",
     "AMILinuxBuilderAMIPipelineEC5051DF",
@@ -14102,7 +14099,7 @@
     }
    },
    "DependsOn": [
-    "AMILinuxarm64BuilderAMIDistribution2BDAF717",
+    "AMILinuxarm64BuilderAMIDistributionE6989D01",
     "AMILinuxarm64BuilderAMIImage40078F9E",
     "AMILinuxarm64BuilderAmiLog84A9D94A",
     "AMILinuxarm64BuilderAMIPipeline9CC1354C",
@@ -14298,7 +14295,7 @@
     }
    },
    "DependsOn": [
-    "WindowsEC2BuilderAMIDistributionC7E428C1",
+    "WindowsEC2BuilderAMIDistribution6B33DD89",
     "WindowsEC2BuilderAMIImage9D812188",
     "WindowsEC2BuilderAmiLog126E54B2",
     "WindowsEC2BuilderAMIPipelineE3836949",
