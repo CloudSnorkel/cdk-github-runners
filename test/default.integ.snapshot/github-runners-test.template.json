@@ -2101,95 +2101,6 @@
     "Version": "1.0.0"
    }
   },
-  "WindowsImageBuilderContainerRecipeVersion13A2E3FD": {
-   "Type": "Custom::ImageBuilder-ContainerRecipe-Version",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E",
-      "Arn"
-     ]
-    },
-    "ObjectType": "ContainerRecipe",
-    "ObjectName": "github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
-    "VersionedData": {
-     "platform": "Windows",
-     "components": [
-      {
-       "componentArn": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderComponent0RequiredPackagesComponentD2E668F3",
-         "Arn"
-        ]
-       }
-      },
-      {
-       "componentArn": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderComponent1RunnerUserComponent0F4D4032",
-         "Arn"
-        ]
-       }
-      },
-      {
-       "componentArn": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderComponent2GitComponent92ACFEF5",
-         "Arn"
-        ]
-       }
-      },
-      {
-       "componentArn": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderComponent3GithubCliComponentF18685D5",
-         "Arn"
-        ]
-       }
-      },
-      {
-       "componentArn": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderComponent4AwsCliComponent6654838D",
-         "Arn"
-        ]
-       }
-      },
-      {
-       "componentArn": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderComponent5GithubRunnerComponentD618D2D1",
-         "Arn"
-        ]
-       }
-      },
-      {
-       "componentArn": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderComponent6CustomUndefinedComponent5A5D8BCD",
-         "Arn"
-        ]
-       }
-      },
-      {
-       "componentArn": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderComponent7EnvironmentVariablesComponent9A931F09",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "dockerfileTemplate": "FROM {{{ imagebuilder:parentImage }}}\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}\nENV RUNNER_VERSION=latest\n",
-     "tags": {
-      "GitHubRunners:Stack": "github-runners-test",
-      "GitHubRunners:Builder": "github-runners-test/Windows Image Builder"
-     }
-    }
-   },
-   "UpdateReplacePolicy": "Retain",
-   "DeletionPolicy": "Retain"
-  },
   "WindowsImageBuilderContainerRecipeB2A421D7": {
    "Type": "AWS::ImageBuilder::ContainerRecipe",
    "Properties": {
@@ -2273,9 +2184,7 @@
      },
      "Service": "ECR"
     },
-    "Version": {
-     "Ref": "WindowsImageBuilderContainerRecipeVersion13A2E3FD"
-    }
+    "Version": "1.0.x"
    }
   },
   "WindowsImageBuilderDockerLogE660E23E": {
@@ -2391,7 +2300,10 @@
        },
        ":image/github-runners-test-windowsimagebuilder-containerrecipe-c577a80b/",
        {
-        "Ref": "WindowsImageBuilderContainerRecipeVersion13A2E3FD"
+        "Fn::GetAtt": [
+         "WindowsImageBuilderContainerRecipeB2A421D7",
+         "Version"
+        ]
        }
       ]
      ]
@@ -2486,7 +2398,10 @@
       {
        "Name": "github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
        "SemanticVersion": {
-        "Ref": "WindowsImageBuilderContainerRecipeVersion13A2E3FD"
+        "Fn::GetAtt": [
+         "WindowsImageBuilderContainerRecipeB2A421D7",
+         "Version"
+        ]
        }
       }
      ]
@@ -8422,99 +8337,6 @@
     "TimeoutInMinutes": 60
    }
   },
-  "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "lambda.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-       ]
-      ]
-     }
-    ]
-   }
-  },
-  "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy93D80BBD": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": [
-        "imagebuilder:ListComponents",
-        "imagebuilder:ListContainerRecipes",
-        "imagebuilder:ListImageRecipes",
-        "imagebuilder:ListWorkflows"
-       ],
-       "Effect": "Allow",
-       "Resource": "*"
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy93D80BBD",
-    "Roles": [
-     {
-      "Ref": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58"
-     }
-    ]
-   }
-  },
-  "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E": {
-   "Type": "AWS::Lambda::Function",
-   "Properties": {
-    "Code": {
-     "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-     },
-     "S3Key": "5d66225428a905928484115cbfa180dd86311011eb453686bcf37b4fe56dd701.zip"
-    },
-    "Description": "Custom resource handler that bumps up Image Builder versions",
-    "Environment": {
-     "Variables": {
-      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
-     }
-    },
-    "Handler": "index.handler",
-    "LoggingConfig": {
-     "LogFormat": "JSON",
-     "LogGroup": {
-      "Ref": "RunnerImageBuildHelpersLog13186633"
-     }
-    },
-    "Role": {
-     "Fn::GetAtt": [
-      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58",
-      "Arn"
-     ]
-    },
-    "Runtime": "nodejs22.x",
-    "Timeout": 300
-   },
-   "DependsOn": [
-    "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy93D80BBD",
-    "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58"
-   ]
-  },
   "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleB6525E5C": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -13698,6 +13520,99 @@
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy93D80BBD": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "imagebuilder:ListComponents",
+        "imagebuilder:ListContainerRecipes",
+        "imagebuilder:ListImageRecipes",
+        "imagebuilder:ListWorkflows"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy93D80BBD",
+    "Roles": [
+     {
+      "Ref": "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58"
+     }
+    ]
+   }
+  },
+  "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1591B871E": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "5d66225428a905928484115cbfa180dd86311011eb453686bcf37b4fe56dd701.zip"
+    },
+    "Description": "Custom resource handler that bumps up Image Builder versions",
+    "Environment": {
+     "Variables": {
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "RunnerImageBuildHelpersLog13186633"
+     }
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Timeout": 300
+   },
+   "DependsOn": [
+    "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy93D80BBD",
+    "awsimagebuilderversionerdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE25C1A58"
+   ]
   },
   "deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F": {
    "Type": "AWS::IAM::Role",

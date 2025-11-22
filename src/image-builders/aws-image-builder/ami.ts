@@ -73,13 +73,6 @@ export class AmiRecipe extends ImageBuilderObjectBase {
     ] : undefined;
 
     this.name = uniqueImageBuilderName(this);
-    this.version = this.generateVersion('ImageRecipe', this.name, {
-      platform: props.platform,
-      components,
-      parentAmi: props.baseAmi,
-      tags: props.tags,
-      blockDeviceMappings,
-    });
 
     let workingDirectory;
     if (props.platform == 'Linux') {
@@ -92,7 +85,7 @@ export class AmiRecipe extends ImageBuilderObjectBase {
 
     const recipe = new imagebuilder.CfnImageRecipe(this, 'Recipe', {
       name: this.name,
-      version: this.version,
+      version: '1.0.x',
       parentImage: props.baseAmi,
       components,
       workingDirectory,
@@ -101,6 +94,7 @@ export class AmiRecipe extends ImageBuilderObjectBase {
     });
 
     this.arn = recipe.attrArn;
+    this.version = recipe.getAtt('Version', cdk.ResolutionTypeHint.STRING).toString();
   }
 }
 

@@ -1,3 +1,4 @@
+import * as cdk from 'aws-cdk-lib';
 import { aws_ecr as ecr, aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './builder';
@@ -70,16 +71,10 @@ export class ContainerRecipe extends ImageBuilderObjectBase {
     });
 
     this.name = uniqueImageBuilderName(this);
-    this.version = this.generateVersion('ContainerRecipe', this.name, {
-      platform: props.platform,
-      components,
-      dockerfileTemplate: props.dockerfileTemplate,
-      tags: props.tags,
-    });
 
     const recipe = new imagebuilder.CfnContainerRecipe(this, 'Recipe', {
       name: this.name,
-      version: this.version,
+      version: '1.0.x',
       parentImage: props.parentImage,
       platformOverride: props.platform == 'Linux' ? 'Linux' : undefined,
       components,
@@ -93,6 +88,7 @@ export class ContainerRecipe extends ImageBuilderObjectBase {
     });
 
     this.arn = recipe.attrArn;
+    this.version = recipe.getAtt('Version', cdk.ResolutionTypeHint.STRING).toString();
   }
 }
 
