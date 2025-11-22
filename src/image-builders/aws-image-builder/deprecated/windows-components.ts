@@ -1,3 +1,4 @@
+import * as imagebuilder2 from '@aws-cdk/aws-imagebuilder-alpha';
 import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Architecture, Os, RunnerVersion } from '../../../providers';
@@ -12,7 +13,7 @@ import { ImageBuilderComponent } from '../builder';
 export class WindowsComponents {
   public static cloudwatchAgent(scope: Construct, id: string) {
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Windows',
+      platform: imagebuilder2.Platform.WINDOWS,
       displayName: 'CloudWatch agent',
       description: 'Install latest version of CloudWatch agent for sending logs to CloudWatch',
       commands: [
@@ -24,7 +25,7 @@ export class WindowsComponents {
 
   public static awsCli(scope: Construct, id: string) {
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Windows',
+      platform: imagebuilder2.Platform.WINDOWS,
       displayName: 'AWS CLI',
       description: 'Install latest version of AWS CLI',
       commands: [
@@ -36,7 +37,7 @@ export class WindowsComponents {
 
   public static githubCli(scope: Construct, id: string) {
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Windows',
+      platform: imagebuilder2.Platform.WINDOWS,
       displayName: 'GitHub CLI',
       description: 'Install latest version of gh',
       commands: [
@@ -53,7 +54,7 @@ export class WindowsComponents {
 
   public static git(scope: Construct, id: string) {
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Windows',
+      platform: imagebuilder2.Platform.WINDOWS,
       displayName: 'Git',
       description: 'Install latest version of git',
       commands: [
@@ -84,7 +85,7 @@ export class WindowsComponents {
     }
 
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Windows',
+      platform: imagebuilder2.Platform.WINDOWS,
       displayName: 'GitHub Actions Runner',
       description: 'Install latest version of GitHub Actions Runner',
       commands: runnerCommands.concat([
@@ -98,7 +99,7 @@ export class WindowsComponents {
 
   public static docker(scope: Construct, id: string) {
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Windows',
+      platform: imagebuilder2.Platform.WINDOWS,
       displayName: 'Docker',
       description: 'Install latest version of Docker',
       commands: RunnerImageComponent.docker().getCommands(Os.WINDOWS, Architecture.X86_64),
@@ -108,7 +109,7 @@ export class WindowsComponents {
 
   public static extraCertificates(scope: Construct, id: string, path: string) {
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Windows',
+      platform: imagebuilder2.Platform.WINDOWS,
       displayName: 'Extra certificates',
       description: 'Install self-signed certificates to provide access to GitHub Enterprise Server',
       commands: [

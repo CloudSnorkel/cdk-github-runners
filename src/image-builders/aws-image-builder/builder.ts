@@ -114,7 +114,7 @@ export interface ImageBuilderComponentProperties {
   /**
    * Component platform. Must match the builder platform.
    */
-  readonly platform: 'Linux' | 'Windows';
+  readonly platform: imagebuilder2.Platform;
 
   /**
    * Component display name.
@@ -174,7 +174,7 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
   /**
    * Supported platform for the component.
    */
-  public readonly platform: 'Windows' | 'Linux';
+  public readonly platform: imagebuilder2.Platform;
 
   private readonly assets: s3_assets.Asset[] = [];
 
@@ -182,6 +182,8 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
     super(scope, id);
 
     this.platform = props.platform;
+    const execAction = props.platform === imagebuilder2.Platform.LINUX ?
+      imagebuilder2.ComponentAction.EXECUTE_BASH : imagebuilder2.ComponentAction.EXECUTE_POWERSHELL;
 
     let steps: any[] = [];
 
@@ -201,7 +203,7 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
             source: asset.asset.s3ObjectUrl,
             destination: `${asset.path}.zip`,
           });
-          if (props.platform === 'Windows') {
+          if (props.platform === imagebuilder2.Platform.WINDOWS) {
             extractCommands.push(`Expand-Archive "${asset.path}.zip" -DestinationPath "${asset.path}"`);
             extractCommands.push(`del "${asset.path}.zip"`);
           } else {
@@ -215,14 +217,14 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
 
       steps.push({
         name: 'Download',
-        action: 'S3Download',
+        action: imagebuilder2.ComponentAction.S3_DOWNLOAD,
         inputs,
       });
 
       if (extractCommands.length > 0) {
         steps.push({
           name: 'Extract',
-          action: props.platform === 'Linux' ? 'ExecuteBash' : 'ExecutePowerShell',
+          action: execAction,
           inputs: {
             commands: this.prefixCommandsWithErrorHandling(props.platform, extractCommands),
           },
@@ -233,7 +235,7 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
     if (props.commands.length > 0) {
       steps.push({
         name: 'Run',
-        action: props.platform === 'Linux' ? 'ExecuteBash' : 'ExecutePowerShell',
+        action: execAction,
         inputs: {
           commands: this.prefixCommandsWithErrorHandling(props.platform, props.commands),
         },
@@ -243,36 +245,29 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
     if (props.reboot ?? false) {
       steps.push({
         name: 'Reboot',
-        action: 'Reboot',
+        action: imagebuilder2.ComponentAction.REBOOT,
         inputs: {},
       });
     }
 
     const data = {
       name: props.displayName,
-      schemaVersion: '1.0',
+      schemaVersion: imagebuilder2.ComponentSchemaVersion.V1_0,
       phases: [
         {
-          name: 'build',
+          name: imagebuilder2.ComponentPhaseName.BUILD,
           steps,
         },
       ],
     };
 
-    const name = uniqueImageBuilderName(this);
-    const component = new imagebuilder.CfnComponent(this, 'Component', {
-      name: name,
+    const component = new imagebuilder2.Component(this, 'Component', {
       description: props.description,
       platform: props.platform,
-      version: this.generateVersion('Component', name, {
-        platform: props.platform,
-        data,
-        description: props.description,
-      }),
-      data: JSON.stringify(data),
+      data: imagebuilder2.ComponentData.fromJsonObject(data),
     });
 
-    this.arn = component.attrArn;
+    this.arn = component.componentArn;
   }
 
   /**
@@ -286,8 +281,8 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
     }
   }
 
-  prefixCommandsWithErrorHandling(platform: 'Windows' | 'Linux', commands: string[]) {
-    if (platform == 'Windows') {
+  prefixCommandsWithErrorHandling(platform: imagebuilder2.Platform, commands: string[]) {
+    if (platform == imagebuilder2.Platform.WINDOWS) {
       return [
         '$ErrorActionPreference = \'Stop\'',
         '$ProgressPreference = \'SilentlyContinue\'',
