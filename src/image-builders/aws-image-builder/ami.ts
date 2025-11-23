@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './builder';
-import { ImageBuilderObjectBase } from './common';
 import { amiRootDevice, Architecture, Os } from '../../providers';
 import { uniqueImageBuilderName } from '../common';
 
@@ -48,7 +47,7 @@ interface AmiRecipeProperties {
  *
  * @internal
  */
-export class AmiRecipe extends ImageBuilderObjectBase {
+export class AmiRecipe extends cdk.Resource {
   public readonly arn: string;
   public readonly name: string;
   public readonly version: string;

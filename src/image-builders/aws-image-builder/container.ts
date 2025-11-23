@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_ecr as ecr, aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './builder';
-import { ImageBuilderObjectBase } from './common';
 import { Os } from '../../providers';
 import { uniqueImageBuilderName } from '../common';
 
@@ -56,7 +55,7 @@ export interface ContainerRecipeProperties {
  *
  * @internal
  */
-export class ContainerRecipe extends ImageBuilderObjectBase {
+export class ContainerRecipe extends cdk.Resource {
   public readonly arn: string;
   public readonly name: string;
   public readonly version: string;

@@ -1,6 +1,6 @@
+import * as cdk from 'aws-cdk-lib';
 import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { ImageBuilderObjectBase } from './common';
 import { uniqueImageBuilderName } from '../common';
 
 /**
@@ -25,23 +25,18 @@ export interface WorkflowProperties {
  *
  * @internal
  */
-export class Workflow extends ImageBuilderObjectBase {
+export class Workflow extends cdk.Resource {
   public readonly arn: string;
   public readonly name: string;
-  public readonly version: string;
 
   constructor(scope: Construct, id: string, props: WorkflowProperties) {
     super(scope, id);
 
     this.name = uniqueImageBuilderName(this);
-    this.version = this.generateVersion('Workflow', this.name, {
-      type: props.type,
-      data: props.data,
-    });
 
     const workflow = new imagebuilder.CfnWorkflow(this, 'Workflow', {
       name: uniqueImageBuilderName(this),
-      version: this.version,
+      version: '1.0.x',
       type: props.type,
       data: JSON.stringify(props.data),
     });
