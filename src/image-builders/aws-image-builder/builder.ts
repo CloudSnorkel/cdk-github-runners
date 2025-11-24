@@ -21,7 +21,7 @@ import { TagMutability } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
 import { AmiRecipe, defaultBaseAmi } from './ami';
-import { ContainerRecipe, defaultBaseDockerImage } from './container';
+import { defaultBaseDockerImage } from './container';
 import { DeleteResourcesFunction } from './delete-resources-function';
 import { DeleteResourcesProps } from './delete-resources.lambda';
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
@@ -369,10 +369,10 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
 
   private platform() {
     if (this.os.is(Os.WINDOWS)) {
-      return 'Windows';
+      return imagebuilder2.Platform.WINDOWS;
     }
     if (this.os.isIn(Os._ALL_LINUX_VERSIONS)) {
-      return 'Linux';
+      return imagebuilder2.Platform.LINUX;
     }
     throw new Error(`OS ${this.os.name} is not supported by AWS Image Builder`);
   }
@@ -414,27 +414,29 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       }
     }
 
-    const recipe = new ContainerRecipe(this, 'Container Recipe', {
-      platform: this.platform(),
-      components: this.bindComponents(),
-      targetRepository: repository,
-      dockerfileTemplate: dockerfileTemplate,
-      parentImage: this.baseImage,
+    const recipe = new imagebuilder2.ContainerRecipe(this, 'Recipe', {
+      baseImage: imagebuilder2.BaseContainerImage.fromString(this.baseImage),
+      osVersion: this.os.isIn(Os._ALL_LINUX_VERSIONS) ? imagebuilder2.OSVersion.LINUX : undefined,
+      components: this.bindComponents().map(c => {
+        return { component: c.component };
+      }),
+      targetRepository: imagebuilder2.Repository.fromEcr(repository),
+      dockerfile: imagebuilder2.DockerfileData.fromInline(dockerfileTemplate),
       tags: this.tags,
     });
 
-    const log = this.createLog('Docker Log', recipe.name);
+    const log = this.createLog('Docker Log', recipe.containerRecipeName);
     const infra = this.createInfrastructure([
       iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilderECRContainerBuilds'),
     ]);
 
     if (this.waitOnDeploy) {
-      this.createImage(infra, dist, log, undefined, recipe.arn);
+      this.createImage(infra, dist, log, undefined, recipe.containerRecipeArn);
     }
     this.dockerImageCleaner(recipe, repository);
 
-    this.createPipeline(infra, dist, log, undefined, recipe.arn);
+    this.createPipeline(infra, dist, log, undefined, recipe.containerRecipeArn);
 
     this.boundDockerImage = {
       imageRepository: repository,
@@ -449,7 +451,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return this.boundDockerImage;
   }
 
-  private dockerImageCleaner(recipe: ContainerRecipe, repository: ecr.IRepository) {
+  private dockerImageCleaner(recipe: imagebuilder2.ContainerRecipe, repository: ecr.IRepository) {
     // this is here to provide safe upgrade from old cdk-github-runners versions
     // this lambda was used by a custom resource to delete all images builds on cleanup
     // if we remove the custom resource and the lambda, the old images will be deleted on update
@@ -467,7 +469,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     }));
 
     // delete old version on update and on stack deletion
-    this.imageCleaner('Container', recipe.name, recipe.version);
+    this.imageCleaner('Container', recipe.containerRecipeName, recipe.containerRecipeVersion);
 
     // delete old docker images + IB resources daily
     new imagebuilder.CfnLifecyclePolicy(this, 'Lifecycle Policy Docker', {
@@ -510,8 +512,8 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       resourceSelection: {
         recipes: [
           {
-            name: recipe.name,
-            semanticVersion: recipe.version,
+            name: recipe.containerRecipeName,
+            semanticVersion: recipe.containerRecipeVersion,
           },
         ],
       },

@@ -2101,7 +2101,7 @@
     "Version": "1.0.0"
    }
   },
-  "WindowsImageBuilderContainerRecipeA75D476F": {
+  "WindowsImageBuilderRecipeB7F00629": {
    "Type": "AWS::ImageBuilder::ContainerRecipe",
    "Properties": {
     "Components": [
@@ -2172,7 +2172,7 @@
     ],
     "ContainerType": "DOCKER",
     "DockerfileTemplateData": "FROM {{{ imagebuilder:parentImage }}}\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}\nENV RUNNER_VERSION=latest\n",
-    "Name": "github-runners-test-windowsimagebuilder-containerrecipe-f13be2cc",
+    "Name": "github-runners-test-windowsimagebuilder-recipe-f7042c5a",
     "ParentImage": "mcr.microsoft.com/windows/servercore:ltsc2019-amd64",
     "Tags": {
      "GitHubRunners:Builder": "github-runners-test/Windows Image Builder",
@@ -2197,7 +2197,7 @@
        "/aws/imagebuilder/",
        {
         "Fn::GetAtt": [
-         "WindowsImageBuilderContainerRecipeA75D476F",
+         "WindowsImageBuilderRecipeB7F00629",
          "Name"
         ]
        }
@@ -2254,7 +2254,7 @@
    "Properties": {
     "ContainerRecipeArn": {
      "Fn::GetAtt": [
-      "WindowsImageBuilderContainerRecipeA75D476F",
+      "WindowsImageBuilderRecipeB7F00629",
       "Arn"
      ]
     },
@@ -2314,14 +2314,14 @@
        ":image/",
        {
         "Fn::GetAtt": [
-         "WindowsImageBuilderContainerRecipeA75D476F",
+         "WindowsImageBuilderRecipeB7F00629",
          "Name"
         ]
        },
        "/",
        {
         "Fn::GetAtt": [
-         "WindowsImageBuilderContainerRecipeA75D476F",
+         "WindowsImageBuilderRecipeB7F00629",
          "Version"
         ]
        }
@@ -2418,13 +2418,13 @@
       {
        "Name": {
         "Fn::GetAtt": [
-         "WindowsImageBuilderContainerRecipeA75D476F",
+         "WindowsImageBuilderRecipeB7F00629",
          "Name"
         ]
        },
        "SemanticVersion": {
         "Fn::GetAtt": [
-         "WindowsImageBuilderContainerRecipeA75D476F",
+         "WindowsImageBuilderRecipeB7F00629",
          "Version"
         ]
        }
@@ -2439,7 +2439,7 @@
    "Properties": {
     "ContainerRecipeArn": {
      "Fn::GetAtt": [
-      "WindowsImageBuilderContainerRecipeA75D476F",
+      "WindowsImageBuilderRecipeB7F00629",
       "Arn"
      ]
     },
