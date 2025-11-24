@@ -603,7 +603,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     let executionRole: iam.IRole | undefined;
     if (this.dockerSetupCommands.length > 0) {
       workflows = [{
-        workflowArn: generateBuildWorkflowWithDockerSetupCommands(this, 'Build', this.dockerSetupCommands).arn,
+        workflowArn: generateBuildWorkflowWithDockerSetupCommands(this, 'Build', this.dockerSetupCommands).workflowArn,
       }];
       executionRole = iam.Role.fromRoleArn(this, 'Image Builder Role', cdk.Stack.of(this).formatArn({
         service: 'iam',
