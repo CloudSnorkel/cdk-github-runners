@@ -2101,7 +2101,7 @@
     "Version": "1.0.0"
    }
   },
-  "WindowsImageBuilderContainerRecipeB2A421D7": {
+  "WindowsImageBuilderContainerRecipeA75D476F": {
    "Type": "AWS::ImageBuilder::ContainerRecipe",
    "Properties": {
     "Components": [
@@ -2172,7 +2172,7 @@
     ],
     "ContainerType": "DOCKER",
     "DockerfileTemplateData": "FROM {{{ imagebuilder:parentImage }}}\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}\nENV RUNNER_VERSION=latest\n",
-    "Name": "github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
+    "Name": "github-runners-test-windowsimagebuilder-containerrecipe-f13be2cc",
     "ParentImage": "mcr.microsoft.com/windows/servercore:ltsc2019-amd64",
     "Tags": {
      "GitHubRunners:Builder": "github-runners-test/Windows Image Builder",
@@ -2190,7 +2190,20 @@
   "WindowsImageBuilderDockerLogE660E23E": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "LogGroupName": "/aws/imagebuilder/github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/imagebuilder/",
+       {
+        "Fn::GetAtt": [
+         "WindowsImageBuilderContainerRecipeA75D476F",
+         "Name"
+        ]
+       }
+      ]
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -2241,7 +2254,7 @@
    "Properties": {
     "ContainerRecipeArn": {
      "Fn::GetAtt": [
-      "WindowsImageBuilderContainerRecipeB2A421D7",
+      "WindowsImageBuilderContainerRecipeA75D476F",
       "Arn"
      ]
     },
@@ -2298,10 +2311,17 @@
        {
         "Ref": "AWS::AccountId"
        },
-       ":image/github-runners-test-windowsimagebuilder-containerrecipe-c577a80b/",
+       ":image/",
        {
         "Fn::GetAtt": [
-         "WindowsImageBuilderContainerRecipeB2A421D7",
+         "WindowsImageBuilderContainerRecipeA75D476F",
+         "Name"
+        ]
+       },
+       "/",
+       {
+        "Fn::GetAtt": [
+         "WindowsImageBuilderContainerRecipeA75D476F",
          "Version"
         ]
        }
@@ -2396,10 +2416,15 @@
     "ResourceSelection": {
      "Recipes": [
       {
-       "Name": "github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
+       "Name": {
+        "Fn::GetAtt": [
+         "WindowsImageBuilderContainerRecipeA75D476F",
+         "Name"
+        ]
+       },
        "SemanticVersion": {
         "Fn::GetAtt": [
-         "WindowsImageBuilderContainerRecipeB2A421D7",
+         "WindowsImageBuilderContainerRecipeA75D476F",
          "Version"
         ]
        }
@@ -2414,7 +2439,7 @@
    "Properties": {
     "ContainerRecipeArn": {
      "Fn::GetAtt": [
-      "WindowsImageBuilderContainerRecipeB2A421D7",
+      "WindowsImageBuilderContainerRecipeA75D476F",
       "Arn"
      ]
     },
@@ -2778,7 +2803,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "AMILinuxBuilderAmiRecipe7C7ED6C7": {
+  "AMILinuxBuilderAmiRecipeB7CF9599": {
    "Type": "AWS::ImageBuilder::ImageRecipe",
    "Properties": {
     "BlockDeviceMappings": [
@@ -2874,7 +2899,7 @@
       }
      }
     ],
-    "Name": "github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
+    "Name": "github-runners-test-amilinuxbuilder-amirecipe-711bc2a3",
     "ParentImage": {
      "Fn::Join": [
       "",
@@ -2902,7 +2927,20 @@
   "AMILinuxBuilderAmiLog0DB16E38": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "LogGroupName": "/aws/imagebuilder/github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/imagebuilder/",
+       {
+        "Fn::GetAtt": [
+         "AMILinuxBuilderAmiRecipeB7CF9599",
+         "Name"
+        ]
+       }
+      ]
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -2959,7 +2997,7 @@
     },
     "ImageRecipeArn": {
      "Fn::GetAtt": [
-      "AMILinuxBuilderAmiRecipe7C7ED6C7",
+      "AMILinuxBuilderAmiRecipeB7CF9599",
       "Arn"
      ]
     },
@@ -2996,7 +3034,7 @@
     },
     "ImageRecipeArn": {
      "Fn::GetAtt": [
-      "AMILinuxBuilderAmiRecipe7C7ED6C7",
+      "AMILinuxBuilderAmiRecipeB7CF9599",
       "Arn"
      ]
     },
@@ -3050,10 +3088,17 @@
        {
         "Ref": "AWS::AccountId"
        },
-       ":image/github-runners-test-amilinuxbuilder-amirecipe-2b5c5a8b/",
+       ":image/",
        {
         "Fn::GetAtt": [
-         "AMILinuxBuilderAmiRecipe7C7ED6C7",
+         "AMILinuxBuilderAmiRecipeB7CF9599",
+         "Name"
+        ]
+       },
+       "/",
+       {
+        "Fn::GetAtt": [
+         "AMILinuxBuilderAmiRecipeB7CF9599",
          "Version"
         ]
        }
@@ -3158,10 +3203,15 @@
     "ResourceSelection": {
      "Recipes": [
       {
-       "Name": "github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
+       "Name": {
+        "Fn::GetAtt": [
+         "AMILinuxBuilderAmiRecipeB7CF9599",
+         "Name"
+        ]
+       },
        "SemanticVersion": {
         "Fn::GetAtt": [
-         "AMILinuxBuilderAmiRecipe7C7ED6C7",
+         "AMILinuxBuilderAmiRecipeB7CF9599",
          "Version"
         ]
        }
@@ -5634,7 +5684,7 @@
     "Version": "1.0.0"
    }
   },
-  "AMILinuxarm64BuilderAmiRecipe6A6ED38F": {
+  "AMILinuxarm64BuilderAmiRecipe4287E320": {
    "Type": "AWS::ImageBuilder::ImageRecipe",
    "Properties": {
     "Components": [
@@ -5719,7 +5769,7 @@
       }
      }
     ],
-    "Name": "github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
+    "Name": "github-runners-test-amilinuxarm64builder-amirecipe-841295f9",
     "ParentImage": {
      "Fn::Join": [
       "",
@@ -5747,7 +5797,20 @@
   "AMILinuxarm64BuilderAmiLog84A9D94A": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "LogGroupName": "/aws/imagebuilder/github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/imagebuilder/",
+       {
+        "Fn::GetAtt": [
+         "AMILinuxarm64BuilderAmiRecipe4287E320",
+         "Name"
+        ]
+       }
+      ]
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -5804,7 +5867,7 @@
     },
     "ImageRecipeArn": {
      "Fn::GetAtt": [
-      "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
+      "AMILinuxarm64BuilderAmiRecipe4287E320",
       "Arn"
      ]
     },
@@ -5841,7 +5904,7 @@
     },
     "ImageRecipeArn": {
      "Fn::GetAtt": [
-      "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
+      "AMILinuxarm64BuilderAmiRecipe4287E320",
       "Arn"
      ]
     },
@@ -5895,10 +5958,17 @@
        {
         "Ref": "AWS::AccountId"
        },
-       ":image/github-runners-test-amilinuxarm64builder-amirecipe-9167b5ef/",
+       ":image/",
        {
         "Fn::GetAtt": [
-         "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
+         "AMILinuxarm64BuilderAmiRecipe4287E320",
+         "Name"
+        ]
+       },
+       "/",
+       {
+        "Fn::GetAtt": [
+         "AMILinuxarm64BuilderAmiRecipe4287E320",
          "Version"
         ]
        }
@@ -6003,10 +6073,15 @@
     "ResourceSelection": {
      "Recipes": [
       {
-       "Name": "github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
+       "Name": {
+        "Fn::GetAtt": [
+         "AMILinuxarm64BuilderAmiRecipe4287E320",
+         "Name"
+        ]
+       },
        "SemanticVersion": {
         "Fn::GetAtt": [
-         "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
+         "AMILinuxarm64BuilderAmiRecipe4287E320",
          "Version"
         ]
        }
@@ -6316,7 +6391,7 @@
     "Version": "1.0.0"
    }
   },
-  "WindowsEC2BuilderAmiRecipe41A137FF": {
+  "WindowsEC2BuilderAmiRecipe9D687A09": {
    "Type": "AWS::ImageBuilder::ImageRecipe",
    "Properties": {
     "Components": [
@@ -6401,7 +6476,7 @@
       }
      }
     ],
-    "Name": "github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
+    "Name": "github-runners-test-windowsec2builder-amirecipe-a290749e",
     "ParentImage": {
      "Fn::Join": [
       "",
@@ -6429,7 +6504,20 @@
   "WindowsEC2BuilderAmiLog126E54B2": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
-    "LogGroupName": "/aws/imagebuilder/github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/imagebuilder/",
+       {
+        "Fn::GetAtt": [
+         "WindowsEC2BuilderAmiRecipe9D687A09",
+         "Name"
+        ]
+       }
+      ]
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -6486,7 +6574,7 @@
     },
     "ImageRecipeArn": {
      "Fn::GetAtt": [
-      "WindowsEC2BuilderAmiRecipe41A137FF",
+      "WindowsEC2BuilderAmiRecipe9D687A09",
       "Arn"
      ]
     },
@@ -6523,7 +6611,7 @@
     },
     "ImageRecipeArn": {
      "Fn::GetAtt": [
-      "WindowsEC2BuilderAmiRecipe41A137FF",
+      "WindowsEC2BuilderAmiRecipe9D687A09",
       "Arn"
      ]
     },
@@ -6577,10 +6665,17 @@
        {
         "Ref": "AWS::AccountId"
        },
-       ":image/github-runners-test-windowsec2builder-amirecipe-beda5750/",
+       ":image/",
        {
         "Fn::GetAtt": [
-         "WindowsEC2BuilderAmiRecipe41A137FF",
+         "WindowsEC2BuilderAmiRecipe9D687A09",
+         "Name"
+        ]
+       },
+       "/",
+       {
+        "Fn::GetAtt": [
+         "WindowsEC2BuilderAmiRecipe9D687A09",
          "Version"
         ]
        }
@@ -6685,10 +6780,15 @@
     "ResourceSelection": {
      "Recipes": [
       {
-       "Name": "github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
+       "Name": {
+        "Fn::GetAtt": [
+         "WindowsEC2BuilderAmiRecipe9D687A09",
+         "Name"
+        ]
+       },
        "SemanticVersion": {
         "Fn::GetAtt": [
-         "WindowsEC2BuilderAmiRecipe41A137FF",
+         "WindowsEC2BuilderAmiRecipe9D687A09",
          "Version"
         ]
        }
@@ -13137,7 +13237,7 @@
     "AMILinuxBuilderAmiLog0DB16E38",
     "AMILinuxBuilderAMIPipelineEC5051DF",
     "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374",
-    "AMILinuxBuilderAmiRecipe7C7ED6C7",
+    "AMILinuxBuilderAmiRecipeB7CF9599",
     "AMILinuxBuilderComponent0RequiredPackagesComponent74077CC6",
     "AMILinuxBuilderComponent1CloudWatchAgentComponentE997701A",
     "AMILinuxBuilderComponent2RunnerUserComponentCDE71073",
@@ -13369,7 +13469,7 @@
     "AMILinuxBuilderAmiLog0DB16E38",
     "AMILinuxBuilderAMIPipelineEC5051DF",
     "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374",
-    "AMILinuxBuilderAmiRecipe7C7ED6C7",
+    "AMILinuxBuilderAmiRecipeB7CF9599",
     "AMILinuxBuilderComponent0RequiredPackagesComponent74077CC6",
     "AMILinuxBuilderComponent1CloudWatchAgentComponentE997701A",
     "AMILinuxBuilderComponent2RunnerUserComponentCDE71073",
@@ -13564,7 +13664,7 @@
     "AMILinuxarm64BuilderAMIImage40078F9E",
     "AMILinuxarm64BuilderAmiLog84A9D94A",
     "AMILinuxarm64BuilderAMIPipeline9CC1354C",
-    "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
+    "AMILinuxarm64BuilderAmiRecipe4287E320",
     "AMILinuxarm64BuilderComponent0RequiredPackagesComponentBADF7D60",
     "AMILinuxarm64BuilderComponent1CloudWatchAgentComponentC4EC4BFB",
     "AMILinuxarm64BuilderComponent2RunnerUserComponent50218DEA",
@@ -13759,7 +13859,7 @@
     "WindowsEC2BuilderAMIImage9D812188",
     "WindowsEC2BuilderAmiLog126E54B2",
     "WindowsEC2BuilderAMIPipelineE3836949",
-    "WindowsEC2BuilderAmiRecipe41A137FF",
+    "WindowsEC2BuilderAmiRecipe9D687A09",
     "WindowsEC2BuilderComponent0RequiredPackagesComponentC058987B",
     "WindowsEC2BuilderComponent1CloudWatchAgentComponent7BB918AA",
     "WindowsEC2BuilderComponent2RunnerUserComponentDF4429CD",

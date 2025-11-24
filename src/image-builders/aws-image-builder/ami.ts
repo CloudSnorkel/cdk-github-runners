@@ -1,9 +1,8 @@
+import * as imagebuilder2 from '@aws-cdk/aws-imagebuilder-alpha';
 import * as cdk from 'aws-cdk-lib';
-import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './builder';
 import { amiRootDevice, Architecture, Os } from '../../providers';
-import { uniqueImageBuilderName } from '../common';
 
 /**
  * Properties for AmiRecipe construct.
@@ -57,21 +56,21 @@ export class AmiRecipe extends cdk.Resource {
 
     let components = props.components.map(component => {
       return {
-        componentArn: component.arn,
+        component: component.component,
       };
     });
 
     const blockDeviceMappings = props.storageSize ? [
       {
         deviceName: amiRootDevice(this, props.baseAmi).ref,
-        ebs: {
-          volumeSize: props.storageSize.toGibibytes(),
-          deleteOnTermination: true,
+        volume: {
+          ebsDevice: {
+            volumeSize: props.storageSize.toGibibytes(),
+            deleteOnTermination: true,
+          },
         },
       },
     ] : undefined;
-
-    this.name = uniqueImageBuilderName(this);
 
     let workingDirectory;
     if (props.platform == 'Linux') {
@@ -82,18 +81,17 @@ export class AmiRecipe extends cdk.Resource {
       throw new Error(`Unsupported AMI recipe platform: ${props.platform}`);
     }
 
-    const recipe = new imagebuilder.CfnImageRecipe(this, 'Recipe', {
-      name: this.name,
-      version: '1.0.x',
-      parentImage: props.baseAmi,
+    const recipe = new imagebuilder2.ImageRecipe(this, 'Recipe', {
+      baseImage: imagebuilder2.BaseImage.fromAmiId(props.baseAmi),
       components,
       workingDirectory,
       tags: props.tags,
-      blockDeviceMappings,
+      blockDevices: blockDeviceMappings,
     });
 
-    this.arn = recipe.attrArn;
-    this.version = recipe.getAtt('Version', cdk.ResolutionTypeHint.STRING).toString();
+    this.arn = recipe.imageRecipeArn;
+    this.name = recipe.imageRecipeName;
+    this.version = recipe.imageRecipeVersion;
   }
 }
 

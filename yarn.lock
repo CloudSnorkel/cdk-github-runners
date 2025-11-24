@@ -23,10 +23,10 @@
   resolved "https://registry.yarnpkg.com/@aws-cdk/asset-node-proxy-agent-v6/-/asset-node-proxy-agent-v6-2.1.0.tgz#6d3c7860354d4856a7e75375f2f0ecab313b4989"
   integrity sha512-7bY3J8GCVxLupn/kNmpPc5VJz8grx+4RKfnnJiO1LG+uxkZfANZG3RMHhE+qQxxwkyQ9/MfPtTpf748UhR425A==
 
-"@aws-cdk/aws-imagebuilder-alpha@2.227.0-alpha.0":
-  version "2.227.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-imagebuilder-alpha/-/aws-imagebuilder-alpha-2.227.0-alpha.0.tgz#e3f50636068533139af5ccd0e0195752772d2449"
-  integrity sha512-1NcqF0hcHhj0wEpgXhvI0L9OsfzIbuF9PRSWtSy+hgcsV0nQvXTpsZoah9ymXxKMjAdlHq8WrMct9FIrlShpSA==
+"@aws-cdk/aws-imagebuilder-alpha@2.229.0-alpha.0":
+  version "2.229.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-imagebuilder-alpha/-/aws-imagebuilder-alpha-2.229.0-alpha.0.tgz#fa2718bf2b23615b8d0b57932f983b5e90a3b5b0"
+  integrity sha512-CiYwWHuHT6MwuV2LrZ1aWdva4LPrB0Dk//niglJ+RakDIKbO1lQmHvtpqD8civTr/n3jCU+ECh+TheEbxmvRqw==
   dependencies:
     yaml "1.10.2"
 
@@ -3270,10 +3270,10 @@ available-typed-arrays@^1.0.7:
   dependencies:
     possible-typed-array-names "^1.0.0"
 
-aws-cdk-lib@2.227.0:
-  version "2.227.0"
-  resolved "https://registry.yarnpkg.com/aws-cdk-lib/-/aws-cdk-lib-2.227.0.tgz#e6cc5c84f3acecd2019d5c92944c27f38e8bcb77"
-  integrity sha512-55zrZrlmtV9IDwciqrqBfy4lV/ZbwZY4nKQosjKJmWC+Y+DYQbK3qO/NbaoeywNFxM5xHZ/bNFYdWqKXNkImWQ==
+aws-cdk-lib@2.229.0:
+  version "2.229.0"
+  resolved "https://registry.yarnpkg.com/aws-cdk-lib/-/aws-cdk-lib-2.229.0.tgz#31ea6ce6aeb478676ffedfa21201976747afcb34"
+  integrity sha512-Wsopzi0rf5oWxv+GDhO8+OYEsu2CAj+uuYxSqTO4LYqRsHoWCepWHK7q4tUFBRzo/j2YcVh2ezuSlaSA+41kQw==
   dependencies:
     "@aws-cdk/asset-awscli-v1" "2.2.242"
     "@aws-cdk/asset-node-proxy-agent-v6" "^2.1.0"

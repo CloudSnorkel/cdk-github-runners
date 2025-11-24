@@ -166,9 +166,11 @@ export interface ImageBuilderComponentProperties {
  */
 export class ImageBuilderComponent extends cdk.Resource {
   /**
-   * Component ARN.
+   * Actual component resource.
+   *
+   * TODO replace this whole class with the new resource
    */
-  public readonly arn: string;
+  public readonly component: imagebuilder2.Component;
 
   /**
    * Supported platform for the component.
@@ -260,13 +262,11 @@ export class ImageBuilderComponent extends cdk.Resource {
       ],
     };
 
-    const component = new imagebuilder2.Component(this, 'Component', {
+    this.component = new imagebuilder2.Component(this, 'Component', {
       description: props.description,
       platform: props.platform,
       data: imagebuilder2.ComponentData.fromJsonObject(data),
     });
-
-    this.arn = component.componentArn;
   }
 
   /**
@@ -467,7 +467,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     }));
 
     // delete old version on update and on stack deletion
-    this.imageCleaner('Container', recipe.name.toLowerCase(), recipe.version);
+    this.imageCleaner('Container', recipe.name, recipe.version);
 
     // delete old docker images + IB resources daily
     new imagebuilder.CfnLifecyclePolicy(this, 'Lifecycle Policy Docker', {
@@ -799,7 +799,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     }
 
     // delete old version on update and on stack deletion
-    this.imageCleaner('Image', recipe.name.toLowerCase(), recipe.version);
+    this.imageCleaner('Image', recipe.name, recipe.version);
 
     // delete old AMIs + IB resources daily
     new imagebuilder.CfnLifecyclePolicy(this, 'Lifecycle Policy AMI', {
@@ -953,4 +953,15 @@ export class AwsImageBuilderFailedBuildNotifier implements cdk.IAspect {
       }
     }
   }
+
+  // TODO
+  // {
+  //     "detail-type": ["EC2 Image Builder Image State Change"],
+  //     "source": ["aws.imagebuilder"],
+  //     "detail": {
+  //         "state": {
+  //             "status": ["FAILED"]
+  //         }
+  //     }
+  // }
 }

@@ -1,9 +1,9 @@
+import * as imagebuilder2 from '@aws-cdk/aws-imagebuilder-alpha';
 import * as cdk from 'aws-cdk-lib';
-import { aws_ecr as ecr, aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
+import { aws_ecr as ecr } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './builder';
 import { Os } from '../../providers';
-import { uniqueImageBuilderName } from '../common';
 
 /**
  * Properties for ContainerRecipe construct.
@@ -63,31 +63,21 @@ export class ContainerRecipe extends cdk.Resource {
   constructor(scope: Construct, id: string, props: ContainerRecipeProperties) {
     super(scope, id);
 
-    let components = props.components.map(component => {
-      return {
-        componentArn: component.arn,
-      };
-    });
-
-    this.name = uniqueImageBuilderName(this);
-
-    const recipe = new imagebuilder.CfnContainerRecipe(this, 'Recipe', {
-      name: this.name,
-      version: '1.0.x',
-      parentImage: props.parentImage,
-      platformOverride: props.platform == 'Linux' ? 'Linux' : undefined,
-      components,
-      containerType: 'DOCKER',
-      targetRepository: {
-        service: 'ECR',
-        repositoryName: props.targetRepository.repositoryName,
-      },
-      dockerfileTemplateData: props.dockerfileTemplate,
+    const recipe = new imagebuilder2.ContainerRecipe(this, 'Recipe', {
+      baseImage: imagebuilder2.BaseContainerImage.fromString(props.parentImage),
+      osVersion: props.platform == 'Linux' ? imagebuilder2.OSVersion.LINUX : undefined,
+      components: props.components.map(c => {
+        return { component: c.component };
+      }),
+      // containerType: 'DOCKER',
+      targetRepository: imagebuilder2.Repository.fromEcr(props.targetRepository),
+      dockerfile: imagebuilder2.DockerfileData.fromInline(props.dockerfileTemplate),
       tags: props.tags,
     });
 
-    this.arn = recipe.attrArn;
-    this.version = recipe.getAtt('Version', cdk.ResolutionTypeHint.STRING).toString();
+    this.arn = recipe.containerRecipeArn;
+    this.name = recipe.containerRecipeName;
+    this.version = recipe.containerRecipeVersion;
   }
 }
 
