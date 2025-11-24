@@ -621,7 +621,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     // generate workflows, if needed
     let workflows: imagebuilder.CfnImagePipeline.WorkflowConfigurationProperty[] | undefined;
     let executionRole: iam.IRole | undefined;
-    if (this.dockerSetupCommands.length > 0) {
+    if (this.dockerSetupCommands.length > 0 && containerRecipeArn) {
       workflows = [{
         workflowArn: generateBuildWorkflowWithDockerSetupCommands(this, 'Build', this.dockerSetupCommands).arn,
       }];
