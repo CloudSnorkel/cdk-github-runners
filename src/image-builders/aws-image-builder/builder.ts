@@ -29,7 +29,7 @@ import { generateBuildWorkflowWithDockerSetupCommands } from './workflow';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers';
 import { singletonLambda, singletonLogGroup, SingletonLogType } from '../../utils';
 import { BuildImageFunction } from '../build-image-function';
-import { RunnerImageBuilderBase, RunnerImageBuilderProps, uniqueImageBuilderName } from '../common';
+import { RunnerImageBuilderBase, RunnerImageBuilderProps } from '../common';
 
 export interface AwsImageBuilderRunnerImageBuilderProps {
   /**
@@ -436,7 +436,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     }
     this.dockerImageCleaner(recipe, repository);
 
-    this.createPipeline(infra, dist, log, undefined, recipe.containerRecipeArn);
+    this.createPipeline(infra, dist, log, undefined, recipe);
 
     this.boundDockerImage = {
       imageRepository: repository,
@@ -472,8 +472,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.imageCleaner('Container', recipe.containerRecipeName, recipe.containerRecipeVersion);
 
     // delete old docker images + IB resources daily
-    new imagebuilder.CfnLifecyclePolicy(this, 'Lifecycle Policy Docker', {
-      name: uniqueImageBuilderName(this),
+    new imagebuilder2.LifecyclePolicy(this, 'Lifecycle Policy Docker', {
       description: `Delete old GitHub Runner Docker images for ${this.node.path}`,
       executionRole: new iam.Role(this, 'Lifecycle Policy Docker Role', {
         assumedBy: new iam.ServicePrincipal('imagebuilder.amazonaws.com'),
@@ -495,27 +494,21 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
             ],
           }),
         },
-      }).roleArn,
-      policyDetails: [{
+      }),
+      details: [{
         action: {
-          type: 'DELETE',
-          includeResources: {
-            containers: true,
-          },
+          type: imagebuilder2.LifecyclePolicyActionType.DELETE,
+          includeContainers: true,
         },
         filter: {
-          type: 'COUNT',
-          value: 2,
+          countFilter: {
+            count: 2,
+          },
         },
       }],
-      resourceType: 'CONTAINER_IMAGE',
+      resourceType: imagebuilder2.LifecyclePolicyResourceType.CONTAINER_IMAGE,
       resourceSelection: {
-        recipes: [
-          {
-            name: recipe.containerRecipeName,
-            semanticVersion: recipe.containerRecipeVersion,
-          },
-        ],
+        recipes: [recipe],
       },
     });
   }
@@ -557,7 +550,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
 
   protected createImage(infra: imagebuilder2.InfrastructureConfiguration, dist: imagebuilder2.DistributionConfiguration, log: logs.LogGroup,
     imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImage {
-    const image = new imagebuilder.CfnImage(this, this.amiOrContainerId('Image', imageRecipeArn, containerRecipeArn), {
+    const image = new imagebuilder.CfnImage(this, this.amiOrContainerId('Image', imageRecipeArn !== undefined), {
       infrastructureConfigurationArn: infra.infrastructureConfigurationArn,
       distributionConfigurationArn: dist.distributionConfigurationArn,
       imageRecipeArn,
@@ -579,56 +572,42 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return image;
   }
 
-  private amiOrContainerId(baseId: string, imageRecipeArn?: string, containerRecipeArn?: string) {
-    if (imageRecipeArn) {
+  private amiOrContainerId(baseId: string, ami: boolean) {
+    if (ami) {
       return `AMI ${baseId}`;
-    }
-    if (containerRecipeArn) {
+    } else {
       return `Docker ${baseId}`;
     }
-    throw new Error('Either imageRecipeArn or containerRecipeArn must be defined');
   }
 
   protected createPipeline(infra: imagebuilder2.InfrastructureConfiguration, dist: imagebuilder2.DistributionConfiguration, log: logs.LogGroup,
-    imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImagePipeline {
+    imageRecipe?: imagebuilder2.ImageRecipe, containerRecipe?: imagebuilder2.ContainerRecipe) {
     // set schedule
-    let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
+    let scheduleOptions: imagebuilder2.ImagePipelineSchedule | undefined;
     if (this.rebuildInterval.toDays() > 0) {
       scheduleOptions = {
-        scheduleExpression: events.Schedule.rate(this.rebuildInterval).expressionString,
-        pipelineExecutionStartCondition: 'EXPRESSION_MATCH_ONLY',
+        expression: events.Schedule.rate(this.rebuildInterval),
+        startCondition: imagebuilder2.ScheduleStartCondition.EXPRESSION_MATCH_ONLY,
       };
     }
 
     // generate workflows, if needed
-    let workflows: imagebuilder.CfnImagePipeline.WorkflowConfigurationProperty[] | undefined;
-    let executionRole: iam.IRole | undefined;
+    let workflows: imagebuilder2.WorkflowConfiguration[] | undefined;
     if (this.dockerSetupCommands.length > 0) {
       workflows = [{
-        workflowArn: generateBuildWorkflowWithDockerSetupCommands(this, 'Build', this.dockerSetupCommands).workflowArn,
+        workflow: generateBuildWorkflowWithDockerSetupCommands(this, 'Build', this.dockerSetupCommands),
       }];
-      executionRole = iam.Role.fromRoleArn(this, 'Image Builder Role', cdk.Stack.of(this).formatArn({
-        service: 'iam',
-        region: '',
-        resource: 'role',
-        resourceName: 'aws-service-role/imagebuilder.amazonaws.com/AWSServiceRoleForImageBuilder',
-      }));
     }
 
     // generate pipeline
-    const pipeline = new imagebuilder.CfnImagePipeline(this, this.amiOrContainerId('Pipeline', imageRecipeArn, containerRecipeArn), {
-      name: uniqueImageBuilderName(this),
+    const pipeline = new imagebuilder2.ImagePipeline(this, this.amiOrContainerId('Pipeline', imageRecipe !== undefined), {
       // description: this.description,
-      infrastructureConfigurationArn: infra.infrastructureConfigurationArn,
-      distributionConfigurationArn: dist.distributionConfigurationArn,
-      imageRecipeArn,
-      containerRecipeArn,
+      infrastructureConfiguration: infra,
+      distributionConfiguration: dist,
+      recipe: imageRecipe ?? containerRecipe!,
       schedule: scheduleOptions,
-      imageTestsConfiguration: {
-        imageTestsEnabled: false,
-      },
+      imageTestsEnabled: false,
       workflows: workflows,
-      executionRole: executionRole?.roleArn,
       tags: this.tags,
     });
     pipeline.node.addDependency(infra);
@@ -759,7 +738,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     if (this.waitOnDeploy) {
       this.createImage(infra, dist, log, recipe.arn, undefined);
     }
-    this.createPipeline(infra, dist, log, recipe.arn, undefined);
+    this.createPipeline(infra, dist, log, recipe.recipe, undefined);
 
     this.boundAmi = {
       launchTemplate: launchTemplate,
@@ -804,8 +783,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.imageCleaner('Image', recipe.name, recipe.version);
 
     // delete old AMIs + IB resources daily
-    new imagebuilder.CfnLifecyclePolicy(this, 'Lifecycle Policy AMI', {
-      name: uniqueImageBuilderName(this),
+    new imagebuilder2.LifecyclePolicy(this, 'Lifecycle Policy AMI', {
       description: `Delete old GitHub Runner AMIs for ${this.node.path}`,
       executionRole: new iam.Role(this, 'Lifecycle Policy AMI Role', {
         assumedBy: new iam.ServicePrincipal('imagebuilder.amazonaws.com'),
@@ -837,28 +815,22 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
             ],
           }),
         },
-      }).roleArn,
-      policyDetails: [{
+      }),
+      details: [{
         action: {
-          type: 'DELETE',
-          includeResources: {
-            amis: true,
-            snapshots: true,
-          },
+          type: imagebuilder2.LifecyclePolicyActionType.DELETE,
+          includeAmis: true,
+          includeSnapshots: true,
         },
         filter: {
-          type: 'COUNT',
-          value: 2,
+          countFilter: {
+            count: 2,
+          },
         },
       }],
-      resourceType: 'AMI_IMAGE',
+      resourceType: imagebuilder2.LifecyclePolicyResourceType.AMI_IMAGE,
       resourceSelection: {
-        recipes: [
-          {
-            name: recipe.name,
-            semanticVersion: recipe.version, // docs say it's optional, but it's not
-          },
-        ],
+        recipes: [recipe.recipe],
       },
     });
   }

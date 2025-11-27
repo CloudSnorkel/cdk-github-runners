@@ -47,6 +47,7 @@ interface AmiRecipeProperties {
  * @internal
  */
 export class AmiRecipe extends cdk.Resource {
+  public readonly recipe: imagebuilder2.ImageRecipe;
   public readonly arn: string;
   public readonly name: string;
   public readonly version: string;
@@ -89,6 +90,7 @@ export class AmiRecipe extends cdk.Resource {
       blockDevices: blockDeviceMappings,
     });
 
+    this.recipe = recipe;
     this.arn = recipe.imageRecipeArn;
     this.name = recipe.imageRecipeName;
     this.version = recipe.imageRecipeVersion;

@@ -2388,7 +2388,7 @@
     ]
    }
   },
-  "WindowsImageBuilderLifecyclePolicyDockerB9CE4B0A": {
+  "WindowsImageBuilderLifecyclePolicyDockerA66ED7F5": {
    "Type": "AWS::ImageBuilder::LifecyclePolicy",
    "Properties": {
     "Description": "Delete old GitHub Runner Docker images for github-runners-test/Windows Image Builder",
@@ -2398,7 +2398,7 @@
       "Arn"
      ]
     },
-    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "Name": "github-runners-test-windowsimagebuilder-lifecyclepolicydocker-9b0d4781",
     "PolicyDetails": [
      {
       "Action": {
@@ -2434,7 +2434,7 @@
     "ResourceType": "CONTAINER_IMAGE"
    }
   },
-  "WindowsImageBuilderDockerPipeline3613721A": {
+  "WindowsImageBuilderDockerPipeline28661C47": {
    "Type": "AWS::ImageBuilder::ImagePipeline",
    "Properties": {
     "ContainerRecipeArn": {
@@ -2458,7 +2458,7 @@
       "Arn"
      ]
     },
-    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
+    "Name": "github-runners-test-windowsimagebuilder-dockerpipeline-5343f5e8",
     "Schedule": {
      "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
      "ScheduleExpression": "rate(7 days)"
@@ -3023,7 +3023,7 @@
    "UpdateReplacePolicy": "Retain",
    "DeletionPolicy": "RetainExceptOnCreate"
   },
-  "AMILinuxBuilderAMIPipelineEC5051DF": {
+  "AMILinuxBuilderAMIPipeline77F9C0F7": {
    "Type": "AWS::ImageBuilder::ImagePipeline",
    "Properties": {
     "DistributionConfigurationArn": {
@@ -3047,7 +3047,7 @@
       "Arn"
      ]
     },
-    "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
+    "Name": "github-runners-test-amilinuxbuilder-amipipeline-c87c140b",
     "Schedule": {
      "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
      "ScheduleExpression": "rate(7 days)"
@@ -3174,7 +3174,7 @@
     ]
    }
   },
-  "AMILinuxBuilderLifecyclePolicyAMIFB556CB2": {
+  "AMILinuxBuilderLifecyclePolicyAMI9EC6A562": {
    "Type": "AWS::ImageBuilder::LifecyclePolicy",
    "Properties": {
     "Description": "Delete old GitHub Runner AMIs for github-runners-test/AMI Linux Builder",
@@ -3184,7 +3184,7 @@
       "Arn"
      ]
     },
-    "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
+    "Name": "github-runners-test-amilinuxbuilder-lifecyclepolicyami-b13f2c24",
     "PolicyDetails": [
      {
       "Action": {
@@ -5893,7 +5893,7 @@
    "UpdateReplacePolicy": "Retain",
    "DeletionPolicy": "RetainExceptOnCreate"
   },
-  "AMILinuxarm64BuilderAMIPipeline9CC1354C": {
+  "AMILinuxarm64BuilderAMIPipeline462B4E1B": {
    "Type": "AWS::ImageBuilder::ImagePipeline",
    "Properties": {
     "DistributionConfigurationArn": {
@@ -5917,7 +5917,7 @@
       "Arn"
      ]
     },
-    "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+    "Name": "github-runners-test-amilinuxarm64builder-amipipeline-7f59e36e",
     "Schedule": {
      "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
      "ScheduleExpression": "rate(7 days)"
@@ -6044,7 +6044,7 @@
     ]
    }
   },
-  "AMILinuxarm64BuilderLifecyclePolicyAMI44B6EABD": {
+  "AMILinuxarm64BuilderLifecyclePolicyAMI1941512F": {
    "Type": "AWS::ImageBuilder::LifecyclePolicy",
    "Properties": {
     "Description": "Delete old GitHub Runner AMIs for github-runners-test/AMI Linux arm64 Builder",
@@ -6054,7 +6054,7 @@
       "Arn"
      ]
     },
-    "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
+    "Name": "github-runners-test-amilinuxarm64builder-lifecyclepolicyami-80d1039e",
     "PolicyDetails": [
      {
       "Action": {
@@ -6600,7 +6600,7 @@
    "UpdateReplacePolicy": "Retain",
    "DeletionPolicy": "RetainExceptOnCreate"
   },
-  "WindowsEC2BuilderAMIPipelineE3836949": {
+  "WindowsEC2BuilderAMIPipeline445918BA": {
    "Type": "AWS::ImageBuilder::ImagePipeline",
    "Properties": {
     "DistributionConfigurationArn": {
@@ -6624,7 +6624,7 @@
       "Arn"
      ]
     },
-    "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+    "Name": "github-runners-test-windowsec2builder-amipipeline-fef0bbd5",
     "Schedule": {
      "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
      "ScheduleExpression": "rate(7 days)"
@@ -6751,7 +6751,7 @@
     ]
    }
   },
-  "WindowsEC2BuilderLifecyclePolicyAMIF732B3A7": {
+  "WindowsEC2BuilderLifecyclePolicyAMI73E24E7A": {
    "Type": "AWS::ImageBuilder::LifecyclePolicy",
    "Properties": {
     "Description": "Delete old GitHub Runner AMIs for github-runners-test/Windows EC2 Builder",
@@ -6761,7 +6761,7 @@
       "Arn"
      ]
     },
-    "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
+    "Name": "github-runners-test-windowsec2builder-lifecyclepolicyami-964d181f",
     "PolicyDetails": [
      {
       "Action": {
@@ -13235,7 +13235,7 @@
     "AMILinuxBuilderAMIDistribution215F3A5C",
     "AMILinuxBuilderAMIImage93D83DE5",
     "AMILinuxBuilderAmiLog0DB16E38",
-    "AMILinuxBuilderAMIPipelineEC5051DF",
+    "AMILinuxBuilderAMIPipeline77F9C0F7",
     "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374",
     "AMILinuxBuilderAmiRecipeB7CF9599",
     "AMILinuxBuilderComponent0RequiredPackagesComponent74077CC6",
@@ -13252,8 +13252,8 @@
     "AMILinuxBuilderInfrastructureInstanceProfileB423D304",
     "AMILinuxBuilderInfrastructure069F0561",
     "AMILinuxBuilderLaunchtemplateA29452C4",
-    "AMILinuxBuilderLifecyclePolicyAMIFB556CB2",
     "AMILinuxBuilderLifecyclePolicyAMIRole7BBFF711",
+    "AMILinuxBuilderLifecyclePolicyAMI9EC6A562",
     "AMILinuxBuilderRoleDefaultPolicy69ED051F",
     "AMILinuxBuilderRole0C42378A",
     "AMILinuxBuilderSGEDC86329"
@@ -13467,7 +13467,7 @@
     "AMILinuxBuilderAMIDistribution215F3A5C",
     "AMILinuxBuilderAMIImage93D83DE5",
     "AMILinuxBuilderAmiLog0DB16E38",
-    "AMILinuxBuilderAMIPipelineEC5051DF",
+    "AMILinuxBuilderAMIPipeline77F9C0F7",
     "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374",
     "AMILinuxBuilderAmiRecipeB7CF9599",
     "AMILinuxBuilderComponent0RequiredPackagesComponent74077CC6",
@@ -13484,8 +13484,8 @@
     "AMILinuxBuilderInfrastructureInstanceProfileB423D304",
     "AMILinuxBuilderInfrastructure069F0561",
     "AMILinuxBuilderLaunchtemplateA29452C4",
-    "AMILinuxBuilderLifecyclePolicyAMIFB556CB2",
     "AMILinuxBuilderLifecyclePolicyAMIRole7BBFF711",
+    "AMILinuxBuilderLifecyclePolicyAMI9EC6A562",
     "AMILinuxBuilderRoleDefaultPolicy69ED051F",
     "AMILinuxBuilderRole0C42378A",
     "AMILinuxBuilderSGEDC86329"
@@ -13663,7 +13663,7 @@
     "AMILinuxarm64BuilderAMIDistributionE6989D01",
     "AMILinuxarm64BuilderAMIImage40078F9E",
     "AMILinuxarm64BuilderAmiLog84A9D94A",
-    "AMILinuxarm64BuilderAMIPipeline9CC1354C",
+    "AMILinuxarm64BuilderAMIPipeline462B4E1B",
     "AMILinuxarm64BuilderAmiRecipe4287E320",
     "AMILinuxarm64BuilderComponent0RequiredPackagesComponentBADF7D60",
     "AMILinuxarm64BuilderComponent1CloudWatchAgentComponentC4EC4BFB",
@@ -13679,8 +13679,8 @@
     "AMILinuxarm64BuilderInfrastructureInstanceProfile7C4D69A7",
     "AMILinuxarm64BuilderInfrastructureA97EB3DD",
     "AMILinuxarm64BuilderLaunchtemplate8F5EFF44",
-    "AMILinuxarm64BuilderLifecyclePolicyAMI44B6EABD",
     "AMILinuxarm64BuilderLifecyclePolicyAMIRole1D81BF43",
+    "AMILinuxarm64BuilderLifecyclePolicyAMI1941512F",
     "AMILinuxarm64BuilderRoleDefaultPolicy113305EE",
     "AMILinuxarm64BuilderRole40D54E29",
     "AMILinuxarm64BuilderSG94315968"
@@ -13858,7 +13858,7 @@
     "WindowsEC2BuilderAMIDistribution6B33DD89",
     "WindowsEC2BuilderAMIImage9D812188",
     "WindowsEC2BuilderAmiLog126E54B2",
-    "WindowsEC2BuilderAMIPipelineE3836949",
+    "WindowsEC2BuilderAMIPipeline445918BA",
     "WindowsEC2BuilderAmiRecipe9D687A09",
     "WindowsEC2BuilderComponent0RequiredPackagesComponentC058987B",
     "WindowsEC2BuilderComponent1CloudWatchAgentComponent7BB918AA",
@@ -13874,8 +13874,8 @@
     "WindowsEC2BuilderInfrastructureInstanceProfile8A9DECBA",
     "WindowsEC2BuilderInfrastructure4289B6D2",
     "WindowsEC2BuilderLaunchtemplate0A66E9C2",
-    "WindowsEC2BuilderLifecyclePolicyAMIF732B3A7",
     "WindowsEC2BuilderLifecyclePolicyAMIRoleE85A7F2C",
+    "WindowsEC2BuilderLifecyclePolicyAMI73E24E7A",
     "WindowsEC2BuilderRoleDefaultPolicy8A5B4E85",
     "WindowsEC2BuilderRole1BA7D3E7",
     "WindowsEC2BuilderSGE3F67842"
