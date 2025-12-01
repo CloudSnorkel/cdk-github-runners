@@ -2249,7 +2249,7 @@
     }
    }
   },
-  "WindowsImageBuilderDockerImage8672CA3E": {
+  "WindowsImageBuilderDockerImage7F3526EA": {
    "Type": "AWS::ImageBuilder::Image",
    "Properties": {
     "ContainerRecipeArn": {
@@ -2986,7 +2986,7 @@
     }
    }
   },
-  "AMILinuxBuilderAMIImage93D83DE5": {
+  "AMILinuxBuilderAMIImage8609B129": {
    "Type": "AWS::ImageBuilder::Image",
    "Properties": {
     "DistributionConfigurationArn": {
@@ -5856,7 +5856,7 @@
     }
    }
   },
-  "AMILinuxarm64BuilderAMIImage40078F9E": {
+  "AMILinuxarm64BuilderAMIImageC529A482": {
    "Type": "AWS::ImageBuilder::Image",
    "Properties": {
     "DistributionConfigurationArn": {
@@ -6563,7 +6563,7 @@
     }
    }
   },
-  "WindowsEC2BuilderAMIImage9D812188": {
+  "WindowsEC2BuilderAMIImageD1C73439": {
    "Type": "AWS::ImageBuilder::Image",
    "Properties": {
     "DistributionConfigurationArn": {
@@ -13233,7 +13233,7 @@
    },
    "DependsOn": [
     "AMILinuxBuilderAMIDistribution215F3A5C",
-    "AMILinuxBuilderAMIImage93D83DE5",
+    "AMILinuxBuilderAMIImage8609B129",
     "AMILinuxBuilderAmiLog0DB16E38",
     "AMILinuxBuilderAMIPipeline77F9C0F7",
     "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374",
@@ -13465,7 +13465,7 @@
    },
    "DependsOn": [
     "AMILinuxBuilderAMIDistribution215F3A5C",
-    "AMILinuxBuilderAMIImage93D83DE5",
+    "AMILinuxBuilderAMIImage8609B129",
     "AMILinuxBuilderAmiLog0DB16E38",
     "AMILinuxBuilderAMIPipeline77F9C0F7",
     "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374",
@@ -13661,7 +13661,7 @@
    },
    "DependsOn": [
     "AMILinuxarm64BuilderAMIDistributionE6989D01",
-    "AMILinuxarm64BuilderAMIImage40078F9E",
+    "AMILinuxarm64BuilderAMIImageC529A482",
     "AMILinuxarm64BuilderAmiLog84A9D94A",
     "AMILinuxarm64BuilderAMIPipeline462B4E1B",
     "AMILinuxarm64BuilderAmiRecipe4287E320",
@@ -13856,7 +13856,7 @@
    },
    "DependsOn": [
     "WindowsEC2BuilderAMIDistribution6B33DD89",
-    "WindowsEC2BuilderAMIImage9D812188",
+    "WindowsEC2BuilderAMIImageD1C73439",
     "WindowsEC2BuilderAmiLog126E54B2",
     "WindowsEC2BuilderAMIPipeline445918BA",
     "WindowsEC2BuilderAmiRecipe9D687A09",

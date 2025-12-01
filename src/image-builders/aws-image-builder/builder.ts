@@ -432,7 +432,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     ]);
 
     if (this.waitOnDeploy) {
-      this.createImage(infra, dist, log, undefined, recipe.containerRecipeArn);
+      this.createImage(infra, dist, log, undefined, recipe);
     }
     this.dockerImageCleaner(recipe, repository);
 
@@ -549,15 +549,12 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   }
 
   protected createImage(infra: imagebuilder2.InfrastructureConfiguration, dist: imagebuilder2.DistributionConfiguration, log: logs.LogGroup,
-    imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImage {
-    const image = new imagebuilder.CfnImage(this, this.amiOrContainerId('Image', imageRecipeArn !== undefined), {
-      infrastructureConfigurationArn: infra.infrastructureConfigurationArn,
-      distributionConfigurationArn: dist.distributionConfigurationArn,
-      imageRecipeArn,
-      containerRecipeArn,
-      imageTestsConfiguration: {
-        imageTestsEnabled: false,
-      },
+    imageRecipe?: imagebuilder2.ImageRecipe, containerRecipe?: imagebuilder2.ContainerRecipe): imagebuilder2.Image {
+    const image = new imagebuilder2.Image(this, this.amiOrContainerId('Image', imageRecipe !== undefined), {
+      infrastructureConfiguration: infra,
+      distributionConfiguration: dist,
+      recipe: imageRecipe ?? containerRecipe!,
+      imageTestsEnabled: false,
       tags: this.tags,
     });
     image.node.addDependency(infra);
@@ -736,7 +733,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilder'),
     ]);
     if (this.waitOnDeploy) {
-      this.createImage(infra, dist, log, recipe.arn, undefined);
+      this.createImage(infra, dist, log, recipe.recipe, undefined);
     }
     this.createPipeline(infra, dist, log, recipe.recipe, undefined);
 
