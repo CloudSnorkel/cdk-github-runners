@@ -48,6 +48,7 @@ runnerTokenPath="{}"
 labels="{}"
 registrationURL="{}"
 runnerGroup="{}"
+defaultLabels="{}"
 
 heartbeat () {
   while true; do
@@ -88,7 +89,7 @@ action () {
   labelsTemplate="$labels,cdkghr:started:$(date +%s)"
 
   # Execute the configuration command for runner registration
-  sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup || exit 1
+  sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup $defaultLabels || exit 1
 
   # Execute the run command
   sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
@@ -122,6 +123,7 @@ $runnerTokenPath="{}"
 $labels="{}"
 $registrationURL="{}"
 $runnerGroup="{}"
+$defaultLabels="{}"
 
 # EC2Launch only starts ssm agent after user data is done, so we need to start it ourselves (it is disabled by default)
 Set-Service -StartupType Manual AmazonSSMAgent
@@ -157,7 +159,7 @@ function action () {
   cd /actions
   $RunnerVersion = Get-Content /actions/RUNNER_VERSION -Raw
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
-  ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" \${runnerGroup} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" \${runnerGroup} \${defaultLabels} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
 
   if ($LASTEXITCODE -ne 0) { return 1 }
   ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
@@ -378,6 +380,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   private readonly vpc: ec2.IVpc;
   private readonly subnets: ec2.ISubnet[];
   private readonly securityGroups: ec2.ISecurityGroup[];
+  private readonly defaultLabels: boolean;
 
   constructor(scope: Construct, id: string, props?: Ec2RunnerProviderProps) {
     super(scope, id, props);
@@ -392,6 +395,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.storageOptions = props?.storageOptions;
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;
+    this.defaultLabels = props?.defaultLabels ?? true;
 
     this.amiBuilder = props?.imageBuilder ?? props?.amiBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
       vpc: props?.vpc,
@@ -456,6 +460,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       this.labels.join(','),
       parameters.registrationUrl,
       this.group ? `--runnergroup ${this.group}` : '',
+      this.defaultLabels ? '' : '--no-default-labels',
     ];
 
     const passUserData = new stepfunctions.Pass(this, `${this.labels.join(', ')} data`, {
