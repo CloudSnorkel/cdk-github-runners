@@ -47,7 +47,8 @@ repoPath="{}"
 runnerTokenPath="{}"
 labels="{}"
 registrationURL="{}"
-runnerGroup="{}"
+runnerGroup1="{}"
+runnerGroup2="{}"
 defaultLabels="{}"
 
 heartbeat () {
@@ -89,7 +90,7 @@ action () {
   labelsTemplate="$labels,cdkghr:started:$(date +%s)"
 
   # Execute the configuration command for runner registration
-  sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup $defaultLabels || exit 1
+  sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1
 
   # Execute the run command
   sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
@@ -122,7 +123,8 @@ $repoPath="{}"
 $runnerTokenPath="{}"
 $labels="{}"
 $registrationURL="{}"
-$runnerGroup="{}"
+$runnerGroup1="{}"
+$runnerGroup2="{}"
 $defaultLabels="{}"
 
 # EC2Launch only starts ssm agent after user data is done, so we need to start it ourselves (it is disabled by default)
@@ -159,7 +161,7 @@ function action () {
   cd /actions
   $RunnerVersion = Get-Content /actions/RUNNER_VERSION -Raw
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
-  ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" \${runnerGroup} \${defaultLabels} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" \${runnerGroup1} \${runnerGroup2} \${defaultLabels} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
 
   if ($LASTEXITCODE -ne 0) { return 1 }
   ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
@@ -459,7 +461,9 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       parameters.runnerTokenPath,
       this.labels.join(','),
       parameters.registrationUrl,
-      this.group ? `--runnergroup ${this.group}` : '',
+      this.group ? '--runnergroup' : '',
+      // this is split into 2 for powershell otherwise it will pass "--runnergroup name" as a single argument and config.sh will fail
+      this.group ? this.group : '',
       this.defaultLabels ? '' : '--no-default-labels',
     ];
 
