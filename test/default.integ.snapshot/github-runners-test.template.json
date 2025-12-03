@@ -2039,7 +2039,8 @@
        }
       ]
      },
-     "description": "Component 0 RequiredPackages"
+     "description": "Component 0 RequiredPackages",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2086,7 +2087,8 @@
        }
       ]
      },
-     "description": "Component 1 RunnerUser"
+     "description": "Component 1 RunnerUser",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2154,7 +2156,8 @@
        }
       ]
      },
-     "description": "Component 2 Git"
+     "description": "Component 2 Git",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2219,7 +2222,8 @@
        }
       ]
      },
-     "description": "Component 3 GithubCli"
+     "description": "Component 3 GithubCli",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2279,7 +2283,8 @@
        }
       ]
      },
-     "description": "Component 4 AwsCli"
+     "description": "Component 4 AwsCli",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2356,7 +2361,8 @@
        }
       ]
      },
-     "description": "Component 5 GithubRunner"
+     "description": "Component 5 GithubRunner",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2424,7 +2430,10 @@
        }
       ]
      },
-     "description": "Component 6 Custom-Undefined"
+     "description": "Component 6 Custom-Undefined",
+     "assetHashes": [
+      "64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68"
+     ]
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2495,7 +2504,8 @@
        }
       ]
      },
-     "description": "Component 7 EnvironmentVariables"
+     "description": "Component 7 EnvironmentVariables",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2591,9 +2601,6 @@
         ]
        }
       }
-     ],
-     "assetHashes": [
-      "64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68"
      ],
      "dockerfileTemplate": "FROM {{{ imagebuilder:parentImage }}}\n{{{ imagebuilder:environments }}}\n{{{ imagebuilder:components }}}\nENV RUNNER_VERSION=latest\n",
      "tags": {
@@ -3178,7 +3185,8 @@
        }
       ]
      },
-     "description": "Component 0 RequiredPackages"
+     "description": "Component 0 RequiredPackages",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3237,7 +3245,8 @@
        }
       ]
      },
-     "description": "Component 1 CloudWatchAgent"
+     "description": "Component 1 CloudWatchAgent",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3296,7 +3305,8 @@
        }
       ]
      },
-     "description": "Component 2 RunnerUser"
+     "description": "Component 2 RunnerUser",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3355,7 +3365,8 @@
        }
       ]
      },
-     "description": "Component 3 Git"
+     "description": "Component 3 Git",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3415,7 +3426,8 @@
        }
       ]
      },
-     "description": "Component 4 GithubCli"
+     "description": "Component 4 GithubCli",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3475,7 +3487,8 @@
        }
       ]
      },
-     "description": "Component 5 AwsCli"
+     "description": "Component 5 AwsCli",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3537,7 +3550,8 @@
        }
       ]
      },
-     "description": "Component 6 Docker"
+     "description": "Component 6 Docker",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3601,7 +3615,8 @@
        }
       ]
      },
-     "description": "Component 7 GithubRunner"
+     "description": "Component 7 GithubRunner",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3667,7 +3682,10 @@
        }
       ]
      },
-     "description": "Component 8 Custom-Undefined"
+     "description": "Component 8 Custom-Undefined",
+     "assetHashes": [
+      "64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68"
+     ]
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3736,7 +3754,8 @@
        }
       ]
      },
-     "description": "Component 9 EnvironmentVariables"
+     "description": "Component 9 EnvironmentVariables",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3877,9 +3896,6 @@
         ]
        }
       }
-     ],
-     "assetHashes": [
-      "64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68"
      ],
      "parentAmi": {
       "Fn::Join": [
@@ -6698,7 +6714,8 @@
        }
       ]
      },
-     "description": "Component 0 RequiredPackages"
+     "description": "Component 0 RequiredPackages",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -6757,7 +6774,8 @@
        }
       ]
      },
-     "description": "Component 1 CloudWatchAgent"
+     "description": "Component 1 CloudWatchAgent",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -6816,7 +6834,8 @@
        }
       ]
      },
-     "description": "Component 2 RunnerUser"
+     "description": "Component 2 RunnerUser",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -6875,7 +6894,8 @@
        }
       ]
      },
-     "description": "Component 3 Git"
+     "description": "Component 3 Git",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -6935,7 +6955,8 @@
        }
       ]
      },
-     "description": "Component 4 GithubCli"
+     "description": "Component 4 GithubCli",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -6995,7 +7016,8 @@
        }
       ]
      },
-     "description": "Component 5 AwsCli"
+     "description": "Component 5 AwsCli",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7057,7 +7079,8 @@
        }
       ]
      },
-     "description": "Component 6 Docker"
+     "description": "Component 6 Docker",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7121,7 +7144,8 @@
        }
       ]
      },
-     "description": "Component 7 GithubRunner"
+     "description": "Component 7 GithubRunner",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7187,7 +7211,10 @@
        }
       ]
      },
-     "description": "Component 8 Custom-Undefined"
+     "description": "Component 8 Custom-Undefined",
+     "assetHashes": [
+      "64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68"
+     ]
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7256,7 +7283,8 @@
        }
       ]
      },
-     "description": "Component 9 EnvironmentVariables"
+     "description": "Component 9 EnvironmentVariables",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7368,9 +7396,6 @@
         ]
        }
       }
-     ],
-     "assetHashes": [
-      "64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68"
      ],
      "parentAmi": {
       "Fn::Join": [
@@ -7992,7 +8017,8 @@
        }
       ]
      },
-     "description": "Component 0 RequiredPackages"
+     "description": "Component 0 RequiredPackages",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8052,7 +8078,8 @@
        }
       ]
      },
-     "description": "Component 1 CloudWatchAgent"
+     "description": "Component 1 CloudWatchAgent",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8099,7 +8126,8 @@
        }
       ]
      },
-     "description": "Component 2 RunnerUser"
+     "description": "Component 2 RunnerUser",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8167,7 +8195,8 @@
        }
       ]
      },
-     "description": "Component 3 Git"
+     "description": "Component 3 Git",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8232,7 +8261,8 @@
        }
       ]
      },
-     "description": "Component 4 GithubCli"
+     "description": "Component 4 GithubCli",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8292,7 +8322,8 @@
        }
       ]
      },
-     "description": "Component 5 AwsCli"
+     "description": "Component 5 AwsCli",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8375,7 +8406,8 @@
        }
       ]
      },
-     "description": "Component 6 Docker"
+     "description": "Component 6 Docker",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8452,7 +8484,8 @@
        }
       ]
      },
-     "description": "Component 7 GithubRunner"
+     "description": "Component 7 GithubRunner",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8520,7 +8553,10 @@
        }
       ]
      },
-     "description": "Component 8 Custom-Undefined"
+     "description": "Component 8 Custom-Undefined",
+     "assetHashes": [
+      "64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68"
+     ]
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8591,7 +8627,8 @@
        }
       ]
      },
-     "description": "Component 9 EnvironmentVariables"
+     "description": "Component 9 EnvironmentVariables",
+     "assetHashes": []
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8703,9 +8740,6 @@
         ]
        }
       }
-     ],
-     "assetHashes": [
-      "64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68"
      ],
      "parentAmi": {
       "Fn::Join": [

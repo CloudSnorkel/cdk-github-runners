@@ -76,7 +76,6 @@ export class AmiRecipe extends ImageBuilderObjectBase {
     this.version = this.generateVersion('ImageRecipe', this.name, {
       platform: props.platform,
       components,
-      assetHashes: props.components.map(c => c.assetHashes()).flat(),
       parentAmi: props.baseAmi,
       tags: props.tags,
       blockDeviceMappings,

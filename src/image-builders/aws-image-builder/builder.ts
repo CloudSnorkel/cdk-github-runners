@@ -267,6 +267,7 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
         platform: props.platform,
         data,
         description: props.description,
+        assetHashes: this.assets.map(a => a.assetHash),
       }),
       data: JSON.stringify(data),
     });
@@ -297,10 +298,6 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
         'set -ex',
       ].concat(commands);
     }
-  }
-
-  assetHashes() {
-    return this.assets.map(a => a.assetHash);
   }
 }
 
