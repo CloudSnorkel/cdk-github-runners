@@ -3668,6 +3668,7 @@ new ImageBuilderComponent(scope: Construct, id: string, props: ImageBuilderCompo
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.applyRemovalPolicy">applyRemovalPolicy</a></code> | Apply the given removal policy to this resource. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.assetHashes">assetHashes</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.grantAssetsRead">grantAssetsRead</a></code> | Grants read permissions to the principal on the assets buckets. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.prefixCommandsWithErrorHandling">prefixCommandsWithErrorHandling</a></code> | *No description.* |
 
@@ -3702,6 +3703,12 @@ account for data recovery and cleanup later (`RemovalPolicy.RETAIN`).
 - *Type:* aws-cdk-lib.RemovalPolicy
 
 ---
+
+##### ~~`assetHashes`~~ <a name="assetHashes" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.assetHashes"></a>
+
+```typescript
+public assetHashes(): string[]
+```
 
 ##### ~~`grantAssetsRead`~~ <a name="grantAssetsRead" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.grantAssetsRead"></a>
 
