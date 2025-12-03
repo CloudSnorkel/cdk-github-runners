@@ -226,10 +226,9 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     throw new Error(`Unable to find CodeBuild image for ${this.os.name}/${this.architecture.name}`);
   }
 
-  private getDockerfileGenerationCommands() {
+  private getDockerfileGenerationCommands(): [string[], string[]] {
     let hashedComponents: string[] = [];
     let commands = [];
-    let assetHashes = [];
     let dockerfile = `FROM ${this.baseImage}\nVOLUME /var/lib/docker\n`;
 
     for (let i = 0; i < this.components.length; i++) {
@@ -244,7 +243,6 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         const asset = new s3_assets.Asset(this, `Component ${i} ${componentName} Asset ${j}`, {
           path: assetDescriptors[j].source,
         });
-        assetHashes.push(asset.assetHash);
 
         if (asset.isFile) {
           commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${componentName}-${j}`);
@@ -276,7 +274,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
     commands.push(`cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\n${dockerfile}\nEOFGITHUBRUNNERSDOCKERFILE`);
 
-    return [commands, hashedComponents, assetHashes];
+    return [commands, hashedComponents];
   }
 
   private getBuildSpec(repository: ecr.Repository): [codebuild.BuildSpec, string] {
@@ -291,14 +289,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       throw new Error(`Unsupported architecture for required CodeBuild: ${this.architecture.name}`);
     }
 
-    const [commands, commandsHashedComponents, assetHashes] = this.getDockerfileGenerationCommands();
+    const [commands, commandsHashedComponents] = this.getDockerfileGenerationCommands();
 
     const buildSpecVersion = 'v2'; // change this every time the build spec changes
     const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, this.baseImage, this.os.name);
-    const hash = crypto.createHash('md5')
-      .update(hashedComponents.join('\n'))
-      .update(assetHashes.join('\n'))
-      .digest('hex').slice(0, 10);
+    const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
 
     const buildSpec = codebuild.BuildSpec.fromObject({
       version: 0.2,

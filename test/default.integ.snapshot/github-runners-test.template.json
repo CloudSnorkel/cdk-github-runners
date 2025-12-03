@@ -621,15 +621,15 @@
     ]
    }
   },
-  "FargatebuilderBuildWaitHandle601603aab48C67886E": {
+  "FargatebuilderBuildWaitHandlec91bc68c5e3FF5D005": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderBuildWait601603aab4CF47C069": {
+  "FargatebuilderBuildWaitc91bc68c5e438864A5": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderBuildWaitHandle601603aab48C67886E"
+     "Ref": "FargatebuilderBuildWaitHandlec91bc68c5e3FF5D005"
     },
     "Timeout": "3600"
    }
@@ -650,7 +650,7 @@
      "Ref": "FargatebuilderCodeBuild4F182743"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderBuildWaitHandle601603aab48C67886E"
+     "Ref": "FargatebuilderBuildWaitHandlec91bc68c5e3FF5D005"
     }
    },
    "DependsOn": [
@@ -1127,15 +1127,15 @@
     ]
    }
   },
-  "FargatebuilderarmBuildWaitHandle244edb850d0270C5EE": {
+  "FargatebuilderarmBuildWaitHandle6310e519d7466F43E1": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderarmBuildWait244edb850d3B519F72": {
+  "FargatebuilderarmBuildWait6310e519d75E2EEA1B": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderarmBuildWaitHandle244edb850d0270C5EE"
+     "Ref": "FargatebuilderarmBuildWaitHandle6310e519d7466F43E1"
     },
     "Timeout": "3600"
    }
@@ -1156,7 +1156,7 @@
      "Ref": "FargatebuilderarmCodeBuild0D30679A"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderarmBuildWaitHandle244edb850d0270C5EE"
+     "Ref": "FargatebuilderarmBuildWaitHandle6310e519d7466F43E1"
     }
    },
    "DependsOn": [
@@ -1772,15 +1772,15 @@
     ]
    }
   },
-  "LambdaImageBuilderx64BuildWaitHandleecdc549fed024578BC": {
+  "LambdaImageBuilderx64BuildWaitHandleb635ff63a2F03FDC82": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderx64BuildWaitecdc549fedFB90AF20": {
+  "LambdaImageBuilderx64BuildWaitb635ff63a25255D2B8": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandleecdc549fed024578BC"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandleb635ff63a2F03FDC82"
     },
     "Timeout": "3600"
    }
@@ -1801,7 +1801,7 @@
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandleecdc549fed024578BC"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandleb635ff63a2F03FDC82"
     }
    },
    "DependsOn": [
@@ -2039,8 +2039,7 @@
        }
       ]
      },
-     "description": "Component 0 RequiredPackages",
-     "assetHashes": []
+     "description": "Component 0 RequiredPackages"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2087,8 +2086,7 @@
        }
       ]
      },
-     "description": "Component 1 RunnerUser",
-     "assetHashes": []
+     "description": "Component 1 RunnerUser"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2156,8 +2154,7 @@
        }
       ]
      },
-     "description": "Component 2 Git",
-     "assetHashes": []
+     "description": "Component 2 Git"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2222,8 +2219,7 @@
        }
       ]
      },
-     "description": "Component 3 GithubCli",
-     "assetHashes": []
+     "description": "Component 3 GithubCli"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2283,8 +2279,7 @@
        }
       ]
      },
-     "description": "Component 4 AwsCli",
-     "assetHashes": []
+     "description": "Component 4 AwsCli"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2361,8 +2356,7 @@
        }
       ]
      },
-     "description": "Component 5 GithubRunner",
-     "assetHashes": []
+     "description": "Component 5 GithubRunner"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2430,10 +2424,7 @@
        }
       ]
      },
-     "description": "Component 6 Custom-Undefined",
-     "assetHashes": [
-      "64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68"
-     ]
+     "description": "Component 6 Custom-Undefined"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -2504,8 +2495,7 @@
        }
       ]
      },
-     "description": "Component 7 EnvironmentVariables",
-     "assetHashes": []
+     "description": "Component 7 EnvironmentVariables"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3185,8 +3175,7 @@
        }
       ]
      },
-     "description": "Component 0 RequiredPackages",
-     "assetHashes": []
+     "description": "Component 0 RequiredPackages"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3245,8 +3234,7 @@
        }
       ]
      },
-     "description": "Component 1 CloudWatchAgent",
-     "assetHashes": []
+     "description": "Component 1 CloudWatchAgent"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3305,8 +3293,7 @@
        }
       ]
      },
-     "description": "Component 2 RunnerUser",
-     "assetHashes": []
+     "description": "Component 2 RunnerUser"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3365,8 +3352,7 @@
        }
       ]
      },
-     "description": "Component 3 Git",
-     "assetHashes": []
+     "description": "Component 3 Git"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3426,8 +3412,7 @@
        }
       ]
      },
-     "description": "Component 4 GithubCli",
-     "assetHashes": []
+     "description": "Component 4 GithubCli"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3487,8 +3472,7 @@
        }
       ]
      },
-     "description": "Component 5 AwsCli",
-     "assetHashes": []
+     "description": "Component 5 AwsCli"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3550,8 +3534,7 @@
        }
       ]
      },
-     "description": "Component 6 Docker",
-     "assetHashes": []
+     "description": "Component 6 Docker"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3615,8 +3598,7 @@
        }
       ]
      },
-     "description": "Component 7 GithubRunner",
-     "assetHashes": []
+     "description": "Component 7 GithubRunner"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3682,10 +3664,7 @@
        }
       ]
      },
-     "description": "Component 8 Custom-Undefined",
-     "assetHashes": [
-      "64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68"
-     ]
+     "description": "Component 8 Custom-Undefined"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -3754,8 +3733,7 @@
        }
       ]
      },
-     "description": "Component 9 EnvironmentVariables",
-     "assetHashes": []
+     "description": "Component 9 EnvironmentVariables"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -4744,15 +4722,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderBuildWaitHandle090af06121FD0B88CF": {
+  "CodeBuildImageBuilderBuildWaitHandle6c559791c31CDFC19C": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderBuildWait090af061212A64FEC9": {
+  "CodeBuildImageBuilderBuildWait6c559791c302D896CB": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandle090af06121FD0B88CF"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle6c559791c31CDFC19C"
     },
     "Timeout": "3600"
    }
@@ -4773,7 +4751,7 @@
      "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandle090af06121FD0B88CF"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle6c559791c31CDFC19C"
     }
    },
    "DependsOn": [
@@ -5250,15 +5228,15 @@
     ]
    }
   },
-  "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle47e54dd3776AA9D0B4": {
+  "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle869992dae1E5A396D5": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildUbuntu2404ImageBuilderBuildWait47e54dd377F9D05490": {
+  "CodeBuildUbuntu2404ImageBuilderBuildWait869992dae157E3A527": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle47e54dd3776AA9D0B4"
+     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle869992dae1E5A396D5"
     },
     "Timeout": "3600"
    }
@@ -5279,7 +5257,7 @@
      "Ref": "CodeBuildUbuntu2404ImageBuilderCodeBuild30AF5C46"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle47e54dd3776AA9D0B4"
+     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle869992dae1E5A396D5"
     }
    },
    "DependsOn": [
@@ -5756,15 +5734,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderarmBuildWaitHandle677b3e1660F8D7BFD6": {
+  "CodeBuildImageBuilderarmBuildWaitHandlef181c92a80A7DB5303": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderarmBuildWait677b3e166053BB822E": {
+  "CodeBuildImageBuilderarmBuildWaitf181c92a802A4BA349": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle677b3e1660F8D7BFD6"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandlef181c92a80A7DB5303"
     },
     "Timeout": "3600"
    }
@@ -5785,7 +5763,7 @@
      "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle677b3e1660F8D7BFD6"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandlef181c92a80A7DB5303"
     }
    },
    "DependsOn": [
@@ -6401,15 +6379,15 @@
     ]
    }
   },
-  "LambdaImageBuilderzBuildWaitHandle457fa2c388E3DEC603": {
+  "LambdaImageBuilderzBuildWaitHandlea0b480332770D3313C": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderzBuildWait457fa2c388C252D3AD": {
+  "LambdaImageBuilderzBuildWaita0b4803327B88D22EC": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle457fa2c388E3DEC603"
+     "Ref": "LambdaImageBuilderzBuildWaitHandlea0b480332770D3313C"
     },
     "Timeout": "3600"
    }
@@ -6430,7 +6408,7 @@
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle457fa2c388E3DEC603"
+     "Ref": "LambdaImageBuilderzBuildWaitHandlea0b480332770D3313C"
     }
    },
    "DependsOn": [
@@ -6714,8 +6692,7 @@
        }
       ]
      },
-     "description": "Component 0 RequiredPackages",
-     "assetHashes": []
+     "description": "Component 0 RequiredPackages"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -6774,8 +6751,7 @@
        }
       ]
      },
-     "description": "Component 1 CloudWatchAgent",
-     "assetHashes": []
+     "description": "Component 1 CloudWatchAgent"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -6834,8 +6810,7 @@
        }
       ]
      },
-     "description": "Component 2 RunnerUser",
-     "assetHashes": []
+     "description": "Component 2 RunnerUser"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -6894,8 +6869,7 @@
        }
       ]
      },
-     "description": "Component 3 Git",
-     "assetHashes": []
+     "description": "Component 3 Git"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -6955,8 +6929,7 @@
        }
       ]
      },
-     "description": "Component 4 GithubCli",
-     "assetHashes": []
+     "description": "Component 4 GithubCli"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7016,8 +6989,7 @@
        }
       ]
      },
-     "description": "Component 5 AwsCli",
-     "assetHashes": []
+     "description": "Component 5 AwsCli"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7079,8 +7051,7 @@
        }
       ]
      },
-     "description": "Component 6 Docker",
-     "assetHashes": []
+     "description": "Component 6 Docker"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7144,8 +7115,7 @@
        }
       ]
      },
-     "description": "Component 7 GithubRunner",
-     "assetHashes": []
+     "description": "Component 7 GithubRunner"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7211,10 +7181,7 @@
        }
       ]
      },
-     "description": "Component 8 Custom-Undefined",
-     "assetHashes": [
-      "64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68"
-     ]
+     "description": "Component 8 Custom-Undefined"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -7283,8 +7250,7 @@
        }
       ]
      },
-     "description": "Component 9 EnvironmentVariables",
-     "assetHashes": []
+     "description": "Component 9 EnvironmentVariables"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8017,8 +7983,7 @@
        }
       ]
      },
-     "description": "Component 0 RequiredPackages",
-     "assetHashes": []
+     "description": "Component 0 RequiredPackages"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8078,8 +8043,7 @@
        }
       ]
      },
-     "description": "Component 1 CloudWatchAgent",
-     "assetHashes": []
+     "description": "Component 1 CloudWatchAgent"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8126,8 +8090,7 @@
        }
       ]
      },
-     "description": "Component 2 RunnerUser",
-     "assetHashes": []
+     "description": "Component 2 RunnerUser"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8195,8 +8158,7 @@
        }
       ]
      },
-     "description": "Component 3 Git",
-     "assetHashes": []
+     "description": "Component 3 Git"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8261,8 +8223,7 @@
        }
       ]
      },
-     "description": "Component 4 GithubCli",
-     "assetHashes": []
+     "description": "Component 4 GithubCli"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8322,8 +8283,7 @@
        }
       ]
      },
-     "description": "Component 5 AwsCli",
-     "assetHashes": []
+     "description": "Component 5 AwsCli"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8406,8 +8366,7 @@
        }
       ]
      },
-     "description": "Component 6 Docker",
-     "assetHashes": []
+     "description": "Component 6 Docker"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8484,8 +8443,7 @@
        }
       ]
      },
-     "description": "Component 7 GithubRunner",
-     "assetHashes": []
+     "description": "Component 7 GithubRunner"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8553,10 +8511,7 @@
        }
       ]
      },
-     "description": "Component 8 Custom-Undefined",
-     "assetHashes": [
-      "64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68"
-     ]
+     "description": "Component 8 Custom-Undefined"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -8627,8 +8582,7 @@
        }
       ]
      },
-     "description": "Component 9 EnvironmentVariables",
-     "assetHashes": []
+     "description": "Component 9 EnvironmentVariables"
     }
    },
    "UpdateReplacePolicy": "Retain",
@@ -13380,7 +13334,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderx64BuildWaitecdc549fedFB90AF20"
+        "Ref": "LambdaImageBuilderx64BuildWaitb635ff63a25255D2B8"
        },
        "\"}}"
       ]
@@ -13819,7 +13773,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderzBuildWait457fa2c388C252D3AD"
+        "Ref": "LambdaImageBuilderzBuildWaita0b4803327B88D22EC"
        },
        "\"}}"
       ]
