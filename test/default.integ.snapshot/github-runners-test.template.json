@@ -1664,7 +1664,7 @@
         },
         " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/914d4fe73199c3182a0fa42b5c35cbfc70e883a96d7cc0abd00b8d9d744c7a18.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/d4d0d96c5b566f0a3ac0a1e539ba4c128b07704ec2678b99ce89af13b422a331.sh"
         },
         " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
         {
@@ -1772,15 +1772,15 @@
     ]
    }
   },
-  "LambdaImageBuilderx64BuildWaitHandle0ef960775aB1E8095D": {
+  "LambdaImageBuilderx64BuildWaitHandleb635ff63a2F03FDC82": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderx64BuildWait0ef960775aDC1D350E": {
+  "LambdaImageBuilderx64BuildWaitb635ff63a25255D2B8": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle0ef960775aB1E8095D"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandleb635ff63a2F03FDC82"
     },
     "Timeout": "3600"
    }
@@ -1801,7 +1801,7 @@
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle0ef960775aB1E8095D"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandleb635ff63a2F03FDC82"
     }
    },
    "DependsOn": [
@@ -6271,7 +6271,7 @@
         },
         " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/914d4fe73199c3182a0fa42b5c35cbfc70e883a96d7cc0abd00b8d9d744c7a18.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/d4d0d96c5b566f0a3ac0a1e539ba4c128b07704ec2678b99ce89af13b422a331.sh"
         },
         " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
         {
@@ -6379,15 +6379,15 @@
     ]
    }
   },
-  "LambdaImageBuilderzBuildWaitHandle781886e2d8A063F430": {
+  "LambdaImageBuilderzBuildWaitHandlea0b480332770D3313C": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderzBuildWait781886e2d89352301D": {
+  "LambdaImageBuilderzBuildWaita0b4803327B88D22EC": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle781886e2d8A063F430"
+     "Ref": "LambdaImageBuilderzBuildWaitHandlea0b480332770D3313C"
     },
     "Timeout": "3600"
    }
@@ -6408,7 +6408,7 @@
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle781886e2d8A063F430"
+     "Ref": "LambdaImageBuilderzBuildWaitHandlea0b480332770D3313C"
     }
    },
    "DependsOn": [
@@ -13334,7 +13334,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderx64BuildWait0ef960775aDC1D350E"
+        "Ref": "LambdaImageBuilderx64BuildWaitb635ff63a25255D2B8"
        },
        "\"}}"
       ]
@@ -13773,7 +13773,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderzBuildWait781886e2d89352301D"
+        "Ref": "LambdaImageBuilderzBuildWaita0b4803327B88D22EC"
        },
        "\"}}"
       ]
@@ -19456,7 +19456,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "77fc0ac49eedee2c48312197988590ab7c819de08f88b162c532f7ea1f73f9d5.zip"
+     "S3Key": "70f0e98b4442f9b1760db6ed6fae54fd00508308ddbd277c1e8c40a85b200dd5.zip"
     },
     "Description": "Setup GitHub Actions integration with self-hosted runners",
     "Environment": {
