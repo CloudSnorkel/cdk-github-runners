@@ -370,6 +370,11 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   private readonly group?: string;
 
   /**
+   * Include default labels (arch, os, self-hosted) for runner.
+   */
+  private readonly defaultLabels: boolean;
+
+  /**
    * ECS placement strategies to influence task placement.
    */
   private readonly placementStrategies?: ecs.PlacementStrategy[];
@@ -391,6 +396,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
 
     this.labels = props?.labels ?? ['ecs'];
     this.group = props?.group;
+    this.defaultLabels = props?.defaultLabels ?? true;
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
     this.subnetSelection = props?.subnetSelection;
     this.securityGroups = props?.securityGroups ?? [new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc })];
@@ -643,6 +649,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
               {
                 name: 'RUNNER_GROUP',
                 value: this.group ? `--runnergroup ${this.group}` : '',
+              },
+              {
+                name: 'DEFAULT_LABELS',
+                value: this.defaultLabels ? '' : '--no-default-labels',
               },
               {
                 name: 'GITHUB_DOMAIN',

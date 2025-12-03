@@ -5695,6 +5695,7 @@ const codeBuildRunnerProviderProps: CodeBuildRunnerProviderProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.defaultLabels">defaultLabels</a></code> | <code>boolean</code> | Add default labels based on OS and architecture of the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
@@ -5708,6 +5709,21 @@ const codeBuildRunnerProviderProps: CodeBuildRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The number of minutes after which AWS CodeBuild stops the build if it's not complete. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
+
+---
+
+##### `defaultLabels`<sup>Optional</sup> <a name="defaultLabels" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.defaultLabels"></a>
+
+```typescript
+public readonly defaultLabels: boolean;
+```
+
+- *Type:* boolean
+- *Default:* true
+
+Add default labels based on OS and architecture of the runner.
+
+This will tell GitHub Runner to add default labels like `self-hosted`, `linux`, `x64`, and `arm64`.
 
 ---
 
@@ -6129,6 +6145,7 @@ const ec2RunnerProviderProps: Ec2RunnerProviderProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.defaultLabels">defaultLabels</a></code> | <code>boolean</code> | Add default labels based on OS and architecture of the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.amiBuilder">amiBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | *No description.* |
@@ -6145,6 +6162,21 @@ const ec2RunnerProviderProps: Ec2RunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnet">subnet</a></code> | <code>aws-cdk-lib.aws_ec2.ISubnet</code> | Subnet where the runner instances will be launched. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC where runner instances will be launched. |
+
+---
+
+##### `defaultLabels`<sup>Optional</sup> <a name="defaultLabels" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.defaultLabels"></a>
+
+```typescript
+public readonly defaultLabels: boolean;
+```
+
+- *Type:* boolean
+- *Default:* true
+
+Add default labels based on OS and architecture of the runner.
+
+This will tell GitHub Runner to add default labels like `self-hosted`, `linux`, `x64`, and `arm64`.
 
 ---
 
@@ -6396,6 +6428,7 @@ const ecsRunnerProviderProps: EcsRunnerProviderProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.defaultLabels">defaultLabels</a></code> | <code>boolean</code> | Add default labels based on OS and architecture of the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.assignPublicIp">assignPublicIp</a></code> | <code>boolean</code> | Assign public IP to the runner task. |
@@ -6420,6 +6453,21 @@ const ecsRunnerProviderProps: EcsRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for launched cluster instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets to run the runners in. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
+
+---
+
+##### `defaultLabels`<sup>Optional</sup> <a name="defaultLabels" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.defaultLabels"></a>
+
+```typescript
+public readonly defaultLabels: boolean;
+```
+
+- *Type:* boolean
+- *Default:* true
+
+Add default labels based on OS and architecture of the runner.
+
+This will tell GitHub Runner to add default labels like `self-hosted`, `linux`, `x64`, and `arm64`.
 
 ---
 
@@ -6788,6 +6836,7 @@ const fargateRunnerProviderProps: FargateRunnerProviderProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.defaultLabels">defaultLabels</a></code> | <code>boolean</code> | Add default labels based on OS and architecture of the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.assignPublicIp">assignPublicIp</a></code> | <code>boolean</code> | Assign public IP to the runner task. |
@@ -6804,6 +6853,21 @@ const fargateRunnerProviderProps: FargateRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.spot">spot</a></code> | <code>boolean</code> | Use Fargate spot capacity provider to save money. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets to run the runners in. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
+
+---
+
+##### `defaultLabels`<sup>Optional</sup> <a name="defaultLabels" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProviderProps.property.defaultLabels"></a>
+
+```typescript
+public readonly defaultLabels: boolean;
+```
+
+- *Type:* boolean
+- *Default:* true
+
+Add default labels based on OS and architecture of the runner.
+
+This will tell GitHub Runner to add default labels like `self-hosted`, `linux`, `x64`, and `arm64`.
 
 ---
 
@@ -7570,6 +7634,7 @@ const lambdaRunnerProviderProps: LambdaRunnerProviderProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.defaultLabels">defaultLabels</a></code> | <code>boolean</code> | Add default labels based on OS and architecture of the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.ephemeralStorageSize">ephemeralStorageSize</a></code> | <code>aws-cdk-lib.Size</code> | The size of the function’s /tmp directory in MiB. |
@@ -7583,6 +7648,21 @@ const lambdaRunnerProviderProps: LambdaRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The function execution time (in seconds) after which Lambda terminates the function. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
+
+---
+
+##### `defaultLabels`<sup>Optional</sup> <a name="defaultLabels" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.defaultLabels"></a>
+
+```typescript
+public readonly defaultLabels: boolean;
+```
+
+- *Type:* boolean
+- *Default:* true
+
+Add default labels based on OS and architecture of the runner.
+
+This will tell GitHub Runner to add default labels like `self-hosted`, `linux`, `x64`, and `arm64`.
 
 ---
 
@@ -8544,8 +8624,24 @@ const runnerProviderProps: RunnerProviderProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerProviderProps.property.defaultLabels">defaultLabels</a></code> | <code>boolean</code> | Add default labels based on OS and architecture of the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
+
+---
+
+##### `defaultLabels`<sup>Optional</sup> <a name="defaultLabels" id="@cloudsnorkel/cdk-github-runners.RunnerProviderProps.property.defaultLabels"></a>
+
+```typescript
+public readonly defaultLabels: boolean;
+```
+
+- *Type:* boolean
+- *Default:* true
+
+Add default labels based on OS and architecture of the runner.
+
+This will tell GitHub Runner to add default labels like `self-hosted`, `linux`, `x64`, and `arm64`.
 
 ---
 

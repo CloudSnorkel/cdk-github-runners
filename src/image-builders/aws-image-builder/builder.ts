@@ -590,7 +590,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
 
     // generate workflows, if needed
     let workflows: imagebuilder2.WorkflowConfiguration[] | undefined;
-    if (this.dockerSetupCommands.length > 0) {
+    if (this.dockerSetupCommands.length > 0 && containerRecipe) {
       workflows = [{
         workflow: generateBuildWorkflowWithDockerSetupCommands(this, 'Build', this.dockerSetupCommands),
       }];

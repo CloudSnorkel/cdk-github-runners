@@ -226,7 +226,7 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
       `${dindCommand}
         cd /home/runner &&
         if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
-        ./config.sh --unattended --url "$REGISTRATION_URL" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" $RUNNER_GROUP &&
+        ./config.sh --unattended --url "$REGISTRATION_URL" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" $RUNNER_GROUP $DEFAULT_LABELS &&
         ./run.sh &&
         STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" _diag/ | tail -n1) &&
         [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"`,
@@ -236,7 +236,7 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
       'powershell', '-Command',
       `cd \\actions ;
         if ($Env:RUNNER_VERSION -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ;
-        ./config.cmd --unattended --url "\${Env:REGISTRATION_URL}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL},cdkghr:started:\$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${Env:RUNNER_NAME}" \${Env:RUNNER_GROUP} ;
+        ./config.cmd --unattended --url "\${Env:REGISTRATION_URL}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL},cdkghr:started:\$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${Env:RUNNER_NAME}" \${Env:RUNNER_GROUP} \${Env:DEFAULT_LABELS} ;
         ./run.cmd ;
         $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;
         if ($STATUS) { echo "CDKGHA JOB DONE $\{Env:RUNNER_LABEL\} $STATUS" }`,
@@ -378,6 +378,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   ];
 
   private readonly group?: string;
+  private readonly defaultLabels: boolean;
   private readonly securityGroups: ec2.ISecurityGroup[];
 
   constructor(scope: Construct, id: string, props?: FargateRunnerProviderProps) {
@@ -385,6 +386,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
 
     this.labels = this.labelsFromProperties('fargate', props?.label, props?.labels);
     this.group = props?.group;
+    this.defaultLabels = props?.defaultLabels ?? true;
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
     this.subnetSelection = props?.subnetSelection;
     this.securityGroups = props?.securityGroup ? [props.securityGroup] : (props?.securityGroups ?? [new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc })]);
@@ -502,6 +504,10 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
               {
                 name: 'RUNNER_GROUP',
                 value: this.group ? `--runnergroup ${this.group}` : '',
+              },
+              {
+                name: 'DEFAULT_LABELS',
+                value: this.defaultLabels ? '' : '--no-default-labels',
               },
               {
                 name: 'GITHUB_DOMAIN',
