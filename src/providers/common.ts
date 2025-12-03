@@ -323,6 +323,13 @@ export interface RunnerProviderProps {
    * @deprecated use {@link retryOptions} on {@link GitHubRunners} instead
    */
   readonly retryOptions?: ProviderRetryOptions;
+
+  /**
+   * Add default labels based on OS and architecture of the runner. This will tell GitHub Runner to add default labels like `self-hosted`, `linux`, `x64`, and `arm64`.
+   *
+   * @default true
+   */
+  readonly defaultLabels?: boolean;
 }
 
 /**

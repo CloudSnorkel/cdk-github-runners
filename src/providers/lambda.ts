@@ -231,6 +231,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
   ];
 
   private readonly group?: string;
+  private readonly defaultLabels: boolean;
   private readonly vpc?: ec2.IVpc;
   private readonly securityGroups?: ec2.ISecurityGroup[];
 
@@ -239,6 +240,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
 
     this.labels = this.labelsFromProperties('lambda', props?.label, props?.labels);
     this.group = props?.group;
+    this.defaultLabels = props?.defaultLabels ?? true;
     this.vpc = props?.vpc;
     this.securityGroups = props?.securityGroup ? [props.securityGroup] : props?.securityGroups;
 
@@ -342,6 +344,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
           repo: parameters.repoPath,
           registrationUrl: parameters.registrationUrl,
           group: this.group ? `--runnergroup ${this.group}` : '',
+          defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
         }),
       },
     );
