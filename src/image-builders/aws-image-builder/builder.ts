@@ -298,6 +298,10 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
       ].concat(commands);
     }
   }
+
+  assetHashes() {
+    return this.assets.map(a => a.assetHash);
+  }
 }
 
 /**

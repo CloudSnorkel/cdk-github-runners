@@ -73,6 +73,7 @@ export class ContainerRecipe extends ImageBuilderObjectBase {
     this.version = this.generateVersion('ContainerRecipe', this.name, {
       platform: props.platform,
       components,
+      assetHashes: props.components.map(c => c.assetHashes()).flat(),
       dockerfileTemplate: props.dockerfileTemplate,
       tags: props.tags,
     });
