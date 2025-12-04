@@ -175,7 +175,7 @@ jobs:
     name: ${{ matrix.name }}
 
     runs-on: ${{ matrix.runs-on }}
-    container: ghcr.io/library/bash  # this makes it a docker-in-docker container
+    container: ghcr.io/github/super-linter  # this makes it a docker-in-docker container
     steps:
       - name: Checkout
         uses: actions/checkout@v4
