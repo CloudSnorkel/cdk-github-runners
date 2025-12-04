@@ -87,6 +87,7 @@ export abstract class ImageBuilderBase extends Construct implements IRunnerImage
   }
 
   protected createLog(recipeName: string): logs.LogGroup {
+    // TODO make image depend on the log group so it is created first
     return new logs.LogGroup(this, 'Log', {
       logGroupName: `/aws/imagebuilder/${recipeName}`,
       retention: this.logRetention,

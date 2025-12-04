@@ -164,7 +164,6 @@
           "src/providers/update-lambda.lambda.ts",
           "src/image-builders/aws-image-builder/delete-resources.lambda.ts",
           "src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
-          "src/image-builders/aws-image-builder/versioner.lambda.ts",
           "src/lambda-helpers.ts",
           "src/lambda-github.ts",
           "setup/src/main.ts"

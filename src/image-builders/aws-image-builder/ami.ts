@@ -1,10 +1,8 @@
+import * as imagebuilder2 from '@aws-cdk/aws-imagebuilder-alpha';
 import * as cdk from 'aws-cdk-lib';
-import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './builder';
-import { ImageBuilderObjectBase } from './common';
 import { amiRootDevice, Architecture, Os } from '../../providers';
-import { uniqueImageBuilderName } from '../common';
 
 /**
  * Properties for AmiRecipe construct.
@@ -48,7 +46,8 @@ interface AmiRecipeProperties {
  *
  * @internal
  */
-export class AmiRecipe extends ImageBuilderObjectBase {
+export class AmiRecipe extends cdk.Resource {
+  public readonly recipe: imagebuilder2.ImageRecipe;
   public readonly arn: string;
   public readonly name: string;
   public readonly version: string;
@@ -58,28 +57,21 @@ export class AmiRecipe extends ImageBuilderObjectBase {
 
     let components = props.components.map(component => {
       return {
-        componentArn: component.arn,
+        component: component.component,
       };
     });
 
     const blockDeviceMappings = props.storageSize ? [
       {
         deviceName: amiRootDevice(this, props.baseAmi).ref,
-        ebs: {
-          volumeSize: props.storageSize.toGibibytes(),
-          deleteOnTermination: true,
+        volume: {
+          ebsDevice: {
+            volumeSize: props.storageSize.toGibibytes(),
+            deleteOnTermination: true,
+          },
         },
       },
     ] : undefined;
-
-    this.name = uniqueImageBuilderName(this);
-    this.version = this.generateVersion('ImageRecipe', this.name, {
-      platform: props.platform,
-      components,
-      parentAmi: props.baseAmi,
-      tags: props.tags,
-      blockDeviceMappings,
-    });
 
     let workingDirectory;
     if (props.platform == 'Linux') {
@@ -90,17 +82,18 @@ export class AmiRecipe extends ImageBuilderObjectBase {
       throw new Error(`Unsupported AMI recipe platform: ${props.platform}`);
     }
 
-    const recipe = new imagebuilder.CfnImageRecipe(this, 'Recipe', {
-      name: this.name,
-      version: this.version,
-      parentImage: props.baseAmi,
+    const recipe = new imagebuilder2.ImageRecipe(this, 'Recipe', {
+      baseImage: imagebuilder2.BaseImage.fromAmiId(props.baseAmi),
       components,
       workingDirectory,
       tags: props.tags,
-      blockDeviceMappings,
+      blockDevices: blockDeviceMappings,
     });
 
-    this.arn = recipe.attrArn;
+    this.recipe = recipe;
+    this.arn = recipe.imageRecipeArn;
+    this.name = recipe.imageRecipeName;
+    this.version = recipe.imageRecipeVersion;
   }
 }
 

@@ -66,7 +66,6 @@ tsconfig.json
 !/src/providers/update-lambda-function.ts
 !/src/image-builders/aws-image-builder/delete-resources-function.ts
 !/src/image-builders/aws-image-builder/filter-failed-builds-function.ts
-!/src/image-builders/aws-image-builder/versioner-function.ts
 test/.tmp
 test/default.integ.snapshot/asset.*
 test/default.integ.snapshot/**/asset.*

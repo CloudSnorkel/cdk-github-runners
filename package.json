@@ -17,8 +17,6 @@
     "bundle:image-builders/aws-image-builder/delete-resources.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/delete-resources.lambda:watch",
     "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda": "npx projen bundle:image-builders/aws-image-builder/filter-failed-builds.lambda",
     "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/filter-failed-builds.lambda:watch",
-    "bundle:image-builders/aws-image-builder/versioner.lambda": "npx projen bundle:image-builders/aws-image-builder/versioner.lambda",
-    "bundle:image-builders/aws-image-builder/versioner.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/versioner.lambda:watch",
     "bundle:image-builders/build-image.lambda": "npx projen bundle:image-builders/build-image.lambda",
     "bundle:image-builders/build-image.lambda:watch": "npx projen bundle:image-builders/build-image.lambda:watch",
     "bundle:providers/ami-root-device.lambda": "npx projen bundle:providers/ami-root-device.lambda",
@@ -72,6 +70,7 @@
     "organization": false
   },
   "devDependencies": {
+    "@aws-cdk/aws-imagebuilder-alpha": "2.231.0-alpha.0",
     "@aws-sdk/client-cloudformation": "^3.940.0",
     "@aws-sdk/client-codebuild": "^3.940.0",
     "@aws-sdk/client-ec2": "^3.940.0",
@@ -92,11 +91,10 @@
     "@types/aws-lambda": "^8.10.159",
     "@types/jest": "^29",
     "@types/node": "ts5.6",
-    "@types/semver": "^7.7.1",
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
     "aws-cdk": "^2",
-    "aws-cdk-lib": "2.155.0",
+    "aws-cdk-lib": "2.231.0",
     "bootstrap": "^5.2.0",
     "commit-and-tag-version": "^12",
     "constructs": "10.0.5",
@@ -114,7 +112,6 @@
     "jsii-rosetta": "5.8.x",
     "projen": "^0.98.26",
     "sass": "^1.54.0",
-    "semver": "^7.7.3",
     "svelte": "^5",
     "svelte-check": "^4",
     "svelte-preprocess": "^6",
@@ -125,7 +122,8 @@
     "vite-plugin-singlefile": "^2"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.155.0",
+    "@aws-cdk/aws-imagebuilder-alpha": "^2.231.0-alpha.0",
+    "aws-cdk-lib": "^2.231.0",
     "constructs": "^10.0.5"
   },
   "keywords": [

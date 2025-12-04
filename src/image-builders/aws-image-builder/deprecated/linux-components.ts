@@ -1,3 +1,4 @@
+import * as imagebuilder2 from '@aws-cdk/aws-imagebuilder-alpha';
 import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Architecture, RunnerVersion } from '../../../providers';
@@ -20,7 +21,7 @@ export class LinuxUbuntuComponents {
     }
 
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Linux',
+      platform: imagebuilder2.Platform.LINUX,
       displayName: 'Required packages',
       description: 'Install packages required for GitHub Runner and upgrade all packages',
       commands: [
@@ -36,7 +37,7 @@ export class LinuxUbuntuComponents {
 
   public static runnerUser(scope: Construct, id: string, _architecture: Architecture) {
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Linux',
+      platform: imagebuilder2.Platform.LINUX,
       displayName: 'GitHub Runner user',
       description: 'Install latest version of AWS CLI',
       commands: [
@@ -58,7 +59,7 @@ export class LinuxUbuntuComponents {
     }
 
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Linux',
+      platform: imagebuilder2.Platform.LINUX,
       displayName: 'AWS CLI',
       description: 'Install latest version of AWS CLI',
       commands: [
@@ -72,7 +73,7 @@ export class LinuxUbuntuComponents {
 
   public static githubCli(scope: Construct, id: string, _architecture: Architecture) {
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Linux',
+      platform: imagebuilder2.Platform.LINUX,
       displayName: 'GitHub CLI',
       description: 'Install latest version of gh',
       commands: [
@@ -87,7 +88,7 @@ export class LinuxUbuntuComponents {
 
   public static git(scope: Construct, id: string, _architecture: Architecture) {
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Linux',
+      platform: imagebuilder2.Platform.LINUX,
       displayName: 'Git',
       description: 'Install latest version of git',
       commands: [
@@ -116,7 +117,7 @@ export class LinuxUbuntuComponents {
     }
 
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Linux',
+      platform: imagebuilder2.Platform.LINUX,
       displayName: 'GitHub Actions Runner',
       description: 'Install latest version of GitHub Actions Runner',
       commands: [
@@ -132,7 +133,7 @@ export class LinuxUbuntuComponents {
 
   public static docker(scope: Construct, id: string, _architecture: Architecture) {
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Linux',
+      platform: imagebuilder2.Platform.LINUX,
       displayName: 'Docker',
       description: 'Install latest version of Docker',
       commands: [
@@ -150,7 +151,7 @@ export class LinuxUbuntuComponents {
 
   public static extraCertificates(scope: Construct, id: string, path: string) {
     return new ImageBuilderComponent(scope, id, {
-      platform: 'Linux',
+      platform: imagebuilder2.Platform.LINUX,
       displayName: 'Extra certificates',
       description: 'Install self-signed certificates to provide access to GitHub Enterprise Server',
       commands: [

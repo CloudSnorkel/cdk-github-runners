@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as imagebuilder2 from '@aws-cdk/aws-imagebuilder-alpha';
 import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './aws-image-builder';
@@ -640,11 +641,11 @@ export abstract class RunnerImageComponent {
    * @internal
    */
   _asAwsImageBuilderComponent(scope: Construct, id: string, os: Os, architecture: Architecture) {
-    let platform: 'Linux' | 'Windows';
+    let platform: imagebuilder2.Platform;
     if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS) || os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
-      platform = 'Linux';
+      platform = imagebuilder2.Platform.LINUX;
     } else if (os.is(Os.WINDOWS)) {
-      platform = 'Windows';
+      platform = imagebuilder2.Platform.WINDOWS;
     } else {
       throw new Error(`Unknown os/architecture combo for image builder component: ${os.name}/${architecture.name}`);
     }

@@ -85,10 +85,6 @@
       "type": "build"
     },
     {
-      "name": "@types/semver",
-      "type": "build"
-    },
-    {
       "name": "@typescript-eslint/eslint-plugin",
       "version": "^8",
       "type": "build"
@@ -177,10 +173,6 @@
       "type": "build"
     },
     {
-      "name": "semver",
-      "type": "build"
-    },
-    {
       "name": "svelte-check",
       "version": "^4",
       "type": "build"
@@ -219,8 +211,12 @@
       "type": "build"
     },
     {
+      "name": "@aws-cdk/aws-imagebuilder-alpha",
+      "type": "peer"
+    },
+    {
       "name": "aws-cdk-lib",
-      "version": "^2.155.0",
+      "version": "^2.231.0",
       "type": "peer"
     },
     {

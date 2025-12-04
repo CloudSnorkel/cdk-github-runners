@@ -3720,12 +3720,12 @@ Grants read permissions to the principal on the assets buckets.
 ##### ~~`prefixCommandsWithErrorHandling`~~ <a name="prefixCommandsWithErrorHandling" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.prefixCommandsWithErrorHandling"></a>
 
 ```typescript
-public prefixCommandsWithErrorHandling(platform: string, commands: string[]): string[]
+public prefixCommandsWithErrorHandling(platform: Platform, commands: string[]): string[]
 ```
 
 ###### `platform`<sup>Required</sup> <a name="platform" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.prefixCommandsWithErrorHandling.parameter.platform"></a>
 
-- *Type:* string
+- *Type:* @aws-cdk/aws-imagebuilder-alpha.Platform
 
 ---
 
@@ -3814,10 +3814,10 @@ Check whether the given construct is a Resource.
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.env">env</a></code> | <code>aws-cdk-lib.ResourceEnvironment</code> | The environment this resource belongs to. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.env">env</a></code> | <code>aws-cdk-lib.interfaces.ResourceEnvironment</code> | The environment this resource belongs to. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.stack">stack</a></code> | <code>aws-cdk-lib.Stack</code> | The stack in which this resource is defined. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.arn">arn</a></code> | <code>string</code> | Component ARN. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.platform">platform</a></code> | <code>string</code> | Supported platform for the component. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.component">component</a></code> | <code>@aws-cdk/aws-imagebuilder-alpha.Component</code> | Actual component resource. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.platform">platform</a></code> | <code>@aws-cdk/aws-imagebuilder-alpha.Platform</code> | Supported platform for the component. |
 
 ---
 
@@ -3843,16 +3843,17 @@ The tree node.
 public readonly env: ResourceEnvironment;
 ```
 
-- *Type:* aws-cdk-lib.ResourceEnvironment
+- *Type:* aws-cdk-lib.interfaces.ResourceEnvironment
 
 The environment this resource belongs to.
 
-For resources that are created and managed by the CDK
-(generally, those created by creating new class instances like Role, Bucket, etc.),
-this is always the same as the environment of the stack they belong to;
-however, for imported resources
-(those obtained from static methods like fromRoleArn, fromBucketName, etc.),
-that might be different than the stack they were imported into.
+For resources that are created and managed in a Stack (those created by
+creating new class instances like `new Role()`, `new Bucket()`, etc.), this
+is always the same as the environment of the stack they belong to.
+
+For referenced resources (those obtained from referencing methods like
+`Role.fromRoleArn()`, `Bucket.fromBucketName()`, etc.), they might be
+different than the stack they were imported into.
 
 ---
 
@@ -3870,17 +3871,19 @@ The stack in which this resource is defined.
 
 ---
 
-##### ~~`arn`~~<sup>Required</sup> <a name="arn" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.arn"></a>
+##### ~~`component`~~<sup>Required</sup> <a name="component" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponent.property.component"></a>
 
 - *Deprecated:* Use `RunnerImageComponent` instead as this be internal soon.
 
 ```typescript
-public readonly arn: string;
+public readonly component: Component;
 ```
 
-- *Type:* string
+- *Type:* @aws-cdk/aws-imagebuilder-alpha.Component
 
-Component ARN.
+Actual component resource.
+
+TODO replace this whole class with the new resource
 
 ---
 
@@ -3889,10 +3892,10 @@ Component ARN.
 - *Deprecated:* Use `RunnerImageComponent` instead as this be internal soon.
 
 ```typescript
-public readonly platform: string;
+public readonly platform: Platform;
 ```
 
-- *Type:* string
+- *Type:* @aws-cdk/aws-imagebuilder-alpha.Platform
 
 Supported platform for the component.
 
@@ -7536,7 +7539,7 @@ const imageBuilderComponentProperties: ImageBuilderComponentProperties = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.commands">commands</a></code> | <code>string[]</code> | Shell commands to run when adding this component to the image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.description">description</a></code> | <code>string</code> | Component description. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.displayName">displayName</a></code> | <code>string</code> | Component display name. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.platform">platform</a></code> | <code>string</code> | Component platform. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.platform">platform</a></code> | <code>@aws-cdk/aws-imagebuilder-alpha.Platform</code> | Component platform. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.assets">assets</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderAsset">ImageBuilderAsset</a>[]</code> | Optional assets to add to the built image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.reboot">reboot</a></code> | <code>boolean</code> | Require a reboot after installing this component. |
 
@@ -7583,10 +7586,10 @@ Component display name.
 ##### `platform`<sup>Required</sup> <a name="platform" id="@cloudsnorkel/cdk-github-runners.ImageBuilderComponentProperties.property.platform"></a>
 
 ```typescript
-public readonly platform: string;
+public readonly platform: Platform;
 ```
 
-- *Type:* string
+- *Type:* @aws-cdk/aws-imagebuilder-alpha.Platform
 
 Component platform.
 
