@@ -9082,7 +9082,7 @@ List of weighted runner providers.
 ```typescript
 import { CompositeRunner } from '@cloudsnorkel/cdk-github-runners'
 
-CompositeRunner.fallback(scope: Construct, id: string, providers: IRunnerProvider[], labels: string[], logGroup: ILogGroup)
+CompositeRunner.fallback(scope: Construct, id: string, providers: IRunnerProvider[])
 ```
 
 Creates a fallback runner provider that tries each provider in order until one succeeds.
@@ -9108,22 +9108,6 @@ The scoped construct ID.
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]
 
 List of runner providers to try in order.
-
----
-
-###### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.CompositeRunner.fallback.parameter.labels"></a>
-
-- *Type:* string[]
-
-GitHub Actions labels for this composite provider.
-
----
-
-###### `logGroup`<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.CompositeRunner.fallback.parameter.logGroup"></a>
-
-- *Type:* aws-cdk-lib.aws_logs.ILogGroup
-
-Log group for the composite provider.
 
 ---
 
@@ -10452,8 +10436,8 @@ WindowsComponents.githubRunner(scope: Construct, id: string, runnerVersion: Runn
 
 Interface for composite runner providers that interact with multiple sub-providers.
 
-Unlike IRunnerProvider, composite providers do not have connections or grant capabilities
-as they delegate to their sub-providers.
+Unlike IRunnerProvider, composite providers do not have connections, grant capabilities,
+log groups, or retryable errors as they delegate to their sub-providers.
 
 #### Methods <a name="Methods" id="Methods"></a>
 
@@ -10526,8 +10510,6 @@ grantable for the status function.
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -10556,34 +10538,6 @@ GitHub Actions labels used for this provider.
 These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
 based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
 job's labels, this provider will be chosen and spawn a new runner.
-
----
-
-##### `logGroup`<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.logGroup"></a>
-
-```typescript
-public readonly logGroup: ILogGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_logs.ILogGroup
-
-Log group where provided runners will save their logs.
-
-Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
-
----
-
-##### ~~`retryableErrors`~~<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.retryableErrors"></a>
-
-- *Deprecated:* do not use
-
-```typescript
-public readonly retryableErrors: string[];
-```
-
-- *Type:* string[]
-
-List of step functions errors that should be retried.
 
 ---
 
