@@ -1,7 +1,7 @@
 # This tests against providers/labels deployed by test/default.integ.ts
 # If you want to run this on your account, you will first have to integration test and set it up to point to your fork.
 
-name: self-hosted integration test
+name: self-hosted-integration-test
 
 on:
   workflow_dispatch:
