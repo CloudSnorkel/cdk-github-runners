@@ -82,12 +82,13 @@ jobs:
             runs-on: [self-hosted, linux, fargate-spot, x64]
             docker: false
             sudo: true
-          - name: fargate arm64 (spot)
-            os: linux
-            arch: ARM64
-            runs-on: [self-hosted, linux, fargate-spot, arm64]
-            docker: false
-            sudo: true
+            # TODO bring back
+            #- name: fargate arm64 (spot)
+            #  os: linux
+            #  arch: ARM64
+            #  runs-on: [self-hosted, linux, fargate-spot, arm64]
+            #  docker: false
+            #  sudo: true
           - name: ec2 x64
             os: linux
             arch: X64

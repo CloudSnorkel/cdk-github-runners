@@ -473,7 +473,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.EcsRunTask(
       this,
-      this.labels.join(', '),
+      this.node.path.split('/').splice(1).join('/'),
       {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,

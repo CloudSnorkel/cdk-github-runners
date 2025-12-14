@@ -467,7 +467,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       this.defaultLabels ? '' : '--no-default-labels',
     ];
 
-    const passUserData = new stepfunctions.Pass(this, `${this.labels.join(', ')} data`, {
+    const passUserData = new stepfunctions.Pass(this, `${this.node.path} data`, {
       parameters: {
         userdataTemplate: this.ami.os.is(Os.WINDOWS) ? windowsUserDataTemplate : linuxUserDataTemplate,
       },
@@ -489,7 +489,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
     rootDeviceResource.node.addDependency(this.amiBuilder);
     const subnetRunners = this.subnets.map((subnet, index) => {
-      return new stepfunctions_tasks.CallAwsService(this, `${this.labels.join(', ')} subnet${index+1}`, {
+      return new stepfunctions_tasks.CallAwsService(this, `${this.node.path} subnet${index + 1}`, {
         comment: subnet.subnetId,
         integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         service: 'ec2',

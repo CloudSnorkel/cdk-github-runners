@@ -507,6 +507,46 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, ICons
 }
 
 /**
+ * Interface for composite runner providers that interact with multiple sub-providers.
+ * Unlike IRunnerProvider, composite providers do not have connections, grant capabilities,
+ * log groups, or retryable errors as they delegate to their sub-providers.
+ */
+export interface ICompositeProvider extends IConstruct {
+  /**
+   * GitHub Actions labels used for this provider.
+   *
+   * These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+   * based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+   * job's labels, this provider will be chosen and spawn a new runner.
+   */
+  readonly labels: string[];
+
+  /**
+   * Generate step function tasks that execute the runner.
+   *
+   * Called by GithubRunners and shouldn't be called manually.
+   *
+   * @param parameters specific build parameters
+   */
+  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable;
+
+  /**
+   * An optional method that modifies the role of the state machine after all the tasks have been generated. This can be used to add additional policy
+   * statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
+   *
+   * @param stateMachineRole role for the state machine that executes the task returned from {@link getStepFunctionTask}.
+   */
+  grantStateMachine(stateMachineRole: iam.IGrantable): void;
+
+  /**
+   * Return statuses of all sub-providers to be used in the main status function. Also gives the status function any needed permissions to query the Docker images or AMIs.
+   *
+   * @param statusFunctionRole grantable for the status function
+   */
+  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[];
+}
+
+/**
  * Storage options for the runner instance.
  */
 export interface StorageOptions {

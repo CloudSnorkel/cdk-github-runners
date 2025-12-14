@@ -16,6 +16,7 @@ import {
   LambdaRunnerProvider,
   Os,
   RunnerImageComponent,
+  CompositeRunner,
 } from '../src';
 
 const app = new cdk.App();
@@ -164,19 +165,34 @@ const runners = new GitHubRunners(stack, 'runners', {
       computeType: codebuild.ComputeType.MEDIUM,
       imageBuilder: windowsImageBuilder,
     }),
-    new EcsRunnerProvider(stack, 'ECS', {
-      labels: ['ecs', 'linux', 'x64'],
-      imageBuilder: codeBuildImageBuilder, // codebuild has dind
-      vpc,
-      maxInstances: 1,
-      spot: true,
-      storageSize: cdk.Size.gibibytes(40),
-      storageOptions: {
-        volumeType: ec2.EbsDeviceVolumeType.GP3,
-        iops: 1500,
-        throughput: 150,
-      },
-    }),
+    CompositeRunner.fallback(stack, 'ECS Fallback', [
+      new EcsRunnerProvider(stack, 'ECS Spot', {
+        labels: ['ecs', 'linux', 'x64'],
+        imageBuilder: codeBuildImageBuilder, // codebuild has dind
+        vpc,
+        maxInstances: 1,
+        spot: true,
+        storageSize: cdk.Size.gibibytes(40),
+        storageOptions: {
+          volumeType: ec2.EbsDeviceVolumeType.GP3,
+          iops: 1500,
+          throughput: 150,
+        },
+      }),
+      new EcsRunnerProvider(stack, 'ECS Non-Spot', {
+        labels: ['ecs', 'linux', 'x64'],
+        imageBuilder: codeBuildImageBuilder, // codebuild has dind
+        vpc,
+        maxInstances: 1,
+        spot: false, // only use spot if the first provider fails
+        storageSize: cdk.Size.gibibytes(40),
+        storageOptions: {
+          volumeType: ec2.EbsDeviceVolumeType.GP3,
+          iops: 1500,
+          throughput: 150,
+        },
+      }),
+    ]),
     new EcsRunnerProvider(stack, 'ECS Ubuntu 2404', {
       labels: ['ecs-ubuntu-2404', 'x64'],
       imageBuilder: codeBuildUbuntu2404ImageBuilder, // codebuild has dind
@@ -219,16 +235,42 @@ const runners = new GitHubRunners(stack, 'runners', {
       vpc: cluster.vpc,
       assignPublicIp: true,
     }),
-    new FargateRunnerProvider(stack, 'Fargate-x64-spot', {
-      labels: ['fargate-spot', 'linux', 'x64'],
-      spot: true,
-      cpu: 256,
-      memoryLimitMiB: 512,
-      imageBuilder: fargateX64Builder,
-      cluster,
-      vpc: cluster.vpc,
-      assignPublicIp: true,
-    }),
+    CompositeRunner.distribute(stack, 'Fargate-x64-spot distribute', [
+      {
+        weight: 3,
+        provider: new FargateRunnerProvider(stack, 'Fargate-x64-spot subnet 1', {
+          labels: ['fargate-spot', 'linux', 'x64'],
+          spot: true,
+          cpu: 256,
+          memoryLimitMiB: 512,
+          imageBuilder: fargateX64Builder,
+          cluster,
+          vpc: cluster.vpc,
+          assignPublicIp: true,
+          subnetSelection: vpc.selectSubnets({
+            subnetType: ec2.SubnetType.PUBLIC,
+            availabilityZones: [vpc.availabilityZones[1]],
+          }),
+        }),
+      },
+      {
+        weight: 2,
+        provider: new FargateRunnerProvider(stack, 'Fargate-x64-spot subnet 2', {
+          labels: ['fargate-spot', 'linux', 'x64'],
+          spot: true,
+          cpu: 256,
+          memoryLimitMiB: 512,
+          imageBuilder: fargateX64Builder,
+          cluster,
+          vpc: cluster.vpc,
+          assignPublicIp: true,
+          subnetSelection: vpc.selectSubnets({
+            subnetType: ec2.SubnetType.PUBLIC,
+            availabilityZones: [vpc.availabilityZones[0]],
+          }),
+        }),
+      },
+    ]),
     new FargateRunnerProvider(stack, 'Fargate-arm64', {
       labels: ['fargate', 'linux', 'arm64'],
       cpu: 256,
@@ -238,16 +280,17 @@ const runners = new GitHubRunners(stack, 'runners', {
       vpc: cluster.vpc,
       assignPublicIp: true,
     }),
-    new FargateRunnerProvider(stack, 'Fargate-arm64-spot', {
-      labels: ['fargate-spot', 'linux', 'arm64'],
-      spot: true,
-      cpu: 256,
-      memoryLimitMiB: 512,
-      imageBuilder: fargateArm64Builder,
-      cluster,
-      vpc: cluster.vpc,
-      assignPublicIp: true,
-    }),
+    // TODO bring back
+    // new FargateRunnerProvider(stack, 'Fargate-arm64-spot', {
+    //   labels: ['fargate-spot', 'linux', 'arm64'],
+    //   spot: true,
+    //   cpu: 256,
+    //   memoryLimitMiB: 512,
+    //   imageBuilder: fargateArm64Builder,
+    //   cluster,
+    //   vpc: cluster.vpc,
+    //   assignPublicIp: true,
+    // }),
     new FargateRunnerProvider(stack, 'Fargate-Windows', {
       labels: ['fargate', 'windows', 'x64'],
       cpu: 1024,

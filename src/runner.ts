@@ -21,6 +21,7 @@ import {
   CodeBuildImageBuilderFailedBuildNotifier,
   CodeBuildRunnerProvider,
   FargateRunnerProvider,
+  ICompositeProvider,
   IRunnerProvider,
   LambdaRunnerProvider,
   ProviderRetryOptions,
@@ -43,7 +44,7 @@ export interface GitHubRunnersProps {
    *
    * @default CodeBuild, Lambda and Fargate runners with all the defaults (no VPC or default account VPC)
    */
-  readonly providers?: IRunnerProvider[];
+  readonly providers?: (IRunnerProvider | ICompositeProvider)[];
 
   /**
    * Whether to require the `self-hosted` label. If `true`, the runner will only start if the workflow job explicitly requests the `self-hosted` label.
@@ -246,7 +247,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   /**
    * Configured runner providers.
    */
-  readonly providers: IRunnerProvider[];
+  readonly providers: (IRunnerProvider | ICompositeProvider)[];
 
   /**
    * Secrets for GitHub communication including webhook secret and runner authentication.
@@ -538,7 +539,11 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       },
     );
 
-    const providers = this.providers.map(provider => provider.status(statusFunction));
+    const providers = this.providers.flatMap(provider => {
+      const status = provider.status(statusFunction);
+      // Composite providers return an array, regular providers return a single status
+      return Array.isArray(status) ? status : [status];
+    });
 
     // expose providers as stack metadata as it's too big for Lambda environment variables
     // specifically integration testing got an error because lambda update request was >5kb
@@ -704,19 +709,22 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       // we need "..." for Lambda that prefixes some extra data to log lines
       const pattern = logs.FilterPattern.literal('[..., marker = "CDKGHA", job = "JOB", done = "DONE", labels, status = "Succeeded" || status = "SucceededWithIssues" || status = "Failed" || status = "Canceled" || status = "Skipped" || status = "Abandoned"]');
 
-      this.jobsCompletedMetricFilters = this.providers.map(p =>
-        p.logGroup.addMetricFilter(`${p.logGroup.node.id} filter`, {
-          metricNamespace: 'GitHubRunners',
-          metricName: 'JobCompleted',
-          filterPattern: pattern,
-          metricValue: '1',
-          // can't with dimensions -- defaultValue: 0,
-          dimensions: {
-            ProviderLabels: '$labels',
-            Status: '$status',
-          },
-        }),
-      );
+      // TODO handle composite providers
+      this.jobsCompletedMetricFilters = this.providers
+        .filter((p): p is IRunnerProvider => 'logGroup' in p)
+        .map(p =>
+          p.logGroup.addMetricFilter(`${p.logGroup.node.id} filter`, {
+            metricNamespace: 'GitHubRunners',
+            metricName: 'JobCompleted',
+            filterPattern: pattern,
+            metricValue: '1',
+            // can't with dimensions -- defaultValue: 0,
+            dimensions: {
+              ProviderLabels: '$labels',
+              Status: '$status',
+            },
+          }),
+        );
 
       for (const metricFilter of this.jobsCompletedMetricFilters) {
         if (metricFilter.node.defaultChild instanceof logs.CfnMetricFilter) {
