@@ -17,8 +17,6 @@
     "bundle:image-builders/aws-image-builder/delete-resources.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/delete-resources.lambda:watch",
     "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda": "npx projen bundle:image-builders/aws-image-builder/filter-failed-builds.lambda",
     "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/filter-failed-builds.lambda:watch",
-    "bundle:image-builders/aws-image-builder/versioner.lambda": "npx projen bundle:image-builders/aws-image-builder/versioner.lambda",
-    "bundle:image-builders/aws-image-builder/versioner.lambda:watch": "npx projen bundle:image-builders/aws-image-builder/versioner.lambda:watch",
     "bundle:image-builders/build-image.lambda": "npx projen bundle:image-builders/build-image.lambda",
     "bundle:image-builders/build-image.lambda:watch": "npx projen bundle:image-builders/build-image.lambda:watch",
     "bundle:providers/ami-root-device.lambda": "npx projen bundle:providers/ami-root-device.lambda",
