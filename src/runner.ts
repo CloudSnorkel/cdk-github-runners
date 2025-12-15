@@ -268,7 +268,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private readonly extraLambdaEnv: { [p: string]: string } = {};
   private readonly extraLambdaProps: lambda.FunctionOptions;
   private stateMachineLogGroup?: logs.LogGroup;
-  private jobsCompletedMetricFilters?: logs.MetricFilter[];
+  private jobsCompletedMetricFiltersInitialized = false;
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
@@ -698,41 +698,72 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   /**
+   * Extracts all unique IRunnerProvider instances from providers and composite providers (one level only).
+   * Uses a Set to ensure we don't process the same provider twice, even if it's used in multiple composites.
+   *
+   * @returns Set of unique IRunnerProvider instances
+   */
+  private extractUniqueSubProviders(): Set<IRunnerProvider> {
+    const seen = new Set<IRunnerProvider>();
+    for (const provider of this.providers) {
+      if ('logGroup' in provider) {
+        seen.add(provider);
+      } else {
+        // It's a composite provider, extract sub-providers (one level only, no nested composites)
+        // Access internal structure of composite providers
+        // FallbackRunnerProvider has a private 'providers' field
+        // DistributedRunnerProvider has a private 'weightedProviders' field
+        const composite = provider as any;
+        if (composite.providers && Array.isArray(composite.providers)) {
+          // FallbackRunnerProvider
+          for (const subProvider of composite.providers) {
+            seen.add(subProvider);
+          }
+        } else if (composite.weightedProviders && Array.isArray(composite.weightedProviders)) {
+          // DistributedRunnerProvider
+          for (const wp of composite.weightedProviders) {
+            seen.add(wp.provider);
+          }
+        }
+      }
+    }
+    return seen;
+  }
+
+  /**
    * Metric for the number of GitHub Actions jobs completed. It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succeeded", "SucceededWithIssues", "Failed", "Canceled", "Skipped", or "Abandoned".
    *
    * **WARNING:** this method creates a metric filter for each provider. Each metric has a status dimension with six possible values. These resources may incur cost.
    */
   public metricJobCompleted(props?: cloudwatch.MetricProps): cloudwatch.Metric {
-    if (!this.jobsCompletedMetricFilters) {
+    if (!this.jobsCompletedMetricFiltersInitialized) {
       // we can't use logs.FilterPattern.spaceDelimited() because it has no support for ||
       // status list taken from https://github.com/actions/runner/blob/be9632302ceef50bfb36ea998cea9c94c75e5d4d/src/Sdk/DTWebApi/WebApi/TaskResult.cs
       // we need "..." for Lambda that prefixes some extra data to log lines
       const pattern = logs.FilterPattern.literal('[..., marker = "CDKGHA", job = "JOB", done = "DONE", labels, status = "Succeeded" || status = "SucceededWithIssues" || status = "Failed" || status = "Canceled" || status = "Skipped" || status = "Abandoned"]');
 
-      // TODO handle composite providers
-      this.jobsCompletedMetricFilters = this.providers
-        .filter((p): p is IRunnerProvider => 'logGroup' in p)
-        .map(p =>
-          p.logGroup.addMetricFilter(`${p.logGroup.node.id} filter`, {
-            metricNamespace: 'GitHubRunners',
-            metricName: 'JobCompleted',
-            filterPattern: pattern,
-            metricValue: '1',
-            // can't with dimensions -- defaultValue: 0,
-            dimensions: {
-              ProviderLabels: '$labels',
-              Status: '$status',
-            },
-          }),
-        );
+      // Extract all unique sub-providers from regular and composite providers
+      // Build a set first to avoid filtering the same log twice
+      for (const p of this.extractUniqueSubProviders()) {
+        const metricFilter = p.logGroup.addMetricFilter(`${p.logGroup.node.id} filter`, {
+          metricNamespace: 'GitHubRunners',
+          metricName: 'JobCompleted',
+          filterPattern: pattern,
+          metricValue: '1',
+          // can't with dimensions -- defaultValue: 0,
+          dimensions: {
+            ProviderLabels: '$labels',
+            Status: '$status',
+          },
+        });
 
-      for (const metricFilter of this.jobsCompletedMetricFilters) {
         if (metricFilter.node.defaultChild instanceof logs.CfnMetricFilter) {
           metricFilter.node.defaultChild.addPropertyOverride('MetricTransformations.0.Unit', 'Count');
         } else {
           Annotations.of(metricFilter).addWarning('Unable to set metric filter Unit to Count');
         }
       }
+      this.jobsCompletedMetricFiltersInitialized = true;
     }
 
     return new cloudwatch.Metric({
