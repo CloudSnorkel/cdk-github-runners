@@ -113,7 +113,7 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
 
     for (let i = 1; i < this.providers.length; i++) {
       const nextProvider = this.providers[i].getStepFunctionTask(parameters);
-      const currentParallel = new stepfunctions.Parallel(this, `Fallback Level ${i}`);
+      const currentParallel = new stepfunctions.Parallel(this, `${this.node.id} Fallback Level ${i}`);
 
       currentParallel.branch(currentBranch);
       currentParallel.addCatch(nextProvider, {
