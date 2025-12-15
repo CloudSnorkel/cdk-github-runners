@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2 } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
-import { CodeBuildRunnerProvider, CompositeRunner, GitHubRunners, LambdaRunnerProvider } from '../src';
+import { CodeBuildRunnerProvider, CompositeProvider, GitHubRunners, LambdaRunnerProvider } from '../src';
 
 let app: cdk.App;
 let stack: cdk.Stack;
@@ -108,7 +108,7 @@ describe('GitHubRunners', () => {
   test('Duplicate labels error with composite providers', () => {
     const p1 = new CodeBuildRunnerProvider(stack, 'p1', { labels: ['a'] });
     const p2 = new CodeBuildRunnerProvider(stack, 'p2', { labels: ['a'] });
-    const composite = CompositeRunner.fallback(stack, 'composite', [p1]);
+    const composite = CompositeProvider.fallback(stack, 'composite', [p1]);
 
     expect(() => {
       new GitHubRunners(stack, 'runners', {
@@ -120,8 +120,8 @@ describe('GitHubRunners', () => {
   test('Duplicate labels error between composite providers', () => {
     const p1 = new CodeBuildRunnerProvider(stack, 'p1', { labels: ['a'] });
     const p2 = new CodeBuildRunnerProvider(stack, 'p2', { labels: ['a'] });
-    const composite1 = CompositeRunner.fallback(stack, 'composite1', [p1]);
-    const composite2 = CompositeRunner.fallback(stack, 'composite2', [p2]);
+    const composite1 = CompositeProvider.fallback(stack, 'composite1', [p1]);
+    const composite2 = CompositeProvider.fallback(stack, 'composite2', [p2]);
 
     expect(() => {
       new GitHubRunners(stack, 'runners', {
@@ -133,7 +133,7 @@ describe('GitHubRunners', () => {
   test('Intersecting labels warning with composite providers', () => {
     const p1 = new CodeBuildRunnerProvider(stack, 'p1', { labels: ['a'] });
     const p2 = new CodeBuildRunnerProvider(stack, 'p2', { labels: ['a', 'b'] });
-    const composite = CompositeRunner.fallback(stack, 'composite', [p1]);
+    const composite = CompositeProvider.fallback(stack, 'composite', [p1]);
 
     new GitHubRunners(stack, 'runners', {
       providers: [p2, composite],
@@ -149,7 +149,7 @@ describe('GitHubRunners', () => {
     const p1 = new CodeBuildRunnerProvider(stack, 'p1', { labels: ['test'] });
     const p2 = new LambdaRunnerProvider(stack, 'p2', { labels: ['test'] });
     const p3 = new CodeBuildRunnerProvider(stack, 'p3', { labels: ['other'] });
-    const composite = CompositeRunner.fallback(stack, 'composite', [p1, p2]);
+    const composite = CompositeProvider.fallback(stack, 'composite', [p1, p2]);
 
     const runners = new GitHubRunners(stack, 'runners', {
       providers: [p3, composite],
@@ -170,7 +170,7 @@ describe('GitHubRunners', () => {
     const p1 = new CodeBuildRunnerProvider(stack, 'p1', { labels: ['test'] });
     const p2 = new LambdaRunnerProvider(stack, 'p2', { labels: ['test'] });
     const p3 = new CodeBuildRunnerProvider(stack, 'p3', { labels: ['other'] });
-    const composite = CompositeRunner.distribute(stack, 'composite', [
+    const composite = CompositeProvider.distribute(stack, 'composite', [
       { provider: p1, weight: 1 },
       { provider: p2, weight: 2 },
     ]);
@@ -199,8 +199,8 @@ describe('GitHubRunners', () => {
     const p5 = new CodeBuildRunnerProvider(stack, 'p5', { labels: ['other'] });
 
     // Create composites with different labels to avoid duplicate label errors
-    const composite1 = CompositeRunner.fallback(stack, 'composite1', [p1, p2]);
-    const composite2 = CompositeRunner.fallback(stack, 'composite2', [p3, p4]);
+    const composite1 = CompositeProvider.fallback(stack, 'composite1', [p1, p2]);
+    const composite2 = CompositeProvider.fallback(stack, 'composite2', [p3, p4]);
 
     const runners = new GitHubRunners(stack, 'runners', {
       providers: [p5, composite1, composite2],
@@ -222,7 +222,7 @@ describe('GitHubRunners', () => {
     const p2 = new LambdaRunnerProvider(stack, 'p2', { labels: ['b'] });
     const p3 = new CodeBuildRunnerProvider(stack, 'p3', { labels: ['test'] });
     const p4 = new LambdaRunnerProvider(stack, 'p4', { labels: ['test'] });
-    const composite = CompositeRunner.fallback(stack, 'composite', [p3, p4]);
+    const composite = CompositeProvider.fallback(stack, 'composite', [p3, p4]);
 
     const runners = new GitHubRunners(stack, 'runners', {
       providers: [p1, p2, composite],

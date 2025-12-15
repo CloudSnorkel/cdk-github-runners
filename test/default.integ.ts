@@ -16,7 +16,7 @@ import {
   LambdaRunnerProvider,
   Os,
   RunnerImageComponent,
-  CompositeRunner,
+  CompositeProvider,
 } from '../src';
 
 const app = new cdk.App();
@@ -165,7 +165,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       computeType: codebuild.ComputeType.MEDIUM,
       imageBuilder: windowsImageBuilder,
     }),
-    CompositeRunner.fallback(stack, 'ECS Fallback', [
+    CompositeProvider.fallback(stack, 'ECS Fallback', [
       new EcsRunnerProvider(stack, 'ECS Spot', {
         labels: ['ecs', 'linux', 'x64'],
         imageBuilder: codeBuildImageBuilder, // codebuild has dind
@@ -235,7 +235,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       vpc: cluster.vpc,
       assignPublicIp: true,
     }),
-    CompositeRunner.distribute(stack, 'Fargate-x64-spot distribute', [
+    CompositeProvider.distribute(stack, 'Fargate-x64-spot distribute', [
       {
         weight: 3,
         provider: new FargateRunnerProvider(stack, 'Fargate-x64-spot subnet 1', {

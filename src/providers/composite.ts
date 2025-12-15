@@ -24,7 +24,7 @@ export interface WeightedRunnerProvider {
 /**
  * A composite runner provider that implements fallback and distribution strategies.
  */
-export class CompositeRunner {
+export class CompositeProvider {
   /**
    * Creates a fallback runner provider that tries each provider in order until one succeeds.
    *
