@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './builder';
-import { ImageBuilderObjectBase } from './common';
 import { amiRootDevice, Architecture, Os } from '../../providers';
 import { uniqueImageBuilderName } from '../common';
 
@@ -48,7 +47,7 @@ interface AmiRecipeProperties {
  *
  * @internal
  */
-export class AmiRecipe extends ImageBuilderObjectBase {
+export class AmiRecipe extends cdk.Resource {
   public readonly arn: string;
   public readonly name: string;
   public readonly version: string;
@@ -73,13 +72,6 @@ export class AmiRecipe extends ImageBuilderObjectBase {
     ] : undefined;
 
     this.name = uniqueImageBuilderName(this);
-    this.version = this.generateVersion('ImageRecipe', this.name, {
-      platform: props.platform,
-      components,
-      parentAmi: props.baseAmi,
-      tags: props.tags,
-      blockDeviceMappings,
-    });
 
     let workingDirectory;
     if (props.platform == 'Linux') {
@@ -92,7 +84,7 @@ export class AmiRecipe extends ImageBuilderObjectBase {
 
     const recipe = new imagebuilder.CfnImageRecipe(this, 'Recipe', {
       name: this.name,
-      version: this.version,
+      version: '1.0.x',
       parentImage: props.baseAmi,
       components,
       workingDirectory,
@@ -101,6 +93,7 @@ export class AmiRecipe extends ImageBuilderObjectBase {
     });
 
     this.arn = recipe.attrArn;
+    this.version = recipe.getAtt('Version', cdk.ResolutionTypeHint.STRING).toString();
   }
 }
 
