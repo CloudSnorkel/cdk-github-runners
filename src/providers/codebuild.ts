@@ -284,7 +284,8 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
           REPO: 'unspecified',
           GITHUB_DOMAIN: 'github.com',
           REGISTRATION_URL: 'unspecified',
-          RUNNER_GROUP: '',
+          RUNNER_GROUP1: '',
+          RUNNER_GROUP2: '',
           DEFAULT_LABELS: '',
         },
       },
@@ -294,7 +295,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
             this.dind ? 'nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &' : '',
             this.dind ? 'timeout 15 sh -c "until docker info; do echo .; sleep 1; done"' : '',
             'if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi',
-            'sudo -Hu runner /home/runner/config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" ${RUNNER_FLAGS} --name "${RUNNER_NAME}" ${RUNNER_GROUP} ${DEFAULT_LABELS}',
+            'sudo -Hu runner /home/runner/config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" ${RUNNER_FLAGS} --name "${RUNNER_NAME}" ${RUNNER_GROUP1} ${RUNNER_GROUP2} ${DEFAULT_LABELS}',
           ],
         },
         build: {
@@ -314,7 +315,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       buildSpec.phases.install.commands = [
         'cd \\actions',
         'if (${Env:RUNNER_VERSION} -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }',
-        './config.cmd --unattended --url "${Env:REGISTRATION_URL}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat %s)" ${RunnerFlags} --name "${Env:RUNNER_NAME}" ${Env:RUNNER_GROUP} ${Env:DEFAULT_LABELS}',
+        './config.cmd --unattended --url "${Env:REGISTRATION_URL}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat %s)" ${RunnerFlags} --name "${Env:RUNNER_NAME}" ${Env:RUNNER_GROUP1} ${Env:RUNNER_GROUP2} ${Env:DEFAULT_LABELS}',
       ];
       buildSpec.phases.build.commands = [
         'cd \\actions',
@@ -409,9 +410,13 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
             value: this.labels.join(','),
           },
-          RUNNER_GROUP: {
+          RUNNER_GROUP1: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: this.group ? `--runnergroup ${this.group}` : '',
+            value: this.group ? '--runnergroup' : '',
+          },
+          RUNNER_GROUP2: {
+            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
+            value: this.group ? this.group : '',
           },
           DEFAULT_LABELS: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
