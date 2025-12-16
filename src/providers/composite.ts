@@ -32,11 +32,7 @@ export class CompositeProvider {
    * @param id The scoped construct ID
    * @param providers List of runner providers to try in order
    */
-  public static fallback(
-    scope: Construct,
-    id: string,
-    providers: IRunnerProvider[],
-  ): ICompositeProvider {
+  public static fallback(scope: Construct, id: string, providers: IRunnerProvider[]): ICompositeProvider {
     if (providers.length === 0) {
       throw new Error('At least one provider must be specified for fallback');
     }
@@ -53,11 +49,7 @@ export class CompositeProvider {
    * @param id The scoped construct ID
    * @param weightedProviders List of weighted runner providers
    */
-  public static distribute(
-    scope: Construct,
-    id: string,
-    weightedProviders: WeightedRunnerProvider[],
-  ): ICompositeProvider {
+  public static distribute(scope: Construct, id: string, weightedProviders: WeightedRunnerProvider[]): ICompositeProvider {
     if (weightedProviders.length === 0) {
       throw new Error('At least one provider must be specified for distribution');
     }
@@ -113,6 +105,7 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
 
     for (let i = 1; i < this.providers.length; i++) {
       const nextProvider = this.providers[i].getStepFunctionTask(parameters);
+      // TODO do we really need a ton of parallels here? can't we put the catch on the state directly? what if there are multiple states?
       const currentParallel = new stepfunctions.Parallel(this, `${this.node.id} Fallback Level ${i}`);
 
       currentParallel.branch(currentBranch);
