@@ -280,17 +280,16 @@ const runners = new GitHubRunners(stack, 'runners', {
       vpc: cluster.vpc,
       assignPublicIp: true,
     }),
-    // TODO bring back
-    // new FargateRunnerProvider(stack, 'Fargate-arm64-spot', {
-    //   labels: ['fargate-spot', 'linux', 'arm64'],
-    //   spot: true,
-    //   cpu: 256,
-    //   memoryLimitMiB: 512,
-    //   imageBuilder: fargateArm64Builder,
-    //   cluster,
-    //   vpc: cluster.vpc,
-    //   assignPublicIp: true,
-    // }),
+    new FargateRunnerProvider(stack, 'Fargate-arm64-spot', {
+      labels: ['fargate-spot', 'linux', 'arm64'],
+      spot: true,
+      cpu: 256,
+      memoryLimitMiB: 512,
+      imageBuilder: fargateArm64Builder,
+      cluster,
+      vpc: cluster.vpc,
+      assignPublicIp: true,
+    }),
     new FargateRunnerProvider(stack, 'Fargate-Windows', {
       labels: ['fargate', 'windows', 'x64'],
       cpu: 1024,
