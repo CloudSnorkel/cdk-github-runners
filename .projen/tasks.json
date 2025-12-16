@@ -83,9 +83,6 @@
           "spawn": "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda"
         },
         {
-          "spawn": "bundle:image-builders/aws-image-builder/versioner.lambda"
-        },
-        {
           "exec": "cp -r src/providers/docker-images assets"
         },
         {
@@ -168,24 +165,6 @@
       "steps": [
         {
           "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
-        }
-      ]
-    },
-    "bundle:image-builders/aws-image-builder/versioner.lambda": {
-      "name": "bundle:image-builders/aws-image-builder/versioner.lambda",
-      "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/versioner.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/versioner.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/versioner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
-        }
-      ]
-    },
-    "bundle:image-builders/aws-image-builder/versioner.lambda:watch": {
-      "name": "bundle:image-builders/aws-image-builder/versioner.lambda:watch",
-      "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/versioner.lambda.ts",
-      "steps": [
-        {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/versioner.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/versioner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },

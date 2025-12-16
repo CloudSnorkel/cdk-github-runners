@@ -31,7 +31,6 @@
 /src/idle-runner-repear-function.ts linguist-generated
 /src/image-builders/aws-image-builder/delete-resources-function.ts linguist-generated
 /src/image-builders/aws-image-builder/filter-failed-builds-function.ts linguist-generated
-/src/image-builders/aws-image-builder/versioner-function.ts linguist-generated
 /src/image-builders/build-image-function.ts linguist-generated
 /src/providers/ami-root-device-function.ts linguist-generated
 /src/providers/update-lambda-function.ts linguist-generated

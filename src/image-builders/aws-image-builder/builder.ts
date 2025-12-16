@@ -20,7 +20,6 @@ import { TagMutability } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
 import { AmiRecipe, defaultBaseAmi } from './ami';
-import { ImageBuilderObjectBase } from './common';
 import { ContainerRecipe, defaultBaseDockerImage } from './container';
 import { DeleteResourcesFunction } from './delete-resources-function';
 import { DeleteResourcesProps } from './delete-resources.lambda';
@@ -164,7 +163,7 @@ export interface ImageBuilderComponentProperties {
  *
  * @deprecated Use `RunnerImageComponent` instead as this be internal soon.
  */
-export class ImageBuilderComponent extends ImageBuilderObjectBase {
+export class ImageBuilderComponent extends cdk.Resource {
   /**
    * Component ARN.
    */
@@ -263,11 +262,7 @@ export class ImageBuilderComponent extends ImageBuilderObjectBase {
       name: name,
       description: props.description,
       platform: props.platform,
-      version: this.generateVersion('Component', name, {
-        platform: props.platform,
-        data,
-        description: props.description,
-      }),
+      version: '1.0.0',
       data: JSON.stringify(data),
     });
 
