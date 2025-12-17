@@ -30,8 +30,6 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@aws-sdk/client-ssm',
     '@aws-sdk/client-sfn',
     '@types/aws-lambda',
-    'semver',
-    '@types/semver',
     // for setup ui
     '@sveltejs/vite-plugin-svelte@^4',
     '@tsconfig/svelte@^5',
