@@ -1,9 +1,6 @@
-import {
-  aws_iam as iam,
-  aws_stepfunctions as stepfunctions,
-} from 'aws-cdk-lib';
+import { aws_iam as iam, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { ICompositeProvider, IRunnerProvider, IRunnerProviderStatus, RunnerRuntimeParameters } from './common';
+import { ICompositeProvider, IRunnerProvider, IRunnerProviderStatus, nodePathWithoutStack, RunnerRuntimeParameters } from './common';
 
 /**
  * Configuration for weighted distribution of runners.
@@ -33,8 +30,8 @@ export class CompositeProvider {
    * @param providers List of runner providers to try in order
    */
   public static fallback(scope: Construct, id: string, providers: IRunnerProvider[]): ICompositeProvider {
-    if (providers.length === 0) {
-      throw new Error('At least one provider must be specified for fallback');
+    if (providers.length < 2) {
+      throw new Error('At least two providers must be specified for fallback');
     }
 
     this.validateLabels(providers);
@@ -50,8 +47,8 @@ export class CompositeProvider {
    * @param weightedProviders List of weighted runner providers
    */
   public static distribute(scope: Construct, id: string, weightedProviders: WeightedRunnerProvider[]): ICompositeProvider {
-    if (weightedProviders.length === 0) {
-      throw new Error('At least one provider must be specified for distribution');
+    if (weightedProviders.length < 2) {
+      throw new Error('At least two providers must be specified for distribution');
     }
 
     // Validate labels
@@ -86,11 +83,7 @@ export class CompositeProvider {
 class FallbackRunnerProvider extends Construct implements ICompositeProvider {
   public readonly labels: string[];
 
-  constructor(
-    scope: Construct,
-    id: string,
-    private readonly providers: IRunnerProvider[],
-  ) {
+  constructor(scope: Construct, id: string, private readonly providers: IRunnerProvider[]) {
     super(scope, id);
     this.labels = providers[0].labels;
   }
@@ -140,39 +133,36 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
 class DistributedRunnerProvider extends Construct implements ICompositeProvider {
   public readonly labels: string[];
 
-  constructor(
-    scope: Construct,
-    id: string,
-    private readonly weightedProviders: WeightedRunnerProvider[],
-  ) {
+  constructor(scope: Construct, id: string, private readonly weightedProviders: WeightedRunnerProvider[]) {
     super(scope, id);
     this.labels = weightedProviders[0].provider.labels;
   }
 
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    if (this.weightedProviders.length === 1) {
-      return this.weightedProviders[0].provider.getStepFunctionTask(parameters);
-    }
-
+    /**
+     * Weighted random selection algorithm:
+     * 1. Generate a random number in [1, totalWeight+1)
+     * 2. Build cumulative weight ranges for each provider (e.g., weights [10,20,30] -> ranges [1-10, 11-30, 31-60])
+     * 3. Use Step Functions Choice state to route to the provider whose range contains the random number
+     *    The first matching condition wins, so we check if rand <= cumulativeWeight for each provider in order
+     */
     const totalWeight = this.weightedProviders.reduce((sum, wp) => sum + wp.weight, 0);
-    const rand = new stepfunctions.Pass(this, this.node.path.split('/').splice(1).join('/'), {
+    const rand = new stepfunctions.Pass(this, `${nodePathWithoutStack(this)} rand`, {
       parameters: {
         rand: stepfunctions.JsonPath.mathRandom(1, totalWeight + 1),
       },
       resultPath: '$.composite',
     });
-    const choice = new stepfunctions.Choice(this, `${this.node.path.split('/').splice(1).join('/')} Weighted Distribution`);
+    const choice = new stepfunctions.Choice(this, `${nodePathWithoutStack(this)} choice`);
     rand.next(choice);
 
     // Find provider with the highest weight
     let rollingWeight = 0;
     for (const wp of this.weightedProviders) {
       rollingWeight += wp.weight;
-      const providerState = wp.provider.getStepFunctionTask(parameters) as stepfunctions.State; // TODO ugly
-      // providerState.addPrefix(`${rollingWeight} `); // Prefix state names to ensure uniqueness
       choice.when(
         stepfunctions.Condition.numberLessThanEquals('$.composite.rand', rollingWeight),
-        providerState,
+        wp.provider.getStepFunctionTask(parameters),
       );
     }
 
