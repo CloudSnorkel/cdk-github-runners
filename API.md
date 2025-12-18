@@ -9016,16 +9016,16 @@ X86_64.
 
 ---
 
-### CompositeRunner <a name="CompositeRunner" id="@cloudsnorkel/cdk-github-runners.CompositeRunner"></a>
+### CompositeProvider <a name="CompositeProvider" id="@cloudsnorkel/cdk-github-runners.CompositeProvider"></a>
 
 A composite runner provider that implements fallback and distribution strategies.
 
-#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.CompositeRunner.Initializer"></a>
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.Initializer"></a>
 
 ```typescript
-import { CompositeRunner } from '@cloudsnorkel/cdk-github-runners'
+import { CompositeProvider } from '@cloudsnorkel/cdk-github-runners'
 
-new CompositeRunner()
+new CompositeProvider()
 ```
 
 | **Name** | **Type** | **Description** |
@@ -9038,22 +9038,30 @@ new CompositeRunner()
 
 | **Name** | **Description** |
 | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CompositeRunner.distribute">distribute</a></code> | Creates a weighted distribution runner provider that randomly selects a provider based on weights. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CompositeRunner.fallback">fallback</a></code> | Creates a fallback runner provider that tries each provider in order until one succeeds. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CompositeProvider.distribute">distribute</a></code> | Creates a weighted distribution runner provider that randomly selects a provider based on weights. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CompositeProvider.fallback">fallback</a></code> | Creates a fallback runner provider that tries each provider in order until one succeeds. |
 
 ---
 
-##### `distribute` <a name="distribute" id="@cloudsnorkel/cdk-github-runners.CompositeRunner.distribute"></a>
+##### `distribute` <a name="distribute" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.distribute"></a>
 
 ```typescript
-import { CompositeRunner } from '@cloudsnorkel/cdk-github-runners'
+import { CompositeProvider } from '@cloudsnorkel/cdk-github-runners'
 
-CompositeRunner.distribute(scope: Construct, id: string, weightedProviders: WeightedRunnerProvider[])
+CompositeProvider.distribute(scope: Construct, id: string, weightedProviders: WeightedRunnerProvider[])
 ```
 
 Creates a weighted distribution runner provider that randomly selects a provider based on weights.
 
-###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CompositeRunner.distribute.parameter.scope"></a>
+For example, given providers A (weight 10), B (weight 20), C (weight 30):
+- Total weight = 60
+- Probability of selecting A = 10/60 = 16.67%
+- Probability of selecting B = 20/60 = 33.33%
+- Probability of selecting C = 30/60 = 50%
+
+You can use this to distribute load across multiple instance types or availability zones.
+
+###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.distribute.parameter.scope"></a>
 
 - *Type:* constructs.Construct
 
@@ -9061,7 +9069,7 @@ The scope in which to define this construct.
 
 ---
 
-###### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.CompositeRunner.distribute.parameter.id"></a>
+###### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.distribute.parameter.id"></a>
 
 - *Type:* string
 
@@ -9069,7 +9077,7 @@ The scoped construct ID.
 
 ---
 
-###### `weightedProviders`<sup>Required</sup> <a name="weightedProviders" id="@cloudsnorkel/cdk-github-runners.CompositeRunner.distribute.parameter.weightedProviders"></a>
+###### `weightedProviders`<sup>Required</sup> <a name="weightedProviders" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.distribute.parameter.weightedProviders"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.WeightedRunnerProvider">WeightedRunnerProvider</a>[]
 
@@ -9077,17 +9085,26 @@ List of weighted runner providers.
 
 ---
 
-##### `fallback` <a name="fallback" id="@cloudsnorkel/cdk-github-runners.CompositeRunner.fallback"></a>
+##### `fallback` <a name="fallback" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.fallback"></a>
 
 ```typescript
-import { CompositeRunner } from '@cloudsnorkel/cdk-github-runners'
+import { CompositeProvider } from '@cloudsnorkel/cdk-github-runners'
 
-CompositeRunner.fallback(scope: Construct, id: string, providers: IRunnerProvider[])
+CompositeProvider.fallback(scope: Construct, id: string, providers: IRunnerProvider[])
 ```
 
 Creates a fallback runner provider that tries each provider in order until one succeeds.
 
-###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CompositeRunner.fallback.parameter.scope"></a>
+For example, given providers A, B, C:
+- Try A first
+- If A fails, try B
+- If B fails, try C
+
+You can use this to try spot instance first, and switch to on-demand instances if spot is unavailable.
+
+Or you can use this to try different instance types in order of preference.
+
+###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.fallback.parameter.scope"></a>
 
 - *Type:* constructs.Construct
 
@@ -9095,7 +9112,7 @@ The scope in which to define this construct.
 
 ---
 
-###### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.CompositeRunner.fallback.parameter.id"></a>
+###### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.fallback.parameter.id"></a>
 
 - *Type:* string
 
@@ -9103,7 +9120,7 @@ The scoped construct ID.
 
 ---
 
-###### `providers`<sup>Required</sup> <a name="providers" id="@cloudsnorkel/cdk-github-runners.CompositeRunner.fallback.parameter.providers"></a>
+###### `providers`<sup>Required</sup> <a name="providers" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.fallback.parameter.providers"></a>
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]
 
@@ -10950,6 +10967,7 @@ Interface for runner image status used by status.json.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.type">type</a></code> | <code>string</code> | Runner provider type. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.ami">ami</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus">IRunnerAmiStatus</a></code> | Details about AMI used by this runner provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.constructPath">constructPath</a></code> | <code>string</code> | CDK construct node path for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageStatus">IRunnerImageStatus</a></code> | Details about Docker image used by this runner provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.logGroup">logGroup</a></code> | <code>string</code> | Log group for runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.roleArn">roleArn</a></code> | <code>string</code> | Role attached to runners. |
@@ -10991,6 +11009,18 @@ public readonly ami: IRunnerAmiStatus;
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus">IRunnerAmiStatus</a>
 
 Details about AMI used by this runner provider.
+
+---
+
+##### `constructPath`<sup>Optional</sup> <a name="constructPath" id="@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.constructPath"></a>
+
+```typescript
+public readonly constructPath: string;
+```
+
+- *Type:* string
+
+CDK construct node path for this provider.
 
 ---
 

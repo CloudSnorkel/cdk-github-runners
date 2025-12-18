@@ -25,6 +25,15 @@ export class CompositeProvider {
   /**
    * Creates a fallback runner provider that tries each provider in order until one succeeds.
    *
+   * For example, given providers A, B, C:
+   * - Try A first
+   * - If A fails, try B
+   * - If B fails, try C
+   *
+   * You can use this to try spot instance first, and switch to on-demand instances if spot is unavailable.
+   *
+   * Or you can use this to try different instance types in order of preference.
+   *
    * @param scope The scope in which to define this construct
    * @param id The scoped construct ID
    * @param providers List of runner providers to try in order
@@ -41,6 +50,14 @@ export class CompositeProvider {
 
   /**
    * Creates a weighted distribution runner provider that randomly selects a provider based on weights.
+   *
+   * For example, given providers A (weight 10), B (weight 20), C (weight 30):
+   * - Total weight = 60
+   * - Probability of selecting A = 10/60 = 16.67%
+   * - Probability of selecting B = 20/60 = 33.33%
+   * - Probability of selecting C = 30/60 = 50%
+   *
+   * You can use this to distribute load across multiple instance types or availability zones.
    *
    * @param scope The scope in which to define this construct
    * @param id The scoped construct ID
@@ -185,14 +202,14 @@ class DistributedRunnerProvider extends Construct implements ICompositeProvider 
     this.labels = weightedProviders[0].provider.labels;
   }
 
+  /**
+   * Weighted random selection algorithm:
+   * 1. Generate a random number in [1, totalWeight+1)
+   * 2. Build cumulative weight ranges for each provider (e.g., weights [10,20,30] -> ranges [1-10, 11-30, 31-60])
+   * 3. Use Step Functions Choice state to route to the provider whose range contains the random number
+   *    The first matching condition wins, so we check if rand <= cumulativeWeight for each provider in order
+   */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    /**
-     * Weighted random selection algorithm:
-     * 1. Generate a random number in [1, totalWeight+1)
-     * 2. Build cumulative weight ranges for each provider (e.g., weights [10,20,30] -> ranges [1-10, 11-30, 31-60])
-     * 3. Use Step Functions Choice state to route to the provider whose range contains the random number
-     *    The first matching condition wins, so we check if rand <= cumulativeWeight for each provider in order
-     */
     const totalWeight = this.weightedProviders.reduce((sum, wp) => sum + wp.weight, 0);
     const rand = new stepfunctions.Pass(this, `${nodePathWithoutStack(this)} rand`, {
       parameters: {
