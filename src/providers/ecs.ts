@@ -691,6 +691,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     return {
       type: this.constructor.name,
       labels: this.labels,
+      constructPath: this.node.path,
       vpcArn: this.vpc?.vpcArn,
       securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
       roleArn: this.task.taskRole.roleArn,

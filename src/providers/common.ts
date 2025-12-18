@@ -424,6 +424,11 @@ export interface IRunnerProviderStatus {
   readonly labels: string[];
 
   /**
+   * CDK construct node path for this provider.
+   */
+  readonly constructPath?: string;
+
+  /**
    * VPC where runners will be launched.
    */
   readonly vpcArn?: string;

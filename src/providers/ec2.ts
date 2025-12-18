@@ -561,7 +561,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
 
     // chain up the rest of the subnets
     for (let i = 1; i < subnetRunners.length; i++) {
-      subnetRunners[i-1].addCatch(subnetRunners[i], {
+      subnetRunners[i - 1].addCatch(subnetRunners[i], {
         errors: ['Ec2.Ec2Exception', 'States.Timeout'],
         resultPath: stepfunctions.JsonPath.stringAt('$.lastSubnetError'),
       });
@@ -609,6 +609,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     return {
       type: this.constructor.name,
       labels: this.labels,
+      constructPath: this.node.path,
       securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
       roleArn: this.role.roleArn,
       logGroup: this.logGroup.logGroupName,

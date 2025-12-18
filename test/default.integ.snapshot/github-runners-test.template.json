@@ -18992,6 +18992,7 @@
       "labels": [
        "codebuild-x64"
       ],
+      "constructPath": "github-runners-test/CodeBuildx64",
       "roleArn": {
        "Fn::GetAtt": [
         "CodeBuildx64CodeBuildRole32E5C764",
@@ -19061,6 +19062,7 @@
       "labels": [
        "codebuild-ubuntu-2404-x64"
       ],
+      "constructPath": "github-runners-test/CodeBuildUbuntu2404x64",
       "roleArn": {
        "Fn::GetAtt": [
         "CodeBuildUbuntu2404x64CodeBuildRoleD05C8D92",
@@ -19132,6 +19134,7 @@
        "linux",
        "arm64"
       ],
+      "constructPath": "github-runners-test/CodeBuildARM",
       "roleArn": {
        "Fn::GetAtt": [
         "CodeBuildARMCodeBuildRole74DB4985",
@@ -19203,6 +19206,7 @@
        "windows",
        "x64"
       ],
+      "constructPath": "github-runners-test/CodeBuildWindows",
       "roleArn": {
        "Fn::GetAtt": [
         "CodeBuildWindowsCodeBuildRoleDC93697E",
@@ -19274,6 +19278,7 @@
        "linux",
        "x64"
       ],
+      "constructPath": "github-runners-test/ECS Spot",
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -19376,6 +19381,7 @@
        "linux",
        "x64"
       ],
+      "constructPath": "github-runners-test/ECS Non-Spot",
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -19477,6 +19483,7 @@
        "ecs-ubuntu-2404",
        "x64"
       ],
+      "constructPath": "github-runners-test/ECS Ubuntu 2404",
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -19579,6 +19586,7 @@
        "linux",
        "arm64"
       ],
+      "constructPath": "github-runners-test/ECS ARM64",
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -19681,6 +19689,7 @@
        "windows",
        "x64"
       ],
+      "constructPath": "github-runners-test/ECS Windows",
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -19782,6 +19791,7 @@
        "lambda",
        "x64"
       ],
+      "constructPath": "github-runners-test/Lambda",
       "roleArn": {
        "Fn::GetAtt": [
         "LambdaFunctionServiceRoleB1826A50",
@@ -19852,6 +19862,7 @@
        "lambda",
        "arm64"
       ],
+      "constructPath": "github-runners-test/LambdaARM",
       "roleArn": {
        "Fn::GetAtt": [
         "LambdaARMFunctionServiceRole136069A0",
@@ -19923,6 +19934,7 @@
        "linux",
        "x64"
       ],
+      "constructPath": "github-runners-test/Fargate",
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -20025,6 +20037,7 @@
        "linux",
        "x64"
       ],
+      "constructPath": "github-runners-test/Fargate-x64-spot subnet 1",
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -20127,6 +20140,7 @@
        "linux",
        "x64"
       ],
+      "constructPath": "github-runners-test/Fargate-x64-spot subnet 2",
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -20229,6 +20243,7 @@
        "linux",
        "arm64"
       ],
+      "constructPath": "github-runners-test/Fargate-arm64",
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -20331,6 +20346,7 @@
        "linux",
        "arm64"
       ],
+      "constructPath": "github-runners-test/Fargate-arm64-spot",
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -20433,6 +20449,7 @@
        "windows",
        "x64"
       ],
+      "constructPath": "github-runners-test/Fargate-Windows",
       "vpcArn": {
        "Fn::Join": [
         "",
@@ -20535,6 +20552,7 @@
        "linux",
        "x64"
       ],
+      "constructPath": "github-runners-test/EC2 Linux",
       "securityGroups": [
        {
         "Fn::GetAtt": [
@@ -20568,6 +20586,7 @@
        "linux",
        "x64"
       ],
+      "constructPath": "github-runners-test/EC2 Linux 2",
       "securityGroups": [
        {
         "Fn::GetAtt": [
@@ -20601,6 +20620,7 @@
        "linux",
        "x64"
       ],
+      "constructPath": "github-runners-test/EC2 Spot Linux",
       "securityGroups": [
        {
         "Fn::GetAtt": [
@@ -20634,6 +20654,7 @@
        "linux",
        "arm64"
       ],
+      "constructPath": "github-runners-test/EC2 Linux arm64",
       "securityGroups": [
        {
         "Fn::GetAtt": [
@@ -20667,6 +20688,7 @@
        "windows",
        "x64"
       ],
+      "constructPath": "github-runners-test/EC2 Windows",
       "securityGroups": [
        {
         "Fn::GetAtt": [
