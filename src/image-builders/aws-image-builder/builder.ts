@@ -925,7 +925,8 @@ export class AwsImageBuilderFailedBuildNotifier implements cdk.IAspect {
     }
   }
 
-  // TODO
+  // AWS dev says we can also use this filter on EventBridge directly
+  // We will have to filter it further down by recipe
   // {
   //     "detail-type": ["EC2 Image Builder Image State Change"],
   //     "source": ["aws.imagebuilder"],
