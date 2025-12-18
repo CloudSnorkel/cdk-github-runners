@@ -132,7 +132,7 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
             // Attach catch handler: if this provider fails, fall back to next provider
             endState.addCatch(nextProvider, {
               errors: ['States.ALL'], // Catch all errors
-              resultPath: `$.fallbackError${i+1}`, // Store error info for debugging
+              resultPath: `$.fallbackError${i + 1}`, // Store error info for debugging
             });
             continue;
           }
@@ -144,11 +144,11 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
       // - The provider is not a State instance
       // - The provider has multiple end states
       // - The end state doesn't support addCatch directly
-      const parallel = new stepfunctions.Parallel(this, `${nodePathWithoutStack(this)} attempt #${i+1}`);
+      const parallel = new stepfunctions.Parallel(this, `${nodePathWithoutStack(this)} attempt #${i + 1}`);
       parallel.branch(currentProvider);
       parallel.addCatch(nextProvider, {
         errors: ['States.ALL'],
-        resultPath: `$.fallbackError${i+1}`,
+        resultPath: `$.fallbackError${i + 1}`,
       });
 
       // If this is the first provider, update the entry point to the wrapped version

@@ -299,17 +299,31 @@ const runners = new GitHubRunners(stack, 'runners', {
       vpc: cluster.vpc,
       assignPublicIp: true,
     }),
-    new Ec2RunnerProvider(stack, 'EC2 Linux', {
-      labels: ['ec2', 'linux', 'x64'],
-      imageBuilder: amiX64Builder,
-      vpc,
-      storageSize: cdk.Size.gibibytes(40),
-      storageOptions: {
-        volumeType: ec2.EbsDeviceVolumeType.GP3,
-        iops: 3000,
-        throughput: 200,
-      },
-    }),
+    CompositeProvider.fallback(stack, 'EC2 Fallback', [
+      // test composite of ec2 (it has multiple step function states)
+      new Ec2RunnerProvider(stack, 'EC2 Linux', {
+        labels: ['ec2', 'linux', 'x64'],
+        imageBuilder: amiX64Builder,
+        vpc,
+        storageSize: cdk.Size.gibibytes(40),
+        storageOptions: {
+          volumeType: ec2.EbsDeviceVolumeType.GP3,
+          iops: 3000,
+          throughput: 200,
+        },
+      }),
+      new Ec2RunnerProvider(stack, 'EC2 Linux 2', {
+        labels: ['ec2', 'linux', 'x64'],
+        imageBuilder: amiX64Builder,
+        vpc,
+        storageSize: cdk.Size.gibibytes(40),
+        storageOptions: {
+          volumeType: ec2.EbsDeviceVolumeType.GP3,
+          iops: 3000,
+          throughput: 200,
+        },
+      }),
+    ]),
     new Ec2RunnerProvider(stack, 'EC2 Spot Linux', {
       labels: ['ec2-spot', 'linux', 'x64'],
       imageBuilder: amiX64Builder,
