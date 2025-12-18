@@ -709,24 +709,14 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private extractUniqueSubProviders(): Set<IRunnerProvider> {
     const seen = new Set<IRunnerProvider>();
     for (const provider of this.providers) {
+      // instanceof doesn't really work in CDK so use this hack instead
       if ('logGroup' in provider) {
+        // Regular provider
         seen.add(provider);
       } else {
-        // It's a composite provider, extract sub-providers (one level only, no nested composites)
-        // Access internal structure of composite providers
-        // FallbackRunnerProvider has a private 'providers' field
-        // DistributedRunnerProvider has a private 'weightedProviders' field
-        const composite = provider as any;
-        if (composite.providers && Array.isArray(composite.providers)) {
-          // FallbackRunnerProvider
-          for (const subProvider of composite.providers) {
-            seen.add(subProvider);
-          }
-        } else if (composite.weightedProviders && Array.isArray(composite.weightedProviders)) {
-          // DistributedRunnerProvider
-          for (const wp of composite.weightedProviders) {
-            seen.add(wp.provider);
-          }
+        // Composite provider - access the providers field
+        for (const subProvider of provider.providers) {
+          seen.add(subProvider);
         }
       }
     }

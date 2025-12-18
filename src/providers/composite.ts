@@ -81,6 +81,12 @@ export class CompositeProvider {
     return new DistributedRunnerProvider(scope, id, weightedProviders);
   }
 
+  /**
+   * Validates that all providers have the exact same labels.
+   * This is required so that any provisioned runner can match the labels requested by the GitHub workflow job.
+   *
+   * @param providers Providers to validate
+   */
   private static validateLabels(providers: IRunnerProvider[]): void {
     const firstLabels = new Set(providers[0].labels);
     for (const provider of providers.slice(1)) {
@@ -99,10 +105,12 @@ export class CompositeProvider {
  */
 class FallbackRunnerProvider extends Construct implements ICompositeProvider {
   public readonly labels: string[];
+  public readonly providers: IRunnerProvider[];
 
-  constructor(scope: Construct, id: string, private readonly providers: IRunnerProvider[]) {
+  constructor(scope: Construct, id: string, providers: IRunnerProvider[]) {
     super(scope, id);
     this.labels = providers[0].labels;
+    this.providers = providers;
   }
 
   /**
@@ -138,22 +146,13 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
 
       // Try to attach catch handler directly to the provider's end state
       // This is more efficient than wrapping in a Parallel state when possible
-      if (currentProvider instanceof stepfunctions.State) {
-        const endStates = currentProvider.endStates;
-        if (endStates.length === 1 && endStates[0] instanceof stepfunctions.State) {
-          // Single end state that is a State - try to add catch directly
-          // Use 'any' type assertion because not all State types have addCatch in their type definition,
-          // but Task states and other executable states do support it at runtime
-          const endState = endStates[0] as any;
-          if (typeof endState.addCatch === 'function') {
-            // Attach catch handler: if this provider fails, fall back to next provider
-            endState.addCatch(nextProvider, {
-              errors: ['States.ALL'], // Catch all errors
-              resultPath: `$.fallbackError${i + 1}`, // Store error info for debugging
-            });
-            continue;
-          }
-        }
+      if (this.canAddCatchDirectly(currentProvider)) {
+        const endState = (currentProvider as stepfunctions.State).endStates[0] as any;
+        endState.addCatch(nextProvider, {
+          errors: ['States.ALL'],
+          resultPath: `$.fallbackError${i + 1}`,
+        });
+        continue;
       }
 
       // Fallback: wrap in Parallel state to add catch capability
@@ -177,6 +176,24 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
     return entryPoint;
   }
 
+  /**
+   * Checks if we can add a catch handler directly to the provider's end state.
+   * This avoids wrapping in a Parallel state when possible.
+   */
+  private canAddCatchDirectly(provider: stepfunctions.IChainable): boolean {
+    if (!(provider instanceof stepfunctions.State)) {
+      return false;
+    }
+    const endStates = provider.endStates;
+    if (endStates.length !== 1 || !(endStates[0] instanceof stepfunctions.State)) {
+      return false;
+    }
+    // Use 'any' type assertion because not all State types have addCatch in their type definition,
+    // but Task states and other executable states do support it at runtime
+    const endState = endStates[0] as any;
+    return typeof endState.addCatch === 'function';
+  }
+
   grantStateMachine(stateMachineRole: iam.IGrantable): void {
     for (const provider of this.providers) {
       provider.grantStateMachine(stateMachineRole);
@@ -196,10 +213,12 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
  */
 class DistributedRunnerProvider extends Construct implements ICompositeProvider {
   public readonly labels: string[];
+  public readonly providers: IRunnerProvider[];
 
   constructor(scope: Construct, id: string, private readonly weightedProviders: WeightedRunnerProvider[]) {
     super(scope, id);
     this.labels = weightedProviders[0].provider.labels;
+    this.providers = weightedProviders.map(wp => wp.provider);
   }
 
   /**
@@ -208,6 +227,10 @@ class DistributedRunnerProvider extends Construct implements ICompositeProvider 
    * 2. Build cumulative weight ranges for each provider (e.g., weights [10,20,30] -> ranges [1-10, 11-30, 31-60])
    * 3. Use Step Functions Choice state to route to the provider whose range contains the random number
    *    The first matching condition wins, so we check if rand <= cumulativeWeight for each provider in order
+   *
+   * Note: States.MathRandom returns a value in [start, end) where end is exclusive. We use [1, totalWeight+1)
+   * to ensure the random value can be up to totalWeight (inclusive), which allows the last provider to be selected
+   * when rand equals totalWeight.
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     const totalWeight = this.weightedProviders.reduce((sum, wp) => sum + wp.weight, 0);
@@ -241,6 +264,6 @@ class DistributedRunnerProvider extends Construct implements ICompositeProvider 
 
   status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
     // Return statuses from all sub-providers
-    return this.weightedProviders.map(wp => wp.provider.status(statusFunctionRole));
+    return this.providers.map(provider => provider.status(statusFunctionRole));
   }
 }

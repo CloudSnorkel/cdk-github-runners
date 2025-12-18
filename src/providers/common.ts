@@ -527,6 +527,12 @@ export interface ICompositeProvider extends IConstruct {
   readonly labels: string[];
 
   /**
+   * All sub-providers contained in this composite provider.
+   * This is used to extract providers for metric filters and other operations.
+   */
+  readonly providers: IRunnerProvider[];
+
+  /**
    * Generate step function tasks that execute the runner.
    *
    * Called by GithubRunners and shouldn't be called manually.
@@ -652,5 +658,5 @@ export function amiRootDevice(scope: Construct, ami?: string) {
  * @internal
  */
 export function nodePathWithoutStack(construct: Construct) {
-  return construct.node.path.split('/').splice(1).join('/');
+  return construct.node.path.split('/').slice(1).join('/');
 }

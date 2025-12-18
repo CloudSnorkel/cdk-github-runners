@@ -107,8 +107,9 @@ describe('GitHubRunners', () => {
 
   test('Duplicate labels error with composite providers', () => {
     const p1 = new CodeBuildRunnerProvider(stack, 'p1', { labels: ['a'] });
+    const p1b = new CodeBuildRunnerProvider(stack, 'p1b', { labels: ['a'] });
     const p2 = new CodeBuildRunnerProvider(stack, 'p2', { labels: ['a'] });
-    const composite = CompositeProvider.fallback(stack, 'composite', [p1]);
+    const composite = CompositeProvider.fallback(stack, 'composite', [p1, p1b]);
 
     expect(() => {
       new GitHubRunners(stack, 'runners', {
@@ -119,9 +120,11 @@ describe('GitHubRunners', () => {
 
   test('Duplicate labels error between composite providers', () => {
     const p1 = new CodeBuildRunnerProvider(stack, 'p1', { labels: ['a'] });
+    const p1b = new CodeBuildRunnerProvider(stack, 'p1b', { labels: ['a'] });
     const p2 = new CodeBuildRunnerProvider(stack, 'p2', { labels: ['a'] });
-    const composite1 = CompositeProvider.fallback(stack, 'composite1', [p1]);
-    const composite2 = CompositeProvider.fallback(stack, 'composite2', [p2]);
+    const p2b = new CodeBuildRunnerProvider(stack, 'p2b', { labels: ['a'] });
+    const composite1 = CompositeProvider.fallback(stack, 'composite1', [p1, p1b]);
+    const composite2 = CompositeProvider.fallback(stack, 'composite2', [p2, p2b]);
 
     expect(() => {
       new GitHubRunners(stack, 'runners', {
@@ -132,8 +135,9 @@ describe('GitHubRunners', () => {
 
   test('Intersecting labels warning with composite providers', () => {
     const p1 = new CodeBuildRunnerProvider(stack, 'p1', { labels: ['a'] });
+    const p1b = new CodeBuildRunnerProvider(stack, 'p1b', { labels: ['a'] });
     const p2 = new CodeBuildRunnerProvider(stack, 'p2', { labels: ['a', 'b'] });
-    const composite = CompositeProvider.fallback(stack, 'composite', [p1]);
+    const composite = CompositeProvider.fallback(stack, 'composite', [p1, p1b]);
 
     new GitHubRunners(stack, 'runners', {
       providers: [p2, composite],

@@ -2,13 +2,14 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_iam as iam, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { Construct } from 'constructs';
-import { CodeBuildRunnerProvider, GitHubRunners, ICompositeProvider, IRunnerProviderStatus, LambdaRunnerProvider, RunnerRuntimeParameters } from '../src';
+import { CodeBuildRunnerProvider, GitHubRunners, ICompositeProvider, IRunnerProvider, IRunnerProviderStatus, LambdaRunnerProvider, RunnerRuntimeParameters } from '../src';
 
 /**
  * Mock implementation of ICompositeProvider for testing
  */
 class MockCompositeProvider extends Construct implements ICompositeProvider {
   public readonly labels: string[];
+  public readonly providers: IRunnerProvider[];
 
   constructor(
     scope: Construct,
@@ -18,6 +19,7 @@ class MockCompositeProvider extends Construct implements ICompositeProvider {
   ) {
     super(scope, id);
     this.labels = labels;
+    this.providers = [];
   }
 
   getStepFunctionTask(_parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
@@ -42,7 +44,7 @@ describe('ICompositeProvider', () => {
     stack = new cdk.Stack(app, 'test');
   });
 
-  test('Composite provider can be used with GitHubRunners', () => {
+  test('can be instantiated and used with GitHubRunners', () => {
     const compositeProvider = new MockCompositeProvider(
       stack,
       'composite',
@@ -263,7 +265,7 @@ describe('ICompositeProvider', () => {
     template.resourceCountIs('AWS::StepFunctions::StateMachine', 1);
   });
 
-  test('Composite provider with empty status array', () => {
+  test('handles empty status array from sub-providers', () => {
     const compositeProvider = new MockCompositeProvider(
       stack,
       'composite',
@@ -299,7 +301,7 @@ describe('ICompositeProvider', () => {
     expect(runners.providers[0].labels).toEqual(['self-hosted', 'linux', 'x64']);
   });
 
-  test('Composite provider getStepFunctionTask is called', () => {
+  test('getStepFunctionTask is invoked when building state machine', () => {
     const compositeProvider = new MockCompositeProvider(
       stack,
       'composite',
@@ -370,7 +372,7 @@ describe('ICompositeProvider', () => {
     expect(statusFunctionResource.Metadata.providers.length).toBe(7);
   });
 
-  test('Composite provider with single status in array', () => {
+  test('flattens single status from sub-provider correctly', () => {
     const compositeProvider = new MockCompositeProvider(
       stack,
       'composite',
@@ -399,7 +401,7 @@ describe('ICompositeProvider', () => {
     expect(statusFunctionResource.Metadata.providers.length).toBe(1);
   });
 
-  test('Composite provider with many statuses', () => {
+  test('flattens many statuses from sub-providers correctly', () => {
     const manyStatuses: IRunnerProviderStatus[] = Array.from({ length: 10 }, (_, i) => ({
       type: `status-${i}`,
       labels: ['many-statuses'],
@@ -433,6 +435,7 @@ describe('ICompositeProvider', () => {
 
     class TestCompositeProvider extends Construct implements ICompositeProvider {
       public readonly labels: string[] = ['test'];
+      public readonly providers: IRunnerProvider[] = [];
 
       constructor(scope: Construct, id: string) {
         super(scope, id);
@@ -472,6 +475,7 @@ describe('ICompositeProvider', () => {
 
     class TestCompositeProvider extends Construct implements ICompositeProvider {
       public readonly labels: string[] = ['test'];
+      public readonly providers: IRunnerProvider[] = [];
 
       constructor(scope: Construct, id: string) {
         super(scope, id);
@@ -599,7 +603,7 @@ describe('ICompositeProvider', () => {
     template.resourceCountIs('AWS::StepFunctions::StateMachine', 1);
   });
 
-  test('Composite provider with no sub-providers status array', () => {
+  test('handles empty sub-providers array gracefully', () => {
     const compositeProvider = new MockCompositeProvider(
       stack,
       'composite',
