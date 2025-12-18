@@ -7,7 +7,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Amir Szekely',
   authorAddress: 'amir@cloudsnorkel.com',
   stability: Stability.EXPERIMENTAL,
-  cdkVersion: '2.155.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode, 2.77.0 for node 16, 2.110.0 for ib lifecycle, 2.123.0 for lambda logs, 2.155.0 for launch template throughput
+  cdkVersion: '2.231.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode, 2.77.0 for node 16, 2.110.0 for ib lifecycle, 2.123.0 for lambda logs, 2.155.0 for launch template throughput, 2.231.0 for imagebuilder
   defaultReleaseBranch: 'main',
   name: '@cloudsnorkel/cdk-github-runners',
   repositoryUrl: 'https://github.com/CloudSnorkel/cdk-github-runners.git',
@@ -43,6 +43,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'eslint-plugin-svelte@^2.29.0',
   ],
   deps: [
+  ],
+  peerDeps: [
+    '@aws-cdk/aws-imagebuilder-alpha',
   ],
   jsiiVersion: '5.8.x',
   typescriptVersion: '5.6.x',

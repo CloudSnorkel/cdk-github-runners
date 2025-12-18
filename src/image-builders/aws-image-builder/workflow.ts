@@ -1,49 +1,6 @@
-import * as cdk from 'aws-cdk-lib';
-import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
+import * as imagebuilder2 from '@aws-cdk/aws-imagebuilder-alpha';
 import { Construct } from 'constructs';
-import { uniqueImageBuilderName } from '../common';
 
-/**
- * Properties for Workflow construct.
- *
- * @internal
- */
-export interface WorkflowProperties {
-  /**
-   * Workflow type.
-   */
-  readonly type: 'BUILD' | 'TEST' | 'DISTRIBUTION';
-
-  /**
-   * YAML or JSON data for the workflow.
-   */
-  readonly data: any;
-}
-
-/**
- * Image builder workflow.
- *
- * @internal
- */
-export class Workflow extends cdk.Resource {
-  public readonly arn: string;
-  public readonly name: string;
-
-  constructor(scope: Construct, id: string, props: WorkflowProperties) {
-    super(scope, id);
-
-    this.name = uniqueImageBuilderName(this);
-
-    const workflow = new imagebuilder.CfnWorkflow(this, 'Workflow', {
-      name: uniqueImageBuilderName(this),
-      version: '1.0.0',
-      type: props.type,
-      data: JSON.stringify(props.data),
-    });
-
-    this.arn = workflow.attrArn;
-  }
-}
 
 /**
  * Returns a new build workflow based on arn:aws:imagebuilder:us-east-1:aws:workflow/build/build-container/1.0.1/1.
@@ -53,9 +10,9 @@ export class Workflow extends cdk.Resource {
  * @internal
  */
 export function generateBuildWorkflowWithDockerSetupCommands(scope: Construct, id: string, dockerSetupCommands: string[]) {
-  return new Workflow(scope, id, {
-    type: 'BUILD',
-    data: {
+  return new imagebuilder2.Workflow(scope, id, {
+    workflowType: imagebuilder2.WorkflowType.BUILD,
+    data: imagebuilder2.WorkflowData.fromJsonObject({
       name: 'build-container',
       description: 'Workflow to build a container image',
       schemaVersion: 1,
@@ -112,6 +69,6 @@ export function generateBuildWorkflowWithDockerSetupCommands(scope: Construct, i
           value: '$.stepOutputs.LaunchBuildInstance.instanceId',
         },
       ],
-    },
+    }),
   });
 }

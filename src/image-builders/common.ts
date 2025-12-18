@@ -8,6 +8,7 @@ import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../prov
 
 /**
  * @internal
+ * @deprecated
  */
 export function uniqueImageBuilderName(scope: Construct): string {
   return cdk.Names.uniqueResourceName(scope, {

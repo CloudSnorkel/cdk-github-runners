@@ -1,3 +1,4 @@
+import * as imagebuilder2 from '@aws-cdk/aws-imagebuilder-alpha';
 import * as cdk from 'aws-cdk-lib';
 import {
   aws_ec2 as ec2,
@@ -19,7 +20,6 @@ import { singletonLambda } from '../../../utils';
 import { BuildImageFunction } from '../../build-image-function';
 import { uniqueImageBuilderName } from '../../common';
 import { ImageBuilderComponent } from '../builder';
-import { ContainerRecipe } from '../container';
 
 const dockerfileTemplate = `FROM {{{ imagebuilder:parentImage }}}
 ENV RUNNER_VERSION=___RUNNER_VERSION___
@@ -267,22 +267,23 @@ export class ContainerImageBuilder extends ImageBuilderBase {
       ],
     });
 
-    const recipe = new ContainerRecipe(this, 'Container Recipe', {
-      platform: this.platform,
-      components: this.components,
-      targetRepository: this.repository,
-      dockerfileTemplate: dockerfileTemplate.replace('___RUNNER_VERSION___', this.runnerVersion.version),
-      parentImage: this.parentImage,
-      tags: {},
+    const recipe = new imagebuilder2.ContainerRecipe(this, 'Recipe', {
+      baseImage: imagebuilder2.BaseContainerImage.fromString(this.parentImage),
+      osVersion: this.os.isIn(Os._ALL_LINUX_VERSIONS) ? imagebuilder2.OSVersion.LINUX : undefined,
+      components: this.components.map(c => {
+        return { component: c.component };
+      }),
+      targetRepository: imagebuilder2.Repository.fromEcr(this.repository),
+      dockerfile: imagebuilder2.DockerfileData.fromInline(dockerfileTemplate.replace('___RUNNER_VERSION___', this.runnerVersion.version)),
     });
 
-    const log = this.createLog(recipe.name);
+    const log = this.createLog(recipe.containerRecipeName);
     const infra = this.createInfrastructure([
       iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilderECRContainerBuilds'),
     ]);
-    this.createImage(infra, dist, log, undefined, recipe.arn);
-    this.createPipeline(infra, dist, log, undefined, recipe.arn);
+    this.createImage(infra, dist, log, undefined, recipe.containerRecipeArn);
+    this.createPipeline(infra, dist, log, undefined, recipe.containerRecipeArn);
 
     this.imageCleaner();
 

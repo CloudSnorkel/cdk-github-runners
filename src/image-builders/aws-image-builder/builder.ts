@@ -1,3 +1,4 @@
+import * as imagebuilder2 from '@aws-cdk/aws-imagebuilder-alpha';
 import * as cdk from 'aws-cdk-lib';
 import {
   Annotations,
@@ -20,15 +21,15 @@ import { TagMutability } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
 import { AmiRecipe, defaultBaseAmi } from './ami';
-import { ContainerRecipe, defaultBaseDockerImage } from './container';
+import { defaultBaseDockerImage } from './container';
 import { DeleteResourcesFunction } from './delete-resources-function';
 import { DeleteResourcesProps } from './delete-resources.lambda';
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
 import { generateBuildWorkflowWithDockerSetupCommands } from './workflow';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers';
-import { singletonLogGroup, singletonLambda, SingletonLogType } from '../../utils';
+import { singletonLambda, singletonLogGroup, SingletonLogType } from '../../utils';
 import { BuildImageFunction } from '../build-image-function';
-import { RunnerImageBuilderBase, RunnerImageBuilderProps, uniqueImageBuilderName } from '../common';
+import { RunnerImageBuilderBase, RunnerImageBuilderProps } from '../common';
 
 export interface AwsImageBuilderRunnerImageBuilderProps {
   /**
@@ -112,7 +113,7 @@ export interface ImageBuilderComponentProperties {
   /**
    * Component platform. Must match the builder platform.
    */
-  readonly platform: 'Linux' | 'Windows';
+  readonly platform: imagebuilder2.Platform;
 
   /**
    * Component display name.
@@ -165,14 +166,16 @@ export interface ImageBuilderComponentProperties {
  */
 export class ImageBuilderComponent extends cdk.Resource {
   /**
-   * Component ARN.
+   * Actual component resource.
+   *
+   * TODO replace this whole class with the new resource
    */
-  public readonly arn: string;
+  public readonly component: imagebuilder2.Component;
 
   /**
    * Supported platform for the component.
    */
-  public readonly platform: 'Windows' | 'Linux';
+  public readonly platform: imagebuilder2.Platform;
 
   private readonly assets: s3_assets.Asset[] = [];
 
@@ -180,6 +183,8 @@ export class ImageBuilderComponent extends cdk.Resource {
     super(scope, id);
 
     this.platform = props.platform;
+    const execAction = props.platform === imagebuilder2.Platform.LINUX ?
+      imagebuilder2.ComponentAction.EXECUTE_BASH : imagebuilder2.ComponentAction.EXECUTE_POWERSHELL;
 
     let steps: any[] = [];
 
@@ -199,7 +204,7 @@ export class ImageBuilderComponent extends cdk.Resource {
             source: asset.asset.s3ObjectUrl,
             destination: `${asset.path}.zip`,
           });
-          if (props.platform === 'Windows') {
+          if (props.platform === imagebuilder2.Platform.WINDOWS) {
             extractCommands.push(`Expand-Archive "${asset.path}.zip" -DestinationPath "${asset.path}"`);
             extractCommands.push(`del "${asset.path}.zip"`);
           } else {
@@ -213,14 +218,14 @@ export class ImageBuilderComponent extends cdk.Resource {
 
       steps.push({
         name: 'Download',
-        action: 'S3Download',
+        action: imagebuilder2.ComponentAction.S3_DOWNLOAD,
         inputs,
       });
 
       if (extractCommands.length > 0) {
         steps.push({
           name: 'Extract',
-          action: props.platform === 'Linux' ? 'ExecuteBash' : 'ExecutePowerShell',
+          action: execAction,
           inputs: {
             commands: this.prefixCommandsWithErrorHandling(props.platform, extractCommands),
           },
@@ -231,7 +236,7 @@ export class ImageBuilderComponent extends cdk.Resource {
     if (props.commands.length > 0) {
       steps.push({
         name: 'Run',
-        action: props.platform === 'Linux' ? 'ExecuteBash' : 'ExecutePowerShell',
+        action: execAction,
         inputs: {
           commands: this.prefixCommandsWithErrorHandling(props.platform, props.commands),
         },
@@ -241,32 +246,27 @@ export class ImageBuilderComponent extends cdk.Resource {
     if (props.reboot ?? false) {
       steps.push({
         name: 'Reboot',
-        action: 'Reboot',
+        action: imagebuilder2.ComponentAction.REBOOT,
         inputs: {},
       });
     }
 
     const data = {
       name: props.displayName,
-      schemaVersion: '1.0',
+      schemaVersion: imagebuilder2.ComponentSchemaVersion.V1_0,
       phases: [
         {
-          name: 'build',
+          name: imagebuilder2.ComponentPhaseName.BUILD,
           steps,
         },
       ],
     };
 
-    const name = uniqueImageBuilderName(this);
-    const component = new imagebuilder.CfnComponent(this, 'Component', {
-      name: name,
+    this.component = new imagebuilder2.Component(this, 'Component', {
       description: props.description,
       platform: props.platform,
-      version: '1.0.0',
-      data: JSON.stringify(data),
+      data: imagebuilder2.ComponentData.fromJsonObject(data),
     });
-
-    this.arn = component.attrArn;
   }
 
   /**
@@ -280,8 +280,8 @@ export class ImageBuilderComponent extends cdk.Resource {
     }
   }
 
-  prefixCommandsWithErrorHandling(platform: 'Windows' | 'Linux', commands: string[]) {
-    if (platform == 'Windows') {
+  prefixCommandsWithErrorHandling(platform: imagebuilder2.Platform, commands: string[]) {
+    if (platform == imagebuilder2.Platform.WINDOWS) {
       return [
         '$ErrorActionPreference = \'Stop\'',
         '$ProgressPreference = \'SilentlyContinue\'',
@@ -313,7 +313,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   private readonly rebuildInterval: cdk.Duration;
   private readonly boundComponents: ImageBuilderComponent[] = [];
   private readonly instanceType: ec2.InstanceType;
-  private infrastructure: imagebuilder.CfnInfrastructureConfiguration | undefined;
+  private infrastructure: imagebuilder2.InfrastructureConfiguration | undefined;
   private readonly role: iam.Role;
   private readonly fastLaunchOptions?: FastLaunchOptions;
   public readonly storageSize?: cdk.Size;
@@ -369,10 +369,10 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
 
   private platform() {
     if (this.os.is(Os.WINDOWS)) {
-      return 'Windows';
+      return imagebuilder2.Platform.WINDOWS;
     }
     if (this.os.isIn(Os._ALL_LINUX_VERSIONS)) {
-      return 'Linux';
+      return imagebuilder2.Platform.LINUX;
     }
     throw new Error(`OS ${this.os.name} is not supported by AWS Image Builder`);
   }
@@ -393,21 +393,13 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       emptyOnDelete: true,
     });
 
-    const dist = new imagebuilder.CfnDistributionConfiguration(this, 'Docker Distribution', {
-      name: uniqueImageBuilderName(this),
+    const dist = new imagebuilder2.DistributionConfiguration(this, 'Docker Distribution', {
       // description: this.description,
-      distributions: [
-        {
-          region: Stack.of(this).region,
-          containerDistributionConfiguration: {
-            ContainerTags: ['latest'],
-            TargetRepository: {
-              Service: 'ECR',
-              RepositoryName: repository.repositoryName,
-            },
-          },
-        },
-      ],
+      containerDistributions: [{
+        region: Stack.of(this).region,
+        containerTags: ['latest'],
+        containerRepository: imagebuilder2.Repository.fromEcr(repository),
+      }],
       tags: this.tags,
     });
 
@@ -422,27 +414,29 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       }
     }
 
-    const recipe = new ContainerRecipe(this, 'Container Recipe', {
-      platform: this.platform(),
-      components: this.bindComponents(),
-      targetRepository: repository,
-      dockerfileTemplate: dockerfileTemplate,
-      parentImage: this.baseImage,
+    const recipe = new imagebuilder2.ContainerRecipe(this, 'Recipe', {
+      baseImage: imagebuilder2.BaseContainerImage.fromString(this.baseImage),
+      osVersion: this.os.isIn(Os._ALL_LINUX_VERSIONS) ? imagebuilder2.OSVersion.LINUX : undefined,
+      components: this.bindComponents().map(c => {
+        return { component: c.component };
+      }),
+      targetRepository: imagebuilder2.Repository.fromEcr(repository),
+      dockerfile: imagebuilder2.DockerfileData.fromInline(dockerfileTemplate),
       tags: this.tags,
     });
 
-    const log = this.createLog('Docker Log', recipe.name);
+    const log = this.createLog('Docker Log', recipe.containerRecipeName);
     const infra = this.createInfrastructure([
       iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilderECRContainerBuilds'),
     ]);
 
     if (this.waitOnDeploy) {
-      this.createImage(infra, dist, log, undefined, recipe.arn);
+      this.createImage(infra, dist, log, undefined, recipe);
     }
     this.dockerImageCleaner(recipe, repository);
 
-    this.createPipeline(infra, dist, log, undefined, recipe.arn);
+    this.createPipeline(infra, dist, log, undefined, recipe);
 
     this.boundDockerImage = {
       imageRepository: repository,
@@ -457,7 +451,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return this.boundDockerImage;
   }
 
-  private dockerImageCleaner(recipe: ContainerRecipe, repository: ecr.IRepository) {
+  private dockerImageCleaner(recipe: imagebuilder2.ContainerRecipe, repository: ecr.IRepository) {
     // this is here to provide safe upgrade from old cdk-github-runners versions
     // this lambda was used by a custom resource to delete all images builds on cleanup
     // if we remove the custom resource and the lambda, the old images will be deleted on update
@@ -475,11 +469,10 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     }));
 
     // delete old version on update and on stack deletion
-    this.imageCleaner('Container', recipe.name.toLowerCase(), recipe.version);
+    this.imageCleaner('Container', recipe.containerRecipeName, recipe.containerRecipeVersion);
 
     // delete old docker images + IB resources daily
-    new imagebuilder.CfnLifecyclePolicy(this, 'Lifecycle Policy Docker', {
-      name: uniqueImageBuilderName(this),
+    new imagebuilder2.LifecyclePolicy(this, 'Lifecycle Policy Docker', {
       description: `Delete old GitHub Runner Docker images for ${this.node.path}`,
       executionRole: new iam.Role(this, 'Lifecycle Policy Docker Role', {
         assumedBy: new iam.ServicePrincipal('imagebuilder.amazonaws.com'),
@@ -501,27 +494,21 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
             ],
           }),
         },
-      }).roleArn,
-      policyDetails: [{
+      }),
+      details: [{
         action: {
-          type: 'DELETE',
-          includeResources: {
-            containers: true,
-          },
+          type: imagebuilder2.LifecyclePolicyActionType.DELETE,
+          includeContainers: true,
         },
         filter: {
-          type: 'COUNT',
-          value: 2,
+          countFilter: {
+            count: 2,
+          },
         },
       }],
-      resourceType: 'CONTAINER_IMAGE',
+      resourceType: imagebuilder2.LifecyclePolicyResourceType.CONTAINER_IMAGE,
       resourceSelection: {
-        recipes: [
-          {
-            name: recipe.name,
-            semanticVersion: recipe.version,
-          },
-        ],
+        recipes: [recipe],
       },
     });
   }
@@ -534,7 +521,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     });
   }
 
-  protected createInfrastructure(managedPolicies: iam.IManagedPolicy[]): imagebuilder.CfnInfrastructureConfiguration {
+  protected createInfrastructure(managedPolicies: iam.IManagedPolicy[]): imagebuilder2.InfrastructureConfiguration {
     if (this.infrastructure) {
       return this.infrastructure;
     }
@@ -547,37 +534,27 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       component.grantAssetsRead(this.role);
     }
 
-    this.infrastructure = new imagebuilder.CfnInfrastructureConfiguration(this, 'Infrastructure', {
-      name: uniqueImageBuilderName(this),
+    this.infrastructure = new imagebuilder2.InfrastructureConfiguration(this, 'Infrastructure', {
       // description: this.description,
-      subnetId: this.vpc?.selectSubnets(this.subnetSelection).subnetIds[0],
-      securityGroupIds: this.securityGroups?.map(sg => sg.securityGroupId),
-      instanceTypes: [this.instanceType.toString()],
-      instanceMetadataOptions: {
-        httpTokens: 'required',
-        // Container builds require a minimum of two hops.
-        httpPutResponseHopLimit: 2,
-      },
-      instanceProfileName: new iam.CfnInstanceProfile(this, 'Instance Profile', {
-        roles: [
-          this.role.roleName,
-        ],
-      }).ref,
+      vpc: this.vpc,
+      subnetSelection: this.subnetSelection,
+      securityGroups: this.securityGroups,
+      instanceTypes: [this.instanceType],
+      httpTokens: imagebuilder2.HttpTokens.REQUIRED,
+      httpPutResponseHopLimit: 2, // Container builds require a minimum of two hops.
+      role: this.role,
     });
 
     return this.infrastructure;
   }
 
-  protected createImage(infra: imagebuilder.CfnInfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
-    imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImage {
-    const image = new imagebuilder.CfnImage(this, this.amiOrContainerId('Image', imageRecipeArn, containerRecipeArn), {
-      infrastructureConfigurationArn: infra.attrArn,
-      distributionConfigurationArn: dist.attrArn,
-      imageRecipeArn,
-      containerRecipeArn,
-      imageTestsConfiguration: {
-        imageTestsEnabled: false,
-      },
+  protected createImage(infra: imagebuilder2.InfrastructureConfiguration, dist: imagebuilder2.DistributionConfiguration, log: logs.LogGroup,
+    imageRecipe?: imagebuilder2.ImageRecipe, containerRecipe?: imagebuilder2.ContainerRecipe): imagebuilder2.Image {
+    const image = new imagebuilder2.Image(this, this.amiOrContainerId('Image', imageRecipe !== undefined), {
+      infrastructureConfiguration: infra,
+      distributionConfiguration: dist,
+      recipe: imageRecipe ?? containerRecipe!,
+      imageTestsEnabled: false,
       tags: this.tags,
     });
     image.node.addDependency(infra);
@@ -592,56 +569,42 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return image;
   }
 
-  private amiOrContainerId(baseId: string, imageRecipeArn?: string, containerRecipeArn?: string) {
-    if (imageRecipeArn) {
+  private amiOrContainerId(baseId: string, ami: boolean) {
+    if (ami) {
       return `AMI ${baseId}`;
-    }
-    if (containerRecipeArn) {
+    } else {
       return `Docker ${baseId}`;
     }
-    throw new Error('Either imageRecipeArn or containerRecipeArn must be defined');
   }
 
-  protected createPipeline(infra: imagebuilder.CfnInfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
-    imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImagePipeline {
+  protected createPipeline(infra: imagebuilder2.InfrastructureConfiguration, dist: imagebuilder2.DistributionConfiguration, log: logs.LogGroup,
+    imageRecipe?: imagebuilder2.ImageRecipe, containerRecipe?: imagebuilder2.ContainerRecipe) {
     // set schedule
-    let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
+    let scheduleOptions: imagebuilder2.ImagePipelineSchedule | undefined;
     if (this.rebuildInterval.toDays() > 0) {
       scheduleOptions = {
-        scheduleExpression: events.Schedule.rate(this.rebuildInterval).expressionString,
-        pipelineExecutionStartCondition: 'EXPRESSION_MATCH_ONLY',
+        expression: events.Schedule.rate(this.rebuildInterval),
+        startCondition: imagebuilder2.ScheduleStartCondition.EXPRESSION_MATCH_ONLY,
       };
     }
 
     // generate workflows, if needed
-    let workflows: imagebuilder.CfnImagePipeline.WorkflowConfigurationProperty[] | undefined;
-    let executionRole: iam.IRole | undefined;
-    if (this.dockerSetupCommands.length > 0 && containerRecipeArn) {
+    let workflows: imagebuilder2.WorkflowConfiguration[] | undefined;
+    if (this.dockerSetupCommands.length > 0 && containerRecipe) {
       workflows = [{
-        workflowArn: generateBuildWorkflowWithDockerSetupCommands(this, 'Build', this.dockerSetupCommands).arn,
+        workflow: generateBuildWorkflowWithDockerSetupCommands(this, 'Build', this.dockerSetupCommands),
       }];
-      executionRole = iam.Role.fromRoleArn(this, 'Image Builder Role', cdk.Stack.of(this).formatArn({
-        service: 'iam',
-        region: '',
-        resource: 'role',
-        resourceName: 'aws-service-role/imagebuilder.amazonaws.com/AWSServiceRoleForImageBuilder',
-      }));
     }
 
     // generate pipeline
-    const pipeline = new imagebuilder.CfnImagePipeline(this, this.amiOrContainerId('Pipeline', imageRecipeArn, containerRecipeArn), {
-      name: uniqueImageBuilderName(this),
+    const pipeline = new imagebuilder2.ImagePipeline(this, this.amiOrContainerId('Pipeline', imageRecipe !== undefined), {
       // description: this.description,
-      infrastructureConfigurationArn: infra.attrArn,
-      distributionConfigurationArn: dist.attrArn,
-      imageRecipeArn,
-      containerRecipeArn,
+      infrastructureConfiguration: infra,
+      distributionConfiguration: dist,
+      recipe: imageRecipe ?? containerRecipe!,
       schedule: scheduleOptions,
-      imageTestsConfiguration: {
-        imageTestsEnabled: false,
-      },
+      imageTestsEnabled: false,
       workflows: workflows,
-      executionRole: executionRole?.roleArn,
       tags: this.tags,
     });
     pipeline.node.addDependency(infra);
@@ -670,11 +633,11 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       requireImdsv2: true,
     });
 
-    const launchTemplateConfigs: imagebuilder.CfnDistributionConfiguration.LaunchTemplateConfigurationProperty[] = [{
-      launchTemplateId: launchTemplate.launchTemplateId,
+    const launchTemplateConfigs: imagebuilder2.LaunchTemplateConfiguration[] = [{
+      launchTemplate: launchTemplate,
       setDefaultVersion: true,
     }];
-    const fastLaunchConfigs: imagebuilder.CfnDistributionConfiguration.FastLaunchConfigurationProperty[] = [];
+    const fastLaunchConfigs: imagebuilder2.FastLaunchConfiguration[] = [];
 
     if (this.fastLaunchOptions?.enabled ?? false) {
       if (!this.os.is(Os.WINDOWS)) {
@@ -722,48 +685,36 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
           }],
         }],
       });
+      const fastLaunchTemplateL2 = ec2.LaunchTemplate.fromLaunchTemplateAttributes(this, 'Fast Launch Template L2', {
+        launchTemplateId: fastLaunchTemplate.ref,
+      });
 
       launchTemplateConfigs.push({
-        launchTemplateId: fastLaunchTemplate.attrLaunchTemplateId,
+        launchTemplate: fastLaunchTemplateL2,
         setDefaultVersion: true,
       });
       fastLaunchConfigs.push({
-        enabled: true,
-        launchTemplate: {
-          launchTemplateId: fastLaunchTemplate.attrLaunchTemplateId,
-        },
+        launchTemplate: fastLaunchTemplateL2,
         maxParallelLaunches: this.fastLaunchOptions?.maxParallelLaunches ?? 6,
-        snapshotConfiguration: {
-          targetResourceCount: this.fastLaunchOptions?.targetResourceCount ?? 1,
-        },
+        targetSnapshotCount: this.fastLaunchOptions?.targetResourceCount ?? 1,
       });
     }
 
     const stackName = cdk.Stack.of(this).stackName;
     const builderName = this.node.path;
 
-    const dist = new imagebuilder.CfnDistributionConfiguration(this, 'AMI Distribution', {
-      name: uniqueImageBuilderName(this),
+    const dist = new imagebuilder2.DistributionConfiguration(this, 'AMI Distribution', {
       // description: this.description,
-      distributions: [
-        {
-          region: Stack.of(this).region,
-          amiDistributionConfiguration: {
-            Name: `${cdk.Names.uniqueResourceName(this, {
-              maxLength: 100,
-              separator: '-',
-              allowedSpecialCharacters: '_-',
-            })}-{{ imagebuilder:buildDate }}`,
-            AmiTags: {
-              'Name': this.node.id,
-              'GitHubRunners:Stack': stackName,
-              'GitHubRunners:Builder': builderName,
-            },
-          },
-          launchTemplateConfigurations: launchTemplateConfigs,
-          fastLaunchConfigurations: fastLaunchConfigs.length > 0 ? fastLaunchConfigs : undefined,
+      amiDistributions: [{
+        region: Stack.of(this).region,
+        amiTags: {
+          'Name': this.node.id,
+          'GitHubRunners:Stack': stackName,
+          'GitHubRunners:Builder': builderName,
         },
-      ],
+        launchTemplates: launchTemplateConfigs,
+        fastLaunchConfigurations: fastLaunchConfigs.length > 0 ? fastLaunchConfigs : undefined,
+      }],
       tags: this.tags,
     });
 
@@ -782,9 +733,9 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       iam.ManagedPolicy.fromAwsManagedPolicyName('EC2InstanceProfileForImageBuilder'),
     ]);
     if (this.waitOnDeploy) {
-      this.createImage(infra, dist, log, recipe.arn, undefined);
+      this.createImage(infra, dist, log, recipe.recipe, undefined);
     }
-    this.createPipeline(infra, dist, log, recipe.arn, undefined);
+    this.createPipeline(infra, dist, log, recipe.recipe, undefined);
 
     this.boundAmi = {
       launchTemplate: launchTemplate,
@@ -826,11 +777,10 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     }
 
     // delete old version on update and on stack deletion
-    this.imageCleaner('Image', recipe.name.toLowerCase(), recipe.version);
+    this.imageCleaner('Image', recipe.name, recipe.version);
 
     // delete old AMIs + IB resources daily
-    new imagebuilder.CfnLifecyclePolicy(this, 'Lifecycle Policy AMI', {
-      name: uniqueImageBuilderName(this),
+    new imagebuilder2.LifecyclePolicy(this, 'Lifecycle Policy AMI', {
       description: `Delete old GitHub Runner AMIs for ${this.node.path}`,
       executionRole: new iam.Role(this, 'Lifecycle Policy AMI Role', {
         assumedBy: new iam.ServicePrincipal('imagebuilder.amazonaws.com'),
@@ -862,28 +812,22 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
             ],
           }),
         },
-      }).roleArn,
-      policyDetails: [{
+      }),
+      details: [{
         action: {
-          type: 'DELETE',
-          includeResources: {
-            amis: true,
-            snapshots: true,
-          },
+          type: imagebuilder2.LifecyclePolicyActionType.DELETE,
+          includeAmis: true,
+          includeSnapshots: true,
         },
         filter: {
-          type: 'COUNT',
-          value: 2,
+          countFilter: {
+            count: 2,
+          },
         },
       }],
-      resourceType: 'AMI_IMAGE',
+      resourceType: imagebuilder2.LifecyclePolicyResourceType.AMI_IMAGE,
       resourceSelection: {
-        recipes: [
-          {
-            name: recipe.name,
-            semanticVersion: recipe.version, // docs say it's optional, but it's not
-          },
-        ],
+        recipes: [recipe.recipe],
       },
     });
   }
@@ -973,11 +917,23 @@ export class AwsImageBuilderFailedBuildNotifier implements cdk.IAspect {
       const builder = node as AwsImageBuilderRunnerImageBuilder;
       const infraNode = builder.node.tryFindChild('Infrastructure');
       if (infraNode) {
-        const infra = infraNode as imagebuilder.CfnInfrastructureConfiguration;
+        const infra = infraNode.node.defaultChild as imagebuilder.CfnInfrastructureConfiguration;
         infra.snsTopicArn = this.topic.topicArn;
       } else {
         cdk.Annotations.of(builder).addWarning('Unused builder cannot get notifications of failed builds');
       }
     }
   }
+
+  // AWS dev says we can also use this filter on EventBridge directly
+  // We will have to filter it further down by recipe
+  // {
+  //     "detail-type": ["EC2 Image Builder Image State Change"],
+  //     "source": ["aws.imagebuilder"],
+  //     "detail": {
+  //         "state": {
+  //             "status": ["FAILED"]
+  //         }
+  //     }
+  // }
 }
