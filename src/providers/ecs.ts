@@ -647,8 +647,12 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
                 value: this.labels.join(','),
               },
               {
-                name: 'RUNNER_GROUP',
-                value: this.group ? `--runnergroup ${this.group}` : '',
+                name: 'RUNNER_GROUP1',
+                value: this.group ? '--runnergroup' : '',
+              },
+              {
+                name: 'RUNNER_GROUP2',
+                value: this.group ? this.group : '',
               },
               {
                 name: 'DEFAULT_LABELS',

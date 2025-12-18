@@ -7082,7 +7082,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"REGISTRATION_URL\": \"unspecified\",\n      \"RUNNER_GROUP\": \"\",\n      \"DEFAULT_LABELS\": \"\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"${REGISTRATION_URL}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\" ${RUNNER_GROUP} ${DEFAULT_LABELS}\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"REGISTRATION_URL\": \"unspecified\",\n      \"RUNNER_GROUP1\": \"\",\n      \"RUNNER_GROUP2\": \"\",\n      \"DEFAULT_LABELS\": \"\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"${REGISTRATION_URL}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\" ${RUNNER_GROUP1} ${RUNNER_GROUP2} ${DEFAULT_LABELS}\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Tags": [
@@ -7474,7 +7474,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"REGISTRATION_URL\": \"unspecified\",\n      \"RUNNER_GROUP\": \"\",\n      \"DEFAULT_LABELS\": \"\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"${REGISTRATION_URL}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\" ${RUNNER_GROUP} ${DEFAULT_LABELS}\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"REGISTRATION_URL\": \"unspecified\",\n      \"RUNNER_GROUP1\": \"\",\n      \"RUNNER_GROUP2\": \"\",\n      \"DEFAULT_LABELS\": \"\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"${REGISTRATION_URL}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\" ${RUNNER_GROUP1} ${RUNNER_GROUP2} ${DEFAULT_LABELS}\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Tags": [
@@ -7770,7 +7770,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"REGISTRATION_URL\": \"unspecified\",\n      \"RUNNER_GROUP\": \"\",\n      \"DEFAULT_LABELS\": \"\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"${REGISTRATION_URL}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\" ${RUNNER_GROUP} ${DEFAULT_LABELS}\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"REGISTRATION_URL\": \"unspecified\",\n      \"RUNNER_GROUP1\": \"\",\n      \"RUNNER_GROUP2\": \"\",\n      \"DEFAULT_LABELS\": \"\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"sudo -Hu runner /home/runner/config.sh --unattended --url \\\"${REGISTRATION_URL}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\" ${RUNNER_GROUP1} ${RUNNER_GROUP2} ${DEFAULT_LABELS}\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: \\\\K.*\\\" /home/runner/_diag/ | tail -n1)\",\n        \"[ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Tags": [
@@ -8066,7 +8066,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"REGISTRATION_URL\": \"unspecified\",\n      \"RUNNER_GROUP\": \"\",\n      \"DEFAULT_LABELS\": \"\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"if (${Env:RUNNER_VERSION} -eq \\\"latest\\\") { $RunnerFlags = \\\"\\\" } else { $RunnerFlags = \\\"--disableupdate\\\" }\",\n        \"./config.cmd --unattended --url \\\"${Env:REGISTRATION_URL}\\\" --token \\\"${Env:RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat %s)\\\" ${RunnerFlags} --name \\\"${Env:RUNNER_NAME}\\\" ${Env:RUNNER_GROUP} ${Env:DEFAULT_LABELS}\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"./run.cmd\",\n        \"$STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1\",\n        \"if ($STATUS) { echo \\\"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\\\" }\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"REGISTRATION_URL\": \"unspecified\",\n      \"RUNNER_GROUP1\": \"\",\n      \"RUNNER_GROUP2\": \"\",\n      \"DEFAULT_LABELS\": \"\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"if (${Env:RUNNER_VERSION} -eq \\\"latest\\\") { $RunnerFlags = \\\"\\\" } else { $RunnerFlags = \\\"--disableupdate\\\" }\",\n        \"./config.cmd --unattended --url \\\"${Env:REGISTRATION_URL}\\\" --token \\\"${Env:RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat %s)\\\" ${RunnerFlags} --name \\\"${Env:RUNNER_NAME}\\\" ${Env:RUNNER_GROUP1} ${Env:RUNNER_GROUP2} ${Env:DEFAULT_LABELS}\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"./run.cmd\",\n        \"$STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1\",\n        \"if ($STATUS) { echo \\\"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\\\" }\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Tags": [
@@ -8697,7 +8697,7 @@
       "Command": [
        "sh",
        "-c",
-       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -9462,7 +9462,7 @@
       "Command": [
        "sh",
        "-c",
-       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -10100,7 +10100,7 @@
       "Command": [
        "sh",
        "-c",
-       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -10738,7 +10738,7 @@
       "Command": [
        "powershell",
        "-Command",
-       "cd \\actions ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ;\n        ./config.cmd --unattended --url \"${Env:REGISTRATION_URL}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"${Env:RUNNER_NAME}\" ${Env:RUNNER_GROUP} ${Env:DEFAULT_LABELS} ;\n        ./run.cmd ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
+       "cd \\actions ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ;\n        ./config.cmd --unattended --url \"${Env:REGISTRATION_URL}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"${Env:RUNNER_NAME}\" ${Env:RUNNER_GROUP1} ${Env:RUNNER_GROUP2} ${Env:DEFAULT_LABELS} ;\n        ./run.cmd ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -11724,7 +11724,7 @@
       "Command": [
        "sh",
        "-c",
-       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -12017,7 +12017,7 @@
       "Command": [
        "sh",
        "-c",
-       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -12310,7 +12310,7 @@
       "Command": [
        "sh",
        "-c",
-       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -12603,7 +12603,7 @@
       "Command": [
        "sh",
        "-c",
-       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
+       "\n        cd /home/runner &&\n        if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n        ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n        ./run.sh &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f\\-]+ with result: \\K.*\" _diag/ | tail -n1) &&\n        [ -n \"$STATUS\" ] && echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\""
       ],
       "Essential": true,
       "Image": {
@@ -12896,7 +12896,7 @@
       "Command": [
        "powershell",
        "-Command",
-       "cd \\actions ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ;\n        ./config.cmd --unattended --url \"${Env:REGISTRATION_URL}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"${Env:RUNNER_NAME}\" ${Env:RUNNER_GROUP} ${Env:DEFAULT_LABELS} ;\n        ./run.cmd ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
+       "cd \\actions ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ;\n        ./config.cmd --unattended --url \"${Env:REGISTRATION_URL}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"${Env:RUNNER_NAME}\" ${Env:RUNNER_GROUP1} ${Env:RUNNER_GROUP2} ${Env:DEFAULT_LABELS} ;\n        ./run.cmd ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
       ],
       "Essential": true,
       "Image": {
@@ -14004,7 +14004,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "2ff4713074c133dfff9146c0b79d668687e846e2a43ec12c9f097fa39e6a91b2.zip"
+     "S3Key": "6323cb15eaaa23e6d34ee9d8047db277fa4a4fbea8edbcade9b9ee3f71d342a8.zip"
     },
     "Description": "Get token from GitHub Actions used to start new self-hosted runner",
     "Environment": {
@@ -14113,7 +14113,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "27c23e97f087082e485f85bfae31f09925e083d4bff1868616a56a1e2cc0e5cb.zip"
+     "S3Key": "4c359dec0e0331f05befe2f591f9b883552b5e779b297ec4352a3eba2285cd2a.zip"
     },
     "Description": "Delete failed GitHub Actions runner on error",
     "Environment": {
@@ -14337,7 +14337,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "27183e380a4a6bde72c00c642ca4ee7a6f44a8032b60f5e37b4c5eadcb89d364.zip"
+     "S3Key": "23e6c88079a4fbc4037b4d849374e28a724f595c6d728c12ce844ab9d2724252.zip"
     },
     "Description": "Stop idle GitHub runners to avoid paying for runners when the job was already canceled",
     "Environment": {
@@ -16022,7 +16022,7 @@
        {
         "Ref": "CodeBuildx64CodeBuild7DC01A1E"
        },
-       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild-x64\"},{\"Name\":\"RUNNER_GROUP\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"codebuild-ubuntu-2404-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild-x64\"},{\"Name\":\"RUNNER_GROUP1\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"codebuild-ubuntu-2404-x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -16030,7 +16030,7 @@
        {
         "Ref": "CodeBuildUbuntu2404x64CodeBuild261399A8"
        },
-       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild-ubuntu-2404-x64\"},{\"Name\":\"RUNNER_GROUP\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"codebuild, linux, arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild-ubuntu-2404-x64\"},{\"Name\":\"RUNNER_GROUP1\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"codebuild, linux, arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -16038,7 +16038,7 @@
        {
         "Ref": "CodeBuildARMCodeBuildC5F301F2"
        },
-       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild,linux,arm64\"},{\"Name\":\"RUNNER_GROUP\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"codebuild, windows, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild,linux,arm64\"},{\"Name\":\"RUNNER_GROUP1\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"codebuild, windows, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -16046,7 +16046,7 @@
        {
         "Ref": "CodeBuildWindowsCodeBuildC39F35C1"
        },
-       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild,windows,x64\"},{\"Name\":\"RUNNER_GROUP\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"ecs, linux, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value\":\"codebuild,windows,x64\"},{\"Name\":\"RUNNER_GROUP1\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"ecs, linux, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -16057,7 +16057,7 @@
          "Arn"
         ]
        },
-       "\",\"TaskDefinition\":\"githubrunnerstestECStaskCE74CC84\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,linux,x64\"},{\"Name\":\"RUNNER_GROUP\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+       "\",\"TaskDefinition\":\"githubrunnerstestECStaskCE74CC84\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,linux,x64\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
        {
         "Ref": "ECSCapacityProviderABF1B146"
        },
@@ -16072,7 +16072,7 @@
          "Arn"
         ]
        },
-       "\",\"TaskDefinition\":\"githubrunnerstestECSUbuntu2404taskB7D564C7\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs-ubuntu-2404,x64\"},{\"Name\":\"RUNNER_GROUP\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+       "\",\"TaskDefinition\":\"githubrunnerstestECSUbuntu2404taskB7D564C7\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs-ubuntu-2404,x64\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
        {
         "Ref": "ECSUbuntu2404CapacityProviderFAE73340"
        },
@@ -16087,7 +16087,7 @@
          "Arn"
         ]
        },
-       "\",\"TaskDefinition\":\"githubrunnerstestECSARM64taskE94E43A3\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,linux,arm64\"},{\"Name\":\"RUNNER_GROUP\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+       "\",\"TaskDefinition\":\"githubrunnerstestECSARM64taskE94E43A3\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,linux,arm64\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
        {
         "Ref": "ECSARM64CapacityProvider8627FEF9"
        },
@@ -16102,7 +16102,7 @@
          "Arn"
         ]
        },
-       "\",\"TaskDefinition\":\"githubrunnerstestECSWindowstask6B1D5861\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,windows,x64\"},{\"Name\":\"RUNNER_GROUP\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+       "\",\"TaskDefinition\":\"githubrunnerstestECSWindowstask6B1D5861\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"ecs,windows,x64\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
        {
         "Ref": "ECSWindowsCapacityProvider8F8896A5"
        },
@@ -16154,7 +16154,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,x64\"},{\"Name\":\"RUNNER_GROUP\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}],\"EnableExecuteCommand\":true}},\"fargate-spot, linux, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,x64\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}],\"EnableExecuteCommand\":true}},\"fargate-spot, linux, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -16180,7 +16180,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,x64\"},{\"Name\":\"RUNNER_GROUP\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}],\"EnableExecuteCommand\":true}},\"fargate, linux, arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,x64\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}],\"EnableExecuteCommand\":true}},\"fargate, linux, arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -16206,7 +16206,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,arm64\"},{\"Name\":\"RUNNER_GROUP\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}],\"EnableExecuteCommand\":true}},\"fargate-spot, linux, arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,linux,arm64\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}],\"EnableExecuteCommand\":true}},\"fargate-spot, linux, arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -16232,7 +16232,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,arm64\"},{\"Name\":\"RUNNER_GROUP\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}],\"EnableExecuteCommand\":true}},\"fargate, windows, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate-spot,linux,arm64\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}],\"EnableExecuteCommand\":true}},\"fargate, windows, x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -16258,7 +16258,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,windows,x64\"},{\"Name\":\"RUNNER_GROUP\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}],\"EnableExecuteCommand\":false}},\"ec2, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nlogGroupName=\\\"{}\\\"\\nrunnerNamePath=\\\"{}\\\"\\ngithubDomainPath=\\\"{}\\\"\\nownerPath=\\\"{}\\\"\\nrepoPath=\\\"{}\\\"\\nrunnerTokenPath=\\\"{}\\\"\\nlabels=\\\"{}\\\"\\nregistrationURL=\\\"{}\\\"\\nrunnerGroup1=\\\"{}\\\"\\nrunnerGroup2=\\\"{}\\\"\\ndefaultLabels=\\\"{}\\\"\\n\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  # Determine the value of RUNNER_FLAGS\\n  if [ \\\"$(< /home/runner/RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then\\n    RUNNER_FLAGS=\\\"\\\"\\n  else\\n    RUNNER_FLAGS=\\\"--disableupdate\\\"\\n  fi\\n\\n  labelsTemplate=\\\"$labels,cdkghr:started:$(date +%s)\\\"\\n\\n  # Execute the configuration command for runner registration\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"$registrationURL\\\" --token \\\"$runnerTokenPath\\\" --ephemeral --work _work --labels \\\"$labelsTemplate\\\" $RUNNER_FLAGS --name \\\"$runnerNamePath\\\" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1\\n\\n  # Execute the run command\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\n  # Retrieve the status\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: K.*\\\" /home/runner/_diag/ | tail -n1)\\n\\n  # Check and print the job status\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$labels\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2, linux, x64 subnet1\"},\"ec2, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value\":\"fargate,windows,x64\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}],\"EnableExecuteCommand\":false}},\"ec2, linux, x64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nlogGroupName=\\\"{}\\\"\\nrunnerNamePath=\\\"{}\\\"\\ngithubDomainPath=\\\"{}\\\"\\nownerPath=\\\"{}\\\"\\nrepoPath=\\\"{}\\\"\\nrunnerTokenPath=\\\"{}\\\"\\nlabels=\\\"{}\\\"\\nregistrationURL=\\\"{}\\\"\\nrunnerGroup1=\\\"{}\\\"\\nrunnerGroup2=\\\"{}\\\"\\ndefaultLabels=\\\"{}\\\"\\n\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  # Determine the value of RUNNER_FLAGS\\n  if [ \\\"$(< /home/runner/RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then\\n    RUNNER_FLAGS=\\\"\\\"\\n  else\\n    RUNNER_FLAGS=\\\"--disableupdate\\\"\\n  fi\\n\\n  labelsTemplate=\\\"$labels,cdkghr:started:$(date +%s)\\\"\\n\\n  # Execute the configuration command for runner registration\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"$registrationURL\\\" --token \\\"$runnerTokenPath\\\" --ephemeral --work _work --labels \\\"$labelsTemplate\\\" $RUNNER_FLAGS --name \\\"$runnerNamePath\\\" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1\\n\\n  # Execute the run command\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\n  # Retrieve the status\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: K.*\\\" /home/runner/_diag/ | tail -n1)\\n\\n  # Check and print the job status\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$labels\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"ec2, linux, x64 subnet1\"},\"ec2, linux, x64 subnet1\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"ec2, linux, x64 subnet2\"}],\"Type\":\"Task\",\"Comment\":\"",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -16679,7 +16679,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "12f9637d96532b9e702983a56208fdc8a9f5b4a1b92048e909ce9ba4a1e8fa56.zip"
+     "S3Key": "f128cf206ce33204478543b36fe4533f8b571de71fc1757329a2abe9b9746f95.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -16836,7 +16836,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "43d1c41a4d46ac4fe14ab076e83579caf4adb34ca59c1dfcaeb14dc6ccc54a18.zip"
+     "S3Key": "672d18f042a2870677d5cf37252b151d5bb9e7563033c6b0f58d7c450df0073d.zip"
     },
     "Description": "Check for GitHub webhook delivery failures and redeliver them",
     "Environment": {
@@ -17031,7 +17031,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "70f0e98b4442f9b1760db6ed6fae54fd00508308ddbd277c1e8c40a85b200dd5.zip"
+     "S3Key": "3a5ed6524013a1c94760dad265222d3b9bdfdc087283c4aaf3d6a6e5d82124a9.zip"
     },
     "Description": "Setup GitHub Actions integration with self-hosted runners",
     "Environment": {
@@ -17365,7 +17365,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "b51bdaeb29dde378d0ed7dd22232b6d0941545402571d7277eb42b358459d6d9.zip"
+     "S3Key": "7c02b208b40e73533f7a72004156f6c34d5c223ef4afae0e099168bd88422397.zip"
     },
     "Description": "Provide user with status about self-hosted GitHub Actions runners",
     "Environment": {
