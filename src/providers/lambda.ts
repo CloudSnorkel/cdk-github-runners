@@ -18,6 +18,7 @@ import {
   BaseProvider,
   IRunnerProvider,
   IRunnerProviderStatus,
+  nodePathWithoutStack,
   Os,
   RunnerImage,
   RunnerProviderProps,
@@ -332,7 +333,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.LambdaInvoke(
       this,
-      this.node.path.split('/').splice(1).join('/'),
+      nodePathWithoutStack(this),
       {
         lambdaFunction: this.function,
         payload: stepfunctions.TaskInput.fromObject({

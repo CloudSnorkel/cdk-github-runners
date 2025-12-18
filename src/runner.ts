@@ -394,6 +394,9 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           stepfunctions.Condition.stringEquals('$.provider', provider.node.path),
         ),
         providerTask,
+        {
+          comment: `Labels: ${provider.labels.join(', ')}`,
+        },
       );
     }
 

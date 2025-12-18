@@ -642,3 +642,10 @@ export function amiRootDevice(scope: Construct, ami?: string) {
     },
   });
 }
+
+/**
+ * @internal
+ */
+export function nodePathWithoutStack(construct: Construct) {
+  return construct.node.path.split('/').splice(1).join('/');
+}
