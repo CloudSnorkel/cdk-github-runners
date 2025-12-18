@@ -10527,6 +10527,7 @@ grantable for the status function.
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | All sub-providers contained in this composite provider. |
 
 ---
 
@@ -10555,6 +10556,20 @@ GitHub Actions labels used for this provider.
 These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
 based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
 job's labels, this provider will be chosen and spawn a new runner.
+
+---
+
+##### `providers`<sup>Required</sup> <a name="providers" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.providers"></a>
+
+```typescript
+public readonly providers: IRunnerProvider[];
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]
+
+All sub-providers contained in this composite provider.
+
+This is used to extract providers for metric filters and other operations.
 
 ---
 
