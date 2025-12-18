@@ -595,7 +595,6 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
 
   protected createImage(infra: imagebuilder.CfnInfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
     imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImage {
-
     const image = new imagebuilder.CfnImage(this, this.amiOrContainerId('Image', imageRecipeArn, containerRecipeArn), {
       infrastructureConfigurationArn: infra.attrArn,
       distributionConfigurationArn: dist.attrArn,
