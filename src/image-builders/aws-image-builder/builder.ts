@@ -24,7 +24,7 @@ import { ContainerRecipe, defaultBaseDockerImage } from './container';
 import { DeleteResourcesFunction } from './delete-resources-function';
 import { DeleteResourcesProps } from './delete-resources.lambda';
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
-import { generateBuildWorkflowWithDockerSetupCommands } from './workflow';
+import { generateBuildWorkflowWithDockerSetupCommands, Workflow } from './workflow';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers';
 import { singletonLogGroup, singletonLambda, SingletonLogType } from '../../utils';
 import { BuildImageFunction } from '../build-image-function';
@@ -320,6 +320,8 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   private readonly waitOnDeploy: boolean;
   private readonly dockerSetupCommands: string[];
   private readonly tags: { [key: string]: string };
+  private readonly containerWorkflow?: Workflow;
+  private readonly containerWorkflowExecutionRole?: iam.IRole;
 
   constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     super(scope, id, props);
@@ -365,6 +367,17 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.role = new iam.Role(this, 'Role', {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
     });
+
+    // create container workflow if docker setup commands are provided
+    if (this.dockerSetupCommands.length > 0) {
+      this.containerWorkflow = generateBuildWorkflowWithDockerSetupCommands(this, 'Build', this.dockerSetupCommands);
+      this.containerWorkflowExecutionRole = iam.Role.fromRoleArn(this, 'Image Builder Role', cdk.Stack.of(this).formatArn({
+        service: 'iam',
+        region: '',
+        resource: 'role',
+        resourceName: 'aws-service-role/imagebuilder.amazonaws.com/AWSServiceRoleForImageBuilder',
+      }));
+    }
   }
 
   private platform() {
@@ -568,8 +581,21 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return this.infrastructure;
   }
 
+  private workflowConfig(containerRecipeArn?: string): Partial<imagebuilder.CfnImageProps> | Partial<imagebuilder.CfnImagePipelineProps> | undefined {
+    if (this.containerWorkflow && this.containerWorkflowExecutionRole && containerRecipeArn) {
+      return {
+        workflows: [{
+          workflowArn: this.containerWorkflow.arn,
+        }],
+        executionRole: this.containerWorkflowExecutionRole.roleArn,
+      };
+    }
+    return undefined;
+  }
+
   protected createImage(infra: imagebuilder.CfnInfrastructureConfiguration, dist: imagebuilder.CfnDistributionConfiguration, log: logs.LogGroup,
     imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImage {
+
     const image = new imagebuilder.CfnImage(this, this.amiOrContainerId('Image', imageRecipeArn, containerRecipeArn), {
       infrastructureConfigurationArn: infra.attrArn,
       distributionConfigurationArn: dist.attrArn,
@@ -579,6 +605,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
         imageTestsEnabled: false,
       },
       tags: this.tags,
+      ...this.workflowConfig(containerRecipeArn),
     });
     image.node.addDependency(infra);
     image.node.addDependency(log);
@@ -613,21 +640,6 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       };
     }
 
-    // generate workflows, if needed
-    let workflows: imagebuilder.CfnImagePipeline.WorkflowConfigurationProperty[] | undefined;
-    let executionRole: iam.IRole | undefined;
-    if (this.dockerSetupCommands.length > 0 && containerRecipeArn) {
-      workflows = [{
-        workflowArn: generateBuildWorkflowWithDockerSetupCommands(this, 'Build', this.dockerSetupCommands).arn,
-      }];
-      executionRole = iam.Role.fromRoleArn(this, 'Image Builder Role', cdk.Stack.of(this).formatArn({
-        service: 'iam',
-        region: '',
-        resource: 'role',
-        resourceName: 'aws-service-role/imagebuilder.amazonaws.com/AWSServiceRoleForImageBuilder',
-      }));
-    }
-
     // generate pipeline
     const pipeline = new imagebuilder.CfnImagePipeline(this, this.amiOrContainerId('Pipeline', imageRecipeArn, containerRecipeArn), {
       name: uniqueImageBuilderName(this),
@@ -640,9 +652,8 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       imageTestsConfiguration: {
         imageTestsEnabled: false,
       },
-      workflows: workflows,
-      executionRole: executionRole?.roleArn,
       tags: this.tags,
+      ...this.workflowConfig(containerRecipeArn),
     });
     pipeline.node.addDependency(infra);
     pipeline.node.addDependency(log);
