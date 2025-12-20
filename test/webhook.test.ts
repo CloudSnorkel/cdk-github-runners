@@ -222,5 +222,53 @@ describe('selectProvider', () => {
       expect(result.provider).toBe('Stack/Provider2');
       expect(result.labels).toEqual(['windows']);
     });
+
+    test('throws error when selector throws an error', async () => {
+      mockCallProviderSelector.mockRejectedValue(new Error('Internal Lambda failure'));
+
+      await expect(webhook.selectProvider(mockPayload, ['linux'], mockCallProviderSelector))
+        .rejects.toThrow('Internal Lambda failure');
+    });
+
+    test('throws error when selector returns non-existent provider', async () => {
+      mockCallProviderSelector.mockResolvedValue({
+        provider: 'Stack/NonExistentProvider',
+        labels: ['custom'],
+      });
+
+      await expect(webhook.selectProvider(mockPayload, ['linux'], mockCallProviderSelector))
+        .rejects.toThrow('Provider selector returned unknown provider Stack/NonExistentProvider');
+    });
+
+    test('throws error when selector returns empty labels array', async () => {
+      const selectorResult: ProviderSelectorResult = {
+        provider: 'Stack/Provider1',
+        labels: [],
+      };
+      mockCallProviderSelector.mockResolvedValue(selectorResult);
+
+      await expect(webhook.selectProvider(mockPayload, ['linux'], mockCallProviderSelector))
+        .rejects.toThrow('Provider selector must return non-empty labels when provider is set');
+    });
+
+    test('throws error when selector returns provider without labels', async () => {
+      const selectorResult: ProviderSelectorResult = {
+        provider: 'Stack/Provider1',
+      };
+      mockCallProviderSelector.mockResolvedValue(selectorResult);
+
+      await expect(webhook.selectProvider(mockPayload, ['linux'], mockCallProviderSelector))
+        .rejects.toThrow('Provider selector must return non-empty labels when provider is set');
+    });
+
+    test('throws error when selector returns empty provider string', async () => {
+      mockCallProviderSelector.mockResolvedValue({
+        provider: '',
+        labels: ['linux'],
+      });
+
+      await expect(webhook.selectProvider(mockPayload, ['linux'], mockCallProviderSelector))
+        .rejects.toThrow('Provider selector returned empty provider');
+    });
   });
 });

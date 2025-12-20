@@ -16582,7 +16582,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "3a6e10dab7f521edb8e1937bcbdf59708be2a5fcfcd16d356013b124b12e963b.zip"
+     "S3Key": "489f5ed6d9f3b01aab18373614361f42bb332b06a23b89503db33a9cc78b73ea.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -19044,7 +19044,7 @@
      "Fn::Join": [
       "",
       [
-       "fields @timestamp, message.sfnInput.jobUrl, message.sfnInput.labels, message.sfnInput.provider\n| filter strcontains(@logStream, \"",
+       "fields @timestamp, message.sfnInput.jobUrl, message.sfnInput.jobLabels, message.sfnInput.providerLabels, message.sfnInput.provider\n| filter strcontains(@logStream, \"",
        {
         "Ref": "runnersWebhookHandlerwebhookhandler22779A81"
        },

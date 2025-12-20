@@ -146,6 +146,19 @@ export async function selectProvider(payload: any, jobLabels: string[], hook = c
   console.log(`Before provider selector provider=${defaultProvider} labels=${defaultLabels}`);
   console.log(`After provider selector provider=${selectorResult.provider} labels=${selectorResult.labels}`);
 
+  // any error here will fail the webhook and cause a retry so the selector has another chance to get it right
+  if (selectorResult.provider !== undefined) {
+    if (selectorResult.provider === '') {
+      throw new Error('Provider selector returned empty provider');
+    }
+    if (!providers[selectorResult.provider]) {
+      throw new Error(`Provider selector returned unknown provider ${selectorResult.provider}`);
+    }
+    if (selectorResult.labels === undefined || selectorResult.labels.length === 0) {
+      throw new Error('Provider selector must return non-empty labels when provider is set');
+    }
+  }
+
   return selectorResult;
 }
 
