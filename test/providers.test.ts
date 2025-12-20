@@ -246,7 +246,7 @@ describe('ECS provider', () => {
     }
 
     const def = JSON.parse(extractStateMachineDefinition(template));
-    const ecsPlacement = def?.States?.['ecs-placement'];
+    const ecsPlacement = def?.States?.providerPlacement;
     expect(ecsPlacement?.Type).toBe('Task');
     const ps = ecsPlacement?.Parameters?.PlacementStrategy;
     expect(Array.isArray(ps)).toBe(true);
@@ -294,7 +294,7 @@ describe('ECS provider', () => {
     }
 
     const def = JSON.parse(extractStateMachineDefinition(template));
-    const ecsTask = def?.States?.['ecs-constraints'];
+    const ecsTask = def?.States?.providerPlacementConstraints;
     expect(ecsTask?.Type).toBe('Task');
     const pc = ecsTask?.Parameters?.PlacementConstraints;
     expect(Array.isArray(pc)).toBe(true);
