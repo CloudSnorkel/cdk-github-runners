@@ -107,10 +107,19 @@ export async function callProviderSelector(
     defaultLabels: defaultSelection.labels,
   };
 
+  // don't catch errors -- the whole webhook handler will be retried on unhandled errors
   const result = await lambdaClient.send(new InvokeCommand({
     FunctionName: process.env.PROVIDER_SELECTOR_ARN,
     Payload: JSON.stringify(selectorInput),
   }));
+
+  if (result.FunctionError) {
+    console.error(result.FunctionError);
+    if (result.Payload) {
+      console.error(Buffer.from(result.Payload).toString());
+    }
+    throw new Error('Provider selector failed');
+  }
 
   if (!result.Payload) {
     throw new Error('Provider selector returned no payload');
