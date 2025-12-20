@@ -7,11 +7,51 @@ import { singletonLogGroup, SingletonLogType } from './utils';
 import { WebhookHandlerFunction } from './webhook-handler-function';
 
 /**
- * @internal
+ * Input to the provider selector Lambda function.
  */
-export interface SupportedLabels {
-  readonly provider: string;
-  readonly labels: string[];
+export interface ProviderSelectorInput {
+  /**
+   * Full GitHub webhook payload (workflow_job event structure).
+   */
+  readonly payload: any;
+
+  /**
+   * Map of available provider node paths to their configured labels.
+   * Example: { "MyStack/Small": ["linux", "small"], "MyStack/Large": ["linux", "large"] }
+   */
+  readonly providers: Record<string, string[]>;
+
+  /**
+   * Provider node path that would have been selected by default label matching.
+   * Use this to easily return the default selection: `{ provider: input.defaultProvider, labels: input.defaultLabels }`
+   * May be undefined if no provider matched by default.
+   */
+  readonly defaultProvider?: string;
+
+  /**
+   * Labels that would have been used by default (the selected provider's labels).
+   * May be undefined if no provider matched by default.
+   */
+  readonly defaultLabels?: string[];
+}
+
+/**
+ * Result from the provider selector Lambda function.
+ */
+export interface ProviderSelectorResult {
+  /**
+   * Node path of the provider to use (e.g., "MyStack/MyProvider").
+   * Must match one of the configured provider node paths from the input.
+   * If not provided, the job will be skipped (no runner created).
+   */
+  readonly provider?: string;
+
+  /**
+   * Labels to use when registering the runner.
+   * Must be returned when a provider is selected.
+   * Can be used to add, remove, or modify labels.
+   */
+  readonly labels?: string[];
 }
 
 /**
@@ -36,9 +76,14 @@ export interface GithubWebhookHandlerProps {
   readonly access?: LambdaAccess;
 
   /**
-   * List of supported label combinations.
+   * Mapping of provider node paths to their supported labels.
    */
-  readonly supportedLabels: SupportedLabels[];
+  readonly providers: Record<string, string[]>;
+
+  /**
+   * Optional Lambda function to customize provider selection.
+   */
+  readonly providerSelector?: lambda.IFunction;
 
   /**
    * Whether to require the "self-hosted" label.
@@ -76,8 +121,9 @@ export class GithubWebhookHandler extends Construct {
           WEBHOOK_SECRET_ARN: props.secrets.webhook.secretArn,
           GITHUB_SECRET_ARN: props.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: props.secrets.githubPrivateKey.secretArn,
-          SUPPORTED_LABELS: JSON.stringify(props.supportedLabels),
+          PROVIDERS: JSON.stringify(props.providers),
           REQUIRE_SELF_HOSTED_LABEL: props.requireSelfHostedLabel ? '1' : '0',
+          PROVIDER_SELECTOR_ARN: props.providerSelector?.functionArn ?? '',
         },
         timeout: cdk.Duration.seconds(31),
         logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
@@ -92,5 +138,6 @@ export class GithubWebhookHandler extends Construct {
     props.secrets.github.grantRead(this.handler);
     props.secrets.githubPrivateKey.grantRead(this.handler);
     props.orchestrator.grantStartExecution(this.handler);
+    props.providerSelector?.grantInvoke(this.handler);
   }
 }

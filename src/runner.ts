@@ -33,7 +33,6 @@ import { singletonLogGroup, SingletonLogType } from './utils';
 import { GithubWebhookHandler } from './webhook';
 import { GithubWebhookRedelivery } from './webhook-redelivery';
 
-
 /**
  * Properties for GitHubRunners
  */
@@ -167,6 +166,24 @@ export interface GitHubRunnersProps {
    * @default retry 23 times up to about 24 hours
    */
   readonly retryOptions?: ProviderRetryOptions;
+
+  /**
+   * Optional Lambda function to customize provider selection logic and label assignment.
+   *
+   * * The function receives the webhook payload along with default provider and its labels as {@link ProviderSelectorInput}
+   * * The function returns a selected provider and its labels as {@link ProviderSelectorResult}
+   * * You can decline to provision a runner by returning undefined as the provider selector result
+   * * You can fully customize the labels for the about-to-be-provisioned runner (add, remove, modify, dynamic labels, etc.)
+   * * Labels don't have to match the labels originally configured for the provider, but see warnings below
+   * * This function will be called synchronously during webhook processing, so it should be fast and efficient (webhook limit is 30 seconds total)
+   *
+   * **WARNING: It is your responsibility to ensure the selected provider's labels match the job's required labels. If you return the wrong labels, the runner will be created but GitHub Actions will not assign the job to it.**
+   *
+   * **WARNING: Provider selection is not a guarantee that a specific provider will be assigned for the job. GitHub Actions may assign the job to any runner with matching labels. The provider selector only determines which provider's runner will be *created*, but GitHub Actions may route the job to any available runner with the required labels.**
+   *
+   * **For reliable provider assignment based on job characteristics, consider using repo-level runner registration where you can control which runners are available for specific repositories.**
+   */
+  readonly providerSelector?: lambda.IFunction;
 }
 
 /**
@@ -309,13 +326,12 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       orchestrator: this.orchestrator,
       secrets: this.secrets,
       access: this.props?.webhookAccess ?? LambdaAccess.lambdaUrl(),
-      supportedLabels: this.providers.map(p => {
-        return {
-          provider: p.node.path,
-          labels: p.labels,
-        };
-      }),
+      providers: this.providers.reduce<Record<string, string[]>>((acc, p) => {
+        acc[p.node.path] = p.labels;
+        return acc;
+      }, {}),
       requireSelfHostedLabel: this.props?.requireSelfHostedLabel ?? true,
+      providerSelector: this.props?.providerSelector,
     });
     this.redeliverer = new GithubWebhookRedelivery(this, 'Webhook Redelivery', {
       secrets: this.secrets,
@@ -386,6 +402,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           ownerPath: stepfunctions.JsonPath.stringAt('$.owner'),
           repoPath: stepfunctions.JsonPath.stringAt('$.repo'),
           registrationUrl: stepfunctions.JsonPath.stringAt('$.runner.registrationUrl'),
+          labelsPath: stepfunctions.JsonPath.stringAt('$.providerLabels'),
         },
       );
       providerChooser.when(
@@ -860,7 +877,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       queryDefinitionName: 'GitHub Runners/Webhook started runners',
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
-        fields: ['@timestamp', 'message.sfnInput.jobUrl', 'message.sfnInput.labels', 'message.sfnInput.provider'],
+        fields: ['@timestamp', 'message.sfnInput.jobUrl', 'message.sfnInput.jobLabels', 'message.sfnInput.providerLabels', 'message.sfnInput.provider'],
         filterStatements: [
           `strcontains(@logStream, "${this.webhook.handler.functionName}")`,
           'message.sfnInput.jobUrl like /http.*/',

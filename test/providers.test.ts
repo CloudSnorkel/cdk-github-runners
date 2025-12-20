@@ -226,6 +226,7 @@ describe('ECS provider', () => {
       repoPath: '$.repo',
       registrationUrl: 'https://github.com',
       githubDomainPath: 'github.com',
+      labelsPath: '$.providerLabels',
     });
 
     new sfn.StateMachine(stack, 'sm', {
@@ -274,6 +275,7 @@ describe('ECS provider', () => {
       repoPath: '$.repo',
       registrationUrl: 'https://github.com',
       githubDomainPath: 'github.com',
+      labelsPath: '$.providerLabels',
     });
 
     new sfn.StateMachine(stack, 'sm-constraints', {
