@@ -21,6 +21,7 @@ import {
   CodeBuildImageBuilderFailedBuildNotifier,
   CodeBuildRunnerProvider,
   FargateRunnerProvider,
+  ICompositeProvider,
   IRunnerProvider,
   LambdaRunnerProvider,
   ProviderRetryOptions,
@@ -42,7 +43,7 @@ export interface GitHubRunnersProps {
    *
    * @default CodeBuild, Lambda and Fargate runners with all the defaults (no VPC or default account VPC)
    */
-  readonly providers?: IRunnerProvider[];
+  readonly providers?: (IRunnerProvider | ICompositeProvider)[];
 
   /**
    * Whether to require the `self-hosted` label. If `true`, the runner will only start if the workflow job explicitly requests the `self-hosted` label.
@@ -263,7 +264,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   /**
    * Configured runner providers.
    */
-  readonly providers: IRunnerProvider[];
+  readonly providers: (IRunnerProvider | ICompositeProvider)[];
 
   /**
    * Secrets for GitHub communication including webhook secret and runner authentication.
@@ -284,7 +285,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private readonly extraLambdaEnv: { [p: string]: string } = {};
   private readonly extraLambdaProps: lambda.FunctionOptions;
   private stateMachineLogGroup?: logs.LogGroup;
-  private jobsCompletedMetricFilters?: logs.MetricFilter[];
+  private jobsCompletedMetricFiltersInitialized = false;
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
@@ -410,6 +411,9 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           stepfunctions.Condition.stringEquals('$.provider', provider.node.path),
         ),
         providerTask,
+        {
+          comment: `Labels: ${provider.labels.join(', ')}`,
+        },
       );
     }
 
@@ -555,7 +559,11 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       },
     );
 
-    const providers = this.providers.map(provider => provider.status(statusFunction));
+    const providers = this.providers.flatMap(provider => {
+      const status = provider.status(statusFunction);
+      // Composite providers return an array, regular providers return a single status
+      return Array.isArray(status) ? status : [status];
+    });
 
     // expose providers as stack metadata as it's too big for Lambda environment variables
     // specifically integration testing got an error because lambda update request was >5kb
@@ -710,19 +718,44 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   /**
+   * Extracts all unique IRunnerProvider instances from providers and composite providers (one level only).
+   * Uses a Set to ensure we don't process the same provider twice, even if it's used in multiple composites.
+   *
+   * @returns Set of unique IRunnerProvider instances
+   */
+  private extractUniqueSubProviders(): Set<IRunnerProvider> {
+    const seen = new Set<IRunnerProvider>();
+    for (const provider of this.providers) {
+      // instanceof doesn't really work in CDK so use this hack instead
+      if ('logGroup' in provider) {
+        // Regular provider
+        seen.add(provider);
+      } else {
+        // Composite provider - access the providers field
+        for (const subProvider of provider.providers) {
+          seen.add(subProvider);
+        }
+      }
+    }
+    return seen;
+  }
+
+  /**
    * Metric for the number of GitHub Actions jobs completed. It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succeeded", "SucceededWithIssues", "Failed", "Canceled", "Skipped", or "Abandoned".
    *
    * **WARNING:** this method creates a metric filter for each provider. Each metric has a status dimension with six possible values. These resources may incur cost.
    */
   public metricJobCompleted(props?: cloudwatch.MetricProps): cloudwatch.Metric {
-    if (!this.jobsCompletedMetricFilters) {
+    if (!this.jobsCompletedMetricFiltersInitialized) {
       // we can't use logs.FilterPattern.spaceDelimited() because it has no support for ||
       // status list taken from https://github.com/actions/runner/blob/be9632302ceef50bfb36ea998cea9c94c75e5d4d/src/Sdk/DTWebApi/WebApi/TaskResult.cs
       // we need "..." for Lambda that prefixes some extra data to log lines
       const pattern = logs.FilterPattern.literal('[..., marker = "CDKGHA", job = "JOB", done = "DONE", labels, status = "Succeeded" || status = "SucceededWithIssues" || status = "Failed" || status = "Canceled" || status = "Skipped" || status = "Abandoned"]');
 
-      this.jobsCompletedMetricFilters = this.providers.map(p =>
-        p.logGroup.addMetricFilter(`${p.logGroup.node.id} filter`, {
+      // Extract all unique sub-providers from regular and composite providers
+      // Build a set first to avoid filtering the same log twice
+      for (const p of this.extractUniqueSubProviders()) {
+        const metricFilter = p.logGroup.addMetricFilter(`${p.logGroup.node.id} filter`, {
           metricNamespace: 'GitHubRunners',
           metricName: 'JobCompleted',
           filterPattern: pattern,
@@ -732,16 +765,15 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
             ProviderLabels: '$labels',
             Status: '$status',
           },
-        }),
-      );
+        });
 
-      for (const metricFilter of this.jobsCompletedMetricFilters) {
         if (metricFilter.node.defaultChild instanceof logs.CfnMetricFilter) {
           metricFilter.node.defaultChild.addPropertyOverride('MetricTransformations.0.Unit', 'Count');
         } else {
           Annotations.of(metricFilter).addWarning('Unable to set metric filter Unit to Count');
         }
       }
+      this.jobsCompletedMetricFiltersInitialized = true;
     }
 
     return new cloudwatch.Metric({

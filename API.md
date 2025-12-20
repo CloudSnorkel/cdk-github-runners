@@ -3539,7 +3539,7 @@ Any object.
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | Manage the connections of all management functions. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | Configured runner providers. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a> \| <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a>[]</code> | Configured runner providers. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.secrets">secrets</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Secrets">Secrets</a></code> | Secrets for GitHub communication including webhook secret and runner authentication. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.property.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps">GitHubRunnersProps</a></code> | *No description.* |
 
@@ -3576,10 +3576,10 @@ This cannot be used to manage connections of the runners. Use the `connections` 
 ##### `providers`<sup>Required</sup> <a name="providers" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.property.providers"></a>
 
 ```typescript
-public readonly providers: IRunnerProvider[];
+public readonly providers: (IRunnerProvider | ICompositeProvider)[];
 ```
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a> | <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a>[]
 
 Configured runner providers.
 
@@ -7221,7 +7221,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.extraCertificates">extraCertificates</a></code> | <code>string</code> | Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.idleTimeout">idleTimeout</a></code> | <code>aws-cdk-lib.Duration</code> | Time to wait before stopping a runner that remains idle. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.logOptions">logOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions">LogOptions</a></code> | Logging options for the state machine that manages the runners. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | List of runner providers to use. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a> \| <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a>[]</code> | List of runner providers to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providerSelector">providerSelector</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | Optional Lambda function to customize provider selection logic and label assignment. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.requireSelfHostedLabel">requireSelfHostedLabel</a></code> | <code>boolean</code> | Whether to require the `self-hosted` label. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
@@ -7313,10 +7313,10 @@ Logging options for the state machine that manages the runners.
 ##### `providers`<sup>Optional</sup> <a name="providers" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers"></a>
 
 ```typescript
-public readonly providers: IRunnerProvider[];
+public readonly providers: (IRunnerProvider | ICompositeProvider)[];
 ```
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a> | <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a>[]
 - *Default:* CodeBuild, Lambda and Fargate runners with all the defaults (no VPC or default account VPC)
 
 List of runner providers to use.
@@ -9017,6 +9017,54 @@ The EBS volume type.
 
 ---
 
+### WeightedRunnerProvider <a name="WeightedRunnerProvider" id="@cloudsnorkel/cdk-github-runners.WeightedRunnerProvider"></a>
+
+Configuration for weighted distribution of runners.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.WeightedRunnerProvider.Initializer"></a>
+
+```typescript
+import { WeightedRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
+
+const weightedRunnerProvider: WeightedRunnerProvider = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.WeightedRunnerProvider.property.provider">provider</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a></code> | The runner provider to use. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.WeightedRunnerProvider.property.weight">weight</a></code> | <code>number</code> | Weight for this provider. |
+
+---
+
+##### `provider`<sup>Required</sup> <a name="provider" id="@cloudsnorkel/cdk-github-runners.WeightedRunnerProvider.property.provider"></a>
+
+```typescript
+public readonly provider: IRunnerProvider;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
+
+The runner provider to use.
+
+---
+
+##### `weight`<sup>Required</sup> <a name="weight" id="@cloudsnorkel/cdk-github-runners.WeightedRunnerProvider.property.weight"></a>
+
+```typescript
+public readonly weight: number;
+```
+
+- *Type:* number
+
+Weight for this provider.
+
+Higher weights mean higher probability of selection.
+Must be a positive number.
+
+---
+
 ## Classes <a name="Classes" id="Classes"></a>
 
 ### Architecture <a name="Architecture" id="@cloudsnorkel/cdk-github-runners.Architecture"></a>
@@ -9132,6 +9180,120 @@ public readonly X86_64: Architecture;
 X86_64.
 
 ---
+
+### CompositeProvider <a name="CompositeProvider" id="@cloudsnorkel/cdk-github-runners.CompositeProvider"></a>
+
+A composite runner provider that implements fallback and distribution strategies.
+
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.Initializer"></a>
+
+```typescript
+import { CompositeProvider } from '@cloudsnorkel/cdk-github-runners'
+
+new CompositeProvider()
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+
+---
+
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CompositeProvider.distribute">distribute</a></code> | Creates a weighted distribution runner provider that randomly selects a provider based on weights. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CompositeProvider.fallback">fallback</a></code> | Creates a fallback runner provider that tries each provider in order until one succeeds. |
+
+---
+
+##### `distribute` <a name="distribute" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.distribute"></a>
+
+```typescript
+import { CompositeProvider } from '@cloudsnorkel/cdk-github-runners'
+
+CompositeProvider.distribute(scope: Construct, id: string, weightedProviders: WeightedRunnerProvider[])
+```
+
+Creates a weighted distribution runner provider that randomly selects a provider based on weights.
+
+For example, given providers A (weight 10), B (weight 20), C (weight 30):
+- Total weight = 60
+- Probability of selecting A = 10/60 = 16.67%
+- Probability of selecting B = 20/60 = 33.33%
+- Probability of selecting C = 30/60 = 50%
+
+You can use this to distribute load across multiple instance types or availability zones.
+
+###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.distribute.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+The scope in which to define this construct.
+
+---
+
+###### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.distribute.parameter.id"></a>
+
+- *Type:* string
+
+The scoped construct ID.
+
+---
+
+###### `weightedProviders`<sup>Required</sup> <a name="weightedProviders" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.distribute.parameter.weightedProviders"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.WeightedRunnerProvider">WeightedRunnerProvider</a>[]
+
+List of weighted runner providers.
+
+---
+
+##### `fallback` <a name="fallback" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.fallback"></a>
+
+```typescript
+import { CompositeProvider } from '@cloudsnorkel/cdk-github-runners'
+
+CompositeProvider.fallback(scope: Construct, id: string, providers: IRunnerProvider[])
+```
+
+Creates a fallback runner provider that tries each provider in order until one succeeds.
+
+For example, given providers A, B, C:
+- Try A first
+- If A fails, try B
+- If B fails, try C
+
+You can use this to try spot instance first, and switch to on-demand instances if spot is unavailable.
+
+Or you can use this to try different instance types in order of preference.
+
+###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.fallback.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+The scope in which to define this construct.
+
+---
+
+###### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.fallback.parameter.id"></a>
+
+- *Type:* string
+
+The scoped construct ID.
+
+---
+
+###### `providers`<sup>Required</sup> <a name="providers" id="@cloudsnorkel/cdk-github-runners.CompositeProvider.fallback.parameter.providers"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]
+
+List of runner providers to try in order.
+
+---
+
+
 
 ### LambdaAccess <a name="LambdaAccess" id="@cloudsnorkel/cdk-github-runners.LambdaAccess"></a>
 
@@ -10448,6 +10610,134 @@ WindowsComponents.githubRunner(scope: Construct, id: string, runnerVersion: Runn
 
 ## Protocols <a name="Protocols" id="Protocols"></a>
 
+### ICompositeProvider <a name="ICompositeProvider" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider"></a>
+
+- *Extends:* constructs.IConstruct
+
+- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a>
+
+Interface for composite runner providers that interact with multiple sub-providers.
+
+Unlike IRunnerProvider, composite providers do not have connections, grant capabilities,
+log groups, or retryable errors as they delegate to their sub-providers.
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function tasks that execute the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.status">status</a></code> | Return statuses of all sub-providers to be used in the main status function. |
+
+---
+
+##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.getStepFunctionTask"></a>
+
+```typescript
+public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+```
+
+Generate step function tasks that execute the runner.
+
+Called by GithubRunners and shouldn't be called manually.
+
+###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.getStepFunctionTask.parameter.parameters"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+
+specific build parameters.
+
+---
+
+##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.grantStateMachine"></a>
+
+```typescript
+public grantStateMachine(stateMachineRole: IGrantable): void
+```
+
+An optional method that modifies the role of the state machine after all the tasks have been generated.
+
+This can be used to add additional policy
+statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
+
+###### `stateMachineRole`<sup>Required</sup> <a name="stateMachineRole" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.grantStateMachine.parameter.stateMachineRole"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IGrantable
+
+role for the state machine that executes the task returned from {@link getStepFunctionTask}.
+
+---
+
+##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.status"></a>
+
+```typescript
+public status(statusFunctionRole: IGrantable): IRunnerProviderStatus[]
+```
+
+Return statuses of all sub-providers to be used in the main status function.
+
+Also gives the status function any needed permissions to query the Docker images or AMIs.
+
+###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.status.parameter.statusFunctionRole"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IGrantable
+
+grantable for the status function.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]</code> | All sub-providers contained in this composite provider. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+
+GitHub Actions labels used for this provider.
+
+These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+job's labels, this provider will be chosen and spawn a new runner.
+
+---
+
+##### `providers`<sup>Required</sup> <a name="providers" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.property.providers"></a>
+
+```typescript
+public readonly providers: IRunnerProvider[];
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>[]
+
+All sub-providers contained in this composite provider.
+
+This is used to extract providers for metric filters and other operations.
+
+---
+
 ### IConfigurableRunnerImageBuilder <a name="IConfigurableRunnerImageBuilder" id="@cloudsnorkel/cdk-github-runners.IConfigurableRunnerImageBuilder"></a>
 
 - *Extends:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>, aws-cdk-lib.aws_ec2.IConnectable, aws-cdk-lib.aws_iam.IGrantable
@@ -10857,6 +11147,7 @@ Interface for runner image status used by status.json.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.type">type</a></code> | <code>string</code> | Runner provider type. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.ami">ami</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus">IRunnerAmiStatus</a></code> | Details about AMI used by this runner provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.constructPath">constructPath</a></code> | <code>string</code> | CDK construct node path for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageStatus">IRunnerImageStatus</a></code> | Details about Docker image used by this runner provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.logGroup">logGroup</a></code> | <code>string</code> | Log group for runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.roleArn">roleArn</a></code> | <code>string</code> | Role attached to runners. |
@@ -10898,6 +11189,18 @@ public readonly ami: IRunnerAmiStatus;
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus">IRunnerAmiStatus</a>
 
 Details about AMI used by this runner provider.
+
+---
+
+##### `constructPath`<sup>Optional</sup> <a name="constructPath" id="@cloudsnorkel/cdk-github-runners.IRunnerProviderStatus.property.constructPath"></a>
+
+```typescript
+public readonly constructPath: string;
+```
+
+- *Type:* string
+
+CDK construct node path for this provider.
 
 ---
 
