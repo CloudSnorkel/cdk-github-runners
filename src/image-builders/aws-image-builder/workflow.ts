@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { Os } from '../../providers/common';
 import { uniqueImageBuilderName } from '../common';
 
 /**
@@ -52,7 +53,7 @@ export class Workflow extends cdk.Resource {
  *
  * @internal
  */
-export function generateBuildWorkflowWithDockerSetupCommands(scope: Construct, id: string, dockerSetupCommands: string[]) {
+export function generateBuildWorkflowWithDockerSetupCommands(scope: Construct, id: string, os: Os, dockerSetupCommands: string[]) {
   return new Workflow(scope, id, {
     type: 'BUILD',
     data: {
@@ -90,7 +91,7 @@ export function generateBuildWorkflowWithDockerSetupCommands(scope: Construct, i
             value: '$.imagebuilder.imageType',
           },
           inputs: {
-            'documentName': 'AWS-RunShellScript',
+            'documentName': os.is(Os.WINDOWS) ? 'AWS-RunPowerShellScript' : 'AWS-RunShellScript',
             'parameters': {
               commands: dockerSetupCommands,
             },

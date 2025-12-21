@@ -370,7 +370,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
 
     // create container workflow if docker setup commands are provided
     if (this.dockerSetupCommands.length > 0) {
-      this.containerWorkflow = generateBuildWorkflowWithDockerSetupCommands(this, 'Build', this.dockerSetupCommands);
+      this.containerWorkflow = generateBuildWorkflowWithDockerSetupCommands(this, 'Build', this.os, this.dockerSetupCommands);
       this.containerWorkflowExecutionRole = iam.Role.fromRoleArn(this, 'Image Builder Role', cdk.Stack.of(this).formatArn({
         service: 'iam',
         region: '',
