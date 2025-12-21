@@ -403,7 +403,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           ownerPath: stepfunctions.JsonPath.stringAt('$.owner'),
           repoPath: stepfunctions.JsonPath.stringAt('$.repo'),
           registrationUrl: stepfunctions.JsonPath.stringAt('$.runner.registrationUrl'),
-          labelsPath: stepfunctions.JsonPath.stringAt('$.providerLabels'),
+          labelsPath: stepfunctions.JsonPath.stringAt('$.labels'),
         },
       );
       providerChooser.when(
@@ -909,7 +909,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       queryDefinitionName: 'GitHub Runners/Webhook started runners',
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
-        fields: ['@timestamp', 'message.sfnInput.jobUrl', 'message.sfnInput.jobLabels', 'message.sfnInput.providerLabels', 'message.sfnInput.provider'],
+        fields: ['@timestamp', 'message.sfnInput.jobUrl', 'message.sfnInput.jobLabels', 'message.sfnInput.labels', 'message.sfnInput.provider'],
         filterStatements: [
           `strcontains(@logStream, "${this.webhook.handler.functionName}")`,
           'message.sfnInput.jobUrl like /http.*/',

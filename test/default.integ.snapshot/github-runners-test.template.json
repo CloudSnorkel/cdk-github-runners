@@ -17426,7 +17426,7 @@
        {
         "Ref": "CodeBuildx64CodeBuild7DC01A1E"
        },
-       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"CodeBuildUbuntu2404x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"CodeBuildUbuntu2404x64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -17434,7 +17434,7 @@
        {
         "Ref": "CodeBuildUbuntu2404x64CodeBuild261399A8"
        },
-       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"CodeBuildARM\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"CodeBuildARM\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -17442,7 +17442,7 @@
        {
         "Ref": "CodeBuildARMCodeBuildC5F301F2"
        },
-       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"CodeBuildWindows\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"CodeBuildWindows\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -17450,7 +17450,7 @@
        {
         "Ref": "CodeBuildWindowsCodeBuildC39F35C1"
        },
-       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"ECS Spot\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.fallbackError1\",\"Next\":\"ECS Non-Spot\"}],\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"EnvironmentVariablesOverride\":[{\"Name\":\"RUNNER_TOKEN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Type\":\"PLAINTEXT\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Type\":\"PLAINTEXT\",\"Value.$\":\"$.runner.registrationUrl\"}]}},\"ECS Spot\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.fallbackError1\",\"Next\":\"ECS Non-Spot\"}],\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -17461,7 +17461,7 @@
          "Arn"
         ]
        },
-       "\",\"TaskDefinition\":\"githubrunnerstestECSSpottask94D7F678\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+       "\",\"TaskDefinition\":\"githubrunnerstestECSSpottask94D7F678\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
        {
         "Ref": "ECSSpotCapacityProvider93132CFA"
        },
@@ -17476,7 +17476,7 @@
          "Arn"
         ]
        },
-       "\",\"TaskDefinition\":\"githubrunnerstestECSNonSpottask5BD3595F\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+       "\",\"TaskDefinition\":\"githubrunnerstestECSNonSpottask5BD3595F\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
        {
         "Ref": "ECSNonSpotCapacityProviderB509DEC8"
        },
@@ -17491,7 +17491,7 @@
          "Arn"
         ]
        },
-       "\",\"TaskDefinition\":\"githubrunnerstestECSUbuntu2404taskB7D564C7\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+       "\",\"TaskDefinition\":\"githubrunnerstestECSUbuntu2404taskB7D564C7\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
        {
         "Ref": "ECSUbuntu2404CapacityProviderFAE73340"
        },
@@ -17506,7 +17506,7 @@
          "Arn"
         ]
        },
-       "\",\"TaskDefinition\":\"githubrunnerstestECSARM64taskE94E43A3\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+       "\",\"TaskDefinition\":\"githubrunnerstestECSARM64taskE94E43A3\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
        {
         "Ref": "ECSARM64CapacityProvider8627FEF9"
        },
@@ -17521,7 +17521,7 @@
          "Arn"
         ]
        },
-       "\",\"TaskDefinition\":\"githubrunnerstestECSWindowstask6B1D5861\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
+       "\",\"TaskDefinition\":\"githubrunnerstestECSWindowstask6B1D5861\",\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"",
        {
         "Ref": "ECSWindowsCapacityProvider8F8896A5"
        },
@@ -17536,7 +17536,7 @@
          "Arn"
         ]
        },
-       "\",\"Payload\":{\"token.$\":\"$.runner.token\",\"runnerName.$\":\"$$.Execution.Name\",\"label.$\":\"$.providerLabels\",\"githubDomain.$\":\"$.runner.domain\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"registrationUrl.$\":\"$.runner.registrationUrl\",\"group\":\"\",\"defaultLabels\":\"\"}}},\"LambdaARM\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"Payload\":{\"token.$\":\"$.runner.token\",\"runnerName.$\":\"$$.Execution.Name\",\"label.$\":\"$.labels\",\"githubDomain.$\":\"$.runner.domain\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"registrationUrl.$\":\"$.runner.registrationUrl\",\"group\":\"\",\"defaultLabels\":\"\"}}},\"LambdaARM\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -17547,7 +17547,7 @@
          "Arn"
         ]
        },
-       "\",\"Payload\":{\"token.$\":\"$.runner.token\",\"runnerName.$\":\"$$.Execution.Name\",\"label.$\":\"$.providerLabels\",\"githubDomain.$\":\"$.runner.domain\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"registrationUrl.$\":\"$.runner.registrationUrl\",\"group\":\"\",\"defaultLabels\":\"\"}}},\"Fargate\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"Payload\":{\"token.$\":\"$.runner.token\",\"runnerName.$\":\"$$.Execution.Name\",\"label.$\":\"$.labels\",\"githubDomain.$\":\"$.runner.domain\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"registrationUrl.$\":\"$.runner.registrationUrl\",\"group\":\"\",\"defaultLabels\":\"\"}}},\"Fargate\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -17573,7 +17573,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}],\"EnableExecuteCommand\":true}},\"Fargate-x64-spot distribute rand\":{\"Type\":\"Pass\",\"ResultPath\":\"$.composite\",\"Parameters\":{\"rand.$\":\"States.MathRandom(1, 6)\"},\"Next\":\"Fargate-x64-spot distribute choice\"},\"Fargate-x64-spot distribute choice\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.composite.rand\",\"NumericLessThanEquals\":3,\"Next\":\"Fargate-x64-spot subnet 1\"},{\"Variable\":\"$.composite.rand\",\"NumericLessThanEquals\":5,\"Next\":\"Fargate-x64-spot subnet 2\"}]},\"Fargate-x64-spot subnet 1\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}],\"EnableExecuteCommand\":true}},\"Fargate-x64-spot distribute rand\":{\"Type\":\"Pass\",\"ResultPath\":\"$.composite\",\"Parameters\":{\"rand.$\":\"States.MathRandom(1, 6)\"},\"Next\":\"Fargate-x64-spot distribute choice\"},\"Fargate-x64-spot distribute choice\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.composite.rand\",\"NumericLessThanEquals\":3,\"Next\":\"Fargate-x64-spot subnet 1\"},{\"Variable\":\"$.composite.rand\",\"NumericLessThanEquals\":5,\"Next\":\"Fargate-x64-spot subnet 2\"}]},\"Fargate-x64-spot subnet 1\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -17595,7 +17595,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}],\"EnableExecuteCommand\":true}},\"Fargate-x64-spot subnet 2\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}],\"EnableExecuteCommand\":true}},\"Fargate-x64-spot subnet 2\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -17617,7 +17617,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}],\"EnableExecuteCommand\":true}},\"Fargate-arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}],\"EnableExecuteCommand\":true}},\"Fargate-arm64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -17643,7 +17643,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}],\"EnableExecuteCommand\":true}},\"Fargate-arm64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}],\"EnableExecuteCommand\":true}},\"Fargate-arm64-spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -17669,7 +17669,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}],\"EnableExecuteCommand\":true}},\"Fargate-Windows\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE_SPOT\"}],\"EnableExecuteCommand\":true}},\"Fargate-Windows\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -17695,7 +17695,7 @@
          "GroupId"
         ]
        },
-       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.providerLabels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}],\"EnableExecuteCommand\":false}},\"EC2 Fallback attempt #1\":{\"Type\":\"Parallel\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.fallbackError1\",\"Next\":\"EC2 Linux 2 data\"}],\"Branches\":[{\"StartAt\":\"EC2 Linux data\",\"States\":{\"EC2 Linux data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nlogGroupName=\\\"{}\\\"\\nrunnerNamePath=\\\"{}\\\"\\ngithubDomainPath=\\\"{}\\\"\\nownerPath=\\\"{}\\\"\\nrepoPath=\\\"{}\\\"\\nrunnerTokenPath=\\\"{}\\\"\\nlabels=\\\"{}\\\"\\nregistrationURL=\\\"{}\\\"\\nrunnerGroup1=\\\"{}\\\"\\nrunnerGroup2=\\\"{}\\\"\\ndefaultLabels=\\\"{}\\\"\\n\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  # Determine the value of RUNNER_FLAGS\\n  if [ \\\"$(< /home/runner/RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then\\n    RUNNER_FLAGS=\\\"\\\"\\n  else\\n    RUNNER_FLAGS=\\\"--disableupdate\\\"\\n  fi\\n\\n  labelsTemplate=\\\"$labels,cdkghr:started:$(date +%s)\\\"\\n\\n  # Execute the configuration command for runner registration\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"$registrationURL\\\" --token \\\"$runnerTokenPath\\\" --ephemeral --work _work --labels \\\"$labelsTemplate\\\" $RUNNER_FLAGS --name \\\"$runnerNamePath\\\" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1\\n\\n  # Execute the run command\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\n  # Retrieve the status\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: K.*\\\" /home/runner/_diag/ | tail -n1)\\n\\n  # Check and print the job status\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$labels\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"EC2 Linux ",
+       "\"]}},\"Overrides\":{\"ContainerOverrides\":[{\"Name\":\"runner\",\"Environment\":[{\"Name\":\"RUNNER_TOKEN\",\"Value.$\":\"$.runner.token\"},{\"Name\":\"RUNNER_NAME\",\"Value.$\":\"$$.Execution.Name\"},{\"Name\":\"RUNNER_LABEL\",\"Value.$\":\"$.labels\"},{\"Name\":\"RUNNER_GROUP1\",\"Value\":\"\"},{\"Name\":\"RUNNER_GROUP2\",\"Value\":\"\"},{\"Name\":\"DEFAULT_LABELS\",\"Value\":\"\"},{\"Name\":\"GITHUB_DOMAIN\",\"Value.$\":\"$.runner.domain\"},{\"Name\":\"OWNER\",\"Value.$\":\"$.owner\"},{\"Name\":\"REPO\",\"Value.$\":\"$.repo\"},{\"Name\":\"REGISTRATION_URL\",\"Value.$\":\"$.runner.registrationUrl\"}]}]},\"PropagateTags\":\"TASK_DEFINITION\",\"CapacityProviderStrategy\":[{\"CapacityProvider\":\"FARGATE\"}],\"EnableExecuteCommand\":false}},\"EC2 Fallback attempt #1\":{\"Type\":\"Parallel\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.fallbackError1\",\"Next\":\"EC2 Linux 2 data\"}],\"Branches\":[{\"StartAt\":\"EC2 Linux data\",\"States\":{\"EC2 Linux data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"#!/bin/bash -x\\nTASK_TOKEN=\\\"{}\\\"\\nlogGroupName=\\\"{}\\\"\\nrunnerNamePath=\\\"{}\\\"\\ngithubDomainPath=\\\"{}\\\"\\nownerPath=\\\"{}\\\"\\nrepoPath=\\\"{}\\\"\\nrunnerTokenPath=\\\"{}\\\"\\nlabels=\\\"{}\\\"\\nregistrationURL=\\\"{}\\\"\\nrunnerGroup1=\\\"{}\\\"\\nrunnerGroup2=\\\"{}\\\"\\ndefaultLabels=\\\"{}\\\"\\n\\nheartbeat () \\\\{\\n  while true; do\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  # Determine the value of RUNNER_FLAGS\\n  if [ \\\"$(< /home/runner/RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then\\n    RUNNER_FLAGS=\\\"\\\"\\n  else\\n    RUNNER_FLAGS=\\\"--disableupdate\\\"\\n  fi\\n\\n  labelsTemplate=\\\"$labels,cdkghr:started:$(date +%s)\\\"\\n\\n  # Execute the configuration command for runner registration\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"$registrationURL\\\" --token \\\"$runnerTokenPath\\\" --ephemeral --work _work --labels \\\"$labelsTemplate\\\" $RUNNER_FLAGS --name \\\"$runnerNamePath\\\" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1\\n\\n  # Execute the run command\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\n  # Retrieve the status\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f\\\\-]+ with result: K.*\\\" /home/runner/_diag/ | tail -n1)\\n\\n  # Check and print the job status\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$labels\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action | tee /var/log/runner.log 2>&1; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}'\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\"},\"Next\":\"EC2 Linux ",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -17728,7 +17728,7 @@
        {
         "Ref": "EC2LinuxLogsC4CD8F14"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.providerLabels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.labels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2LinuxInstanceProfile2D2BB473",
@@ -17775,7 +17775,7 @@
        {
         "Ref": "EC2LinuxLogsC4CD8F14"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.providerLabels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.labels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2LinuxInstanceProfile2D2BB473",
@@ -17830,7 +17830,7 @@
        {
         "Ref": "EC2Linux2Logs666ED658"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.providerLabels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.labels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2Linux2InstanceProfile03409581",
@@ -17877,7 +17877,7 @@
        {
         "Ref": "EC2Linux2Logs666ED658"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.providerLabels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.labels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2Linux2InstanceProfile03409581",
@@ -17932,7 +17932,7 @@
        {
         "Ref": "EC2SpotLinuxLogsF78D5F0E"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.providerLabels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.labels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2SpotLinuxInstanceProfileB12320D4",
@@ -17979,7 +17979,7 @@
        {
         "Ref": "EC2SpotLinuxLogsF78D5F0E"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.providerLabels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.labels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2SpotLinuxInstanceProfileB12320D4",
@@ -18034,7 +18034,7 @@
        {
         "Ref": "EC2Linuxarm64Logs577E371E"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.providerLabels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.labels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2Linuxarm64InstanceProfile1E6F8D53",
@@ -18081,7 +18081,7 @@
        {
         "Ref": "EC2Linuxarm64Logs577E371E"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.providerLabels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.labels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2Linuxarm64InstanceProfile1E6F8D53",
@@ -18136,7 +18136,7 @@
        {
         "Ref": "EC2WindowsLogsDC1F2ABF"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.providerLabels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.labels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2WindowsInstanceProfileDCA59D9C",
@@ -18183,7 +18183,7 @@
        {
         "Ref": "EC2WindowsLogsDC1F2ABF"
        },
-       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.providerLabels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.labels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
        {
         "Fn::GetAtt": [
          "EC2WindowsInstanceProfileDCA59D9C",
@@ -18348,7 +18348,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "489f5ed6d9f3b01aab18373614361f42bb332b06a23b89503db33a9cc78b73ea.zip"
+     "S3Key": "8de9c4c87fcb8883de9bfb565065ef6de180d40069868d2a089d392a0d7dc69e.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -21074,7 +21074,7 @@
      "Fn::Join": [
       "",
       [
-       "fields @timestamp, message.sfnInput.jobUrl, message.sfnInput.jobLabels, message.sfnInput.providerLabels, message.sfnInput.provider\n| filter strcontains(@logStream, \"",
+       "fields @timestamp, message.sfnInput.jobUrl, message.sfnInput.jobLabels, message.sfnInput.labels, message.sfnInput.provider\n| filter strcontains(@logStream, \"",
        {
         "Ref": "runnersWebhookHandlerwebhookhandler22779A81"
        },

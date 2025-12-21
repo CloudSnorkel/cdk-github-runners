@@ -277,7 +277,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     installationId: payload.installation?.id ?? -1, // always pass value because step function can't handle missing input
     jobLabels: payload.workflow_job.labels.join(','), // original labels requested by the job
     provider: selection.provider,
-    providerLabels: selection.labels.join(','), // labels to use when registering runner
+    labels: selection.labels.join(','), // labels to use when registering runner
   };
   const execution = await sf.send(new StartExecutionCommand({
     stateMachineArn: process.env.STEP_FUNCTION_ARN,
