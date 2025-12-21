@@ -8064,7 +8064,7 @@ const providerSelectorInput: ProviderSelectorInput = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.property.payload">payload</a></code> | <code>any</code> | Full GitHub webhook payload (workflow_job event structure). |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.property.payload">payload</a></code> | <code>any</code> | Full GitHub webhook payload (workflow_job event structure with action="queued"). |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.property.providers">providers</a></code> | <code>{[ key: string ]: string[]}</code> | Map of available provider node paths to their configured labels. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.property.defaultLabels">defaultLabels</a></code> | <code>string[]</code> | Labels that would have been used by default (the selected provider's labels). |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.property.defaultProvider">defaultProvider</a></code> | <code>string</code> | Provider node path that would have been selected by default label matching. |
@@ -8079,7 +8079,13 @@ public readonly payload: any;
 
 - *Type:* any
 
-Full GitHub webhook payload (workflow_job event structure).
+Full GitHub webhook payload (workflow_job event structure with action="queued").
+
+* Original labels requested by the workflow job can be found at `payload.workflow_job.labels`.
+* Repository path (e.g. CLoudSnorkel/cdk-github-runners) is at `payload.repository.full_name`.
+* Commit hash is at `payload.workflow_job.head_sha`.
+
+> [https://docs.github.com/en/webhooks/webhook-events-and-payloads?actionType=queued#workflow_job](https://docs.github.com/en/webhooks/webhook-events-and-payloads?actionType=queued#workflow_job)
 
 ---
 
