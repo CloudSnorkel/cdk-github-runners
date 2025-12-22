@@ -96,7 +96,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     workflowOptions: {
       labels: ['auto-approve'],
       schedule: {
-        cron: ['0 0 * * 1'],
+        cron: ['0 0 1 * *'],
       },
     },
   },
