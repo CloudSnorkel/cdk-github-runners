@@ -8082,7 +8082,7 @@ public readonly payload: any;
 Full GitHub webhook payload (workflow_job event structure with action="queued").
 
 * Original labels requested by the workflow job can be found at `payload.workflow_job.labels`.
-* Repository path (e.g. CloudSnorkel/cdk-github-runners) is at `payload.repository.full_name`.
+* Repository path (e.g. CLoudSnorkel/cdk-github-runners) is at `payload.repository.full_name`.
 * Commit hash is at `payload.workflow_job.head_sha`.
 
 > [https://docs.github.com/en/webhooks/webhook-events-and-payloads?actionType=queued#workflow_job](https://docs.github.com/en/webhooks/webhook-events-and-payloads?actionType=queued#workflow_job)
