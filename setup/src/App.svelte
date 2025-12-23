@@ -319,6 +319,9 @@
             <p>
               Would you like runners to be registered on repository level, or on organization level?
             </p>
+            <p>
+              <em>This determines where runners will be registered dynamically each time they are provisioned. This is independent of where the GitHub app is installed.</em>
+            </p>
             <ul>
               <li>
                 Registering runners on repository level requires the <code>administration</code>
@@ -330,17 +333,22 @@
                 which is more fine-grained.
               </li>
               <li>
-                Registering runners on organization level means any repository can use them, even if the app wasn't
-                installed on those repositories.
+                <strong>Repository level is recommended</strong> because runners are registered to the specific repository where the job started, preventing jobs from being assigned to runners intended for other repositories.
+              </li>
+              <li>
+                Registering runners on organization level means runners are registered to the entire organization, making them available to <strong>ALL repositories in the organization</strong>, regardless of whether the app is installed on those repositories. This can lead to jobs being routed to runners that weren't intended for them.
+              </li>
+              <li>
+                Organization level registration does <strong>not</strong> automatically install the app on all repositories. You still need to install the app on each repository where you want to use runners. GitHub will ask you on which repositories to install this app after it's created.
               </li>
               <li>
                 Do not use organization level registration if you don't fully trust all repositories in your organization.
               </li>
               <li>
-                Use organization level to reduce the permission scope this new app is given.
+                Use organization level only if you need to minimize permissions and you fully trust all repositories in your organization.
               </li>
               <li>
-                When in doubt, use the default repository level registration.
+                <strong>When in doubt, use the default repository level registration.</strong>
               </li>
             </ul>
             <div class="form-check">
