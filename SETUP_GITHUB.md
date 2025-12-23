@@ -96,7 +96,7 @@ Organization-level registration registers runners to the entire organization, ma
 
 ## Setup GitHub
 
-Integration with GitHub can be done using an [app](#app-authentication) or [personal access token](#personal-access-token). Using an app allows more fine-grained access control. Using an app is easier with the setup wizard.
+Integration with GitHub can be done using an [app](#app-authentication) or [personal access token](#personal-access-token-authentication). Using an app allows more fine-grained access control. Using an app is easier with the setup wizard.
 
 ## App Authentication
 
