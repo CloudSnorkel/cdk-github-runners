@@ -339,7 +339,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
         payload: stepfunctions.TaskInput.fromObject({
           token: parameters.runnerTokenPath,
           runnerName: parameters.runnerNamePath,
-          label: this.labels.join(','),
+          label: parameters.labelsPath,
           githubDomain: parameters.githubDomainPath,
           owner: parameters.ownerPath,
           repo: parameters.repoPath,

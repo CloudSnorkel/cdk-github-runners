@@ -409,7 +409,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
           },
           RUNNER_LABEL: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: this.labels.join(','),
+            value: parameters.labelsPath,
           },
           RUNNER_GROUP1: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,

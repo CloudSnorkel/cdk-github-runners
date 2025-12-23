@@ -460,7 +460,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       parameters.ownerPath,
       parameters.repoPath,
       parameters.runnerTokenPath,
-      this.labels.join(','),
+      parameters.labelsPath,
       parameters.registrationUrl,
       this.group ? '--runnergroup' : '',
       // this is split into 2 for powershell otherwise it will pass "--runnergroup name" as a single argument and config.sh will fail

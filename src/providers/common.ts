@@ -372,6 +372,11 @@ export interface RunnerRuntimeParameters {
    */
   readonly registrationUrl: string;
 
+  /**
+   * Path to comma-separated labels string to use for runner.
+   */
+  readonly labelsPath: string;
+
 }
 
 /**

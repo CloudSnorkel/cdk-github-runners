@@ -7222,6 +7222,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.idleTimeout">idleTimeout</a></code> | <code>aws-cdk-lib.Duration</code> | Time to wait before stopping a runner that remains idle. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.logOptions">logOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions">LogOptions</a></code> | Logging options for the state machine that manages the runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a> \| <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a>[]</code> | List of runner providers to use. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providerSelector">providerSelector</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | Optional Lambda function to customize provider selection logic and label assignment. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.requireSelfHostedLabel">requireSelfHostedLabel</a></code> | <code>boolean</code> | Whether to require the `self-hosted` label. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | Options to retry operation in case of failure like missing capacity, or API quota issues. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group attached to all management functions. |
@@ -7321,6 +7322,31 @@ public readonly providers: (IRunnerProvider | ICompositeProvider)[];
 List of runner providers to use.
 
 At least one provider is required. Provider will be selected when its label matches the labels requested by the workflow job.
+
+---
+
+##### `providerSelector`<sup>Optional</sup> <a name="providerSelector" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providerSelector"></a>
+
+```typescript
+public readonly providerSelector: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
+
+Optional Lambda function to customize provider selection logic and label assignment.
+
+* The function receives the webhook payload along with default provider and its labels as {@link ProviderSelectorInput }
+* The function returns a selected provider and its labels as {@link ProviderSelectorResult }
+* You can decline to provision a runner by returning undefined as the provider selector result
+* You can fully customize the labels for the about-to-be-provisioned runner (add, remove, modify, dynamic labels, etc.)
+* Labels don't have to match the labels originally configured for the provider, but see warnings below
+* This function will be called synchronously during webhook processing, so it should be fast and efficient (webhook limit is 30 seconds total)
+
+**WARNING: It is your responsibility to ensure the selected provider's labels match the job's required labels. If you return the wrong labels, the runner will be created but GitHub Actions will not assign the job to it.**
+
+**WARNING: Provider selection is not a guarantee that a specific provider will be assigned for the job. GitHub Actions may assign the job to any runner with matching labels. The provider selector only determines which provider's runner will be *created*, but GitHub Actions may route the job to any available runner with the required labels.**
+
+**For reliable provider assignment based on job characteristics, consider using repo-level runner registration where you can control which runners are available for specific repositories.**
 
 ---
 
@@ -8022,6 +8048,138 @@ Which failures generate a retry depends on the specific provider.
 
 ---
 
+### ProviderSelectorInput <a name="ProviderSelectorInput" id="@cloudsnorkel/cdk-github-runners.ProviderSelectorInput"></a>
+
+Input to the provider selector Lambda function.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.Initializer"></a>
+
+```typescript
+import { ProviderSelectorInput } from '@cloudsnorkel/cdk-github-runners'
+
+const providerSelectorInput: ProviderSelectorInput = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.property.payload">payload</a></code> | <code>any</code> | Full GitHub webhook payload (workflow_job event structure with action="queued"). |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.property.providers">providers</a></code> | <code>{[ key: string ]: string[]}</code> | Map of available provider node paths to their configured labels. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.property.defaultLabels">defaultLabels</a></code> | <code>string[]</code> | Labels that would have been used by default (the selected provider's labels). |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.property.defaultProvider">defaultProvider</a></code> | <code>string</code> | Provider node path that would have been selected by default label matching. |
+
+---
+
+##### `payload`<sup>Required</sup> <a name="payload" id="@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.property.payload"></a>
+
+```typescript
+public readonly payload: any;
+```
+
+- *Type:* any
+
+Full GitHub webhook payload (workflow_job event structure with action="queued").
+
+* Original labels requested by the workflow job can be found at `payload.workflow_job.labels`.
+* Repository path (e.g. CloudSnorkel/cdk-github-runners) is at `payload.repository.full_name`.
+* Commit hash is at `payload.workflow_job.head_sha`.
+
+> [https://docs.github.com/en/webhooks/webhook-events-and-payloads?actionType=queued#workflow_job](https://docs.github.com/en/webhooks/webhook-events-and-payloads?actionType=queued#workflow_job)
+
+---
+
+##### `providers`<sup>Required</sup> <a name="providers" id="@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.property.providers"></a>
+
+```typescript
+public readonly providers: {[ key: string ]: string[]};
+```
+
+- *Type:* {[ key: string ]: string[]}
+
+Map of available provider node paths to their configured labels.
+
+Example: { "MyStack/Small": ["linux", "small"], "MyStack/Large": ["linux", "large"] }
+
+---
+
+##### `defaultLabels`<sup>Optional</sup> <a name="defaultLabels" id="@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.property.defaultLabels"></a>
+
+```typescript
+public readonly defaultLabels: string[];
+```
+
+- *Type:* string[]
+
+Labels that would have been used by default (the selected provider's labels).
+
+May be undefined if no provider matched by default.
+
+---
+
+##### `defaultProvider`<sup>Optional</sup> <a name="defaultProvider" id="@cloudsnorkel/cdk-github-runners.ProviderSelectorInput.property.defaultProvider"></a>
+
+```typescript
+public readonly defaultProvider: string;
+```
+
+- *Type:* string
+
+Provider node path that would have been selected by default label matching.
+
+Use this to easily return the default selection: `{ provider: input.defaultProvider, labels: input.defaultLabels }`
+May be undefined if no provider matched by default.
+
+---
+
+### ProviderSelectorResult <a name="ProviderSelectorResult" id="@cloudsnorkel/cdk-github-runners.ProviderSelectorResult"></a>
+
+Result from the provider selector Lambda function.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ProviderSelectorResult.Initializer"></a>
+
+```typescript
+import { ProviderSelectorResult } from '@cloudsnorkel/cdk-github-runners'
+
+const providerSelectorResult: ProviderSelectorResult = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderSelectorResult.property.labels">labels</a></code> | <code>string[]</code> | Labels to use when registering the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderSelectorResult.property.provider">provider</a></code> | <code>string</code> | Node path of the provider to use (e.g., "MyStack/MyProvider"). Must match one of the configured provider node paths from the input. If not provided, the job will be skipped (no runner created). |
+
+---
+
+##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.ProviderSelectorResult.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+
+Labels to use when registering the runner.
+
+Must be returned when a provider is selected.
+Can be used to add, remove, or modify labels.
+
+---
+
+##### `provider`<sup>Optional</sup> <a name="provider" id="@cloudsnorkel/cdk-github-runners.ProviderSelectorResult.property.provider"></a>
+
+```typescript
+public readonly provider: string;
+```
+
+- *Type:* string
+
+Node path of the provider to use (e.g., "MyStack/MyProvider"). Must match one of the configured provider node paths from the input. If not provided, the job will be skipped (no runner created).
+
+---
+
 ### RunnerAmi <a name="RunnerAmi" id="@cloudsnorkel/cdk-github-runners.RunnerAmi"></a>
 
 Description of a AMI built by {@link RunnerImageBuilder }.
@@ -8696,6 +8854,7 @@ const runnerRuntimeParameters: RunnerRuntimeParameters = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.githubDomainPath">githubDomainPath</a></code> | <code>string</code> | Path to GitHub domain. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.labelsPath">labelsPath</a></code> | <code>string</code> | Path to comma-separated labels string to use for runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.ownerPath">ownerPath</a></code> | <code>string</code> | Path to repository owner name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.registrationUrl">registrationUrl</a></code> | <code>string</code> | Repository or organization URL to register runner at. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.repoPath">repoPath</a></code> | <code>string</code> | Path to repository name. |
@@ -8715,6 +8874,18 @@ public readonly githubDomainPath: string;
 Path to GitHub domain.
 
 Most of the time this will be github.com but for self-hosted GitHub instances, this will be different.
+
+---
+
+##### `labelsPath`<sup>Required</sup> <a name="labelsPath" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.labelsPath"></a>
+
+```typescript
+public readonly labelsPath: string;
+```
+
+- *Type:* string
+
+Path to comma-separated labels string to use for runner.
 
 ---
 

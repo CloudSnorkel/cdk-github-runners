@@ -291,4 +291,32 @@ describe('GitHubRunners', () => {
       ToPort: 8888,
     });
   });
+
+  test('Webhook PROVIDERS env var includes only top-level providers (not subproviders) with composites', () => {
+    const p1 = new LambdaRunnerProvider(stack, 'p1', { labels: ['linux'] });
+    const p2 = new LambdaRunnerProvider(stack, 'p2', { labels: ['linux'] });
+    const composite = CompositeProvider.fallback(stack, 'composite', [p1, p2]);
+    const p3 = new LambdaRunnerProvider(stack, 'p3', { labels: ['macos'] });
+
+    new GitHubRunners(stack, 'runners', {
+      providers: [composite, p3],
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.hasResource('AWS::Lambda::Function', {
+      Properties: {
+        Description: 'Handle GitHub webhook and start runner orchestrator',
+        Environment: {
+          Variables: {
+            // The PROVIDERS env var should include only 'test/composite' and 'test/p3'
+            PROVIDERS: JSON.stringify({
+              'test/composite': ['linux'],
+              'test/p3': ['macos'],
+            }),
+          },
+        },
+      },
+    });
+  });
 });

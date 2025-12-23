@@ -5,10 +5,11 @@
  */
 
 import * as cdk from 'aws-cdk-lib';
-import { aws_codebuild as codebuild, aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
+import { aws_codebuild as codebuild, aws_ec2 as ec2, aws_ecs as ecs, aws_lambda as lambda, aws_logs as logs } from 'aws-cdk-lib';
 import {
   Architecture,
   CodeBuildRunnerProvider,
+  CompositeProvider,
   Ec2RunnerProvider,
   EcsRunnerProvider,
   FargateRunnerProvider,
@@ -16,7 +17,6 @@ import {
   LambdaRunnerProvider,
   Os,
   RunnerImageComponent,
-  CompositeProvider,
 } from '../src';
 
 const app = new cdk.App();
@@ -343,6 +343,23 @@ const runners = new GitHubRunners(stack, 'runners', {
       vpc,
     }),
   ],
+  providerSelector: new lambda.Function(stack, 'Provider Selector', {
+    runtime: lambda.Runtime.NODEJS_LATEST,
+    handler: 'index.handler',
+    // dummy selector that always returns the default
+    code: lambda.Code.fromInline(`
+      exports.handler = async function(event) {
+        console.log(JSON.stringify(event));
+        return {
+          provider: event.defaultProvider,
+          labels: event.defaultLabels,
+        };
+      }
+    `),
+    logGroup: new logs.LogGroup(stack, 'Provider Selector Logs', {
+      retention: logs.RetentionDays.ONE_WEEK,
+    }),
+  }),
 });
 
 runners.metricJobCompleted();

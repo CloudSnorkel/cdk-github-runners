@@ -1,11 +1,13 @@
 import * as crypto from 'crypto';
+import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import * as AWSLambda from 'aws-lambda';
 import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
-import { SupportedLabels } from './webhook';
+import { ProviderSelectorInput, ProviderSelectorResult } from './webhook';
 
 const sf = new SFNClient();
+const lambdaClient = new LambdaClient();
 
 // TODO use @octokit/webhooks?
 
@@ -68,19 +70,96 @@ async function isDeploymentPending(payload: any) {
   }
 }
 
-function matchLabelsToProvider(labels: string[]) {
-  const jobLabelSet = labels.map((label) => label.toLowerCase());
-  const supportedLabels: SupportedLabels[] = JSON.parse(process.env.SUPPORTED_LABELS!);
+/**
+ * Match job labels to a provider using default label matching logic.
+ */
+function matchLabelsToProvider(jobLabels: string[], providers: Record<string, string[]>): string | undefined {
+  const jobLabelLowerCase = jobLabels.map((label) => label.toLowerCase());
 
   // is every label the job requires available in the runner provider?
-  for (const supportedLabelSet of supportedLabels) {
-    const lowerCasedSupportedLabelSet = supportedLabelSet.labels.map((label) => label.toLowerCase());
-    if (jobLabelSet.every(label => label == 'self-hosted' || lowerCasedSupportedLabelSet.includes(label))) {
-      return supportedLabelSet.provider;
+  for (const provider of Object.keys(providers)) {
+    const providerLabelsLowerCase = providers[provider].map((label) => label.toLowerCase());
+    if (jobLabelLowerCase.every(label => label == 'self-hosted' || providerLabelsLowerCase.includes(label))) {
+      return provider;
     }
   }
 
   return undefined;
+}
+
+/**
+ * Call the provider selector Lambda function if configured.
+ * @internal
+ */
+export async function callProviderSelector(
+  payload: any,
+  providers: Record<string, string[]>,
+  defaultSelection: ProviderSelectorResult,
+): Promise<ProviderSelectorResult | undefined> {
+  if (!process.env.PROVIDER_SELECTOR_ARN) {
+    return undefined;
+  }
+
+  const selectorInput: ProviderSelectorInput = {
+    payload: payload,
+    providers: providers,
+    defaultProvider: defaultSelection.provider,
+    defaultLabels: defaultSelection.labels,
+  };
+
+  // don't catch errors -- the whole webhook handler will be retried on unhandled errors
+  const result = await lambdaClient.send(new InvokeCommand({
+    FunctionName: process.env.PROVIDER_SELECTOR_ARN,
+    Payload: JSON.stringify(selectorInput),
+  }));
+
+  if (result.FunctionError) {
+    console.error(result.FunctionError);
+    if (result.Payload) {
+      console.error(Buffer.from(result.Payload).toString());
+    }
+    throw new Error('Provider selector failed');
+  }
+
+  if (!result.Payload) {
+    throw new Error('Provider selector returned no payload');
+  }
+
+  return JSON.parse(Buffer.from(result.Payload).toString()) as ProviderSelectorResult;
+}
+
+/**
+ * Exported for unit testing.
+ * @internal
+ */
+export async function selectProvider(payload: any, jobLabels: string[], hook = callProviderSelector): Promise<ProviderSelectorResult> {
+  const providers = JSON.parse(process.env.PROVIDERS!);
+  const defaultProvider = matchLabelsToProvider(jobLabels, providers);
+  const defaultLabels = defaultProvider ? providers[defaultProvider] : undefined;
+  const defaultSelection = { provider: defaultProvider, labels: defaultLabels };
+  const selectorResult = await hook(payload, providers, defaultSelection);
+
+  if (selectorResult === undefined) {
+    return defaultSelection;
+  }
+
+  console.log(`Before provider selector provider=${defaultProvider} labels=${defaultLabels}`);
+  console.log(`After provider selector provider=${selectorResult.provider} labels=${selectorResult.labels}`);
+
+  // any error here will fail the webhook and cause a retry so the selector has another chance to get it right
+  if (selectorResult.provider !== undefined) {
+    if (selectorResult.provider === '') {
+      throw new Error('Provider selector returned empty provider');
+    }
+    if (!providers[selectorResult.provider]) {
+      throw new Error(`Provider selector returned unknown provider ${selectorResult.provider}`);
+    }
+    if (selectorResult.labels === undefined || selectorResult.labels.length === 0) {
+      throw new Error('Provider selector must return non-empty labels when provider is set');
+    }
+  }
+
+  return selectorResult;
 }
 
 /**
@@ -97,7 +176,7 @@ export function generateExecutionName(event: any, payload: any): string {
 }
 
 export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
-  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SUPPORTED_LABELS || !process.env.REQUIRE_SELF_HOSTED_LABEL) {
+  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.PROVIDERS || !process.env.REQUIRE_SELF_HOSTED_LABEL) {
     throw new Error('Missing environment variables');
   }
 
@@ -163,9 +242,9 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     };
   }
 
-  // don't start step function unless labels match a runner provider
-  const provider = matchLabelsToProvider(payload.workflow_job.labels);
-  if (!provider) {
+  // Select provider and labels
+  const selection = await selectProvider(payload, payload.workflow_job.labels);
+  if (!selection.provider || !selection.labels) {
     console.log({
       notice: `Ignoring labels "${payload.workflow_job.labels}", as they don't match a supported runner provider`,
       job: payload.workflow_job,
@@ -196,8 +275,9 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     jobId: payload.workflow_job.id,
     jobUrl: payload.workflow_job.html_url,
     installationId: payload.installation?.id ?? -1, // always pass value because step function can't handle missing input
-    labels: payload.workflow_job.labels.join(','),
-    provider: provider,
+    jobLabels: payload.workflow_job.labels.join(','), // original labels requested by the job
+    provider: selection.provider,
+    labels: selection.labels.join(','), // labels to use when registering runner
   };
   const execution = await sf.send(new StartExecutionCommand({
     stateMachineArn: process.env.STEP_FUNCTION_ARN,

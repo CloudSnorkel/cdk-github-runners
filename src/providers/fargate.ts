@@ -500,7 +500,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
               },
               {
                 name: 'RUNNER_LABEL',
-                value: this.labels.join(','),
+                value: parameters.labelsPath,
               },
               {
                 name: 'RUNNER_GROUP1',
