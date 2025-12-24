@@ -2,7 +2,7 @@ import { Stack } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { generateStateName } from '../src/providers/common';
 
-describe('shortenStateNameFromConstruct', () => {
+describe('generateStateName', () => {
   test('creates state name from construct path without suffix', () => {
     const stack = new Stack(undefined, 'TestStack');
     const construct = new Construct(stack, 'MyProvider');
