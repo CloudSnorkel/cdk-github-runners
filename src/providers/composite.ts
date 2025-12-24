@@ -1,6 +1,6 @@
 import { aws_iam as iam, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { ICompositeProvider, IRunnerProvider, IRunnerProviderStatus, nodePathWithoutStack, RunnerRuntimeParameters } from './common';
+import { ICompositeProvider, IRunnerProvider, IRunnerProviderStatus, RunnerRuntimeParameters, generateStateName } from './common';
 
 /**
  * Configuration for weighted distribution of runners.
@@ -160,7 +160,7 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
       // - The provider is not a State instance
       // - The provider has multiple end states
       // - The end state doesn't support addCatch directly
-      const parallel = new stepfunctions.Parallel(this, `${nodePathWithoutStack(this)} attempt #${i + 1}`);
+      const parallel = new stepfunctions.Parallel(this, generateStateName(this, `attempt #${i + 1}`));
       parallel.branch(currentProvider);
       parallel.addCatch(nextProvider, {
         errors: ['States.ALL'],
@@ -234,13 +234,13 @@ class DistributedRunnerProvider extends Construct implements ICompositeProvider 
    */
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     const totalWeight = this.weightedProviders.reduce((sum, wp) => sum + wp.weight, 0);
-    const rand = new stepfunctions.Pass(this, `${nodePathWithoutStack(this)} rand`, {
+    const rand = new stepfunctions.Pass(this, generateStateName(this, 'rand'), {
       parameters: {
         rand: stepfunctions.JsonPath.mathRandom(1, totalWeight + 1),
       },
       resultPath: '$.composite',
     });
-    const choice = new stepfunctions.Choice(this, `${nodePathWithoutStack(this)} choice`);
+    const choice = new stepfunctions.Choice(this, generateStateName(this, 'choice'));
     rand.next(choice);
 
     // Find provider with the highest weight
