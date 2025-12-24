@@ -16,12 +16,12 @@ import {
   BaseProvider,
   IRunnerProvider,
   IRunnerProviderStatus,
-  nodePathWithoutStack,
   Os,
   RunnerImage,
   RunnerProviderProps,
   RunnerRuntimeParameters,
   RunnerVersion,
+  generateStateName,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 import { MINIMAL_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
@@ -474,7 +474,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.EcsRunTask(
       this,
-      nodePathWithoutStack(this),
+      generateStateName(this),
       {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,

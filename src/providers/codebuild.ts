@@ -19,12 +19,12 @@ import {
   BaseProvider,
   IRunnerProvider,
   IRunnerProviderStatus,
-  nodePathWithoutStack,
   Os,
   RunnerImage,
   RunnerProviderProps,
   RunnerRuntimeParameters,
   RunnerVersion,
+  generateStateName,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 
@@ -394,7 +394,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.CodeBuildStartBuild(
       this,
-      nodePathWithoutStack(this),
+      generateStateName(this),
       {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         project: this.project,

@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import * as cdk from 'aws-cdk-lib';
 import {
   aws_ec2 as ec2,
@@ -660,8 +661,32 @@ export function amiRootDevice(scope: Construct, ami?: string) {
 }
 
 /**
+ * Creates a shortened state name from a construct's path for use in AWS Step Functions.
+ * Step Functions state names are limited to 80 characters. This function generates a name
+ * from the construct's path (without the stack name), optionally appends a suffix, and
+ * shortens it if necessary by truncating and appending a hash suffix to ensure uniqueness.
+ *
+ * @param construct The construct to get the path from
+ * @param suffix Optional suffix to append to the path (e.g., "data", "rand", "choice")
+ * @returns A shortened state name that fits within AWS Step Functions' 80-character limit
  * @internal
  */
-export function nodePathWithoutStack(construct: Construct) {
-  return construct.node.path.split('/').slice(1).join('/');
+export function generateStateName(construct: Construct, suffix?: string): string {
+  // Get construct path without stack name
+  const basePath = construct.node.path.split('/').slice(1).join('/');
+
+  // Build full name with optional suffix
+  const fullName = suffix ? `${basePath} ${suffix}` : basePath;
+
+  // Shorten if necessary
+  const maxLength = 80;
+  if (fullName.length <= maxLength) {
+    return fullName;
+  }
+
+  const hashSuffix = crypto.createHash('md5').update(fullName).digest('hex').slice(0, 3);
+  const separator = '-';
+  const truncatedLength = maxLength - hashSuffix.length - separator.length;
+  const truncated = fullName.slice(0, truncatedLength);
+  return `${truncated}${separator}${hashSuffix}`;
 }

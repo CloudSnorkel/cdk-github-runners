@@ -20,12 +20,12 @@ import {
   BaseProvider,
   IRunnerProvider,
   IRunnerProviderStatus,
-  nodePathWithoutStack,
   Os,
   RunnerImage,
   RunnerProviderProps,
   RunnerRuntimeParameters,
   RunnerVersion,
+  generateStateName,
   StorageOptions,
 } from './common';
 import { ecsRunCommand } from './fargate';
@@ -619,7 +619,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.EcsRunTask(
       this,
-      nodePathWithoutStack(this),
+      generateStateName(this),
       {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,

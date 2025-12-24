@@ -18,12 +18,12 @@ import {
   BaseProvider,
   IRunnerProvider,
   IRunnerProviderStatus,
-  nodePathWithoutStack,
   Os,
   RunnerAmi,
   RunnerProviderProps,
   RunnerRuntimeParameters,
   RunnerVersion,
+  generateStateName,
   StorageOptions,
 } from './common';
 import {
@@ -468,7 +468,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       this.defaultLabels ? '' : '--no-default-labels',
     ];
 
-    const passUserData = new stepfunctions.Pass(this, `${nodePathWithoutStack(this)} data`, {
+    const passUserData = new stepfunctions.Pass(this, generateStateName(this, 'data'), {
       parameters: {
         userdataTemplate: this.ami.os.is(Os.WINDOWS) ? windowsUserDataTemplate : linuxUserDataTemplate,
       },
@@ -490,7 +490,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
     rootDeviceResource.node.addDependency(this.amiBuilder);
     const subnetRunners = this.subnets.map(subnet => {
-      return new stepfunctions_tasks.CallAwsService(this, `${nodePathWithoutStack(this)} ${subnet.subnetId}`, {
+      return new stepfunctions_tasks.CallAwsService(this, generateStateName(this, subnet.subnetId), {
         comment: subnet.availabilityZone,
         integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         service: 'ec2',
