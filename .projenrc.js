@@ -194,7 +194,7 @@ for (const language of languages) {
 
   for (const exampleDir of exampleDirs) {
     examples.push({
-      path: path.join(examplesDir, language, exampleDir),
+      path: path.join(examplesDir, language, exampleDir).replace(/\\/g, '/'),
       language: language,
       name: exampleDir,
     });
