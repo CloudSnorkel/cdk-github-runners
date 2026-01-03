@@ -1,0 +1,21 @@
+{
+    "name": "advanced-example",
+    "version": "1.0.0",
+    "description": "Advanced example with comprehensive runner configuration",
+    "main": "app.js",
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "cdk": "cdk"
+    },
+    "dependencies": {
+        "aws-cdk-lib": "^2.155.0",
+        "constructs": "^10.0.5",
+        "@cloudsnorkel/cdk-github-runners": "*"
+    },
+    "devDependencies": {
+        "typescript": "~5.6.0",
+        "@types/node": "ts5.6",
+        "aws-cdk": "^2.155.0"
+    }
+}

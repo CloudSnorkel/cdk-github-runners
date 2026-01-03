@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const { awscdk } = require('projen');
 const { CdkConfig } = require('projen/lib/awscdk');
 const { Stability } = require('projen/lib/cdk/jsii-project');
@@ -172,5 +174,154 @@ project.vscode.settings.addSettings({
 
 // funding
 project.package.addField('funding', 'https://github.com/sponsors/CloudSnorkel');
+
+// *** add example validation workflow ***
+const buildWorkflow = project.github.tryFindWorkflow('build');
+
+// dynamically discover examples by scanning the examples directory
+const examplesDir = 'examples';
+const examples = [];
+
+const languages = fs.readdirSync(examplesDir, { withFileTypes: true })
+  .filter(dirent => dirent.isDirectory())
+  .map(dirent => dirent.name);
+
+for (const language of languages) {
+  const languageDir = path.join(examplesDir, language);
+  const exampleDirs = fs.readdirSync(languageDir, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name);
+
+  for (const exampleDir of exampleDirs) {
+    examples.push({
+      path: path.join(examplesDir, language, exampleDir).replace(/\\/g, '/'),
+      language: language,
+      name: exampleDir,
+    });
+  }
+}
+
+// save artifact for python and typescript
+buildWorkflow.getJob('package-js').steps.push({
+  name: 'Save artifact',
+  uses: 'actions/upload-artifact@v6',
+  with: {
+    name: 'js-package',
+    path: 'dist',
+  },
+});
+buildWorkflow.getJob('package-python').steps.push({
+  name: 'Save artifact',
+  uses: 'actions/upload-artifact@v6',
+  with: {
+    name: 'python-package',
+    path: 'dist',
+  },
+});
+
+// add example validation jobs
+for (const example of examples) {
+  const job = {
+    runsOn: 'ubuntu-latest',
+    needs: ['package-js', 'package-python'],
+    permissions: {
+      contents: 'read',
+    },
+  };
+
+  if (example.language === 'typescript') {
+    job.tools = {
+      node: {
+        version: 'lts/*',
+      },
+    };
+    job.steps = [
+      {
+        name: 'Checkout',
+        uses: 'actions/checkout@v5',
+        with: {
+          ref: '${{ github.event.pull_request.head.ref }}',
+          repository: '${{ github.event.pull_request.head.repo.full_name }}',
+        },
+      },
+      {
+        name: 'Download build artifacts',
+        uses: 'actions/download-artifact@v6',
+        with: {
+          name: 'js-package',
+          path: 'dist',
+        },
+      },
+      {
+        name: 'Install CDK',
+        run: 'npm install -g aws-cdk',
+      },
+      {
+        name: 'Install dependencies',
+        run: 'npm install',
+        workingDirectory: example.path,
+      },
+      {
+        name: 'Debug',
+        run: 'find .',
+      },
+      {
+        name: 'Install local package',
+        run: 'npm install ../../../dist/js/*.tgz',
+        workingDirectory: example.path,
+      },
+      {
+        name: 'CDK Synth',
+        run: 'cdk synth',
+        workingDirectory: example.path,
+      },
+    ];
+  } else if (example.language === 'python') {
+    job.tools = {
+      python: {
+        version: '3.x',
+      },
+    };
+    job.steps = [
+      {
+        name: 'Checkout',
+        uses: 'actions/checkout@v5',
+        with: {
+          ref: '${{ github.event.pull_request.head.ref }}',
+          repository: '${{ github.event.pull_request.head.repo.full_name }}',
+        },
+      },
+      {
+        name: 'Download build artifacts',
+        uses: 'actions/download-artifact@v6',
+        with: {
+          name: 'python-package',
+          path: 'dist',
+        },
+      },
+      {
+        name: 'Install CDK',
+        run: 'npm install -g aws-cdk',
+      },
+      {
+        name: 'Install dependencies',
+        run: 'pip install -r requirements.txt',
+        workingDirectory: example.path,
+      },
+      {
+        name: 'Install local package',
+        run: 'pip install ../../../dist/python/*.whl',
+        workingDirectory: example.path,
+      },
+      {
+        name: 'CDK Synth',
+        run: 'cdk synth',
+        workingDirectory: example.path,
+      },
+    ];
+  }
+
+  buildWorkflow.addJob(`validate-${example.language}-${example.name}`, job);
+}
 
 project.synth();
