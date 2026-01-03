@@ -237,6 +237,14 @@ for (const example of examples) {
     };
     job.steps = [
       {
+        name: 'Checkout',
+        uses: 'actions/checkout@v5',
+        with: {
+          ref: '${{ github.event.pull_request.head.ref }}',
+          repository: '${{ github.event.pull_request.head.repo.full_name }}',
+        },
+      },
+      {
         name: 'Download build artifacts',
         uses: 'actions/download-artifact@v6',
         with: {
@@ -267,6 +275,14 @@ for (const example of examples) {
       },
     };
     job.steps = [
+      {
+        name: 'Checkout',
+        uses: 'actions/checkout@v5',
+        with: {
+          ref: '${{ github.event.pull_request.head.ref }}',
+          repository: '${{ github.event.pull_request.head.repo.full_name }}',
+        },
+      },
       {
         name: 'Download build artifacts',
         uses: 'actions/download-artifact@v6',

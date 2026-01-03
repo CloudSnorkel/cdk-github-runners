@@ -291,6 +291,11 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Download build artifacts
         uses: actions/download-artifact@v6
         with:
@@ -316,6 +321,11 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Download build artifacts
         uses: actions/download-artifact@v6
         with:
@@ -330,6 +340,36 @@ jobs:
       - name: CDK Synth
         run: cdk synth
         working-directory: examples/python/composite-provider
+  validate-python-ec2-windows-provider:
+    needs:
+      - package-js
+      - package-python
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Download build artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: python-package
+          path: dist
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+        working-directory: examples/python/ec2-windows-provider
+      - name: Install local package
+        run: pip install ../../dist/python/*.tgz
+        working-directory: examples/python/ec2-windows-provider
+      - name: CDK Synth
+        run: cdk synth
+        working-directory: examples/python/ec2-windows-provider
   validate-python-ecs-provider:
     needs:
       - package-js
@@ -341,6 +381,11 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Download build artifacts
         uses: actions/download-artifact@v6
         with:
@@ -355,6 +400,36 @@ jobs:
       - name: CDK Synth
         run: cdk synth
         working-directory: examples/python/ecs-provider
+  validate-python-ecs-windows-provider:
+    needs:
+      - package-js
+      - package-python
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Download build artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: python-package
+          path: dist
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+        working-directory: examples/python/ecs-windows-provider
+      - name: Install local package
+        run: pip install ../../dist/python/*.tgz
+        working-directory: examples/python/ecs-windows-provider
+      - name: CDK Synth
+        run: cdk synth
+        working-directory: examples/python/ecs-windows-provider
   validate-python-multi-provider:
     needs:
       - package-js
@@ -366,6 +441,11 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Download build artifacts
         uses: actions/download-artifact@v6
         with:
@@ -391,6 +471,11 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Download build artifacts
         uses: actions/download-artifact@v6
         with:
@@ -416,6 +501,11 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Download build artifacts
         uses: actions/download-artifact@v6
         with:
@@ -441,6 +531,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: lts/*
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Download build artifacts
         uses: actions/download-artifact@v6
         with:
@@ -466,6 +561,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: lts/*
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Download build artifacts
         uses: actions/download-artifact@v6
         with:
@@ -480,6 +580,36 @@ jobs:
       - name: CDK Synth
         run: cdk synth
         working-directory: examples/typescript/composite-provider
+  validate-typescript-ec2-windows-provider:
+    needs:
+      - package-js
+      - package-python
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Download build artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: js-package
+          path: dist
+      - name: Install dependencies
+        run: npm install
+        working-directory: examples/typescript/ec2-windows-provider
+      - name: Install local package
+        run: npm install ../../dist/js/*.tgz
+        working-directory: examples/typescript/ec2-windows-provider
+      - name: CDK Synth
+        run: cdk synth
+        working-directory: examples/typescript/ec2-windows-provider
   validate-typescript-ecs-provider:
     needs:
       - package-js
@@ -491,6 +621,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: lts/*
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Download build artifacts
         uses: actions/download-artifact@v6
         with:
@@ -505,6 +640,36 @@ jobs:
       - name: CDK Synth
         run: cdk synth
         working-directory: examples/typescript/ecs-provider
+  validate-typescript-ecs-windows-provider:
+    needs:
+      - package-js
+      - package-python
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Download build artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: js-package
+          path: dist
+      - name: Install dependencies
+        run: npm install
+        working-directory: examples/typescript/ecs-windows-provider
+      - name: Install local package
+        run: npm install ../../dist/js/*.tgz
+        working-directory: examples/typescript/ecs-windows-provider
+      - name: CDK Synth
+        run: cdk synth
+        working-directory: examples/typescript/ecs-windows-provider
   validate-typescript-multi-provider:
     needs:
       - package-js
@@ -516,6 +681,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: lts/*
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Download build artifacts
         uses: actions/download-artifact@v6
         with:
@@ -541,6 +711,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: lts/*
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Download build artifacts
         uses: actions/download-artifact@v6
         with:
@@ -566,6 +741,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: lts/*
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Download build artifacts
         uses: actions/download-artifact@v6
         with:
