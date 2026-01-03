@@ -45,7 +45,7 @@ jobs:
   build:
     runs-on: [self-hosted, ecs, windows, x64]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - run: echo "Running on ECS Windows instance"
       - run: choco --version
 ```

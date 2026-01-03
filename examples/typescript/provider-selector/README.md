@@ -59,7 +59,7 @@ jobs:
   build:
     runs-on: [self-hosted, custom-runner, production]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - run: echo "Running on production provider"
 
 name: Regular Build
@@ -68,7 +68,7 @@ jobs:
   build:
     runs-on: [self-hosted, custom-runner, default]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - run: echo "Running on default provider"
 ```
 

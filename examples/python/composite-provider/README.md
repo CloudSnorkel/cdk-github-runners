@@ -57,7 +57,7 @@ jobs:
   build:
     runs-on: [self-hosted, ec2, linux, x64, spot]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - run: echo "Running on EC2 (spot or on-demand)"
 
 name: Use Distributed Fargate Runner
@@ -66,7 +66,7 @@ jobs:
   build:
     runs-on: [self-hosted, fargate, linux, x64]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - run: echo "Running on Fargate (distributed across AZs)"
 ```
 

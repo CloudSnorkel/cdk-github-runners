@@ -67,7 +67,7 @@ jobs:
   build:
     runs-on: [self-hosted, ecs, linux, x64, spot]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - run: echo "Running on ECS spot instance"
 
 name: Build on ECS On-Demand
@@ -78,7 +78,7 @@ jobs:
   build:
     runs-on: [self-hosted, ecs, linux, x64, on-demand]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - run: echo "Running on ECS on-demand instance"
 ```
 
