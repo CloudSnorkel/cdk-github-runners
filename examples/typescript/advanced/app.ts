@@ -121,11 +121,6 @@ class AdvancedStack extends Stack {
         const codebuildProvider = new CodeBuildRunnerProvider(this, 'CodeBuildProvider', {
             labels: ['codebuild', 'quick', 'linux', 'x64'],
             computeType: ComputeType.SMALL,
-            environmentVariables: {
-                ARTIFACTS_BUCKET: {
-                    value: artifactsBucket.bucketName
-                }
-            }
         });
 
         // Fargate providers for different architectures

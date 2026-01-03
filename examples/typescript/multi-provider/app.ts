@@ -38,14 +38,17 @@ class MultiProviderStack extends Stack {
         );
 
         // Add custom components to the image
+        // Note: FargateRunnerProvider doesn't include Docker by default (unlike EC2/ECS providers)
+        // So we add it here. We also add git-lfs as an additional tool.
+        fargateImageBuilder.addComponent(
+            RunnerImageComponent.docker()
+        );
         fargateImageBuilder.addComponent(
             RunnerImageComponent.custom({
-                name: 'Docker and Tools',
+                name: 'Git LFS',
                 commands: [
                     'apt-get update',
-                    'apt-get install -y docker.io git-lfs',
-                    'systemctl enable docker',
-                    'usermod -aG docker ubuntu'
+                    'apt-get install -y git-lfs',
                 ]
             })
         );

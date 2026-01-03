@@ -54,13 +54,13 @@ class Ec2WindowsProviderStack(Stack):
 
         # Add custom components to the Windows image
         ec2_windows_image_builder.add_component(
-            RunnerImageComponent.custom({
-                "name": "Windows Tools",
-                "commands": [
+            RunnerImageComponent.custom(
+                name="Windows Tools",
+                commands=[
                     "choco install -y git docker-desktop",
                     "refreshenv",
                 ]
-            })
+            )
         )
 
         # EC2 provider with Windows

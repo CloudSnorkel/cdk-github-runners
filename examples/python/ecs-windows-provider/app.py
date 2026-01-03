@@ -51,18 +51,18 @@ class EcsWindowsProviderStack(Stack):
             self, "WindowsImageBuilder",
             os=Os.WINDOWS,
             vpc=vpc,
-            subnet_selection={"subnet_type": ec2.SubnetType.PUBLIC},
+            subnet_selection=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
         )
 
         # Add custom components to the Windows image
         windows_image_builder.add_component(
-            RunnerImageComponent.custom({
-                "name": "Windows Tools",
-                "commands": [
+            RunnerImageComponent.custom(
+                name="Windows Tools",
+                commands=[
                     "choco install -y git docker-desktop",
                     "refreshenv",
                 ]
-            })
+            )
         )
 
         # ECS provider with Windows

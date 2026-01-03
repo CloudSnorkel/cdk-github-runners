@@ -67,15 +67,15 @@ class AdvancedStack(Stack):
             os=Os.LINUX_UBUNTU
         )
         linux_x64_builder.add_component(
-            RunnerImageComponent.custom({
-                "name": "Development Tools",
-                "commands": [
+            RunnerImageComponent.custom(
+                name="Development Tools",
+                commands=[
                     "apt-get update",
                     "apt-get install -y docker.io git-lfs curl jq",
                     "systemctl enable docker",
                     "usermod -aG docker ubuntu"
                 ]
-            })
+            )
         )
 
         linux_arm64_builder = FargateRunnerProvider.image_builder(
@@ -84,15 +84,15 @@ class AdvancedStack(Stack):
             os=Os.LINUX_UBUNTU
         )
         linux_arm64_builder.add_component(
-            RunnerImageComponent.custom({
-                "name": "ARM64 Tools",
-                "commands": [
+            RunnerImageComponent.custom(
+                name="ARM64 Tools",
+                commands=[
                     "apt-get update",
                     "apt-get install -y docker.io git-lfs curl jq",
                     "systemctl enable docker",
                     "usermod -aG docker ubuntu"
                 ]
-            })
+            )
         )
 
         windows_builder = FargateRunnerProvider.image_builder(
@@ -101,13 +101,13 @@ class AdvancedStack(Stack):
             os=Os.WINDOWS
         )
         windows_builder.add_component(
-            RunnerImageComponent.custom({
-                "name": "Windows Tools",
-                "commands": [
+            RunnerImageComponent.custom(
+                name="Windows Tools",
+                commands=[
                     "choco install -y git docker-desktop",
                     "refreshenv"
                 ]
-            })
+            )
         )
 
         # CodeBuild provider for quick builds
@@ -115,11 +115,6 @@ class AdvancedStack(Stack):
             self, "CodeBuildProvider",
             labels=["codebuild", "quick", "linux", "x64"],
             compute_type=codebuild.ComputeType.SMALL,
-            environment_variables={
-                "ARTIFACTS_BUCKET": codebuild.BuildEnvironmentVariable(
-                    value=artifacts_bucket.bucket_name
-                )
-            }
         )
 
         # Fargate providers for different architectures

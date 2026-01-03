@@ -43,7 +43,7 @@ class CompositeProviderStack extends Stack {
         // ============================================
         // Try spot instances first, fall back to on-demand if spot is unavailable
         // This helps reduce costs while maintaining reliability
-        
+
         const ec2Fallback = CompositeProvider.fallback(this, 'EC2 Fallback', [
             // Try spot instances first (cheaper, but may be interrupted)
             new Ec2RunnerProvider(this, 'EC2 Spot', {
@@ -64,7 +64,7 @@ class CompositeProviderStack extends Stack {
         // ============================================
         // Distribute load across multiple availability zones
         // 60% to AZ-1, 30% to AZ-2, 10% to AZ-3
-        
+
         const distributedProvider = CompositeProvider.distribute(this, 'Fargate Distribution', [
             {
                 weight: 6, // 6/(6+3+1) = 60%
