@@ -253,6 +253,10 @@ for (const example of examples) {
         },
       },
       {
+        name: 'Install CDK',
+        run: 'npm install -g aws-cdk',
+      },
+      {
         name: 'Install dependencies',
         run: 'npm install',
         workingDirectory: example.path,
@@ -296,13 +300,17 @@ for (const example of examples) {
         },
       },
       {
+        name: 'Install CDK',
+        run: 'npm install -g aws-cdk',
+      },
+      {
         name: 'Install dependencies',
         run: 'pip install -r requirements.txt',
         workingDirectory: example.path,
       },
       {
         name: 'Install local package',
-        run: 'pip install ../../../dist/python/*.tgz',
+        run: 'pip install ../../../dist/python/*.whl',
         workingDirectory: example.path,
       },
       {

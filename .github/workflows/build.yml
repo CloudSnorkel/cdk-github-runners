@@ -301,11 +301,13 @@ jobs:
         with:
           name: python-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/advanced
       - name: Install local package
-        run: pip install ../../../dist/python/*.tgz
+        run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/advanced
       - name: CDK Synth
         run: cdk synth
@@ -331,11 +333,13 @@ jobs:
         with:
           name: python-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/composite-provider
       - name: Install local package
-        run: pip install ../../../dist/python/*.tgz
+        run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/composite-provider
       - name: CDK Synth
         run: cdk synth
@@ -361,11 +365,13 @@ jobs:
         with:
           name: python-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/ec2-windows-provider
       - name: Install local package
-        run: pip install ../../../dist/python/*.tgz
+        run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/ec2-windows-provider
       - name: CDK Synth
         run: cdk synth
@@ -391,11 +397,13 @@ jobs:
         with:
           name: python-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/ecs-provider
       - name: Install local package
-        run: pip install ../../../dist/python/*.tgz
+        run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/ecs-provider
       - name: CDK Synth
         run: cdk synth
@@ -421,11 +429,13 @@ jobs:
         with:
           name: python-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/ecs-windows-provider
       - name: Install local package
-        run: pip install ../../../dist/python/*.tgz
+        run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/ecs-windows-provider
       - name: CDK Synth
         run: cdk synth
@@ -451,11 +461,13 @@ jobs:
         with:
           name: python-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/multi-provider
       - name: Install local package
-        run: pip install ../../../dist/python/*.tgz
+        run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/multi-provider
       - name: CDK Synth
         run: cdk synth
@@ -481,11 +493,13 @@ jobs:
         with:
           name: python-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/provider-selector
       - name: Install local package
-        run: pip install ../../../dist/python/*.tgz
+        run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/provider-selector
       - name: CDK Synth
         run: cdk synth
@@ -511,11 +525,13 @@ jobs:
         with:
           name: python-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/simple-codebuild
       - name: Install local package
-        run: pip install ../../../dist/python/*.tgz
+        run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/simple-codebuild
       - name: CDK Synth
         run: cdk synth
@@ -541,6 +557,8 @@ jobs:
         with:
           name: js-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: npm install
         working-directory: examples/typescript/advanced
@@ -573,6 +591,8 @@ jobs:
         with:
           name: js-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: npm install
         working-directory: examples/typescript/composite-provider
@@ -605,6 +625,8 @@ jobs:
         with:
           name: js-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: npm install
         working-directory: examples/typescript/ec2-windows-provider
@@ -637,6 +659,8 @@ jobs:
         with:
           name: js-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: npm install
         working-directory: examples/typescript/ecs-provider
@@ -669,6 +693,8 @@ jobs:
         with:
           name: js-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: npm install
         working-directory: examples/typescript/ecs-windows-provider
@@ -701,6 +727,8 @@ jobs:
         with:
           name: js-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: npm install
         working-directory: examples/typescript/multi-provider
@@ -733,6 +761,8 @@ jobs:
         with:
           name: js-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: npm install
         working-directory: examples/typescript/provider-selector
@@ -765,6 +795,8 @@ jobs:
         with:
           name: js-package
           path: dist
+      - name: Install CDK
+        run: npm install -g aws-cdk
       - name: Install dependencies
         run: npm install
         working-directory: examples/typescript/simple-codebuild
