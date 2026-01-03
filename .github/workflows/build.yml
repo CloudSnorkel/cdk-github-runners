@@ -304,10 +304,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/advanced
-      - name: Debug
-        run: find .
       - name: Install local package
-        run: pip install ../../dist/*.tgz
+        run: ls ../.. && pip install ../../dist/python/*.tgz
         working-directory: examples/python/advanced
       - name: CDK Synth
         run: cdk synth
@@ -336,10 +334,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/composite-provider
-      - name: Debug
-        run: find .
       - name: Install local package
-        run: pip install ../../dist/*.tgz
+        run: ls ../.. && pip install ../../dist/python/*.tgz
         working-directory: examples/python/composite-provider
       - name: CDK Synth
         run: cdk synth
@@ -368,10 +364,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/ec2-windows-provider
-      - name: Debug
-        run: find .
       - name: Install local package
-        run: pip install ../../dist/*.tgz
+        run: ls ../.. && pip install ../../dist/python/*.tgz
         working-directory: examples/python/ec2-windows-provider
       - name: CDK Synth
         run: cdk synth
@@ -400,10 +394,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/ecs-provider
-      - name: Debug
-        run: find .
       - name: Install local package
-        run: pip install ../../dist/*.tgz
+        run: ls ../.. && pip install ../../dist/python/*.tgz
         working-directory: examples/python/ecs-provider
       - name: CDK Synth
         run: cdk synth
@@ -432,10 +424,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/ecs-windows-provider
-      - name: Debug
-        run: find .
       - name: Install local package
-        run: pip install ../../dist/*.tgz
+        run: ls ../.. && pip install ../../dist/python/*.tgz
         working-directory: examples/python/ecs-windows-provider
       - name: CDK Synth
         run: cdk synth
@@ -464,10 +454,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/multi-provider
-      - name: Debug
-        run: find .
       - name: Install local package
-        run: pip install ../../dist/*.tgz
+        run: ls ../.. && pip install ../../dist/python/*.tgz
         working-directory: examples/python/multi-provider
       - name: CDK Synth
         run: cdk synth
@@ -496,10 +484,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/provider-selector
-      - name: Debug
-        run: find .
       - name: Install local package
-        run: pip install ../../dist/*.tgz
+        run: ls ../.. && pip install ../../dist/python/*.tgz
         working-directory: examples/python/provider-selector
       - name: CDK Synth
         run: cdk synth
@@ -528,10 +514,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: examples/python/simple-codebuild
-      - name: Debug
-        run: find .
       - name: Install local package
-        run: pip install ../../dist/*.tgz
+        run: ls ../.. && pip install ../../dist/python/*.tgz
         working-directory: examples/python/simple-codebuild
       - name: CDK Synth
         run: cdk synth
@@ -563,7 +547,7 @@ jobs:
       - name: Debug
         run: find .
       - name: Install local package
-        run: npm install ../../dist/*.tgz
+        run: ls ../.. && npm install ../../dist/js/*.tgz
         working-directory: examples/typescript/advanced
       - name: CDK Synth
         run: cdk synth
@@ -595,7 +579,7 @@ jobs:
       - name: Debug
         run: find .
       - name: Install local package
-        run: npm install ../../dist/*.tgz
+        run: ls ../.. && npm install ../../dist/js/*.tgz
         working-directory: examples/typescript/composite-provider
       - name: CDK Synth
         run: cdk synth
@@ -627,7 +611,7 @@ jobs:
       - name: Debug
         run: find .
       - name: Install local package
-        run: npm install ../../dist/*.tgz
+        run: ls ../.. && npm install ../../dist/js/*.tgz
         working-directory: examples/typescript/ec2-windows-provider
       - name: CDK Synth
         run: cdk synth
@@ -659,7 +643,7 @@ jobs:
       - name: Debug
         run: find .
       - name: Install local package
-        run: npm install ../../dist/*.tgz
+        run: ls ../.. && npm install ../../dist/js/*.tgz
         working-directory: examples/typescript/ecs-provider
       - name: CDK Synth
         run: cdk synth
@@ -691,7 +675,7 @@ jobs:
       - name: Debug
         run: find .
       - name: Install local package
-        run: npm install ../../dist/*.tgz
+        run: ls ../.. && npm install ../../dist/js/*.tgz
         working-directory: examples/typescript/ecs-windows-provider
       - name: CDK Synth
         run: cdk synth
@@ -723,7 +707,7 @@ jobs:
       - name: Debug
         run: find .
       - name: Install local package
-        run: npm install ../../dist/*.tgz
+        run: ls ../.. && npm install ../../dist/js/*.tgz
         working-directory: examples/typescript/multi-provider
       - name: CDK Synth
         run: cdk synth
@@ -755,7 +739,7 @@ jobs:
       - name: Debug
         run: find .
       - name: Install local package
-        run: npm install ../../dist/*.tgz
+        run: ls ../.. && npm install ../../dist/js/*.tgz
         working-directory: examples/typescript/provider-selector
       - name: CDK Synth
         run: cdk synth
@@ -787,7 +771,7 @@ jobs:
       - name: Debug
         run: find .
       - name: Install local package
-        run: npm install ../../dist/*.tgz
+        run: ls ../.. && npm install ../../dist/js/*.tgz
         working-directory: examples/typescript/simple-codebuild
       - name: CDK Synth
         run: cdk synth
