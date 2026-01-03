@@ -1,0 +1,19 @@
+{
+  "name": "ecs-windows-provider-example",
+  "version": "1.0.0",
+  "description": "Example demonstrating ECS Windows provider configuration",
+  "main": "app.ts",
+  "scripts": {
+    "build": "tsc",
+    "cdk": "cdk"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.0.0",
+    "@cloudsnorkel/cdk-github-runners": "*",
+    "constructs": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "~5.0.0"
+  }
+}

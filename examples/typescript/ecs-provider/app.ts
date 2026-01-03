@@ -18,7 +18,6 @@ import {
     EcsRunnerProvider,
     RunnerImageComponent,
     Architecture,
-    Os,
 } from '@cloudsnorkel/cdk-github-runners';
 
 class EcsProviderStack extends Stack {

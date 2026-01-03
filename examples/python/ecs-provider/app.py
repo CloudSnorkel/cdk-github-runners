@@ -19,7 +19,6 @@ from cloudsnorkel.cdk_github_runners import (
     EcsRunnerProvider,
     RunnerImageComponent,
     Architecture,
-    Os,
 )
 
 
