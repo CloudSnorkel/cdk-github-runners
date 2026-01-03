@@ -196,7 +196,7 @@ for (const language of languages) {
     examples.push({
       path: path.join(examplesDir, language, exampleDir),
       language: language,
-      name: exampleDir
+      name: exampleDir,
     });
   }
 }
@@ -232,7 +232,7 @@ for (const example of examples) {
   if (example.language === 'typescript') {
     job.tools = {
       node: {
-        version: 'lts/*'
+        version: 'lts/*',
       },
     };
     job.steps = [
@@ -263,7 +263,7 @@ for (const example of examples) {
   } else if (example.language === 'python') {
     job.tools = {
       python: {
-        version: '3.x'
+        version: '3.x',
       },
     };
     job.steps = [

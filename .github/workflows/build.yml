@@ -298,13 +298,13 @@ jobs:
           path: dist
       - name: Install dependencies
         run: pip install -r requirements.txt
-        working-directory: examples\python\advanced
+        working-directory: examples/python/advanced
       - name: Install local package
         run: pip install ../../dist/python/*.tgz
-        working-directory: examples\python\advanced
+        working-directory: examples/python/advanced
       - name: CDK Synth
         run: cdk synth
-        working-directory: examples\python\advanced
+        working-directory: examples/python/advanced
   validate-python-composite-provider:
     needs:
       - package-js
@@ -323,13 +323,13 @@ jobs:
           path: dist
       - name: Install dependencies
         run: pip install -r requirements.txt
-        working-directory: examples\python\composite-provider
+        working-directory: examples/python/composite-provider
       - name: Install local package
         run: pip install ../../dist/python/*.tgz
-        working-directory: examples\python\composite-provider
+        working-directory: examples/python/composite-provider
       - name: CDK Synth
         run: cdk synth
-        working-directory: examples\python\composite-provider
+        working-directory: examples/python/composite-provider
   validate-python-ecs-provider:
     needs:
       - package-js
@@ -348,13 +348,13 @@ jobs:
           path: dist
       - name: Install dependencies
         run: pip install -r requirements.txt
-        working-directory: examples\python\ecs-provider
+        working-directory: examples/python/ecs-provider
       - name: Install local package
         run: pip install ../../dist/python/*.tgz
-        working-directory: examples\python\ecs-provider
+        working-directory: examples/python/ecs-provider
       - name: CDK Synth
         run: cdk synth
-        working-directory: examples\python\ecs-provider
+        working-directory: examples/python/ecs-provider
   validate-python-multi-provider:
     needs:
       - package-js
@@ -373,13 +373,13 @@ jobs:
           path: dist
       - name: Install dependencies
         run: pip install -r requirements.txt
-        working-directory: examples\python\multi-provider
+        working-directory: examples/python/multi-provider
       - name: Install local package
         run: pip install ../../dist/python/*.tgz
-        working-directory: examples\python\multi-provider
+        working-directory: examples/python/multi-provider
       - name: CDK Synth
         run: cdk synth
-        working-directory: examples\python\multi-provider
+        working-directory: examples/python/multi-provider
   validate-python-provider-selector:
     needs:
       - package-js
@@ -398,13 +398,13 @@ jobs:
           path: dist
       - name: Install dependencies
         run: pip install -r requirements.txt
-        working-directory: examples\python\provider-selector
+        working-directory: examples/python/provider-selector
       - name: Install local package
         run: pip install ../../dist/python/*.tgz
-        working-directory: examples\python\provider-selector
+        working-directory: examples/python/provider-selector
       - name: CDK Synth
         run: cdk synth
-        working-directory: examples\python\provider-selector
+        working-directory: examples/python/provider-selector
   validate-python-simple-codebuild:
     needs:
       - package-js
@@ -423,13 +423,13 @@ jobs:
           path: dist
       - name: Install dependencies
         run: pip install -r requirements.txt
-        working-directory: examples\python\simple-codebuild
+        working-directory: examples/python/simple-codebuild
       - name: Install local package
         run: pip install ../../dist/python/*.tgz
-        working-directory: examples\python\simple-codebuild
+        working-directory: examples/python/simple-codebuild
       - name: CDK Synth
         run: cdk synth
-        working-directory: examples\python\simple-codebuild
+        working-directory: examples/python/simple-codebuild
   validate-typescript-advanced:
     needs:
       - package-js
@@ -448,13 +448,13 @@ jobs:
           path: dist
       - name: Install dependencies
         run: npm install
-        working-directory: examples\typescript\advanced
+        working-directory: examples/typescript/advanced
       - name: Install local package
         run: npm install ../../dist/js/*.tgz
-        working-directory: examples\typescript\advanced
+        working-directory: examples/typescript/advanced
       - name: CDK Synth
         run: cdk synth
-        working-directory: examples\typescript\advanced
+        working-directory: examples/typescript/advanced
   validate-typescript-composite-provider:
     needs:
       - package-js
@@ -473,13 +473,13 @@ jobs:
           path: dist
       - name: Install dependencies
         run: npm install
-        working-directory: examples\typescript\composite-provider
+        working-directory: examples/typescript/composite-provider
       - name: Install local package
         run: npm install ../../dist/js/*.tgz
-        working-directory: examples\typescript\composite-provider
+        working-directory: examples/typescript/composite-provider
       - name: CDK Synth
         run: cdk synth
-        working-directory: examples\typescript\composite-provider
+        working-directory: examples/typescript/composite-provider
   validate-typescript-ecs-provider:
     needs:
       - package-js
@@ -498,13 +498,13 @@ jobs:
           path: dist
       - name: Install dependencies
         run: npm install
-        working-directory: examples\typescript\ecs-provider
+        working-directory: examples/typescript/ecs-provider
       - name: Install local package
         run: npm install ../../dist/js/*.tgz
-        working-directory: examples\typescript\ecs-provider
+        working-directory: examples/typescript/ecs-provider
       - name: CDK Synth
         run: cdk synth
-        working-directory: examples\typescript\ecs-provider
+        working-directory: examples/typescript/ecs-provider
   validate-typescript-multi-provider:
     needs:
       - package-js
@@ -523,13 +523,13 @@ jobs:
           path: dist
       - name: Install dependencies
         run: npm install
-        working-directory: examples\typescript\multi-provider
+        working-directory: examples/typescript/multi-provider
       - name: Install local package
         run: npm install ../../dist/js/*.tgz
-        working-directory: examples\typescript\multi-provider
+        working-directory: examples/typescript/multi-provider
       - name: CDK Synth
         run: cdk synth
-        working-directory: examples\typescript\multi-provider
+        working-directory: examples/typescript/multi-provider
   validate-typescript-provider-selector:
     needs:
       - package-js
@@ -548,13 +548,13 @@ jobs:
           path: dist
       - name: Install dependencies
         run: npm install
-        working-directory: examples\typescript\provider-selector
+        working-directory: examples/typescript/provider-selector
       - name: Install local package
         run: npm install ../../dist/js/*.tgz
-        working-directory: examples\typescript\provider-selector
+        working-directory: examples/typescript/provider-selector
       - name: CDK Synth
         run: cdk synth
-        working-directory: examples\typescript\provider-selector
+        working-directory: examples/typescript/provider-selector
   validate-typescript-simple-codebuild:
     needs:
       - package-js
@@ -573,10 +573,10 @@ jobs:
           path: dist
       - name: Install dependencies
         run: npm install
-        working-directory: examples\typescript\simple-codebuild
+        working-directory: examples/typescript/simple-codebuild
       - name: Install local package
         run: npm install ../../dist/js/*.tgz
-        working-directory: examples\typescript\simple-codebuild
+        working-directory: examples/typescript/simple-codebuild
       - name: CDK Synth
         run: cdk synth
-        working-directory: examples\typescript\simple-codebuild
+        working-directory: examples/typescript/simple-codebuild
