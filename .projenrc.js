@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const { awscdk } = require('projen');
 const { CdkConfig } = require('projen/lib/awscdk');
 const { Stability } = require('projen/lib/cdk/jsii-project');
@@ -174,8 +176,6 @@ project.vscode.settings.addSettings({
 project.package.addField('funding', 'https://github.com/sponsors/CloudSnorkel');
 
 // *** add example validation workflow ***
-const fs = require('fs');
-const path = require('path');
 const buildWorkflow = project.github.tryFindWorkflow('build');
 
 // dynamically discover examples by scanning the examples directory
