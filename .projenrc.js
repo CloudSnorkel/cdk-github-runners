@@ -259,7 +259,7 @@ for (const example of examples) {
       },
       {
         name: 'Install local package',
-        run: 'npm install ../../dist/js/*.tgz',
+        run: 'find ../../dist && npm install ../../dist/*.tgz',
         workingDirectory: example.path,
       },
       {
@@ -298,7 +298,7 @@ for (const example of examples) {
       },
       {
         name: 'Install local package',
-        run: 'pip install ../../dist/python/*.tgz',
+        run: 'find ../../dist && pip install ../../dist/*.tgz',
         workingDirectory: example.path,
       },
       {
