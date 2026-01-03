@@ -447,6 +447,26 @@ const providerSelector = new Function(this, 'provider-selector', {
 
 ## Examples
 
+We provide comprehensive examples in the [`examples/`](examples/) folder to help you get started quickly:
+
+### Python Examples
+- **[Simple CodeBuild](examples/python/simple-codebuild/)** - Basic setup with just a CodeBuild provider
+- **[Multi-Provider](examples/python/multi-provider/)** - Multiple providers with custom runner images
+- **[Advanced](examples/python/advanced/)** - Comprehensive setup with all providers, VPC, monitoring, and security
+- **[Composite Provider](examples/python/composite-provider/)** - Fallback and weighted distribution strategies
+- **[Provider Selector](examples/python/provider-selector/)** - Custom provider selection with Lambda function
+- **[ECS Provider](examples/python/ecs-provider/)** - ECS on EC2 configuration with spot instances
+
+### TypeScript Examples
+- **[Simple CodeBuild](examples/typescript/simple-codebuild/)** - Basic setup with just a CodeBuild provider
+- **[Multi-Provider](examples/typescript/multi-provider/)** - Multiple providers with custom runner images
+- **[Advanced](examples/typescript/advanced/)** - Comprehensive setup with all providers, VPC, monitoring, and security
+- **[Composite Provider](examples/typescript/composite-provider/)** - Fallback and weighted distribution strategies
+- **[Provider Selector](examples/typescript/provider-selector/)** - Custom provider selection with Lambda function
+- **[ECS Provider](examples/typescript/ecs-provider/)** - ECS on EC2 configuration with spot instances
+
+Each example is self-contained with its own dependencies and README. Start with the simple examples and work your way up to the advanced configuration.
+
 Beyond the code snippets above, the fullest example available is the [integration test](test/default.integ.ts).
 
 If you have more to share, please open a PR adding them to the `examples` folder.
