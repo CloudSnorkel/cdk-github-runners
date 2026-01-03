@@ -258,8 +258,12 @@ for (const example of examples) {
         workingDirectory: example.path,
       },
       {
+        name: 'Debug',
+        run: 'find .',
+      },
+      {
         name: 'Install local package',
-        run: 'find ../../dist && npm install ../../dist/*.tgz',
+        run: 'npm install ../../dist/*.tgz',
         workingDirectory: example.path,
       },
       {
@@ -297,8 +301,12 @@ for (const example of examples) {
         workingDirectory: example.path,
       },
       {
+        name: 'Debug',
+        run: 'find .',
+      },
+      {
         name: 'Install local package',
-        run: 'find ../../dist && pip install ../../dist/*.tgz',
+        run: 'pip install ../../dist/*.tgz',
         workingDirectory: example.path,
       },
       {
