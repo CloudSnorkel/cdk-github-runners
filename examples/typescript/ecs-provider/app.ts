@@ -46,6 +46,13 @@ class EcsProviderStack extends Stack {
         const runnerSg = new SecurityGroup(this, 'RunnerSecurityGroup', { vpc });
         runnerSg.addEgressRule(Peer.anyIpv4(), Port.allTraffic());
 
+        // Example: Allow runners to connect to external resources
+        // Import an existing security group (e.g., for a database or SSH server)
+        // const externalSg = SecurityGroup.fromSecurityGroupId(this, 'ExternalSecurityGroup', 'sg-1234567890abcdef0');
+        // 
+        // Allow the ECS provider to connect to the external security group on port 22 (SSH)
+        // This will be configured after the provider is created (see below)
+
         // Create a custom image builder with additional tools
         const imageBuilder = EcsRunnerProvider.imageBuilder(this, 'ImageBuilder', {
             architecture: Architecture.X86_64,
@@ -101,6 +108,20 @@ class EcsProviderStack extends Stack {
                 ecsOnDemandProvider,
             ],
         });
+
+        // Example: Allow providers to connect to external resources
+        // Uncomment and modify the following to allow runners to connect to an external security group:
+        //
+        // // Import an existing security group (e.g., for SSH access to a bastion host)
+        // const bastionSg = SecurityGroup.fromSecurityGroupId(this, 'BastionSecurityGroup', 'sg-1234567890abcdef0');
+        //
+        // // Allow the ECS provider to connect to the bastion on port 22 (SSH)
+        // bastionSg.connections.allowFrom(ecsSpotProvider.connections, Port.tcp(22), 'Allow SSH from ECS runners');
+        // bastionSg.connections.allowFrom(ecsOnDemandProvider.connections, Port.tcp(22), 'Allow SSH from ECS runners');
+        //
+        // // You can also allow connections to other ports, e.g., database on port 5432:
+        // // const dbSg = SecurityGroup.fromSecurityGroupId(this, 'DatabaseSecurityGroup', 'sg-abcdef1234567890');
+        // // dbSg.connections.allowFrom(ecsSpotProvider.connections, Port.tcp(5432), 'Allow PostgreSQL from ECS runners');
     }
 }
 

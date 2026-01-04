@@ -76,7 +76,7 @@ class CompositeProviderStack(Stack):
                     self, "Fargate AZ-1",
                     labels=["fargate", "linux", "x64"],
                     vpc=vpc,
-                    subnet_selection=vpc.select_subnets(
+                    subnet_selection=ec2.SubnetSelection(
                         availability_zones=[vpc.availability_zones[0]],
                         subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
                     ),
@@ -90,7 +90,7 @@ class CompositeProviderStack(Stack):
                     self, "Fargate AZ-2",
                     labels=["fargate", "linux", "x64"],  # Same labels as AZ-1
                     vpc=vpc,
-                    subnet_selection=vpc.select_subnets(
+                    subnet_selection=ec2.SubnetSelection(
                         availability_zones=[vpc.availability_zones[1]],
                         subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
                     ),
@@ -104,7 +104,7 @@ class CompositeProviderStack(Stack):
                     self, "Fargate AZ-3",
                     labels=["fargate", "linux", "x64"],  # Same labels as AZ-1 and AZ-2
                     vpc=vpc,
-                    subnet_selection=vpc.select_subnets(
+                    subnet_selection=ec2.SubnetSelection(
                         availability_zones=[vpc.availability_zones[2]],
                         subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
                     ),

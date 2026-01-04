@@ -66,7 +66,8 @@ class AdvancedStack extends Stack {
             this, 'LinuxX64Builder',
             {
                 architecture: Architecture.X86_64,
-                os: Os.LINUX_UBUNTU
+                os: Os.LINUX_UBUNTU,
+                vpc: vpc
             }
         );
         linuxX64Builder.addComponent(
@@ -74,9 +75,7 @@ class AdvancedStack extends Stack {
                 name: 'Development Tools',
                 commands: [
                     'apt-get update',
-                    'apt-get install -y docker.io git-lfs curl jq',
-                    'systemctl enable docker',
-                    'usermod -aG docker ubuntu'
+                    'apt-get install -y git-lfs curl jq',
                 ]
             })
         );
@@ -85,7 +84,8 @@ class AdvancedStack extends Stack {
             this, 'LinuxArm64Builder',
             {
                 architecture: Architecture.ARM64,
-                os: Os.LINUX_UBUNTU
+                os: Os.LINUX_UBUNTU,
+                vpc: vpc
             }
         );
         linuxArm64Builder.addComponent(
@@ -93,9 +93,7 @@ class AdvancedStack extends Stack {
                 name: 'ARM64 Tools',
                 commands: [
                     'apt-get update',
-                    'apt-get install -y docker.io git-lfs curl jq',
-                    'systemctl enable docker',
-                    'usermod -aG docker ubuntu'
+                    'apt-get install -y git-lfs curl jq',
                 ]
             })
         );
@@ -104,7 +102,9 @@ class AdvancedStack extends Stack {
             this, 'WindowsBuilder',
             {
                 architecture: Architecture.X86_64,
-                os: Os.WINDOWS
+                os: Os.WINDOWS,
+                vpc: vpc,
+                subnetSelection: { subnetType: SubnetType.PUBLIC }
             }
         );
         windowsBuilder.addComponent(

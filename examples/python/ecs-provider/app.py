@@ -49,6 +49,13 @@ class EcsProviderStack(Stack):
         runner_sg = ec2.SecurityGroup(self, "RunnerSecurityGroup", vpc=vpc)
         runner_sg.add_egress_rule(ec2.Peer.any_ipv4(), ec2.Port.all_traffic())
 
+        # Example: Allow runners to connect to external resources
+        # Import an existing security group (e.g., for a database or SSH server)
+        # external_sg = ec2.SecurityGroup.from_security_group_id(self, "ExternalSecurityGroup", "sg-1234567890abcdef0")
+        #
+        # Allow the ECS provider to connect to the external security group on port 22 (SSH)
+        # This will be configured after the provider is created (see below)
+
         # Create a custom image builder with additional tools
         image_builder = EcsRunnerProvider.image_builder(
             self, "ImageBuilder",
@@ -108,6 +115,20 @@ class EcsProviderStack(Stack):
                 ecs_on_demand_provider,
             ],
         )
+
+        # Example: Allow providers to connect to external resources
+        # Uncomment and modify the following to allow runners to connect to an external security group:
+        #
+        # # Import an existing security group (e.g., for SSH access to a bastion host)
+        # bastion_sg = ec2.SecurityGroup.from_security_group_id(self, "BastionSecurityGroup", "sg-1234567890abcdef0")
+        #
+        # # Allow the ECS provider to connect to the bastion on port 22 (SSH)
+        # bastion_sg.connections.allow_from(ecs_spot_provider.connections, ec2.Port.tcp(22), "Allow SSH from ECS runners")
+        # bastion_sg.connections.allow_from(ecs_on_demand_provider.connections, ec2.Port.tcp(22), "Allow SSH from ECS runners")
+        #
+        # # You can also allow connections to other ports, e.g., database on port 5432:
+        # # db_sg = ec2.SecurityGroup.from_security_group_id(self, "DatabaseSecurityGroup", "sg-abcdef1234567890")
+        # # db_sg.connections.allow_from(ecs_spot_provider.connections, ec2.Port.tcp(5432), "Allow PostgreSQL from ECS runners")
 
 
 app = cdk.App()

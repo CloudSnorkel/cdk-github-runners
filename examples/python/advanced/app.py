@@ -64,7 +64,8 @@ class AdvancedStack(Stack):
         linux_x64_builder = FargateRunnerProvider.image_builder(
             self, "LinuxX64Builder",
             architecture=Architecture.X86_64,
-            os=Os.LINUX_UBUNTU
+            os=Os.LINUX_UBUNTU,
+            vpc=vpc
         )
         linux_x64_builder.add_component(
             RunnerImageComponent.custom(
@@ -81,7 +82,8 @@ class AdvancedStack(Stack):
         linux_arm64_builder = FargateRunnerProvider.image_builder(
             self, "LinuxArm64Builder",
             architecture=Architecture.ARM64,
-            os=Os.LINUX_UBUNTU
+            os=Os.LINUX_UBUNTU,
+            vpc=vpc
         )
         linux_arm64_builder.add_component(
             RunnerImageComponent.custom(
@@ -98,7 +100,9 @@ class AdvancedStack(Stack):
         windows_builder = FargateRunnerProvider.image_builder(
             self, "WindowsBuilder",
             architecture=Architecture.X86_64,
-            os=Os.WINDOWS
+            os=Os.WINDOWS,
+            vpc=vpc,
+            subnet_selection=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
         )
         windows_builder.add_component(
             RunnerImageComponent.custom(

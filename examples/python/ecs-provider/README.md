@@ -82,6 +82,22 @@ jobs:
       - run: echo "Running on ECS on-demand instance"
 ```
 
+## Connecting to External Resources
+
+You can allow runners to connect to external resources (like databases, SSH servers, or other services) by using security groups. The example code includes commented-out examples showing how to:
+
+1. Import an existing security group:
+   ```python
+   bastion_sg = ec2.SecurityGroup.from_security_group_id(self, "BastionSecurityGroup", "sg-1234567890abcdef0")
+   ```
+
+2. Allow the provider to connect to it:
+   ```python
+   bastion_sg.connections.allow_from(ecs_spot_provider.connections, ec2.Port.tcp(22), "Allow SSH from ECS runners")
+   ```
+
+This allows the runners to connect to resources protected by that security group on the specified port (e.g., port 22 for SSH, port 5432 for PostgreSQL).
+
 ## Customization
 
 You can customize the ECS provider by:
@@ -90,6 +106,7 @@ You can customize the ECS provider by:
 - Adding custom components to the image builder
 - Configuring placement strategies and constraints
 - Using existing ECS clusters and capacity providers
+- Allowing connections to external resources via security groups
 
 ## Cleanup
 

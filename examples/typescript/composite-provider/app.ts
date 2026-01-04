@@ -71,10 +71,10 @@ class CompositeProviderStack extends Stack {
                 provider: new FargateRunnerProvider(this, 'Fargate AZ-1', {
                     labels: ['fargate', 'linux', 'x64'],
                     vpc: vpc,
-                    subnetSelection: vpc.selectSubnets({
+                    subnetSelection: {
                         availabilityZones: [vpc.availabilityZones[0]],
                         subnetType: SubnetType.PRIVATE_WITH_EGRESS,
-                    }),
+                    },
                     cpu: 1024,  // 1 vCPU
                     memoryLimitMiB: 2048,  // 2 GB RAM
                 }),
@@ -84,10 +84,10 @@ class CompositeProviderStack extends Stack {
                 provider: new FargateRunnerProvider(this, 'Fargate AZ-2', {
                     labels: ['fargate', 'linux', 'x64'], // Same labels as AZ-1
                     vpc: vpc,
-                    subnetSelection: vpc.selectSubnets({
+                    subnetSelection: {
                         availabilityZones: [vpc.availabilityZones[1]],
                         subnetType: SubnetType.PRIVATE_WITH_EGRESS,
-                    }),
+                    },
                     cpu: 1024,
                     memoryLimitMiB: 2048,
                 }),
@@ -97,10 +97,10 @@ class CompositeProviderStack extends Stack {
                 provider: new FargateRunnerProvider(this, 'Fargate AZ-3', {
                     labels: ['fargate', 'linux', 'x64'], // Same labels as AZ-1 and AZ-2
                     vpc: vpc,
-                    subnetSelection: vpc.selectSubnets({
+                    subnetSelection: {
                         availabilityZones: [vpc.availabilityZones[2]],
                         subnetType: SubnetType.PRIVATE_WITH_EGRESS,
-                    }),
+                    },
                     cpu: 1024,
                     memoryLimitMiB: 2048,
                 }),
