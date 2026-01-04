@@ -745,7 +745,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    *
    * **WARNING:** this method creates a metric filter for each provider. Each metric has a status dimension with six possible values. These resources may incur cost.
    */
-  public metricJobCompleted(props?: cloudwatch.MetricProps): cloudwatch.Metric {
+  public metricJobCompleted(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
     if (!this.jobsCompletedMetricFiltersInitialized) {
       // we can't use logs.FilterPattern.spaceDelimited() because it has no support for ||
       // status list taken from https://github.com/actions/runner/blob/be9632302ceef50bfb36ea998cea9c94c75e5d4d/src/Sdk/DTWebApi/WebApi/TaskResult.cs
@@ -792,7 +792,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    *
    * A successful runner doesn't mean the job it executed was successful. For that, see {@link metricJobCompleted}.
    */
-  public metricSucceeded(props?: cloudwatch.MetricProps): cloudwatch.Metric {
+  public metricSucceeded(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
     return this.orchestrator.metricSucceeded(props);
   }
 
@@ -801,14 +801,14 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    *
    * A failed runner usually means the runner failed to start and so a job was never executed. It doesn't necessarily mean the job was executed and failed. For that, see {@link metricJobCompleted}.
    */
-  public metricFailed(props?: cloudwatch.MetricProps): cloudwatch.Metric {
+  public metricFailed(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
     return this.orchestrator.metricFailed(props);
   }
 
   /**
    * Metric for the interval, in milliseconds, between the time the execution starts and the time it closes. This time may be longer than the time the runner took.
    */
-  public metricTime(props?: cloudwatch.MetricProps): cloudwatch.Metric {
+  public metricTime(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
     return this.orchestrator.metricTime(props);
   }
 

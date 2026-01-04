@@ -3428,7 +3428,7 @@ If you want to be sure you are using the latest runner version, you can use this
 ##### `metricFailed` <a name="metricFailed" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed"></a>
 
 ```typescript
-public metricFailed(props?: MetricProps): Metric
+public metricFailed(props?: MetricOptions): Metric
 ```
 
 Metric for failed runner executions.
@@ -3437,14 +3437,14 @@ A failed runner usually means the runner failed to start and so a job was never 
 
 ###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed.parameter.props"></a>
 
-- *Type:* aws-cdk-lib.aws_cloudwatch.MetricProps
+- *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
 
 ---
 
 ##### `metricJobCompleted` <a name="metricJobCompleted" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted"></a>
 
 ```typescript
-public metricJobCompleted(props?: MetricProps): Metric
+public metricJobCompleted(props?: MetricOptions): Metric
 ```
 
 Metric for the number of GitHub Actions jobs completed.
@@ -3455,14 +3455,14 @@ It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succe
 
 ###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted.parameter.props"></a>
 
-- *Type:* aws-cdk-lib.aws_cloudwatch.MetricProps
+- *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
 
 ---
 
 ##### `metricSucceeded` <a name="metricSucceeded" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricSucceeded"></a>
 
 ```typescript
-public metricSucceeded(props?: MetricProps): Metric
+public metricSucceeded(props?: MetricOptions): Metric
 ```
 
 Metric for successful executions.
@@ -3473,14 +3473,14 @@ A successful runner doesn't mean the job it executed was successful. For that, s
 
 ###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricSucceeded.parameter.props"></a>
 
-- *Type:* aws-cdk-lib.aws_cloudwatch.MetricProps
+- *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
 
 ---
 
 ##### `metricTime` <a name="metricTime" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricTime"></a>
 
 ```typescript
-public metricTime(props?: MetricProps): Metric
+public metricTime(props?: MetricOptions): Metric
 ```
 
 Metric for the interval, in milliseconds, between the time the execution starts and the time it closes.
@@ -3489,7 +3489,7 @@ This time may be longer than the time the runner took.
 
 ###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricTime.parameter.props"></a>
 
-- *Type:* aws-cdk-lib.aws_cloudwatch.MetricProps
+- *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
 
 ---
 
