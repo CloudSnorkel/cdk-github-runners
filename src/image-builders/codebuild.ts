@@ -233,6 +233,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
     for (let i = 0; i < this.components.length; i++) {
       const componentName = this.components[i].name;
+      const safeComponentName = componentName.replace(/[^a-zA-Z0-9-]/g, '_');
       const assetDescriptors = this.components[i].getAssets(this.os, this.architecture);
 
       for (let j = 0; j < assetDescriptors.length; j++) {
@@ -245,15 +246,15 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         });
 
         if (asset.isFile) {
-          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${componentName}-${j}`);
+          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${safeComponentName}-${j}`);
         } else if (asset.isZipArchive) {
-          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${componentName}-${j}.zip`);
-          commands.push(`unzip asset${i}-${componentName}-${j}.zip -d "asset${i}-${componentName}-${j}"`);
+          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${safeComponentName}-${j}.zip`);
+          commands.push(`unzip asset${i}-${safeComponentName}-${j}.zip -d asset${i}-${safeComponentName}-${j}`);
         } else {
           throw new Error(`Unknown asset type: ${asset}`);
         }
 
-        dockerfile += `COPY asset${i}-${componentName}-${j} ${assetDescriptors[j].target}\n`;
+        dockerfile += `COPY asset${i}-${safeComponentName}-${j} ${assetDescriptors[j].target}\n`;
         hashedComponents.push(`__ ASSET FILE ${asset.assetHash} ${i}-${componentName}-${j} ${assetDescriptors[j].target}`);
 
         asset.grantRead(this);
@@ -261,11 +262,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
       const componentCommands = this.components[i].getCommands(this.os, this.architecture);
       const script = '#!/bin/bash\nset -exuo pipefail\n' + componentCommands.join('\n');
-      commands.push(`cat > component${i}-${componentName}.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\n${script}\nEOFGITHUBRUNNERSDOCKERFILE`);
-      commands.push(`chmod +x component${i}-${componentName}.sh`);
+      commands.push(`cat > component${i}-${safeComponentName}.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\n${script}\nEOFGITHUBRUNNERSDOCKERFILE`);
+      commands.push(`chmod +x component${i}-${safeComponentName}.sh`);
       hashedComponents.push(`__ COMMAND ${i} ${componentName} ${script}`);
-      dockerfile += `COPY component${i}-${componentName}.sh /tmp\n`;
-      dockerfile += `RUN /tmp/component${i}-${componentName}.sh\n`;
+      dockerfile += `COPY component${i}-${safeComponentName}.sh /tmp\n`;
+      dockerfile += `RUN /tmp/component${i}-${safeComponentName}.sh\n`;
 
       const dockerCommands = this.components[i].getDockerCommands(this.os, this.architecture);
       dockerfile += dockerCommands.join('\n') + '\n';
@@ -324,24 +325,24 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
             'rm -f codebuild-log.sh && STATUS="SUCCESS"',
             'if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS="FAILURE"; fi',
             'cat <<EOF > /tmp/payload.json\n' +
-              '{\n' +
-              '  "Status": "$STATUS",\n' +
-              '  "UniqueId": "build",\n' +
-              // we remove non-printable characters from the log because CloudFormation doesn't like them
-              // https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1601
-              '  "Reason": `sed \'s/[^[:print:]]//g\' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\n' +
-              // for lambda always get a new value because there is always a new image hash
-              '  "Data": "$RANDOM"\n' +
-              '}\n' +
-              'EOF',
+            '{\n' +
+            '  "Status": "$STATUS",\n' +
+            '  "UniqueId": "build",\n' +
+            // we remove non-printable characters from the log because CloudFormation doesn't like them
+            // https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1601
+            '  "Reason": `sed \'s/[^[:print:]]//g\' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\n' +
+            // for lambda always get a new value because there is always a new image hash
+            '  "Data": "$RANDOM"\n' +
+            '}\n' +
+            'EOF',
             'if [ "$WAIT_HANDLE" != "unspecified" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$WAIT_HANDLE"; fi',
             // generate and push soci index
             // we do this after finishing the build, so we don't have to wait. it's also not required, so it's ok if it fails
             'if [ `docker inspect --format=\'{{json .Config.Labels.DISABLE_SOCI}}\' "$REPO_URI"` = "null" ]; then\n' +
-              'docker rmi "$REPO_URI"\n' + // it downloads the image again to /tmp, so save on space
-              'LATEST_SOCI_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
-              `curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
-              './standalone-soci-indexer "$REPO_URI"\n' +
+            'docker rmi "$REPO_URI"\n' + // it downloads the image again to /tmp, so save on space
+            'LATEST_SOCI_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
+            `curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
+            './standalone-soci-indexer "$REPO_URI"\n' +
             'fi',
           ],
         },
@@ -369,7 +370,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     });
     crHandler.role!.attachInlinePolicy(policy);
 
-    let waitHandleRef= 'unspecified';
+    let waitHandleRef = 'unspecified';
     let waitDependable = '';
 
     if (this.waitOnDeploy) {
