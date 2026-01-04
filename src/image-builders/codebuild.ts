@@ -233,6 +233,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
     for (let i = 0; i < this.components.length; i++) {
       const componentName = this.components[i].name;
+      const safeComponentName = componentName.replace(/[^a-zA-Z0-9]/g, '_');
       const assetDescriptors = this.components[i].getAssets(this.os, this.architecture);
 
       for (let j = 0; j < assetDescriptors.length; j++) {
@@ -245,15 +246,15 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         });
 
         if (asset.isFile) {
-          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${componentName}-${j}`);
+          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${safeComponentName}-${j}`);
         } else if (asset.isZipArchive) {
-          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${componentName}-${j}.zip`);
-          commands.push(`unzip asset${i}-${componentName}-${j}.zip -d "asset${i}-${componentName}-${j}"`);
+          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${safeComponentName}-${j}.zip`);
+          commands.push(`unzip asset${i}-${safeComponentName}-${j}.zip -d asset${i}-${safeComponentName}-${j}`);
         } else {
           throw new Error(`Unknown asset type: ${asset}`);
         }
 
-        dockerfile += `COPY asset${i}-${componentName}-${j} ${assetDescriptors[j].target}\n`;
+        dockerfile += `COPY asset${i}-${safeComponentName}-${j} ${assetDescriptors[j].target}\n`;
         hashedComponents.push(`__ ASSET FILE ${asset.assetHash} ${i}-${componentName}-${j} ${assetDescriptors[j].target}`);
 
         asset.grantRead(this);
@@ -261,11 +262,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
       const componentCommands = this.components[i].getCommands(this.os, this.architecture);
       const script = '#!/bin/bash\nset -exuo pipefail\n' + componentCommands.join('\n');
-      commands.push(`cat > component${i}-${componentName}.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\n${script}\nEOFGITHUBRUNNERSDOCKERFILE`);
-      commands.push(`chmod +x component${i}-${componentName}.sh`);
+      commands.push(`cat > component${i}-${safeComponentName}.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\n${script}\nEOFGITHUBRUNNERSDOCKERFILE`);
+      commands.push(`chmod +x component${i}-${safeComponentName}.sh`);
       hashedComponents.push(`__ COMMAND ${i} ${componentName} ${script}`);
-      dockerfile += `COPY component${i}-${componentName}.sh /tmp\n`;
-      dockerfile += `RUN /tmp/component${i}-${componentName}.sh\n`;
+      dockerfile += `COPY component${i}-${safeComponentName}.sh /tmp\n`;
+      dockerfile += `RUN /tmp/component${i}-${safeComponentName}.sh\n`;
 
       const dockerCommands = this.components[i].getDockerCommands(this.os, this.architecture);
       dockerfile += dockerCommands.join('\n') + '\n';
@@ -369,7 +370,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     });
     crHandler.role!.attachInlinePolicy(policy);
 
-    let waitHandleRef= 'unspecified';
+    let waitHandleRef = 'unspecified';
     let waitDependable = '';
 
     if (this.waitOnDeploy) {
