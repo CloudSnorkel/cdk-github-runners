@@ -233,7 +233,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
     for (let i = 0; i < this.components.length; i++) {
       const componentName = this.components[i].name;
-      const safeComponentName = componentName.replace(/[^a-zA-Z0-9]/g, '_');
+      const safeComponentName = componentName.replace(/[^a-zA-Z0-9-]/g, '_');
       const assetDescriptors = this.components[i].getAssets(this.os, this.architecture);
 
       for (let j = 0; j < assetDescriptors.length; j++) {
@@ -325,24 +325,24 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
             'rm -f codebuild-log.sh && STATUS="SUCCESS"',
             'if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS="FAILURE"; fi',
             'cat <<EOF > /tmp/payload.json\n' +
-              '{\n' +
-              '  "Status": "$STATUS",\n' +
-              '  "UniqueId": "build",\n' +
-              // we remove non-printable characters from the log because CloudFormation doesn't like them
-              // https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1601
-              '  "Reason": `sed \'s/[^[:print:]]//g\' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\n' +
-              // for lambda always get a new value because there is always a new image hash
-              '  "Data": "$RANDOM"\n' +
-              '}\n' +
-              'EOF',
+            '{\n' +
+            '  "Status": "$STATUS",\n' +
+            '  "UniqueId": "build",\n' +
+            // we remove non-printable characters from the log because CloudFormation doesn't like them
+            // https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1601
+            '  "Reason": `sed \'s/[^[:print:]]//g\' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\n' +
+            // for lambda always get a new value because there is always a new image hash
+            '  "Data": "$RANDOM"\n' +
+            '}\n' +
+            'EOF',
             'if [ "$WAIT_HANDLE" != "unspecified" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$WAIT_HANDLE"; fi',
             // generate and push soci index
             // we do this after finishing the build, so we don't have to wait. it's also not required, so it's ok if it fails
             'if [ `docker inspect --format=\'{{json .Config.Labels.DISABLE_SOCI}}\' "$REPO_URI"` = "null" ]; then\n' +
-              'docker rmi "$REPO_URI"\n' + // it downloads the image again to /tmp, so save on space
-              'LATEST_SOCI_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
-              `curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
-              './standalone-soci-indexer "$REPO_URI"\n' +
+            'docker rmi "$REPO_URI"\n' + // it downloads the image again to /tmp, so save on space
+            'LATEST_SOCI_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
+            `curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
+            './standalone-soci-indexer "$REPO_URI"\n' +
             'fi',
           ],
         },
