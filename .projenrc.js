@@ -272,7 +272,7 @@ for (const example of examples) {
       },
       {
         name: 'CDK Synth',
-        run: 'cdk synth',
+        run: 'cdk synth -q',
         workingDirectory: example.path,
       },
     ];
@@ -315,7 +315,7 @@ for (const example of examples) {
       },
       {
         name: 'CDK Synth',
-        run: 'cdk synth',
+        run: 'cdk synth -q',
         workingDirectory: example.path,
       },
     ];

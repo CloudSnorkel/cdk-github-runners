@@ -310,7 +310,7 @@ jobs:
         run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/advanced
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/python/advanced
   validate-python-composite-provider:
     needs:
@@ -342,7 +342,7 @@ jobs:
         run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/composite-provider
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/python/composite-provider
   validate-python-ec2-windows-provider:
     needs:
@@ -374,7 +374,7 @@ jobs:
         run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/ec2-windows-provider
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/python/ec2-windows-provider
   validate-python-ecs-provider:
     needs:
@@ -406,7 +406,7 @@ jobs:
         run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/ecs-provider
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/python/ecs-provider
   validate-python-ecs-windows-provider:
     needs:
@@ -438,7 +438,7 @@ jobs:
         run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/ecs-windows-provider
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/python/ecs-windows-provider
   validate-python-multi-provider:
     needs:
@@ -470,7 +470,7 @@ jobs:
         run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/multi-provider
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/python/multi-provider
   validate-python-provider-selector:
     needs:
@@ -502,7 +502,7 @@ jobs:
         run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/provider-selector
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/python/provider-selector
   validate-python-simple-codebuild:
     needs:
@@ -534,7 +534,7 @@ jobs:
         run: pip install ../../../dist/python/*.whl
         working-directory: examples/python/simple-codebuild
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/python/simple-codebuild
   validate-typescript-advanced:
     needs:
@@ -568,7 +568,7 @@ jobs:
         run: npm install ../../../dist/js/*.tgz
         working-directory: examples/typescript/advanced
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/typescript/advanced
   validate-typescript-composite-provider:
     needs:
@@ -602,7 +602,7 @@ jobs:
         run: npm install ../../../dist/js/*.tgz
         working-directory: examples/typescript/composite-provider
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/typescript/composite-provider
   validate-typescript-ec2-windows-provider:
     needs:
@@ -636,7 +636,7 @@ jobs:
         run: npm install ../../../dist/js/*.tgz
         working-directory: examples/typescript/ec2-windows-provider
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/typescript/ec2-windows-provider
   validate-typescript-ecs-provider:
     needs:
@@ -670,7 +670,7 @@ jobs:
         run: npm install ../../../dist/js/*.tgz
         working-directory: examples/typescript/ecs-provider
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/typescript/ecs-provider
   validate-typescript-ecs-windows-provider:
     needs:
@@ -704,7 +704,7 @@ jobs:
         run: npm install ../../../dist/js/*.tgz
         working-directory: examples/typescript/ecs-windows-provider
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/typescript/ecs-windows-provider
   validate-typescript-multi-provider:
     needs:
@@ -738,7 +738,7 @@ jobs:
         run: npm install ../../../dist/js/*.tgz
         working-directory: examples/typescript/multi-provider
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/typescript/multi-provider
   validate-typescript-provider-selector:
     needs:
@@ -772,7 +772,7 @@ jobs:
         run: npm install ../../../dist/js/*.tgz
         working-directory: examples/typescript/provider-selector
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/typescript/provider-selector
   validate-typescript-simple-codebuild:
     needs:
@@ -806,5 +806,5 @@ jobs:
         run: npm install ../../../dist/js/*.tgz
         working-directory: examples/typescript/simple-codebuild
       - name: CDK Synth
-        run: cdk synth
+        run: cdk synth -q
         working-directory: examples/typescript/simple-codebuild
