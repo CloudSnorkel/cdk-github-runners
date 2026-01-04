@@ -43,15 +43,14 @@ class ProviderSelectorStack extends Stack {
                     const { payload, providers, defaultProvider, defaultLabels } = event;
                     
                     console.log('Processing job:', {
-                        repository: payload.repository && payload.repository.name,
-                        branch: payload.workflow_job && payload.workflow_job.head_branch,
-                        labels: payload.workflow_job && payload.workflow_job.labels,
+                        repository: payload.repository?.name,
+                        branch: payload.workflow_job?.head_branch,
+                        labels: payload.workflow_job?.labels,
                     });
                     
                     // Route production repos to dedicated provider
-                    const repoName = payload.repository && payload.repository.name;
-                    if ((repoName && repoName.includes('prod')) || 
-                        (repoName && repoName.includes('production'))) {
+                    if (payload.repository?.name?.includes('prod') || 
+                        payload.repository?.name?.includes('production')) {
                         console.log('Routing to production provider');
                         return {
                             provider: '${productionProvider.node.path}',
@@ -60,15 +59,14 @@ class ProviderSelectorStack extends Stack {
                     }
                     
                     // Filter out draft PRs (skip runner provisioning)
-                    const headBranch = payload.workflow_job && payload.workflow_job.head_branch;
-                    if ((headBranch && headBranch.startsWith('draft/')) ||
-                        (headBranch && headBranch.startsWith('wip/'))) {
+                    if (payload.workflow_job?.head_branch?.startsWith('draft/') ||
+                        payload.workflow_job?.head_branch?.startsWith('wip/')) {
                         console.log('Skipping draft PR');
                         return { provider: undefined }; // Skip runner provisioning
                     }
                     
                     // Add branch name as a dynamic label for all other jobs
-                    const branch = (payload.workflow_job && payload.workflow_job.head_branch) || 'unknown';
+                    const branch = payload.workflow_job?.head_branch || 'unknown';
                     const labels = [...(defaultLabels || []), 'branch:' + branch.replace(/[^a-zA-Z0-9-]/g, '-')];
                     
                     console.log('Using default provider with dynamic labels');
