@@ -25,10 +25,9 @@ The weighted distribution strategy randomly selects a provider based on weights.
 - Distributing load across different instance types
 - Balancing cost and performance
 
-In this example, we distribute Fargate runners across 3 availability zones:
-- 60% to AZ-1 (weight: 6)
-- 30% to AZ-2 (weight: 3)
-- 10% to AZ-3 (weight: 1)
+In this example, we distribute Fargate runners across 2 availability zones:
+- 60% to AZ-1 (weight: 3)
+- 40% to AZ-2 (weight: 2)
 
 ## Important Notes
 

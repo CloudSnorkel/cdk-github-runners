@@ -210,9 +210,16 @@ class AdvancedStack extends Stack {
         ec2Provider,
       ],
       // Configure access
-      webhookAccess: LambdaAccess.lambdaUrl(),
-      statusAccess: LambdaAccess.noAccess(),  // Disable status endpoint for security
-      setupAccess: LambdaAccess.lambdaUrl(),
+      // Use API Gateway with GitHub webhook IPs - can be IP restricted (more secure than default Lambda URL)
+      webhookAccess: LambdaAccess.apiGateway({
+        allowedIps: LambdaAccess.githubWebhookIps(),
+      }),
+      // Status endpoint returns sensitive information - limit to specific IPs or disable
+      statusAccess: LambdaAccess.apiGateway({
+        allowedIps: ['1.2.3.4/32'], // Replace with your IP address
+      }),
+      // Disable setup access after initial setup is complete
+      setupAccess: LambdaAccess.noAccess(),
       // Configure retry options
       retryOptions: {
         maxAttempts: 10,

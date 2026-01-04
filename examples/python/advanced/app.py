@@ -23,7 +23,8 @@ from cloudsnorkel.cdk_github_runners import (
     RunnerImageComponent,
     Architecture,
     Os,
-    LambdaAccess
+    LambdaAccess,
+    ProviderRetryOptions,
 )
 
 
@@ -126,11 +127,11 @@ class AdvancedStack(Stack):
             image_builder=linux_x64_builder,
             cpu=2048,  # 2 vCPU
             memory_limit_mib=4096,  # 4 GB RAM
-            retry_options={
-                "max_attempts": 5,
-                "interval": cdk.Duration.minutes(5),
-                "backoff_rate": 2.0
-            }
+            retry_options=ProviderRetryOptions(
+                max_attempts=5,
+                interval=cdk.Duration.minutes(5),
+                backoff_rate=2.0
+            )
         )
 
         fargate_arm64_provider = FargateRunnerProvider(
@@ -141,11 +142,11 @@ class AdvancedStack(Stack):
             image_builder=linux_arm64_builder,
             cpu=2048,  # 2 vCPU
             memory_limit_mib=4096,  # 4 GB RAM
-            retry_options={
-                "max_attempts": 3,
-                "interval": cdk.Duration.minutes(10),
-                "backoff_rate": 1.5
-            }
+            retry_options=ProviderRetryOptions(
+                max_attempts=3,
+                interval=cdk.Duration.minutes(10),
+                backoff_rate=1.5
+            )
         )
 
         fargate_windows_provider = FargateRunnerProvider(
@@ -156,11 +157,11 @@ class AdvancedStack(Stack):
             image_builder=windows_builder,
             cpu=2048,  # 2 vCPU
             memory_limit_mib=4096,  # 4 GB RAM
-            retry_options={
-                "max_attempts": 3,
-                "interval": cdk.Duration.minutes(10),
-                "backoff_rate": 1.5
-            }
+            retry_options=ProviderRetryOptions(
+                max_attempts=3,
+                interval=cdk.Duration.minutes(10),
+                backoff_rate=1.5
+            )
         )
 
         # Lambda provider for short tasks
@@ -169,11 +170,11 @@ class AdvancedStack(Stack):
             labels=["lambda", "short", "linux"],
             timeout=cdk.Duration.minutes(10),
             memory_size=1024,
-            retry_options={
-                "max_attempts": 2,
-                "interval": cdk.Duration.minutes(1),
-                "backoff_rate": 2.0
-            }
+            retry_options=ProviderRetryOptions(
+                max_attempts=2,
+                interval=cdk.Duration.minutes(1),
+                backoff_rate=2.0
+            )
         )
 
         # EC2 provider for long-running tasks
@@ -184,11 +185,11 @@ class AdvancedStack(Stack):
             security_groups=[runner_sg],
             instance_type=ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE),
             storage_size=cdk.Size.gibibytes(100),
-            retry_options={
-                "max_attempts": 3,
-                "interval": cdk.Duration.minutes(5),
-                "backoff_rate": 1.5
-            }
+            retry_options=ProviderRetryOptions(
+                max_attempts=3,
+                interval=cdk.Duration.minutes(5),
+                backoff_rate=1.5
+            )
         )
 
         # Grant permissions to providers
@@ -210,15 +211,22 @@ class AdvancedStack(Stack):
                 ec2_provider
             ],
             # Configure access
-            webhook_access=LambdaAccess.lambda_url(),
-            status_access=LambdaAccess.no_access(),  # Disable status endpoint for security
-            setup_access=LambdaAccess.lambda_url(),
+            # Use API Gateway with GitHub webhook IPs - can be IP restricted (more secure than default Lambda URL)
+            webhook_access=LambdaAccess.api_gateway(
+                allowed_ips=LambdaAccess.github_webhook_ips(),
+            ),
+            # Status endpoint returns sensitive information - limit to specific IPs or disable
+            status_access=LambdaAccess.api_gateway(
+                allowed_ips=["1.2.3.4/32"],  # Replace with your IP address
+            ),
+            # Disable setup access after initial setup is complete
+            setup_access=LambdaAccess.no_access(),
             # Configure retry options
-            retry_options={
-                "max_attempts": 10,
-                "interval": 300,  # 5 minutes
-                "backoff_rate": 1.5
-            }
+            retry_options=ProviderRetryOptions(
+                max_attempts=10,
+                interval=cdk.Duration.minutes(5),
+                backoff_rate=1.5
+            )
         )
 
         # Create CloudWatch alarms for monitoring

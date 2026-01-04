@@ -25,7 +25,7 @@ class CompositeProviderStack(Stack):
         # Create a VPC for the providers
         vpc = ec2.Vpc(
             self, "VPC",
-            availability_zones=["us-east-1a", "us-east-1b", "us-east-1c"],
+            max_azs=2,
             subnet_configuration=[
                 ec2.SubnetConfiguration(
                     name="Public",
@@ -67,11 +67,11 @@ class CompositeProviderStack(Stack):
         # Example 2: Weighted Distribution Strategy
         # ============================================
         # Distribute load across multiple availability zones
-        # 60% to AZ-1, 30% to AZ-2, 10% to AZ-3
+        # 60% to AZ-1, 40% to AZ-2
         
         distributed_provider = CompositeProvider.distribute(self, "Fargate Distribution", [
             {
-                "weight": 6,  # 6/(6+3+1) = 60%
+                "weight": 3,  # 3/(3+2) = 60%
                 "provider": FargateRunnerProvider(
                     self, "Fargate AZ-1",
                     labels=["fargate", "linux", "x64"],
@@ -85,27 +85,13 @@ class CompositeProviderStack(Stack):
                 ),
             },
             {
-                "weight": 3,  # 3/(6+3+1) = 30%
+                "weight": 2,  # 2/(3+2) = 40%
                 "provider": FargateRunnerProvider(
                     self, "Fargate AZ-2",
                     labels=["fargate", "linux", "x64"],  # Same labels as AZ-1
                     vpc=vpc,
                     subnet_selection=ec2.SubnetSelection(
                         availability_zones=[vpc.availability_zones[1]],
-                        subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
-                    ),
-                    cpu=1024,
-                    memory_limit_mib=2048,
-                ),
-            },
-            {
-                "weight": 1,  # 1/(6+3+1) = 10%
-                "provider": FargateRunnerProvider(
-                    self, "Fargate AZ-3",
-                    labels=["fargate", "linux", "x64"],  # Same labels as AZ-1 and AZ-2
-                    vpc=vpc,
-                    subnet_selection=ec2.SubnetSelection(
-                        availability_zones=[vpc.availability_zones[2]],
                         subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
                     ),
                     cpu=1024,

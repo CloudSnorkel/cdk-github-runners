@@ -20,6 +20,7 @@ from cloudsnorkel.cdk_github_runners import (
     RunnerImageComponent,
     Architecture,
     Os,
+    StorageOptions,
 )
 
 
@@ -86,11 +87,11 @@ class EcsProviderStack(Stack):
             max_instances=5,
             min_instances=0,  # Scale down to zero when not in use
             storage_size=Size.gibibytes(40),
-            storage_options={
-                "volume_type": ec2.EbsDeviceVolumeType.GP3,
-                "iops": 1500,
-                "throughput": 150,
-            },
+            storage_options=StorageOptions(
+                volume_type=ec2.EbsDeviceVolumeType.GP3,
+                iops=1500,
+                throughput=150,
+            ),
         )
 
         # ECS provider with on-demand instances for reliability

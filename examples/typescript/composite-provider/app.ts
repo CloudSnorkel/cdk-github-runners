@@ -23,7 +23,7 @@ class CompositeProviderStack extends Stack {
 
     // Create a VPC for the providers
     const vpc = new Vpc(this, 'VPC', {
-      availabilityZones: ['us-east-1a', 'us-east-1b', 'us-east-1c'],
+      maxAzs: 2,
       subnetConfiguration: [
         {
           name: 'Public',
@@ -63,11 +63,11 @@ class CompositeProviderStack extends Stack {
     // Example 2: Weighted Distribution Strategy
     // ============================================
     // Distribute load across multiple availability zones
-    // 60% to AZ-1, 30% to AZ-2, 10% to AZ-3
+    // 60% to AZ-1, 40% to AZ-2
 
     const distributedProvider = CompositeProvider.distribute(this, 'Fargate Distribution', [
       {
-        weight: 6, // 6/(6+3+1) = 60%
+        weight: 3, // 3/(3+2) = 60%
         provider: new FargateRunnerProvider(this, 'Fargate AZ-1', {
           labels: ['fargate', 'linux', 'x64'],
           vpc: vpc,
@@ -80,25 +80,12 @@ class CompositeProviderStack extends Stack {
         }),
       },
       {
-        weight: 3, // 3/(6+3+1) = 30%
+        weight: 2, // 2/(3+2) = 40%
         provider: new FargateRunnerProvider(this, 'Fargate AZ-2', {
           labels: ['fargate', 'linux', 'x64'], // Same labels as AZ-1
           vpc: vpc,
           subnetSelection: {
             availabilityZones: [vpc.availabilityZones[1]],
-            subnetType: SubnetType.PRIVATE_WITH_EGRESS,
-          },
-          cpu: 1024,
-          memoryLimitMiB: 2048,
-        }),
-      },
-      {
-        weight: 1, // 1/(6+3+1) = 10%
-        provider: new FargateRunnerProvider(this, 'Fargate AZ-3', {
-          labels: ['fargate', 'linux', 'x64'], // Same labels as AZ-1 and AZ-2
-          vpc: vpc,
-          subnetSelection: {
-            availabilityZones: [vpc.availabilityZones[2]],
             subnetType: SubnetType.PRIVATE_WITH_EGRESS,
           },
           cpu: 1024,
