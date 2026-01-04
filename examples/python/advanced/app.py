@@ -128,7 +128,7 @@ class AdvancedStack(Stack):
             memory_limit_mib=4096,  # 4 GB RAM
             retry_options={
                 "max_attempts": 5,
-                "interval": 300,  # 5 minutes
+                "interval": cdk.Duration.minutes(5),
                 "backoff_rate": 2.0
             }
         )
@@ -143,7 +143,7 @@ class AdvancedStack(Stack):
             memory_limit_mib=4096,  # 4 GB RAM
             retry_options={
                 "max_attempts": 3,
-                "interval": 600,  # 10 minutes
+                "interval": cdk.Duration.minutes(10),
                 "backoff_rate": 1.5
             }
         )
@@ -158,7 +158,7 @@ class AdvancedStack(Stack):
             memory_limit_mib=4096,  # 4 GB RAM
             retry_options={
                 "max_attempts": 3,
-                "interval": 600,  # 10 minutes
+                "interval": cdk.Duration.minutes(10),
                 "backoff_rate": 1.5
             }
         )
@@ -171,7 +171,7 @@ class AdvancedStack(Stack):
             memory_size=1024,
             retry_options={
                 "max_attempts": 2,
-                "interval": 60,  # 1 minute
+                "interval": cdk.Duration.minutes(1),
                 "backoff_rate": 2.0
             }
         )
@@ -186,7 +186,7 @@ class AdvancedStack(Stack):
             storage_size=cdk.Size.gibibytes(100),
             retry_options={
                 "max_attempts": 3,
-                "interval": 300,  # 5 minutes
+                "interval": cdk.Duration.minutes(5),
                 "backoff_rate": 1.5
             }
         )

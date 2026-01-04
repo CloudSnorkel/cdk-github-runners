@@ -23,7 +23,7 @@ class CompositeProviderStack extends Stack {
 
     // Create a VPC for the providers
     const vpc = new Vpc(this, 'VPC', {
-      maxAzs: 3,
+      availabilityZones: ['us-east-1a', 'us-east-1b', 'us-east-1c'],
       subnetConfiguration: [
         {
           name: 'Public',

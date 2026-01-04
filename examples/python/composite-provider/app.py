@@ -25,17 +25,17 @@ class CompositeProviderStack(Stack):
         # Create a VPC for the providers
         vpc = ec2.Vpc(
             self, "VPC",
-            max_azs=3,
+            availability_zones=["us-east-1a", "us-east-1b", "us-east-1c"],
             subnet_configuration=[
                 ec2.SubnetConfiguration(
                     name="Public",
                     subnet_type=ec2.SubnetType.PUBLIC,
-                    cidr_mask=24
+                    cidr_mask=24,
                 ),
                 ec2.SubnetConfiguration(
                     name="Private",
                     subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
-                    cidr_mask=24
+                    cidr_mask=24,
                 )
             ]
         )
