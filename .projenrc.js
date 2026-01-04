@@ -115,7 +115,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   pullRequestTemplate: false,
   tsJestOptions: {
     transformOptions: {
-      // massively incrased unit tests speed
+      // massively increased unit tests speed
       // side-effect: disable type checking in unit test code
       isolatedModules: true,
     },
