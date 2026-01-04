@@ -6,7 +6,7 @@ This example demonstrates how to configure ECS providers for GitHub self-hosted 
 
 - **ECS on EC2**: Use ECS to run runners on EC2 instances with full control over infrastructure
 - **Spot instances**: Configure spot instances for cost optimization
-- **Custom images**: Build custom runner images with additional tools
+- **Custom images**: Build custom runner images with additional tools (git-lfs, Python, build-essential, curl, jq)
 - **VPC configuration**: Configure VPC, subnets, and security groups
 - **Storage configuration**: Configure EBS volumes with GP3 for better performance
 - **Autoscaling**: Configure min/max instances for cost optimization

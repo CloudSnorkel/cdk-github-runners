@@ -55,7 +55,7 @@ class EcsWindowsProviderStack extends Stack {
       RunnerImageComponent.custom({
         name: 'Windows Tools',
         commands: [
-          'choco install -y git docker-desktop',
+          'choco install -y git-lfs python3',
           'refreshenv',
         ],
       }),

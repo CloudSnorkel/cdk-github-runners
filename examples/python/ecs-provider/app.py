@@ -64,14 +64,13 @@ class EcsProviderStack(Stack):
         )
 
         # Add custom components to the image
+        # Note: Docker is already included by default in ECS providers
         image_builder.add_component(
             RunnerImageComponent.custom(
                 name="Development Tools",
                 commands=[
                     "apt-get update",
-                    "apt-get install -y docker.io git-lfs curl jq build-essential",
-                    "systemctl enable docker",
-                    "usermod -aG docker ubuntu",
+                    "apt-get install -y git-lfs curl jq build-essential python3 python3-pip",
                 ]
             )
         )

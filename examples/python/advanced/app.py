@@ -72,9 +72,7 @@ class AdvancedStack(Stack):
                 name="Development Tools",
                 commands=[
                     "apt-get update",
-                    "apt-get install -y docker.io git-lfs curl jq",
-                    "systemctl enable docker",
-                    "usermod -aG docker ubuntu"
+                    "apt-get install -y git-lfs curl jq python3 python3-pip",
                 ]
             )
         )
@@ -90,9 +88,7 @@ class AdvancedStack(Stack):
                 name="ARM64 Tools",
                 commands=[
                     "apt-get update",
-                    "apt-get install -y docker.io git-lfs curl jq",
-                    "systemctl enable docker",
-                    "usermod -aG docker ubuntu"
+                    "apt-get install -y git-lfs curl jq python3 python3-pip",
                 ]
             )
         )
@@ -108,7 +104,7 @@ class AdvancedStack(Stack):
             RunnerImageComponent.custom(
                 name="Windows Tools",
                 commands=[
-                    "choco install -y git docker-desktop",
+                    "choco install -y git-lfs python3",
                     "refreshenv"
                 ]
             )

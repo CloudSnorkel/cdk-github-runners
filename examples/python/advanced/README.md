@@ -23,7 +23,7 @@ This is a comprehensive example demonstrating advanced features of the CDK GitHu
 - **x64**: `fargate`, `docker`, `linux`, `x64` - 2 vCPU, 4GB RAM
 - **ARM64**: `fargate`, `docker`, `linux`, `arm64` - 2 vCPU, 4GB RAM  
 - **Windows**: `fargate`, `windows`, `x64` - 2 vCPU, 4GB RAM
-- Custom images with Docker and development tools
+- Custom images with Docker (Fargate doesn't include it by default), git-lfs, Python, and other development tools
 - VPC integration with security groups
 
 ### Lambda Provider
