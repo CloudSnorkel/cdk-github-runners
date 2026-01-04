@@ -1,3 +1,0 @@
-aws-cdk-lib>=2.0.0
-cloudsnorkel.cdk-github-runners>=0.0.0
-constructs>=10.0.0

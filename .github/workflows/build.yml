@@ -408,38 +408,6 @@ jobs:
       - name: CDK Synth
         run: cdk synth -q
         working-directory: examples/python/ecs-provider
-  validate-python-ecs-windows-provider:
-    needs:
-      - package-js
-      - package-python
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/setup-python@v6
-        with:
-          python-version: 3.x
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-      - name: Download build artifacts
-        uses: actions/download-artifact@v6
-        with:
-          name: python-package
-          path: dist
-      - name: Install CDK
-        run: npm install -g aws-cdk
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-        working-directory: examples/python/ecs-windows-provider
-      - name: Install local package
-        run: pip install ../../../dist/python/*.whl
-        working-directory: examples/python/ecs-windows-provider
-      - name: CDK Synth
-        run: cdk synth -q
-        working-directory: examples/python/ecs-windows-provider
   validate-python-multi-provider:
     needs:
       - package-js
@@ -672,40 +640,6 @@ jobs:
       - name: CDK Synth
         run: cdk synth -q
         working-directory: examples/typescript/ecs-provider
-  validate-typescript-ecs-windows-provider:
-    needs:
-      - package-js
-      - package-python
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/setup-node@v5
-        with:
-          node-version: lts/*
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-      - name: Download build artifacts
-        uses: actions/download-artifact@v6
-        with:
-          name: js-package
-          path: dist
-      - name: Install CDK
-        run: npm install -g aws-cdk
-      - name: Install dependencies
-        run: npm install
-        working-directory: examples/typescript/ecs-windows-provider
-      - name: Debug
-        run: find .
-      - name: Install local package
-        run: npm install ../../../dist/js/*.tgz
-        working-directory: examples/typescript/ecs-windows-provider
-      - name: CDK Synth
-        run: cdk synth -q
-        working-directory: examples/typescript/ecs-windows-provider
   validate-typescript-multi-provider:
     needs:
       - package-js
