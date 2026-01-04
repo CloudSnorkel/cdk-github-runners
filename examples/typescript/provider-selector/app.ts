@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Provider selector example demonstrating custom provider selection logic.
- * 
+ *
  * This example demonstrates:
  * - Custom provider selection based on repository name
  * - Filtering out certain jobs (e.g., draft PRs)
@@ -13,32 +13,32 @@ import { App, Stack } from 'aws-cdk-lib';
 import { Function, Code, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import {
-    GitHubRunners,
-    CodeBuildRunnerProvider,
+  GitHubRunners,
+  CodeBuildRunnerProvider,
 } from '@cloudsnorkel/cdk-github-runners';
 
 class ProviderSelectorStack extends Stack {
-    constructor(scope: App, id: string) {
-        super(scope, id);
+  constructor(scope: App, id: string) {
+    super(scope, id);
 
-        // Create a default provider for regular builds
-        const defaultProvider = new CodeBuildRunnerProvider(this, 'DefaultProvider', {
-            labels: ['custom-runner', 'default'],
-            computeType: ComputeType.SMALL,
-        });
+    // Create a default provider for regular builds
+    const defaultProvider = new CodeBuildRunnerProvider(this, 'DefaultProvider', {
+      labels: ['custom-runner', 'default'],
+      computeType: ComputeType.SMALL,
+    });
 
-        // Create a production provider with more resources for production repos
-        const productionProvider = new CodeBuildRunnerProvider(this, 'ProductionProvider', {
-            labels: ['custom-runner', 'production'],
-            computeType: ComputeType.LARGE, // More CPU and memory for production builds
-        });
+    // Create a production provider with more resources for production repos
+    const productionProvider = new CodeBuildRunnerProvider(this, 'ProductionProvider', {
+      labels: ['custom-runner', 'production'],
+      computeType: ComputeType.LARGE, // More CPU and memory for production builds
+    });
 
-        // Create a provider selector Lambda function
-        // This function receives the webhook payload and can customize provider selection
-        const providerSelector = new Function(this, 'ProviderSelector', {
-            runtime: Runtime.NODEJS_LATEST,
-            handler: 'index.handler',
-            code: Code.fromInline(`
+    // Create a provider selector Lambda function
+    // This function receives the webhook payload and can customize provider selection
+    const providerSelector = new Function(this, 'ProviderSelector', {
+      runtime: Runtime.NODEJS_LATEST,
+      handler: 'index.handler',
+      code: Code.fromInline(`
                 exports.handler = async (event) => {
                     const { payload, providers, defaultProvider, defaultLabels } = event;
                     
@@ -78,14 +78,14 @@ class ProviderSelectorStack extends Stack {
                     };
                 };
             `),
-        });
+    });
 
-        // Create the GitHub runners infrastructure with provider selector
-        new GitHubRunners(this, 'GitHubRunners', {
-            providers: [defaultProvider, productionProvider],
-            providerSelector: providerSelector,
-        });
-    }
+    // Create the GitHub runners infrastructure with provider selector
+    new GitHubRunners(this, 'GitHubRunners', {
+      providers: [defaultProvider, productionProvider],
+      providerSelector: providerSelector,
+    });
+  }
 }
 
 const app = new App();
