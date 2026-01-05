@@ -144,6 +144,7 @@ project.gitattributes.addAttributes('Dockerfile', 'eol=lf');
 // setup ui
 project.gitignore.addPatterns('/setup/dist');
 project.addPackageIgnore('/setup');
+project.addPackageIgnore('/examples');
 project.bundler.bundleTask.exec('vite build setup');
 project.bundler.bundleTask.exec('cp -r setup/dist/index.html assets/setup.lambda/index.html');
 project.eslint.addLintPattern('setup/src/*.ts');
