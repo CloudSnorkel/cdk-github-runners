@@ -132,5 +132,5 @@ class EcsProviderStack(Stack):
 
 
 app = cdk.App()
-EcsProviderStack(app, "EcsProviderExample")
+EcsProviderStack(app, "ecs-provider-example")
 app.synth()

@@ -111,8 +111,13 @@ class AdvancedStack extends Stack {
       RunnerImageComponent.custom({
         name: 'Windows Tools',
         commands: [
-          'choco install -y git-lfs python3',
-          'refreshenv',
+          '$ErrorActionPreference = \'Stop\'',
+          '$url = "https://www.python.org/ftp/python/3.12.1/python-3.12.1-amd64.exe"',
+          '$installer = "$env:TEMP\\python-installer.exe"',
+          'Invoke-WebRequest -Uri $url -OutFile $installer',
+          '$p = Start-Process $installer -PassThru -Wait -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1"',
+          'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
+          'Remove-Item $installer',
         ],
       }),
     );
@@ -249,5 +254,5 @@ class AdvancedStack extends Stack {
 }
 
 const app = new App();
-new AdvancedStack(app, 'AdvancedExample');
+new AdvancedStack(app, 'advanced-example');
 app.synth();

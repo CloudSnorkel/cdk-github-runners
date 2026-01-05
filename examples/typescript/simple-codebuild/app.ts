@@ -26,5 +26,5 @@ class SimpleCodeBuildStack extends Stack {
 }
 
 const app = new App();
-new SimpleCodeBuildStack(app, 'SimpleCodeBuildExample');
+new SimpleCodeBuildStack(app, 'simple-codebuild-example');
 app.synth();

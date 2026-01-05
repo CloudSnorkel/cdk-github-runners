@@ -76,5 +76,5 @@ class MultiProviderStack extends Stack {
 }
 
 const app = new App();
-new MultiProviderStack(app, 'MultiProviderExample');
+new MultiProviderStack(app, 'multi-provider-example');
 app.synth();

@@ -87,5 +87,5 @@ class ProviderSelectorStack extends Stack {
 }
 
 const app = new App();
-new ProviderSelectorStack(app, 'ProviderSelectorExample');
+new ProviderSelectorStack(app, 'provider-selector-example');
 app.synth();

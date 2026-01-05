@@ -29,5 +29,5 @@ class SimpleCodeBuildStack(Stack):
 
 
 app = cdk.App()
-SimpleCodeBuildStack(app, "SimpleCodeBuildExample")
+SimpleCodeBuildStack(app, "simple-codebuild-example")
 app.synth()

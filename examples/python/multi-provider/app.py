@@ -76,5 +76,5 @@ class MultiProviderStack(Stack):
 
 
 app = cdk.App()
-MultiProviderStack(app, "MultiProviderExample")
+MultiProviderStack(app, "multi-provider-example")
 app.synth()

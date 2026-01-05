@@ -105,5 +105,5 @@ class CompositeProviderStack extends Stack {
 }
 
 const app = new App();
-new CompositeProviderStack(app, 'CompositeProviderExample');
+new CompositeProviderStack(app, 'composite-provider-example');
 app.synth();

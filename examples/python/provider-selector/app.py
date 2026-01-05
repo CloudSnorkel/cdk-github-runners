@@ -90,5 +90,5 @@ class ProviderSelectorStack(Stack):
 
 
 app = cdk.App()
-ProviderSelectorStack(app, "ProviderSelectorExample")
+ProviderSelectorStack(app, "provider-selector-example")
 app.synth()

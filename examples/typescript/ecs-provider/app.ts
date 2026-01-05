@@ -125,5 +125,5 @@ class EcsProviderStack extends Stack {
 }
 
 const app = new App();
-new EcsProviderStack(app, 'EcsProviderExample');
+new EcsProviderStack(app, 'ecs-provider-example');
 app.synth();

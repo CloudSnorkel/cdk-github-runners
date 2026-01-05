@@ -111,5 +111,5 @@ class CompositeProviderStack(Stack):
 
 
 app = cdk.App()
-CompositeProviderStack(app, "CompositeProviderExample")
+CompositeProviderStack(app, "composite-provider-example")
 app.synth()
