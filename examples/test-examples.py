@@ -59,8 +59,12 @@ def run_command(cmd: List[str], cwd: Optional[Path] = None, capture_output: bool
         return 1, "", str(e)
 
 
-def find_examples() -> Tuple[List[str], List[str]]:
-    """Find all TypeScript and Python examples."""
+def find_examples(filter_names: Optional[List[str]] = None) -> Tuple[List[str], List[str]]:
+    """Find all TypeScript and Python examples.
+    
+    Args:
+        filter_names: Optional list of example names to include. If None, includes all examples.
+    """
     examples_dir = Path(__file__).parent
     ts_examples = []
     py_examples = []
@@ -72,6 +76,10 @@ def find_examples() -> Tuple[List[str], List[str]]:
             
         for example_dir in lang_dir.iterdir():
             if not example_dir.is_dir():
+                continue
+            
+            # Filter by example name if filter_names is provided
+            if filter_names is not None and example_dir.name not in filter_names:
                 continue
                 
             app_file = example_dir / ("app.ts" if lang == "typescript" else "app.py")
@@ -326,6 +334,12 @@ def main():
         action="store_true",
         help="Skip package building phase (faster, only tests synthesis and comparison)"
     )
+    parser.add_argument(
+        "--examples",
+        nargs="+",
+        metavar="EXAMPLE",
+        help="Only process specific examples by name (e.g., --examples advanced simple-codebuild). Can be specified multiple times or space-separated."
+    )
     args = parser.parse_args()
     
     print_colored("=" * 80, Colors.BOLD)
@@ -376,7 +390,14 @@ def main():
     
     # Find examples
     print_colored("Finding examples...", Colors.BLUE)
-    ts_examples, py_examples = find_examples()
+    filter_names = args.examples if args.examples else None
+    if filter_names:
+        print_colored(f"Filtering to examples: {', '.join(filter_names)}", Colors.BLUE)
+    ts_examples, py_examples = find_examples(filter_names=filter_names)
+    
+    if not ts_examples and not py_examples:
+        print_colored("No examples found matching the filter.", Colors.RED)
+        return 1
     
     print_colored(f"Found {len(ts_examples)} TypeScript examples", Colors.GREEN)
     print_colored(f"Found {len(py_examples)} Python examples", Colors.GREEN)
