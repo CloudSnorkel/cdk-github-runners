@@ -75,7 +75,7 @@ class AdvancedStack extends Stack {
         name: 'Development Tools',
         commands: [
           'apt-get update',
-          'apt-get install -y git-lfs curl jq',
+          'apt-get install -y git-lfs curl jq python3 python3-pip',
         ],
       }),
     );
@@ -93,7 +93,7 @@ class AdvancedStack extends Stack {
         name: 'ARM64 Tools',
         commands: [
           'apt-get update',
-          'apt-get install -y git-lfs curl jq',
+          'apt-get install -y git-lfs curl jq python3 python3-pip',
         ],
       }),
     );
