@@ -308,17 +308,16 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         shell: 'bash',
       },
       phases: {
-        pre_build: {
+        // we can't use pre_build. the wait handle will never complete if pre_build fails as post_build won't run. this can cause timeouts during deployment.
+        build: {
           commands: [
             'echo "exec > >(tee -a /tmp/codebuild.log) 2>&1" > codebuild-log.sh',
             `aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`,
-          ].concat(this.dockerSetupCommands),
-        },
-        build: {
-          commands: commands.concat(
+            ...this.dockerSetupCommands,
+            ...commands,
             'docker build --progress plain . -t "$REPO_URI"',
             'docker push "$REPO_URI"',
-          ),
+          ],
         },
         post_build: {
           commands: [
