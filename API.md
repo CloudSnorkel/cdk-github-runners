@@ -8484,7 +8484,11 @@ public readonly baseAmi: string;
 
 Base AMI from which runner AMIs will be built.
 
-This can be an actual AMI or an AWS Image Builder ARN that points to the latest AMI. For example `arn:aws:imagebuilder:us-east-1:aws:image/ubuntu-server-22-lts-x86/x.x.x` would always use the latest version of Ubuntu 22.04 in each build. If you want a specific version, you can replace `x.x.x` with that version.
+You can specify the parent image using one of the following options:
+- AMI ID (e.g. `ami-068c0051b15cdb816`)
+- Image Builder image Amazon Resource Name (ARN) (e.g. `arn:aws:imagebuilder:us-east-1:aws:image/ubuntu-server-22-lts-x86/x.x.x` for the latest Ubuntu 22.04 AMI)
+- AWS Systems Manager (SSM) Parameter Store Parameter, prefixed by `ssm:` , followed by the parameter name or ARN (e.g. `ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64` for the latest Amazon Linux 2023 AMI)
+- AWS Marketplace product ID (e.g. `aw0evgkw8e5c1q413zgy5pjce`)
 
 ---
 
