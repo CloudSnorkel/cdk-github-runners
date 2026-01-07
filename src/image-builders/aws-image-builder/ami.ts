@@ -62,7 +62,7 @@ export class AmiRecipe extends cdk.Resource {
     // Warn if using deprecated string format
     if (typeof props.baseAmi === 'string') {
       Annotations.of(scope).addWarning(
-        'Passing baseAmi as a string is deprecated. Please use an object format instead, e.g., { amiId: "ami-12345" } or { imageArn: "arn:aws:..." }'
+        'Passing baseAmi as a string is deprecated. Please use BaseImage static factory methods instead, e.g., BaseImage.fromAmiId("ami-12345") or BaseImage.fromString("arn:aws:...")'
       );
     }
 
