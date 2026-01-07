@@ -476,6 +476,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       this,
       generateStateName(this),
       {
+        stateName: generateStateName(this),
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,
         cluster: this.cluster,

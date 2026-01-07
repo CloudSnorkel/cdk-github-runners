@@ -335,6 +335,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       this,
       generateStateName(this),
       {
+        stateName: generateStateName(this),
         lambdaFunction: this.function,
         payload: stepfunctions.TaskInput.fromObject({
           token: parameters.runnerTokenPath,

@@ -621,6 +621,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       this,
       generateStateName(this),
       {
+        stateName: generateStateName(this),
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,
         cluster: this.cluster,
