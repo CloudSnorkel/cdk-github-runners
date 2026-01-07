@@ -226,8 +226,15 @@ export class BaseContainerImage {
      */
     public readonly image: string;
 
-    protected constructor(image: string) {
+    /**
+     * The ECR repository if this image was created from an ECR repository.
+     * This allows automatic permission granting for CodeBuild.
+     */
+    public readonly ecrRepository?: ecr.IRepository;
+
+    protected constructor(image: string, ecrRepository?: ecr.IRepository) {
         this.image = image;
+        this.ecrRepository = ecrRepository;
     }
 
     /**
@@ -275,7 +282,7 @@ export class BaseContainerImage {
      * @param tag The tag of the base image in the ECR repository
      */
     public static fromEcr(repository: ecr.IRepository, tag: string): BaseContainerImage {
-        return new BaseContainerImage(repository.repositoryUriForTag(tag));
+        return new BaseContainerImage(repository.repositoryUriForTag(tag), repository);
     }
 
     /**

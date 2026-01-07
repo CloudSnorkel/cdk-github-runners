@@ -24,6 +24,7 @@ import { Construct, IConstruct } from 'constructs';
 import { defaultBaseDockerImage } from './aws-image-builder';
 import { BuildImageFunction } from './build-image-function';
 import { BuildImageFunctionProperties } from './build-image.lambda';
+import { BaseContainerImage, BaseContainerImageInput } from './aws-image-builder/base-image';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
 import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
@@ -64,7 +65,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private boundDockerImage?: RunnerImage;
   private readonly os: Os;
   private readonly architecture: Architecture;
-  private readonly baseImage: string;
+  private readonly baseImage: BaseContainerImageInput;
   private readonly logRetention: RetentionDays;
   private readonly logRemovalPolicy: RemovalPolicy;
   private readonly vpc: ec2.IVpc | undefined;
@@ -97,6 +98,13 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.timeout = props?.codeBuildOptions?.timeout ?? Duration.hours(1);
     this.computeType = props?.codeBuildOptions?.computeType ?? ComputeType.SMALL;
     this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
+
+    // Warn if using deprecated string format
+    if (this.baseImage && typeof this.baseImage === 'string') {
+      Annotations.of(this).addWarning(
+        'Passing baseDockerImage as a string is deprecated. Please use BaseContainerImage static factory methods instead, e.g., BaseContainerImage.fromDockerHub("ubuntu", "22.04") or BaseContainerImage.fromString("public.ecr.aws/lts/ubuntu:22.04")'
+      );
+    }
     this.buildImage = props?.codeBuildOptions?.buildImage ?? this.getDefaultBuildImage();
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
     this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
@@ -191,6 +199,12 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     // permissions
     this.repository.grantPullPush(project);
 
+    // Grant pull permissions for base image ECR repository if applicable
+    const baseContainerImage = BaseContainerImage.from(this.baseImage);
+    if (baseContainerImage.ecrRepository) {
+      baseContainerImage.ecrRepository.grantPull(project);
+    }
+
     // call CodeBuild during deployment
     const completedImage = this.customResource(project, buildSpecHash);
 
@@ -229,7 +243,9 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private getDockerfileGenerationCommands(): [string[], string[]] {
     let hashedComponents: string[] = [];
     let commands = [];
-    let dockerfile = `FROM ${this.baseImage}\nVOLUME /var/lib/docker\n`;
+    // Convert BaseContainerImageInput to string for Dockerfile
+    const baseContainerImage = BaseContainerImage.from(this.baseImage);
+    let dockerfile = `FROM ${baseContainerImage.image}\nVOLUME /var/lib/docker\n`;
 
     for (let i = 0; i < this.components.length; i++) {
       const componentName = this.components[i].name;
@@ -293,7 +309,9 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     const [commands, commandsHashedComponents] = this.getDockerfileGenerationCommands();
 
     const buildSpecVersion = 'v2'; // change this every time the build spec changes
-    const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, this.baseImage, this.os.name);
+    // Convert BaseContainerImageInput to string for hash
+    const baseContainerImage = BaseContainerImage.from(this.baseImage);
+    const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, baseContainerImage.image, this.os.name);
     const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
 
     const buildSpec = codebuild.BuildSpec.fromObject({
