@@ -396,6 +396,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       this,
       generateStateName(this),
       {
+        stateName: generateStateName(this),
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         project: this.project,
         environmentVariablesOverride: {
