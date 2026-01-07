@@ -672,7 +672,7 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@18 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-cloudformation,@aws-sdk/client-codebuild,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@types/aws-lambda,@types/jest,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,projen,ts-jest,ts-node"
+          "exec": "npx npm-check-updates@18 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-cloudformation,@aws-sdk/client-codebuild,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@types/aws-lambda,@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,projen,ts-jest,ts-node,typescript"
         },
         {
           "exec": "yarn install --check-files"
