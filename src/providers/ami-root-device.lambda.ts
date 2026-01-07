@@ -59,6 +59,33 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
           break;
         }
 
+        if (ami.startsWith('ssm:')) {
+          // Handle SSM parameter format from BaseImage (ssm:parameterName or ssm:arn:aws:ssm:...)
+          let ssmParam = ami.substring('ssm:'.length);
+          
+          // If it's an ARN, extract the parameter name from it
+          // ARN format: arn:aws:ssm:region:account:parameter/name
+          if (ssmParam.startsWith('arn:aws:ssm:')) {
+            // Extract parameter name from ARN (everything after /parameter/)
+            const arnParts = ssmParam.split('/');
+            if (arnParts.length >= 2) {
+              // Skip 'parameter' part and get the rest
+              ssmParam = arnParts.slice(1).join('/');
+            }
+          }
+          
+          console.log(`Checking SSM ${ssmParam}`);
+
+          const ssmValue = (await ssm.send(new GetParameterCommand({ Name: ssmParam }))).Parameter?.Value;
+          if (!ssmValue) {
+            await customResourceRespond(event, 'FAILED', `${ami} has no value`, 'ERROR', {});
+            break;
+          }
+
+          await handleAmi(event, ssmValue);
+          break;
+        }
+
         if (ami.startsWith('lt-')) {
           console.log(`Checking Launch Template ${ami}`);
 

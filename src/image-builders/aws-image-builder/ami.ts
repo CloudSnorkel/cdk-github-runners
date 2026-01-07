@@ -1,8 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
+import { Annotations, aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './builder';
 import { amiRootDevice, Architecture, Os } from '../../providers';
+import { BaseImage, BaseImageInput } from './base-image';
 import { uniqueImageBuilderName } from '../common';
 
 /**
@@ -23,8 +24,11 @@ interface AmiRecipeProperties {
 
   /**
    * Base AMI to use for the new runner AMI.
+   * 
+   * Can be a string (AMI ID, Image Builder ARN, SSM parameter, or Marketplace product ID)
+   * or an object with properties specifying the base image.
    */
-  readonly baseAmi: string;
+  readonly baseAmi: BaseImageInput;
 
   /**
    * Storage size for the builder.
@@ -55,6 +59,16 @@ export class AmiRecipe extends cdk.Resource {
   constructor(scope: Construct, id: string, props: AmiRecipeProperties) {
     super(scope, id);
 
+    // Warn if using deprecated string format
+    if (typeof props.baseAmi === 'string') {
+      Annotations.of(scope).addWarning(
+        'Passing baseAmi as a string is deprecated. Please use an object format instead, e.g., { amiId: "ami-12345" } or { imageArn: "arn:aws:..." }'
+      );
+    }
+
+    // Convert BaseImageInput to BaseImage
+    const baseImage = BaseImage.from(props.baseAmi);
+
     let components = props.components.map(component => {
       return {
         componentArn: component.arn,
@@ -63,7 +77,7 @@ export class AmiRecipe extends cdk.Resource {
 
     const blockDeviceMappings = props.storageSize ? [
       {
-        deviceName: amiRootDevice(this, props.baseAmi).ref,
+        deviceName: amiRootDevice(this, baseImage.image).ref,
         ebs: {
           volumeSize: props.storageSize.toGibibytes(),
           deleteOnTermination: true,
@@ -85,7 +99,7 @@ export class AmiRecipe extends cdk.Resource {
     const recipe = new imagebuilder.CfnImageRecipe(this, 'Recipe', {
       name: this.name,
       version: '1.0.x',
-      parentImage: props.baseAmi,
+      parentImage: baseImage.image,
       components,
       workingDirectory,
       tags: props.tags,

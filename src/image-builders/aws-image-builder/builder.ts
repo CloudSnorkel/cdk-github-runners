@@ -20,6 +20,7 @@ import { TagMutability } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
 import { AmiRecipe, defaultBaseAmi } from './ami';
+import { BaseContainerImage, BaseContainerImageInput, BaseImageInput } from './base-image';
 import { ContainerRecipe, defaultBaseDockerImage } from './container';
 import { DeleteResourcesFunction } from './delete-resources-function';
 import { DeleteResourcesProps } from './delete-resources.lambda';
@@ -303,8 +304,8 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   private boundAmi?: RunnerAmi;
   private readonly os: Os;
   private readonly architecture: Architecture;
-  private readonly baseImage: string;
-  private readonly baseAmi: string;
+  private readonly baseImage: BaseContainerImageInput;
+  private readonly baseAmi: BaseImageInput;
   private readonly logRetention: RetentionDays;
   private readonly logRemovalPolicy: RemovalPolicy;
   private readonly vpc: ec2.IVpc;
@@ -340,6 +341,18 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.subnetSelection = props?.subnetSelection;
     this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
     this.baseAmi = props?.baseAmi ?? defaultBaseAmi(this, this.os, this.architecture);
+
+    // Warn if using deprecated string format
+    if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {
+      Annotations.of(this).addWarning(
+        'Passing baseDockerImage as a string is deprecated. Please use an object format instead, e.g., { dockerHubRepository: "ubuntu", dockerHubTag: "22.04" } or { stringValue: "public.ecr.aws/lts/ubuntu:22.04" }'
+      );
+    }
+    if (props?.baseAmi && typeof props.baseAmi === 'string') {
+      Annotations.of(this).addWarning(
+        'Passing baseAmi as a string is deprecated. Please use an object format instead, e.g., { amiId: "ami-12345" } or { imageArn: "arn:aws:..." }'
+      );
+    }
     this.instanceType = props?.awsImageBuilderOptions?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
     this.fastLaunchOptions = props?.awsImageBuilderOptions?.fastLaunchOptions;
     this.storageSize = props?.awsImageBuilderOptions?.storageSize;
@@ -435,12 +448,15 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       }
     }
 
+    // Convert BaseContainerImageInput to string for ContainerRecipe
+    const baseContainerImage = BaseContainerImage.from(this.baseImage);
+
     const recipe = new ContainerRecipe(this, 'Container Recipe', {
       platform: this.platform(),
       components: this.bindComponents(),
       targetRepository: repository,
       dockerfileTemplate: dockerfileTemplate,
-      parentImage: this.baseImage,
+      parentImage: baseContainerImage.image,
       tags: this.tags,
     });
 

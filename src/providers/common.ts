@@ -14,6 +14,7 @@ import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
 import { Construct, IConstruct } from 'constructs';
 import { AmiRootDeviceFunction } from './ami-root-device-function';
 import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
+import { BaseImage, BaseImageInput } from '../image-builders/aws-image-builder/base-image';
 
 /**
  * Defines desired GitHub Actions runner version.
@@ -632,7 +633,19 @@ export abstract class BaseProvider extends Construct {
  *
  * @internal
  */
-export function amiRootDevice(scope: Construct, ami?: string) {
+export function amiRootDevice(scope: Construct, ami?: string | BaseImageInput) {
+  // Extract string value from BaseImageInput if it's an object
+  let amiString: string;
+  if (ami === undefined) {
+    amiString = '';
+  } else if (typeof ami === 'string') {
+    amiString = ami;
+  } else {
+    // It's a BaseImageProps object - convert to BaseImage and get the string value
+    const baseImage = BaseImage.from(ami);
+    amiString = baseImage.image;
+  }
+
   const crHandler = singletonLambda(AmiRootDeviceFunction, scope, 'AMI Root Device Reader', {
     description: 'Custom resource handler that discovers the boot drive device name for a given AMI',
     timeout: cdk.Duration.minutes(1),
@@ -655,7 +668,7 @@ export function amiRootDevice(scope: Construct, ami?: string) {
     serviceToken: crHandler.functionArn,
     resourceType: 'Custom::AmiRootDevice',
     properties: {
-      Ami: ami ?? '',
+      Ami: amiString,
     },
   });
 }
