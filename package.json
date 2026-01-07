@@ -85,7 +85,7 @@
     "@octokit/request-error": "^3.0.3",
     "@octokit/rest": "^19.0.13",
     "@stylistic/eslint-plugin": "^2",
-    "@sveltejs/vite-plugin-svelte": "^4",
+    "@sveltejs/vite-plugin-svelte": "^6",
     "@tsconfig/svelte": "^5",
     "@types/aws-lambda": "^8.10.159",
     "@types/jest": "^29",
@@ -117,7 +117,7 @@
     "ts-jest": "^29",
     "ts-node": "^10.9.2",
     "typescript": "5.6.x",
-    "vite": "^5",
+    "vite": "^7",
     "vite-plugin-singlefile": "^2"
   },
   "peerDependencies": {
