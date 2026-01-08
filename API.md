@@ -9502,7 +9502,7 @@ Create a BaseContainerImage from a string or object input.
 
 - *Type:* string | <a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImageProps">BaseContainerImageProps</a>
 
-Either a string (ECR/ECR public image URI, DockerHub image, or Image Builder ARN)  or an object with properties specifying the base image.
+Either a string (ECR/ECR public image URI, DockerHub image, or Image Builder ARN) or an object with properties specifying the base image.
 
 ---
 
@@ -9722,7 +9722,7 @@ Create a BaseImage from a string or object input.
 
 - *Type:* string | <a href="#@cloudsnorkel/cdk-github-runners.BaseImageProps">BaseImageProps</a>
 
-Either a string (AMI ID, Image Builder ARN, SSM parameter, or Marketplace product ID)  or an object with properties specifying the base image.
+Either a string (AMI ID, Image Builder ARN, SSM parameter, or Marketplace product ID) or an object with properties specifying the base image.
 
 ---
 
