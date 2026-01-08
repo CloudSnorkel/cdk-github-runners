@@ -99,8 +99,8 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.computeType = props?.codeBuildOptions?.computeType ?? ComputeType.SMALL;
     this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
 
-    // Warn if using deprecated string format
-    if (this.baseImage && typeof this.baseImage === 'string') {
+    // Warn if using deprecated string format (only if user explicitly provided it)
+    if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {
       Annotations.of(this).addWarning(
         'Passing baseDockerImage as a string is deprecated. Please use BaseContainerImage static factory methods instead, e.g., BaseContainerImage.fromDockerHub("ubuntu", "22.04") or BaseContainerImage.fromString("public.ecr.aws/lts/ubuntu:22.04")'
       );

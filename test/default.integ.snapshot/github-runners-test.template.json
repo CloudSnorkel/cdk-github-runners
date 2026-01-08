@@ -8823,7 +8823,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "88cc171bf3103a3b98ba0006fc7e5c6fdfd338c03591b344bb4cf60f1a9da18c.zip"
+     "S3Key": "478f8a4e62c452482ed885d8cf021c84e3f58b67cbac33795eeae754658d3813.zip"
     },
     "Description": "Custom resource handler that discovers the boot drive device name for a given AMI",
     "Environment": {

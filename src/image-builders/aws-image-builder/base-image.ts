@@ -64,15 +64,6 @@ export type BaseImageInput = string | BaseImageProps;
  */
 export class BaseImage {
     /**
-     * The rendered base image to use
-     */
-    public readonly image: string;
-
-    protected constructor(image: string) {
-        this.image = image;
-    }
-
-    /**
      * Create a BaseImage from a string or object input.
      * 
      * @param input Either a string (AMI ID, Image Builder ARN, SSM parameter, or Marketplace product ID) 
@@ -158,6 +149,15 @@ export class BaseImage {
     public static fromString(baseImageString: string): BaseImage {
         return new BaseImage(baseImageString);
     }
+
+    /**
+     * The rendered base image to use
+     */
+    public readonly image: string;
+
+    protected constructor(image: string) {
+        this.image = image;
+    }
 }
 
 /**
@@ -221,22 +221,6 @@ export type BaseContainerImageInput = string | BaseContainerImageProps;
  * This class is adapted from AWS CDK's BaseContainerImage class to support both string and object inputs.
  */
 export class BaseContainerImage {
-    /**
-     * The rendered base image to use
-     */
-    public readonly image: string;
-
-    /**
-     * The ECR repository if this image was created from an ECR repository.
-     * This allows automatic permission granting for CodeBuild.
-     */
-    public readonly ecrRepository?: ecr.IRepository;
-
-    protected constructor(image: string, ecrRepository?: ecr.IRepository) {
-        this.image = image;
-        this.ecrRepository = ecrRepository;
-    }
-
     /**
      * Create a BaseContainerImage from a string or object input.
      * 
@@ -313,5 +297,21 @@ export class BaseContainerImage {
      */
     public static fromString(baseContainerImageString: string): BaseContainerImage {
         return new BaseContainerImage(baseContainerImageString);
+    }
+
+    /**
+     * The rendered base image to use
+     */
+    public readonly image: string;
+
+    /**
+     * The ECR repository if this image was created from an ECR repository.
+     * This allows automatic permission granting for CodeBuild.
+     */
+    public readonly ecrRepository?: ecr.IRepository;
+
+    protected constructor(image: string, ecrRepository?: ecr.IRepository) {
+        this.image = image;
+        this.ecrRepository = ecrRepository;
     }
 }

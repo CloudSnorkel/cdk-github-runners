@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { Annotations, aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
+import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ImageBuilderComponent } from './builder';
 import { amiRootDevice, Architecture, Os } from '../../providers';
@@ -58,13 +58,6 @@ export class AmiRecipe extends cdk.Resource {
 
   constructor(scope: Construct, id: string, props: AmiRecipeProperties) {
     super(scope, id);
-
-    // Warn if using deprecated string format
-    if (typeof props.baseAmi === 'string') {
-      Annotations.of(scope).addWarning(
-        'Passing baseAmi as a string is deprecated. Please use BaseImage static factory methods instead, e.g., BaseImage.fromAmiId("ami-12345") or BaseImage.fromString("arn:aws:...")'
-      );
-    }
 
     // Convert BaseImageInput to BaseImage
     const baseImage = BaseImage.from(props.baseAmi);
