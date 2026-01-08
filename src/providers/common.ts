@@ -13,7 +13,7 @@ import {
 import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
 import { Construct, IConstruct } from 'constructs';
 import { AmiRootDeviceFunction } from './ami-root-device-function';
-import { BaseImage, BaseImageInput } from '../image-builders/aws-image-builder/base-image';
+import { BaseImageInput } from '../image-builders/aws-image-builder/base-image';
 import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
 
 /**
@@ -641,9 +641,8 @@ export function amiRootDevice(scope: Construct, ami?: string | BaseImageInput) {
   } else if (typeof ami === 'string') {
     amiString = ami;
   } else {
-    // It's a BaseImageProps object - convert to BaseImage and get the string value
-    const baseImage = BaseImage.from(ami);
-    amiString = baseImage.image;
+    // It's a BaseImage object - get the string value
+    amiString = ami.image;
   }
 
   const crHandler = singletonLambda(AmiRootDeviceFunction, scope, 'AMI Root Device Reader', {

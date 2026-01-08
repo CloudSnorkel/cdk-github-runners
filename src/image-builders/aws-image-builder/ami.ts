@@ -59,8 +59,8 @@ export class AmiRecipe extends cdk.Resource {
   constructor(scope: Construct, id: string, props: AmiRecipeProperties) {
     super(scope, id);
 
-    // Convert BaseImageInput to BaseImage
-    const baseImage = BaseImage.from(props.baseAmi);
+    // Normalize BaseImageInput to BaseImage (string support is deprecated)
+    const baseImage = typeof props.baseAmi === 'string' ? BaseImage.fromString(props.baseAmi) : props.baseAmi;
 
     let components = props.components.map(component => {
       return {

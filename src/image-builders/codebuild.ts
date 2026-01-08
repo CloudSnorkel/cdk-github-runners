@@ -200,7 +200,8 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.repository.grantPullPush(project);
 
     // Grant pull permissions for base image ECR repository if applicable
-    const baseContainerImage = BaseContainerImage.from(this.baseImage);
+    // Normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated)
+    const baseContainerImage = typeof this.baseImage === 'string' ? BaseContainerImage.fromString(this.baseImage) : this.baseImage;
     if (baseContainerImage.ecrRepository) {
       baseContainerImage.ecrRepository.grantPull(project);
     }
@@ -243,8 +244,8 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private getDockerfileGenerationCommands(): [string[], string[]] {
     let hashedComponents: string[] = [];
     let commands = [];
-    // Convert BaseContainerImageInput to string for Dockerfile
-    const baseContainerImage = BaseContainerImage.from(this.baseImage);
+    // Normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated)
+    const baseContainerImage = typeof this.baseImage === 'string' ? BaseContainerImage.fromString(this.baseImage) : this.baseImage;
     let dockerfile = `FROM ${baseContainerImage.image}\nVOLUME /var/lib/docker\n`;
 
     for (let i = 0; i < this.components.length; i++) {
@@ -309,8 +310,8 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     const [commands, commandsHashedComponents] = this.getDockerfileGenerationCommands();
 
     const buildSpecVersion = 'v2'; // change this every time the build spec changes
-    // Convert BaseContainerImageInput to string for hash
-    const baseContainerImage = BaseContainerImage.from(this.baseImage);
+    // Normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated)
+    const baseContainerImage = typeof this.baseImage === 'string' ? BaseContainerImage.fromString(this.baseImage) : this.baseImage;
     const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, baseContainerImage.image, this.os.name);
     const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
 

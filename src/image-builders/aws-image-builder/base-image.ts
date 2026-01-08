@@ -53,9 +53,13 @@ export interface BaseImageProps {
 }
 
 /**
- * Type that can be used to specify a base image - either a string or an object with properties.
+ * Type that can be used to specify a base image - either a string (deprecated) or a BaseImage object.
+ * 
+ * To create a BaseImage object, use the static factory methods like BaseImage.fromAmiId().
+ * 
+ * @deprecated String support will be removed in a future version. Use BaseImage static factory methods instead.
  */
-export type BaseImageInput = string | BaseImageProps;
+export type BaseImageInput = string | BaseImage;
 
 /**
  * Represents a base image that is used to start from in EC2 Image Builder image builds.
@@ -63,38 +67,6 @@ export type BaseImageInput = string | BaseImageProps;
  * This class is adapted from AWS CDK's BaseImage class to support both string and object inputs.
  */
 export class BaseImage {
-  /**
-     * Create a BaseImage from a string or object input.
-     *
-     * @param input Either a string (AMI ID, Image Builder ARN, SSM parameter, or Marketplace product ID)
-     *              or an object with properties specifying the base image
-     */
-  public static from(input: BaseImageInput): BaseImage {
-    if (typeof input === 'string') {
-      // Input is a string - use it directly
-      return new BaseImage(input);
-    } else {
-      // Input is an object - detect which property is set
-      if (input.amiId) {
-        return BaseImage.fromAmiId(input.amiId);
-      } else if (input.imageArn) {
-        return BaseImage.fromString(input.imageArn);
-      } else if (input.image) {
-        return BaseImage.fromImage(input.image);
-      } else if (input.marketplaceProductId) {
-        return BaseImage.fromMarketplaceProductId(input.marketplaceProductId);
-      } else if (input.ssmParameter) {
-        return BaseImage.fromSsmParameter(input.ssmParameter);
-      } else if (input.ssmParameterName) {
-        return BaseImage.fromSsmParameterName(input.ssmParameterName);
-      } else if (input.stringValue) {
-        return BaseImage.fromString(input.stringValue);
-      } else {
-        throw new Error('BaseImageProps must have at least one property set');
-      }
-    }
-  }
-
   /**
      * The AMI ID to use as a base image in an image recipe
      *
@@ -211,9 +183,13 @@ export interface BaseContainerImageProps {
 }
 
 /**
- * Type that can be used to specify a base container image - either a string or an object with properties.
+ * Type that can be used to specify a base container image - either a string (deprecated) or a BaseContainerImage object.
+ * 
+ * To create a BaseContainerImage object, use the static factory methods like BaseContainerImage.fromEcr().
+ * 
+ * @deprecated String support will be removed in a future version. Use BaseContainerImage static factory methods instead.
  */
-export type BaseContainerImageInput = string | BaseContainerImageProps;
+export type BaseContainerImageInput = string | BaseContainerImage;
 
 /**
  * Represents a base container image that is used to start from in EC2 Image Builder container builds.
@@ -221,34 +197,6 @@ export type BaseContainerImageInput = string | BaseContainerImageProps;
  * This class is adapted from AWS CDK's BaseContainerImage class to support both string and object inputs.
  */
 export class BaseContainerImage {
-  /**
-     * Create a BaseContainerImage from a string or object input.
-     *
-     * @param input Either a string (ECR/ECR public image URI, DockerHub image, or Image Builder ARN)
-     *              or an object with properties specifying the base image
-     */
-  public static from(input: BaseContainerImageInput): BaseContainerImage {
-    if (typeof input === 'string') {
-      // Input is a string - use it directly
-      return new BaseContainerImage(input);
-    } else {
-      // Input is an object - detect which property is set
-      if (input.dockerHubRepository && input.dockerHubTag) {
-        return BaseContainerImage.fromDockerHub(input.dockerHubRepository, input.dockerHubTag);
-      } else if (input.ecrRepository && input.ecrTag) {
-        return BaseContainerImage.fromEcr(input.ecrRepository, input.ecrTag);
-      } else if (input.ecrPublicRegistryAlias && input.ecrPublicRepositoryName && input.ecrPublicTag) {
-        return BaseContainerImage.fromEcrPublic(input.ecrPublicRegistryAlias, input.ecrPublicRepositoryName, input.ecrPublicTag);
-      } else if (input.image) {
-        return BaseContainerImage.fromImage(input.image);
-      } else if (input.stringValue) {
-        return BaseContainerImage.fromString(input.stringValue);
-      } else {
-        throw new Error('BaseContainerImageProps must have at least one property set');
-      }
-    }
-  }
-
   /**
      * The DockerHub image to use as the base image in a container recipe
      *

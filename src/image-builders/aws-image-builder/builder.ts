@@ -448,8 +448,8 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       }
     }
 
-    // Convert BaseContainerImageInput to string for ContainerRecipe
-    const baseContainerImage = BaseContainerImage.from(this.baseImage);
+    // Normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated)
+    const baseContainerImage = typeof this.baseImage === 'string' ? BaseContainerImage.fromString(this.baseImage) : this.baseImage;
 
     const recipe = new ContainerRecipe(this, 'Container Recipe', {
       platform: this.platform(),
