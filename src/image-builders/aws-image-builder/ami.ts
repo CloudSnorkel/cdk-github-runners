@@ -1,9 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { BaseImage, BaseImageInput } from './base-image';
 import { ImageBuilderComponent } from './builder';
 import { amiRootDevice, Architecture, Os } from '../../providers';
-import { BaseImage, BaseImageInput } from './base-image';
 import { uniqueImageBuilderName } from '../common';
 
 /**
@@ -24,7 +24,7 @@ interface AmiRecipeProperties {
 
   /**
    * Base AMI to use for the new runner AMI.
-   * 
+   *
    * Can be a string (AMI ID, Image Builder ARN, SSM parameter, or Marketplace product ID)
    * or an object with properties specifying the base image.
    */

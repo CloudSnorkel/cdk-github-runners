@@ -13,8 +13,8 @@ import {
 import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
 import { Construct, IConstruct } from 'constructs';
 import { AmiRootDeviceFunction } from './ami-root-device-function';
-import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
 import { BaseImage, BaseImageInput } from '../image-builders/aws-image-builder/base-image';
+import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
 
 /**
  * Defines desired GitHub Actions runner version.

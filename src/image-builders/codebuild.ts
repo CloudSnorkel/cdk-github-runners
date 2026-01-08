@@ -22,9 +22,9 @@ import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
 import { defaultBaseDockerImage } from './aws-image-builder';
+import { BaseContainerImage, BaseContainerImageInput } from './aws-image-builder/base-image';
 import { BuildImageFunction } from './build-image-function';
 import { BuildImageFunctionProperties } from './build-image.lambda';
-import { BaseContainerImage, BaseContainerImageInput } from './aws-image-builder/base-image';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
 import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
@@ -102,7 +102,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     // Warn if using deprecated string format (only if user explicitly provided it)
     if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {
       Annotations.of(this).addWarning(
-        'Passing baseDockerImage as a string is deprecated. Please use BaseContainerImage static factory methods instead, e.g., BaseContainerImage.fromDockerHub("ubuntu", "22.04") or BaseContainerImage.fromString("public.ecr.aws/lts/ubuntu:22.04")'
+        'Passing baseDockerImage as a string is deprecated. Please use BaseContainerImage static factory methods instead, e.g., BaseContainerImage.fromDockerHub("ubuntu", "22.04") or BaseContainerImage.fromString("public.ecr.aws/lts/ubuntu:22.04")',
       );
     }
     this.buildImage = props?.codeBuildOptions?.buildImage ?? this.getDefaultBuildImage();
