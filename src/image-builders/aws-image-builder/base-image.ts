@@ -54,9 +54,9 @@ export interface BaseImageProps {
 
 /**
  * Type that can be used to specify a base image - either a string (deprecated) or a BaseImage object.
- * 
+ *
  * To create a BaseImage object, use the static factory methods like BaseImage.fromAmiId().
- * 
+ *
  * @deprecated String support will be removed in a future version. Use BaseImage static factory methods instead.
  */
 export type BaseImageInput = string | BaseImage;
@@ -184,9 +184,9 @@ export interface BaseContainerImageProps {
 
 /**
  * Type that can be used to specify a base container image - either a string (deprecated) or a BaseContainerImage object.
- * 
+ *
  * To create a BaseContainerImage object, use the static factory methods like BaseContainerImage.fromEcr().
- * 
+ *
  * @deprecated String support will be removed in a future version. Use BaseContainerImage static factory methods instead.
  */
 export type BaseContainerImageInput = string | BaseContainerImage;
