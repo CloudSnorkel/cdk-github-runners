@@ -1,5 +1,6 @@
 import { aws_ecr as ecr } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { BaseContainerImage } from './aws-image-builder/base-image';
 import { CodeBuildRunnerImageBuilder } from './codebuild';
 import { IRunnerImageBuilder } from './common';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
@@ -50,7 +51,7 @@ export class StaticRunnerImage {
     return new CodeBuildRunnerImageBuilder(scope, id, {
       os,
       architecture,
-      baseDockerImage: image,
+      baseDockerImage: BaseContainerImage.fromString(image),
     });
   }
 }

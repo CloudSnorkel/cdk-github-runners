@@ -1,5 +1,7 @@
+import * as cdk from 'aws-cdk-lib';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
+import { Construct } from 'constructs';
 
 /**
  * Interface for an EC2 Image Builder image.
@@ -83,6 +85,25 @@ export class BaseImage {
    */
   public static fromImage(image: IImage): BaseImage {
     return new BaseImage(image.imageArn);
+  }
+
+  /**
+   * An AWS-provided EC2 Image Builder image to use as a base image in an image recipe.
+   *
+   * This constructs an Image Builder ARN for AWS-provided images like `ubuntu-server-22-lts-x86/x.x.x`.
+   *
+   * @param scope The construct scope (used to determine the stack and region)
+   * @param resourceName The Image Builder resource name pattern (e.g., `ubuntu-server-22-lts-x86` or `ubuntu-server-22-lts-${arch}`)
+   * @param version The version pattern (defaults to `x.x.x` to use the latest version)
+   */
+  public static fromImageBuilder(scope: Construct, resourceName: string, version: string = 'x.x.x'): BaseImage {
+    const stack = cdk.Stack.of(scope);
+    return new BaseImage(stack.formatArn({
+      service: 'imagebuilder',
+      resource: 'image',
+      account: 'aws',
+      resourceName: `${resourceName}/${version}`,
+    }));
   }
 
   /**

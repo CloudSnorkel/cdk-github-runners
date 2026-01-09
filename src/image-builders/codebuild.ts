@@ -22,7 +22,7 @@ import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
 import { defaultBaseDockerImage } from './aws-image-builder';
-import { BaseContainerImage, BaseContainerImageInput } from './aws-image-builder/base-image';
+import { BaseContainerImage } from './aws-image-builder/base-image';
 import { BuildImageFunction } from './build-image-function';
 import { BuildImageFunctionProperties } from './build-image.lambda';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
@@ -65,7 +65,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private boundDockerImage?: RunnerImage;
   private readonly os: Os;
   private readonly architecture: Architecture;
-  private readonly baseImage: BaseContainerImageInput;
+  private readonly baseImage: BaseContainerImage;
   private readonly logRetention: RetentionDays;
   private readonly logRemovalPolicy: RemovalPolicy;
   private readonly vpc: ec2.IVpc | undefined;
@@ -97,7 +97,9 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.subnetSelection = props?.subnetSelection;
     this.timeout = props?.codeBuildOptions?.timeout ?? Duration.hours(1);
     this.computeType = props?.codeBuildOptions?.computeType ?? ComputeType.SMALL;
-    this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
+    // Normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated, only at public API level)
+    const baseDockerImageInput = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
+    this.baseImage = typeof baseDockerImageInput === 'string' ? BaseContainerImage.fromString(baseDockerImageInput) : baseDockerImageInput;
 
     // Warn if using deprecated string format (only if user explicitly provided it)
     if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {
@@ -200,10 +202,8 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.repository.grantPullPush(project);
 
     // Grant pull permissions for base image ECR repository if applicable
-    // Normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated)
-    const baseContainerImage = typeof this.baseImage === 'string' ? BaseContainerImage.fromString(this.baseImage) : this.baseImage;
-    if (baseContainerImage.ecrRepository) {
-      baseContainerImage.ecrRepository.grantPull(project);
+    if (this.baseImage.ecrRepository) {
+      this.baseImage.ecrRepository.grantPull(project);
     }
 
     // call CodeBuild during deployment
@@ -244,9 +244,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private getDockerfileGenerationCommands(): [string[], string[]] {
     let hashedComponents: string[] = [];
     let commands = [];
-    // Normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated)
-    const baseContainerImage = typeof this.baseImage === 'string' ? BaseContainerImage.fromString(this.baseImage) : this.baseImage;
-    let dockerfile = `FROM ${baseContainerImage.image}\nVOLUME /var/lib/docker\n`;
+    let dockerfile = `FROM ${this.baseImage.image}\nVOLUME /var/lib/docker\n`;
 
     for (let i = 0; i < this.components.length; i++) {
       const componentName = this.components[i].name;
@@ -310,9 +308,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     const [commands, commandsHashedComponents] = this.getDockerfileGenerationCommands();
 
     const buildSpecVersion = 'v2'; // change this every time the build spec changes
-    // Normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated)
-    const baseContainerImage = typeof this.baseImage === 'string' ? BaseContainerImage.fromString(this.baseImage) : this.baseImage;
-    const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, baseContainerImage.image, this.os.name);
+    const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, this.baseImage.image, this.os.name);
     const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
 
     const buildSpec = codebuild.BuildSpec.fromObject({

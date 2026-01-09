@@ -20,7 +20,7 @@ import { TagMutability } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
 import { AmiRecipe, defaultBaseAmi } from './ami';
-import { BaseContainerImage, BaseContainerImageInput, BaseImageInput } from './base-image';
+import { BaseContainerImage, BaseImage } from './base-image';
 import { ContainerRecipe, defaultBaseDockerImage } from './container';
 import { DeleteResourcesFunction } from './delete-resources-function';
 import { DeleteResourcesProps } from './delete-resources.lambda';
@@ -304,8 +304,8 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   private boundAmi?: RunnerAmi;
   private readonly os: Os;
   private readonly architecture: Architecture;
-  private readonly baseImage: BaseContainerImageInput;
-  private readonly baseAmi: BaseImageInput;
+  private readonly baseImage: BaseContainerImage;
+  private readonly baseAmi: BaseImage;
   private readonly logRetention: RetentionDays;
   private readonly logRemovalPolicy: RemovalPolicy;
   private readonly vpc: ec2.IVpc;
@@ -339,8 +339,13 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'VPC', { isDefault: true });
     this.securityGroups = props?.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })];
     this.subnetSelection = props?.subnetSelection;
-    this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
-    this.baseAmi = props?.baseAmi ?? defaultBaseAmi(this, this.os, this.architecture);
+    // Normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated, only at public API level)
+    const baseDockerImageInput = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
+    this.baseImage = typeof baseDockerImageInput === 'string' ? BaseContainerImage.fromString(baseDockerImageInput) : baseDockerImageInput;
+
+    // Normalize BaseImageInput to BaseImage (string support is deprecated, only at public API level)
+    const baseAmiInput = props?.baseAmi ?? defaultBaseAmi(this, this.os, this.architecture);
+    this.baseAmi = typeof baseAmiInput === 'string' ? BaseImage.fromString(baseAmiInput) : baseAmiInput;
 
     // Warn if using deprecated string format
     if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {
@@ -448,15 +453,12 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       }
     }
 
-    // Normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated)
-    const baseContainerImage = typeof this.baseImage === 'string' ? BaseContainerImage.fromString(this.baseImage) : this.baseImage;
-
     const recipe = new ContainerRecipe(this, 'Container Recipe', {
       platform: this.platform(),
       components: this.bindComponents(),
       targetRepository: repository,
       dockerfileTemplate: dockerfileTemplate,
-      parentImage: baseContainerImage.image,
+      parentImage: this.baseImage.image,
       tags: this.tags,
     });
 
