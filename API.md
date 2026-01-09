@@ -9681,6 +9681,7 @@ new BaseImage(image: string)
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromAmiId">fromAmiId</a></code> | The AMI ID to use as a base image in an image recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromImage">fromImage</a></code> | The EC2 Image Builder image to use as a base image in an image recipe. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromImageBuilder">fromImageBuilder</a></code> | An AWS-provided EC2 Image Builder image to use as a base image in an image recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromMarketplaceProductId">fromMarketplaceProductId</a></code> | The marketplace product ID for an AMI product to use as the base image in an image recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromSsmParameter">fromSsmParameter</a></code> | The SSM parameter to use as the base image in an image recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromSsmParameterName">fromSsmParameterName</a></code> | The parameter name for the SSM parameter to use as the base image in an image recipe. |
@@ -9721,6 +9722,42 @@ The EC2 Image Builder image to use as a base image in an image recipe.
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IImage">IImage</a>
 
 The EC2 Image Builder image to use as a base image.
+
+---
+
+##### `fromImageBuilder` <a name="fromImageBuilder" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromImageBuilder"></a>
+
+```typescript
+import { BaseImage } from '@cloudsnorkel/cdk-github-runners'
+
+BaseImage.fromImageBuilder(scope: Construct, resourceName: string, version?: string)
+```
+
+An AWS-provided EC2 Image Builder image to use as a base image in an image recipe.
+
+This constructs an Image Builder ARN for AWS-provided images like `ubuntu-server-22-lts-x86/x.x.x`.
+
+###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromImageBuilder.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+The construct scope (used to determine the stack and region).
+
+---
+
+###### `resourceName`<sup>Required</sup> <a name="resourceName" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromImageBuilder.parameter.resourceName"></a>
+
+- *Type:* string
+
+The Image Builder resource name pattern (e.g., `ubuntu-server-22-lts-x86` or `ubuntu-server-22-lts-${arch}`).
+
+---
+
+###### `version`<sup>Optional</sup> <a name="version" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromImageBuilder.parameter.version"></a>
+
+- *Type:* string
+
+The version pattern (defaults to `x.x.x` to use the latest version).
 
 ---
 
