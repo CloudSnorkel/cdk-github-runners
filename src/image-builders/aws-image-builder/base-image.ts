@@ -7,8 +7,8 @@ import * as ssm from 'aws-cdk-lib/aws-ssm';
  */
 export interface IImage {
   /**
-     * The ARN of the image
-     */
+   * The ARN of the image
+   */
   readonly imageArn: string;
 }
 
@@ -17,38 +17,38 @@ export interface IImage {
  */
 export interface BaseImageProps {
   /**
-     * The AMI ID to use as a base image
-     */
+   * The AMI ID to use as a base image
+   */
   readonly amiId?: string;
 
   /**
-     * The EC2 Image Builder image ARN to use as a base image
-     */
+   * The EC2 Image Builder image ARN to use as a base image
+   */
   readonly imageArn?: string;
 
   /**
-     * The EC2 Image Builder image to use as a base image
-     */
+   * The EC2 Image Builder image to use as a base image
+   */
   readonly image?: IImage;
 
   /**
-     * The marketplace product ID for an AMI product to use as the base image
-     */
+   * The marketplace product ID for an AMI product to use as the base image
+   */
   readonly marketplaceProductId?: string;
 
   /**
-     * The SSM parameter to use as the base image
-     */
+   * The SSM parameter to use as the base image
+   */
   readonly ssmParameter?: ssm.IParameter;
 
   /**
-     * The SSM parameter name to use as the base image
-     */
+   * The SSM parameter name to use as the base image
+   */
   readonly ssmParameterName?: string;
 
   /**
-     * The direct string value of the base image (AMI ID, Image Builder ARN, SSM parameter, or Marketplace product ID)
-     */
+   * The direct string value of the base image (AMI ID, Image Builder ARN, SSM parameter, or Marketplace product ID)
+   */
   readonly stringValue?: string;
 }
 
@@ -68,63 +68,63 @@ export type BaseImageInput = string | BaseImage;
  */
 export class BaseImage {
   /**
-     * The AMI ID to use as a base image in an image recipe
-     *
-     * @param amiId The AMI ID to use as the base image
-     */
+   * The AMI ID to use as a base image in an image recipe
+   *
+   * @param amiId The AMI ID to use as the base image
+   */
   public static fromAmiId(amiId: string): BaseImage {
     return new BaseImage(amiId);
   }
 
   /**
-     * The EC2 Image Builder image to use as a base image in an image recipe
-     *
-     * @param image The EC2 Image Builder image to use as a base image
-     */
+   * The EC2 Image Builder image to use as a base image in an image recipe
+   *
+   * @param image The EC2 Image Builder image to use as a base image
+   */
   public static fromImage(image: IImage): BaseImage {
     return new BaseImage(image.imageArn);
   }
 
   /**
-     * The marketplace product ID for an AMI product to use as the base image in an image recipe
-     *
-     * @param productId The Marketplace AMI product ID to use as the base image
-     */
+   * The marketplace product ID for an AMI product to use as the base image in an image recipe
+   *
+   * @param productId The Marketplace AMI product ID to use as the base image
+   */
   public static fromMarketplaceProductId(productId: string): BaseImage {
     return new BaseImage(productId);
   }
 
   /**
-     * The SSM parameter to use as the base image in an image recipe
-     *
-     * @param parameter The SSM parameter to use as the base image
-     */
+   * The SSM parameter to use as the base image in an image recipe
+   *
+   * @param parameter The SSM parameter to use as the base image
+   */
   public static fromSsmParameter(parameter: ssm.IParameter): BaseImage {
     return new BaseImage(`ssm:${parameter.parameterArn}`);
   }
 
   /**
-     * The parameter name for the SSM parameter to use as the base image in an image recipe
-     *
-     * @param parameterName The name of the SSM parameter to use as the base image
-     */
+   * The parameter name for the SSM parameter to use as the base image in an image recipe
+   *
+   * @param parameterName The name of the SSM parameter to use as the base image
+   */
   public static fromSsmParameterName(parameterName: string): BaseImage {
     return new BaseImage(`ssm:${parameterName}`);
   }
 
   /**
-     * The direct string value of the base image to use in an image recipe. This can be an EC2 Image Builder image ARN,
-     * an SSM parameter, an AWS Marketplace product ID, or an AMI ID.
-     *
-     * @param baseImageString The base image as a direct string value
-     */
+   * The direct string value of the base image to use in an image recipe. This can be an EC2 Image Builder image ARN,
+   * an SSM parameter, an AWS Marketplace product ID, or an AMI ID.
+   *
+   * @param baseImageString The base image as a direct string value
+   */
   public static fromString(baseImageString: string): BaseImage {
     return new BaseImage(baseImageString);
   }
 
   /**
-     * The rendered base image to use
-     */
+   * The rendered base image to use
+   */
   public readonly image: string;
 
   protected constructor(image: string) {
@@ -137,48 +137,48 @@ export class BaseImage {
  */
 export interface BaseContainerImageProps {
   /**
-     * The DockerHub repository where the base image resides
-     */
+   * The DockerHub repository where the base image resides
+   */
   readonly dockerHubRepository?: string;
 
   /**
-     * The tag of the base image in the DockerHub repository
-     */
+   * The tag of the base image in the DockerHub repository
+   */
   readonly dockerHubTag?: string;
 
   /**
-     * The ECR repository where the base image resides
-     */
+   * The ECR repository where the base image resides
+   */
   readonly ecrRepository?: ecr.IRepository;
 
   /**
-     * The tag of the base image in the ECR repository
-     */
+   * The tag of the base image in the ECR repository
+   */
   readonly ecrTag?: string;
 
   /**
-     * The alias of the ECR public registry where the base image resides
-     */
+   * The alias of the ECR public registry where the base image resides
+   */
   readonly ecrPublicRegistryAlias?: string;
 
   /**
-     * The name of the ECR public repository where the base image resides
-     */
+   * The name of the ECR public repository where the base image resides
+   */
   readonly ecrPublicRepositoryName?: string;
 
   /**
-     * The tag of the base image in the ECR public repository
-     */
+   * The tag of the base image in the ECR public repository
+   */
   readonly ecrPublicTag?: string;
 
   /**
-     * The EC2 Image Builder image to use as a base image
-     */
+   * The EC2 Image Builder image to use as a base image
+   */
   readonly image?: IImage;
 
   /**
-     * The direct string value of the base image (ECR/ECR public image URI, DockerHub image, or Image Builder ARN)
-     */
+   * The direct string value of the base image (ECR/ECR public image URI, DockerHub image, or Image Builder ARN)
+   */
   readonly stringValue?: string;
 }
 
@@ -198,64 +198,64 @@ export type BaseContainerImageInput = string | BaseContainerImage;
  */
 export class BaseContainerImage {
   /**
-     * The DockerHub image to use as the base image in a container recipe
-     *
-     * @param repository The DockerHub repository where the base image resides in
-     * @param tag The tag of the base image in the DockerHub repository
-     */
+   * The DockerHub image to use as the base image in a container recipe
+   *
+   * @param repository The DockerHub repository where the base image resides in
+   * @param tag The tag of the base image in the DockerHub repository
+   */
   public static fromDockerHub(repository: string, tag: string): BaseContainerImage {
     return new BaseContainerImage(`${repository}:${tag}`);
   }
 
   /**
-     * The ECR container image to use as the base image in a container recipe
-     *
-     * @param repository The ECR repository where the base image resides in
-     * @param tag The tag of the base image in the ECR repository
-     */
+   * The ECR container image to use as the base image in a container recipe
+   *
+   * @param repository The ECR repository where the base image resides in
+   * @param tag The tag of the base image in the ECR repository
+   */
   public static fromEcr(repository: ecr.IRepository, tag: string): BaseContainerImage {
     return new BaseContainerImage(repository.repositoryUriForTag(tag), repository);
   }
 
   /**
-     * The ECR public container image to use as the base image in a container recipe
-     *
-     * @param registryAlias The alias of the ECR public registry where the base image resides in
-     * @param repositoryName The name of the ECR public repository, where the base image resides in
-     * @param tag The tag of the base image in the ECR public repository
-     */
+   * The ECR public container image to use as the base image in a container recipe
+   *
+   * @param registryAlias The alias of the ECR public registry where the base image resides in
+   * @param repositoryName The name of the ECR public repository, where the base image resides in
+   * @param tag The tag of the base image in the ECR public repository
+   */
   public static fromEcrPublic(registryAlias: string, repositoryName: string, tag: string): BaseContainerImage {
     return new BaseContainerImage(`public.ecr.aws/${registryAlias}/${repositoryName}:${tag}`);
   }
 
   /**
-     * The EC2 Image Builder image to use as a base image in a container recipe
-     *
-     * @param image The EC2 Image Builder image to use as a base image
-     */
+   * The EC2 Image Builder image to use as a base image in a container recipe
+   *
+   * @param image The EC2 Image Builder image to use as a base image
+   */
   public static fromImage(image: IImage): BaseContainerImage {
     return new BaseContainerImage(image.imageArn);
   }
 
   /**
-     * The string value of the base image to use in a container recipe. This can be an EC2 Image Builder image ARN,
-     * an ECR or ECR public image, or a container URI sourced from a third-party container registry such as DockerHub.
-     *
-     * @param baseContainerImageString The base image as a direct string value
-     */
+   * The string value of the base image to use in a container recipe. This can be an EC2 Image Builder image ARN,
+   * an ECR or ECR public image, or a container URI sourced from a third-party container registry such as DockerHub.
+   *
+   * @param baseContainerImageString The base image as a direct string value
+   */
   public static fromString(baseContainerImageString: string): BaseContainerImage {
     return new BaseContainerImage(baseContainerImageString);
   }
 
   /**
-     * The rendered base image to use
-     */
+   * The rendered base image to use
+   */
   public readonly image: string;
 
   /**
-     * The ECR repository if this image was created from an ECR repository.
-     * This allows automatic permission granting for CodeBuild.
-     */
+   * The ECR repository if this image was created from an ECR repository.
+   * This allows automatic permission granting for CodeBuild.
+   */
   public readonly ecrRepository?: ecr.IRepository;
 
   protected constructor(image: string, ecrRepository?: ecr.IRepository) {
