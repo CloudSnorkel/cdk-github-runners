@@ -449,27 +449,33 @@ const providerSelector = new Function(this, 'provider-selector', {
 
 We provide comprehensive examples in the [`examples/`](examples/) folder to help you get started quickly:
 
-### Python Examples
-- **[Simple CodeBuild](examples/python/simple-codebuild/)** - Basic setup with just a CodeBuild provider
-- **[Multi-Provider](examples/python/multi-provider/)** - Multiple providers with custom runner images
-- **[Advanced](examples/python/advanced/)** - Comprehensive setup with all providers, VPC, monitoring, and security
-- **[Composite Provider](examples/python/composite-provider/)** - Fallback and weighted distribution strategies
-- **[Provider Selector](examples/python/provider-selector/)** - Custom provider selection with Lambda function
-- **[ECS Provider](examples/python/ecs-provider/)** - ECS on EC2 configuration with spot instances
-- **[ECS Windows Provider](examples/python/ecs-windows-provider/)** - ECS on EC2 configuration for Windows runners
-- **[EC2 Windows Provider](examples/python/ec2-windows-provider/)** - EC2 configuration for Windows runners
+### Getting Started
+- **[Simple CodeBuild](examples/typescript/simple-codebuild/)** - Basic setup with just a CodeBuild provider (also available in [Python](examples/python/simple-codebuild/))
 
-### TypeScript Examples
-- **[Simple CodeBuild](examples/typescript/simple-codebuild/)** - Basic setup with just a CodeBuild provider
-- **[Multi-Provider](examples/typescript/multi-provider/)** - Multiple providers with custom runner images
-- **[Advanced](examples/typescript/advanced/)** - Comprehensive setup with all providers, VPC, monitoring, and security
-- **[Composite Provider](examples/typescript/composite-provider/)** - Fallback and weighted distribution strategies
-- **[Provider Selector](examples/typescript/provider-selector/)** - Custom provider selection with Lambda function
-- **[ECS Provider](examples/typescript/ecs-provider/)** - ECS on EC2 configuration with spot instances
-- **[ECS Windows Provider](examples/typescript/ecs-windows-provider/)** - ECS on EC2 configuration for Windows runners
-- **[EC2 Windows Provider](examples/typescript/ec2-windows-provider/)** - EC2 configuration for Windows runners
+### Provider Configuration
+- **[Composite Provider](examples/typescript/composite-provider/)** - Fallback and weighted distribution strategies (also available in [Python](examples/python/composite-provider/))
+- **[Provider Selector](examples/typescript/provider-selector/)** - Custom provider selection with Lambda function (also available in [Python](examples/python/provider-selector/))
+- **[EC2 Windows Provider](examples/typescript/ec2-windows-provider/)** - EC2 configuration for Windows runners (also available in [Python](examples/python/ec2-windows-provider/))
 
-Each example is self-contained with its own dependencies and README. Start with the simple examples and work your way up to the advanced configuration.
+### Compute & Performance
+- **[Compute Options](examples/typescript/compute-options/)** - Configure CPU, memory, and instance types for different providers (also available in [Python](examples/python/compute-options/))
+- **[Spot Instances](examples/typescript/spot-instances/)** - Use spot instances for cost savings across EC2, Fargate, and ECS (also available in [Python](examples/python/spot-instances/))
+- **[Storage Options](examples/typescript/storage-options/)** - Custom EBS storage options for EC2 runners (also available in [Python](examples/python/storage-options/))
+- **[ECS Scaling](examples/typescript/ecs-scaling/)** - Custom autoscaling group scaling policies for ECS providers (also available in [Python](examples/python/ecs-scaling/))
+
+### Security & Access
+- **[IAM Permissions](examples/typescript/iam-permissions/)** - Grant AWS IAM permissions to runners (also available in [Python](examples/python/iam-permissions/))
+- **[Network Access](examples/typescript/network-access/)** - Configure network access with VPCs and security groups (also available in [Python](examples/python/network-access/))
+- **[Access Control](examples/typescript/access-control/)** - Configure access control for webhook and setup functions (also available in [Python](examples/python/access-control/))
+
+### Customization
+- **[Add Software](examples/typescript/add-software/)** - Add custom software to runner images (also available in [Python](examples/python/add-software/))
+
+### Enterprise & Monitoring
+- **[GHES](examples/typescript/ghes/)** - Configure runners for GitHub Enterprise Server (also available in [Python](examples/python/ghes/))
+- **[Monitoring](examples/typescript/monitoring/)** - Set up CloudWatch alarms and SNS notifications (also available in [Python](examples/python/monitoring/))
+
+Each example is self-contained with its own dependencies and README. Start with the simple examples and work your way up to more advanced configurations.
 
 Beyond the code snippets above, the fullest example available is the [integration test](test/default.integ.ts).
 
