@@ -568,7 +568,7 @@ def main():
         print_colored(f"Synthesis Errors: {len(synth_errors)}", Colors.RED)
         for example, lang, error in synth_errors:
             print_colored(f"  - {lang}: {example}", Colors.RED)
-            print(f"    {error[:200]}...")
+            print(f"    {error[:300]}...")
         print()
     
     if comparison_errors:
