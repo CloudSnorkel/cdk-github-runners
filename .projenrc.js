@@ -219,7 +219,7 @@ testExamplesWorkflow.addJob('test-examples', {
     },
     {
       name: 'test cdk',
-      run: 'cdk --version\nwhich cdk\npython -c "import os; print(os.environ[\"PATH\"])"\npython -c "import subprocess; subprocess.run("env", shell=True)"\npython -c "import subprocess; subprocess.run(["cdk", "--version"], check=True)"\npython -c "import subprocess; subprocess.run(["cdk", "--version"], check=True, shell=True)"',
+      run: 'cdk --version\nwhich cdk\npython -c "import os; print(os.environ)"\npython -c "import subprocess; subprocess.run(\'env\', shell=True)"\npython -c "import subprocess; subprocess.run([\'cdk\', \'--version\'], check=True)"\npython -c "import subprocess; subprocess.run([\'cdk\', \'--version\'], check=True, shell=True)"',
     },
     {
       name: 'Run test-examples script',
