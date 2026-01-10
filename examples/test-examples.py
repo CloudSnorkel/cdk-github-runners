@@ -142,7 +142,7 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
         tgz_files = list(dist_js_dir.glob("*.tgz"))
         if not tgz_files:
             return False, None, f"No dist .tgz files found in {dist_js_dir}"
-        code, out, err = run_command([yarn_path, "add", "--no-save" f"file:{tgz_files[0]}"], cwd=example_dir)
+        code, out, err = run_command([yarn_path, "add", f"file:{tgz_files[0]}"], cwd=example_dir)
         duration = time.time() - start_time
         if code != 0:
             return False, None, f"yarn add local package failed: {err}\n{out}"
