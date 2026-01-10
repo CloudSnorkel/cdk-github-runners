@@ -16,7 +16,6 @@ import {
   GitHubRunners,
   CodeBuildRunnerProvider,
   LambdaAccess,
-  RunnerImageComponent,
 } from '@cloudsnorkel/cdk-github-runners';
 
 class GhesStack extends Stack {
@@ -29,6 +28,11 @@ class GhesStack extends Stack {
     const vpc = new Vpc(this, 'VPC', {
       maxAzs: 2,
       subnetConfiguration: [
+        {
+          name: 'Public',
+          subnetType: SubnetType.PUBLIC,
+          cidrMask: 24,
+        },
         {
           name: 'Private',
           subnetType: SubnetType.PRIVATE_WITH_EGRESS,

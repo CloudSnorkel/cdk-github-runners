@@ -7,8 +7,7 @@
  */
 
 import { App, Stack } from 'aws-cdk-lib';
-import { Topic, EmailSubscription } from 'aws-cdk-lib/aws-sns';
-import { SnsAction } from 'aws-cdk-lib/aws-cloudwatch-actions';
+import { EmailSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 import {
   GitHubRunners,
   CodeBuildRunnerProvider,
@@ -37,7 +36,7 @@ class MonitoringStack extends Stack {
       alarmDescription: 'Alert when runner starts fail',
     });
 
-    // Create SNS topic for failed runner image builds
+    // Notify us when runner image builds fail
     // Runner images are rebuilt every week by default. Failed builds mean you'll get
     // stuck with out-of-date software, which may lead to security vulnerabilities
     // or slower runner start-ups as the runner software needs to be updated.
@@ -57,8 +56,15 @@ class MonitoringStack extends Stack {
     // - runners.metricTime() - total time a runner is running (includes overhead of starting)
 
     // Optionally, add email subscription to the failed runners alarm as well
+    // import { Topic } from 'aws-cdk-lib/aws-sns';
+    // import { SnsAction } from 'aws-cdk-lib/aws-cloudwatch-actions';
     // const alarmTopic = new Topic(this, 'FailedRunnersTopic');
     // alarmTopic.addSubscription(new EmailSubscription('your-email@example.com')); // Replace with your email
+    // const failedRunnersAlarm = runners.metricFailed().createAlarm(this, 'FailedRunnersAlarm', {
+    //   threshold: 5,
+    //   evaluationPeriods: 2,
+    //   alarmDescription: 'Alert when runner starts fail',
+    // });
     // failedRunnersAlarm.addAlarmAction(new SnsAction(alarmTopic));
   }
 }

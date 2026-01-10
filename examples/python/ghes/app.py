@@ -16,7 +16,6 @@ from cloudsnorkel.cdk_github_runners import (
     GitHubRunners,
     CodeBuildRunnerProvider,
     LambdaAccess,
-    RunnerImageComponent,
 )
 
 
@@ -31,6 +30,11 @@ class GhesStack(Stack):
             self, "VPC",
             max_azs=2,
             subnet_configuration=[
+                ec2.SubnetConfiguration(
+                    name="Public",
+                    subnet_type=ec2.SubnetType.PUBLIC,
+                    cidr_mask=24
+                ),
                 ec2.SubnetConfiguration(
                     name="Private",
                     subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,

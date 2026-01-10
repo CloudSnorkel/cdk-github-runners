@@ -13,8 +13,11 @@
  */
 
 import { App, Stack } from 'aws-cdk-lib';
-import { Vpc, SubnetType } from 'aws-cdk-lib/aws-ec2';
+import { Vpc, SubnetType, InstanceType, InstanceClass, InstanceSize, SecurityGroup } from 'aws-cdk-lib/aws-ec2';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import {
   GitHubRunners,
   EcsRunnerProvider,
@@ -26,10 +29,15 @@ class EcsScalingStack extends Stack {
 
     // Note: Creating a VPC is not required. Providers can use the default VPC or an existing VPC.
     // We create one here to make this example self-contained and testable.
-    // Create a VPC with private subnets
+    // Create a VPC with public and private subnets
     const vpc = new Vpc(this, 'VPC', {
       maxAzs: 2,
       subnetConfiguration: [
+        {
+          name: 'Public',
+          subnetType: SubnetType.PUBLIC,
+          cidrMask: 24,
+        },
         {
           name: 'Private',
           subnetType: SubnetType.PRIVATE_WITH_EGRESS,
@@ -38,33 +46,64 @@ class EcsScalingStack extends Stack {
       ],
     });
 
-    // Create ECS provider
+    // Create security group for the ASG
+    const securityGroup = new SecurityGroup(this, 'SecurityGroup', {
+      vpc,
+      description: 'Security group for ECS cluster instances',
+    });
+
+    // Create launch template for the ASG
+    // Use ECS-optimized AMI and appropriate instance type
+    const launchTemplate = new ec2.LaunchTemplate(this, 'LaunchTemplate', {
+      machineImage: ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.STANDARD),
+      instanceType: InstanceType.of(InstanceClass.M6I, InstanceSize.LARGE),
+      requireImdsv2: true,
+      securityGroup: securityGroup,
+      role: new iam.Role(this, 'LaunchTemplateRole', {
+        assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+      }),
+      userData: ec2.UserData.forLinux(),
+    });
+
+    // Create autoscaling group
     // ECS caches the runner image locally on instances, so runners provision faster
     // when there's capacity available. This provides near-warm runner performance.
+    const autoScalingGroup = new autoscaling.AutoScalingGroup(this, 'AutoScalingGroup', {
+      vpc,
+      launchTemplate,
+      minCapacity: 0,
+      maxCapacity: 10,
+    });
+
+    // Create capacity provider with the ASG
+    const capacityProvider = new ecs.AsgCapacityProvider(this, 'CapacityProvider', {
+      autoScalingGroup,
+      spotInstanceDraining: false,
+    });
+
+    // Create ECS provider with the custom capacity provider
     const ecsProvider = new EcsRunnerProvider(this, 'EcsProvider', {
       labels: ['ecs', 'linux', 'x64'],
       vpc: vpc,
-      minInstances: 0,
-      maxInstances: 10,
+      capacityProvider: capacityProvider,
     });
 
-    // Access the autoscaling group to add custom scaling policies
-    const asg = ecsProvider.capacityProvider.autoScalingGroup;
+    // Add custom scaling policies to our ASG
 
     // Example: Scale up during work hours (9 AM - 5 PM UTC, Monday-Friday)
-    asg.scaleOnSchedule('ScaleUpWorkHours', {
+    autoScalingGroup.scaleOnSchedule('ScaleUpWorkHours', {
       schedule: autoscaling.Schedule.cron({ hour: '9', minute: '0', weekDay: 'MON-FRI' }),
       minCapacity: 2, // Keep at least 2 instances during work hours
     });
 
     // Example: Scale down during off hours
-    asg.scaleOnSchedule('ScaleDownOffHours', {
+    autoScalingGroup.scaleOnSchedule('ScaleDownOffHours', {
       schedule: autoscaling.Schedule.cron({ hour: '17', minute: '0', weekDay: 'MON-FRI' }),
       minCapacity: 0, // Scale down to zero after work hours
     });
 
     // Example: Scale based on CPU utilization
-    // asg.scaleOnCpuUtilization('ScaleOnCpu', {
+    // autoScalingGroup.scaleOnCpuUtilization('ScaleOnCpu', {
     //   targetUtilizationPercent: 70,
     // });
 

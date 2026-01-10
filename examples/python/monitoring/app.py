@@ -40,7 +40,7 @@ class MonitoringStack(Stack):
             alarm_description="Alert when runner starts fail"
         )
 
-        # Create SNS topic for failed runner image builds
+        # Notify us when runner image builds fail
         # Runner images are rebuilt every week by default. Failed builds mean you'll get
         # stuck with out-of-date software, which may lead to security vulnerabilities
         # or slower runner start-ups as the runner software needs to be updated.

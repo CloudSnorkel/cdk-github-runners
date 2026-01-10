@@ -8,7 +8,7 @@
  */
 
 import { App, Stack } from 'aws-cdk-lib';
-import { Vpc, SubnetType, SecurityGroup, Peer, Port } from 'aws-cdk-lib/aws-ec2';
+import { Vpc, SubnetType, SecurityGroup, Port } from 'aws-cdk-lib/aws-ec2';
 import {
   GitHubRunners,
   FargateRunnerProvider,
