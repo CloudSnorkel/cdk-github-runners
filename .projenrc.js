@@ -207,7 +207,7 @@ testExamplesWorkflow.addJob('test-examples', {
     WorkflowSteps.checkout(),
     {
       name: 'Install dependencies',
-      run: project.package.installCommand
+      run: project.package.installCommand,
     },
     {
       name: 'Install CDK',
