@@ -394,7 +394,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.CodeBuildStartBuild(
       this,
-      generateStateName(this),
+      'State',
       {
         stateName: generateStateName(this),
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
