@@ -30,7 +30,7 @@ class MonitoringStack extends Stack {
     // Create CloudWatch alarm for failed runners
     // This alarm triggers when 5 or more runners fail within 2 evaluation periods
     // Failed runner starts mean jobs may sit and wait, so this is critical to monitor
-    const failedRunnersAlarm = runners.metricFailed().createAlarm(this, 'FailedRunnersAlarm', {
+    runners.metricFailed().createAlarm(this, 'FailedRunnersAlarm', {
       threshold: 5,
       evaluationPeriods: 2,
       alarmDescription: 'Alert when runner starts fail',
