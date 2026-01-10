@@ -23,6 +23,6 @@ jobs:
       - name: Install CDK
         run: npm install -g aws-cdk
       - name: Add npm global bin to PATH
-        run: echo "$(npm bin -g)" >> ${{ github.environment_file }}
+        run: echo "$(npm bin -g)" >> $GITHUB_PATH
       - name: Run test-examples script
         run: python examples/test-examples.py --skip-deploy

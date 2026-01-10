@@ -215,7 +215,7 @@ testExamplesWorkflow.addJob('test-examples', {
     },
     {
       name: 'Add npm global bin to PATH',
-      run: 'echo "$(npm bin -g)" >> ${{ github.environment_file }}',
+      run: 'echo "$(npm bin -g)" >> $GITHUB_PATH',
     },
     {
       name: 'Run test-examples script',
