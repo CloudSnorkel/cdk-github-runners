@@ -19,6 +19,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
       - name: Install dependencies
-        run: yarn install --check-files --frozen-lockfile
+        run: |-
+          yarn install --check-files --frozen-lockfile
+          npm install -g aws-cdk
       - name: Run test-examples script
         run: python examples/test-examples.py --skip-deploy
