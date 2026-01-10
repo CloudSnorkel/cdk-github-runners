@@ -30,11 +30,6 @@ if not cdk_path:
     print_colored("  ✗ CDK not found. Please install AWS CDK CLI.", Colors.RED)
     sys.exit(1)
 
-npm_path = shutil.which("npm")
-if not npm_path:
-    print_colored("  ✗ npm not found. Please install npm.", Colors.RED)
-    sys.exit(1)
-
 yarn_path = shutil.which("yarn")
 if not yarn_path:
     print_colored("  ✗ yarn not found. Please install yarn.", Colors.RED)
@@ -136,10 +131,10 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
     if lang == "typescript":
         start_time = time.time()
         print_colored(f"  Installing dependencies for {example_path}...", Colors.BLUE)
-        code, out, err = run_command([npm_path, "install", "--no-package-lock"], cwd=example_dir)
+        code, out, err = run_command([yarn_path, "install"], cwd=example_dir)
         duration = time.time() - start_time
         if code != 0:
-            return False, None, f"npm install failed: {err}\n{out}"
+            return False, None, f"yarn install failed: {err}\n{out}"
         print_colored(f"    ✓ Dependencies installed ({format_duration(duration)})", Colors.GREEN)
         
         # Install local package - glob the full real path
@@ -149,10 +144,10 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
         tgz_files = list(dist_js_dir.glob("*.tgz"))
         if not tgz_files:
             return False, None, f"No dist .tgz files found in {dist_js_dir}"
-        code, out, err = run_command([npm_path, "install", "--no-save"] + tgz_files, cwd=example_dir)
+        code, out, err = run_command([yarn_path, "add", "--no-save"] + tgz_files, cwd=example_dir)
         duration = time.time() - start_time
         if code != 0:
-            return False, None, f"npm install local package failed: {err}\n{out}"
+            return False, None, f"yarn add local package failed: {err}\n{out}"
         print_colored(f"    ✓ Local package installed ({format_duration(duration)})", Colors.GREEN)
     elif lang == "python":
         start_time = time.time()
@@ -346,12 +341,12 @@ def check_prerequisites() -> bool:
         return False
     print_colored("  ✓ CDK found", Colors.GREEN)
     
-    # Check npm (for TypeScript examples)
-    code, _, _ = run_command([npm_path, "--version"])
+    # Check yarn (for TypeScript examples)
+    code, _, _ = run_command([yarn_path, "--version"])
     if code != 0:
-        print_colored("  ✗ npm not found. TypeScript examples will fail.", Colors.YELLOW)
+        print_colored("  ✗ yarn not found. TypeScript examples will fail.", Colors.YELLOW)
     else:
-        print_colored("  ✓ npm found", Colors.GREEN)
+        print_colored("  ✓ yarn found", Colors.GREEN)
     
     # Check python (for Python examples)
     code, _, _ = run_command(["python", "--version"])
