@@ -18,6 +18,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 import difflib
@@ -53,6 +54,15 @@ class Colors:
 def print_colored(message: str, color: str = Colors.RESET):
     """Print colored message."""
     print(f"{color}{message}{Colors.RESET}")
+
+
+def format_duration(seconds: float) -> str:
+    """Format duration in seconds to human-readable string."""
+    if seconds < 60:
+        return f"{seconds:.1f}s"
+    minutes = int(seconds // 60)
+    secs = seconds % 60
+    return f"{minutes}m {secs:.1f}s"
 
 
 def run_command(cmd: List[str], cwd: Optional[Path] = None, capture_output: bool = True) -> Tuple[int, str, str]:
@@ -124,37 +134,50 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
     
     # Install dependencies first
     if lang == "typescript":
+        start_time = time.time()
         print_colored(f"  Installing dependencies for {example_path}...", Colors.BLUE)
         code, out, err = run_command([npm_path, "install", "--no-package-lock"], cwd=example_dir)
+        duration = time.time() - start_time
         if code != 0:
             return False, None, f"npm install failed: {err}\n{out}"
+        print_colored(f"    ✓ Dependencies installed ({format_duration(duration)})", Colors.GREEN)
         
         # Install local package - glob the full real path
+        start_time = time.time()
         print_colored(f"  Installing local package for {example_path}...", Colors.BLUE)
         dist_js_dir = (project_root / "dist" / "js").resolve()
         tgz_files = list(dist_js_dir.glob("*.tgz"))
         if not tgz_files:
             return False, None, f"No dist .tgz files found in {dist_js_dir}"
         code, out, err = run_command([npm_path, "install", "--no-save"] + tgz_files, cwd=example_dir)
+        duration = time.time() - start_time
         if code != 0:
             return False, None, f"npm install local package failed: {err}\n{out}"
+        print_colored(f"    ✓ Local package installed ({format_duration(duration)})", Colors.GREEN)
     elif lang == "python":
+        start_time = time.time()
         print_colored(f"  Installing dependencies for {example_path}...", Colors.BLUE)
         code, out, err = run_command(["pip", "install", "-r", "requirements.txt"], cwd=example_dir)
+        duration = time.time() - start_time
         if code != 0:
             return False, None, f"pip install requirements failed: {err}\n{out}"
+        print_colored(f"    ✓ Dependencies installed ({format_duration(duration)})", Colors.GREEN)
         
         # Install local package - glob the full real path
+        start_time = time.time()
         print_colored(f"  Installing local package for {example_path}...", Colors.BLUE)
         dist_python_dir = (project_root / "dist" / "python").resolve()
         whl_files = list(dist_python_dir.glob("*.whl"))
         if not whl_files:
             return False, None, f"No .whl files found in {dist_python_dir}"
         code, out, err = run_command(["pip", "install"] + whl_files, cwd=example_dir)
+        duration = time.time() - start_time
         if code != 0:
             return False, None, f"pip install local package failed: {err}\n{out}"
+        print_colored(f"    ✓ Local package installed ({format_duration(duration)})", Colors.GREEN)
     
     # Run CDK synth (exclude metadata for cleaner diffs)
+    start_time = time.time()
     print_colored(f"  Synthing {example_path}...", Colors.BLUE)
     code, out, err = run_command([
         cdk_path, "synth", 
@@ -163,9 +186,11 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
         "--no-path-metadata",
         "--no-version-reporting",
     ], cwd=example_dir)
+    duration = time.time() - start_time
     
     if code != 0:
         return False, None, f"cdk synth failed: {err}\n{out}"
+    print_colored(f"    ✓ Synthesis completed ({format_duration(duration)})", Colors.GREEN)
     
     # Find the synthesized template
     # CDK synth outputs to cdk.out/<stack-name>.template.json
@@ -217,6 +242,7 @@ def deploy_example(example_path: str) -> Tuple[bool, str]:
     """Deploy a CDK example."""
     example_dir = Path(__file__).parent / example_path
     
+    start_time = time.time()
     print_colored(f"  Deploying {example_path}...", Colors.BLUE)
     try:
         # Run with real-time output but capture for error reporting
@@ -240,9 +266,11 @@ def deploy_example(example_path: str) -> Tuple[bool, str]:
         process.wait()
         output = "".join(output_lines)
         
+        duration = time.time() - start_time
         if process.returncode != 0:
             return False, f"cdk deploy failed:\n{output}"
         
+        print_colored(f"    ✓ Deployment completed ({format_duration(duration)})", Colors.GREEN)
         return True, ""
     except Exception as e:
         return False, f"Deployment error: {str(e)}"
@@ -252,6 +280,7 @@ def destroy_example(example_path: str) -> Tuple[bool, str]:
     """Destroy a CDK example."""
     example_dir = Path(__file__).parent / example_path
     
+    start_time = time.time()
     print_colored(f"  Destroying {example_path}...", Colors.BLUE)
     try:
         # Run with real-time output but capture for error reporting
@@ -274,10 +303,12 @@ def destroy_example(example_path: str) -> Tuple[bool, str]:
         
         process.wait()
         output = "".join(output_lines)
+        duration = time.time() - start_time
         
         if process.returncode != 0:
             return False, f"cdk destroy failed:\n{output}"
         
+        print_colored(f"    ✓ Destruction completed ({format_duration(duration)})", Colors.GREEN)
         return True, ""
     except Exception as e:
         return False, f"Destruction error: {str(e)}"
@@ -356,6 +387,7 @@ def main():
     )
     args = parser.parse_args()
     
+    script_start_time = time.time()
     print_colored("=" * 80, Colors.BOLD)
     print_colored("CDK GitHub Runners Examples Test Script", Colors.BOLD)
     print_colored("=" * 80, Colors.BOLD)
@@ -375,40 +407,48 @@ def main():
         
         project_root = Path(__file__).parent.parent
         
+        start_time = time.time()
         print_colored("Running yarn run bundle...", Colors.BLUE)
         code, out, err = run_command([yarn_path, "run", "bundle"], cwd=project_root)
+        duration = time.time() - start_time
         if code != 0:
             print_colored(f"  ✗ Bundle failed: {err}\n{out}", Colors.RED)
             print_colored("\nPackage building failed. Stopping.", Colors.RED)
             return 1
-        print_colored("  ✓ Bundle successful", Colors.GREEN)
+        print_colored(f"  ✓ Bundle successful ({format_duration(duration)})", Colors.GREEN)
         print()
         
+        start_time = time.time()
         print_colored("Running yarn run compile...", Colors.BLUE)
         code, out, err = run_command([yarn_path, "run", "compile"], cwd=project_root)
+        duration = time.time() - start_time
         if code != 0:
             print_colored(f"  ✗ Compile failed: {err}\n{out}", Colors.RED)
             print_colored("\nPackage building failed. Stopping.", Colors.RED)
             return 1
-        print_colored("  ✓ Compile successful", Colors.GREEN)
+        print_colored(f"  ✓ Compile successful ({format_duration(duration)})", Colors.GREEN)
         print()
         
+        start_time = time.time()
         print_colored("Running yarn run package:js...", Colors.BLUE)
         code, out, err = run_command([yarn_path, "run", "package:js"], cwd=project_root)
+        duration = time.time() - start_time
         if code != 0:
             print_colored(f"  ✗ Package JS failed: {err}\n{out}", Colors.RED)
             print_colored("\nPackage building failed. Stopping.", Colors.RED)
             return 1
-        print_colored("  ✓ Package JS successful", Colors.GREEN)
+        print_colored(f"  ✓ Package JS successful ({format_duration(duration)})", Colors.GREEN)
         print()
         
+        start_time = time.time()
         print_colored("Running yarn run package:python...", Colors.BLUE)
         code, out, err = run_command([yarn_path, "run", "package:python"], cwd=project_root)
+        duration = time.time() - start_time
         if code != 0:
             print_colored(f"  ✗ Package Python failed: {err}\n{out}", Colors.RED)
             print_colored("\nPackage building failed. Stopping.", Colors.RED)
             return 1
-        print_colored("  ✓ Package Python successful", Colors.GREEN)
+        print_colored(f"  ✓ Package Python successful ({format_duration(duration)})", Colors.GREEN)
         print()
     
     # Find examples
@@ -590,6 +630,13 @@ def main():
             print_colored(f"  - {example}", Colors.RED)
             print(f"    {error[-500:]}...")
         print()
+    
+    total_duration = time.time() - script_start_time
+    
+    print_colored("=" * 80, Colors.BOLD)
+    print_colored(f"Total execution time: {format_duration(total_duration)}", Colors.BOLD)
+    print_colored("=" * 80, Colors.BOLD)
+    print()
     
     if total_errors == 0:
         print_colored("✓ All tests passed!", Colors.GREEN)
