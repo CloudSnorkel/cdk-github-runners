@@ -478,6 +478,7 @@ def main():
     
     # Synth TypeScript examples
     for example in ts_examples:
+        example_name = Path(example).name
         print_colored(f"Synthing TypeScript: {example}", Colors.YELLOW)
         success, template, error = synth_example(example, "typescript")
         if success:
@@ -490,6 +491,7 @@ def main():
     
     # Synth Python examples
     for example in py_examples:
+        example_name = Path(example).name
         print_colored(f"Synthing Python: {example}", Colors.YELLOW)
         success, template, error = synth_example(example, "python")
         if success:
