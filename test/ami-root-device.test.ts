@@ -29,8 +29,8 @@ jest.mock('../src/lambda-helpers', () => ({
 }));
 
 // Import handler after mocks are set up
-import * as handler from '../src/providers/ami-root-device.lambda';
 import { customResourceRespond } from '../src/lambda-helpers';
+import * as handler from '../src/providers/ami-root-device.lambda';
 
 beforeEach(() => {
   jest.clearAllMocks();
