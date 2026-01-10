@@ -180,43 +180,4 @@ project.vscode.settings.addSettings({
 // funding
 project.package.addField('funding', 'https://github.com/sponsors/CloudSnorkel');
 
-// create test-examples workflow
-const testExamplesWorkflow = project.github.addWorkflow('test-examples');
-testExamplesWorkflow.on({
-  pullRequest: {},
-  workflowDispatch: {},
-});
-testExamplesWorkflow.addJob('test-examples', {
-  runsOn: 'ubuntu-latest',
-  tools: {
-    node: {
-      version: 'lts/*',
-    },
-    python: {
-      version: '3.x',
-    },
-  },
-  permissions: {
-    contents: 'read',
-  },
-  steps: [
-    WorkflowSteps.checkout(),
-    {
-      name: 'Install dependencies',
-      run: project.package.installCommand,
-    },
-    {
-      name: 'Install CDK',
-      run: 'npm install -g aws-cdk',
-    },
-    {
-      name: 'Run test-examples script',
-      run: 'python examples/test-examples.py --skip-deploy',
-    },
-  ],
-});
-testExamplesWorkflow.file.addOverride('jobs.test-examples.steps.0.with.cache', 'yarn');
-testExamplesWorkflow.file.addOverride('jobs.test-examples.steps.1.with.cache', 'pip');
-
-
 project.synth();
