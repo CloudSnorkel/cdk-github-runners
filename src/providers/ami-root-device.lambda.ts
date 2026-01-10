@@ -66,10 +66,10 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
           // If it's an ARN, extract the parameter name from it
           // ARN format: arn:aws:ssm:region:account:parameter/name
           if (ssmParam.startsWith('arn:aws:ssm:')) {
-            // Extract parameter name from ARN (everything after /parameter/)
+            // Extract parameter name from ARN (everything after the 'parameter/' prefix)
             const arnParts = ssmParam.split('/');
             if (arnParts.length >= 2) {
-              // Skip 'parameter' part and get the rest
+              // Skip the ARN prefix (everything before the first '/') and get the parameter name
               ssmParam = arnParts.slice(1).join('/');
             }
           }

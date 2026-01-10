@@ -15,46 +15,6 @@ export interface IImage {
 }
 
 /**
- * Properties for specifying a base image as an object.
- */
-export interface BaseImageProps {
-  /**
-   * The AMI ID to use as a base image
-   */
-  readonly amiId?: string;
-
-  /**
-   * The EC2 Image Builder image ARN to use as a base image
-   */
-  readonly imageArn?: string;
-
-  /**
-   * The EC2 Image Builder image to use as a base image
-   */
-  readonly image?: IImage;
-
-  /**
-   * The marketplace product ID for an AMI product to use as the base image
-   */
-  readonly marketplaceProductId?: string;
-
-  /**
-   * The SSM parameter to use as the base image
-   */
-  readonly ssmParameter?: ssm.IParameter;
-
-  /**
-   * The SSM parameter name to use as the base image
-   */
-  readonly ssmParameterName?: string;
-
-  /**
-   * The direct string value of the base image (AMI ID, Image Builder ARN, SSM parameter, or Marketplace product ID)
-   */
-  readonly stringValue?: string;
-}
-
-/**
  * Type that can be used to specify a base image - either a string (deprecated) or a BaseImage object.
  *
  * To create a BaseImage object, use the static factory methods like BaseImage.fromAmiId().
@@ -151,56 +111,6 @@ export class BaseImage {
   protected constructor(image: string) {
     this.image = image;
   }
-}
-
-/**
- * Properties for specifying a base container image as an object.
- */
-export interface BaseContainerImageProps {
-  /**
-   * The DockerHub repository where the base image resides
-   */
-  readonly dockerHubRepository?: string;
-
-  /**
-   * The tag of the base image in the DockerHub repository
-   */
-  readonly dockerHubTag?: string;
-
-  /**
-   * The ECR repository where the base image resides
-   */
-  readonly ecrRepository?: ecr.IRepository;
-
-  /**
-   * The tag of the base image in the ECR repository
-   */
-  readonly ecrTag?: string;
-
-  /**
-   * The alias of the ECR public registry where the base image resides
-   */
-  readonly ecrPublicRegistryAlias?: string;
-
-  /**
-   * The name of the ECR public repository where the base image resides
-   */
-  readonly ecrPublicRepositoryName?: string;
-
-  /**
-   * The tag of the base image in the ECR public repository
-   */
-  readonly ecrPublicTag?: string;
-
-  /**
-   * The EC2 Image Builder image to use as a base image
-   */
-  readonly image?: IImage;
-
-  /**
-   * The direct string value of the base image (ECR/ECR public image URI, DockerHub image, or Image Builder ARN)
-   */
-  readonly stringValue?: string;
 }
 
 /**
