@@ -211,7 +211,11 @@ testExamplesWorkflow.addJob('test-examples', {
     },
     {
       name: 'Install CDK',
-      run: 'yarn global add aws-cdk',
+      run: 'npm install -g aws-cdk',
+    },
+    {
+      name: 'Add npm global bin to PATH',
+      run: 'echo "$(npm bin -g)" >> ${{ github.environment_file }}',
     },
     {
       name: 'Run test-examples script',

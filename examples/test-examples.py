@@ -48,7 +48,7 @@ def run_command(cmd: List[str], cwd: Optional[Path] = None, capture_output: bool
             text=True,
             check=False,
             shell=True,
-            timeout=600  # 10 minute timeout
+            timeout=600,  # 10 minute timeout
         )
         stdout = result.stdout if capture_output else ""
         stderr = result.stderr if capture_output else ""
@@ -145,7 +145,7 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
         "--quiet",
         "--no-asset-metadata",
         "--no-path-metadata",
-        "--no-version-reporting"
+        "--no-version-reporting",
     ], cwd=example_dir)
     
     if code != 0:
@@ -191,7 +191,7 @@ def compare_templates(ts_template: str, py_template: str) -> Tuple[bool, str]:
         py_normalized.splitlines(keepends=True),
         fromfile="TypeScript",
         tofile="Python",
-        lineterm=""
+        lineterm="",
     ))
     
     return False, "".join(diff)
@@ -327,18 +327,18 @@ def main():
     parser.add_argument(
         "--skip-deploy",
         action="store_true",
-        help="Skip deployment and destruction phase (faster, only tests synthesis and comparison)"
+        help="Skip deployment and destruction phase (faster, only tests synthesis and comparison)",
     )
     parser.add_argument(
         "--skip-package",
         action="store_true",
-        help="Skip package building phase (faster, only tests synthesis and comparison)"
+        help="Skip package building phase (faster, only tests synthesis and comparison)",
     )
     parser.add_argument(
         "--examples",
         nargs="+",
         metavar="EXAMPLE",
-        help="Only process specific examples by name (e.g., --examples advanced simple-codebuild). Can be specified multiple times or space-separated."
+        help="Only process specific examples by name (e.g., --examples advanced simple-codebuild). Can be specified multiple times or space-separated.",
     )
     args = parser.parse_args()
     
