@@ -34,7 +34,7 @@ EC2 is useful when you want:
    cdk deploy
    ```
 
-3. Follow the setup instructions in the main README to configure GitHub integration.
+3. Follow the setup instructions in the main [README.md](../../README.md) to configure GitHub integration.
 
 4. Use the runners in your GitHub Actions workflows:
 

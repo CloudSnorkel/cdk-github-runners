@@ -20,7 +20,7 @@ This is the simplest example of using the CDK GitHub Runners library with just a
    cdk deploy
    ```
 
-3. Follow the setup instructions in the main README to configure GitHub integration
+3. Follow the setup instructions in the main [README.md](../../README.md) to configure GitHub integration
 
 ## GitHub Workflow
 
@@ -33,7 +33,7 @@ jobs:
   test:
     runs-on: [self-hosted, codebuild]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Run tests
         run: echo "Hello from CodeBuild runner!"
 ```

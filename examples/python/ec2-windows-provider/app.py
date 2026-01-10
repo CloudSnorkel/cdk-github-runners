@@ -5,7 +5,7 @@ EC2 Windows provider example demonstrating EC2 runner configuration for Windows.
 This example demonstrates:
 - EC2 provider with Windows runners
 - Custom Windows image builder with additional tools
-- VPC and security group configuration
+- VPC configuration
 """
 
 import aws_cdk as cdk
@@ -23,6 +23,8 @@ class Ec2WindowsProviderStack(Stack):
     def __init__(self, scope, construct_id, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
 
+        # Note: Creating a VPC is not required. Providers can use the default VPC or an existing VPC.
+        # We create one here to make this example self-contained and testable.
         # Create a VPC with public and private subnets
         vpc = ec2.Vpc(
             self, "VPC",
@@ -40,10 +42,6 @@ class Ec2WindowsProviderStack(Stack):
                 )
             ]
         )
-
-        # Create security group for runners
-        runner_sg = ec2.SecurityGroup(self, "RunnerSecurityGroup", vpc=vpc)
-        runner_sg.add_egress_rule(ec2.Peer.any_ipv4(), ec2.Port.all_traffic())
 
         # Create a Windows image builder for EC2
         ec2_windows_image_builder = Ec2RunnerProvider.image_builder(
@@ -73,7 +71,6 @@ class Ec2WindowsProviderStack(Stack):
             self, "EC2WindowsProvider",
             labels=["ec2", "windows", "x64"],
             vpc=vpc,
-            security_groups=[runner_sg],
             image_builder=ec2_windows_image_builder,
         )
 

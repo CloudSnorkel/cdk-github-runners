@@ -5,11 +5,11 @@
  * This example demonstrates:
  * - EC2 provider with Windows runners
  * - Custom Windows image builder with additional tools
- * - VPC and security group configuration
+ * - VPC configuration
  */
 
 import { App, Stack } from 'aws-cdk-lib';
-import { Vpc, SubnetType, SecurityGroup, Peer, Port } from 'aws-cdk-lib/aws-ec2';
+import { Vpc, SubnetType } from 'aws-cdk-lib/aws-ec2';
 import {
   GitHubRunners,
   Ec2RunnerProvider,
@@ -21,6 +21,8 @@ class Ec2WindowsProviderStack extends Stack {
   constructor(scope: App, id: string) {
     super(scope, id);
 
+    // Note: Creating a VPC is not required. Providers can use the default VPC or an existing VPC.
+    // We create one here to make this example self-contained and testable.
     // Create a VPC with public and private subnets
     const vpc = new Vpc(this, 'VPC', {
       maxAzs: 2,
@@ -37,10 +39,6 @@ class Ec2WindowsProviderStack extends Stack {
         },
       ],
     });
-
-    // Create security group for runners
-    const runnerSg = new SecurityGroup(this, 'RunnerSecurityGroup', { vpc });
-    runnerSg.addEgressRule(Peer.anyIpv4(), Port.allTraffic());
 
     // Create a Windows image builder for EC2
     const ec2WindowsImageBuilder = Ec2RunnerProvider.imageBuilder(this, 'EC2WindowsImageBuilder', {
@@ -68,7 +66,6 @@ class Ec2WindowsProviderStack extends Stack {
     const ec2WindowsProvider = new Ec2RunnerProvider(this, 'EC2WindowsProvider', {
       labels: ['ec2', 'windows', 'x64'],
       vpc: vpc,
-      securityGroups: [runnerSg],
       imageBuilder: ec2WindowsImageBuilder,
     });
 

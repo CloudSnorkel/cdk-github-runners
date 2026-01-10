@@ -45,7 +45,7 @@ In this example, we distribute Fargate runners across 2 availability zones:
    npx cdk deploy
    ```
 
-3. Follow the setup instructions in the main README to configure GitHub integration.
+3. Follow the setup instructions in the main [README.md](../../README.md) to configure GitHub integration.
 
 4. Use the runners in your GitHub Actions workflows:
 
