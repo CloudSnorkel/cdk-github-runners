@@ -30,6 +30,7 @@ jest.mock('../src/lambda-helpers', () => ({
 
 // Import handler after mocks are set up
 import * as handler from '../src/providers/ami-root-device.lambda';
+import { customResourceRespond } from '../src/lambda-helpers';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -191,8 +192,6 @@ describe('ami-root-device Lambda handler', () => {
     });
 
     test('handles error when SSM parameter has no value', async () => {
-      const { customResourceRespond } = require('../src/lambda-helpers');
-
       mockSsmSend.mockResolvedValueOnce({
         Parameter: undefined,
       });
@@ -214,8 +213,6 @@ describe('ami-root-device Lambda handler', () => {
     });
 
     test('handles error when SSM parameter value is empty string', async () => {
-      const { customResourceRespond } = require('../src/lambda-helpers');
-
       mockSsmSend.mockResolvedValueOnce({
         Parameter: {
           Value: '',
