@@ -218,6 +218,10 @@ testExamplesWorkflow.addJob('test-examples', {
       run: 'echo "$(npm bin -g)" >> $GITHUB_PATH',
     },
     {
+      name: 'test cdk',
+      run: 'cdk --version\nwhich cdk\npython -e "import os; print(os.environ[\"PATH\"])"\npython -e "import subprocess; subprocess.run("env", shell=True)\npython -e "import subprocess; subprocess.run(["cdk", "--version"], check=True)"\npython -e "import subprocess; subprocess.run(["cdk", "--version"], check=True, shell=True)"',
+    },
+    {
       name: 'Run test-examples script',
       run: 'python examples/test-examples.py --skip-deploy',
     },
