@@ -211,7 +211,7 @@ testExamplesWorkflow.addJob('test-examples', {
     },
     {
       name: 'Install CDK',
-      run: 'npm install -g aws-cdk',
+      run: 'yarn global add aws-cdk',
     },
     {
       name: 'Run test-examples script',

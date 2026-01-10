@@ -21,6 +21,6 @@ jobs:
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
       - name: Install CDK
-        run: npm install -g aws-cdk
+        run: yarn global add aws-cdk
       - name: Run test-examples script
         run: python examples/test-examples.py --skip-deploy
