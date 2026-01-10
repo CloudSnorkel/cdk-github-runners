@@ -22,15 +22,5 @@ jobs:
         run: yarn install --check-files --frozen-lockfile
       - name: Install CDK
         run: npm install -g aws-cdk
-      - name: Add npm global bin to PATH
-        run: echo "$(npm bin -g)" >> $GITHUB_PATH
-      - name: test cdk
-        run: |-
-          cdk --version
-          which cdk
-          python -c "import os; print(os.environ)"
-          python -c "import subprocess; subprocess.run('env', shell=True)"
-          python -c "import subprocess; subprocess.run(['cdk', '--version'], check=True)"
-          python -c "import subprocess; subprocess.run(['cdk', '--version'], check=True, shell=True)"
       - name: Run test-examples script
         run: python examples/test-examples.py --skip-deploy

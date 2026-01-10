@@ -21,6 +21,23 @@ import tempfile
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 import difflib
+import shutil
+
+
+cdk_path = shutil.which("cdk")
+if not cdk_path:
+    print_colored("  ✗ CDK not found. Please install AWS CDK CLI.", Colors.RED)
+    sys.exit(1)
+
+npm_path = shutil.which("npm")
+if not npm_path:
+    print_colored("  ✗ npm not found. Please install npm.", Colors.RED)
+    sys.exit(1)
+
+yarn_path = shutil.which("yarn")
+if not yarn_path:
+    print_colored("  ✗ yarn not found. Please install yarn.", Colors.RED)
+    sys.exit(1)
 
 
 class Colors:
@@ -47,7 +64,6 @@ def run_command(cmd: List[str], cwd: Optional[Path] = None, capture_output: bool
             capture_output=capture_output,
             text=True,
             check=False,
-            shell=True,
             timeout=600,  # 10 minute timeout
         )
         stdout = result.stdout if capture_output else ""
@@ -109,7 +125,7 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
     # Install dependencies first
     if lang == "typescript":
         print_colored(f"  Installing dependencies for {example_path}...", Colors.BLUE)
-        code, out, err = run_command(["npm", "install", "--no-package-lock"], cwd=example_dir)
+        code, out, err = run_command([npm_path, "install", "--no-package-lock"], cwd=example_dir)
         if code != 0:
             return False, None, f"npm install failed: {err}\n{out}"
         
@@ -119,7 +135,7 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
         tgz_files = list(dist_js_dir.glob("*.tgz"))
         if not tgz_files:
             return False, None, f"No dist .tgz files found in {dist_js_dir}"
-        code, out, err = run_command(["npm", "install", "--no-save"] + tgz_files, cwd=example_dir)
+        code, out, err = run_command([npm_path, "install", "--no-save"] + tgz_files, cwd=example_dir)
         if code != 0:
             return False, None, f"npm install local package failed: {err}\n{out}"
     elif lang == "python":
@@ -141,7 +157,7 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
     # Run CDK synth (exclude metadata for cleaner diffs)
     print_colored(f"  Synthing {example_path}...", Colors.BLUE)
     code, out, err = run_command([
-        "cdk", "synth", 
+        cdk_path, "synth", 
         "--quiet",
         "--no-asset-metadata",
         "--no-path-metadata",
@@ -205,7 +221,7 @@ def deploy_example(example_path: str) -> Tuple[bool, str]:
     try:
         # Run with real-time output but capture for error reporting
         process = subprocess.Popen(
-            ["cdk", "deploy", "--require-approval", "never", "--all"],
+            [cdk_path, "deploy", "--require-approval", "never", "--all"],
             cwd=example_dir,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -214,7 +230,6 @@ def deploy_example(example_path: str) -> Tuple[bool, str]:
             text=True,
             bufsize=1,
             universal_newlines=True,
-            shell=True,
         )
         
         output_lines = []
@@ -241,7 +256,7 @@ def destroy_example(example_path: str) -> Tuple[bool, str]:
     try:
         # Run with real-time output but capture for error reporting
         process = subprocess.Popen(
-            ["cdk", "destroy", "--force", "--all"],
+            [cdk_path, "destroy", "--force", "--all"],
             cwd=example_dir,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -250,7 +265,6 @@ def destroy_example(example_path: str) -> Tuple[bool, str]:
             text=True,
             bufsize=1,
             universal_newlines=True,
-            shell=True,
         )
         
         output_lines = []
@@ -295,14 +309,14 @@ def check_prerequisites() -> bool:
     print_colored("Checking prerequisites...", Colors.BLUE)
     
     # Check CDK
-    code, _, _ = run_command(["cdk", "--version"])
+    code, _, _ = run_command([cdk_path, "--version"])
     if code != 0:
         print_colored("  ✗ CDK not found. Please install AWS CDK CLI.", Colors.RED)
         return False
     print_colored("  ✓ CDK found", Colors.GREEN)
     
     # Check npm (for TypeScript examples)
-    code, _, _ = run_command(["npm", "--version"])
+    code, _, _ = run_command([npm_path, "--version"])
     if code != 0:
         print_colored("  ✗ npm not found. TypeScript examples will fail.", Colors.YELLOW)
     else:
@@ -361,8 +375,17 @@ def main():
         
         project_root = Path(__file__).parent.parent
         
+        print_colored("Running yarn run bundle...", Colors.BLUE)
+        code, out, err = run_command([yarn_path, "run", "bundle"], cwd=project_root)
+        if code != 0:
+            print_colored(f"  ✗ Bundle failed: {err}\n{out}", Colors.RED)
+            print_colored("\nPackage building failed. Stopping.", Colors.RED)
+            return 1
+        print_colored("  ✓ Bundle successful", Colors.GREEN)
+        print()
+        
         print_colored("Running yarn run compile...", Colors.BLUE)
-        code, out, err = run_command(["yarn", "run", "compile"], cwd=project_root)
+        code, out, err = run_command([yarn_path, "run", "compile"], cwd=project_root)
         if code != 0:
             print_colored(f"  ✗ Compile failed: {err}\n{out}", Colors.RED)
             print_colored("\nPackage building failed. Stopping.", Colors.RED)
@@ -371,7 +394,7 @@ def main():
         print()
         
         print_colored("Running yarn run package:js...", Colors.BLUE)
-        code, out, err = run_command(["yarn", "run", "package:js"], cwd=project_root)
+        code, out, err = run_command([yarn_path, "run", "package:js"], cwd=project_root)
         if code != 0:
             print_colored(f"  ✗ Package JS failed: {err}\n{out}", Colors.RED)
             print_colored("\nPackage building failed. Stopping.", Colors.RED)
@@ -380,7 +403,7 @@ def main():
         print()
         
         print_colored("Running yarn run package:python...", Colors.BLUE)
-        code, out, err = run_command(["yarn", "run", "package:python"], cwd=project_root)
+        code, out, err = run_command([yarn_path, "run", "package:python"], cwd=project_root)
         if code != 0:
             print_colored(f"  ✗ Package Python failed: {err}\n{out}", Colors.RED)
             print_colored("\nPackage building failed. Stopping.", Colors.RED)

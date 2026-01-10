@@ -214,14 +214,6 @@ testExamplesWorkflow.addJob('test-examples', {
       run: 'npm install -g aws-cdk',
     },
     {
-      name: 'Add npm global bin to PATH',
-      run: 'echo "$(npm bin -g)" >> $GITHUB_PATH',
-    },
-    {
-      name: 'test cdk',
-      run: 'cdk --version\nwhich cdk\npython -c "import os; print(os.environ)"\npython -c "import subprocess; subprocess.run(\'env\', shell=True)"\npython -c "import subprocess; subprocess.run([\'cdk\', \'--version\'], check=True)"\npython -c "import subprocess; subprocess.run([\'cdk\', \'--version\'], check=True, shell=True)"',
-    },
-    {
       name: 'Run test-examples script',
       run: 'python examples/test-examples.py --skip-deploy',
     },
