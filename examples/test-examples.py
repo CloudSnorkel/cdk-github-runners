@@ -14,13 +14,14 @@ This script:
 
 import argparse
 import json
+import os
+import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 import difflib
-import shutil
 
 
 cdk_path = shutil.which("cdk")
@@ -135,14 +136,17 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
             return False, None, f"yarn install failed: {err}\n{out}"
         print_colored(f"    ✓ Dependencies installed ({format_duration(duration)})", Colors.GREEN)
         
-        # Install local package - glob the full real path
+        # Install local package - use the pre-copied simple name
         start_time = time.time()
         print_colored(f"  Installing local package for {example_path}...", Colors.BLUE)
-        dist_js_dir = (project_root / "dist" / "js").resolve()
-        tgz_files = list(dist_js_dir.glob("*.tgz"))
-        if not tgz_files:
-            return False, None, f"No dist .tgz files found in {dist_js_dir}"
-        code, out, err = run_command([yarn_path, "add", f"file:{tgz_files[0]}"], cwd=example_dir)
+        examples_dir = Path(__file__).parent
+        simple_tgz_path = examples_dir / "cdk-github-runners.tgz"
+        if not simple_tgz_path.exists():
+            return False, None, f"Package file not found: {simple_tgz_path}"
+        
+        # Use relative path from example directory
+        relative_tgz_path = os.path.relpath(simple_tgz_path, example_dir)
+        code, out, err = run_command([yarn_path, "add", f"file:{relative_tgz_path}"], cwd=example_dir)
         duration = time.time() - start_time
         if code != 0:
             return False, None, f"yarn add local package failed: {err}\n{out}"
@@ -432,6 +436,16 @@ def main():
             return 1
         print_colored(f"  ✓ Package JS successful ({format_duration(duration)})", Colors.GREEN)
         print()
+        
+        # Copy tgz to a simple name once for all examples to use
+        dist_js_dir = (project_root / "dist" / "js").resolve()
+        tgz_files = list(dist_js_dir.glob("*.tgz"))
+        if tgz_files:
+            examples_dir = Path(__file__).parent
+            simple_tgz_path = examples_dir / "cdk-github-runners.tgz"
+            shutil.copy2(tgz_files[0], simple_tgz_path)
+            print_colored(f"  ✓ Copied package to {simple_tgz_path.name} for examples", Colors.GREEN)
+            print()
         
         start_time = time.time()
         print_colored("Running yarn run package:python...", Colors.BLUE)
