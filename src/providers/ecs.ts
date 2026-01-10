@@ -619,7 +619,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.EcsRunTask(
       this,
-      generateStateName(this),
+      'State',
       {
         stateName: generateStateName(this),
         integrationPattern: IntegrationPattern.RUN_JOB, // sync

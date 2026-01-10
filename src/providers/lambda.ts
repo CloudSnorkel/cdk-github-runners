@@ -333,7 +333,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
   getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.LambdaInvoke(
       this,
-      generateStateName(this),
+      'State',
       {
         stateName: generateStateName(this),
         lambdaFunction: this.function,
