@@ -13,9 +13,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: lts/*
+          cache: yarn
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
+          cache: pip
       - name: Checkout
         uses: actions/checkout@v5
       - name: Install dependencies

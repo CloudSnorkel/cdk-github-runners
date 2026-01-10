@@ -215,5 +215,8 @@ testExamplesWorkflow.addJob('test-examples', {
     },
   ],
 });
+testExamplesWorkflow.file.addOverride('jobs.test-examples.steps.0.with.cache', 'yarn');
+testExamplesWorkflow.file.addOverride('jobs.test-examples.steps.1.with.cache', 'pip');
+
 
 project.synth();
