@@ -7,7 +7,7 @@ runner failures and get notified when issues occur.
 """
 
 import aws_cdk as cdk
-from aws_cdk import Stack, aws_sns as sns, aws_sns_subscriptions as sns_subs
+from aws_cdk import Stack, aws_sns_subscriptions as sns_subs
 from cloudsnorkel.cdk_github_runners import (
     GitHubRunners,
     CodeBuildRunnerProvider,
@@ -33,7 +33,7 @@ class MonitoringStack(Stack):
         # Create CloudWatch alarm for failed runners
         # This alarm triggers when 5 or more runners fail within 2 evaluation periods
         # Failed runner starts mean jobs may sit and wait, so this is critical to monitor
-        failed_runners_alarm = runners.metric_failed().create_alarm(
+        runners.metric_failed().create_alarm(
             self, "FailedRunnersAlarm",
             threshold=5,
             evaluation_periods=2,

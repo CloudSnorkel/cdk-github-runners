@@ -14,10 +14,8 @@ This script:
 
 import argparse
 import json
-import os
 import subprocess
 import sys
-import tempfile
 import time
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
@@ -480,7 +478,6 @@ def main():
     
     # Synth TypeScript examples
     for example in ts_examples:
-        example_name = Path(example).name
         print_colored(f"Synthing TypeScript: {example}", Colors.YELLOW)
         success, template, error = synth_example(example, "typescript")
         if success:
@@ -493,7 +490,6 @@ def main():
     
     # Synth Python examples
     for example in py_examples:
-        example_name = Path(example).name
         print_colored(f"Synthing Python: {example}", Colors.YELLOW)
         success, template, error = synth_example(example, "python")
         if success:
@@ -560,7 +556,6 @@ def main():
         successful_ts_examples = [ex for ex in ts_examples if Path(ex).name in ts_templates]
         
         for example in successful_ts_examples:
-            example_name = Path(example).name
             print_colored(f"Testing deployment: {example}", Colors.YELLOW)
             
             # Deploy

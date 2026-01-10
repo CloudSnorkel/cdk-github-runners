@@ -1,5 +1,3 @@
-const fs = require('fs');
-const path = require('path');
 const { awscdk } = require('projen');
 const { CdkConfig } = require('projen/lib/awscdk');
 const { Stability } = require('projen/lib/cdk/jsii-project');
