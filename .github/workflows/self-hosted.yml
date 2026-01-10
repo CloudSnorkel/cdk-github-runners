@@ -111,6 +111,8 @@ jobs:
     environment: ${{ matrix.environment }}
 
     runs-on: ${{ matrix.runs-on }}
+    permissions:
+      contents: read
     steps:
       - run: export
       - name: Check arch
@@ -175,6 +177,8 @@ jobs:
     name: ${{ matrix.name }}
 
     runs-on: ${{ matrix.runs-on }}
+    permissions:
+      contents: read
     container: ghcr.io/github/super-linter  # this makes it a docker-in-docker container
     steps:
       - name: Checkout
@@ -209,6 +213,8 @@ jobs:
     name: ${{ matrix.name }}
 
     runs-on: ${{ matrix.runs-on }}
+    permissions:
+      contents: read
     steps:
       - run: |
           Get-ChildItem env:

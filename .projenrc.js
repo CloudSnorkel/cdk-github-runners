@@ -32,22 +32,19 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@aws-sdk/client-sfn',
     '@types/aws-lambda',
     // for setup ui
-    '@sveltejs/vite-plugin-svelte@^4',
+    '@sveltejs/vite-plugin-svelte@^6',
     '@tsconfig/svelte@^5',
     'bootstrap@^5.2.0',
     'sass@^1.54.0',
     'svelte@^5',
     'svelte-check@^4',
     'svelte-preprocess@^6',
-    'vite@^5',
+    'vite@^7',
     'vite-plugin-singlefile@^2',
     'eslint-plugin-svelte@^2.29.0',
   ],
   deps: [
   ],
-  jsiiVersion: '5.8.x',
-  typescriptVersion: '5.6.x',
-  lambdaOptions: { runtime: awscdk.LambdaRuntime.NODEJS_22_X },
   releaseToNpm: true,
   npmAccess: NpmAccess.PUBLIC,
   npmTrustedPublishing: true,
@@ -113,6 +110,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
       },
     },
   },
+  workflowPackageCache: true,
   pullRequestTemplate: false,
   tsJestOptions: {
     transformOptions: {
