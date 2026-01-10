@@ -109,6 +109,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
       },
     },
   },
+  workflowPackageCache: true,
   pullRequestTemplate: false,
   tsJestOptions: {
     transformOptions: {
