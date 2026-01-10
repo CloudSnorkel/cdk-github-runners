@@ -377,6 +377,11 @@ def main():
         help="Skip package building phase (faster, only tests synthesis and comparison)",
     )
     parser.add_argument(
+        "--skip-synth",
+        action="store_true",
+        help="Skip synthesis phase (faster, only tests deployment if not skipped)",
+    )
+    parser.add_argument(
         "--examples",
         nargs="+",
         metavar="EXAMPLE",
@@ -481,77 +486,86 @@ def main():
         example_names.add(Path(ex).name)
     
     # Phase 1: Synth all examples
-    print_colored("=" * 80, Colors.BOLD)
-    print_colored("Phase 1: Synthesizing Examples", Colors.BOLD)
-    print_colored("=" * 80, Colors.BOLD)
-    print()
-    
     ts_templates: Dict[str, str] = {}
     py_templates: Dict[str, str] = {}
     synth_errors: List[Tuple[str, str, str]] = []  # (example, lang, error)
-    
-    # Synth TypeScript examples
-    for example in ts_examples:
-        example_name = Path(example).name
-        print_colored(f"Synthing TypeScript: {example}", Colors.YELLOW)
-        success, template, error = synth_example(example, "typescript")
-        if success:
-            ts_templates[example_name] = template
-            print_colored(f"  ✓ Success", Colors.GREEN)
-        else:
-            synth_errors.append((example, "TypeScript", error))
-            print_colored(f"  ✗ Failed: {error}", Colors.RED)
-        print()
-    
-    # Synth Python examples
-    for example in py_examples:
-        example_name = Path(example).name
-        print_colored(f"Synthing Python: {example}", Colors.YELLOW)
-        success, template, error = synth_example(example, "python")
-        if success:
-            py_templates[example_name] = template
-            print_colored(f"  ✓ Success", Colors.GREEN)
-        else:
-            synth_errors.append((example, "Python", error))
-            print_colored(f"  ✗ Failed: {error}", Colors.RED)
-        print()
-    
-    # Phase 2: Compare templates
-    print_colored("=" * 80, Colors.BOLD)
-    print_colored("Phase 2: Comparing Templates", Colors.BOLD)
-    print_colored("=" * 80, Colors.BOLD)
-    print()
-    
     comparison_errors: List[Tuple[str, str]] = []  # (example, diff)
     
-    for example_name in example_names:
-        if example_name not in ts_templates:
-            print_colored(f"⚠ {example_name}: No TypeScript template", Colors.YELLOW)
-            continue
-        if example_name not in py_templates:
-            print_colored(f"⚠ {example_name}: No Python template", Colors.YELLOW)
-            continue
-        
-        print_colored(f"Comparing {example_name}...", Colors.YELLOW)
-        match, diff = compare_templates(ts_templates[example_name], py_templates[example_name])
-        if match:
-            print_colored(f"  ✓ Templates match", Colors.GREEN)
-        else:
-            comparison_errors.append((example_name, diff))
-            print_colored(f"  ✗ Templates differ", Colors.RED)
-            # Show first 20 lines of diff
-            diff_lines = diff.split('\n')[:20]
-            for line in diff_lines:
-                if line.startswith('+'):
-                    print_colored(f"    {line}", Colors.GREEN)
-                elif line.startswith('-'):
-                    print_colored(f"    {line}", Colors.RED)
-                else:
-                    print(f"    {line}")
-            if len(diff.split('\n')) > 20:
-                remaining = len(diff.split('\n')) - 20
-                print_colored(f"    ... ({remaining} more lines)", Colors.YELLOW)
+    if args.skip_synth:
+        print_colored("=" * 80, Colors.BOLD)
+        print_colored("Phase 1: Skipped (--skip-synth flag)", Colors.BOLD)
+        print_colored("=" * 80, Colors.BOLD)
         print()
+        print_colored("=" * 80, Colors.BOLD)
+        print_colored("Phase 2: Skipped (--skip-synth flag)", Colors.BOLD)
+        print_colored("=" * 80, Colors.BOLD)
+        print()
+    else:
+        print_colored("=" * 80, Colors.BOLD)
+        print_colored("Phase 1: Synthesizing Examples", Colors.BOLD)
+        print_colored("=" * 80, Colors.BOLD)
+        print()
+        
+        # Synth TypeScript examples
+        for example in ts_examples:
+            example_name = Path(example).name
+            print_colored(f"Synthing TypeScript: {example}", Colors.YELLOW)
+            success, template, error = synth_example(example, "typescript")
+            if success:
+                ts_templates[example_name] = template
+                print_colored(f"  ✓ Success", Colors.GREEN)
+            else:
+                synth_errors.append((example, "TypeScript", error))
+                print_colored(f"  ✗ Failed: {error}", Colors.RED)
+            print()
+        
+        # Synth Python examples
+        for example in py_examples:
+            example_name = Path(example).name
+            print_colored(f"Synthing Python: {example}", Colors.YELLOW)
+            success, template, error = synth_example(example, "python")
+            if success:
+                py_templates[example_name] = template
+                print_colored(f"  ✓ Success", Colors.GREEN)
+            else:
+                synth_errors.append((example, "Python", error))
+                print_colored(f"  ✗ Failed: {error}", Colors.RED)
+            print()
+        
+        # Phase 2: Compare templates
+        print_colored("=" * 80, Colors.BOLD)
+        print_colored("Phase 2: Comparing Templates", Colors.BOLD)
+        print_colored("=" * 80, Colors.BOLD)
+        print()
+        
+        for example_name in example_names:
+            if example_name not in ts_templates:
+                print_colored(f"⚠ {example_name}: No TypeScript template", Colors.YELLOW)
+                continue
+            if example_name not in py_templates:
+                print_colored(f"⚠ {example_name}: No Python template", Colors.YELLOW)
+                continue
+            
+            print_colored(f"Comparing {example_name}...", Colors.YELLOW)
+            match, diff = compare_templates(ts_templates[example_name], py_templates[example_name])
+            if match:
+                print_colored(f"  ✓ Templates match", Colors.GREEN)
+            else:
+                comparison_errors.append((example_name, diff))
+                print_colored(f"  ✗ Templates differ", Colors.RED)
+                # Show first 20 lines of diff
+                diff_lines = diff.split('\n')[:20]
+                for line in diff_lines:
+                    if line.startswith('+'):
+                        print_colored(f"    {line}", Colors.GREEN)
+                    elif line.startswith('-'):
+                        print_colored(f"    {line}", Colors.RED)
+                    else:
+                        print(f"    {line}")
+                if len(diff.split('\n')) > 20:
+                    remaining = len(diff.split('\n')) - 20
+                    print_colored(f"    ... ({remaining} more lines)", Colors.YELLOW)
+            print()
     
     # Phase 3: Deploy and destroy TypeScript examples
     deploy_errors: List[Tuple[str, str]] = []  # (example, error)
@@ -568,8 +582,11 @@ def main():
         print_colored("=" * 80, Colors.BOLD)
         print()
         
-        # Only deploy examples that successfully synthesized
-        successful_ts_examples = [ex for ex in ts_examples if Path(ex).name in ts_templates]
+        # Only deploy examples that successfully synthesized (if synth was not skipped)
+        if args.skip_synth:
+            successful_ts_examples = ts_examples
+        else:
+            successful_ts_examples = [ex for ex in ts_examples if Path(ex).name in ts_templates]
         
         for example in successful_ts_examples:
             print_colored(f"Testing deployment: {example}", Colors.YELLOW)
@@ -594,13 +611,14 @@ def main():
             
             print()
         
-        # Report skipped examples
-        skipped_examples = [ex for ex in ts_examples if Path(ex).name not in ts_templates]
-        if skipped_examples:
-            print_colored(f"Skipped {len(skipped_examples)} example(s) due to synthesis failures:", Colors.YELLOW)
-            for ex in skipped_examples:
-                print_colored(f"  - {ex}", Colors.YELLOW)
-            print()
+        # Report skipped examples (only if synth was not skipped)
+        if not args.skip_synth:
+            skipped_examples = [ex for ex in ts_examples if Path(ex).name not in ts_templates]
+            if skipped_examples:
+                print_colored(f"Skipped {len(skipped_examples)} example(s) due to synthesis failures:", Colors.YELLOW)
+                for ex in skipped_examples:
+                    print_colored(f"  - {ex}", Colors.YELLOW)
+                print()
     
     # Summary
     print_colored("=" * 80, Colors.BOLD)
