@@ -1,6 +1,7 @@
 import * as path from 'path';
 import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { discoverCertificateFiles } from '../utils';
 import { ImageBuilderComponent } from './aws-image-builder';
 import { RunnerImageAsset } from './common';
 import { Architecture, Os, RunnerVersion } from '../providers';
@@ -481,18 +482,20 @@ export abstract class RunnerImageComponent {
   /**
    * A component to add a trusted certificate authority. This can be used to support GitHub Enterprise Server with self-signed certificate.
    *
-   * @param source path to certificate file in PEM format
+   * @param source path to certificate file in PEM format, or a directory containing certificate files (.pem or .crt)
    * @param name unique certificate name to be used on runner file system
    */
   static extraCertificates(source: string, name: string): RunnerImageComponent {
+    // Sanitize the name to only contain alphanumeric characters, dashes and underscores
+    const sanitizedName = name.replace(/[^a-zA-Z0-9_-]/g, '-');
+
+    // Discover certificate files (supports both file and directory)
+    const certificateFiles = discoverCertificateFiles(source);
+
     return new class extends RunnerImageComponent {
-      name = `Extra-Certificates-${name}`;
+      name = `Extra-Certificates-${sanitizedName}`;
 
       getCommands(os: Os, architecture: Architecture) {
-        if (!name.match(/^[a-zA-Z0-9_-]+$/)) {
-          throw new Error(`Invalid certificate name: ${name}. Name must only contain alphanumeric characters, dashes and underscores.`);
-        }
-
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
           return [
             'update-ca-certificates',
@@ -502,31 +505,43 @@ export abstract class RunnerImageComponent {
             'update-ca-trust',
           ];
         } else if (os.is(Os.WINDOWS)) {
-          return [
-            `Import-Certificate -FilePath C:\\${name}.crt -CertStoreLocation Cert:\\LocalMachine\\Root`,
-            `Remove-Item C:\\${name}.crt`,
-          ];
+          const commands: string[] = [];
+          for (let i = 0; i < certificateFiles.length; i++) {
+            const certName = `${sanitizedName}-${i}`;
+            commands.push(
+              `Import-Certificate -FilePath C:\\${certName}.crt -CertStoreLocation Cert:\\LocalMachine\\Root`,
+              `Remove-Item C:\\${certName}.crt`,
+            );
+          }
+          return commands;
         }
 
         throw new Error(`Unknown os/architecture combo for extra certificates: ${os.name}/${architecture.name}`);
       }
 
       getAssets(os: Os, _architecture: Architecture): RunnerImageAsset[] {
+        const assets: RunnerImageAsset[] = [];
+
+        let targetDir: string;
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
-          return [
-            { source, target: `/usr/local/share/ca-certificates/${name}.crt` },
-          ];
+          targetDir = '/usr/local/share/ca-certificates/';
         } else if (os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
-          return [
-            { source, target: `/etc/pki/ca-trust/source/anchors/${name}.crt` },
-          ];
+          targetDir = '/etc/pki/ca-trust/source/anchors/';
         } else if (os.is(Os.WINDOWS)) {
-          return [
-            { source, target: `C:\\${name}.crt` },
-          ];
+          targetDir = 'C:\\';
+        } else {
+          throw new Error(`Unsupported OS for extra certificates: ${os.name}`);
         }
 
-        throw new Error(`Unsupported OS for extra certificates: ${os.name}`);
+        for (let i = 0; i < certificateFiles.length; i++) {
+          const certName = `${sanitizedName}-${i}`;
+          assets.push({
+            source: certificateFiles[i],
+            target: `${targetDir}${certName}.crt`,
+          });
+        }
+
+        return assets;
       }
     }();
   }

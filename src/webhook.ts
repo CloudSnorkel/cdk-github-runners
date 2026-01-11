@@ -95,6 +95,16 @@ export interface GithubWebhookHandlerProps {
    * Whether to require the "self-hosted" label.
    */
   readonly requireSelfHostedLabel: boolean;
+
+  /**
+   * Additional Lambda function options (VPC, security groups, layers, etc.).
+   */
+  readonly extraLambdaProps?: lambda.FunctionOptions;
+
+  /**
+   * Additional environment variables for the Lambda function.
+   */
+  readonly extraLambdaEnv?: { [key: string]: string };
 }
 
 /**
@@ -130,10 +140,12 @@ export class GithubWebhookHandler extends Construct {
           PROVIDERS: JSON.stringify(props.providers),
           REQUIRE_SELF_HOSTED_LABEL: props.requireSelfHostedLabel ? '1' : '0',
           PROVIDER_SELECTOR_ARN: props.providerSelector?.functionArn ?? '',
+          ...props.extraLambdaEnv,
         },
         timeout: cdk.Duration.seconds(31),
         logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
         loggingFormat: lambda.LoggingFormat.JSON,
+        ...props.extraLambdaProps,
       },
     );
 

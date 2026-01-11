@@ -15,6 +15,16 @@ export interface GithubWebhookRedeliveryProps {
    * Secrets used to communicate with GitHub.
    */
   readonly secrets: Secrets;
+
+  /**
+   * Additional Lambda function options (VPC, security groups, layers, etc.).
+   */
+  readonly extraLambdaProps?: lambda.FunctionOptions;
+
+  /**
+   * Additional environment variables for the Lambda function.
+   */
+  readonly extraLambdaEnv?: { [key: string]: string };
 }
 
 /**
@@ -39,12 +49,14 @@ export class GithubWebhookRedelivery extends Construct {
         environment: {
           GITHUB_SECRET_ARN: props.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: props.secrets.githubPrivateKey.secretArn,
+          ...props.extraLambdaEnv,
         },
         reservedConcurrentExecutions: 1, // avoid concurrent executions
         timeout: cdk.Duration.seconds(4.5 * 60), // 4.5 minutes
         logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
         loggingFormat: lambda.LoggingFormat.JSON,
         // applicationLogLevelV2: ApplicationLogLevel.DEBUG,
+        ...props.extraLambdaProps,
       },
     );
 

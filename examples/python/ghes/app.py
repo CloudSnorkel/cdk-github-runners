@@ -16,6 +16,7 @@ from cloudsnorkel.cdk_github_runners import (
     GitHubRunners,
     CodeBuildRunnerProvider,
     LambdaAccess,
+    RunnerImageComponent,
 )
 
 
@@ -43,32 +44,28 @@ class GhesStack(Stack):
             ]
         )
 
+
+        # If GitHub Enterprise Server uses a self-signed certificate, you need to:
+        # 1. Add the certificate to the runner image
+        # 2. Add the certificate to the management functions
+        # You can provide either a single certificate file (.pem or .crt) or a directory containing certificate files
+        self_signed_certificate_path = None  # e.g. 'path-to-cert.pem' or 'path-to-certs-directory'
+
+        # Create an image builder with (optionally) the certificates
+        image_builder = CodeBuildRunnerProvider.image_builder(self, "ImageBuilder")
+        if self_signed_certificate_path:
+            image_builder.add_component(
+                RunnerImageComponent.extra_certificates(self_signed_certificate_path, "ghes-ca")
+            )
+
         # Create a CodeBuild provider in the GHES VPC
         # Runners need to be in the same VPC as GHES to communicate with it
         codebuild_provider = CodeBuildRunnerProvider(
             self, "CodeBuildProvider",
             labels=["codebuild", "linux", "x64"],
-            vpc=vpc  # Runners must be in the GHES VPC to communicate with GHES
+            vpc=vpc,  # Runners must be in the GHES VPC to communicate with GHES
+            image_builder=image_builder if self_signed_certificate_path else None
         )
-
-        # If GitHub Enterprise Server uses a self-signed certificate, you need to:
-        # 1. Add the certificate to the runner image
-        # 2. Add the certificate to the management functions
-        #
-        # Example for self-signed certificates:
-        # image_builder = CodeBuildRunnerProvider.image_builder(self, "ImageBuilder")
-        # image_builder.add_component(
-        #     RunnerImageComponent.extra_certificates("path-to-certs/certs.pem", "ghes-ca")
-        # )
-        # codebuild_provider = CodeBuildRunnerProvider(
-        #     self, "CodeBuildProvider",
-        #     labels=["codebuild", "linux", "x64"],
-        #     vpc=vpc,
-        #     image_builder=image_builder
-        # )
-        #
-        # Then add extra_certificates to GitHubRunners:
-        # extra_certificates="path-to-certs",  # Directory containing certs.pem
 
         # Create the GitHub runners infrastructure
         # Configure webhookAccess to use API Gateway accessible only from within the VPC
@@ -85,8 +82,9 @@ class GhesStack(Stack):
                 # Optionally, you can also restrict to specific IPs if GHES has a known IP
                 # allowed_ips=["10.0.1.100/32"],  # Replace with your GHES IP
             ),
-            # If GHES uses a self-signed certificate, uncomment and provide the path:
-            # extra_certificates="path-to-certs",  # Directory containing certs.pem file
+            # If GHES uses a self-signed certificate, provide the path to the certificate file or directory
+            # Can be a single .pem/.crt file or a directory containing multiple certificate files
+            extra_certificates=self_signed_certificate_path,
         )
 
 

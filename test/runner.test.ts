@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2 } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_ecr as ecr } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
-import { CodeBuildRunnerProvider, CompositeProvider, GitHubRunners, LambdaRunnerProvider } from '../src';
+import { CodeBuildRunnerProvider, CompositeProvider, GitHubRunners, LambdaRunnerProvider, StaticRunnerImage } from '../src';
 
 let app: cdk.App;
 let stack: cdk.Stack;
@@ -317,6 +317,30 @@ describe('GitHubRunners', () => {
           },
         },
       },
+    });
+  });
+
+  test('All management Lambda functions are in VPC when VPC is specified', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    // Use CodeBuild provider which doesn't create Lambda functions
+    // so all Lambda functions in the template are management functions
+    new GitHubRunners(stack, 'runners', {
+      providers: [new CodeBuildRunnerProvider(stack, 'p1', {
+        // Use a static image builder that doesn't create Lambda functions
+        imageBuilder: StaticRunnerImage.fromEcrRepository(ecr.Repository.fromRepositoryName(stack, 'image-builder', 'amazonlinux:2023')),
+      })],
+      vpc,
+    });
+
+    const template = Template.fromStack(stack);
+
+    // Assert that all Lambda functions are in VPC
+    template.allResourcesProperties('AWS::Lambda::Function', {
+      VpcConfig: Match.objectLike({
+        SubnetIds: Match.anyValue(),
+        SecurityGroupIds: Match.anyValue(),
+      }),
     });
   });
 });
