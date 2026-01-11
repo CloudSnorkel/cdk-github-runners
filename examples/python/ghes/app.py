@@ -16,6 +16,7 @@ from cloudsnorkel.cdk_github_runners import (
     GitHubRunners,
     CodeBuildRunnerProvider,
     LambdaAccess,
+    RunnerImageComponent,
 )
 
 
@@ -53,7 +54,6 @@ class GhesStack(Stack):
         # Create an image builder with (optionally) the certificates
         image_builder = CodeBuildRunnerProvider.image_builder(self, "ImageBuilder")
         if self_signed_certificate_path:
-            from cloudsnorkel.cdk_github_runners import RunnerImageComponent
             image_builder.add_component(
                 RunnerImageComponent.extra_certificates(self_signed_certificate_path, "ghes-ca")
             )

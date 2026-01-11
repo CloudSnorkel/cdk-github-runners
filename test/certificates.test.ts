@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
-import { Architecture, CodeBuildRunnerProvider, GitHubRunners, LambdaRunnerProvider, Os, RunnerImageComponent } from '../src';
+import { Architecture, GitHubRunners, LambdaRunnerProvider, Os, RunnerImageComponent } from '../src';
 
 const testCertificatesDir = path.join(__dirname, 'certificates');
 
