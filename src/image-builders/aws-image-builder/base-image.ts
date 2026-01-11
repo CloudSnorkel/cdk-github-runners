@@ -4,17 +4,6 @@ import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
 
 /**
- * Interface for an EC2 Image Builder image.
- * This is a simplified version that only requires the image ARN.
- */
-export interface IImage {
-  /**
-   * The ARN of the image
-   */
-  readonly imageArn: string;
-}
-
-/**
  * Type that can be used to specify a base image - either a string (deprecated) or a BaseImage object.
  *
  * To create a BaseImage object, use the static factory methods like BaseImage.fromAmiId().
@@ -36,15 +25,6 @@ export class BaseImage {
    */
   public static fromAmiId(amiId: string): BaseImage {
     return new BaseImage(amiId);
-  }
-
-  /**
-   * The EC2 Image Builder image to use as a base image in an image recipe
-   *
-   * @param image The EC2 Image Builder image to use as a base image
-   */
-  public static fromImage(image: IImage): BaseImage {
-    return new BaseImage(image.imageArn);
   }
 
   /**
@@ -157,15 +137,6 @@ export class BaseContainerImage {
    */
   public static fromEcrPublic(registryAlias: string, repositoryName: string, tag: string): BaseContainerImage {
     return new BaseContainerImage(`public.ecr.aws/${registryAlias}/${repositoryName}:${tag}`);
-  }
-
-  /**
-   * The EC2 Image Builder image to use as a base image in a container recipe
-   *
-   * @param image The EC2 Image Builder image to use as a base image
-   */
-  public static fromImage(image: IImage): BaseContainerImage {
-    return new BaseContainerImage(image.imageArn);
   }
 
   /**

@@ -339,15 +339,21 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'VPC', { isDefault: true });
     this.securityGroups = props?.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })];
     this.subnetSelection = props?.subnetSelection;
-    // Normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated, only at public API level)
+    this.instanceType = props?.awsImageBuilderOptions?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
+    this.fastLaunchOptions = props?.awsImageBuilderOptions?.fastLaunchOptions;
+    this.storageSize = props?.awsImageBuilderOptions?.storageSize;
+    this.waitOnDeploy = props?.waitOnDeploy ?? true;
+    this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
+
+    // normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated, only at public API level)
     const baseDockerImageInput = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
     this.baseImage = typeof baseDockerImageInput === 'string' ? BaseContainerImage.fromString(baseDockerImageInput) : baseDockerImageInput;
 
-    // Normalize BaseImageInput to BaseImage (string support is deprecated, only at public API level)
+    // normalize BaseImageInput to BaseImage (string support is deprecated, only at public API level)
     const baseAmiInput = props?.baseAmi ?? defaultBaseAmi(this, this.os, this.architecture);
     this.baseAmi = typeof baseAmiInput === 'string' ? BaseImage.fromString(baseAmiInput) : baseAmiInput;
 
-    // Warn if using deprecated string format
+    // warn if using deprecated string format
     if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {
       Annotations.of(this).addWarning(
         'Passing baseDockerImage as a string is deprecated. Please use BaseContainerImage static factory methods instead, e.g., BaseContainerImage.fromDockerHub("ubuntu", "22.04") or BaseContainerImage.fromString("public.ecr.aws/lts/ubuntu:22.04")',
@@ -358,11 +364,6 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
         'Passing baseAmi as a string is deprecated. Please use BaseImage static factory methods instead, e.g., BaseImage.fromAmiId("ami-12345") or BaseImage.fromString("arn:aws:...")',
       );
     }
-    this.instanceType = props?.awsImageBuilderOptions?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
-    this.fastLaunchOptions = props?.awsImageBuilderOptions?.fastLaunchOptions;
-    this.storageSize = props?.awsImageBuilderOptions?.storageSize;
-    this.waitOnDeploy = props?.waitOnDeploy ?? true;
-    this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
 
     // tags for finding resources
     this.tags = {

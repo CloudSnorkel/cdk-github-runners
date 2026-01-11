@@ -60,20 +60,7 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
         }
 
         if (ami.startsWith('ssm:')) {
-          // Handle SSM parameter format from BaseImage (ssm:parameterName or ssm:arn:aws:ssm:...)
-          let ssmParam = ami.substring('ssm:'.length);
-
-          // If it's an ARN, extract the parameter name from it
-          // ARN format: arn:aws:ssm:region:account:parameter/name
-          if (ssmParam.startsWith('arn:aws:ssm:')) {
-            // Extract parameter name from ARN (everything after the 'parameter/' prefix)
-            const arnParts = ssmParam.split('/');
-            if (arnParts.length >= 2) {
-              // Skip the ARN prefix (everything before the first '/') and get the parameter name
-              ssmParam = arnParts.slice(1).join('/');
-            }
-          }
-
+          const ssmParam = ami.substring('ssm:'.length);
           console.log(`Checking SSM ${ssmParam}`);
 
           const ssmValue = (await ssm.send(new GetParameterCommand({ Name: ssmParam }))).Parameter?.Value;

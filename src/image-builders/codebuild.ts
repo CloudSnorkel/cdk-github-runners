@@ -97,19 +97,20 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.subnetSelection = props?.subnetSelection;
     this.timeout = props?.codeBuildOptions?.timeout ?? Duration.hours(1);
     this.computeType = props?.codeBuildOptions?.computeType ?? ComputeType.SMALL;
-    // Normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated, only at public API level)
+    this.buildImage = props?.codeBuildOptions?.buildImage ?? this.getDefaultBuildImage();
+    this.waitOnDeploy = props?.waitOnDeploy ?? true;
+    this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
+
+    // normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated, only at public API level)
     const baseDockerImageInput = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
     this.baseImage = typeof baseDockerImageInput === 'string' ? BaseContainerImage.fromString(baseDockerImageInput) : baseDockerImageInput;
 
-    // Warn if using deprecated string format (only if user explicitly provided it)
+    // warn if using deprecated string format (only if user explicitly provided it)
     if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {
       Annotations.of(this).addWarning(
         'Passing baseDockerImage as a string is deprecated. Please use BaseContainerImage static factory methods instead, e.g., BaseContainerImage.fromDockerHub("ubuntu", "22.04") or BaseContainerImage.fromString("public.ecr.aws/lts/ubuntu:22.04")',
       );
     }
-    this.buildImage = props?.codeBuildOptions?.buildImage ?? this.getDefaultBuildImage();
-    this.waitOnDeploy = props?.waitOnDeploy ?? true;
-    this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
 
     // warn against isolated networks
     if (props?.subnetSelection?.subnetType == ec2.SubnetType.PRIVATE_ISOLATED) {

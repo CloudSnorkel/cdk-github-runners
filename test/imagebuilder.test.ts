@@ -360,15 +360,6 @@ describe('BaseImage', () => {
     expect(baseImage.image).toContain(':parameter/aws/service/ami/amazon-linux-2023');
   });
 
-  test('fromImage creates correct image string from IImage', () => {
-    const imageArn = 'arn:aws:imagebuilder:us-east-1:123456789012:image/ubuntu-server-22-lts-x86/1.0.0';
-    const mockImage = {
-      imageArn: imageArn,
-    };
-    const baseImage = BaseImage.fromImage(mockImage);
-    expect(baseImage.image).toBe(imageArn);
-  });
-
   test('fromImageBuilder creates correct ARN format', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, 'test');
@@ -433,16 +424,6 @@ describe('BaseContainerImage', () => {
     const baseImage = BaseContainerImage.fromEcr(repository, 'v1.0.0');
     expect(baseImage.image).toContain(':v1.0.0');
     expect(baseImage.ecrRepository).toBe(repository);
-  });
-
-  test('fromImage creates correct image string from IImage', () => {
-    const imageArn = 'arn:aws:imagebuilder:us-east-1:123456789012:image/ubuntu-server-22-lts-x86/1.0.0';
-    const mockImage = {
-      imageArn: imageArn,
-    };
-    const baseImage = BaseContainerImage.fromImage(mockImage);
-    expect(baseImage.image).toBe(imageArn);
-    expect(baseImage.ecrRepository).toBeUndefined();
   });
 
   test('fromString creates correct image string', () => {

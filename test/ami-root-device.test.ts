@@ -137,11 +137,11 @@ describe('ami-root-device Lambda handler', () => {
       await handler.handler(event, context);
 
       expect(mockSsmSend).toHaveBeenCalledTimes(1);
-      // Should extract 'my-parameter/name' from the ARN
+      // Lambda passes the full ARN to SSM
       expect(mockSsmSend).toHaveBeenCalledWith(
         expect.objectContaining({
           input: expect.objectContaining({
-            Name: 'my-parameter/name',
+            Name: ssmArn,
           }),
         }),
       );
@@ -181,11 +181,11 @@ describe('ami-root-device Lambda handler', () => {
       await handler.handler(event, context);
 
       expect(mockSsmSend).toHaveBeenCalledTimes(1);
-      // Should extract 'aws/service/ami/amazon-linux-2023' from the ARN
+      // Lambda passes the full ARN to SSM
       expect(mockSsmSend).toHaveBeenCalledWith(
         expect.objectContaining({
           input: expect.objectContaining({
-            Name: 'aws/service/ami/amazon-linux-2023',
+            Name: ssmArn,
           }),
         }),
       );
@@ -260,11 +260,11 @@ describe('ami-root-device Lambda handler', () => {
       await handler.handler(event, context);
 
       expect(mockSsmSend).toHaveBeenCalledTimes(1);
-      // Should extract 'my-parameter' from the ARN
+      // Lambda passes the full ARN to SSM
       expect(mockSsmSend).toHaveBeenCalledWith(
         expect.objectContaining({
           input: expect.objectContaining({
-            Name: 'my-parameter',
+            Name: ssmArn,
           }),
         }),
       );

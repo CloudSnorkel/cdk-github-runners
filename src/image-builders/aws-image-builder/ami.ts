@@ -56,8 +56,6 @@ export class AmiRecipe extends cdk.Resource {
   constructor(scope: Construct, id: string, props: AmiRecipeProperties) {
     super(scope, id);
 
-    const baseImage = props.baseAmi;
-
     let components = props.components.map(component => {
       return {
         componentArn: component.arn,
@@ -66,7 +64,7 @@ export class AmiRecipe extends cdk.Resource {
 
     const blockDeviceMappings = props.storageSize ? [
       {
-        deviceName: amiRootDevice(this, baseImage.image).ref,
+        deviceName: amiRootDevice(this, props.baseAmi.image).ref,
         ebs: {
           volumeSize: props.storageSize.toGibibytes(),
           deleteOnTermination: true,
@@ -88,7 +86,7 @@ export class AmiRecipe extends cdk.Resource {
     const recipe = new imagebuilder.CfnImageRecipe(this, 'Recipe', {
       name: this.name,
       version: '1.0.x',
-      parentImage: baseImage.image,
+      parentImage: props.baseAmi.image,
       components,
       workingDirectory,
       tags: props.tags,
