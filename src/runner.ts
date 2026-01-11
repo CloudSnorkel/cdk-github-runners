@@ -1,3 +1,6 @@
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import {
   Annotations,
@@ -30,7 +33,7 @@ import { Secrets } from './secrets';
 import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
 import { TokenRetrieverFunction } from './token-retriever-function';
-import { singletonLogGroup, SingletonLogType } from './utils';
+import { discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
 import { GithubWebhookHandler } from './webhook';
 import { GithubWebhookRedelivery } from './webhook-redelivery';
 
@@ -93,13 +96,16 @@ export interface GitHubRunnersProps {
   readonly securityGroups?: ec2.ISecurityGroup[];
 
   /**
-   * Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.
+   * Path to a certificate file (.pem or .crt) or a directory containing certificate files (.pem or .crt) required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.
    *
-   * You may also want to use custom images for your runner providers that contain the same certificates. See {@link CodeBuildImageBuilder.addCertificates}.
+   * If a directory is provided, all .pem and .crt files in that directory will be used. The certificates will be concatenated into a single file for use by Node.js.
+   *
+   * You may also want to use custom images for your runner providers that contain the same certificates. See {@link RunnerImageComponent.extraCertificates}.
    *
    * ```typescript
+   * const selfSignedCertificates = 'certs/ghes.pem'; // or 'path-to-my-extra-certs-folder' for a directory
    * const imageBuilder = CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder with Certs');
-   * imageBuilder.addComponent(RunnerImageComponent.extraCertificates('path-to-my-extra-certs-folder/certs.pem', 'private-ca');
+   * imageBuilder.addComponent(RunnerImageComponent.extraCertificates(selfSignedCertificates, 'private-ca'));
    *
    * const provider = new CodeBuildRunnerProvider(this, 'CodeBuild', {
    *     imageBuilder: imageBuilder,
@@ -110,7 +116,7 @@ export interface GitHubRunnersProps {
    *   'runners',
    *   {
    *     providers: [provider],
-   *     extraCertificates: 'path-to-my-extra-certs-folder',
+   *     extraCertificates: selfSignedCertificates,
    *   }
    * );
    * ```
@@ -291,20 +297,17 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     super(scope, id);
 
     this.secrets = new Secrets(this, 'Secrets');
+
     this.extraLambdaProps = {
       vpc: this.props?.vpc,
       vpcSubnets: this.props?.vpcSubnets,
       allowPublicSubnet: this.props?.allowPublicSubnet,
       securityGroups: this.lambdaSecurityGroups(),
-      layers: this.props?.extraCertificates ? [new lambda.LayerVersion(scope, 'Certificate Layer', {
-        description: 'Layer containing GitHub Enterprise Server certificate for cdk-github-runners',
-        code: lambda.Code.fromAsset(this.props.extraCertificates),
-      })] : undefined,
+      layers: [],
     };
     this.connections = new ec2.Connections({ securityGroups: this.extraLambdaProps.securityGroups });
-    if (this.props?.extraCertificates) {
-      this.extraLambdaEnv.NODE_EXTRA_CA_CERTS = '/opt/certs.pem';
-    }
+
+    this.createCertificateLayer(scope);
 
     if (this.props?.providers) {
       this.providers = this.props.providers;
@@ -738,6 +741,47 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       }
     }
     return seen;
+  }
+
+  /**
+   * Creates a Lambda layer with certificates if extraCertificates is specified.
+   */
+  private createCertificateLayer(scope: Construct): void {
+    if (!this.props?.extraCertificates) {
+      return;
+    }
+
+    const certificateFiles = discoverCertificateFiles(this.props.extraCertificates);
+
+    // Concatenate all certificates into a single file for NODE_EXTRA_CA_CERTS
+    let combinedCertContent = '';
+    for (const certFile of certificateFiles) {
+      const certContent = fs.readFileSync(certFile, 'utf8');
+      combinedCertContent += certContent;
+      // Ensure proper PEM format with newline between certificates
+      if (!certContent.endsWith('\n')) {
+        combinedCertContent += '\n';
+      }
+    }
+
+    // Create a temporary directory, write the certificate file, create asset, then delete temp dir
+    const workdir = fs.mkdtempSync(path.join(os.tmpdir(), 'certificate-layer-'));
+    try {
+      const certPath = path.join(workdir, 'certs.pem');
+      fs.writeFileSync(certPath, combinedCertContent);
+
+      // Set environment variable and create layer
+      this.extraLambdaEnv.NODE_EXTRA_CA_CERTS = '/opt/certs.pem';
+      this.extraLambdaProps.layers!.push(
+        new lambda.LayerVersion(scope, 'Certificate Layer', {
+          description: 'Layer containing GitHub Enterprise Server certificate(s) for cdk-github-runners',
+          code: lambda.Code.fromAsset(workdir),
+        }),
+      );
+    } finally {
+      // Calling `fromAsset()` has copied files to the assembly, so we can delete the temporary directory.
+      fs.rmSync(workdir, { recursive: true, force: true });
+    }
   }
 
   /**

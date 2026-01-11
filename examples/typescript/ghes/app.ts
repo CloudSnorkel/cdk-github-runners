@@ -16,6 +16,7 @@ import {
   GitHubRunners,
   CodeBuildRunnerProvider,
   LambdaAccess,
+  RunnerImageComponent,
 } from '@cloudsnorkel/cdk-github-runners';
 
 class GhesStack extends Stack {
@@ -41,30 +42,27 @@ class GhesStack extends Stack {
       ],
     });
 
+    // If GitHub Enterprise Server uses a self-signed certificate, you need to:
+    // 1. Add the certificate to the runner image
+    // 2. Add the certificate to the management functions
+    // You can provide either a single certificate file (.pem or .crt) or a directory containing certificate files
+    const selfSignedCertificatePath: string | undefined = undefined; // e.g. 'path-to-cert.pem' or 'path-to-certs-directory'
+
+    // Create an image builder with (optionally) the certificates
+    const imageBuilder = CodeBuildRunnerProvider.imageBuilder(this, 'ImageBuilder');
+    if (selfSignedCertificatePath) {
+      imageBuilder.addComponent(
+        RunnerImageComponent.extraCertificates(selfSignedCertificatePath, 'ghes-ca')
+      );
+    }
+
     // Create a CodeBuild provider in the GHES VPC
     // Runners need to be in the same VPC as GHES to communicate with it
     const codebuildProvider = new CodeBuildRunnerProvider(this, 'CodeBuildProvider', {
       labels: ['codebuild', 'linux', 'x64'],
       vpc: vpc, // Runners must be in the GHES VPC to communicate with GHES
+      imageBuilder: selfSignedCertificatePath ? imageBuilder : undefined,
     });
-
-    // If GitHub Enterprise Server uses a self-signed certificate, you need to:
-    // 1. Add the certificate to the runner image
-    // 2. Add the certificate to the management functions
-    //
-    // Example for self-signed certificates:
-    // const imageBuilder = CodeBuildRunnerProvider.imageBuilder(this, 'ImageBuilder');
-    // imageBuilder.addComponent(
-    //   RunnerImageComponent.extraCertificates('path-to-certs/certs.pem', 'ghes-ca')
-    // );
-    // const codebuildProvider = new CodeBuildRunnerProvider(this, 'CodeBuildProvider', {
-    //   labels: ['codebuild', 'linux', 'x64'],
-    //   vpc: vpc,
-    //   imageBuilder: imageBuilder,
-    // });
-    //
-    // Then add extraCertificates to GitHubRunners:
-    // extraCertificates: 'path-to-certs', // Directory containing certs.pem
 
     // Create the GitHub runners infrastructure
     // Configure webhookAccess to use API Gateway accessible only from within the VPC
@@ -80,8 +78,9 @@ class GhesStack extends Stack {
         // Optionally, you can also restrict to specific IPs if GHES has a known IP
         // allowedIps: ['10.0.1.100/32'], // Replace with your GHES IP
       }),
-      // If GHES uses a self-signed certificate, uncomment and provide the path:
-      // extraCertificates: 'path-to-certs', // Directory containing certs.pem file
+      // If GHES uses a self-signed certificate, provide the path to the certificate file or directory
+      // Can be a single .pem/.crt file or a directory containing multiple certificate files
+      extraCertificates: selfSignedCertificatePath,
     });
   }
 }
