@@ -7218,7 +7218,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.allowPublicSubnet">allowPublicSubnet</a></code> | <code>boolean</code> | Allow management functions to run in public subnets. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.extraCertificates">extraCertificates</a></code> | <code>string</code> | Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.extraCertificates">extraCertificates</a></code> | <code>string</code> | Path to a certificate file (.pem or .crt) or a directory containing certificate files (.pem or .crt) required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.idleTimeout">idleTimeout</a></code> | <code>aws-cdk-lib.Duration</code> | Time to wait before stopping a runner that remains idle. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.logOptions">logOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions">LogOptions</a></code> | Logging options for the state machine that manages the runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.providers">providers</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a> \| <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a>[]</code> | List of runner providers to use. |
@@ -7258,13 +7258,16 @@ public readonly extraCertificates: string;
 
 - *Type:* string
 
-Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.
+Path to a certificate file (.pem or .crt) or a directory containing certificate files (.pem or .crt) required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.
 
-You may also want to use custom images for your runner providers that contain the same certificates. See {@link CodeBuildImageBuilder.addCertificates }.
+If a directory is provided, all .pem and .crt files in that directory will be used. The certificates will be concatenated into a single file for use by Node.js.
+
+You may also want to use custom images for your runner providers that contain the same certificates. See {@link RunnerImageComponent.extraCertificates }.
 
 ```typescript
+const selfSignedCertificates = 'certs/ghes.pem'; // or 'path-to-my-extra-certs-folder' for a directory
 const imageBuilder = CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder with Certs');
-imageBuilder.addComponent(RunnerImageComponent.extraCertificates('path-to-my-extra-certs-folder/certs.pem', 'private-ca');
+imageBuilder.addComponent(RunnerImageComponent.extraCertificates(selfSignedCertificates, 'private-ca'));
 
 const provider = new CodeBuildRunnerProvider(this, 'CodeBuild', {
     imageBuilder: imageBuilder,
@@ -7275,7 +7278,7 @@ new GitHubRunners(
   'runners',
   {
     providers: [provider],
-    extraCertificates: 'path-to-my-extra-certs-folder',
+    extraCertificates: selfSignedCertificates,
   }
 );
 ```
@@ -10090,7 +10093,7 @@ This can be used to support GitHub Enterprise Server with self-signed certificat
 
 - *Type:* string
 
-path to certificate file in PEM format.
+path to certificate file in PEM format, or a directory containing certificate files (.pem or .crt).
 
 ---
 

@@ -18,6 +18,11 @@ This example demonstrates how to configure runners for GitHub Enterprise Server 
 - **Self-signed certificates**: If GitHub Enterprise Server uses a self-signed certificate, you need to:
   1. Add the certificate to the runner image using `RunnerImageComponent.extraCertificates()`
   2. Add the certificate to the management functions using `extraCertificates` property on `GitHubRunners`
+  
+  Both methods accept either:
+  - A single certificate file (`.pem` or `.crt`)
+  - A directory containing multiple certificate files (all `.pem` and `.crt` files in the directory will be used)
+  
   See the example code for commented instructions
 
 ## Setup
