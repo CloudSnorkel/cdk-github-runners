@@ -26,4 +26,5 @@ tsconfig.tsbuildinfo
 test/.tmp
 test/default.integ.snapshot
 /setup
+/examples
 /.gitattributes

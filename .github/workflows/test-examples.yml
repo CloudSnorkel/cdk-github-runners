@@ -1,0 +1,26 @@
+name: test-examples
+on:
+  pull_request: {}
+  workflow_dispatch: {}
+jobs:
+  test-examples:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+          cache: yarn
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+          cache: pip
+      - name: Install dependencies
+        run: yarn install --check-files --frozen-lockfile
+      - name: Install CDK
+        run: npm install -g aws-cdk
+      - name: Run test-examples script
+        run: python examples/test-examples.py --skip-deploy
