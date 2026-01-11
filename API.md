@@ -9249,7 +9249,6 @@ new BaseContainerImage(image: string, ecrRepository?: IRepository)
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromDockerHub">fromDockerHub</a></code> | The DockerHub image to use as the base image in a container recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromEcr">fromEcr</a></code> | The ECR container image to use as the base image in a container recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromEcrPublic">fromEcrPublic</a></code> | The ECR public container image to use as the base image in a container recipe. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromImage">fromImage</a></code> | The EC2 Image Builder image to use as a base image in a container recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromString">fromString</a></code> | The string value of the base image to use in a container recipe. |
 
 ---
@@ -9337,24 +9336,6 @@ The name of the ECR public repository, where the base image resides in.
 - *Type:* string
 
 The tag of the base image in the ECR public repository.
-
----
-
-##### `fromImage` <a name="fromImage" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromImage"></a>
-
-```typescript
-import { BaseContainerImage } from '@cloudsnorkel/cdk-github-runners'
-
-BaseContainerImage.fromImage(image: IImage)
-```
-
-The EC2 Image Builder image to use as a base image in a container recipe.
-
-###### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromImage.parameter.image"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IImage">IImage</a>
-
-The EC2 Image Builder image to use as a base image.
 
 ---
 
@@ -9447,7 +9428,6 @@ new BaseImage(image: string)
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromAmiId">fromAmiId</a></code> | The AMI ID to use as a base image in an image recipe. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromImage">fromImage</a></code> | The EC2 Image Builder image to use as a base image in an image recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromImageBuilder">fromImageBuilder</a></code> | An AWS-provided EC2 Image Builder image to use as a base image in an image recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromMarketplaceProductId">fromMarketplaceProductId</a></code> | The marketplace product ID for an AMI product to use as the base image in an image recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromSsmParameter">fromSsmParameter</a></code> | The SSM parameter to use as the base image in an image recipe. |
@@ -9471,24 +9451,6 @@ The AMI ID to use as a base image in an image recipe.
 - *Type:* string
 
 The AMI ID to use as the base image.
-
----
-
-##### `fromImage` <a name="fromImage" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromImage"></a>
-
-```typescript
-import { BaseImage } from '@cloudsnorkel/cdk-github-runners'
-
-BaseImage.fromImage(image: IImage)
-```
-
-The EC2 Image Builder image to use as a base image in an image recipe.
-
-###### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromImage.parameter.image"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IImage">IImage</a>
-
-The EC2 Image Builder image to use as a base image.
 
 ---
 
@@ -11268,35 +11230,6 @@ public readonly grantPrincipal: IPrincipal;
 - *Type:* aws-cdk-lib.aws_iam.IPrincipal
 
 The principal to grant permissions to.
-
----
-
-### IImage <a name="IImage" id="@cloudsnorkel/cdk-github-runners.IImage"></a>
-
-- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.IImage">IImage</a>
-
-Interface for an EC2 Image Builder image.
-
-This is a simplified version that only requires the image ARN.
-
-
-#### Properties <a name="Properties" id="Properties"></a>
-
-| **Name** | **Type** | **Description** |
-| --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IImage.property.imageArn">imageArn</a></code> | <code>string</code> | The ARN of the image. |
-
----
-
-##### `imageArn`<sup>Required</sup> <a name="imageArn" id="@cloudsnorkel/cdk-github-runners.IImage.property.imageArn"></a>
-
-```typescript
-public readonly imageArn: string;
-```
-
-- *Type:* string
-
-The ARN of the image.
 
 ---
 
