@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_iam as iam, aws_logs as logs, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { AwsImageBuilderRunnerImageBuilderProps } from './aws-image-builder';
+import { BaseContainerImageInput, BaseImageInput } from './aws-image-builder/base-image';
 import { CodeBuildRunnerImageBuilderProps } from './codebuild';
 import { RunnerImageComponent } from './components';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
@@ -146,11 +147,15 @@ export interface RunnerImageBuilderProps {
   /**
    * Base image from which Docker runner images will be built.
    *
+   * This can be:
+   * - A string (ECR/ECR public image URI, DockerHub image, or Image Builder ARN)
+   * - An object with properties specifying the base image (e.g., `{ dockerHubRepository: 'ubuntu', dockerHubTag: '22.04' }` or `{ ecrRepository: repo, ecrTag: 'latest' }`)
+   *
    * When using private images from a different account or not on ECR, you may need to include additional setup commands with {@link dockerSetupCommands}.
    *
    * @default public.ecr.aws/lts/ubuntu:22.04 for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, public.ecr.aws/lts/ubuntu:24.04 for Os.LINUX_UBUNTU_2404, public.ecr.aws/amazonlinux/amazonlinux:2 for Os.LINUX_AMAZON_2, mcr.microsoft.com/windows/servercore:ltsc2019-amd64 for Os.WINDOWS
    */
-  readonly baseDockerImage?: string;
+  readonly baseDockerImage?: BaseContainerImageInput;
 
   /**
    * Additional commands to run on the build host before starting the Docker runner image build.
@@ -164,11 +169,15 @@ export interface RunnerImageBuilderProps {
   /**
    * Base AMI from which runner AMIs will be built.
    *
-   * This can be an actual AMI or an AWS Image Builder ARN that points to the latest AMI. For example `arn:aws:imagebuilder:us-east-1:aws:image/ubuntu-server-22-lts-x86/x.x.x` would always use the latest version of Ubuntu 22.04 in each build. If you want a specific version, you can replace `x.x.x` with that version.
+   * This can be:
+   * - A string (AMI ID, Image Builder ARN, SSM parameter reference, or Marketplace product ID)
+   * - An object with properties specifying the base image (e.g., `{ amiId: 'ami-12345' }` or `{ imageArn: 'arn:...' }`)
+   *
+   * For example `arn:aws:imagebuilder:us-east-1:aws:image/ubuntu-server-22-lts-x86/x.x.x` would always use the latest version of Ubuntu 22.04 in each build. If you want a specific version, you can replace `x.x.x` with that version.
    *
    * @default latest Ubuntu 22.04 AMI for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, Ubuntu 24.04 AMI for Os.LINUX_UBUNTU_2404, latest Amazon Linux 2 AMI for Os.LINUX_AMAZON_2, latest Windows Server 2022 AMI for Os.WINDOWS
    */
-  readonly baseAmi?: string;
+  readonly baseAmi?: BaseImageInput;
 
   /**
    * Version of GitHub Runners to install.

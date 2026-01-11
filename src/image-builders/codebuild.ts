@@ -22,6 +22,7 @@ import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
 import { defaultBaseDockerImage } from './aws-image-builder';
+import { BaseContainerImage } from './aws-image-builder/base-image';
 import { BuildImageFunction } from './build-image-function';
 import { BuildImageFunctionProperties } from './build-image.lambda';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
@@ -64,7 +65,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private boundDockerImage?: RunnerImage;
   private readonly os: Os;
   private readonly architecture: Architecture;
-  private readonly baseImage: string;
+  private readonly baseImage: BaseContainerImage;
   private readonly logRetention: RetentionDays;
   private readonly logRemovalPolicy: RemovalPolicy;
   private readonly vpc: ec2.IVpc | undefined;
@@ -96,10 +97,20 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.subnetSelection = props?.subnetSelection;
     this.timeout = props?.codeBuildOptions?.timeout ?? Duration.hours(1);
     this.computeType = props?.codeBuildOptions?.computeType ?? ComputeType.SMALL;
-    this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
     this.buildImage = props?.codeBuildOptions?.buildImage ?? this.getDefaultBuildImage();
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
     this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
+
+    // normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated, only at public API level)
+    const baseDockerImageInput = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
+    this.baseImage = typeof baseDockerImageInput === 'string' ? BaseContainerImage.fromString(baseDockerImageInput) : baseDockerImageInput;
+
+    // warn if using deprecated string format (only if user explicitly provided it)
+    if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {
+      Annotations.of(this).addWarning(
+        'Passing baseDockerImage as a string is deprecated. Please use BaseContainerImage static factory methods instead, e.g., BaseContainerImage.fromDockerHub("ubuntu", "22.04") or BaseContainerImage.fromString("public.ecr.aws/lts/ubuntu:22.04")',
+      );
+    }
 
     // warn against isolated networks
     if (props?.subnetSelection?.subnetType == ec2.SubnetType.PRIVATE_ISOLATED) {
@@ -191,6 +202,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     // permissions
     this.repository.grantPullPush(project);
 
+    // Grant pull permissions for base image ECR repository if applicable
+    if (this.baseImage.ecrRepository) {
+      this.baseImage.ecrRepository.grantPull(project);
+    }
+
     // call CodeBuild during deployment
     const completedImage = this.customResource(project, buildSpecHash);
 
@@ -229,7 +245,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private getDockerfileGenerationCommands(): [string[], string[]] {
     let hashedComponents: string[] = [];
     let commands = [];
-    let dockerfile = `FROM ${this.baseImage}\nVOLUME /var/lib/docker\n`;
+    let dockerfile = `FROM ${this.baseImage.image}\nVOLUME /var/lib/docker\n`;
 
     for (let i = 0; i < this.components.length; i++) {
       const componentName = this.components[i].name;
@@ -293,7 +309,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     const [commands, commandsHashedComponents] = this.getDockerfileGenerationCommands();
 
     const buildSpecVersion = 'v2'; // change this every time the build spec changes
-    const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, this.baseImage, this.os.name);
+    const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, this.baseImage.image, this.os.name);
     const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
 
     const buildSpec = codebuild.BuildSpec.fromObject({

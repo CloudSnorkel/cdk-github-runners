@@ -8441,8 +8441,8 @@ const runnerImageBuilderProps: RunnerImageBuilderProps = { ... }
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.architecture">architecture</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a></code> | Image architecture. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.awsImageBuilderOptions">awsImageBuilderOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps">AwsImageBuilderRunnerImageBuilderProps</a></code> | Options specific to AWS Image Builder. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.baseAmi">baseAmi</a></code> | <code>string</code> | Base AMI from which runner AMIs will be built. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.baseDockerImage">baseDockerImage</a></code> | <code>string</code> | Base image from which Docker runner images will be built. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.baseAmi">baseAmi</a></code> | <code>string \| <a href="#@cloudsnorkel/cdk-github-runners.BaseImage">BaseImage</a></code> | Base AMI from which runner AMIs will be built. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.baseDockerImage">baseDockerImage</a></code> | <code>string \| <a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage">BaseContainerImage</a></code> | Base image from which Docker runner images will be built. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.builderType">builderType</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderType">RunnerImageBuilderType</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.codeBuildOptions">codeBuildOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerImageBuilderProps">CodeBuildRunnerImageBuilderProps</a></code> | Options specific to CodeBuild image builder. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.components">components</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent">RunnerImageComponent</a>[]</code> | Components to install on the image. |
@@ -8489,28 +8489,36 @@ Only used when builderType is RunnerImageBuilderType.AWS_IMAGE_BUILDER.
 ##### `baseAmi`<sup>Optional</sup> <a name="baseAmi" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.baseAmi"></a>
 
 ```typescript
-public readonly baseAmi: string;
+public readonly baseAmi: string | BaseImage;
 ```
 
-- *Type:* string
+- *Type:* string | <a href="#@cloudsnorkel/cdk-github-runners.BaseImage">BaseImage</a>
 - *Default:* latest Ubuntu 22.04 AMI for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, Ubuntu 24.04 AMI for Os.LINUX_UBUNTU_2404, latest Amazon Linux 2 AMI for Os.LINUX_AMAZON_2, latest Windows Server 2022 AMI for Os.WINDOWS
 
 Base AMI from which runner AMIs will be built.
 
-This can be an actual AMI or an AWS Image Builder ARN that points to the latest AMI. For example `arn:aws:imagebuilder:us-east-1:aws:image/ubuntu-server-22-lts-x86/x.x.x` would always use the latest version of Ubuntu 22.04 in each build. If you want a specific version, you can replace `x.x.x` with that version.
+This can be:
+- A string (AMI ID, Image Builder ARN, SSM parameter reference, or Marketplace product ID)
+- An object with properties specifying the base image (e.g., `{ amiId: 'ami-12345' }` or `{ imageArn: 'arn:...' }`)
+
+For example `arn:aws:imagebuilder:us-east-1:aws:image/ubuntu-server-22-lts-x86/x.x.x` would always use the latest version of Ubuntu 22.04 in each build. If you want a specific version, you can replace `x.x.x` with that version.
 
 ---
 
 ##### `baseDockerImage`<sup>Optional</sup> <a name="baseDockerImage" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps.property.baseDockerImage"></a>
 
 ```typescript
-public readonly baseDockerImage: string;
+public readonly baseDockerImage: string | BaseContainerImage;
 ```
 
-- *Type:* string
+- *Type:* string | <a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage">BaseContainerImage</a>
 - *Default:* public.ecr.aws/lts/ubuntu:22.04 for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, public.ecr.aws/lts/ubuntu:24.04 for Os.LINUX_UBUNTU_2404, public.ecr.aws/amazonlinux/amazonlinux:2 for Os.LINUX_AMAZON_2, mcr.microsoft.com/windows/servercore:ltsc2019-amd64 for Os.WINDOWS
 
 Base image from which Docker runner images will be built.
+
+This can be:
+- A string (ECR/ECR public image URI, DockerHub image, or Image Builder ARN)
+- An object with properties specifying the base image (e.g., `{ dockerHubRepository: 'ubuntu', dockerHubTag: '22.04' }` or `{ ecrRepository: repo, ecrTag: 'latest' }`)
 
 When using private images from a different account or not on ECR, you may need to include additional setup commands with {@link dockerSetupCommands}.
 
@@ -9199,6 +9207,384 @@ public readonly X86_64: Architecture;
 X86_64.
 
 ---
+
+### BaseContainerImage <a name="BaseContainerImage" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage"></a>
+
+Represents a base container image that is used to start from in EC2 Image Builder container builds.
+
+This class is adapted from AWS CDK's BaseContainerImage class to support both string and object inputs.
+
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.Initializer"></a>
+
+```typescript
+import { BaseContainerImage } from '@cloudsnorkel/cdk-github-runners'
+
+new BaseContainerImage(image: string, ecrRepository?: IRepository)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage.Initializer.parameter.image">image</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage.Initializer.parameter.ecrRepository">ecrRepository</a></code> | <code>aws-cdk-lib.aws_ecr.IRepository</code> | *No description.* |
+
+---
+
+##### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.Initializer.parameter.image"></a>
+
+- *Type:* string
+
+---
+
+##### `ecrRepository`<sup>Optional</sup> <a name="ecrRepository" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.Initializer.parameter.ecrRepository"></a>
+
+- *Type:* aws-cdk-lib.aws_ecr.IRepository
+
+---
+
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromDockerHub">fromDockerHub</a></code> | The DockerHub image to use as the base image in a container recipe. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromEcr">fromEcr</a></code> | The ECR container image to use as the base image in a container recipe. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromEcrPublic">fromEcrPublic</a></code> | The ECR public container image to use as the base image in a container recipe. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromString">fromString</a></code> | The string value of the base image to use in a container recipe. |
+
+---
+
+##### `fromDockerHub` <a name="fromDockerHub" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromDockerHub"></a>
+
+```typescript
+import { BaseContainerImage } from '@cloudsnorkel/cdk-github-runners'
+
+BaseContainerImage.fromDockerHub(repository: string, tag: string)
+```
+
+The DockerHub image to use as the base image in a container recipe.
+
+###### `repository`<sup>Required</sup> <a name="repository" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromDockerHub.parameter.repository"></a>
+
+- *Type:* string
+
+The DockerHub repository where the base image resides in.
+
+---
+
+###### `tag`<sup>Required</sup> <a name="tag" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromDockerHub.parameter.tag"></a>
+
+- *Type:* string
+
+The tag of the base image in the DockerHub repository.
+
+---
+
+##### `fromEcr` <a name="fromEcr" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromEcr"></a>
+
+```typescript
+import { BaseContainerImage } from '@cloudsnorkel/cdk-github-runners'
+
+BaseContainerImage.fromEcr(repository: IRepository, tag: string)
+```
+
+The ECR container image to use as the base image in a container recipe.
+
+###### `repository`<sup>Required</sup> <a name="repository" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromEcr.parameter.repository"></a>
+
+- *Type:* aws-cdk-lib.aws_ecr.IRepository
+
+The ECR repository where the base image resides in.
+
+---
+
+###### `tag`<sup>Required</sup> <a name="tag" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromEcr.parameter.tag"></a>
+
+- *Type:* string
+
+The tag of the base image in the ECR repository.
+
+---
+
+##### `fromEcrPublic` <a name="fromEcrPublic" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromEcrPublic"></a>
+
+```typescript
+import { BaseContainerImage } from '@cloudsnorkel/cdk-github-runners'
+
+BaseContainerImage.fromEcrPublic(registryAlias: string, repositoryName: string, tag: string)
+```
+
+The ECR public container image to use as the base image in a container recipe.
+
+###### `registryAlias`<sup>Required</sup> <a name="registryAlias" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromEcrPublic.parameter.registryAlias"></a>
+
+- *Type:* string
+
+The alias of the ECR public registry where the base image resides in.
+
+---
+
+###### `repositoryName`<sup>Required</sup> <a name="repositoryName" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromEcrPublic.parameter.repositoryName"></a>
+
+- *Type:* string
+
+The name of the ECR public repository, where the base image resides in.
+
+---
+
+###### `tag`<sup>Required</sup> <a name="tag" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromEcrPublic.parameter.tag"></a>
+
+- *Type:* string
+
+The tag of the base image in the ECR public repository.
+
+---
+
+##### `fromString` <a name="fromString" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromString"></a>
+
+```typescript
+import { BaseContainerImage } from '@cloudsnorkel/cdk-github-runners'
+
+BaseContainerImage.fromString(baseContainerImageString: string)
+```
+
+The string value of the base image to use in a container recipe.
+
+This can be an EC2 Image Builder image ARN,
+an ECR or ECR public image, or a container URI sourced from a third-party container registry such as DockerHub.
+
+###### `baseContainerImageString`<sup>Required</sup> <a name="baseContainerImageString" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.fromString.parameter.baseContainerImageString"></a>
+
+- *Type:* string
+
+The base image as a direct string value.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage.property.image">image</a></code> | <code>string</code> | The rendered base image to use. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage.property.ecrRepository">ecrRepository</a></code> | <code>aws-cdk-lib.aws_ecr.IRepository</code> | The ECR repository if this image was created from an ECR repository. |
+
+---
+
+##### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.property.image"></a>
+
+```typescript
+public readonly image: string;
+```
+
+- *Type:* string
+
+The rendered base image to use.
+
+---
+
+##### `ecrRepository`<sup>Optional</sup> <a name="ecrRepository" id="@cloudsnorkel/cdk-github-runners.BaseContainerImage.property.ecrRepository"></a>
+
+```typescript
+public readonly ecrRepository: IRepository;
+```
+
+- *Type:* aws-cdk-lib.aws_ecr.IRepository
+
+The ECR repository if this image was created from an ECR repository.
+
+This allows automatic permission granting for CodeBuild.
+
+---
+
+
+### BaseImage <a name="BaseImage" id="@cloudsnorkel/cdk-github-runners.BaseImage"></a>
+
+Represents a base image that is used to start from in EC2 Image Builder image builds.
+
+This class is adapted from AWS CDK's BaseImage class to support both string and object inputs.
+
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.BaseImage.Initializer"></a>
+
+```typescript
+import { BaseImage } from '@cloudsnorkel/cdk-github-runners'
+
+new BaseImage(image: string)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.Initializer.parameter.image">image</a></code> | <code>string</code> | *No description.* |
+
+---
+
+##### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.BaseImage.Initializer.parameter.image"></a>
+
+- *Type:* string
+
+---
+
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromAmiId">fromAmiId</a></code> | The AMI ID to use as a base image in an image recipe. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromImageBuilder">fromImageBuilder</a></code> | An AWS-provided EC2 Image Builder image to use as a base image in an image recipe. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromMarketplaceProductId">fromMarketplaceProductId</a></code> | The marketplace product ID for an AMI product to use as the base image in an image recipe. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromSsmParameter">fromSsmParameter</a></code> | The SSM parameter to use as the base image in an image recipe. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromSsmParameterName">fromSsmParameterName</a></code> | The parameter name for the SSM parameter to use as the base image in an image recipe. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromString">fromString</a></code> | The direct string value of the base image to use in an image recipe. |
+
+---
+
+##### `fromAmiId` <a name="fromAmiId" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromAmiId"></a>
+
+```typescript
+import { BaseImage } from '@cloudsnorkel/cdk-github-runners'
+
+BaseImage.fromAmiId(amiId: string)
+```
+
+The AMI ID to use as a base image in an image recipe.
+
+###### `amiId`<sup>Required</sup> <a name="amiId" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromAmiId.parameter.amiId"></a>
+
+- *Type:* string
+
+The AMI ID to use as the base image.
+
+---
+
+##### `fromImageBuilder` <a name="fromImageBuilder" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromImageBuilder"></a>
+
+```typescript
+import { BaseImage } from '@cloudsnorkel/cdk-github-runners'
+
+BaseImage.fromImageBuilder(scope: Construct, resourceName: string, version?: string)
+```
+
+An AWS-provided EC2 Image Builder image to use as a base image in an image recipe.
+
+This constructs an Image Builder ARN for AWS-provided images like `ubuntu-server-22-lts-x86/x.x.x`.
+
+###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromImageBuilder.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+The construct scope (used to determine the stack and region).
+
+---
+
+###### `resourceName`<sup>Required</sup> <a name="resourceName" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromImageBuilder.parameter.resourceName"></a>
+
+- *Type:* string
+
+The Image Builder resource name pattern (e.g., `ubuntu-server-22-lts-x86` or `ubuntu-server-22-lts-${arch}`).
+
+---
+
+###### `version`<sup>Optional</sup> <a name="version" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromImageBuilder.parameter.version"></a>
+
+- *Type:* string
+
+The version pattern (defaults to `x.x.x` to use the latest version).
+
+---
+
+##### `fromMarketplaceProductId` <a name="fromMarketplaceProductId" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromMarketplaceProductId"></a>
+
+```typescript
+import { BaseImage } from '@cloudsnorkel/cdk-github-runners'
+
+BaseImage.fromMarketplaceProductId(productId: string)
+```
+
+The marketplace product ID for an AMI product to use as the base image in an image recipe.
+
+###### `productId`<sup>Required</sup> <a name="productId" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromMarketplaceProductId.parameter.productId"></a>
+
+- *Type:* string
+
+The Marketplace AMI product ID to use as the base image.
+
+---
+
+##### `fromSsmParameter` <a name="fromSsmParameter" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromSsmParameter"></a>
+
+```typescript
+import { BaseImage } from '@cloudsnorkel/cdk-github-runners'
+
+BaseImage.fromSsmParameter(parameter: IParameter)
+```
+
+The SSM parameter to use as the base image in an image recipe.
+
+###### `parameter`<sup>Required</sup> <a name="parameter" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromSsmParameter.parameter.parameter"></a>
+
+- *Type:* aws-cdk-lib.aws_ssm.IParameter
+
+The SSM parameter to use as the base image.
+
+---
+
+##### `fromSsmParameterName` <a name="fromSsmParameterName" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromSsmParameterName"></a>
+
+```typescript
+import { BaseImage } from '@cloudsnorkel/cdk-github-runners'
+
+BaseImage.fromSsmParameterName(parameterName: string)
+```
+
+The parameter name for the SSM parameter to use as the base image in an image recipe.
+
+###### `parameterName`<sup>Required</sup> <a name="parameterName" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromSsmParameterName.parameter.parameterName"></a>
+
+- *Type:* string
+
+The name of the SSM parameter to use as the base image.
+
+---
+
+##### `fromString` <a name="fromString" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromString"></a>
+
+```typescript
+import { BaseImage } from '@cloudsnorkel/cdk-github-runners'
+
+BaseImage.fromString(baseImageString: string)
+```
+
+The direct string value of the base image to use in an image recipe.
+
+This can be an EC2 Image Builder image ARN,
+an SSM parameter, an AWS Marketplace product ID, or an AMI ID.
+
+###### `baseImageString`<sup>Required</sup> <a name="baseImageString" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromString.parameter.baseImageString"></a>
+
+- *Type:* string
+
+The base image as a direct string value.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.property.image">image</a></code> | <code>string</code> | The rendered base image to use. |
+
+---
+
+##### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.BaseImage.property.image"></a>
+
+```typescript
+public readonly image: string;
+```
+
+- *Type:* string
+
+The rendered base image to use.
+
+---
+
 
 ### CompositeProvider <a name="CompositeProvider" id="@cloudsnorkel/cdk-github-runners.CompositeProvider"></a>
 

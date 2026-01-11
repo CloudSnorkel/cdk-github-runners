@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ecr as ecr, aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { BaseContainerImage } from './base-image';
 import { ImageBuilderComponent } from './builder';
 import { Os } from '../../providers';
 import { uniqueImageBuilderName } from '../common';
@@ -96,17 +97,17 @@ export class ContainerRecipe extends cdk.Resource {
  *
  * @internal
  */
-export function defaultBaseDockerImage(os: Os) {
+export function defaultBaseDockerImage(os: Os): BaseContainerImage {
   if (os.is(Os.WINDOWS)) {
-    return 'mcr.microsoft.com/windows/servercore:ltsc2019-amd64';
+    return BaseContainerImage.fromString('mcr.microsoft.com/windows/servercore:ltsc2019-amd64');
   } else if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_UBUNTU_2204)) {
-    return 'public.ecr.aws/lts/ubuntu:22.04';
+    return BaseContainerImage.fromEcrPublic('lts', 'ubuntu', '22.04');
   } else if (os.is(Os.LINUX_UBUNTU_2404)) {
-    return 'public.ecr.aws/lts/ubuntu:24.04';
+    return BaseContainerImage.fromEcrPublic('lts', 'ubuntu', '24.04');
   } else if (os.is(Os.LINUX_AMAZON_2)) {
-    return 'public.ecr.aws/amazonlinux/amazonlinux:2';
+    return BaseContainerImage.fromEcrPublic('amazonlinux', 'amazonlinux', '2');
   } else if (os.is(Os.LINUX_AMAZON_2023)) {
-    return 'public.ecr.aws/amazonlinux/amazonlinux:2023';
+    return BaseContainerImage.fromEcrPublic('amazonlinux', 'amazonlinux', '2023');
   } else {
     throw new Error(`OS ${os.name} not supported for Docker runner image`);
   }

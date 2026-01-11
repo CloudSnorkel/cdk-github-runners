@@ -59,6 +59,20 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
           break;
         }
 
+        if (ami.startsWith('ssm:')) {
+          const ssmParam = ami.substring('ssm:'.length);
+          console.log(`Checking SSM ${ssmParam}`);
+
+          const ssmValue = (await ssm.send(new GetParameterCommand({ Name: ssmParam }))).Parameter?.Value;
+          if (!ssmValue) {
+            await customResourceRespond(event, 'FAILED', `${ami} has no value`, 'ERROR', {});
+            break;
+          }
+
+          await handleAmi(event, ssmValue);
+          break;
+        }
+
         if (ami.startsWith('lt-')) {
           console.log(`Checking Launch Template ${ami}`);
 
