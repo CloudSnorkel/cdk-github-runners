@@ -25,6 +25,21 @@ Self-hosted runners in AWS are useful when:
 
 Ephemeral (or on-demand) runners are the [recommended way by GitHub][14] for auto-scaling, and they make sure all jobs run with a clean image. Runners are started on-demand. You don't pay unless a job is running.
 
+## Table of Contents
+
+- [API](#api)
+- [Providers](#providers)
+- [Installation](#installation)
+- [Customizing](#customizing)
+  - [Composite Providers](#composite-providers)
+  - [Custom Provider Selection](#custom-provider-selection)
+- [Examples](#examples)
+- [Architecture](#architecture)
+- [Troubleshooting](#troubleshooting)
+- [Monitoring](#monitoring)
+- [Contributing](#contributing)
+- [Other Options](#other-options)
+
 ## API
 
 The best way to browse API documentation is on [Constructs Hub][13]. It is available in all supported programming languages.
@@ -526,6 +541,15 @@ Other useful metrics to track:
 
 If you use and love this project, please consider contributing.
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
+- Development workflow and testing
+- Integration tests and self-hosted workflow
+- Code quality standards
+- Backward compatibility requirements
+- Resource cleanup requirements
+- API design principles
+
+Quick start:
 1. 🪳 If you see something, say something. [Issues][16] help improve the quality of the project.
    * Include relevant logs and package versions for bugs.
    * When possible, describe the use-case behind feature requests.
