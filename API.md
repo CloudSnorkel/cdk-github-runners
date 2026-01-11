@@ -8498,10 +8498,16 @@ public readonly baseAmi: string | BaseImage;
 Base AMI from which runner AMIs will be built.
 
 This can be:
-- A string (AMI ID, Image Builder ARN, SSM parameter reference, or Marketplace product ID)
-- An object with properties specifying the base image (e.g., `{ amiId: 'ami-12345' }` or `{ imageArn: 'arn:...' }`)
+- A string (AMI ID, Image Builder ARN, SSM parameter reference, or Marketplace product ID) - deprecated, use BaseImage static factory methods instead
+- A BaseImage instance created using static factory methods:
+  - `BaseImage.fromAmiId('ami-12345')` - Use an AMI ID
+  - `BaseImage.fromString('arn:aws:imagebuilder:...')` - Use any string (ARN, AMI ID, etc.)
+  - `BaseImage.fromSsmParameter(parameter)` - Use an SSM parameter object
+  - `BaseImage.fromSsmParameterName('/aws/service/ami/...')` - Use an SSM parameter by name
+  - `BaseImage.fromMarketplaceProductId('product-id')` - Use a Marketplace product ID
+  - `BaseImage.fromImageBuilder(scope, 'ubuntu-server-22-lts-x86')` - Use an AWS-provided Image Builder image
 
-For example `arn:aws:imagebuilder:us-east-1:aws:image/ubuntu-server-22-lts-x86/x.x.x` would always use the latest version of Ubuntu 22.04 in each build. If you want a specific version, you can replace `x.x.x` with that version.
+For example `BaseImage.fromImageBuilder(scope, 'ubuntu-server-22-lts-x86')` would always use the latest version of Ubuntu 22.04 in each build. If you want a specific version, you can pass the version as the third parameter.
 
 ---
 
@@ -8517,8 +8523,12 @@ public readonly baseDockerImage: string | BaseContainerImage;
 Base image from which Docker runner images will be built.
 
 This can be:
-- A string (ECR/ECR public image URI, DockerHub image, or Image Builder ARN)
-- An object with properties specifying the base image (e.g., `{ dockerHubRepository: 'ubuntu', dockerHubTag: '22.04' }` or `{ ecrRepository: repo, ecrTag: 'latest' }`)
+- A string (ECR/ECR public image URI, DockerHub image, or Image Builder ARN) - deprecated, use BaseContainerImage static factory methods instead
+- A BaseContainerImage instance created using static factory methods:
+  - `BaseContainerImage.fromDockerHub('ubuntu', '22.04')` - Use DockerHub
+  - `BaseContainerImage.fromEcr(repo, 'latest')` - Use ECR (automatically grants permissions with CodeBuild)
+  - `BaseContainerImage.fromEcrPublic('lts', 'ubuntu', '22.04')` - Use ECR Public
+  - `BaseContainerImage.fromString('public.ecr.aws/lts/ubuntu:22.04')` - Use any string
 
 When using private images from a different account or not on ECR, you may need to include additional setup commands with {@link dockerSetupCommands}.
 

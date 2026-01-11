@@ -8,7 +8,7 @@ import { Construct } from 'constructs';
  *
  * To create a BaseImage object, use the static factory methods like BaseImage.fromAmiId().
  *
- * @deprecated String support will be removed in a future version. Use BaseImage static factory methods instead.
+ * Note: String support is deprecated and will be removed in a future version. Use BaseImage static factory methods instead.
  */
 export type BaseImageInput = string | BaseImage;
 
@@ -98,7 +98,7 @@ export class BaseImage {
  *
  * To create a BaseContainerImage object, use the static factory methods like BaseContainerImage.fromEcr().
  *
- * @deprecated String support will be removed in a future version. Use BaseContainerImage static factory methods instead.
+ * Note: String support is deprecated and will be removed in a future version. Use BaseContainerImage static factory methods instead.
  */
 export type BaseContainerImageInput = string | BaseContainerImage;
 
