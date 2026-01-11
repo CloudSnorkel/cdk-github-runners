@@ -477,9 +477,9 @@ We provide comprehensive examples in the [`examples/`](examples/) folder to help
 
 Each example is self-contained with its own dependencies and README. Start with the simple examples and work your way up to more advanced configurations.
 
-Beyond the code snippets above, the fullest example available is the [integration test](test/default.integ.ts).
+Another good and very full example is the [integration test](test/default.integ.ts).
 
-If you have more to share, please open a PR adding them to the `examples` folder.
+If you have more to share, please open a PR adding examples to the `examples` folder.
 
 ## Architecture
 
