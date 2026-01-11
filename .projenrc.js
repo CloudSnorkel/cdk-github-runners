@@ -1,7 +1,6 @@
 const { awscdk } = require('projen');
 const { CdkConfig } = require('projen/lib/awscdk');
 const { Stability } = require('projen/lib/cdk/jsii-project');
-const { WorkflowSteps } = require('projen/lib/github');
 const { NpmAccess } = require('projen/lib/javascript');
 
 const project = new awscdk.AwsCdkConstructLibrary({
