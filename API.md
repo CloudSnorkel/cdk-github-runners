@@ -7217,7 +7217,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.allowPublicSubnet">allowPublicSubnet</a></code> | <code>boolean</code> | Allow management functions to run in public subnets. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.allowPublicSubnet">allowPublicSubnet</a></code> | <code>boolean</code> | Allow management functions to run in public subnets. Lambda Functions in a public subnet can NOT access the internet. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.extraCertificates">extraCertificates</a></code> | <code>string</code> | Path to a certificate file (.pem or .crt) or a directory containing certificate files (.pem or .crt) required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.idleTimeout">idleTimeout</a></code> | <code>aws-cdk-lib.Duration</code> | Time to wait before stopping a runner that remains idle. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.logOptions">logOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LogOptions">LogOptions</a></code> | Logging options for the state machine that manages the runners. |
@@ -7244,9 +7244,9 @@ public readonly allowPublicSubnet: boolean;
 - *Type:* boolean
 - *Default:* false
 
-Allow management functions to run in public subnets.
+Allow management functions to run in public subnets. Lambda Functions in a public subnet can NOT access the internet.
 
-Lambda Functions in a public subnet can NOT access the internet.
+**Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
 
 ---
 
@@ -7401,6 +7401,8 @@ Security group attached to all management functions.
 
 Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
 
+**Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
+
 ---
 
 ##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroups"></a>
@@ -7413,7 +7415,11 @@ public readonly securityGroups: ISecurityGroup[];
 
 Security groups attached to all management functions.
 
-Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
+Use this to provide outbound access from management functions to GitHub Enterprise Server hosted inside a VPC.
+
+**Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
+
+**Note:** Defining inbound rules on this security group does nothing. This security group only controls outbound access FROM the management functions. To limit access TO the webhook or setup functions, use {@link webhookAccess} and {@link setupAccess} instead.
 
 ---
 
@@ -7457,6 +7463,8 @@ public readonly vpc: IVpc;
 
 VPC used for all management functions. Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
 
+**Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting and will run outside the VPC.
+
 Make sure the selected VPC and subnets have access to the following with either NAT Gateway or VPC Endpoints:
 * GitHub Enterprise Server
 * Secrets Manager
@@ -7479,6 +7487,8 @@ public readonly vpcSubnets: SubnetSelection;
 VPC subnets used for all management functions.
 
 Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
+
+**Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
 
 ---
 

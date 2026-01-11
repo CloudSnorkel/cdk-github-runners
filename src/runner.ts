@@ -60,6 +60,8 @@ export interface GitHubRunnersProps {
   /**
    * VPC used for all management functions. Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
    *
+   * **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting and will run outside the VPC.
+   *
    * Make sure the selected VPC and subnets have access to the following with either NAT Gateway or VPC Endpoints:
    * * GitHub Enterprise Server
    * * Secrets Manager
@@ -73,11 +75,15 @@ export interface GitHubRunnersProps {
 
   /**
    * VPC subnets used for all management functions. Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
+   *
+   * **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
    */
   readonly vpcSubnets?: ec2.SubnetSelection;
 
   /**
    * Allow management functions to run in public subnets. Lambda Functions in a public subnet can NOT access the internet.
+   *
+   * **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
    *
    * @default false
    */
@@ -86,12 +92,18 @@ export interface GitHubRunnersProps {
   /**
    * Security group attached to all management functions. Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
    *
+   * **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
+   *
    * @deprecated use {@link securityGroups} instead
    */
   readonly securityGroup?: ec2.ISecurityGroup;
 
   /**
-   * Security groups attached to all management functions. Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
+   * Security groups attached to all management functions. Use this to provide outbound access from management functions to GitHub Enterprise Server hosted inside a VPC.
+   *
+   * **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
+   *
+   * **Note:** Defining inbound rules on this security group does nothing. This security group only controls outbound access FROM the management functions. To limit access TO the webhook or setup functions, use {@link webhookAccess} and {@link setupAccess} instead.
    */
   readonly securityGroups?: ec2.ISecurityGroup[];
 
@@ -336,9 +348,13 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       }, {}),
       requireSelfHostedLabel: this.props?.requireSelfHostedLabel ?? true,
       providerSelector: this.props?.providerSelector,
+      extraLambdaProps: this.extraLambdaProps,
+      extraLambdaEnv: this.extraLambdaEnv,
     });
     this.redeliverer = new GithubWebhookRedelivery(this, 'Webhook Redelivery', {
       secrets: this.secrets,
+      extraLambdaProps: this.extraLambdaProps,
+      extraLambdaEnv: this.extraLambdaEnv,
     });
 
     this.setupUrl = this.setupFunction();
