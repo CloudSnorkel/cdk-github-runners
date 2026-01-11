@@ -536,13 +536,13 @@ If you use and love this project, please consider contributing.
 
 ## Other Options
 
-1. [philips-labs/terraform-aws-github-runner][3] if you're using Terraform
+1. [github-aws-runners/terraform-aws-github-runner][3] if you're using Terraform
 2. [actions/actions-runner-controller][4] if you're using Kubernetes
 
 
 [1]: https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners
 [2]: https://github.com/marketplace/actions/configure-aws-credentials-action-for-github-actions
-[3]: https://github.com/philips-labs/terraform-aws-github-runner
+[3]: https://github.com/github-aws-runners/terraform-aws-github-runner
 [4]: https://github.com/actions/actions-runner-controller
 [5]: https://github.com/actions/runner
 [6]: https://pypi.org/project/cloudsnorkel.cdk-github-runners
