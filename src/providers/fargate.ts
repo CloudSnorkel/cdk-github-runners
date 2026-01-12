@@ -317,11 +317,15 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
 
   /**
    * Fargate task hosting the runner.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly task: ecs.FargateTaskDefinition;
 
   /**
    * Container definition hosting the runner.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly container: ecs.ContainerDefinition;
 
@@ -332,16 +336,22 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
 
   /**
    * VPC used for hosting the runner task.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly vpc?: ec2.IVpc;
 
   /**
    * Subnets used for hosting the runner task.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly subnetSelection?: ec2.SubnetSelection;
 
   /**
    * Whether runner task will have a public IP.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly assignPublicIp: boolean;
 
@@ -357,11 +367,15 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
 
   /**
    * Use spot pricing for Fargate tasks.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly spot: boolean;
 
   /**
    * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to Fargate tasks.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly image: RunnerImage;
 

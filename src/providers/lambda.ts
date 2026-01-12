@@ -213,6 +213,8 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
 
   /**
    * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to Lambda.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly image: RunnerImage;
 
