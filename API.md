@@ -797,7 +797,7 @@ Grant principal used to add permissions to the runner role.
 
 ##### ~~`image`~~<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.image"></a>
 
-- *Deprecated:* use {@link CodeBuildRunnerProvider }
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly image: RunnerImage;
@@ -1175,7 +1175,9 @@ Grant principal used to add permissions to the runner role.
 
 ---
 
-##### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.image"></a>
+##### ~~`image`~~<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.image"></a>
+
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly image: RunnerImage;
@@ -2627,7 +2629,7 @@ The tree node.
 
 ##### ~~`assignPublicIp`~~<sup>Required</sup> <a name="assignPublicIp" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.assignPublicIp"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider }
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly assignPublicIp: boolean;
@@ -2669,7 +2671,7 @@ The network connections associated with this resource.
 
 ##### ~~`container`~~<sup>Required</sup> <a name="container" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.container"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider }
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly container: ContainerDefinition;
@@ -2697,7 +2699,7 @@ Grant principal used to add permissions to the runner role.
 
 ##### ~~`image`~~<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.image"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider }
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly image: RunnerImage;
@@ -2757,7 +2759,7 @@ List of step functions errors that should be retried.
 
 ##### ~~`spot`~~<sup>Required</sup> <a name="spot" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.spot"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider }
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly spot: boolean;
@@ -2771,7 +2773,7 @@ Use spot pricing for Fargate tasks.
 
 ##### ~~`task`~~<sup>Required</sup> <a name="task" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.task"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider }
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly task: FargateTaskDefinition;
@@ -2785,7 +2787,7 @@ Fargate task hosting the runner.
 
 ##### ~~`subnetSelection`~~<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.subnetSelection"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider }
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly subnetSelection: SubnetSelection;
@@ -2799,7 +2801,7 @@ Subnets used for hosting the runner task.
 
 ##### ~~`vpc`~~<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.vpc"></a>
 
-- *Deprecated:* use {@link FargateRunnerProvider }
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly vpc: IVpc;
@@ -3090,7 +3092,9 @@ The tree node.
 
 ---
 
-##### `assignPublicIp`<sup>Required</sup> <a name="assignPublicIp" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.assignPublicIp"></a>
+##### ~~`assignPublicIp`~~<sup>Required</sup> <a name="assignPublicIp" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.assignPublicIp"></a>
+
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly assignPublicIp: boolean;
@@ -3126,7 +3130,9 @@ The network connections associated with this resource.
 
 ---
 
-##### `container`<sup>Required</sup> <a name="container" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.container"></a>
+##### ~~`container`~~<sup>Required</sup> <a name="container" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.container"></a>
+
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly container: ContainerDefinition;
@@ -3150,7 +3156,9 @@ Grant principal used to add permissions to the runner role.
 
 ---
 
-##### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.image"></a>
+##### ~~`image`~~<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.image"></a>
+
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly image: RunnerImage;
@@ -3202,7 +3210,9 @@ List of step functions errors that should be retried.
 
 ---
 
-##### `spot`<sup>Required</sup> <a name="spot" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.spot"></a>
+##### ~~`spot`~~<sup>Required</sup> <a name="spot" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.spot"></a>
+
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly spot: boolean;
@@ -3214,7 +3224,9 @@ Use spot pricing for Fargate tasks.
 
 ---
 
-##### `task`<sup>Required</sup> <a name="task" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.task"></a>
+##### ~~`task`~~<sup>Required</sup> <a name="task" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.task"></a>
+
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly task: FargateTaskDefinition;
@@ -3226,7 +3238,9 @@ Fargate task hosting the runner.
 
 ---
 
-##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.subnetSelection"></a>
+##### ~~`subnetSelection`~~<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.subnetSelection"></a>
+
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly subnetSelection: SubnetSelection;
@@ -3238,7 +3252,9 @@ Subnets used for hosting the runner task.
 
 ---
 
-##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.vpc"></a>
+##### ~~`vpc`~~<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.vpc"></a>
+
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly vpc: IVpc;
@@ -4162,7 +4178,7 @@ Grant principal used to add permissions to the runner role.
 
 ##### ~~`image`~~<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.image"></a>
 
-- *Deprecated:* use {@link LambdaRunnerProvider }
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly image: RunnerImage;
@@ -4530,7 +4546,9 @@ Grant principal used to add permissions to the runner role.
 
 ---
 
-##### `image`<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.image"></a>
+##### ~~`image`~~<sup>Required</sup> <a name="image" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.image"></a>
+
+- *Deprecated:* This field is internal and should not be accessed directly.
 
 ```typescript
 public readonly image: RunnerImage;
