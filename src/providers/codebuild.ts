@@ -220,6 +220,8 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
 
   /**
    * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to CodeBuild.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly image: RunnerImage;
 
