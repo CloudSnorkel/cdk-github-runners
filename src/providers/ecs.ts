@@ -301,7 +301,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   /**
    * Capacity provider used to scale the cluster.
    *
-   * Use capacityProvider.autoScalingGroup to access the auto scaling group. This can help setup custom scaling policies.
+   * Use capacityProvider.autoScalingGroup to access the auto scaling group. This can help set up custom scaling policies.
    */
   readonly capacityProvider: ecs.AsgCapacityProvider;
 
