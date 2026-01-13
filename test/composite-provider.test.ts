@@ -738,15 +738,15 @@ describe('ICompositeProvider', () => {
 
     // Create fallback composite provider with many providers (mix of single and multiple states)
     const fallbackProvider = CompositeProvider.fallback(stack, 'crazy-fallback', [
-      lambdaProvider1,      // single state
-      ec2Provider1,         // multiple states
-      codeBuildProvider1,   // single state
-      ec2Provider2,         // multiple states
-      lambdaProvider2,      // single state
-      ec2Provider3,         // multiple states
-      codeBuildProvider2,   // single state
-      ec2Provider4,         // multiple states
-      ec2Provider5,         // multiple states
+      lambdaProvider1, // single state
+      ec2Provider1, // multiple states
+      codeBuildProvider1, // single state
+      ec2Provider2, // multiple states
+      lambdaProvider2, // single state
+      ec2Provider3, // multiple states
+      codeBuildProvider2, // single state
+      ec2Provider4, // multiple states
+      ec2Provider5, // multiple states
     ]);
 
     // This should not throw an exception
