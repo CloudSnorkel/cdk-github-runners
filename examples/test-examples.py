@@ -34,6 +34,11 @@ if not yarn_path:
     print_colored("  ✗ yarn not found. Please install yarn.", Colors.RED)
     sys.exit(1)
 
+npm_path = shutil.which("npm")
+if not npm_path:
+    print_colored("  ✗ npm not found. Please install npm.", Colors.RED)
+    sys.exit(1)
+
 
 class Colors:
     """ANSI color codes for terminal output."""
@@ -145,16 +150,18 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
             return False, None, f"Package file not found: {simple_tgz_path}"
         
         # Use relative path from example directory
-        relative_tgz_path = os.path.relpath(simple_tgz_path, example_dir)
-        code, out, err = run_command([yarn_path, "add", f"file:{relative_tgz_path}"], cwd=example_dir)
+        # Note: Using npm instead of yarn for local packages because yarn caches file: packages,
+        # which can cause issues when the package is rebuilt. npm doesn't cache file: packages the same way.
+        # We still use yarn for regular dependencies (above) and in GitHub Actions for caching benefits.
+        code, out, err = run_command([npm_path, "install", "--no-save", simple_tgz_path.absolute()], cwd=example_dir)
         duration = time.time() - start_time
         if code != 0:
-            return False, None, f"yarn add local package failed: {err}\n{out}"
+            return False, None, f"npm install local package failed: {err}\n{out}"
         print_colored(f"    ✓ Local package installed ({format_duration(duration)})", Colors.GREEN)
     elif lang == "python":
         start_time = time.time()
         print_colored(f"  Installing dependencies for {example_path}...", Colors.BLUE)
-        code, out, err = run_command(["pip", "install", "-r", "requirements.txt"], cwd=example_dir)
+        code, out, err = run_command(["pip", "install", "--upgrade", "--force-reinstall", "-r", "requirements.txt"], cwd=example_dir)
         duration = time.time() - start_time
         if code != 0:
             return False, None, f"pip install requirements failed: {err}\n{out}"
@@ -167,7 +174,7 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
         whl_files = list(dist_python_dir.glob("*.whl"))
         if not whl_files:
             return False, None, f"No .whl files found in {dist_python_dir}"
-        code, out, err = run_command(["pip", "install"] + whl_files, cwd=example_dir)
+        code, out, err = run_command(["pip", "install", "--upgrade", "--force-reinstall"] + [w.absolute() for w in whl_files], cwd=example_dir)
         duration = time.time() - start_time
         if code != 0:
             return False, None, f"pip install local package failed: {err}\n{out}"
@@ -182,6 +189,7 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
         "--no-asset-metadata",
         "--no-path-metadata",
         "--no-version-reporting",
+        "--no-notices",
     ], cwd=example_dir)
     duration = time.time() - start_time
     
@@ -244,7 +252,7 @@ def deploy_example(example_path: str) -> Tuple[bool, str]:
     try:
         # Run with real-time output but capture for error reporting
         process = subprocess.Popen(
-            [cdk_path, "deploy", "--require-approval", "never", "--all"],
+            [cdk_path, "deploy", "--require-approval", "never", "--all", "--no-notices"],
             cwd=example_dir,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -282,7 +290,7 @@ def destroy_example(example_path: str) -> Tuple[bool, str]:
     try:
         # Run with real-time output but capture for error reporting
         process = subprocess.Popen(
-            [cdk_path, "destroy", "--force", "--all"],
+            [cdk_path, "destroy", "--force", "--all", "--no-notices"],
             cwd=example_dir,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -337,7 +345,7 @@ def check_prerequisites() -> bool:
     print_colored("Checking prerequisites...", Colors.BLUE)
     
     # Check CDK
-    code, _, _ = run_command([cdk_path, "--version"])
+    code, _, _ = run_command([cdk_path, "--version", "--no-notices"])
     if code != 0:
         print_colored("  ✗ CDK not found. Please install AWS CDK CLI.", Colors.RED)
         return False
