@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_iam as iam, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_iam as iam, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { Construct } from 'constructs';
-import { CodeBuildRunnerProvider, GitHubRunners, ICompositeProvider, IRunnerProvider, IRunnerProviderStatus, LambdaRunnerProvider, RunnerRuntimeParameters } from '../src';
+import { CodeBuildRunnerProvider, CompositeProvider, Ec2RunnerProvider, GitHubRunners, ICompositeProvider, IRunnerProvider, IRunnerProviderStatus, LambdaRunnerProvider, RunnerRuntimeParameters } from '../src';
 
 /**
  * Mock implementation of ICompositeProvider for testing
@@ -626,5 +626,138 @@ describe('ICompositeProvider', () => {
     const statusFunctionResource = statusFunction[statusFunctionKey];
     // Empty array should result in empty providers array
     expect(statusFunctionResource.Metadata.providers.length).toBe(0);
+  });
+
+  test('fallback with 3 EC2 providers does not throw exception', () => {
+    // Create VPC for EC2 providers
+    const vpc = new ec2.Vpc(stack, 'vpc', {
+      maxAzs: 2,
+    });
+
+    // Create image builder for EC2 providers
+    const imageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'image-builder', {
+      vpc: vpc,
+    });
+
+    // Create 3 EC2 providers with the same labels
+    const ec2Provider1 = new Ec2RunnerProvider(stack, 'ec2-provider-1', {
+      labels: ['ec2', 'linux', 'x64'],
+      vpc: vpc,
+      imageBuilder: imageBuilder,
+    });
+
+    const ec2Provider2 = new Ec2RunnerProvider(stack, 'ec2-provider-2', {
+      labels: ['ec2', 'linux', 'x64'],
+      vpc: vpc,
+      imageBuilder: imageBuilder,
+    });
+
+    const ec2Provider3 = new Ec2RunnerProvider(stack, 'ec2-provider-3', {
+      labels: ['ec2', 'linux', 'x64'],
+      vpc: vpc,
+      imageBuilder: imageBuilder,
+    });
+
+    // Create fallback composite provider with 3 EC2 providers
+    const fallbackProvider = CompositeProvider.fallback(stack, 'ec2-fallback', [
+      ec2Provider1,
+      ec2Provider2,
+      ec2Provider3,
+    ]);
+
+    // This should not throw an exception
+    expect(() => {
+      new GitHubRunners(stack, 'runners', {
+        providers: [fallbackProvider],
+      });
+    }).not.toThrow();
+
+    // Verify that GitHubRunners was created successfully
+    const template = Template.fromStack(stack);
+    template.resourceCountIs('AWS::StepFunctions::StateMachine', 1);
+  });
+
+  test('fallback with many providers mixing single and multiple states does not throw exception', () => {
+    // Create VPC for EC2 providers
+    const vpc = new ec2.Vpc(stack, 'vpc', {
+      maxAzs: 3,
+    });
+
+    // Create image builder for EC2 providers
+    const imageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'image-builder', {
+      vpc: vpc,
+    });
+
+    // Regular providers with single states
+    const lambdaProvider1 = new LambdaRunnerProvider(stack, 'lambda-1', {
+      labels: ['linux', 'x64'],
+    });
+
+    const lambdaProvider2 = new LambdaRunnerProvider(stack, 'lambda-2', {
+      labels: ['linux', 'x64'],
+    });
+
+    const codeBuildProvider1 = new CodeBuildRunnerProvider(stack, 'codebuild-1', {
+      labels: ['linux', 'x64'],
+    });
+
+    const codeBuildProvider2 = new CodeBuildRunnerProvider(stack, 'codebuild-2', {
+      labels: ['linux', 'x64'],
+    });
+
+    // EC2 providers with multiple states (one per subnet)
+    const ec2Provider1 = new Ec2RunnerProvider(stack, 'ec2-1', {
+      labels: ['linux', 'x64'],
+      vpc: vpc,
+      imageBuilder: imageBuilder,
+    });
+
+    const ec2Provider2 = new Ec2RunnerProvider(stack, 'ec2-2', {
+      labels: ['linux', 'x64'],
+      vpc: vpc,
+      imageBuilder: imageBuilder,
+    });
+
+    const ec2Provider3 = new Ec2RunnerProvider(stack, 'ec2-3', {
+      labels: ['linux', 'x64'],
+      vpc: vpc,
+      imageBuilder: imageBuilder,
+    });
+
+    const ec2Provider4 = new Ec2RunnerProvider(stack, 'ec2-4', {
+      labels: ['linux', 'x64'],
+      vpc: vpc,
+      imageBuilder: imageBuilder,
+    });
+
+    const ec2Provider5 = new Ec2RunnerProvider(stack, 'ec2-5', {
+      labels: ['linux', 'x64'],
+      vpc: vpc,
+      imageBuilder: imageBuilder,
+    });
+
+    // Create fallback composite provider with many providers (mix of single and multiple states)
+    const fallbackProvider = CompositeProvider.fallback(stack, 'crazy-fallback', [
+      lambdaProvider1, // single state
+      ec2Provider1, // multiple states
+      codeBuildProvider1, // single state
+      ec2Provider2, // multiple states
+      lambdaProvider2, // single state
+      ec2Provider3, // multiple states
+      codeBuildProvider2, // single state
+      ec2Provider4, // multiple states
+      ec2Provider5, // multiple states
+    ]);
+
+    // This should not throw an exception
+    expect(() => {
+      new GitHubRunners(stack, 'runners', {
+        providers: [fallbackProvider],
+      });
+    }).not.toThrow();
+
+    // Verify that GitHubRunners was created successfully
+    const template = Template.fromStack(stack);
+    template.resourceCountIs('AWS::StepFunctions::StateMachine', 1);
   });
 });

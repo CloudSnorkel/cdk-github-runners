@@ -136,46 +136,29 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
     // Get all provider chainables upfront
     const providerChainables = this.providers.map(p => p.getStepFunctionTask(parameters));
 
-    // Track the entry point - starts as first provider, but may be wrapped
-    let entryPoint = providerChainables[0];
+    // Wrap providers with multiple end states in a Parallel state
+    const wrappedProviderChainables = providerChainables.map((p, i) => {
+      if (this.canAddCatchDirectly(p)) {
+        return p;
+      }
+      return new stepfunctions.Parallel(this, `Attempt #${i + 1}`, {
+        stateName: generateStateName(this, `attempt #${i + 1}`),
+      }).branch(p);
+    });
 
     // Attach catch handlers to each provider (except the last) to fall back to the next provider
     for (let i = 0; i < this.providers.length - 1; i++) {
-      const currentProvider = providerChainables[i];
-      const nextProvider = providerChainables[i + 1];
+      const currentProvider = wrappedProviderChainables[i];
+      const nextProvider = wrappedProviderChainables[i + 1];
 
-      // Try to attach catch handler directly to the provider's end state
-      // This is more efficient than wrapping in a Parallel state when possible
-      if (this.canAddCatchDirectly(currentProvider)) {
-        const endState = (currentProvider as stepfunctions.State).endStates[0] as any;
-        endState.addCatch(nextProvider, {
-          errors: ['States.ALL'],
-          resultPath: `$.fallbackError${i + 1}`,
-        });
-        continue;
-      }
-
-      // Fallback: wrap in Parallel state to add catch capability
-      // This is needed when:
-      // - The provider is not a State instance
-      // - The provider has multiple end states
-      // - The end state doesn't support addCatch directly
-      const parallel = new stepfunctions.Parallel(this, `Attempt #${i + 1}`, {
-        stateName: generateStateName(this, `attempt #${i + 1}`),
-      });
-      parallel.branch(currentProvider);
-      parallel.addCatch(nextProvider, {
+      const endState = (currentProvider as stepfunctions.State).endStates[0] as any;
+      endState.addCatch(nextProvider, {
         errors: ['States.ALL'],
         resultPath: `$.fallbackError${i + 1}`,
       });
-
-      // If this is the first provider, update the entry point to the wrapped version
-      if (i === 0) {
-        entryPoint = parallel;
-      }
     }
 
-    return entryPoint;
+    return wrappedProviderChainables[0];
   }
 
   /**
