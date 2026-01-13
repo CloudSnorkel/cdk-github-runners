@@ -2320,6 +2320,7 @@ Included components:
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.capacityProvider">capacityProvider</a></code> | <code>aws-cdk-lib.aws_ecs.AsgCapacityProvider</code> | Capacity provider used to scale the cluster. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
@@ -2337,6 +2338,20 @@ public readonly node: Node;
 - *Type:* constructs.Node
 
 The tree node.
+
+---
+
+##### `capacityProvider`<sup>Required</sup> <a name="capacityProvider" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.capacityProvider"></a>
+
+```typescript
+public readonly capacityProvider: AsgCapacityProvider;
+```
+
+- *Type:* aws-cdk-lib.aws_ecs.AsgCapacityProvider
+
+Capacity provider used to scale the cluster.
+
+Use capacityProvider.autoScalingGroup to access the auto scaling group. This can help set up custom scaling policies.
 
 ---
 
