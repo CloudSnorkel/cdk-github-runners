@@ -5645,7 +5645,7 @@ const codeBuildRunnerImageBuilderProps: CodeBuildRunnerImageBuilderProps = { ...
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerImageBuilderProps.property.buildImage">buildImage</a></code> | <code>aws-cdk-lib.aws_codebuild.IBuildImage</code> | Build image to use in CodeBuild. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerImageBuilderProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerImageBuilderProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. See the {@link ComputeType} enum for the possible values. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerImageBuilderProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The number of minutes after which AWS CodeBuild stops the build if it's not complete. |
 
 ---
@@ -5676,9 +5676,17 @@ public readonly computeType: ComputeType;
 - *Type:* aws-cdk-lib.aws_codebuild.ComputeType
 - *Default:* {@link ComputeType#SMALL }
 
-The type of compute to use for this build.
+The type of compute to use for this build. See the {@link ComputeType} enum for the possible values.
 
-See the {@link ComputeType} enum for the possible values.
+The compute type determines CPU, memory, and disk space:
+- SMALL: 2 vCPU, 3 GB RAM, 64 GB disk
+- MEDIUM: 4 vCPU, 7 GB RAM, 128 GB disk
+- LARGE: 8 vCPU, 15 GB RAM, 128 GB disk
+- X2_LARGE: 72 vCPU, 145 GB RAM, 256 GB disk (Linux) or 824 GB disk (Windows)
+
+Use a larger compute type when you need more disk space for building larger Docker images.
+
+For more details, see https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html#environment.types
 
 ---
 
@@ -5715,7 +5723,7 @@ const codeBuildRunnerProviderProps: CodeBuildRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.defaultLabels">defaultLabels</a></code> | <code>boolean</code> | Add default labels based on OS and architecture of the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. See the {@link ComputeType} enum for the possible values. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.group">group</a></code> | <code>string</code> | GitHub Actions runner group name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build Docker images containing GitHub Runner and all requirements. |
@@ -5782,9 +5790,17 @@ public readonly computeType: ComputeType;
 - *Type:* aws-cdk-lib.aws_codebuild.ComputeType
 - *Default:* {@link ComputeType#SMALL }
 
-The type of compute to use for this build.
+The type of compute to use for this build. See the {@link ComputeType} enum for the possible values.
 
-See the {@link ComputeType} enum for the possible values.
+The compute type determines CPU, memory, and disk space:
+- SMALL: 2 vCPU, 3 GB RAM, 64 GB disk
+- MEDIUM: 4 vCPU, 7 GB RAM, 128 GB disk
+- LARGE: 8 vCPU, 15 GB RAM, 128 GB disk
+- X2_LARGE: 72 vCPU, 145 GB RAM, 256 GB disk (Linux) or 824 GB disk (Windows)
+
+Use a larger compute type when you need more disk space for building larger Docker images.
+
+For more details, see https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html#environment.types
 
 ---
 
