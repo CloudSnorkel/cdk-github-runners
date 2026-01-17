@@ -144,13 +144,13 @@ export async function selectProvider(payload: any, jobLabels: string[], hook = c
   }
 
   console.log({
-    msg: 'Before provider selector',
+    notice: 'Before provider selector',
     provider: defaultProvider,
     labels: defaultLabels,
     jobLabels: jobLabels,
   });
   console.log({
-    msg: 'After provider selector',
+    notice: 'After provider selector',
     provider: selectorResult.provider,
     labels: selectorResult.labels,
     jobLabels: jobLabels,
