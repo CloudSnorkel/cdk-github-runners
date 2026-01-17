@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { Architecture, GitHubRunners, LambdaRunnerProvider, Os, RunnerImageComponent } from '../src';
+import { cleanUp } from './test-utils';
 
 const testCertificatesDir = path.join(__dirname, 'certificates');
 
@@ -151,6 +152,8 @@ describe('Certificate handling', () => {
       app = new cdk.App();
       stack = new cdk.Stack(app, 'test');
     });
+
+    afterEach(() => cleanUp(app));
 
     test('should create Lambda layer with single certificate file', () => {
       const certFile = path.join(testCertificatesDir, 'single-cert.pem');

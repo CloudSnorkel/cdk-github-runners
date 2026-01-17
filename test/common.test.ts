@@ -1,10 +1,21 @@
+import * as cdk from 'aws-cdk-lib';
 import { Stack } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { generateStateName } from '../src/providers/common';
+import { cleanUp } from './test-utils';
 
 describe('generateStateName', () => {
+  let app: cdk.App;
+  let stack: cdk.Stack;
+
+  beforeEach(() => {
+    app = new cdk.App();
+    stack = new Stack(app, 'TestStack');
+  });
+
+  afterEach(() => cleanUp(app));
+
   test('creates state name from construct path without suffix', () => {
-    const stack = new Stack(undefined, 'TestStack');
     const construct = new Construct(stack, 'MyProvider');
     const result = generateStateName(construct);
 
@@ -13,7 +24,6 @@ describe('generateStateName', () => {
   });
 
   test('creates state name from construct path with suffix', () => {
-    const stack = new Stack(undefined, 'TestStack');
     const construct = new Construct(stack, 'MyProvider');
     const result = generateStateName(construct, 'data');
 
@@ -22,7 +32,6 @@ describe('generateStateName', () => {
   });
 
   test('shortens long construct path with suffix', () => {
-    const stack = new Stack(undefined, 'TestStack');
     // Create a construct with a very long path
     let current: Construct = stack;
     for (let i = 0; i < 10; i++) {
@@ -35,7 +44,6 @@ describe('generateStateName', () => {
   });
 
   test('produces different names for different constructs', () => {
-    const stack = new Stack(undefined, 'TestStack');
     const construct1 = new Construct(stack, 'Provider1');
     const construct2 = new Construct(stack, 'Provider2');
 
@@ -46,7 +54,6 @@ describe('generateStateName', () => {
   });
 
   test('produces different names for different suffixes on same construct', () => {
-    const stack = new Stack(undefined, 'TestStack');
     const construct = new Construct(stack, 'MyProvider');
 
     const result1 = generateStateName(construct, 'data');
@@ -59,7 +66,6 @@ describe('generateStateName', () => {
   });
 
   test('handles empty suffix', () => {
-    const stack = new Stack(undefined, 'TestStack');
     const construct = new Construct(stack, 'MyProvider');
 
     const result1 = generateStateName(construct);
@@ -69,7 +75,6 @@ describe('generateStateName', () => {
   });
 
   test('shortens when name exceeds 80 characters', () => {
-    const stack = new Stack(undefined, 'TestStack');
     // Create a construct with a very long path
     let current: Construct = stack;
     for (let i = 0; i < 20; i++) {
@@ -82,7 +87,6 @@ describe('generateStateName', () => {
   });
 
   test('is deterministic - same input produces same output', () => {
-    const stack = new Stack(undefined, 'TestStack');
     const construct = new Construct(stack, 'MyProvider');
 
     const result1 = generateStateName(construct, 'data');
@@ -92,7 +96,6 @@ describe('generateStateName', () => {
   });
 
   test('handles the GitHub issue example with long path', () => {
-    const stack = new Stack(undefined, 'TestStack');
     const construct = new Construct(stack, 'fuel-ec2-c6a.2xlarge-dev-windows-x64-vs22-rust-full-nospot');
 
     const result = generateStateName(construct, 'subnet-0113588416c0c6005');
@@ -102,7 +105,6 @@ describe('generateStateName', () => {
   });
 
   test('preserves prefix when shortening', () => {
-    const stack = new Stack(undefined, 'TestStack');
     let current: Construct = stack;
     current = new Construct(current, 'my-provider-name');
     for (let i = 0; i < 20; i++) {

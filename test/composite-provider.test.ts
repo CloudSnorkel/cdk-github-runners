@@ -3,6 +3,7 @@ import { aws_ec2 as ec2, aws_iam as iam, aws_stepfunctions as stepfunctions } fr
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { Construct } from 'constructs';
 import { CodeBuildRunnerProvider, CompositeProvider, Ec2RunnerProvider, GitHubRunners, ICompositeProvider, IRunnerProvider, IRunnerProviderStatus, LambdaRunnerProvider, RunnerRuntimeParameters } from '../src';
+import { cleanUp } from './test-utils';
 
 /**
  * Mock implementation of ICompositeProvider for testing
@@ -43,6 +44,8 @@ describe('ICompositeProvider', () => {
     app = new cdk.App();
     stack = new cdk.Stack(app, 'test');
   });
+
+  afterEach(() => cleanUp(app));
 
   test('can be instantiated and used with GitHubRunners', () => {
     const compositeProvider = new MockCompositeProvider(
