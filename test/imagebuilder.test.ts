@@ -15,317 +15,312 @@ import {
   RunnerImageBuilderType,
   RunnerImageComponent,
 } from '../src';
+import { cleanUp } from './test-utils';
 import { BaseContainerImage, BaseImage } from '../src/image-builders/aws-image-builder/base-image';
 import { CodeBuildRunnerImageBuilder } from '../src/image-builders/codebuild';
 
-test('AMI builder matching instance type (DEPRECATED)', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
+describe('Image Builder', () => {
+  let app: cdk.App;
+  let stack: cdk.Stack;
 
-  const vpc = new ec2.Vpc(stack, 'vpc');
-
-  expect(() => {
-    new AmiBuilder(stack, 'linux arm64', {
-      os: Os.LINUX,
-      architecture: Architecture.ARM64,
-      vpc,
-    });
-  }).toThrowError('Builder architecture (ARM64) doesn\'t match selected instance type (m6i.large / x86_64)');
-});
-
-test('AMI builder matching instance type', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
-
-  const vpc = new ec2.Vpc(stack, 'vpc');
-
-  expect(() => {
-    RunnerImageBuilder.new(stack, 'linux arm64', {
-      os: Os.LINUX_UBUNTU,
-      architecture: Architecture.ARM64,
-      vpc,
-      builderType: RunnerImageBuilderType.AWS_IMAGE_BUILDER,
-    });
-  }).toThrowError('Builder architecture (ARM64) doesn\'t match selected instance type (m6i.large / x86_64)');
-});
-
-test('AMI builder supported OS', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
-
-  const vpc = new ec2.Vpc(stack, 'vpc');
-
-  new AmiBuilder(stack, 'linux x64', {
-    os: Os.LINUX,
-    architecture: Architecture.X86_64,
-    vpc,
-  });
-  new AmiBuilder(stack, 'linux arm64', {
-    os: Os.LINUX,
-    architecture: Architecture.ARM64,
-    instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
-    vpc,
-  });
-  new AmiBuilder(stack, 'win x64', {
-    os: Os.WINDOWS,
-    architecture: Architecture.X86_64,
-    vpc,
-  });
-  new AmiBuilder(stack, 'win arm64', {
-    os: Os.WINDOWS,
-    architecture: Architecture.ARM64,
-    instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
-    vpc,
-  });
-});
-
-test('AMI do not skip docker', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
-
-  const vpc = new ec2.Vpc(stack, 'vpc');
-
-  new AmiBuilder(stack, 'windows', {
-    os: Os.WINDOWS,
-    vpc,
-    installDocker: true,
+  beforeEach(() => {
+    app = new cdk.App();
+    stack = new cdk.Stack(app, 'test');
   });
 
-  const template = Template.fromStack(stack);
+  afterEach(() => cleanUp(app));
 
-  template.hasResourceProperties(
-    'AWS::ImageBuilder::Component',
-    Match.objectLike({
-      Description: 'Install latest version of Docker',
-    }),
-  );
-});
+  test('AMI builder matching instance type (DEPRECATED)', () => {
 
-test('AMI skip docker', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
+    const vpc = new ec2.Vpc(stack, 'vpc');
 
-  const vpc = new ec2.Vpc(stack, 'vpc');
-
-  new AmiBuilder(stack, 'windows', {
-    os: Os.WINDOWS,
-    vpc,
-    installDocker: false,
+    expect(() => {
+      new AmiBuilder(stack, 'linux arm64', {
+        os: Os.LINUX,
+        architecture: Architecture.ARM64,
+        vpc,
+      });
+    }).toThrowError('Builder architecture (ARM64) doesn\'t match selected instance type (m6i.large / x86_64)');
   });
 
-  const template = Template.fromStack(stack);
+  test('AMI builder matching instance type', () => {
 
-  template.resourcePropertiesCountIs(
-    'AWS::ImageBuilder::Component',
-    Match.objectLike({
-      Description: 'Install latest version of Docker',
-    }),
-    0,
-  );
-});
+    const vpc = new ec2.Vpc(stack, 'vpc');
 
-test('Container image builder supported OS', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
+    expect(() => {
+      RunnerImageBuilder.new(stack, 'linux arm64', {
+        os: Os.LINUX_UBUNTU,
+        architecture: Architecture.ARM64,
+        vpc,
+        builderType: RunnerImageBuilderType.AWS_IMAGE_BUILDER,
+      });
+    }).toThrowError('Builder architecture (ARM64) doesn\'t match selected instance type (m6i.large / x86_64)');
+  });
 
-  const vpc = new ec2.Vpc(stack, 'vpc');
+  test('AMI builder supported OS', () => {
 
-  expect(() => {
-    new ContainerImageBuilder(stack, 'linux x64', {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    new AmiBuilder(stack, 'linux x64', {
       os: Os.LINUX,
       architecture: Architecture.X86_64,
       vpc,
     });
-  }).toThrowError('Unsupported OS: Linux.');
-  expect(() => {
-    new ContainerImageBuilder(stack, 'linux arm64', {
+    new AmiBuilder(stack, 'linux arm64', {
       os: Os.LINUX,
       architecture: Architecture.ARM64,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
       vpc,
     });
-  }).toThrowError('Unsupported architecture: ARM64. Consider CodeBuild for faster image builds.');
-  new ContainerImageBuilder(stack, 'win x64', {
-    os: Os.WINDOWS,
-    architecture: Architecture.X86_64,
-    vpc,
-  });
-  expect(() => {
-    new ContainerImageBuilder(stack, 'win arm64', {
+    new AmiBuilder(stack, 'win x64', {
+      os: Os.WINDOWS,
+      architecture: Architecture.X86_64,
+      vpc,
+    });
+    new AmiBuilder(stack, 'win arm64', {
       os: Os.WINDOWS,
       architecture: Architecture.ARM64,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
       vpc,
     });
-  }).toThrowError('Unsupported architecture: ARM64. Consider CodeBuild for faster image builds.');
-});
-
-test('AWS Image Builder reuse', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
-
-  const vpc = new ec2.Vpc(stack, 'vpc');
-
-  const builder = FargateRunnerProvider.imageBuilder(stack, 'builder', {
-    builderType: RunnerImageBuilderType.AWS_IMAGE_BUILDER,
-    vpc,
-  });
-  builder.bindAmi();
-  builder.bindDockerImage();
-});
-
-test('Docker component exists by default in image builder', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
-
-  const vpc = new ec2.Vpc(stack, 'vpc');
-
-  const builder = Ec2RunnerProvider.imageBuilder(stack, 'builder', {
-    vpc,
   });
 
-  builder.bindAmi();
+  test('AMI do not skip docker', () => {
 
-  const template = Template.fromStack(stack);
+    const vpc = new ec2.Vpc(stack, 'vpc');
 
-  template.hasResourceProperties('AWS::ImageBuilder::Component', {
-    Description: Match.stringLikeRegexp('Component [0-9]+ Docker'),
+    new AmiBuilder(stack, 'windows', {
+      os: Os.WINDOWS,
+      vpc,
+      installDocker: true,
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties(
+      'AWS::ImageBuilder::Component',
+      Match.objectLike({
+        Description: 'Install latest version of Docker',
+      }),
+    );
   });
-});
 
-test('User is able to remove Docker component from image builder', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
+  test('AMI skip docker', () => {
 
-  const vpc = new ec2.Vpc(stack, 'vpc');
+    const vpc = new ec2.Vpc(stack, 'vpc');
 
-  const builder = Ec2RunnerProvider.imageBuilder(stack, 'builder', {
-    vpc,
+    new AmiBuilder(stack, 'windows', {
+      os: Os.WINDOWS,
+      vpc,
+      installDocker: false,
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.resourcePropertiesCountIs(
+      'AWS::ImageBuilder::Component',
+      Match.objectLike({
+        Description: 'Install latest version of Docker',
+      }),
+      0,
+    );
   });
 
-  builder.removeComponent(RunnerImageComponent.docker());
-  builder.bindAmi();
+  test('Container image builder supported OS', () => {
 
-  const template = Template.fromStack(stack);
+    const vpc = new ec2.Vpc(stack, 'vpc');
 
-  template.resourcePropertiesCountIs('AWS::ImageBuilder::Component', {
-    Description: Match.stringLikeRegexp('Component [0-9]+ Docker'),
-  }, 0);
-});
+    expect(() => {
+      new ContainerImageBuilder(stack, 'linux x64', {
+        os: Os.LINUX,
+        architecture: Architecture.X86_64,
+        vpc,
+      });
+    }).toThrowError('Unsupported OS: Linux.');
+    expect(() => {
+      new ContainerImageBuilder(stack, 'linux arm64', {
+        os: Os.LINUX,
+        architecture: Architecture.ARM64,
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
+        vpc,
+      });
+    }).toThrowError('Unsupported architecture: ARM64. Consider CodeBuild for faster image builds.');
+    new ContainerImageBuilder(stack, 'win x64', {
+      os: Os.WINDOWS,
+      architecture: Architecture.X86_64,
+      vpc,
+    });
+    expect(() => {
+      new ContainerImageBuilder(stack, 'win arm64', {
+        os: Os.WINDOWS,
+        architecture: Architecture.ARM64,
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
+        vpc,
+      });
+    }).toThrowError('Unsupported architecture: ARM64. Consider CodeBuild for faster image builds.');
+  });
 
-test('CodeBuild default image builder has GitHub Runner and Docker-in-Docker', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
+  test('AWS Image Builder reuse', () => {
 
-  new CodeBuildRunnerProvider(stack, 'provider');
+    const vpc = new ec2.Vpc(stack, 'vpc');
 
-  const template = Template.fromStack(stack);
+    const builder = FargateRunnerProvider.imageBuilder(stack, 'builder', {
+      builderType: RunnerImageBuilderType.AWS_IMAGE_BUILDER,
+      vpc,
+    });
+    builder.bindAmi();
+    builder.bindDockerImage();
+  });
 
-  template.hasResourceProperties('AWS::CodeBuild::Project', {
-    Source: {
-      BuildSpec: {
-        'Fn::Join': [
-          '',
-          Match.arrayWith([
-            Match.stringLikeRegexp('component[0-9]+-Docker.sh'),
-          ]),
-        ],
+  test('Docker component exists by default in image builder', () => {
+
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    const builder = Ec2RunnerProvider.imageBuilder(stack, 'builder', {
+      vpc,
+    });
+
+    builder.bindAmi();
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties('AWS::ImageBuilder::Component', {
+      Description: Match.stringLikeRegexp('Component [0-9]+ Docker'),
+    });
+  });
+
+  test('User is able to remove Docker component from image builder', () => {
+
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    const builder = Ec2RunnerProvider.imageBuilder(stack, 'builder', {
+      vpc,
+    });
+
+    builder.removeComponent(RunnerImageComponent.docker());
+    builder.bindAmi();
+
+    const template = Template.fromStack(stack);
+
+    template.resourcePropertiesCountIs('AWS::ImageBuilder::Component', {
+      Description: Match.stringLikeRegexp('Component [0-9]+ Docker'),
+    }, 0);
+  });
+
+  test('CodeBuild default image builder has GitHub Runner and Docker-in-Docker', () => {
+
+    new CodeBuildRunnerProvider(stack, 'provider');
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties('AWS::CodeBuild::Project', {
+      Source: {
+        BuildSpec: {
+          'Fn::Join': [
+            '',
+            Match.arrayWith([
+              Match.stringLikeRegexp('component[0-9]+-Docker.sh'),
+            ]),
+          ],
+        },
       },
-    },
-  });
-  template.hasResourceProperties('AWS::CodeBuild::Project', {
-    Source: {
-      BuildSpec: {
-        'Fn::Join': [
-          '',
-          Match.arrayWith([
-            Match.stringLikeRegexp('component[0-9]+-GithubRunner.sh'),
-          ]),
-        ],
+    });
+    template.hasResourceProperties('AWS::CodeBuild::Project', {
+      Source: {
+        BuildSpec: {
+          'Fn::Join': [
+            '',
+            Match.arrayWith([
+              Match.stringLikeRegexp('component[0-9]+-GithubRunner.sh'),
+            ]),
+          ],
+        },
       },
-    },
+    });
   });
-});
 
-test('Fargate default image builder has GitHub Runner', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
+  test('Fargate default image builder has GitHub Runner', () => {
 
-  const vpc = new ec2.Vpc(stack, 'vpc');
+    const vpc = new ec2.Vpc(stack, 'vpc');
 
-  new FargateRunnerProvider(stack, 'provider', { vpc });
+    new FargateRunnerProvider(stack, 'provider', { vpc });
 
-  const template = Template.fromStack(stack);
+    const template = Template.fromStack(stack);
 
-  template.hasResourceProperties('AWS::CodeBuild::Project', {
-    Source: {
-      BuildSpec: {
-        'Fn::Join': [
-          '',
-          Match.arrayWith([
-            Match.stringLikeRegexp('component[0-9]+-GithubRunner.sh'),
-          ]),
-        ],
+    template.hasResourceProperties('AWS::CodeBuild::Project', {
+      Source: {
+        BuildSpec: {
+          'Fn::Join': [
+            '',
+            Match.arrayWith([
+              Match.stringLikeRegexp('component[0-9]+-GithubRunner.sh'),
+            ]),
+          ],
+        },
       },
-    },
+    });
   });
-});
 
-test('EC2 default image builder has GitHub Runner', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
+  test('EC2 default image builder has GitHub Runner', () => {
 
-  const vpc = new ec2.Vpc(stack, 'vpc');
+    const vpc = new ec2.Vpc(stack, 'vpc');
 
-  new Ec2RunnerProvider(stack, 'provider', { vpc });
+    new Ec2RunnerProvider(stack, 'provider', { vpc });
 
-  const template = Template.fromStack(stack);
+    const template = Template.fromStack(stack);
 
-  template.hasResourceProperties('AWS::ImageBuilder::Component', {
-    Description: Match.stringLikeRegexp('Component [0-9]+ GithubRunner'),
+    template.hasResourceProperties('AWS::ImageBuilder::Component', {
+      Description: Match.stringLikeRegexp('Component [0-9]+ GithubRunner'),
+    });
   });
-});
 
-test('Lambda default image builder has GitHub Runner and Lambda entry point', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
+  test('Lambda default image builder has GitHub Runner and Lambda entry point', () => {
 
-  new LambdaRunnerProvider(stack, 'provider');
+    new LambdaRunnerProvider(stack, 'provider');
 
-  const template = Template.fromStack(stack);
+    const template = Template.fromStack(stack);
 
-  template.hasResourceProperties('AWS::CodeBuild::Project', {
-    Source: {
-      BuildSpec: {
-        'Fn::Join': [
-          '',
-          Match.arrayWith([
-            Match.stringLikeRegexp('component[0-9]+-GithubRunner.sh'),
-            Match.stringLikeRegexp('component[0-9]+-Lambda-Entrypoint.sh'),
-          ]),
-        ],
+    template.hasResourceProperties('AWS::CodeBuild::Project', {
+      Source: {
+        BuildSpec: {
+          'Fn::Join': [
+            '',
+            Match.arrayWith([
+              Match.stringLikeRegexp('component[0-9]+-GithubRunner.sh'),
+              Match.stringLikeRegexp('component[0-9]+-Lambda-Entrypoint.sh'),
+            ]),
+          ],
+        },
       },
-    },
+    });
   });
-});
 
-test('Unused builder doesn\'t throw exceptions', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, 'test');
+  test('Unused builder doesn\'t throw exceptions', () => {
 
-  const vpc = new ec2.Vpc(stack, 'vpc');
+    const vpc = new ec2.Vpc(stack, 'vpc');
 
-  LambdaRunnerProvider.imageBuilder(stack, 'codebuild builder');
-  Ec2RunnerProvider.imageBuilder(stack, 'ec2 image builder', { vpc });
+    LambdaRunnerProvider.imageBuilder(stack, 'codebuild builder');
+    Ec2RunnerProvider.imageBuilder(stack, 'ec2 image builder', { vpc });
 
-  new GitHubRunners(stack, 'runners', {
-    providers: [new LambdaRunnerProvider(stack, 'p1' /* not using builder on purpose */)],
-  }).failedImageBuildsTopic();
+    new GitHubRunners(stack, 'runners', {
+      providers: [new LambdaRunnerProvider(stack, 'p1' /* not using builder on purpose */)],
+    }).failedImageBuildsTopic();
 
-  app.synth();
+    app.synth();
+  });
 });
 
 describe('BaseImage', () => {
+  let app: cdk.App;
+  let stack: cdk.Stack;
+
+  beforeEach(() => {
+    app = new cdk.App();
+    stack = new cdk.Stack(app, 'test');
+  });
+
+  afterEach(() => cleanUp(app));
+
   test('fromAmiId creates correct image string', () => {
     const baseImage = BaseImage.fromAmiId('ami-1234567890abcdef0');
     expect(baseImage.image).toBe('ami-1234567890abcdef0');
@@ -349,8 +344,6 @@ describe('BaseImage', () => {
   });
 
   test('fromSsmParameter creates correct image string with ARN', () => {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'test');
     const parameter = ssm.StringParameter.fromStringParameterName(stack, 'Param', '/aws/service/ami/amazon-linux-2023');
 
     const baseImage = BaseImage.fromSsmParameter(parameter);
@@ -361,9 +354,6 @@ describe('BaseImage', () => {
   });
 
   test('fromImageBuilder creates correct ARN format', () => {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'test');
-
     const baseImage = BaseImage.fromImageBuilder(stack, 'ubuntu-server-22-lts-x86');
     // CDK uses tokens, so we check the structure: arn:...:imagebuilder:...:aws:image/...
     expect(baseImage.image).toMatch(/^arn:/);
@@ -372,9 +362,6 @@ describe('BaseImage', () => {
   });
 
   test('fromImageBuilder with custom version creates correct ARN format', () => {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'test');
-
     const baseImage = BaseImage.fromImageBuilder(stack, 'ubuntu-server-22-lts-x86', '1.0.0');
     // CDK uses tokens, so we check the structure: arn:...:imagebuilder:...:aws:image/...
     expect(baseImage.image).toMatch(/^arn:/);
@@ -384,6 +371,16 @@ describe('BaseImage', () => {
 });
 
 describe('BaseContainerImage', () => {
+  let app: cdk.App;
+  let stack: cdk.Stack;
+
+  beforeEach(() => {
+    app = new cdk.App();
+    stack = new cdk.Stack(app, 'test');
+  });
+
+  afterEach(() => cleanUp(app));
+
   test('fromDockerHub creates correct image string', () => {
     const baseImage = BaseContainerImage.fromDockerHub('ubuntu', '22.04');
     expect(baseImage.image).toBe('ubuntu:22.04');
@@ -400,8 +397,6 @@ describe('BaseContainerImage', () => {
   });
 
   test('fromEcr creates correct image string and captures repository', () => {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'test');
     const repository = new ecr.Repository(stack, 'Repo', {
       repositoryName: 'my-repo',
     });
@@ -415,8 +410,6 @@ describe('BaseContainerImage', () => {
   });
 
   test('fromEcr with custom tag creates correct image string', () => {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'test');
     const repository = new ecr.Repository(stack, 'Repo', {
       repositoryName: 'my-repo',
     });
@@ -445,9 +438,17 @@ describe('BaseContainerImage', () => {
 });
 
 describe('CodeBuildRunnerImageBuilder ECR permissions', () => {
+  let app: cdk.App;
+  let stack: cdk.Stack;
+
+  beforeEach(() => {
+    app = new cdk.App();
+    stack = new cdk.Stack(app, 'test');
+  });
+
+  afterEach(() => cleanUp(app));
+
   test('grants ECR pull permissions when using BaseContainerImage.fromEcr()', () => {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'test');
     const baseImageRepo = new ecr.Repository(stack, 'BaseImageRepo', {
       repositoryName: 'base-image-repo',
     });
@@ -485,8 +486,6 @@ describe('CodeBuildRunnerImageBuilder ECR permissions', () => {
   });
 
   test('does not grant ECR pull permissions when using BaseContainerImage.fromDockerHub()', () => {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'test');
     const baseImageRepo = new ecr.Repository(stack, 'BaseImageRepo', {
       repositoryName: 'base-image-repo',
     });
@@ -524,8 +523,6 @@ describe('CodeBuildRunnerImageBuilder ECR permissions', () => {
   });
 
   test('does not grant ECR pull permissions when using BaseContainerImage.fromEcrPublic()', () => {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'test');
     const baseImageRepo = new ecr.Repository(stack, 'BaseImageRepo', {
       repositoryName: 'base-image-repo',
     });
@@ -562,8 +559,6 @@ describe('CodeBuildRunnerImageBuilder ECR permissions', () => {
   });
 
   test('does not grant ECR pull permissions when using BaseContainerImage.fromString()', () => {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'test');
     const baseImageRepo = new ecr.Repository(stack, 'BaseImageRepo', {
       repositoryName: 'base-image-repo',
     });
@@ -600,8 +595,6 @@ describe('CodeBuildRunnerImageBuilder ECR permissions', () => {
   });
 
   test('ecrRepository property is set only when using fromEcr()', () => {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'test');
     const baseImageRepo = new ecr.Repository(stack, 'BaseImageRepo', {
       repositoryName: 'base-image-repo',
     });
