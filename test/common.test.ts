@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import { Stack } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { generateStateName } from '../src/providers/common';
 import { cleanUp } from './test-utils';
+import { generateStateName } from '../src/providers/common';
 
 describe('generateStateName', () => {
   let app: cdk.App;
