@@ -185,7 +185,7 @@ describe('Image Builder', () => {
     const template = Template.fromStack(stack);
 
     template.hasResourceProperties('AWS::ImageBuilder::Component', {
-      Description: Match.stringLikeRegexp('Component [0-9]+ Docker'),
+      Description: Match.stringLikeRegexp('Docker component for .+'),
     });
   });
 
@@ -270,7 +270,7 @@ describe('Image Builder', () => {
     const template = Template.fromStack(stack);
 
     template.hasResourceProperties('AWS::ImageBuilder::Component', {
-      Description: Match.stringLikeRegexp('Component [0-9]+ GithubRunner'),
+      Description: Match.stringLikeRegexp('GithubRunner component for .+'),
     });
   });
 
@@ -307,6 +307,83 @@ describe('Image Builder', () => {
     }).failedImageBuildsTopic();
 
     app.synth();
+  });
+});
+
+describe('Component caching', () => {
+  let app: cdk.App;
+  let stack: cdk.Stack;
+
+  beforeEach(() => {
+    app = new cdk.App();
+    stack = new cdk.Stack(app, 'test');
+  });
+
+  afterEach(() => cleanUp(app));
+
+  test('Components with same name but different commands get different IDs', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    // Create two components with the same name but different commands
+    const component1 = RunnerImageComponent.custom({
+      name: 'TestComponent',
+      commands: ['echo "command1"'],
+    });
+
+    const component2 = RunnerImageComponent.custom({
+      name: 'TestComponent',
+      commands: ['echo "command2"'],
+    });
+
+    const builder = Ec2RunnerProvider.imageBuilder(stack, 'builder', {
+      vpc,
+    });
+
+    builder.addComponent(component1);
+    builder.addComponent(component2);
+    builder.bindAmi();
+
+    const template = Template.fromStack(stack);
+
+    // Should have exactly 2 different components (one for each set of commands)
+    // Both should have the TestComponent name in their description
+    template.resourcePropertiesCountIs('AWS::ImageBuilder::Component', {
+      Description: Match.stringLikeRegexp('Custom-TestComponent.*'),
+    }, 2);
+  });
+
+  test('Same component used multiple times is cached and reused', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    // Create a component that will be reused
+    const sharedComponent = RunnerImageComponent.custom({
+      name: 'SharedComponent',
+      commands: ['echo "shared command"'],
+    });
+
+    // Create two different builders
+    const builder1 = Ec2RunnerProvider.imageBuilder(stack, 'builder1', {
+      vpc,
+    });
+
+    const builder2 = Ec2RunnerProvider.imageBuilder(stack, 'builder2', {
+      vpc,
+    });
+
+    // Add the same component to both builders
+    builder1.addComponent(sharedComponent);
+    builder2.addComponent(sharedComponent);
+
+    builder1.bindAmi();
+    builder2.bindAmi();
+
+    const template = Template.fromStack(stack);
+
+    // Should have exactly 1 component resource (cached and reused)
+    // Even though it's used in two different builders
+    template.resourcePropertiesCountIs('AWS::ImageBuilder::Component', {
+      Description: Match.stringLikeRegexp('Custom-SharedComponent.*'),
+    }, 1);
   });
 });
 

@@ -8,6 +8,8 @@
 
 import { App, Stack } from 'aws-cdk-lib';
 import { Vpc, SubnetType } from 'aws-cdk-lib/aws-ec2';
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   GitHubRunners,
   FargateRunnerProvider,
@@ -58,6 +60,64 @@ class AddSoftwareStack extends Stack {
       }),
     );
 
+
+    // Test asset hash detection: create 3 components with the same file path but different content
+    const testFile = path.join(__dirname, 'test-asset.txt');
+
+    // Create initial file content
+    fs.writeFileSync(testFile, 'Initial content version 1\n');
+
+    // First component with initial file content
+    imageBuilder.addComponent(
+      RunnerImageComponent.custom({
+        name: 'TestAsset1',
+        commands: ['echo "Component 1"'],
+        assets: [
+          {
+            source: testFile,
+            target: '/tmp/test-asset-1.txt',
+          },
+        ],
+      }),
+    );
+
+    // Modify the file content
+    fs.writeFileSync(testFile, 'Modified content version 2\n');
+
+    // Second component with same file path but different content (should get different cache key)
+    imageBuilder.addComponent(
+      RunnerImageComponent.custom({
+        name: 'TestAsset2',
+        commands: ['echo "Component 2"'],
+        assets: [
+          {
+            source: testFile,
+            target: '/tmp/test-asset-2.txt',
+          },
+        ],
+      }),
+    );
+
+    // Modify the file content again
+    fs.writeFileSync(testFile, 'Final content version 3\n');
+
+    // Third component with same file path but different content again (should get different cache key)
+    imageBuilder.addComponent(
+      RunnerImageComponent.custom({
+        name: 'TestAsset3',
+        commands: ['echo "Component 3"'],
+        assets: [
+          {
+            source: testFile,
+            target: '/tmp/test-asset-3.txt',
+          },
+        ],
+      }),
+    );
+
+    // Clean up test file
+    // fs.unlinkSync(testFile);
+
     // Create a Fargate provider with the custom image
     const fargateProvider = new FargateRunnerProvider(this, 'FargateProvider', {
       labels: ['fargate', 'linux', 'x64'],
@@ -68,7 +128,7 @@ class AddSoftwareStack extends Stack {
     // Create the GitHub runners infrastructure
     new GitHubRunners(this, 'GitHubRunners', {
       providers: [fargateProvider],
-    });
+    })
   }
 }
 
