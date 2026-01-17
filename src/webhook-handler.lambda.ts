@@ -143,8 +143,18 @@ export async function selectProvider(payload: any, jobLabels: string[], hook = c
     return defaultSelection;
   }
 
-  console.log(`Before provider selector provider=${defaultProvider} labels=${defaultLabels}`);
-  console.log(`After provider selector provider=${selectorResult.provider} labels=${selectorResult.labels}`);
+  console.log({
+    msg: 'Before provider selector',
+    provider: defaultProvider,
+    labels: defaultLabels,
+    jobLabels: jobLabels,
+  });
+  console.log({
+    msg: 'After provider selector',
+    provider: selectorResult.provider,
+    labels: selectorResult.labels,
+    jobLabels: jobLabels,
+  });
 
   // any error here will fail the webhook and cause a retry so the selector has another chance to get it right
   if (selectorResult.provider !== undefined) {
