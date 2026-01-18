@@ -456,6 +456,7 @@ We provide comprehensive examples in the [`examples/`](examples/) folder to help
 - **[Composite Provider](examples/typescript/composite-provider/)** - Fallback and weighted distribution strategies (also available in [Python](examples/python/composite-provider/))
 - **[Provider Selector](examples/typescript/provider-selector/)** - Custom provider selection with Lambda function (also available in [Python](examples/python/provider-selector/))
 - **[EC2 Windows Provider](examples/typescript/ec2-windows-provider/)** - EC2 configuration for Windows runners (also available in [Python](examples/python/ec2-windows-provider/))
+- **[Split Stacks](examples/typescript/split-stacks/)** - Split image builders and providers across multiple stacks (also available in [Python](examples/python/split-stacks/))
 
 ### Compute & Performance
 - **[Compute Options](examples/typescript/compute-options/)** - Configure CPU, memory, and instance types for different providers (also available in [Python](examples/python/compute-options/))
