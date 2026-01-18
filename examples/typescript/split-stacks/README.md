@@ -33,16 +33,16 @@ It demonstrates:
 npm install
 
 # Synthesize the CloudFormation templates
-npm run cdk synth
+cdk synth
 
 # Deploy the VPC stack first
-npm run cdk deploy split-stacks-example-vpc
+cdk deploy split-stacks-example-vpc
 
 # Then deploy the image builder stack
-npm run cdk deploy split-stacks-example-image-builder
+cdk deploy split-stacks-example-image-builder
 
 # Finally deploy the providers stack
-npm run cdk deploy split-stacks-example-providers
+cdk deploy split-stacks-example-providers
 ```
 
 ## Architecture
