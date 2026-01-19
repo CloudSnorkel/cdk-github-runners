@@ -919,7 +919,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
 
   private bindComponents(): ImageBuilderComponent[] {
     if (this.boundComponents.length == 0) {
-      this.boundComponents.push(...this.components.map((c, i) => c._asAwsImageBuilderComponent(this, `Component ${i} ${c.name}`, this.os, this.architecture)));
+      this.boundComponents.push(...this.components.map(c => c._asAwsImageBuilderComponent(this, this.os, this.architecture)));
     }
 
     return this.boundComponents;

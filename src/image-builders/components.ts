@@ -1,4 +1,6 @@
+import * as crypto from 'crypto';
 import * as path from 'path';
+import * as cdk from 'aws-cdk-lib';
 import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { discoverCertificateFiles } from '../utils';
@@ -652,9 +654,12 @@ export abstract class RunnerImageComponent {
   /**
    * Convert component to an AWS Image Builder component.
    *
+   * Components are cached and reused when the same component is requested with the same
+   * OS and architecture, reducing stack template size and number of resources.
+   *
    * @internal
    */
-  _asAwsImageBuilderComponent(scope: Construct, id: string, os: Os, architecture: Architecture) {
+  _asAwsImageBuilderComponent(scope: Construct, os: Os, architecture: Architecture) {
     let platform: 'Linux' | 'Windows';
     if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS) || os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
       platform = 'Linux';
@@ -664,19 +669,58 @@ export abstract class RunnerImageComponent {
       throw new Error(`Unknown os/architecture combo for image builder component: ${os.name}/${architecture.name}`);
     }
 
-    return new ImageBuilderComponent(scope, id, {
+    // Get component properties to create a cache key
+    const commands = this.getCommands(os, architecture);
+    const assets = this.getAssets(os, architecture);
+    const reboot = this.shouldReboot(os, architecture);
+
+    // Create a cache key based on component identity and properties
+    const stack = cdk.Stack.of(scope);
+    const cacheKey = this._getCacheKey(os, architecture, commands, assets, reboot);
+
+    // Create a consistent ID based on the cache key to ensure the same component
+    // always gets the same ID, regardless of the passed-in id parameter
+    // The cache key is already a hash, so we can use it directly
+    // Prefix with GHRInternal/ to avoid conflicts with user-defined constructs
+    const consistentId = `GHRInternal/Component-${this.name}-${os.name}-${architecture.name}-${cacheKey.substring(0, 10)}`.replace(/[^a-zA-Z0-9-/]/g, '-');
+
+    // Use the construct tree as the cache - check if component already exists in the stack
+    const existing = stack.node.tryFindChild(consistentId);
+    if (existing) {
+      // Component already exists in this stack, reuse it
+      return existing as ImageBuilderComponent;
+    }
+
+    // Create new component in the stack scope so it can be shared across all scopes in the same stack
+    const component = new ImageBuilderComponent(stack, consistentId, {
       platform: platform,
-      commands: this.getCommands(os, architecture),
-      assets: this.getAssets(os, architecture).map((asset, index) => {
+      commands: commands,
+      assets: assets.map((asset, index) => {
         return {
-          asset: new s3_assets.Asset(scope, `${id} asset ${index}`, { path: asset.source }),
+          asset: new s3_assets.Asset(stack, `GHRInternal/${consistentId}/Asset${index}`, { path: asset.source }),
           path: asset.target,
         };
       }),
-      displayName: id,
-      description: id,
-      reboot: this.shouldReboot(os, architecture),
+      displayName: `${this.name} (${os.name}/${architecture.name})`,
+      description: `${this.name} component for ${os.name}/${architecture.name}`,
+      reboot: reboot,
     });
+
+    return component;
+  }
+
+  /**
+   * Generate a cache key for component reuse.
+   * Components with the same name, OS, architecture, commands, assets, and reboot flag will share the same key.
+   * Returns a hash of all component properties to ensure uniqueness.
+   *
+   * @internal
+   */
+  private _getCacheKey(os: Os, architecture: Architecture, commands: string[], assets: RunnerImageAsset[], reboot: boolean): string {
+    // Create a hash of the component properties
+    const assetKeys = assets.map(a => `${a.source}:${a.target}`).sort().join('|');
+    const keyData = `${this.name}:${os.name}:${architecture.name}:${commands.join('\n')}:${assetKeys}:${reboot}`;
+    return crypto.createHash('md5').update(keyData).digest('hex');
   }
 }
 
