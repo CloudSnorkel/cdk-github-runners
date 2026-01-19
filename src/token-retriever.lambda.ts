@@ -1,4 +1,4 @@
-import { Octokit } from '@octokit/rest';
+import type { Octokit } from '@octokit/rest';
 import { getOctokit } from './lambda-github';
 import { StepFunctionLambdaInput } from './lambda-helpers';
 

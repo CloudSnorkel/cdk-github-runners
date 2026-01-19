@@ -1,7 +1,7 @@
 import { createHash } from 'crypto';
-import { createAppAuth } from '@octokit/auth-app';
-import { Octokit } from '@octokit/rest';
+import type { Octokit as RestOctokit } from '@octokit/rest';
 import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
+import { loadOctokitAuthApp, loadOctokitRest } from './octokit-esm';
 
 export function baseUrlFromDomain(domain: string): string {
   if (domain == 'github.com') {
@@ -19,12 +19,17 @@ export interface GitHubSecrets {
   runnerLevel: RunnerLevel;
 }
 
-const octokitCache = new Map<string, Octokit>();
+const octokitCache = new Map<string, RestOctokit>();
 
-export async function getOctokit(installationId?: number): Promise<{ octokit: Octokit; githubSecrets: GitHubSecrets }> {
+export async function getOctokit(installationId?: number): Promise<{ octokit: RestOctokit; githubSecrets: GitHubSecrets }> {
   if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
     throw new Error('Missing environment variables');
   }
+
+  const [{ Octokit }, { createAppAuth }] = await Promise.all([
+    loadOctokitRest(),
+    loadOctokitAuthApp(),
+  ]);
 
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
 
@@ -96,6 +101,11 @@ export async function getAppOctokit() {
     throw new Error('Missing environment variables');
   }
 
+  const [{ Octokit }, { createAppAuth }] = await Promise.all([
+    loadOctokitRest(),
+    loadOctokitAuthApp(),
+  ]);
+
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   const baseUrl = baseUrlFromDomain(githubSecrets.domain);
 
@@ -115,7 +125,7 @@ export async function getAppOctokit() {
   });
 }
 
-export async function getRunner(octokit: Octokit, runnerLevel: RunnerLevel, owner: string, repo: string, name: string) {
+export async function getRunner(octokit: RestOctokit, runnerLevel: RunnerLevel, owner: string, repo: string, name: string) {
   let page = 1;
   while (true) {
     let runners;
@@ -151,7 +161,7 @@ export async function getRunner(octokit: Octokit, runnerLevel: RunnerLevel, owne
   }
 }
 
-export async function deleteRunner(octokit: Octokit, runnerLevel: RunnerLevel, owner: string, repo: string, runnerId: number) {
+export async function deleteRunner(octokit: RestOctokit, runnerLevel: RunnerLevel, owner: string, repo: string, runnerId: number) {
   if ((runnerLevel ?? 'repo') === 'repo') {
     await octokit.rest.actions.deleteSelfHostedRunnerFromRepo({
       owner: owner,
@@ -166,7 +176,7 @@ export async function deleteRunner(octokit: Octokit, runnerLevel: RunnerLevel, o
   }
 }
 
-export async function redeliver(octokit: Octokit, deliveryId: number) {
+export async function redeliver(octokit: RestOctokit, deliveryId: number) {
   const response = await octokit.rest.apps.redeliverWebhookDelivery({
     delivery_id: deliveryId,
   });
