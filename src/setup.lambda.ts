@@ -1,8 +1,7 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
-import { Octokit } from '@octokit/rest';
 import * as AWSLambda from 'aws-lambda';
-import { baseUrlFromDomain, GitHubSecrets } from './lambda-github';
+import { baseUrlFromDomain, GitHubSecrets, loadOctokitRest } from './lambda-github';
 import { getSecretJsonValue, updateSecretValue } from './lambda-helpers';
 
 type ApiGatewayEvent = AWSLambda.APIGatewayProxyEvent | AWSLambda.APIGatewayProxyEventV2;
@@ -96,6 +95,7 @@ async function handleNewApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
 
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   const baseUrl = baseUrlFromDomain(githubSecrets.domain);
+  const { Octokit } = await loadOctokitRest();
   const newApp = await new Octokit({ baseUrl }).rest.apps.createFromManifest({ code });
 
   githubSecrets.appId = newApp.data.id;

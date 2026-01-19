@@ -1,4 +1,4 @@
-import { RequestError } from '@octokit/request-error';
+import type { RequestError } from '@octokit/request-error';
 import { deleteRunner, getOctokit, getRunner } from './lambda-github';
 import { StepFunctionLambdaInput } from './lambda-helpers';
 

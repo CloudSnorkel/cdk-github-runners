@@ -2,10 +2,8 @@ import { CloudFormationClient, DescribeStackResourceCommand } from '@aws-sdk/cli
 import { DescribeLaunchTemplateVersionsCommand, EC2Client } from '@aws-sdk/client-ec2';
 import { ECRClient, DescribeImagesCommand } from '@aws-sdk/client-ecr';
 import { DescribeExecutionCommand, ListExecutionsCommand, SFNClient } from '@aws-sdk/client-sfn';
-import { createAppAuth } from '@octokit/auth-app';
-import { Octokit } from '@octokit/core';
 import * as AWSLambda from 'aws-lambda';
-import { baseUrlFromDomain, GitHubSecrets } from './lambda-github';
+import { baseUrlFromDomain, GitHubSecrets, loadOctokitAuthApp, loadOctokitCore } from './lambda-github';
 import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
 
 const cfn = new CloudFormationClient();
@@ -120,6 +118,13 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
       !process.env.STACK_NAME) {
     throw new Error('Missing environment variables');
   }
+
+  const [core, authApp] = await Promise.all([
+    loadOctokitCore(),
+    loadOctokitAuthApp(),
+  ]);
+  const { Octokit } = core;
+  const { createAppAuth } = authApp;
 
   // base status
   const status = {
@@ -271,7 +276,12 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
 
     // get app url
     try {
-      const app = (await appOctokit.request('GET /app')).data;
+      const appRes = await appOctokit.request('GET /app');
+      const app = appRes.data;
+      if (!app) {
+        status.github.auth.status = `Unable to get app: ${appRes}`;
+        return safeReturnValue(event, status);
+      }
       status.github.auth.app.url = app.html_url;
     } catch (e) {
       status.github.auth.status = `Unable to get app details: ${e}`;

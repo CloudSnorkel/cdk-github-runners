@@ -1,4 +1,4 @@
-import { Octokit } from '@octokit/rest';
+import type { Octokit } from '@octokit/rest';
 import { getAppOctokit, redeliver } from '../src/lambda-github';
 import { clearFailuresCache, handler } from '../src/webhook-redelivery.lambda';
 
