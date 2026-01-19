@@ -122,12 +122,14 @@ export async function getRunner(octokit: Octokit, runnerLevel: RunnerLevel, owne
 
     if ((runnerLevel ?? 'repo') === 'repo') {
       runners = await octokit.rest.actions.listSelfHostedRunnersForRepo({
+        name: name,
         page: page,
         owner: owner,
         repo: repo,
       });
     } else {
       runners = await octokit.rest.actions.listSelfHostedRunnersForOrg({
+        name: name,
         page: page,
         org: owner,
       });
