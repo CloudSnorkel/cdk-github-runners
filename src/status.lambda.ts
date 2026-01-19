@@ -3,9 +3,8 @@ import { DescribeLaunchTemplateVersionsCommand, EC2Client } from '@aws-sdk/clien
 import { ECRClient, DescribeImagesCommand } from '@aws-sdk/client-ecr';
 import { DescribeExecutionCommand, ListExecutionsCommand, SFNClient } from '@aws-sdk/client-sfn';
 import * as AWSLambda from 'aws-lambda';
-import { baseUrlFromDomain, GitHubSecrets } from './lambda-github';
+import { baseUrlFromDomain, GitHubSecrets, loadOctokitAuthApp, loadOctokitCore } from './lambda-github';
 import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
-import { loadOctokitAuthApp, loadOctokitCore } from './octokit-esm';
 
 const cfn = new CloudFormationClient();
 const ec2 = new EC2Client();

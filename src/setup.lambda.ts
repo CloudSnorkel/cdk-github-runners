@@ -1,9 +1,8 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as AWSLambda from 'aws-lambda';
-import { baseUrlFromDomain, GitHubSecrets } from './lambda-github';
+import { baseUrlFromDomain, GitHubSecrets, loadOctokitRest } from './lambda-github';
 import { getSecretJsonValue, updateSecretValue } from './lambda-helpers';
-import { loadOctokitRest } from './octokit-esm';
 
 type ApiGatewayEvent = AWSLambda.APIGatewayProxyEvent | AWSLambda.APIGatewayProxyEventV2;
 
