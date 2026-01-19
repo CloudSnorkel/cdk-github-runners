@@ -122,12 +122,14 @@ export async function getRunner(octokit: Octokit, runnerLevel: RunnerLevel, owne
 
     if ((runnerLevel ?? 'repo') === 'repo') {
       runners = await octokit.rest.actions.listSelfHostedRunnersForRepo({
+        name: name,
         page: page,
         owner: owner,
         repo: repo,
       });
     } else {
       runners = await octokit.rest.actions.listSelfHostedRunnersForOrg({
+        name: name,
         page: page,
         org: owner,
       });
@@ -138,6 +140,8 @@ export async function getRunner(octokit: Octokit, runnerLevel: RunnerLevel, owne
     }
 
     for (const runner of runners.data.runners) {
+      // we filter by name in the API call, but still double-check here
+      // this is for backward compatibility with old GHES instances that may not support the name filter
       if (runner.name == name) {
         return runner;
       }
