@@ -140,6 +140,8 @@ export async function getRunner(octokit: Octokit, runnerLevel: RunnerLevel, owne
     }
 
     for (const runner of runners.data.runners) {
+      // we filter by name in the API call, but still double-check here
+      // this is for backward compatibility with old GHES instances that may not support the name filter
       if (runner.name == name) {
         return runner;
       }
