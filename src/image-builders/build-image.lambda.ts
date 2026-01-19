@@ -16,14 +16,22 @@ export interface BuildImageFunctionProperties {
 
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   try {
-    console.log({ ...event, ResponseURL: '...' });
+    console.log({
+      notice: 'CloudFormation custom resource request',
+      ...event,
+      ResponseURL: '...',
+    });
 
     const props = event.ResourceProperties as BuildImageFunctionProperties;
 
     switch (event.RequestType) {
       case 'Create':
       case 'Update':
-        console.log(`Starting CodeBuild project ${props.ProjectName}`);
+        console.log({
+          notice: 'Starting CodeBuild project',
+          projectName: props.ProjectName,
+          repoName: props.RepoName,
+        });
         const cbRes = await codebuild.send(new StartBuildCommand({
           projectName: props.ProjectName,
           environmentVariablesOverride: [
@@ -41,7 +49,10 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
         break;
     }
   } catch (e) {
-    console.error(e);
+    console.error({
+      notice: 'Failed to start CodeBuild project',
+      error: `${e}`,
+    });
     await customResourceRespond(event, 'FAILED', (e as Error).message || 'Internal Error', context.logStreamName, {});
   }
 }

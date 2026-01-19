@@ -135,6 +135,7 @@ async function deleteResources(props: DeleteResourcesProps) {
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, _context: AWSLambda.Context) {
   try {
     console.log({
+      notice: 'CloudFormation custom resource request',
       ...event,
       ResponseURL: '...',
     });
@@ -157,7 +158,10 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
         break;
     }
   } catch (e) {
-    console.error(e);
+    console.error({
+      notice: 'Failed to delete Image Builder resources',
+      error: `${e}`,
+    });
     await customResourceRespond(event, 'FAILED', (e as Error).message || 'Internal Error', 'FAIL', {});
   }
 }

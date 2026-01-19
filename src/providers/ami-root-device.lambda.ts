@@ -22,7 +22,11 @@ async function handleAmi(event: AWSLambda.CloudFormationCustomResourceEvent, ami
     return;
   }
 
-  console.log(`Root device for ${ami} is ${rootDevice}`);
+  console.log({
+    notice: 'Resolved AMI root device',
+    ami,
+    rootDevice,
+  });
 
   await customResourceRespond(event, 'SUCCESS', 'OK', rootDevice, {});
   return;
@@ -31,7 +35,11 @@ async function handleAmi(event: AWSLambda.CloudFormationCustomResourceEvent, ami
 
 export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent, context: AWSLambda.Context) {
   try {
-    console.log({ ...event, ResponseURL: '...' });
+    console.log({
+      notice: 'CloudFormation custom resource request',
+      ...event,
+      ResponseURL: '...',
+    });
 
     const ami = event.ResourceProperties.Ami as string;
 
@@ -39,7 +47,10 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
       case 'Create':
       case 'Update':
         if (ami.startsWith('ami-')) {
-          console.log(`Checking AMI ${ami}`);
+          console.log({
+            notice: 'Checking AMI',
+            ami,
+          });
 
           await handleAmi(event, ami);
           break;
@@ -47,7 +58,10 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
 
         if (ami.startsWith('resolve:ssm:')) {
           const ssmParam = ami.substring('resolve:ssm:'.length);
-          console.log(`Checking SSM ${ssmParam}`);
+          console.log({
+            notice: 'Checking SSM',
+            ssmParam,
+          });
 
           const ssmValue = (await ssm.send(new GetParameterCommand({ Name: ssmParam }))).Parameter?.Value;
           if (!ssmValue) {
@@ -61,7 +75,10 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
 
         if (ami.startsWith('ssm:')) {
           const ssmParam = ami.substring('ssm:'.length);
-          console.log(`Checking SSM ${ssmParam}`);
+          console.log({
+            notice: 'Checking SSM',
+            ssmParam,
+          });
 
           const ssmValue = (await ssm.send(new GetParameterCommand({ Name: ssmParam }))).Parameter?.Value;
           if (!ssmValue) {
@@ -74,7 +91,10 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
         }
 
         if (ami.startsWith('lt-')) {
-          console.log(`Checking Launch Template ${ami}`);
+          console.log({
+            notice: 'Checking Launch Template',
+            launchTemplateId: ami,
+          });
 
           const lts = await ec2.send(new DescribeLaunchTemplateVersionsCommand({ LaunchTemplateId: ami, Versions: ['$Latest'] }));
           if (lts.LaunchTemplateVersions?.length !== 1) {
@@ -92,7 +112,10 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
         }
 
         if (ami.match('^arn:aws[^:]*:imagebuilder:[^:]+:[^:]+:image/.*$')) {
-          console.log(`Checking Image Builder ${ami}`);
+          console.log({
+            notice: 'Checking Image Builder',
+            imageBuildVersionArn: ami,
+          });
 
           const img = await ib.send(new GetImageCommand({ imageBuildVersionArn: ami }));
           const actualAmi = img.image?.outputResources?.amis?.[0]?.image;
@@ -108,12 +131,18 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
         await customResourceRespond(event, 'FAILED', `Unknown type of AMI ${ami}`, 'ERROR', {});
         break;
       case 'Delete':
-        console.log('Nothing to delete');
+        console.log({
+          notice: 'Nothing to delete',
+          ami,
+        });
         await customResourceRespond(event, 'SUCCESS', 'OK', event.PhysicalResourceId, {});
         break;
     }
   } catch (e) {
-    console.error(e);
+    console.error({
+      notice: 'Failed to resolve AMI root device',
+      error: `${e}`,
+    });
     await customResourceRespond(event, 'FAILED', (e as Error).message || 'Internal Error', context.logStreamName, {});
   }
 }

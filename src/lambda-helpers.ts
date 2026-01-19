@@ -53,7 +53,13 @@ export async function customResourceRespond(event: AWSLambda.CloudFormationCusto
     Data: data,
   });
 
-  console.log('Responding', responseBody);
+  console.log({
+    notice: 'Responding to CloudFormation custom resource',
+    status: responseStatus,
+    reason,
+    physicalResourceId,
+    responseBody,
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const parsedUrl = require('url').parse(event.ResponseURL);

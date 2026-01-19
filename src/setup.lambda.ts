@@ -173,7 +173,10 @@ export async function handler(event: ApiGatewayEvent): Promise<AWSLambda.APIGate
       return response(404, 'Not found');
     }
   } catch (e) {
-    console.error(e);
+    console.error({
+      notice: 'Setup handler failed',
+      error: `${e}`,
+    });
     return response(500, `<b>Error:</b> ${e}`);
   }
 }
