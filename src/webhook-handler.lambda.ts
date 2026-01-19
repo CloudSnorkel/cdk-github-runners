@@ -44,7 +44,10 @@ export function verifyBody(event: AWSLambda.APIGatewayProxyEventV2, secret: any)
   hmac.update(body);
   const expectedSig = Buffer.from(`sha256=${hmac.digest('hex')}`, 'utf8');
 
-  console.log('Calculated signature: ', expectedSig.toString());
+  console.log({
+    notice: 'Calculated signature',
+    signature: expectedSig.toString(),
+  });
 
   if (sig.length !== expectedSig.length || !crypto.timingSafeEqual(sig, expectedSig)) {
     throw new Error(`Signature mismatch. Expected ${expectedSig.toString()} but got ${sig.toString()}`);
@@ -65,7 +68,10 @@ async function isDeploymentPending(payload: any) {
 
     return statuses.data[0]?.state === 'waiting';
   } catch (e) {
-    console.error('Unable to check deployment. Try adding deployment read permission.', e);
+    console.error({
+      notice: 'Unable to check deployment. Try adding deployment read permission.',
+      error: `${e}`,
+    });
     return false;
   }
 }
@@ -114,10 +120,12 @@ export async function callProviderSelector(
   }));
 
   if (result.FunctionError) {
-    console.error(result.FunctionError);
-    if (result.Payload) {
-      console.error(Buffer.from(result.Payload).toString());
-    }
+    const selectorResponsePayload = result.Payload ? Buffer.from(result.Payload).toString() : undefined;
+    console.error({
+      notice: 'Provider selector failed',
+      functionError: result.FunctionError,
+      payload: selectorResponsePayload,
+    });
     throw new Error('Provider selector failed');
   }
 
@@ -196,7 +204,10 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
   try {
     body = verifyBody(event, webhookSecret);
   } catch (e) {
-    console.error(e);
+    console.error({
+      notice: 'Bad signature',
+      error: `${e}`,
+    });
     return {
       statusCode: 403,
       body: 'Bad signature',
@@ -204,7 +215,10 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
   }
 
   if (getHeader(event, 'content-type') !== 'application/json') {
-    console.error(`This webhook only accepts JSON payloads, got ${getHeader(event, 'content-type')}`);
+    console.error({
+      notice: 'This webhook only accepts JSON payloads',
+      contentType: getHeader(event, 'content-type'),
+    });
     return {
       statusCode: 400,
       body: 'Expecting JSON payload',
@@ -221,7 +235,10 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
   // if (getHeader(event, 'x-github-event') !== 'workflow_job' && getHeader(event, 'x-github-event') !== 'workflow_run') {
   //     console.error(`This webhook only accepts workflow_job and workflow_run, got ${getHeader(event, 'x-github-event')}`);
   if (getHeader(event, 'x-github-event') !== 'workflow_job') {
-    console.error(`This webhook only accepts workflow_job, got ${getHeader(event, 'x-github-event')}`);
+    console.error({
+      notice: 'This webhook only accepts workflow_job',
+      githubEvent: getHeader(event, 'x-github-event'),
+    });
     return {
       statusCode: 200,
       body: 'Expecting workflow_job',

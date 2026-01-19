@@ -25,11 +25,22 @@ export async function handler(event: StepFunctionLambdaInput) {
   // find runner id
   const runner = await getRunner(octokit, githubSecrets.runnerLevel, event.owner, event.repo, event.runnerName);
   if (!runner) {
-    console.error(`Unable to find runner id for ${event.owner}/${event.repo}:${event.runnerName}`);
+    console.error({
+      notice: 'Unable to find runner id',
+      owner: event.owner,
+      repo: event.repo,
+      runnerName: event.runnerName,
+    });
     throw new ReraisedError(event);
   }
 
-  console.log(`Runner ${event.runnerName} has id #${runner.id}`);
+  console.log({
+    notice: 'Found runner id',
+    runnerName: event.runnerName,
+    runnerId: runner.id,
+    owner: event.owner,
+    repo: event.repo,
+  });
 
   // delete runner (it usually gets deleted by ./run.sh, but it stopped prematurely if we're here).
   // it seems like runners are automatically removed after a timeout, if they first accepted a job.
@@ -43,7 +54,14 @@ export async function handler(event: StepFunctionLambdaInput) {
       // ideally we would stop the job that's hanging on this failed runner, but GitHub Actions only has API to stop the entire workflow
       throw new RunnerBusy(reqError.message);
     } else {
-      console.error('Unable to delete runner', e);
+      console.error({
+        notice: 'Unable to delete runner',
+        owner: event.owner,
+        repo: event.repo,
+        runnerId: runner.id,
+        runnerName: event.runnerName,
+        error: `${e}`,
+      });
     }
   }
 

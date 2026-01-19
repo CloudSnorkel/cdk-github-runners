@@ -35,7 +35,13 @@ export async function handler(event: StepFunctionLambdaInput) {
       registrationUrl,
     };
   } catch (error) {
-    console.error(error);
+    console.error({
+      notice: 'Failed to retrieve runner registration token',
+      owner: event.owner,
+      repo: event.repo,
+      runnerName: event.runnerName,
+      error: `${error}`,
+    });
     throw new RunnerTokenError((<Error>error).message);
   }
 }
