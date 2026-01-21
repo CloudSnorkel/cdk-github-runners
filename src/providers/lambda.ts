@@ -379,6 +379,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     });
 
     const rule = image.imageRepository.onEvent('Push rule', {
+      crossStackScope: this, // allow provider and image builder to be in different stacks
       description: 'Update GitHub Actions runner Lambda on ECR image push',
       eventPattern: {
         detailType: ['ECR Image Action'],
