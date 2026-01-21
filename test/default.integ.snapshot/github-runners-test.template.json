@@ -6653,7 +6653,15 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs22.x",
+    "Runtime": {
+     "Fn::FindInMap": [
+      "LatestNodeRuntimeMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    },
     "Timeout": 180
    },
    "DependsOn": [
@@ -7746,7 +7754,15 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs22.x",
+    "Runtime": {
+     "Fn::FindInMap": [
+      "LatestNodeRuntimeMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    },
     "Timeout": 600
    },
    "DependsOn": [
@@ -8511,7 +8527,15 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs22.x",
+    "Runtime": {
+     "Fn::FindInMap": [
+      "LatestNodeRuntimeMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    },
     "Timeout": 60
    },
    "DependsOn": [
@@ -11563,7 +11587,15 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs22.x",
+    "Runtime": {
+     "Fn::FindInMap": [
+      "LatestNodeRuntimeMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    },
     "Timeout": 900
    },
    "DependsOn": [
@@ -15011,7 +15043,15 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs22.x",
+    "Runtime": {
+     "Fn::FindInMap": [
+      "LatestNodeRuntimeMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    },
     "Timeout": 30
    },
    "DependsOn": [
@@ -15120,7 +15160,15 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs22.x",
+    "Runtime": {
+     "Fn::FindInMap": [
+      "LatestNodeRuntimeMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    },
     "Timeout": 30
    },
    "DependsOn": [
@@ -15344,7 +15392,15 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs22.x",
+    "Runtime": {
+     "Fn::FindInMap": [
+      "LatestNodeRuntimeMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    },
     "Timeout": 300
    },
    "DependsOn": [
@@ -18248,7 +18304,15 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs22.x",
+    "Runtime": {
+     "Fn::FindInMap": [
+      "LatestNodeRuntimeMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    },
     "Timeout": 31
    },
    "DependsOn": [
@@ -18384,7 +18448,15 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs22.x",
+    "Runtime": {
+     "Fn::FindInMap": [
+      "LatestNodeRuntimeMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    },
     "Timeout": 270
    },
    "DependsOn": [
@@ -18547,7 +18619,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "7cb955eec86291f78e4edb45859a6296e62b6eaa23295ac95fd9e3e709dcbe67.zip"
+     "S3Key": "c176423a5bcc0c32cc8c42df3e653084f7aba1f66eb7374528c58124e89dce15.zip"
     },
     "Description": "Setup GitHub Actions integration with self-hosted runners",
     "Environment": {
@@ -18586,7 +18658,15 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs22.x",
+    "Runtime": {
+     "Fn::FindInMap": [
+      "LatestNodeRuntimeMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    },
     "Timeout": 180
    },
    "DependsOn": [
@@ -18932,7 +19012,15 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs22.x",
+    "Runtime": {
+     "Fn::FindInMap": [
+      "LatestNodeRuntimeMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    },
     "Timeout": 180
    },
    "DependsOn": [
@@ -20789,7 +20877,15 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs22.x"
+    "Runtime": {
+     "Fn::FindInMap": [
+      "LatestNodeRuntimeMap",
+      {
+       "Ref": "AWS::Region"
+      },
+      "value"
+     ]
+    }
    },
    "DependsOn": [
     "runnersImageBuilderBuildsFilterServiceRoleDefaultPolicy4525F6C1",
@@ -20972,25 +21068,6 @@
    "DeletionPolicy": "Delete"
   }
  },
- "Parameters": {
-  "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
-   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
-   "Default": "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
-  },
-  "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2arm64recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
-   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
-   "Default": "/aws/service/ecs/optimized-ami/amazon-linux-2/arm64/recommended/image_id"
-  },
-  "SsmParameterValueawsserviceamiwindowslatestWindowsServer2019EnglishFullECSOptimizedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
-   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
-   "Default": "/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized/image_id"
-  },
-  "BootstrapVersion": {
-   "Type": "AWS::SSM::Parameter::Value<String>",
-   "Default": "/cdk-bootstrap/hnb659fds/version",
-   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
-  }
- },
  "Mappings": {
   "LatestNodeRuntimeMap": {
    "af-south-1": {
@@ -21113,6 +21190,25 @@
    "us-west-2": {
     "value": "nodejs20.x"
    }
+  }
+ },
+ "Parameters": {
+  "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
+   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+   "Default": "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
+  },
+  "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2arm64recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
+   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+   "Default": "/aws/service/ecs/optimized-ami/amazon-linux-2/arm64/recommended/image_id"
+  },
+  "SsmParameterValueawsserviceamiwindowslatestWindowsServer2019EnglishFullECSOptimizedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
+   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+   "Default": "/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized/image_id"
+  },
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
   }
  },
  "Outputs": {
