@@ -295,6 +295,27 @@ describe('Image Builder', () => {
     });
   });
 
+  test('Lambda provider and image builder can be in separate stacks without cyclic dependencies', () => {
+    const builderStack = new cdk.Stack(app, 'builder-stack');
+    const providerStack = new cdk.Stack(app, 'provider-stack');
+
+    const builder = LambdaRunnerProvider.imageBuilder(builderStack, 'builder');
+    new LambdaRunnerProvider(providerStack, 'provider', {
+      imageBuilder: builder,
+    });
+
+    // The updater rule should be created in the provider stack, not the builder stack.
+    const ruleDescription = 'Update GitHub Actions runner Lambda on ECR image push';
+    Template.fromStack(providerStack).hasResourceProperties('AWS::Events::Rule', Match.objectLike({
+      Description: ruleDescription,
+    }));
+    Template.fromStack(builderStack).resourcePropertiesCountIs('AWS::Events::Rule', Match.objectLike({
+      Description: ruleDescription,
+    }), 0);
+
+    expect(() => app.synth()).not.toThrow();
+  });
+
   test('Unused builder doesn\'t throw exceptions', () => {
 
     const vpc = new ec2.Vpc(stack, 'vpc');
