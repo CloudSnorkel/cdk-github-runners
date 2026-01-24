@@ -6,6 +6,7 @@
 [![Go](https://img.shields.io/github/v/tag/CloudSnorkel/cdk-github-runners?color=red&label=go&logo=go)][11]
 [![Nuget](https://img.shields.io/nuget/v/CloudSnorkel.Cdk.Github.Runners?color=red&&logo=nuget)][12]
 [![Release](https://github.com/CloudSnorkel/cdk-github-runners/actions/workflows/release.yml/badge.svg)](https://github.com/CloudSnorkel/cdk-github-runners/actions/workflows/release.yml)
+[![Discord](https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white)][20]
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/LICENSE)
 
 Use this CDK construct to create ephemeral [self-hosted GitHub runners][1] on-demand inside your AWS account.
@@ -24,6 +25,23 @@ Self-hosted runners in AWS are useful when:
 * You are using GitHub Enterprise Server
 
 Ephemeral (or on-demand) runners are the [recommended way by GitHub][14] for auto-scaling, and they make sure all jobs run with a clean image. Runners are started on-demand. You don't pay unless a job is running.
+
+## Table of Contents
+
+- [API](#api)
+- [Providers](#providers)
+- [Installation](#installation)
+- [Customizing](#customizing)
+  - [Composite Providers](#composite-providers)
+  - [Custom Provider Selection](#custom-provider-selection)
+- [Examples](#examples)
+- [Architecture](#architecture)
+- [Troubleshooting](#troubleshooting)
+- [Monitoring](#monitoring)
+- [Getting Help](#getting-help)
+- [Contributing](#contributing)
+- [Sponsors](#sponsors)
+- [Other Options](#other-options)
 
 ## API
 
@@ -523,6 +541,14 @@ Other useful metrics to track:
 1. Use `GitHubRunners.metricJobCompleted()` to get a metric for the number of completed jobs broken down by labels and job success.
 2. Use `GitHubRunners.metricTime()` to get a metric for the total time a runner is running. This includes the overhead of starting the runner.
 
+## Getting Help
+
+Need help? We're here for you!
+
+* 💬 **GitHub Discussions**: Ask questions, share ideas, or get help from the community by opening a [discussion][18]
+* 🐛 **GitHub Issues**: Report bugs or request features by opening an [issue][16]
+* 💬 **Discord**: Join our [Discord community][20] for real-time help and discussions
+
 ## Contributing
 
 If you use and love this project, please consider contributing.
@@ -534,6 +560,43 @@ If you use and love this project, please consider contributing.
    * Run `npm run build` before submitting to make sure all tests pass.
    * Allow edits from maintainers so small adjustments can be made easily.
 1. 💵 Consider [sponsoring][15] the project to show your support and optionally get your name listed below.
+
+## Sponsors
+
+Thanks to our generous sponsors who helped make this project possible!
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/threat-down">
+        <img src="https://github.com/threat-down.png?size=100" width="100" height="100" alt="ThreatDown" />
+        <br />
+        <sub><b>ThreatDown</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/magicbell">
+        <img src="https://github.com/magicbell.png?size=100" width="100" height="100" alt="MagicBell" />
+        <br />
+        <sub><b>MagicBell</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/fragment-dev">
+        <img src="https://github.com/fragment-dev.png?size=100" width="100" height="100" alt="Fragment" />
+        <br />
+        <sub><b>Fragment</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/andresionek91">
+        <img src="https://github.com/andresionek91.png?size=100" width="100" height="100" alt="Andre Sionek" />
+        <br />
+        <sub><b>Andre Sionek</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
 
 ## Other Options
 
@@ -558,3 +621,5 @@ If you use and love this project, please consider contributing.
 [15]: https://github.com/sponsors/CloudSnorkel
 [16]: https://github.com/CloudSnorkel/cdk-github-runners/issues
 [17]: https://github.com/CloudSnorkel/cdk-github-runners/pulls
+[18]: https://github.com/CloudSnorkel/cdk-github-runners/discussions
+[20]: https://discord.gg/vdrTUTqQKv
