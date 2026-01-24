@@ -38,6 +38,7 @@ export class Secrets extends Construct {
       this,
       'Webhook',
       {
+        description: 'Webhook secret used to confirm events are coming from GitHub and nowhere else. This secret is used for webhook signature validation. For setup instructions, see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md',
         generateSecretString: {
           secretStringTemplate: '{}',
           generateStringKey: 'webhookSecret',
@@ -51,6 +52,7 @@ export class Secrets extends Construct {
       this,
       'GitHub',
       {
+        description: 'Authentication secret for GitHub containing either app details (appId) or personal access token (personalAuthToken). This secret is used to register runners. For setup instructions, see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md',
         generateSecretString: {
           secretStringTemplate: JSON.stringify({
             domain: 'github.com',
@@ -71,6 +73,7 @@ export class Secrets extends Construct {
       this,
       'GitHub Private Key',
       {
+        description: 'GitHub app private key (RSA private key in PEM format). This secret is only needed when using GitHub App authentication. Not required when using personal access tokens. For setup instructions, see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md',
         secretStringValue: cdk.SecretValue.unsafePlainText('-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----'),
       },
     );
@@ -79,6 +82,7 @@ export class Secrets extends Construct {
       this,
       'Setup',
       {
+        description: 'Setup secret used to authenticate users for the setup wizard. This secret contains a temporary token that should be empty after setup has been completed. Check the CloudFormation stack output for the status command to get the full setup URL. For setup instructions, see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md',
         generateSecretString: {
           secretStringTemplate: JSON.stringify({
             token: '',
