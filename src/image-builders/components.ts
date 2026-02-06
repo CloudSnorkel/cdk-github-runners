@@ -43,6 +43,7 @@ export interface RunnerImageComponentCustomProps {
 function formatGitForWindowsVersion(version: string): string {
   if (!version.includes('.windows.')) return version;
   const parts = version.split('.windows.');
+  if (parts.length !== 2 || !parts[1]) return version;
   const base = parts[0];
   const revision = parseInt(parts[1], 10);
   if (isNaN(revision)) return version;
