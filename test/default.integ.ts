@@ -145,6 +145,19 @@ const ec2WindowsImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'Windows EC
 ec2WindowsImageBuilder.addComponent(extraFilesComponentWindows);
 ec2WindowsImageBuilder.addComponent(envComponent);
 
+const ec2WindowsArm64ImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'Windows EC2 ARM64 Builder', {
+  os: Os.WINDOWS,
+  architecture: Architecture.ARM64,
+  vpc,
+  awsImageBuilderOptions: {
+    instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
+  },
+});
+ec2WindowsArm64ImageBuilder.addComponent(extraFilesComponentWindows);
+ec2WindowsArm64ImageBuilder.addComponent(envComponent);
+ec2WindowsArm64ImageBuilder.removeComponent(RunnerImageComponent.cloudWatchAgent()); // no cloudwatch agent arm64 yet
+ec2WindowsArm64ImageBuilder.removeComponent(RunnerImageComponent.docker()); // no docker arm64 yet
+
 const runners = new GitHubRunners(stack, 'runners', {
   providers: [
     new CodeBuildRunnerProvider(stack, 'CodeBuildx64', {
@@ -340,6 +353,12 @@ const runners = new GitHubRunners(stack, 'runners', {
     new Ec2RunnerProvider(stack, 'EC2 Windows', {
       labels: ['ec2', 'windows', 'x64'],
       imageBuilder: ec2WindowsImageBuilder,
+      vpc,
+    }),
+    new Ec2RunnerProvider(stack, 'EC2 Windows ARM64', {
+      labels: ['ec2', 'windows', 'arm64'],
+      imageBuilder: ec2WindowsArm64ImageBuilder,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
       vpc,
     }),
   ],

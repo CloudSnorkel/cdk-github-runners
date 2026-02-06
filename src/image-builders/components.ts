@@ -349,10 +349,11 @@ export abstract class RunnerImageComponent {
             'dnf install -y git',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          const winGitArch = architecture.is(Architecture.ARM64) ? 'arm64' : '64-bit';
           if (useVersion) {
             const versionShort = formatGitForWindowsVersion(useVersion);
             return [
-              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/git-for-windows/git/releases/download/v${useVersion}/Git-${versionShort}-64-bit.exe" -OutFile git-setup.exe`,
+              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/git-for-windows/git/releases/download/v${useVersion}/Git-${versionShort}-${winGitArch}.exe" -OutFile git-setup.exe`,
               '$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList \'/VERYSILENT\'',
               'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
               'del git-setup.exe',
@@ -365,7 +366,7 @@ export abstract class RunnerImageComponent {
             '$GIT_VERSION_SHORT = ($GIT_VERSION -Split \'.windows.\')[0]',
             '$GIT_REVISION = ($GIT_VERSION -Split \'.windows.\')[1]',
             'If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = "$GIT_VERSION_SHORT.$GIT_REVISION"}',
-            'Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe',
+            `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/git-for-windows/git/releases/download/v\${GIT_VERSION}/Git-\${GIT_VERSION_SHORT}-${winGitArch}.exe" -OutFile git-setup.exe`,
             '$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList \'/VERYSILENT\'',
             'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
             'del git-setup.exe',
@@ -529,7 +530,10 @@ export abstract class RunnerImageComponent {
             'ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose',
           ];
         } else if (os.is(Os.WINDOWS)) {
-          const winDockerArch = architecture.is(Architecture.ARM64) ? 'aarch64' : 'x86_64';
+          if (architecture.is(Architecture.ARM64)) {
+            throw new Error('Docker on Windows is only supported for x64 (x86_64). No Windows ARM64 build at https://download.docker.com/win/static/stable/. Use a Linux runner for ARM64 with Docker.');
+          }
+          const winDockerArch = 'x86_64';
           const downloadCommands = useVersion ? [
             `Invoke-WebRequest -UseBasicParsing -Uri "https://download.docker.com/win/static/stable/${winDockerArch}/docker-${useVersion}.zip" -OutFile docker.zip`,
           ] : [

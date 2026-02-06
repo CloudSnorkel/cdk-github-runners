@@ -1,4 +1,4 @@
-import { Architecture, Os, RunnerImageComponent } from '../src';
+import { Architecture, Os, RunnerImageComponent, RunnerVersion } from '../src';
 
 describe('Component version options', () => {
   test('cloudWatchAgent uses latest in URL', () => {
@@ -133,14 +133,18 @@ describe('Component version options', () => {
     expect(versionedWin.some(c => c.includes('docker-29.1.5.zip'))).toBe(true);
   });
 
-  test('docker Windows uses x86_64 for x64 and aarch64 for ARM64', () => {
+  test('docker Windows uses x86_64 for x64', () => {
     const versioned = RunnerImageComponent.docker('29.1.5');
     const x64 = versioned.getCommands(Os.WINDOWS, Architecture.X86_64).join(' ');
-    const arm64 = versioned.getCommands(Os.WINDOWS, Architecture.ARM64).join(' ');
     expect(x64).toContain('stable/x86_64/');
     expect(x64).toContain('docker-compose-Windows-x86_64.exe');
-    expect(arm64).toContain('stable/aarch64/');
-    expect(arm64).toContain('docker-compose-Windows-aarch64.exe');
+  });
+
+  test('docker Windows throws on ARM64 (x64 only at download.docker.com/win/static/stable/)', () => {
+    const comp = RunnerImageComponent.docker();
+    expect(() => comp.getCommands(Os.WINDOWS, Architecture.ARM64)).toThrow(
+      /Docker on Windows is only supported for x64/,
+    );
   });
 
   test('docker treats empty string and latest as no version on Windows (avoids docker-.zip)', () => {
@@ -174,6 +178,22 @@ describe('Component version options', () => {
   test('git does not throw when building for Windows', () => {
     const comp = RunnerImageComponent.git('2.43.0.windows.1');
     expect(() => comp.getCommands(Os.WINDOWS, Architecture.X86_64)).not.toThrow();
+  });
+
+  test('git Windows uses 64-bit for x64 and arm64 for ARM64', () => {
+    const versioned = RunnerImageComponent.git('2.43.0.windows.1');
+    const x64 = versioned.getCommands(Os.WINDOWS, Architecture.X86_64);
+    const arm64 = versioned.getCommands(Os.WINDOWS, Architecture.ARM64);
+    expect(x64.some(c => c.includes('Git-2.43.0-64-bit.exe'))).toBe(true);
+    expect(arm64.some(c => c.includes('Git-2.43.0-arm64.exe'))).toBe(true);
+  });
+
+  test('githubRunner Windows uses x64 for X86_64 and arm64 for ARM64', () => {
+    const comp = RunnerImageComponent.githubRunner(RunnerVersion.latest());
+    const x64 = comp.getCommands(Os.WINDOWS, Architecture.X86_64);
+    const arm64 = comp.getCommands(Os.WINDOWS, Architecture.ARM64);
+    expect(x64.some(c => c.includes('actions-runner-win-x64-'))).toBe(true);
+    expect(arm64.some(c => c.includes('actions-runner-win-arm64-'))).toBe(true);
   });
 
   test('git does not throw when version is not specified', () => {
