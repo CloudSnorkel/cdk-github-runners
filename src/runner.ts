@@ -878,14 +878,21 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * Runner images are rebuilt every week by default. This provides the latest GitHub Runner version and software updates.
    *
    * If you want to be sure you are using the latest runner version, you can use this topic to be notified when a build fails.
+   *
+   * When the image builder is defined in a separate stack (e.g. in a split-stacks setup), pass that stack or construct
+   * as the optional scope so the topic and failure-notification aspects are created in the same stack as the image
+   * builder. Otherwise the aspects may not find the image builder resources.
+   *
+   * @param scope Optional scope (e.g. the image builder stack) where the topic and aspects will be created. Defaults to this construct.
    */
-  public failedImageBuildsTopic() {
-    const topic = new sns.Topic(this, 'Failed Runner Image Builds');
-    const stack = cdk.Stack.of(this);
+  public failedImageBuildsTopic(scope?: Construct) {
+    scope ??= this;
+    const topic = new sns.Topic(scope, 'Failed Runner Image Builds');
+    const stack = cdk.Stack.of(scope);
     cdk.Aspects.of(stack).add(new CodeBuildImageBuilderFailedBuildNotifier(topic));
     cdk.Aspects.of(stack).add(
       new AwsImageBuilderFailedBuildNotifier(
-        AwsImageBuilderFailedBuildNotifier.createFilteringTopic(this, topic),
+        AwsImageBuilderFailedBuildNotifier.createFilteringTopic(scope, topic),
       ),
     );
     return topic;

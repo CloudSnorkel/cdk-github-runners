@@ -111,13 +111,19 @@ class ProvidersStack(Stack):
         )
 
         # Create the GitHub runners infrastructure
-        GitHubRunners(
+        runners = GitHubRunners(
             self, "GitHubRunners",
             providers=[
                 provider1,
                 provider2
             ]
         )
+
+        # Get notified when runner image builds fail. Runner images are rebuilt every week by default;
+        # failed builds leave you on out-of-date software, which can mean security issues or slower start-ups.
+        # For cross-stack setups you need a little more consideration: pass the image builder stack as scope
+        # so the topic and notification aspects are created in that stack, where they can find the image builder resources.
+        runners.failed_image_builds_topic(image_builder_stack)
 
 
 app = cdk.App()
