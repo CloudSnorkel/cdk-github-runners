@@ -424,6 +424,7 @@ export abstract class RunnerImageComponent {
 
           return commands;
         } else if (os.is(Os.WINDOWS)) {
+          const winRunnerArch = architecture.is(Architecture.ARM64) ? 'arm64' : 'x64';
           let runnerCommands: string[];
           if (runnerVersion.is(RunnerVersion.latest())) {
             runnerCommands = [
@@ -439,7 +440,7 @@ export abstract class RunnerImageComponent {
             // create directories
             'mkdir C:\\hostedtoolcache\\windows',
             'mkdir C:\\tools',
-            // download zstd and extract to C:\tools
+            // download zstd and extract to C:\tools (win64 build; on arm64 Windows x64 emulation is used if no native zstd)
             'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/facebook/zstd/releases/latest > $Env:TEMP\\latest-zstd',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-zstd',
             '$ZSTD_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
@@ -454,7 +455,7 @@ export abstract class RunnerImageComponent {
           ]);
 
           return runnerCommands.concat([
-            'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip" -OutFile actions.zip',
+            `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/actions/runner/releases/download/v\${RUNNER_VERSION}/actions-runner-win-${winRunnerArch}-\${RUNNER_VERSION}.zip" -OutFile actions.zip`,
             'Expand-Archive actions.zip -DestinationPath C:\\actions',
             'del actions.zip',
             `echo ${runnerVersion.version} | Out-File -Encoding ASCII -NoNewline C:\\actions\\RUNNER_VERSION`,
