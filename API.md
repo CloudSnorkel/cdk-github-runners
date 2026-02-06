@@ -10628,7 +10628,7 @@ A component to install the GitHub CLI.
 
 - *Type:* string
 
-Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows (x64/windows_amd64); on Linux the package manager is used.
+Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows (x64/arm64); on Linux the package manager is used.
 
 ---
 
