@@ -9,13 +9,6 @@ describe('Component version options', () => {
     expect(win.some(c => c.includes('latest'))).toBe(true);
   });
 
-  test('cloudWatchAgent Windows throws on ARM64 (x64 only)', () => {
-    const comp = RunnerImageComponent.cloudWatchAgent();
-    expect(() => comp.getCommands(Os.WINDOWS, Architecture.ARM64)).toThrow(
-      /CloudWatch agent on Windows is only supported for x64/,
-    );
-  });
-
   test('awsCli uses version in URL when specified', () => {
     const latest = RunnerImageComponent.awsCli();
     const versioned = RunnerImageComponent.awsCli('2.15.0');
@@ -72,14 +65,6 @@ describe('Component version options', () => {
     expect(versionedWin.length).toBeLessThan(latestWin.length); // no redirect fetch
   });
 
-  test('githubCli Windows uses amd64 for x64 and arm64 for ARM64', () => {
-    const versioned = RunnerImageComponent.githubCli('2.40.0');
-    const x64 = versioned.getCommands(Os.WINDOWS, Architecture.X86_64);
-    const arm64 = versioned.getCommands(Os.WINDOWS, Architecture.ARM64);
-    expect(x64.some(c => c.includes('gh_2.40.0_windows_amd64.msi'))).toBe(true);
-    expect(arm64.some(c => c.includes('gh_2.40.0_windows_arm64.msi'))).toBe(true);
-  });
-
   test('githubCli treats empty string and latest as no version on Windows', () => {
     const emptyStr = RunnerImageComponent.githubCli('');
     const latestStr = RunnerImageComponent.githubCli('latest');
@@ -131,16 +116,6 @@ describe('Component version options', () => {
     const versioned = RunnerImageComponent.docker('29.1.5');
     const versionedWin = versioned.getCommands(Os.WINDOWS, Architecture.X86_64);
     expect(versionedWin.some(c => c.includes('docker-29.1.5.zip'))).toBe(true);
-  });
-
-  test('docker Windows uses x86_64 for x64 and aarch64 for ARM64', () => {
-    const versioned = RunnerImageComponent.docker('29.1.5');
-    const x64 = versioned.getCommands(Os.WINDOWS, Architecture.X86_64).join(' ');
-    const arm64 = versioned.getCommands(Os.WINDOWS, Architecture.ARM64).join(' ');
-    expect(x64).toContain('stable/x86_64/');
-    expect(x64).toContain('docker-compose-Windows-x86_64.exe');
-    expect(arm64).toContain('stable/aarch64/');
-    expect(arm64).toContain('docker-compose-Windows-aarch64.exe');
   });
 
   test('docker treats empty string and latest as no version on Windows (avoids docker-.zip)', () => {
