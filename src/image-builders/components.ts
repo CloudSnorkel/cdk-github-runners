@@ -37,6 +37,19 @@ export interface RunnerImageComponentCustomProps {
 }
 
 /**
+ * Git for Windows version format: "2.43.0.windows.1" → "2.43.0" (revision 1 omitted),
+ * "2.43.0.windows.2" → "2.43.0.2" (revision 2+ appended). Versions without ".windows." are returned as-is.
+ */
+function formatGitForWindowsVersion(version: string): string {
+  if (!version.includes('.windows.')) return version;
+  const parts = version.split('.windows.');
+  const base = parts[0];
+  const revision = parseInt(parts[1], 10);
+  if (isNaN(revision)) return version;
+  return revision > 1 ? `${base}.${revision}` : base;
+}
+
+/**
  * Components are used to build runner images. They can run commands in the image, copy files into the image, and run some Docker commands.
  */
 export abstract class RunnerImageComponent {
@@ -184,7 +197,7 @@ export abstract class RunnerImageComponent {
    * @param version Software version to install (e.g. '2.15.0'). Default: latest.
    */
   static awsCli(version?: string): RunnerImageComponent {
-    const useVersion = version && version !== 'latest';
+    const useVersion = version && version !== '' && version !== 'latest';
     return new class extends RunnerImageComponent {
       name = 'AwsCli';
 
@@ -226,10 +239,10 @@ export abstract class RunnerImageComponent {
   /**
    * A component to install the GitHub CLI.
    *
-   * @param version Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows; on Linux the package manager is used.
+   * @param version Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows (x64/windows_amd64); on Linux the package manager is used.
    */
   static githubCli(version?: string): RunnerImageComponent {
-    const useVersion = version && version !== 'latest';
+    const useVersion = version && version !== '' && version !== 'latest';
     return new class extends RunnerImageComponent {
       name = 'GithubCli';
 
@@ -288,7 +301,7 @@ export abstract class RunnerImageComponent {
    * @param version Software version to install (e.g. '2.43.0.windows.1'). Default: latest. Only used on Windows; on Linux the package manager is used.
    */
   static git(version?: string): RunnerImageComponent {
-    const useVersion = version && version !== 'latest';
+    const useVersion = typeof version === 'string' && version !== '' && version !== 'latest';
     return new class extends RunnerImageComponent {
       name = 'Git';
 
@@ -314,7 +327,7 @@ export abstract class RunnerImageComponent {
           ];
         } else if (os.is(Os.WINDOWS)) {
           if (useVersion) {
-            const versionShort = version!.includes('.windows.') ? version!.split('.windows.')[0] + (parseInt(version!.split('.windows.')[1], 10) > 1 ? '.' + version!.split('.windows.')[1] : '') : version;
+            const versionShort = formatGitForWindowsVersion(version!);
             return [
               `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/git-for-windows/git/releases/download/v${version}/Git-${versionShort}-64-bit.exe" -OutFile git-setup.exe`,
               '$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList \'/VERYSILENT\'',
@@ -441,10 +454,10 @@ export abstract class RunnerImageComponent {
    *
    * On Windows this sets up dockerd for Windows containers without Docker Desktop. If you need Linux containers on Windows, you'll need to install Docker Desktop which doesn't seem to play well with servers (PRs welcome).
    *
-   * @param version Software version to install (e.g. '29.1.5'). Default: latest. Only used on Windows; on Ubuntu the apt package version format is not reliably predictable so latest is always used.
+   * @param version Software version to install (e.g. '29.1.5'). Default: latest. Only used on Windows; on Linux (Ubuntu, Amazon Linux) the package version format is not reliably predictable so latest is always used.
    */
   static docker(version?: string): RunnerImageComponent {
-    const useVersion = version && version !== 'latest';
+    const useVersion = version && version !== '' && version !== 'latest';
     return new class extends RunnerImageComponent {
       name = 'Docker';
 
@@ -466,6 +479,11 @@ export abstract class RunnerImageComponent {
             'ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2)) {
+          if (useVersion) {
+            throw new Error(
+              'RunnerImageComponent.docker(version): version is only used on Windows. On Amazon Linux the package version is not predictable; use latest (omit version) for Amazon Linux images.',
+            );
+          }
           return [
             'amazon-linux-extras install docker',
             'usermod -a -G docker runner',
@@ -474,6 +492,11 @@ export abstract class RunnerImageComponent {
             'ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2023)) {
+          if (useVersion) {
+            throw new Error(
+              'RunnerImageComponent.docker(version): version is only used on Windows. On Amazon Linux the package version is not predictable; use latest (omit version) for Amazon Linux images.',
+            );
+          }
           return [
             'dnf install -y docker',
             'usermod -a -G docker runner',

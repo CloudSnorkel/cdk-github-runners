@@ -43,9 +43,25 @@ describe('Component version options', () => {
     expect(versionedWin.some(c => c.includes('v2.43.0.windows.1') && c.includes('Git-2.43.0-64-bit'))).toBe(true);
   });
 
+  test('git revision 2+ is included in Windows download filename', () => {
+    const versioned = RunnerImageComponent.git('2.43.0.windows.2');
+    const versionedWin = versioned.getCommands(Os.WINDOWS, Architecture.X86_64);
+    expect(versionedWin.some(c => c.includes('v2.43.0.windows.2') && c.includes('Git-2.43.0.2-64-bit.exe'))).toBe(true);
+  });
+
   test('docker throws when version specified and building for Ubuntu', () => {
     const comp = RunnerImageComponent.docker('29.1.5');
     expect(() => comp.getCommands(Os.LINUX_UBUNTU_2204, Architecture.X86_64)).toThrow(
+      /RunnerImageComponent\.docker\(version\): version is only used on Windows/,
+    );
+  });
+
+  test('docker throws when version specified and building for Amazon Linux', () => {
+    const comp = RunnerImageComponent.docker('29.1.5');
+    expect(() => comp.getCommands(Os.LINUX_AMAZON_2, Architecture.X86_64)).toThrow(
+      /RunnerImageComponent\.docker\(version\): version is only used on Windows/,
+    );
+    expect(() => comp.getCommands(Os.LINUX_AMAZON_2023, Architecture.X86_64)).toThrow(
       /RunnerImageComponent\.docker\(version\): version is only used on Windows/,
     );
   });
