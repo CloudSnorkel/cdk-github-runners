@@ -167,6 +167,10 @@ export abstract class RunnerImageComponent {
             'dnf install -y amazon-cloudwatch-agent',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          // CloudWatch agent Windows: amd64 only per current AWS package layout
+          if (architecture.is(Architecture.ARM64)) {
+            throw new Error('CloudWatch agent on Windows is only supported for x64 (amd64). Use a Linux runner for ARM64.');
+          }
           return [
             '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn\'',
             'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
@@ -257,7 +261,7 @@ export abstract class RunnerImageComponent {
   /**
    * A component to install the GitHub CLI.
    *
-   * @param version Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows (x64/windows_amd64); on Linux the package manager is used.
+   * @param version Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows (x64/arm64); on Linux the package manager is used.
    */
   static githubCli(version?: string): RunnerImageComponent {
     const useVersion = validateVersion(version);
@@ -289,9 +293,10 @@ export abstract class RunnerImageComponent {
             'dnf install -y gh',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          const winArch = architecture.is(Architecture.ARM64) ? 'arm64' : 'amd64';
           if (useVersion) {
             return [
-              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${useVersion}/gh_${useVersion}_windows_amd64.msi" -OutFile gh.msi`,
+              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${useVersion}/gh_${useVersion}_windows_${winArch}.msi" -OutFile gh.msi`,
               '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i gh.msi /qn\'',
               'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
               'del gh.msi',
@@ -301,7 +306,7 @@ export abstract class RunnerImageComponent {
             'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-gh',
             '$GH_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
-            'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi" -OutFile gh.msi',
+            `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v\${GH_VERSION}/gh_\${GH_VERSION}_windows_${winArch}.msi" -OutFile gh.msi`,
             '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i gh.msi /qn\'',
             'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
             'del gh.msi',
@@ -523,10 +528,11 @@ export abstract class RunnerImageComponent {
             'ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          const winDockerArch = architecture.is(Architecture.ARM64) ? 'aarch64' : 'x86_64';
           const downloadCommands = useVersion ? [
-            `Invoke-WebRequest -UseBasicParsing -Uri "https://download.docker.com/win/static/stable/x86_64/docker-${useVersion}.zip" -OutFile docker.zip`,
+            `Invoke-WebRequest -UseBasicParsing -Uri "https://download.docker.com/win/static/stable/${winDockerArch}/docker-${useVersion}.zip" -OutFile docker.zip`,
           ] : [
-            '$BaseUrl = "https://download.docker.com/win/static/stable/x86_64/"',
+            `$BaseUrl = "https://download.docker.com/win/static/stable/${winDockerArch}/"`,
             '$html = Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl',
             '$files = $html.Links.href | Where-Object { $_ -match \'^docker-[0-9\\.]+\\.zip$\' }',
             'if (-not $files) { Write-Error "No docker-*.zip files found." ; exit 1 }',
@@ -552,7 +558,7 @@ export abstract class RunnerImageComponent {
             'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\latest-docker-compose',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-docker-compose',
             '$LatestDockerCompose = ($LatestUrl -Split \'/\')[-1]',
-            'Invoke-WebRequest -UseBasicParsing -Uri  "https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe" -OutFile $Env:ProgramFiles\\Docker\\docker-compose.exe',
+            `Invoke-WebRequest -UseBasicParsing -Uri  "https://github.com/docker/compose/releases/download/\${LatestDockerCompose}/docker-compose-Windows-${winDockerArch}.exe" -OutFile $Env:ProgramFiles\\Docker\\docker-compose.exe`,
             'New-Item -ItemType directory -Path "$Env:ProgramFiles\\Docker\\cli-plugins"',
             'Copy-Item -Path "$Env:ProgramFiles\\Docker\\docker-compose.exe" -Destination "$Env:ProgramFiles\\Docker\\cli-plugins\\docker-compose.exe"',
           ];
