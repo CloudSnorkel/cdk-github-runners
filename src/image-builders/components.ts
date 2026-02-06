@@ -454,7 +454,7 @@ export abstract class RunnerImageComponent {
    *
    * On Windows this sets up dockerd for Windows containers without Docker Desktop. If you need Linux containers on Windows, you'll need to install Docker Desktop which doesn't seem to play well with servers (PRs welcome).
    *
-   * @param version Software version to install (e.g. '29.1.5'). Default: latest. Only used on Windows; on Linux (Ubuntu, Amazon Linux) the package version format is not reliably predictable so latest is always used.
+   * @param version Software version to install (e.g. '29.1.5'). Default: latest. Only used on Windows; on Linux (Ubuntu, Amazon Linux 2 and Amazon Linux 2023) the package version format is not reliably predictable so latest is always used.
    */
   static docker(version?: string): RunnerImageComponent {
     const useVersion = version && version !== '' && version !== 'latest';
