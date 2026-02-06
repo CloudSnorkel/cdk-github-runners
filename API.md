@@ -10437,7 +10437,7 @@ Returns true if the image builder should be rebooted after this component is ins
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.dockerInDocker">dockerInDocker</a></code> | A component to install Docker-in-Docker. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.environmentVariables">environmentVariables</a></code> | A component to add environment variables for jobs the runner executes. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.extraCertificates">extraCertificates</a></code> | A component to add a trusted certificate authority. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.git">git</a></code> | A component to install the GitHub CLI. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.git">git</a></code> | A component to install Git. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubCli">githubCli</a></code> | A component to install the GitHub CLI. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubRunner">githubRunner</a></code> | A component to install the GitHub Actions Runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.lambdaEntrypoint">lambdaEntrypoint</a></code> | A component to set up the required Lambda entrypoint for Lambda runners. |
@@ -10451,10 +10451,18 @@ Returns true if the image builder should be rebooted after this component is ins
 ```typescript
 import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
 
-RunnerImageComponent.awsCli()
+RunnerImageComponent.awsCli(version?: string)
 ```
 
 A component to install the AWS CLI.
+
+###### `version`<sup>Optional</sup> <a name="version" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.awsCli.parameter.version"></a>
+
+- *Type:* string
+
+Software version to install (e.g. '2.15.0'). Default: latest.
+
+---
 
 ##### `cloudWatchAgent` <a name="cloudWatchAgent" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.cloudWatchAgent"></a>
 
@@ -10493,22 +10501,38 @@ Use this to customize the image for the runner.
 ```typescript
 import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
 
-RunnerImageComponent.docker()
+RunnerImageComponent.docker(version?: string)
 ```
 
 A component to install Docker.
 
 On Windows this sets up dockerd for Windows containers without Docker Desktop. If you need Linux containers on Windows, you'll need to install Docker Desktop which doesn't seem to play well with servers (PRs welcome).
 
+###### `version`<sup>Optional</sup> <a name="version" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.docker.parameter.version"></a>
+
+- *Type:* string
+
+Software version to install (e.g. '29.1.5'). Default: latest. Only used on Windows; on Ubuntu the apt package version format is not reliably predictable so latest is always used.
+
+---
+
 ##### ~~`dockerInDocker`~~ <a name="dockerInDocker" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.dockerInDocker"></a>
 
 ```typescript
 import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
 
-RunnerImageComponent.dockerInDocker()
+RunnerImageComponent.dockerInDocker(version?: string)
 ```
 
 A component to install Docker-in-Docker.
+
+###### `version`<sup>Optional</sup> <a name="version" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.dockerInDocker.parameter.version"></a>
+
+- *Type:* string
+
+Software version to install (e.g. '29.1.5'). Default: latest.
+
+---
 
 ##### `environmentVariables` <a name="environmentVariables" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.environmentVariables"></a>
 
@@ -10565,20 +10589,36 @@ unique certificate name to be used on runner file system.
 ```typescript
 import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
 
-RunnerImageComponent.git()
+RunnerImageComponent.git(version?: string)
 ```
 
-A component to install the GitHub CLI.
+A component to install Git.
+
+###### `version`<sup>Optional</sup> <a name="version" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.git.parameter.version"></a>
+
+- *Type:* string
+
+Software version to install (e.g. '2.43.0.windows.1'). Default: latest. Only used on Windows; on Linux the package manager is used.
+
+---
 
 ##### `githubCli` <a name="githubCli" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubCli"></a>
 
 ```typescript
 import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
 
-RunnerImageComponent.githubCli()
+RunnerImageComponent.githubCli(version?: string)
 ```
 
 A component to install the GitHub CLI.
+
+###### `version`<sup>Optional</sup> <a name="version" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubCli.parameter.version"></a>
+
+- *Type:* string
+
+Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows; on Linux the package manager is used.
+
+---
 
 ##### `githubRunner` <a name="githubRunner" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubRunner"></a>
 
