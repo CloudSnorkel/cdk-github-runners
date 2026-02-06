@@ -37,6 +37,23 @@ export interface RunnerImageComponentCustomProps {
 }
 
 /**
+ * Validates and normalizes a version string for use in download URLs.
+ * Returns undefined if version is empty or "latest" (caller should use latest).
+ * Throws if version contains any character other than alphanumeric, dots, dashes, or underscores.
+ */
+function validateVersion(version: string | undefined): string | undefined {
+  if (version === undefined || version === null) return undefined;
+  const trimmed = version.trim();
+  if (trimmed === '' || trimmed.toLowerCase() === 'latest') return undefined;
+  if (!/^[a-zA-Z0-9._-]+$/.test(trimmed)) {
+    throw new Error(
+      `Invalid version "${version}": only alphanumeric characters, dots, dashes, and underscores are allowed.`,
+    );
+  }
+  return trimmed;
+}
+
+/**
  * Git for Windows version format: "2.43.0.windows.1" → "2.43.0" (revision 1 omitted),
  * "2.43.0.windows.2" → "2.43.0.2" (revision 2+ appended). Versions without ".windows." are returned as-is.
  */
@@ -198,7 +215,7 @@ export abstract class RunnerImageComponent {
    * @param version Software version to install (e.g. '2.15.0'). Default: latest.
    */
   static awsCli(version?: string): RunnerImageComponent {
-    const useVersion = version && version !== '' && version !== 'latest';
+    const useVersion = validateVersion(version);
     return new class extends RunnerImageComponent {
       name = 'AwsCli';
 
@@ -214,7 +231,7 @@ export abstract class RunnerImageComponent {
           }
 
           const zipName = useVersion
-            ? `awscli-exe-linux-${archUrl}-${version}.zip`
+            ? `awscli-exe-linux-${archUrl}-${useVersion}.zip`
             : `awscli-exe-linux-${archUrl}.zip`;
           return [
             `curl -fsSL "https://awscli.amazonaws.com/${zipName}" -o awscliv2.zip`,
@@ -224,7 +241,7 @@ export abstract class RunnerImageComponent {
           ];
         } else if (os.is(Os.WINDOWS)) {
           const msiUrl = useVersion
-            ? `https://awscli.amazonaws.com/AWSCLIV2-${version}.msi`
+            ? `https://awscli.amazonaws.com/AWSCLIV2-${useVersion}.msi`
             : 'https://awscli.amazonaws.com/AWSCLIV2.msi';
           return [
             `$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList '/i ${msiUrl} /qn'`,
@@ -243,7 +260,7 @@ export abstract class RunnerImageComponent {
    * @param version Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows (x64/windows_amd64); on Linux the package manager is used.
    */
   static githubCli(version?: string): RunnerImageComponent {
-    const useVersion = version && version !== '' && version !== 'latest';
+    const useVersion = validateVersion(version);
     return new class extends RunnerImageComponent {
       name = 'GithubCli';
 
@@ -274,7 +291,7 @@ export abstract class RunnerImageComponent {
         } else if (os.is(Os.WINDOWS)) {
           if (useVersion) {
             return [
-              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${version}/gh_${version}_windows_amd64.msi" -OutFile gh.msi`,
+              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${useVersion}/gh_${useVersion}_windows_amd64.msi" -OutFile gh.msi`,
               '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i gh.msi /qn\'',
               'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
               'del gh.msi',
@@ -302,7 +319,7 @@ export abstract class RunnerImageComponent {
    * @param version Software version to install (e.g. '2.43.0.windows.1'). Default: latest. Only used on Windows; on Linux the package manager is used.
    */
   static git(version?: string): RunnerImageComponent {
-    const useVersion = version && version !== '' && version !== 'latest';
+    const useVersion = validateVersion(version);
     return new class extends RunnerImageComponent {
       name = 'Git';
 
@@ -328,9 +345,9 @@ export abstract class RunnerImageComponent {
           ];
         } else if (os.is(Os.WINDOWS)) {
           if (useVersion) {
-            const versionShort = formatGitForWindowsVersion(version!);
+            const versionShort = formatGitForWindowsVersion(useVersion);
             return [
-              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/git-for-windows/git/releases/download/v${version}/Git-${versionShort}-64-bit.exe" -OutFile git-setup.exe`,
+              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/git-for-windows/git/releases/download/v${useVersion}/Git-${versionShort}-64-bit.exe" -OutFile git-setup.exe`,
               '$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList \'/VERYSILENT\'',
               'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
               'del git-setup.exe',
@@ -458,7 +475,7 @@ export abstract class RunnerImageComponent {
    * @param version Software version to install (e.g. '29.1.5'). Default: latest. Only used on Windows; on Linux (Ubuntu, Amazon Linux 2 and Amazon Linux 2023) the package version format is not reliably predictable so latest is always used.
    */
   static docker(version?: string): RunnerImageComponent {
-    const useVersion = version && version !== '' && version !== 'latest';
+    const useVersion = validateVersion(version);
     return new class extends RunnerImageComponent {
       name = 'Docker';
 
@@ -507,7 +524,7 @@ export abstract class RunnerImageComponent {
           ];
         } else if (os.is(Os.WINDOWS)) {
           const downloadCommands = useVersion ? [
-            `Invoke-WebRequest -UseBasicParsing -Uri "https://download.docker.com/win/static/stable/x86_64/docker-${version}.zip" -OutFile docker.zip`,
+            `Invoke-WebRequest -UseBasicParsing -Uri "https://download.docker.com/win/static/stable/x86_64/docker-${useVersion}.zip" -OutFile docker.zip`,
           ] : [
             '$BaseUrl = "https://download.docker.com/win/static/stable/x86_64/"',
             '$html = Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl',
