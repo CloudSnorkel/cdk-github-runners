@@ -301,7 +301,7 @@ export abstract class RunnerImageComponent {
    * @param version Software version to install (e.g. '2.43.0.windows.1'). Default: latest. Only used on Windows; on Linux the package manager is used.
    */
   static git(version?: string): RunnerImageComponent {
-    const useVersion = typeof version === 'string' && version !== '' && version !== 'latest';
+    const useVersion = version && version !== '' && version !== 'latest';
     return new class extends RunnerImageComponent {
       name = 'Git';
 
