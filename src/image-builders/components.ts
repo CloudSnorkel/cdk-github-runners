@@ -167,6 +167,10 @@ export abstract class RunnerImageComponent {
             'dnf install -y amazon-cloudwatch-agent',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          // CloudWatch agent Windows: amd64 only per current AWS package layout
+          if (architecture.is(Architecture.ARM64)) {
+            throw new Error('CloudWatch agent on Windows is only supported for x64 (amd64). Use a Linux runner for ARM64.');
+          }
           return [
             '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi /qn\'',
             'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
@@ -257,7 +261,7 @@ export abstract class RunnerImageComponent {
   /**
    * A component to install the GitHub CLI.
    *
-   * @param version Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows (x64/windows_amd64); on Linux the package manager is used.
+   * @param version Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows (x64/arm64); on Linux the package manager is used.
    */
   static githubCli(version?: string): RunnerImageComponent {
     const useVersion = validateVersion(version);
@@ -289,9 +293,10 @@ export abstract class RunnerImageComponent {
             'dnf install -y gh',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          const winArch = architecture.is(Architecture.ARM64) ? 'arm64' : 'amd64';
           if (useVersion) {
             return [
-              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${useVersion}/gh_${useVersion}_windows_amd64.msi" -OutFile gh.msi`,
+              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${useVersion}/gh_${useVersion}_windows_${winArch}.msi" -OutFile gh.msi`,
               '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i gh.msi /qn\'',
               'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
               'del gh.msi',
@@ -301,7 +306,7 @@ export abstract class RunnerImageComponent {
             'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-gh',
             '$GH_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
-            'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi" -OutFile gh.msi',
+            `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v\${GH_VERSION}/gh_\${GH_VERSION}_windows_${winArch}.msi" -OutFile gh.msi`,
             '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i gh.msi /qn\'',
             'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
             'del gh.msi',
@@ -344,10 +349,11 @@ export abstract class RunnerImageComponent {
             'dnf install -y git',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          const winGitArch = architecture.is(Architecture.ARM64) ? 'arm64' : '64-bit';
           if (useVersion) {
             const versionShort = formatGitForWindowsVersion(useVersion);
             return [
-              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/git-for-windows/git/releases/download/v${useVersion}/Git-${versionShort}-64-bit.exe" -OutFile git-setup.exe`,
+              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/git-for-windows/git/releases/download/v${useVersion}/Git-${versionShort}-${winGitArch}.exe" -OutFile git-setup.exe`,
               '$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList \'/VERYSILENT\'',
               'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
               'del git-setup.exe',
@@ -360,7 +366,7 @@ export abstract class RunnerImageComponent {
             '$GIT_VERSION_SHORT = ($GIT_VERSION -Split \'.windows.\')[0]',
             '$GIT_REVISION = ($GIT_VERSION -Split \'.windows.\')[1]',
             'If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = "$GIT_VERSION_SHORT.$GIT_REVISION"}',
-            'Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe',
+            `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/git-for-windows/git/releases/download/v\${GIT_VERSION}/Git-\${GIT_VERSION_SHORT}-${winGitArch}.exe" -OutFile git-setup.exe`,
             '$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList \'/VERYSILENT\'',
             'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
             'del git-setup.exe',
@@ -419,6 +425,7 @@ export abstract class RunnerImageComponent {
 
           return commands;
         } else if (os.is(Os.WINDOWS)) {
+          const winRunnerArch = architecture.is(Architecture.ARM64) ? 'arm64' : 'x64';
           let runnerCommands: string[];
           if (runnerVersion.is(RunnerVersion.latest())) {
             runnerCommands = [
@@ -434,7 +441,7 @@ export abstract class RunnerImageComponent {
             // create directories
             'mkdir C:\\hostedtoolcache\\windows',
             'mkdir C:\\tools',
-            // download zstd and extract to C:\tools
+            // download zstd and extract to C:\tools (win64 build; on arm64 Windows x64 emulation is used if no native zstd)
             'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/facebook/zstd/releases/latest > $Env:TEMP\\latest-zstd',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-zstd',
             '$ZSTD_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
@@ -449,7 +456,7 @@ export abstract class RunnerImageComponent {
           ]);
 
           return runnerCommands.concat([
-            'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip" -OutFile actions.zip',
+            `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/actions/runner/releases/download/v\${RUNNER_VERSION}/actions-runner-win-${winRunnerArch}-\${RUNNER_VERSION}.zip" -OutFile actions.zip`,
             'Expand-Archive actions.zip -DestinationPath C:\\actions',
             'del actions.zip',
             `echo ${runnerVersion.version} | Out-File -Encoding ASCII -NoNewline C:\\actions\\RUNNER_VERSION`,
@@ -523,10 +530,14 @@ export abstract class RunnerImageComponent {
             'ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          if (architecture.is(Architecture.ARM64)) {
+            throw new Error('Docker on Windows is only supported for x64 (x86_64). No Windows ARM64 build at https://download.docker.com/win/static/stable/. Use a Linux runner for ARM64 with Docker.');
+          }
+          const winDockerArch = 'x86_64';
           const downloadCommands = useVersion ? [
-            `Invoke-WebRequest -UseBasicParsing -Uri "https://download.docker.com/win/static/stable/x86_64/docker-${useVersion}.zip" -OutFile docker.zip`,
+            `Invoke-WebRequest -UseBasicParsing -Uri "https://download.docker.com/win/static/stable/${winDockerArch}/docker-${useVersion}.zip" -OutFile docker.zip`,
           ] : [
-            '$BaseUrl = "https://download.docker.com/win/static/stable/x86_64/"',
+            `$BaseUrl = "https://download.docker.com/win/static/stable/${winDockerArch}/"`,
             '$html = Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl',
             '$files = $html.Links.href | Where-Object { $_ -match \'^docker-[0-9\\.]+\\.zip$\' }',
             'if (-not $files) { Write-Error "No docker-*.zip files found." ; exit 1 }',
@@ -552,7 +563,7 @@ export abstract class RunnerImageComponent {
             'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\latest-docker-compose',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-docker-compose',
             '$LatestDockerCompose = ($LatestUrl -Split \'/\')[-1]',
-            'Invoke-WebRequest -UseBasicParsing -Uri  "https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe" -OutFile $Env:ProgramFiles\\Docker\\docker-compose.exe',
+            `Invoke-WebRequest -UseBasicParsing -Uri  "https://github.com/docker/compose/releases/download/\${LatestDockerCompose}/docker-compose-Windows-${winDockerArch}.exe" -OutFile $Env:ProgramFiles\\Docker\\docker-compose.exe`,
             'New-Item -ItemType directory -Path "$Env:ProgramFiles\\Docker\\cli-plugins"',
             'Copy-Item -Path "$Env:ProgramFiles\\Docker\\docker-compose.exe" -Destination "$Env:ProgramFiles\\Docker\\cli-plugins\\docker-compose.exe"',
           ];
