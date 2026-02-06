@@ -2033,7 +2033,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGitWindowsX86642b1c37eb5eComponentB5544AC3",
+        "GHRInternalComponentGitWindowsX8664497ab68a0bComponent777C3283",
         "Arn"
        ]
       }
@@ -5920,7 +5920,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGitWindowsX86642b1c37eb5eComponentB5544AC3",
+        "GHRInternalComponentGitWindowsX8664497ab68a0bComponent777C3283",
         "Arn"
        ]
       }
@@ -6260,6 +6260,560 @@
        "SemanticVersion": {
         "Fn::GetAtt": [
          "WindowsEC2BuilderAmiRecipe41A137FF",
+         "Version"
+        ]
+       }
+      }
+     ]
+    },
+    "ResourceType": "AMI_IMAGE"
+   }
+  },
+  "WindowsEC2ARM64BuilderSGB5700D03": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "github-runners-test/Windows EC2 ARM64 Builder/SG",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   }
+  },
+  "WindowsEC2ARM64BuilderRoleCA11245D": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ec2.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/EC2InstanceProfileForImageBuilder"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "WindowsEC2ARM64BuilderRoleDefaultPolicy7E1EF774": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::",
+           {
+            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "WindowsEC2ARM64BuilderRoleDefaultPolicy7E1EF774",
+    "Roles": [
+     {
+      "Ref": "WindowsEC2ARM64BuilderRoleCA11245D"
+     }
+    ]
+   }
+  },
+  "WindowsEC2ARM64BuilderLaunchtemplate46395898": {
+   "Type": "AWS::EC2::LaunchTemplate",
+   "Properties": {
+    "LaunchTemplateData": {
+     "MetadataOptions": {
+      "HttpTokens": "required"
+     },
+     "TagSpecifications": [
+      {
+       "ResourceType": "instance",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/Windows EC2 ARM64 Builder/Launch template"
+        }
+       ]
+      },
+      {
+       "ResourceType": "volume",
+       "Tags": [
+        {
+         "Key": "Name",
+         "Value": "github-runners-test/Windows EC2 ARM64 Builder/Launch template"
+        }
+       ]
+      }
+     ]
+    },
+    "TagSpecifications": [
+     {
+      "ResourceType": "launch-template",
+      "Tags": [
+       {
+        "Key": "Name",
+        "Value": "github-runners-test/Windows EC2 ARM64 Builder/Launch template"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "WindowsEC2ARM64BuilderAMIDistributionA084E851": {
+   "Type": "AWS::ImageBuilder::DistributionConfiguration",
+   "Properties": {
+    "Distributions": [
+     {
+      "AmiDistributionConfiguration": {
+       "Name": "github-runners-test-WindowsEC2ARM64Builder-B4802877-{{ imagebuilder:buildDate }}",
+       "AmiTags": {
+        "Name": "Windows EC2 ARM64 Builder",
+        "GitHubRunners:Stack": "github-runners-test",
+        "GitHubRunners:Builder": "github-runners-test/Windows EC2 ARM64 Builder"
+       }
+      },
+      "LaunchTemplateConfigurations": [
+       {
+        "LaunchTemplateId": {
+         "Ref": "WindowsEC2ARM64BuilderLaunchtemplate46395898"
+        },
+        "SetDefaultVersion": true
+       }
+      ],
+      "Region": {
+       "Ref": "AWS::Region"
+      }
+     }
+    ],
+    "Name": "github-runners-test-WindowsEC2ARM64Builder-B4802877",
+    "Tags": {
+     "GitHubRunners:Builder": "github-runners-test/Windows EC2 ARM64 Builder",
+     "GitHubRunners:Stack": "github-runners-test"
+    }
+   }
+  },
+  "WindowsEC2ARM64BuilderAmiRecipe141437A3": {
+   "Type": "AWS::ImageBuilder::ImageRecipe",
+   "Properties": {
+    "Components": [
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "GHRInternalComponentRequiredPackagesWindowsARM64f93bd2f3aeComponentEDDFEE60",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "GHRInternalComponentRunnerUserWindowsARM64f1ba055b6fComponentF052BC0C",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "GHRInternalComponentGitWindowsARM642036c440cdComponent31D7CE76",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "GHRInternalComponentGithubCliWindowsARM6437a287b006Component11CAC2C3",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "GHRInternalComponentAwsCliWindowsARM64cad38c4501Component43A9956E",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "GHRInternalComponentGithubRunnerWindowsARM64e2c98ebd03ComponentE7B99FB3",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "GHRInternalComponentCustomUndefinedWindowsARM6493548193c8ComponentEA732834",
+        "Arn"
+       ]
+      }
+     },
+     {
+      "ComponentArn": {
+       "Fn::GetAtt": [
+        "GHRInternalComponentEnvironmentVariablesWindowsARM642e988a61e9ComponentFBD78CFB",
+        "Arn"
+       ]
+      }
+     }
+    ],
+    "Name": "github-runners-test-WindowsEC2ARM64Builder-AmiRecipe-C263A0D5",
+    "ParentImage": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":imagebuilder:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":aws:image/windows-server-2022-english-full-base-arm64/x.x.x"
+      ]
+     ]
+    },
+    "Tags": {
+     "GitHubRunners:Builder": "github-runners-test/Windows EC2 ARM64 Builder",
+     "GitHubRunners:Stack": "github-runners-test"
+    },
+    "Version": "1.0.x",
+    "WorkingDirectory": "C:/"
+   }
+  },
+  "WindowsEC2ARM64BuilderAmiLogCEEB6555": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/aws/imagebuilder/github-runners-test-WindowsEC2ARM64Builder-AmiRecipe-C263A0D5",
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "WindowsEC2ARM64BuilderInstanceProfile788E5972": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "WindowsEC2ARM64BuilderRoleCA11245D"
+     }
+    ]
+   }
+  },
+  "WindowsEC2ARM64BuilderInfrastructure8562C53F": {
+   "Type": "AWS::ImageBuilder::InfrastructureConfiguration",
+   "Properties": {
+    "InstanceMetadataOptions": {
+     "HttpPutResponseHopLimit": 2,
+     "HttpTokens": "required"
+    },
+    "InstanceProfileName": {
+     "Ref": "WindowsEC2ARM64BuilderInstanceProfile788E5972"
+    },
+    "InstanceTypes": [
+     "m6g.large"
+    ],
+    "Name": "github-runners-test-WindowsEC2ARM64Builder-B4802877",
+    "SecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "WindowsEC2ARM64BuilderSGB5700D03",
+       "GroupId"
+      ]
+     }
+    ],
+    "SnsTopicArn": {
+     "Ref": "runnersImageBuilderBuildsDF5A50E4"
+    },
+    "SubnetId": {
+     "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
+    }
+   }
+  },
+  "WindowsEC2ARM64BuilderAMIImageE5DEE308": {
+   "Type": "AWS::ImageBuilder::Image",
+   "Properties": {
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2ARM64BuilderAMIDistributionA084E851",
+      "Arn"
+     ]
+    },
+    "ImageRecipeArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2ARM64BuilderAmiRecipe141437A3",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    },
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2ARM64BuilderInfrastructure8562C53F",
+      "Arn"
+     ]
+    },
+    "Tags": {
+     "GitHubRunners:Builder": "github-runners-test/Windows EC2 ARM64 Builder",
+     "GitHubRunners:Stack": "github-runners-test"
+    }
+   },
+   "DependsOn": [
+    "WindowsEC2ARM64BuilderAmiLogCEEB6555",
+    "WindowsEC2ARM64BuilderInfrastructure8562C53F"
+   ],
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "RetainExceptOnCreate"
+  },
+  "WindowsEC2ARM64BuilderAMIPipeline8AB14635": {
+   "Type": "AWS::ImageBuilder::ImagePipeline",
+   "Properties": {
+    "DistributionConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2ARM64BuilderAMIDistributionA084E851",
+      "Arn"
+     ]
+    },
+    "ImageRecipeArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2ARM64BuilderAmiRecipe141437A3",
+      "Arn"
+     ]
+    },
+    "ImageTestsConfiguration": {
+     "ImageTestsEnabled": false
+    },
+    "InfrastructureConfigurationArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2ARM64BuilderInfrastructure8562C53F",
+      "Arn"
+     ]
+    },
+    "Name": "github-runners-test-WindowsEC2ARM64Builder-B4802877",
+    "Schedule": {
+     "PipelineExecutionStartCondition": "EXPRESSION_MATCH_ONLY",
+     "ScheduleExpression": "rate(7 days)"
+    },
+    "Tags": {
+     "GitHubRunners:Builder": "github-runners-test/Windows EC2 ARM64 Builder",
+     "GitHubRunners:Stack": "github-runners-test"
+    }
+   },
+   "DependsOn": [
+    "WindowsEC2ARM64BuilderAmiLogCEEB6555",
+    "WindowsEC2ARM64BuilderInfrastructure8562C53F"
+   ]
+  },
+  "WindowsEC2ARM64BuilderImageCleaner83994D91": {
+   "Type": "Custom::ImageBuilder-Delete-Resources",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e18E1C8382",
+      "Arn"
+     ]
+    },
+    "ImageVersionArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":imagebuilder:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":image/github-runners-test-windowsec2arm64builder-amirecipe-c263a0d5/",
+       {
+        "Fn::GetAtt": [
+         "WindowsEC2ARM64BuilderAmiRecipe141437A3",
+         "Version"
+        ]
+       }
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "WindowsEC2ARM64BuilderLifecyclePolicyAMIRole77C318BF": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "imagebuilder.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Policies": [
+     {
+      "PolicyDocument": {
+       "Statement": [
+        {
+         "Action": [
+          "tag:GetResources",
+          "imagebuilder:DeleteImage"
+         ],
+         "Effect": "Allow",
+         "Resource": "*"
+        }
+       ],
+       "Version": "2012-10-17"
+      },
+      "PolicyName": "ib"
+     },
+     {
+      "PolicyDocument": {
+       "Statement": [
+        {
+         "Action": [
+          "ec2:DescribeImages",
+          "ec2:DescribeImageAttribute"
+         ],
+         "Effect": "Allow",
+         "Resource": "*"
+        },
+        {
+         "Action": [
+          "ec2:DeregisterImage",
+          "ec2:DeleteSnapshot"
+         ],
+         "Condition": {
+          "StringEquals": {
+           "aws:ResourceTag/GitHubRunners:Stack": "github-runners-test",
+           "aws:ResourceTag/GitHubRunners:Builder": "github-runners-test/Windows EC2 ARM64 Builder"
+          }
+         },
+         "Effect": "Allow",
+         "Resource": "*"
+        }
+       ],
+       "Version": "2012-10-17"
+      },
+      "PolicyName": "ami"
+     }
+    ]
+   }
+  },
+  "WindowsEC2ARM64BuilderLifecyclePolicyAMI4504FB3C": {
+   "Type": "AWS::ImageBuilder::LifecyclePolicy",
+   "Properties": {
+    "Description": "Delete old GitHub Runner AMIs for github-runners-test/Windows EC2 ARM64 Builder",
+    "ExecutionRole": {
+     "Fn::GetAtt": [
+      "WindowsEC2ARM64BuilderLifecyclePolicyAMIRole77C318BF",
+      "Arn"
+     ]
+    },
+    "Name": "github-runners-test-WindowsEC2ARM64Builder-B4802877",
+    "PolicyDetails": [
+     {
+      "Action": {
+       "IncludeResources": {
+        "Amis": true,
+        "Snapshots": true
+       },
+       "Type": "DELETE"
+      },
+      "Filter": {
+       "Type": "COUNT",
+       "Value": 2
+      }
+     }
+    ],
+    "ResourceSelection": {
+     "Recipes": [
+      {
+       "Name": "github-runners-test-WindowsEC2ARM64Builder-AmiRecipe-C263A0D5",
+       "SemanticVersion": {
+        "Fn::GetAtt": [
+         "WindowsEC2ARM64BuilderAmiRecipe141437A3",
          "Version"
         ]
        }
@@ -7577,12 +8131,12 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGitWindowsX86642b1c37eb5eComponentB5544AC3": {
+  "GHRInternalComponentGitWindowsX8664497ab68a0bComponent777C3283": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"Git (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"$GIT_REVISION = ($GIT_VERSION -Split '.windows.')[1]\",\"If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = \\\"$GIT_VERSION_SHORT.$GIT_REVISION\\\"}\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList '/VERYSILENT'\",\"if ($p.ExitCode -ne 0) { throw \\\"Exit code is $p.ExitCode\\\" }\",\"del git-setup.exe\"]}}]}]}",
+    "Data": "{\"name\":\"Git (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"$GIT_REVISION = ($GIT_VERSION -Split '.windows.')[1]\",\"If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = \\\"$GIT_VERSION_SHORT.$GIT_REVISION\\\"}\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe\\\" -OutFile git-setup.exe\",\"$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList '/VERYSILENT'\",\"if ($p.ExitCode -ne 0) { throw \\\"Exit code is $p.ExitCode\\\" }\",\"del git-setup.exe\"]}}]}]}",
     "Description": "Git component for Windows/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Git-Windows-X86-64-2b1c37eb5e-B14B3CFB",
+    "Name": "github-runners-test-GHRInternal--Component-Git-Windows-X86-64-497ab68a0b-621E4613",
     "Platform": "Windows",
     "Version": "1.0.0"
    }
@@ -14832,6 +15386,282 @@
     "Version": "1.0.0"
    }
   },
+  "EC2WindowsARM64SGABB1DA95": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "github-runners-test/EC2 Windows ARM64/SG",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Windows ARM64"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   }
+  },
+  "EC2WindowsARM64Role5C97FF85": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ec2.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Windows ARM64"
+     }
+    ]
+   }
+  },
+  "EC2WindowsARM64RoleDefaultPolicy2FF053F2": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "states:SendTaskFailure",
+        "states:SendTaskSuccess",
+        "states:SendTaskHeartbeat"
+       ],
+       "Condition": {
+        "StringEquals": {
+         "aws:ResourceTag/aws:cloudformation:stack-id": {
+          "Ref": "AWS::StackId"
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "s3:GetEncryptionConfiguration",
+        "ssm:UpdateInstanceInformation"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "EC2WindowsARM64Logs5D8AAFCC",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "EC2WindowsARM64RoleDefaultPolicy2FF053F2",
+    "Roles": [
+     {
+      "Ref": "EC2WindowsARM64Role5C97FF85"
+     }
+    ]
+   }
+  },
+  "EC2WindowsARM64Logs5D8AAFCC": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/EC2 Windows ARM64"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "EC2WindowsARM64LogsLogsfilterAAC7B3E4": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "EC2WindowsARM64Logs5D8AAFCC"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
+  },
+  "EC2WindowsARM64InstanceProfile7E0CE5E7": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "EC2WindowsARM64Role5C97FF85"
+     }
+    ]
+   }
+  },
+  "EC2WindowsARM64AMIRootDeviceEBC1ED48": {
+   "Type": "Custom::AmiRootDevice",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C",
+      "Arn"
+     ]
+    },
+    "Ami": {
+     "Ref": "WindowsEC2ARM64BuilderLaunchtemplate46395898"
+    }
+   },
+   "DependsOn": [
+    "WindowsEC2ARM64BuilderAMIDistributionA084E851",
+    "WindowsEC2ARM64BuilderAMIImageE5DEE308",
+    "WindowsEC2ARM64BuilderAmiLogCEEB6555",
+    "WindowsEC2ARM64BuilderAMIPipeline8AB14635",
+    "WindowsEC2ARM64BuilderAmiRecipe141437A3",
+    "WindowsEC2ARM64BuilderImageCleaner83994D91",
+    "WindowsEC2ARM64BuilderInfrastructure8562C53F",
+    "WindowsEC2ARM64BuilderInstanceProfile788E5972",
+    "WindowsEC2ARM64BuilderLaunchtemplate46395898",
+    "WindowsEC2ARM64BuilderLifecyclePolicyAMI4504FB3C",
+    "WindowsEC2ARM64BuilderLifecyclePolicyAMIRole77C318BF",
+    "WindowsEC2ARM64BuilderRoleDefaultPolicy7E1EF774",
+    "WindowsEC2ARM64BuilderRoleCA11245D",
+    "WindowsEC2ARM64BuilderSGB5700D03"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "GHRInternalComponentRequiredPackagesWindowsARM64f93bd2f3aeComponentEDDFEE60": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Data": "{\"name\":\"RequiredPackages (Windows/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]}]}]}",
+    "Description": "RequiredPackages component for Windows/ARM64",
+    "Name": "github-runners-test-GHRInternal--Component-RequiredPackages-Windows-ARM64-f93bd2f3ae-A1DF95C2",
+    "Platform": "Windows",
+    "Version": "1.0.0"
+   }
+  },
+  "GHRInternalComponentRunnerUserWindowsARM64f1ba055b6fComponentF052BC0C": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Data": "{\"name\":\"RunnerUser (Windows/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]}]}]}",
+    "Description": "RunnerUser component for Windows/ARM64",
+    "Name": "github-runners-test-GHRInternal--Component-RunnerUser-Windows-ARM64-f1ba055b6f-A360143F",
+    "Platform": "Windows",
+    "Version": "1.0.0"
+   }
+  },
+  "GHRInternalComponentGitWindowsARM642036c440cdComponent31D7CE76": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Data": "{\"name\":\"Git (Windows/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"$GIT_REVISION = ($GIT_VERSION -Split '.windows.')[1]\",\"If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = \\\"$GIT_VERSION_SHORT.$GIT_REVISION\\\"}\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-arm64.exe\\\" -OutFile git-setup.exe\",\"$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList '/VERYSILENT'\",\"if ($p.ExitCode -ne 0) { throw \\\"Exit code is $p.ExitCode\\\" }\",\"del git-setup.exe\"]}}]}]}",
+    "Description": "Git component for Windows/ARM64",
+    "Name": "github-runners-test-GHRInternal--Component-Git-Windows-ARM64-2036c440cd-8153DF39",
+    "Platform": "Windows",
+    "Version": "1.0.0"
+   }
+  },
+  "GHRInternalComponentGithubCliWindowsARM6437a287b006Component11CAC2C3": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Data": "{\"name\":\"GithubCli (Windows/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_arm64.msi\\\" -OutFile gh.msi\",\"$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList '/i gh.msi /qn'\",\"if ($p.ExitCode -ne 0) { throw \\\"Exit code is $p.ExitCode\\\" }\",\"del gh.msi\"]}}]}]}",
+    "Description": "GithubCli component for Windows/ARM64",
+    "Name": "github-runners-test-GHRInternal--Component-GithubCli-Windows-ARM64-37a287b006-41E0DDEC",
+    "Platform": "Windows",
+    "Version": "1.0.0"
+   }
+  },
+  "GHRInternalComponentAwsCliWindowsARM64cad38c4501Component43A9956E": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Data": "{\"name\":\"AwsCli (Windows/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList '/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn'\",\"if ($p.ExitCode -ne 0) { throw \\\"Exit code is $p.ExitCode\\\" }\"]}}]}]}",
+    "Description": "AwsCli component for Windows/ARM64",
+    "Name": "github-runners-test-GHRInternal--Component-AwsCli-Windows-ARM64-cad38c4501-141B2DDA",
+    "Platform": "Windows",
+    "Version": "1.0.0"
+   }
+  },
+  "GHRInternalComponentGithubRunnerWindowsARM64e2c98ebd03ComponentE7B99FB3": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Data": "{\"name\":\"GithubRunner (Windows/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"mkdir C:\\\\hostedtoolcache\\\\windows\",\"mkdir C:\\\\tools\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/facebook/zstd/releases/latest > $Env:TEMP\\\\latest-zstd\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-zstd\",\"$ZSTD_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/facebook/zstd/releases/download/v$ZSTD_VERSION/zstd-v$ZSTD_VERSION-win64.zip\\\" -OutFile zstd.zip\",\"Expand-Archive zstd.zip -DestinationPath C:\\\\tools\",\"Move-Item -Path C:\\\\tools\\\\zstd-v$ZSTD_VERSION-win64\\\\zstd.exe C:\\\\tools\",\"Remove-Item -LiteralPath \\\"C:\\\\tools\\\\zstd-v$ZSTD_VERSION-win64\\\" -Force -Recurse\",\"del zstd.zip\",\"$persistedPaths = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)\",\"[Environment]::SetEnvironmentVariable(\\\"PATH\\\", $persistedPaths + \\\";C:\\\\tools\\\", [EnvironmentVariableTarget]::Machine)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-arm64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\",\"echo latest | Out-File -Encoding ASCII -NoNewline C:\\\\actions\\\\RUNNER_VERSION\"]}}]}]}",
+    "Description": "GithubRunner component for Windows/ARM64",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Windows-ARM64-e2c98ebd03-1C247C41",
+    "Platform": "Windows",
+    "Version": "1.0.0"
+   }
+  },
+  "GHRInternalComponentCustomUndefinedWindowsARM6493548193c8ComponentEA732834": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Data": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"name\":\"Custom-Undefined (Windows/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[{\"source\":\"",
+       {
+        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
+       },
+       "\",\"destination\":\"FUNDING.yml\"}]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"New-Item -ItemType file -Path / -Name custom-file\",\"New-Item -ItemType directory -Path / -Name custom-dir\",\"Move-Item FUNDING.yml /custom-dir\"]}}]}]}"
+      ]
+     ]
+    },
+    "Description": "Custom-Undefined component for Windows/ARM64",
+    "Name": "github-runners-test-GHRInternal--Component-Custom-Undefined-Windows-ARM64-93548193c8-44428FDE",
+    "Platform": "Windows",
+    "Version": "1.0.0"
+   }
+  },
+  "GHRInternalComponentEnvironmentVariablesWindowsARM642e988a61e9ComponentFBD78CFB": {
+   "Type": "AWS::ImageBuilder::Component",
+   "Properties": {
+    "Data": "{\"name\":\"EnvironmentVariables (Windows/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"Add-Content -Path C:\\\\actions\\\\.env -Value 'HELLO=world'\",\"Add-Content -Path C:\\\\actions\\\\.env -Value 'FOO=bar'\"]}}]}]}",
+    "Description": "EnvironmentVariables component for Windows/ARM64",
+    "Name": "github-runners-test-GHRInternal--Component-EnvironmentVariables-Windows-ARM64-2e988a61e9-E969DFC9",
+    "Platform": "Windows",
+    "Version": "1.0.0"
+   }
+  },
   "ProviderSelectorLogsB1FEE91E": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
@@ -17304,6 +18134,21 @@
          "Arn"
         ]
        }
+      },
+      {
+       "Action": "iam:PassRole",
+       "Condition": {
+        "StringEquals": {
+         "iam:PassedToService": "ec2.amazonaws.com"
+        }
+       },
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "EC2WindowsARM64Role5C97FF85",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -17337,7 +18182,7 @@
          "Arn"
         ]
        },
-       "\"},\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildx64\"}],\"Next\":\"CodeBuildx64\",\"Comment\":\"Labels: codebuild-x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildUbuntu2404x64\"}],\"Next\":\"CodeBuildUbuntu2404x64\",\"Comment\":\"Labels: codebuild-ubuntu-2404-x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildARM\"}],\"Next\":\"CodeBuildARM\",\"Comment\":\"Labels: codebuild, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildWindows\"}],\"Next\":\"CodeBuildWindows\",\"Comment\":\"Labels: codebuild, windows, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS Fallback\"}],\"Next\":\"ECS Spot\",\"Comment\":\"Labels: ecs, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS Ubuntu 2404\"}],\"Next\":\"ECS Ubuntu 2404\",\"Comment\":\"Labels: ecs-ubuntu-2404, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS ARM64\"}],\"Next\":\"ECS ARM64\",\"Comment\":\"Labels: ecs, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS Windows\"}],\"Next\":\"ECS Windows\",\"Comment\":\"Labels: ecs, windows, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Lambda\"}],\"Next\":\"Lambda\",\"Comment\":\"Labels: lambda, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/LambdaARM\"}],\"Next\":\"LambdaARM\",\"Comment\":\"Labels: lambda, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate\"}],\"Next\":\"Fargate\",\"Comment\":\"Labels: fargate, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-x64-spot distribute\"}],\"Next\":\"Fargate-x64-spot distribute rand\",\"Comment\":\"Labels: fargate-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-arm64\"}],\"Next\":\"Fargate-arm64\",\"Comment\":\"Labels: fargate, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-arm64-spot\"}],\"Next\":\"Fargate-arm64-spot\",\"Comment\":\"Labels: fargate-spot, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-Windows\"}],\"Next\":\"Fargate-Windows\",\"Comment\":\"Labels: fargate, windows, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/EC2 Fallback\"}],\"Next\":\"EC2 Fallback attempt #1\",\"Comment\":\"Labels: ec2, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/EC2 Spot Linux\"}],\"Next\":\"EC2 Spot Linux data\",\"Comment\":\"Labels: ec2-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/EC2 Linux arm64\"}],\"Next\":\"EC2 Linux arm64 data\",\"Comment\":\"Labels: ec2, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/EC2 Windows\"}],\"Next\":\"EC2 Windows data\",\"Comment\":\"Labels: ec2, windows, x64\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Succeed\"},\"CodeBuildx64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\"},\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildx64\"}],\"Next\":\"CodeBuildx64\",\"Comment\":\"Labels: codebuild-x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildUbuntu2404x64\"}],\"Next\":\"CodeBuildUbuntu2404x64\",\"Comment\":\"Labels: codebuild-ubuntu-2404-x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildARM\"}],\"Next\":\"CodeBuildARM\",\"Comment\":\"Labels: codebuild, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildWindows\"}],\"Next\":\"CodeBuildWindows\",\"Comment\":\"Labels: codebuild, windows, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS Fallback\"}],\"Next\":\"ECS Spot\",\"Comment\":\"Labels: ecs, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS Ubuntu 2404\"}],\"Next\":\"ECS Ubuntu 2404\",\"Comment\":\"Labels: ecs-ubuntu-2404, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS ARM64\"}],\"Next\":\"ECS ARM64\",\"Comment\":\"Labels: ecs, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS Windows\"}],\"Next\":\"ECS Windows\",\"Comment\":\"Labels: ecs, windows, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Lambda\"}],\"Next\":\"Lambda\",\"Comment\":\"Labels: lambda, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/LambdaARM\"}],\"Next\":\"LambdaARM\",\"Comment\":\"Labels: lambda, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate\"}],\"Next\":\"Fargate\",\"Comment\":\"Labels: fargate, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-x64-spot distribute\"}],\"Next\":\"Fargate-x64-spot distribute rand\",\"Comment\":\"Labels: fargate-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-arm64\"}],\"Next\":\"Fargate-arm64\",\"Comment\":\"Labels: fargate, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-arm64-spot\"}],\"Next\":\"Fargate-arm64-spot\",\"Comment\":\"Labels: fargate-spot, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-Windows\"}],\"Next\":\"Fargate-Windows\",\"Comment\":\"Labels: fargate, windows, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/EC2 Fallback\"}],\"Next\":\"EC2 Fallback attempt #1\",\"Comment\":\"Labels: ec2, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/EC2 Spot Linux\"}],\"Next\":\"EC2 Spot Linux data\",\"Comment\":\"Labels: ec2-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/EC2 Linux arm64\"}],\"Next\":\"EC2 Linux arm64 data\",\"Comment\":\"Labels: ec2, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/EC2 Windows\"}],\"Next\":\"EC2 Windows data\",\"Comment\":\"Labels: ec2, windows, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/EC2 Windows ARM64\"}],\"Next\":\"EC2 Windows ARM64 data\",\"Comment\":\"Labels: ec2, windows, arm64\"}],\"Default\":\"Unknown label\"},\"Unknown label\":{\"Type\":\"Succeed\"},\"CodeBuildx64\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -18124,7 +18969,109 @@
        {
         "Ref": "EC2WindowsAMIRootDevice9FFC971A"
        },
-       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows\"}]}]}}}}]},\"Delete Failed Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows\"}]}]}},\"EC2 Windows ARM64 data\":{\"Type\":\"Pass\",\"ResultPath\":\"$.ec2\",\"Parameters\":{\"userdataTemplate\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\n$logGroupName=\\\"{}\\\"\\n$runnerNamePath=\\\"{}\\\"\\n$githubDomainPath=\\\"{}\\\"\\n$ownerPath=\\\"{}\\\"\\n$repoPath=\\\"{}\\\"\\n$runnerTokenPath=\\\"{}\\\"\\n$labels=\\\"{}\\\"\\n$registrationURL=\\\"{}\\\"\\n$runnerGroup1=\\\"{}\\\"\\n$runnerGroup2=\\\"{}\\\"\\n$defaultLabels=\\\"{}\\\"\\n\\n# EC2Launch only starts ssm agent after user data is done, so we need to start it ourselves (it is disabled by default)\\nSet-Service -StartupType Manual AmazonSSMAgent\\nStart-Service AmazonSSMAgent\\n\\nStart-Job -ScriptBlock \\\\{\\n  while (1) \\\\{\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    sleep 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  echo \\\"\\\\{\\n    `\\\"logs`\\\": \\\\{\\n      `\\\"log_stream_name`\\\": `\\\"unknown`\\\",\\n      `\\\"logs_collected`\\\": \\\\{\\n        `\\\"files`\\\": \\\\{\\n         `\\\"collect_list`\\\": [\\n            \\\\{\\n              `\\\"file_path`\\\": `\\\"/actions/runner.log`\\\",\\n              `\\\"log_group_name`\\\": `\\\"$logGroupName`\\\",\\n              `\\\"log_stream_name`\\\": `\\\"$runnerNamePath`\\\",\\n              `\\\"timezone`\\\": `\\\"UTC`\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\\" | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  $RunnerVersion = Get-Content /actions/RUNNER_VERSION -Raw\\n  if ($RunnerVersion -eq \\\"latest\\\") \\\\{ $RunnerFlags = \\\"\\\" \\\\} else \\\\{ $RunnerFlags = \\\"--disableupdate\\\" \\\\}\\n  ./config.cmd --unattended --url \\\"$\\\\{registrationUrl\\\\}\\\" --token \\\"$\\\\{runnerTokenPath\\\\}\\\" --ephemeral --work _work --labels \\\"$\\\\{labels\\\\},cdkghr:started:$(Get-Date -UFormat +%s)\\\" $RunnerFlags --name \\\"$\\\\{runnerNamePath\\\\}\\\" $\\\\{runnerGroup1\\\\} $\\\\{runnerGroup2\\\\} $\\\\{defaultLabels\\\\} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n\\n  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %\\\\{$_.Matches.Groups[1].Value\\\\} | Select-Object -Last 1\\n\\n  if ($STATUS) \\\\{\\n      echo \\\"CDKGHA JOB DONE $\\\\{labels\\\\} $STATUS\\\" | Out-File -Encoding ASCII -Append /actions/runner.log\\n  \\\\}\\n\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}'\\n\\\\} else \\\\{\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\"\\n\\\\}\\nStart-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"EC2 Windows ARM64 ",
+       {
+        "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
+       },
+       "\"},\"EC2 Windows ARM64 ",
+       {
+        "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
+       },
+       "\":{\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"Ec2.Ec2Exception\",\"States.Timeout\"],\"ResultPath\":\"$.lastSubnetError\",\"Next\":\"EC2 Windows ARM64 ",
+       {
+        "Ref": "VpcPublicSubnet2Subnet691E08A3"
+       },
+       "\"}],\"Type\":\"Task\",\"Comment\":\"",
+       {
+        "Fn::Select": [
+         0,
+         {
+          "Fn::GetAZs": ""
+         }
+        ]
+       },
+       "\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::aws-sdk:ec2:runInstances.waitForTaskToken\",\"Parameters\":{\"LaunchTemplate\":{\"LaunchTemplateId\":\"",
+       {
+        "Ref": "WindowsEC2ARM64BuilderLaunchtemplate46395898"
+       },
+       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m6g.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
+       {
+        "Ref": "EC2WindowsARM64Logs5D8AAFCC"
+       },
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.labels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       {
+        "Fn::GetAtt": [
+         "EC2WindowsARM64InstanceProfile7E0CE5E7",
+         "Arn"
+        ]
+       },
+       "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"SecurityGroupIds\":[\"",
+       {
+        "Fn::GetAtt": [
+         "EC2WindowsARM64SGABB1DA95",
+         "GroupId"
+        ]
+       },
+       "\"],\"SubnetId\":\"",
+       {
+        "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
+       },
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"",
+       {
+        "Ref": "EC2WindowsARM64AMIRootDeviceEBC1ED48"
+       },
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows ARM64\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows ARM64\"}]}]}},\"EC2 Windows ARM64 ",
+       {
+        "Ref": "VpcPublicSubnet2Subnet691E08A3"
+       },
+       "\":{\"End\":true,\"Type\":\"Task\",\"Comment\":\"",
+       {
+        "Fn::Select": [
+         1,
+         {
+          "Fn::GetAZs": ""
+         }
+        ]
+       },
+       "\",\"HeartbeatSeconds\":600,\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::aws-sdk:ec2:runInstances.waitForTaskToken\",\"Parameters\":{\"LaunchTemplate\":{\"LaunchTemplateId\":\"",
+       {
+        "Ref": "WindowsEC2ARM64BuilderLaunchtemplate46395898"
+       },
+       "\"},\"MinCount\":1,\"MaxCount\":1,\"InstanceType\":\"m6g.large\",\"UserData.$\":\"States.Base64Encode(States.Format($.ec2.userdataTemplate, $$.Task.Token, '",
+       {
+        "Ref": "EC2WindowsARM64Logs5D8AAFCC"
+       },
+       "', $$.Execution.Name, $.runner.domain, $.owner, $.repo, $.runner.token, $.labels, $.runner.registrationUrl, '', '', ''))\",\"InstanceInitiatedShutdownBehavior\":\"terminate\",\"IamInstanceProfile\":{\"Arn\":\"",
+       {
+        "Fn::GetAtt": [
+         "EC2WindowsARM64InstanceProfile7E0CE5E7",
+         "Arn"
+        ]
+       },
+       "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"SecurityGroupIds\":[\"",
+       {
+        "Fn::GetAtt": [
+         "EC2WindowsARM64SGABB1DA95",
+         "GroupId"
+        ]
+       },
+       "\"],\"SubnetId\":\"",
+       {
+        "Ref": "VpcPublicSubnet2Subnet691E08A3"
+       },
+       "\",\"BlockDeviceMappings\":[{\"DeviceName\":\"",
+       {
+        "Ref": "EC2WindowsARM64AMIRootDeviceEBC1ED48"
+       },
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows ARM64\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows ARM64\"}]}]}}}}]},\"Delete Failed Runner\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnersdeleterunner7F8D5293",
@@ -18284,7 +19231,7 @@
       "GITHUB_PRIVATE_KEY_SECRET_ARN": {
        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
       },
-      "PROVIDERS": "{\"github-runners-test/CodeBuildx64\":[\"codebuild-x64\"],\"github-runners-test/CodeBuildUbuntu2404x64\":[\"codebuild-ubuntu-2404-x64\"],\"github-runners-test/CodeBuildARM\":[\"codebuild\",\"linux\",\"arm64\"],\"github-runners-test/CodeBuildWindows\":[\"codebuild\",\"windows\",\"x64\"],\"github-runners-test/ECS Fallback\":[\"ecs\",\"linux\",\"x64\"],\"github-runners-test/ECS Ubuntu 2404\":[\"ecs-ubuntu-2404\",\"x64\"],\"github-runners-test/ECS ARM64\":[\"ecs\",\"linux\",\"arm64\"],\"github-runners-test/ECS Windows\":[\"ecs\",\"windows\",\"x64\"],\"github-runners-test/Lambda\":[\"lambda\",\"x64\"],\"github-runners-test/LambdaARM\":[\"lambda\",\"arm64\"],\"github-runners-test/Fargate\":[\"fargate\",\"linux\",\"x64\"],\"github-runners-test/Fargate-x64-spot distribute\":[\"fargate-spot\",\"linux\",\"x64\"],\"github-runners-test/Fargate-arm64\":[\"fargate\",\"linux\",\"arm64\"],\"github-runners-test/Fargate-arm64-spot\":[\"fargate-spot\",\"linux\",\"arm64\"],\"github-runners-test/Fargate-Windows\":[\"fargate\",\"windows\",\"x64\"],\"github-runners-test/EC2 Fallback\":[\"ec2\",\"linux\",\"x64\"],\"github-runners-test/EC2 Spot Linux\":[\"ec2-spot\",\"linux\",\"x64\"],\"github-runners-test/EC2 Linux arm64\":[\"ec2\",\"linux\",\"arm64\"],\"github-runners-test/EC2 Windows\":[\"ec2\",\"windows\",\"x64\"]}",
+      "PROVIDERS": "{\"github-runners-test/CodeBuildx64\":[\"codebuild-x64\"],\"github-runners-test/CodeBuildUbuntu2404x64\":[\"codebuild-ubuntu-2404-x64\"],\"github-runners-test/CodeBuildARM\":[\"codebuild\",\"linux\",\"arm64\"],\"github-runners-test/CodeBuildWindows\":[\"codebuild\",\"windows\",\"x64\"],\"github-runners-test/ECS Fallback\":[\"ecs\",\"linux\",\"x64\"],\"github-runners-test/ECS Ubuntu 2404\":[\"ecs-ubuntu-2404\",\"x64\"],\"github-runners-test/ECS ARM64\":[\"ecs\",\"linux\",\"arm64\"],\"github-runners-test/ECS Windows\":[\"ecs\",\"windows\",\"x64\"],\"github-runners-test/Lambda\":[\"lambda\",\"x64\"],\"github-runners-test/LambdaARM\":[\"lambda\",\"arm64\"],\"github-runners-test/Fargate\":[\"fargate\",\"linux\",\"x64\"],\"github-runners-test/Fargate-x64-spot distribute\":[\"fargate-spot\",\"linux\",\"x64\"],\"github-runners-test/Fargate-arm64\":[\"fargate\",\"linux\",\"arm64\"],\"github-runners-test/Fargate-arm64-spot\":[\"fargate-spot\",\"linux\",\"arm64\"],\"github-runners-test/Fargate-Windows\":[\"fargate\",\"windows\",\"x64\"],\"github-runners-test/EC2 Fallback\":[\"ec2\",\"linux\",\"x64\"],\"github-runners-test/EC2 Spot Linux\":[\"ec2-spot\",\"linux\",\"x64\"],\"github-runners-test/EC2 Linux arm64\":[\"ec2\",\"linux\",\"arm64\"],\"github-runners-test/EC2 Windows\":[\"ec2\",\"windows\",\"x64\"],\"github-runners-test/EC2 Windows ARM64\":[\"ec2\",\"windows\",\"arm64\"]}",
       "REQUIRE_SELF_HOSTED_LABEL": "1",
       "PROVIDER_SELECTOR_ARN": {
        "Fn::GetAtt": [
@@ -20758,6 +21705,40 @@
        },
        "amiBuilderLogGroup": {
         "Ref": "WindowsEC2BuilderAmiLog126E54B2"
+       }
+      }
+     },
+     {
+      "type": "Ec2RunnerProvider",
+      "labels": [
+       "ec2",
+       "windows",
+       "arm64"
+      ],
+      "constructPath": "github-runners-test/EC2 Windows ARM64",
+      "securityGroups": [
+       {
+        "Fn::GetAtt": [
+         "EC2WindowsARM64SGABB1DA95",
+         "GroupId"
+        ]
+       }
+      ],
+      "roleArn": {
+       "Fn::GetAtt": [
+        "EC2WindowsARM64Role5C97FF85",
+        "Arn"
+       ]
+      },
+      "logGroup": {
+       "Ref": "EC2WindowsARM64Logs5D8AAFCC"
+      },
+      "ami": {
+       "launchTemplate": {
+        "Ref": "WindowsEC2ARM64BuilderLaunchtemplate46395898"
+       },
+       "amiBuilderLogGroup": {
+        "Ref": "WindowsEC2ARM64BuilderAmiLogCEEB6555"
        }
       }
      }
