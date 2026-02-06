@@ -3447,7 +3447,7 @@ Creates CloudWatch Logs Insights saved queries that can be used to debug issues 
 ##### `failedImageBuildsTopic` <a name="failedImageBuildsTopic" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic"></a>
 
 ```typescript
-public failedImageBuildsTopic(): Topic
+public failedImageBuildsTopic(scope?: Construct): Topic
 ```
 
 Creates a topic for notifications when a runner image build fails.
@@ -3455,6 +3455,18 @@ Creates a topic for notifications when a runner image build fails.
 Runner images are rebuilt every week by default. This provides the latest GitHub Runner version and software updates.
 
 If you want to be sure you are using the latest runner version, you can use this topic to be notified when a build fails.
+
+When the image builder is defined in a separate stack (e.g. in a split-stacks setup), pass that stack or construct
+as the optional scope so the topic and failure-notification aspects are created in the same stack as the image
+builder. Otherwise the aspects may not find the image builder resources.
+
+###### `scope`<sup>Optional</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+Optional scope (e.g. the image builder stack) where the topic and aspects will be created. Defaults to this construct.
+
+---
 
 ##### `metricFailed` <a name="metricFailed" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed"></a>
 
