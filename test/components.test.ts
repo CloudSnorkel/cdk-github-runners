@@ -22,6 +22,13 @@ describe('Component version options', () => {
     expect(versionedWin.some(c => c.includes('AWSCLIV2-2.15.0.msi'))).toBe(true);
   });
 
+  test('awsCli treats empty string and latest as no version (avoids malformed URLs)', () => {
+    const emptyStr = RunnerImageComponent.awsCli('');
+    const latestStr = RunnerImageComponent.awsCli('latest');
+    expect(emptyStr.getCommands(Os.LINUX_UBUNTU_2204, Architecture.X86_64).some(c => c.includes('awscli-exe-linux-x86_64.zip'))).toBe(true);
+    expect(latestStr.getCommands(Os.LINUX_UBUNTU_2204, Architecture.X86_64).some(c => c.includes('awscli-exe-linux-x86_64.zip'))).toBe(true);
+  });
+
   test('githubCli uses version on Windows when specified', () => {
     const latest = RunnerImageComponent.githubCli();
     const versioned = RunnerImageComponent.githubCli('2.40.0');
@@ -31,6 +38,13 @@ describe('Component version options', () => {
     expect(latestWin.some(c => c.includes('releases/latest'))).toBe(true);
     expect(versionedWin.some(c => c.includes('v2.40.0') && c.includes('gh_2.40.0'))).toBe(true);
     expect(versionedWin.length).toBeLessThan(latestWin.length); // no redirect fetch
+  });
+
+  test('githubCli treats empty string and latest as no version on Windows', () => {
+    const emptyStr = RunnerImageComponent.githubCli('');
+    const latestStr = RunnerImageComponent.githubCli('latest');
+    expect(emptyStr.getCommands(Os.WINDOWS, Architecture.X86_64).some(c => c.includes('releases/latest'))).toBe(true);
+    expect(latestStr.getCommands(Os.WINDOWS, Architecture.X86_64).some(c => c.includes('releases/latest'))).toBe(true);
   });
 
   test('git uses version on Windows when specified', () => {
@@ -47,6 +61,13 @@ describe('Component version options', () => {
     const versioned = RunnerImageComponent.git('2.43.0.windows.2');
     const versionedWin = versioned.getCommands(Os.WINDOWS, Architecture.X86_64);
     expect(versionedWin.some(c => c.includes('v2.43.0.windows.2') && c.includes('Git-2.43.0.2-64-bit.exe'))).toBe(true);
+  });
+
+  test('git treats empty string and latest as no version on Windows', () => {
+    const emptyStr = RunnerImageComponent.git('');
+    const latestStr = RunnerImageComponent.git('latest');
+    expect(emptyStr.getCommands(Os.WINDOWS, Architecture.X86_64).some(c => c.includes('releases/latest'))).toBe(true);
+    expect(latestStr.getCommands(Os.WINDOWS, Architecture.X86_64).some(c => c.includes('releases/latest'))).toBe(true);
   });
 
   test('docker throws when version specified and building for Ubuntu', () => {
@@ -70,6 +91,15 @@ describe('Component version options', () => {
     const versioned = RunnerImageComponent.docker('29.1.5');
     const versionedWin = versioned.getCommands(Os.WINDOWS, Architecture.X86_64);
     expect(versionedWin.some(c => c.includes('docker-29.1.5.zip'))).toBe(true);
+  });
+
+  test('docker treats empty string and latest as no version on Windows (avoids docker-.zip)', () => {
+    const emptyStr = RunnerImageComponent.docker('');
+    const latestStr = RunnerImageComponent.docker('latest');
+    const emptyCmds = emptyStr.getCommands(Os.WINDOWS, Architecture.X86_64).join(' ');
+    const latestCmds = latestStr.getCommands(Os.WINDOWS, Architecture.X86_64).join(' ');
+    expect(emptyCmds).not.toContain('docker-.zip');
+    expect(latestCmds).not.toContain('docker-.zip');
   });
 
   test('docker uses latest on Ubuntu when version not specified', () => {
