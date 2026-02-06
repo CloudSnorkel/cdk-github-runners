@@ -10512,7 +10512,7 @@ On Windows this sets up dockerd for Windows containers without Docker Desktop. I
 
 - *Type:* string
 
-Software version to install (e.g. '29.1.5'). Default: latest. Only used on Windows; on Linux (Ubuntu, Amazon Linux) the package version format is not reliably predictable so latest is always used.
+Software version to install (e.g. '29.1.5'). Default: latest. Only used on Windows; on Linux (Ubuntu, Amazon Linux 2 and Amazon Linux 2023) the package version format is not reliably predictable so latest is always used.
 
 ---
 
