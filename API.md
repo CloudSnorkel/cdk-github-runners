@@ -10512,7 +10512,7 @@ On Windows this sets up dockerd for Windows containers without Docker Desktop. I
 
 - *Type:* string
 
-Software version to install (e.g. '29.1.5'). Default: latest. Only used on Windows; on Ubuntu the apt package version format is not reliably predictable so latest is always used.
+Software version to install (e.g. '29.1.5'). Default: latest. Only used on Windows; on Linux (Ubuntu, Amazon Linux) the package version format is not reliably predictable so latest is always used.
 
 ---
 
@@ -10616,7 +10616,7 @@ A component to install the GitHub CLI.
 
 - *Type:* string
 
-Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows; on Linux the package manager is used.
+Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows (x64/windows_amd64); on Linux the package manager is used.
 
 ---
 
