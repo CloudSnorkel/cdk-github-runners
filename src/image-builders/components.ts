@@ -180,8 +180,11 @@ export abstract class RunnerImageComponent {
 
   /**
    * A component to install the AWS CLI.
+   *
+   * @param version Software version to install (e.g. '2.15.0'). Default: latest.
    */
-  static awsCli(): RunnerImageComponent {
+  static awsCli(version?: string): RunnerImageComponent {
+    const useVersion = version && version !== 'latest';
     return new class extends RunnerImageComponent {
       name = 'AwsCli';
 
@@ -196,15 +199,21 @@ export abstract class RunnerImageComponent {
             throw new Error(`Unsupported architecture for awscli: ${architecture.name}`);
           }
 
+          const zipName = useVersion
+            ? `awscli-exe-linux-${archUrl}-${version}.zip`
+            : `awscli-exe-linux-${archUrl}.zip`;
           return [
-            `curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${archUrl}.zip" -o awscliv2.zip`,
+            `curl -fsSL "https://awscli.amazonaws.com/${zipName}" -o awscliv2.zip`,
             'unzip -q awscliv2.zip',
             './aws/install',
             'rm -rf awscliv2.zip aws',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          const msiUrl = useVersion
+            ? `https://awscli.amazonaws.com/AWSCLIV2-${version}.msi`
+            : 'https://awscli.amazonaws.com/AWSCLIV2.msi';
           return [
-            '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn\'',
+            `$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList '/i ${msiUrl} /qn'`,
             'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
           ];
         }
@@ -216,12 +225,20 @@ export abstract class RunnerImageComponent {
 
   /**
    * A component to install the GitHub CLI.
+   *
+   * @param version Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows; on Linux the package manager is used.
    */
-  static githubCli(): RunnerImageComponent {
+  static githubCli(version?: string): RunnerImageComponent {
+    const useVersion = version && version !== 'latest';
     return new class extends RunnerImageComponent {
       name = 'GithubCli';
 
       getCommands(os: Os, architecture: Architecture) {
+        if (useVersion && !os.is(Os.WINDOWS)) {
+          throw new Error(
+            'RunnerImageComponent.githubCli(version): version is only used on Windows. On Linux the package manager (apt/yum/dnf) is used. Omit the version for Linux images.',
+          );
+        }
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
           return [
             'curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg',
@@ -241,6 +258,14 @@ export abstract class RunnerImageComponent {
             'dnf install -y gh',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          if (useVersion) {
+            return [
+              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${version}/gh_${version}_windows_amd64.msi" -OutFile gh.msi`,
+              '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i gh.msi /qn\'',
+              'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
+              'del gh.msi',
+            ];
+          }
           return [
             'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-gh',
@@ -258,13 +283,21 @@ export abstract class RunnerImageComponent {
   }
 
   /**
-   * A component to install the GitHub CLI.
+   * A component to install Git.
+   *
+   * @param version Software version to install (e.g. '2.43.0.windows.1'). Default: latest. Only used on Windows; on Linux the package manager is used.
    */
-  static git(): RunnerImageComponent {
+  static git(version?: string): RunnerImageComponent {
+    const useVersion = version && version !== 'latest';
     return new class extends RunnerImageComponent {
       name = 'Git';
 
       getCommands(os: Os, architecture: Architecture) {
+        if (useVersion && !os.is(Os.WINDOWS)) {
+          throw new Error(
+            'RunnerImageComponent.git(version): version is only used on Windows. On Linux the package manager (apt/yum/dnf) is used. Omit the version for Linux images.',
+          );
+        }
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
           return [
             'add-apt-repository ppa:git-core/ppa',
@@ -280,6 +313,15 @@ export abstract class RunnerImageComponent {
             'dnf install -y git',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          if (useVersion) {
+            const versionShort = version!.includes('.windows.') ? version!.split('.windows.')[0] + (parseInt(version!.split('.windows.')[1], 10) > 1 ? '.' + version!.split('.windows.')[1] : '') : version;
+            return [
+              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/git-for-windows/git/releases/download/v${version}/Git-${versionShort}-64-bit.exe" -OutFile git-setup.exe`,
+              '$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList \'/VERYSILENT\'',
+              'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
+              'del git-setup.exe',
+            ];
+          }
           return [
             'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\latest-git',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-git',
@@ -398,13 +440,21 @@ export abstract class RunnerImageComponent {
    * A component to install Docker.
    *
    * On Windows this sets up dockerd for Windows containers without Docker Desktop. If you need Linux containers on Windows, you'll need to install Docker Desktop which doesn't seem to play well with servers (PRs welcome).
+   *
+   * @param version Software version to install (e.g. '29.1.5'). Default: latest. Only used on Windows; on Ubuntu the apt package version format is not reliably predictable so latest is always used.
    */
-  static docker(): RunnerImageComponent {
+  static docker(version?: string): RunnerImageComponent {
+    const useVersion = version && version !== 'latest';
     return new class extends RunnerImageComponent {
       name = 'Docker';
 
       getCommands(os: Os, architecture: Architecture) {
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
+          if (useVersion) {
+            throw new Error(
+              'RunnerImageComponent.docker(version): version is only used on Windows. On Ubuntu the apt package version format is not reliably predictable; use latest (omit version) for Ubuntu images.',
+            );
+          }
           return [
             'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg',
             'echo ' +
@@ -432,15 +482,19 @@ export abstract class RunnerImageComponent {
             'ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose',
           ];
         } else if (os.is(Os.WINDOWS)) {
-          return [
-            // figure out latest docker version
+          const downloadCommands = useVersion ? [
+            `Invoke-WebRequest -UseBasicParsing -Uri "https://download.docker.com/win/static/stable/x86_64/docker-${version}.zip" -OutFile docker.zip`,
+          ] : [
             '$BaseUrl = "https://download.docker.com/win/static/stable/x86_64/"',
             '$html = Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl',
             '$files = $html.Links.href | Where-Object { $_ -match \'^docker-[0-9\\.]+\\.zip$\' }',
             'if (-not $files) { Write-Error "No docker-*.zip files found." ; exit 1 }',
             '$latest = $files | Sort-Object { try { [Version]($_ -replace \'^docker-|\\.zip$\') } catch { [Version]"0.0.0" } } -Descending | Select-Object -First 1',
-            // download static binaries
             'Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl$latest -OutFile docker.zip',
+          ];
+          return [
+            // download static binaries
+            ...downloadCommands,
             // extract to C:\Program Files\Docker
             'Expand-Archive docker.zip -DestinationPath "$Env:ProgramFiles"',
             'del docker.zip',
@@ -476,9 +530,10 @@ export abstract class RunnerImageComponent {
    * A component to install Docker-in-Docker.
    *
    * @deprecated use `docker()`
+   * @param version Software version to install (e.g. '29.1.5'). Default: latest.
    */
-  static dockerInDocker(): RunnerImageComponent {
-    return RunnerImageComponent.docker();
+  static dockerInDocker(version?: string): RunnerImageComponent {
+    return RunnerImageComponent.docker(version);
   }
 
   /**
