@@ -97,7 +97,7 @@ action () {
   sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
 
   # Retrieve the status
-  STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \K.*" /home/runner/_diag/ | tail -n1)
+  STATUS=$(grep -Phors "finish job request for job [0-9a-f-]+ with result: .*" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')
 
   # Check and print the job status
   [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$labels" "$STATUS"
