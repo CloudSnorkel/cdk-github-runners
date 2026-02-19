@@ -52,6 +52,8 @@ runnerGroup1="{}"
 runnerGroup2="{}"
 defaultLabels="{}"
 
+export AWS_RETRY_MODE=standard # better retry
+
 heartbeat () {
   while true; do
     aws stepfunctions send-task-heartbeat --task-token "$TASK_TOKEN"
@@ -103,10 +105,10 @@ action () {
   [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$labels" "$STATUS"
 }
 heartbeat &
-if setup_logs && action | tee /var/log/runner.log 2>&1; then
-  aws stepfunctions send-task-success --task-token "$TASK_TOKEN" --task-output '{"ok": true}'
+if setup_logs && action |& tee /var/log/runner.log; then
+  aws stepfunctions send-task-success --task-token "$TASK_TOKEN" --task-output '{"ok": true}' |& tee -a /var/log/runner.log
 else
-  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN"
+  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" |& tee -a /var/log/runner.log
 fi
 sleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
 poweroff
@@ -127,6 +129,8 @@ $registrationURL="{}"
 $runnerGroup1="{}"
 $runnerGroup2="{}"
 $defaultLabels="{}"
+
+$Env:AWS_RETRY_MODE = "standard"  # better retry
 
 # EC2Launch only starts ssm agent after user data is done, so we need to start it ourselves (it is disabled by default)
 Set-Service -StartupType Manual AmazonSSMAgent
@@ -179,9 +183,9 @@ function action () {
 setup_logs
 $r = action
 if ($r -eq 0) {
-  aws stepfunctions send-task-success --task-token "$TASK_TOKEN" --task-output '{ }'
+  aws stepfunctions send-task-success --task-token "$TASK_TOKEN" --task-output '{ }' 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
 } else {
-  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN"
+  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
 }
 Start-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
 Stop-Computer -ComputerName localhost -Force
