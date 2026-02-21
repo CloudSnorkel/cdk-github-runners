@@ -159,6 +159,11 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
   readonly maxInstances?: number;
 
   /**
+   * Options for runner instance storage volume.
+   */
+  readonly storageKey?: cdk.aws_kms.IKey;
+
+  /**
    * Size of volume available for launched cluster instances. This modifies the boot volume size and doesn't add any additional volumes.
    *
    * Each instance can be used by multiple runners, so make sure there is enough space for all of them.
@@ -292,6 +297,12 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       ...props,
     });
   }
+
+  /**
+   * Launch template for the created instance
+   */
+  public launchTemplate?: ec2.LaunchTemplate;
+
 
   /**
    * Cluster hosting the task hosting the runner.
@@ -445,6 +456,8 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
                 volumeType: props.storageOptions?.volumeType,
                 iops: props.storageOptions?.iops,
                 throughput: props.storageOptions?.throughput,
+                encrypted: props.storageKey ? true : undefined,
+                kmsKey: props.storageKey ?? undefined,
               },
             },
           },
