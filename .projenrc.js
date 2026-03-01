@@ -7,7 +7,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Amir Szekely',
   authorAddress: 'amir@cloudsnorkel.com',
   stability: Stability.EXPERIMENTAL,
-  cdkVersion: '2.238.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode, 2.77.0 for node 16, 2.110.0 for ib lifecycle, 2.123.0 for lambda logs, 2.155.0 for launch template throughput, 2.238.0 for https://github.com/aws/aws-cdk/issues/37041
+  cdkVersion: '2.239.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode, 2.77.0 for node 16, 2.110.0 for ib lifecycle, 2.123.0 for lambda logs, 2.155.0 for launch template throughput, 2.239.0 for https://github.com/aws/aws-cdk/issues/37041
   defaultReleaseBranch: 'main',
   name: '@cloudsnorkel/cdk-github-runners',
   repositoryUrl: 'https://github.com/CloudSnorkel/cdk-github-runners.git',

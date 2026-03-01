@@ -11439,7 +11439,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "f1ef0b7df9fbd6678b581ed85579e856c8f7832ce4e06e642f2c2421ef37c427.zip"
+     "S3Key": "56f7467bbde8a5efebcf57ae9e460027607099bab9f844669dcf5d800172ee5a.zip"
     },
     "Handler": "index.handler",
     "LoggingConfig": {
