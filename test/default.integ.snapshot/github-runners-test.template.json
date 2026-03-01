@@ -5944,7 +5944,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentDockerWindowsX8664a52227b8abComponent42756297",
+        "GHRInternalComponentDockerWindowsX86649cf8ba9320Component15EF74E7",
         "Arn"
        ]
       }
@@ -6653,15 +6653,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    },
+    "Runtime": "nodejs22.x",
     "Timeout": 180
    },
    "DependsOn": [
@@ -7754,15 +7746,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    },
+    "Runtime": "nodejs22.x",
     "Timeout": 600
    },
    "DependsOn": [
@@ -8089,7 +8073,7 @@
          {
           "Ref": "ECSSpotclusterE23D90F0"
          },
-         " >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config"
+         " >> /etc/ecs/ecs.config"
         ]
        ]
       }
@@ -8527,15 +8511,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    },
+    "Runtime": "nodejs22.x",
     "Timeout": 60
    },
    "DependsOn": [
@@ -8856,7 +8832,7 @@
          {
           "Ref": "ECSNonSpotclusterD12EB68A"
          },
-         " >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config"
+         " >> /etc/ecs/ecs.config"
         ]
        ]
       }
@@ -9528,7 +9504,7 @@
          {
           "Ref": "ECSUbuntu2404cluster21C05FA1"
          },
-         " >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config"
+         " >> /etc/ecs/ecs.config"
         ]
        ]
       }
@@ -10166,7 +10142,7 @@
          {
           "Ref": "ECSARM64cluster4ECAA083"
          },
-         " >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config"
+         " >> /etc/ecs/ecs.config"
         ]
        ]
       }
@@ -10800,11 +10776,11 @@
          {
           "Ref": "ECSWindowscluster14061F74"
          },
-         "\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_AWSLOGS_EXECUTIONROLE_OVERRIDE\", \"true\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_AVAILABLE_LOGGING_DRIVERS\", '[\"json-file\",\"awslogs\"]', \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_TASK_IAM_ROLE\", \"true\", \"Machine\")\nInitialize-ECSAgent -Cluster '",
+         "\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_AWSLOGS_EXECUTIONROLE_OVERRIDE\", \"true\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_AVAILABLE_LOGGING_DRIVERS\", '[\"json-file\",\"awslogs\"]', \"Machine\")\nInitialize-ECSAgent -Cluster '",
          {
           "Ref": "ECSWindowscluster14061F74"
          },
-         "' -EnableTaskIAMRole</powershell>"
+         "'</powershell>"
         ]
        ]
       }
@@ -11463,7 +11439,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "97f30e67419a1676a2215492723e5add1aa491caf0cbe2dd878fc4fab0468cd4.zip"
+     "S3Key": "f1ef0b7df9fbd6678b581ed85579e856c8f7832ce4e06e642f2c2421ef37c427.zip"
     },
     "Handler": "index.handler",
     "LoggingConfig": {
@@ -11477,15 +11453,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    },
+    "Runtime": "nodejs22.x",
     "Timeout": 120
    },
    "DependsOn": [
@@ -11587,15 +11555,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    },
+    "Runtime": "nodejs22.x",
     "Timeout": 900
    },
    "DependsOn": [
@@ -14787,12 +14747,12 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentDockerWindowsX8664a52227b8abComponent42756297": {
+  "GHRInternalComponentDockerWindowsX86649cf8ba9320Component15EF74E7": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"Docker (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"$BaseUrl = \\\"https://download.docker.com/win/static/stable/x86_64/\\\"\",\"$html = Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl\",\"$files = $html.Links.href | Where-Object { $_ -match '^docker-[0-9\\\\.]+\\\\.zip$' }\",\"if (-not $files) { Write-Error \\\"No docker-*.zip files found.\\\" ; exit 1 }\",\"$latest = $files | Sort-Object { try { [Version]($_ -replace '^docker-|\\\\.zip$') } catch { [Version]\\\"0.0.0\\\" } } -Descending | Select-Object -First 1\",\"Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl$latest -OutFile docker.zip\",\"Expand-Archive docker.zip -DestinationPath \\\"$Env:ProgramFiles\\\"\",\"del docker.zip\",\"$persistedPaths = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)\",\"[Environment]::SetEnvironmentVariable(\\\"PATH\\\", $persistedPaths + \\\";$Env:ProgramFiles\\\\Docker\\\", [EnvironmentVariableTarget]::Machine)\",\"$env:PATH = $env:PATH + \\\";$Env:ProgramFiles\\\\Docker\\\"\",\"dockerd --register-service\",\"if ($LASTEXITCODE -ne 0) { throw \\\"Exit code is $LASTEXITCODE\\\" }\",\"Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\\\latest-docker-compose\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-docker-compose\",\"$LatestDockerCompose = ($LatestUrl -Split '/')[-1]\",\"Invoke-WebRequest -UseBasicParsing -Uri  \\\"https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe\\\" -OutFile $Env:ProgramFiles\\\\Docker\\\\docker-compose.exe\",\"New-Item -ItemType directory -Path \\\"$Env:ProgramFiles\\\\Docker\\\\cli-plugins\\\"\",\"Copy-Item -Path \\\"$Env:ProgramFiles\\\\Docker\\\\docker-compose.exe\\\" -Destination \\\"$Env:ProgramFiles\\\\Docker\\\\cli-plugins\\\\docker-compose.exe\\\"\"]}},{\"name\":\"Reboot\",\"action\":\"Reboot\",\"inputs\":{}}]}]}",
+    "Data": "{\"name\":\"Docker (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://download.docker.com/win/static/stable/x86_64/docker-29.1.5.zip\\\" -OutFile docker.zip\",\"Expand-Archive docker.zip -DestinationPath \\\"$Env:ProgramFiles\\\"\",\"del docker.zip\",\"$persistedPaths = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)\",\"[Environment]::SetEnvironmentVariable(\\\"PATH\\\", $persistedPaths + \\\";$Env:ProgramFiles\\\\Docker\\\", [EnvironmentVariableTarget]::Machine)\",\"$env:PATH = $env:PATH + \\\";$Env:ProgramFiles\\\\Docker\\\"\",\"dockerd --register-service\",\"if ($LASTEXITCODE -ne 0) { throw \\\"Exit code is $LASTEXITCODE\\\" }\",\"Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\\\latest-docker-compose\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-docker-compose\",\"$LatestDockerCompose = ($LatestUrl -Split '/')[-1]\",\"Invoke-WebRequest -UseBasicParsing -Uri  \\\"https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe\\\" -OutFile $Env:ProgramFiles\\\\Docker\\\\docker-compose.exe\",\"New-Item -ItemType directory -Path \\\"$Env:ProgramFiles\\\\Docker\\\\cli-plugins\\\"\",\"Copy-Item -Path \\\"$Env:ProgramFiles\\\\Docker\\\\docker-compose.exe\\\" -Destination \\\"$Env:ProgramFiles\\\\Docker\\\\cli-plugins\\\\docker-compose.exe\\\"\"]}},{\"name\":\"Reboot\",\"action\":\"Reboot\",\"inputs\":{}}]}]}",
     "Description": "Docker component for Windows/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Docker-Windows-X86-64-a52227b8ab-C238ED10",
+    "Name": "github-runners-test-GHRInternal--Component-Docker-Windows-X86-64-9cf8ba9320-C58F742F",
     "Platform": "Windows",
     "Version": "1.0.0"
    }
@@ -14854,7 +14814,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs18.x"
+    "Runtime": "nodejs22.x"
    },
    "DependsOn": [
     "ProviderSelectorServiceRole7E80C062"
@@ -15012,15 +14972,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    },
+    "Runtime": "nodejs22.x",
     "Timeout": 30
    },
    "DependsOn": [
@@ -15129,15 +15081,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    },
+    "Runtime": "nodejs22.x",
     "Timeout": 30
    },
    "DependsOn": [
@@ -15361,15 +15305,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    },
+    "Runtime": "nodejs22.x",
     "Timeout": 300
    },
    "DependsOn": [
@@ -18273,15 +18209,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    },
+    "Runtime": "nodejs22.x",
     "Timeout": 31
    },
    "DependsOn": [
@@ -18312,6 +18240,20 @@
      ]
     },
     "FunctionUrlAuthType": "NONE",
+    "Principal": "*"
+   }
+  },
+  "runnersWebhookHandlerwebhookhandlerinvokefunction76559985": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "runnersWebhookHandlerwebhookhandler22779A81",
+      "Arn"
+     ]
+    },
+    "InvokedViaFunctionUrl": true,
     "Principal": "*"
    }
   },
@@ -18417,15 +18359,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    },
+    "Runtime": "nodejs22.x",
     "Timeout": 270
    },
    "DependsOn": [
@@ -18513,7 +18447,8 @@
       {
        "Action": [
         "secretsmanager:PutSecretValue",
-        "secretsmanager:UpdateSecret"
+        "secretsmanager:UpdateSecret",
+        "secretsmanager:UpdateSecretVersionStage"
        ],
        "Effect": "Allow",
        "Resource": {
@@ -18533,7 +18468,8 @@
       {
        "Action": [
         "secretsmanager:PutSecretValue",
-        "secretsmanager:UpdateSecret"
+        "secretsmanager:UpdateSecret",
+        "secretsmanager:UpdateSecretVersionStage"
        ],
        "Effect": "Allow",
        "Resource": {
@@ -18543,7 +18479,8 @@
       {
        "Action": [
         "secretsmanager:PutSecretValue",
-        "secretsmanager:UpdateSecret"
+        "secretsmanager:UpdateSecret",
+        "secretsmanager:UpdateSecretVersionStage"
        ],
        "Effect": "Allow",
        "Resource": {
@@ -18563,7 +18500,8 @@
       {
        "Action": [
         "secretsmanager:PutSecretValue",
-        "secretsmanager:UpdateSecret"
+        "secretsmanager:UpdateSecret",
+        "secretsmanager:UpdateSecretVersionStage"
        ],
        "Effect": "Allow",
        "Resource": {
@@ -18627,15 +18565,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    },
+    "Runtime": "nodejs22.x",
     "Timeout": 180
    },
    "DependsOn": [
@@ -18666,6 +18596,20 @@
      ]
     },
     "FunctionUrlAuthType": "NONE",
+    "Principal": "*"
+   }
+  },
+  "runnerssetupinvokefunctionC1E3C6E6": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "runnerssetup9896CB59",
+      "Arn"
+     ]
+    },
+    "InvokedViaFunctionUrl": true,
     "Principal": "*"
    }
   },
@@ -18981,15 +18925,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    },
+    "Runtime": "nodejs22.x",
     "Timeout": 180
    },
    "DependsOn": [
@@ -20846,15 +20782,7 @@
       "Arn"
      ]
     },
-    "Runtime": {
-     "Fn::FindInMap": [
-      "LatestNodeRuntimeMap",
-      {
-       "Ref": "AWS::Region"
-      },
-      "value"
-     ]
-    }
+    "Runtime": "nodejs22.x"
    },
    "DependsOn": [
     "runnersImageBuilderBuildsFilterServiceRoleDefaultPolicy4525F6C1",
@@ -21035,130 +20963,6 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
-  }
- },
- "Mappings": {
-  "LatestNodeRuntimeMap": {
-   "af-south-1": {
-    "value": "nodejs20.x"
-   },
-   "ap-east-1": {
-    "value": "nodejs20.x"
-   },
-   "ap-northeast-1": {
-    "value": "nodejs20.x"
-   },
-   "ap-northeast-2": {
-    "value": "nodejs20.x"
-   },
-   "ap-northeast-3": {
-    "value": "nodejs20.x"
-   },
-   "ap-south-1": {
-    "value": "nodejs20.x"
-   },
-   "ap-south-2": {
-    "value": "nodejs20.x"
-   },
-   "ap-southeast-1": {
-    "value": "nodejs20.x"
-   },
-   "ap-southeast-2": {
-    "value": "nodejs20.x"
-   },
-   "ap-southeast-3": {
-    "value": "nodejs20.x"
-   },
-   "ap-southeast-4": {
-    "value": "nodejs20.x"
-   },
-   "ap-southeast-5": {
-    "value": "nodejs20.x"
-   },
-   "ap-southeast-7": {
-    "value": "nodejs20.x"
-   },
-   "ca-central-1": {
-    "value": "nodejs20.x"
-   },
-   "ca-west-1": {
-    "value": "nodejs20.x"
-   },
-   "cn-north-1": {
-    "value": "nodejs18.x"
-   },
-   "cn-northwest-1": {
-    "value": "nodejs18.x"
-   },
-   "eu-central-1": {
-    "value": "nodejs20.x"
-   },
-   "eu-central-2": {
-    "value": "nodejs20.x"
-   },
-   "eu-isoe-west-1": {
-    "value": "nodejs18.x"
-   },
-   "eu-north-1": {
-    "value": "nodejs20.x"
-   },
-   "eu-south-1": {
-    "value": "nodejs20.x"
-   },
-   "eu-south-2": {
-    "value": "nodejs20.x"
-   },
-   "eu-west-1": {
-    "value": "nodejs20.x"
-   },
-   "eu-west-2": {
-    "value": "nodejs20.x"
-   },
-   "eu-west-3": {
-    "value": "nodejs20.x"
-   },
-   "il-central-1": {
-    "value": "nodejs20.x"
-   },
-   "me-central-1": {
-    "value": "nodejs20.x"
-   },
-   "me-south-1": {
-    "value": "nodejs20.x"
-   },
-   "mx-central-1": {
-    "value": "nodejs20.x"
-   },
-   "sa-east-1": {
-    "value": "nodejs20.x"
-   },
-   "us-east-1": {
-    "value": "nodejs20.x"
-   },
-   "us-east-2": {
-    "value": "nodejs20.x"
-   },
-   "us-gov-east-1": {
-    "value": "nodejs18.x"
-   },
-   "us-gov-west-1": {
-    "value": "nodejs18.x"
-   },
-   "us-iso-east-1": {
-    "value": "nodejs18.x"
-   },
-   "us-iso-west-1": {
-    "value": "nodejs18.x"
-   },
-   "us-isob-east-1": {
-    "value": "nodejs18.x"
-   },
-   "us-west-1": {
-    "value": "nodejs20.x"
-   },
-   "us-west-2": {
-    "value": "nodejs20.x"
-   }
   }
  },
  "Parameters": {
