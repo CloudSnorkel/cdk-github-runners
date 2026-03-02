@@ -10780,7 +10780,11 @@
          {
           "Ref": "ECSWindowscluster14061F74"
          },
-         "'</powershell>"
+         "'\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_TASK_IAM_ROLE\", \"true\", \"Machine\")\nInitialize-ECSAgent -Cluster '",
+         {
+          "Ref": "ECSWindowscluster14061F74"
+         },
+         "' -EnableTaskIAMRole</powershell>"
         ]
        ]
       }
