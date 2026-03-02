@@ -600,7 +600,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return this.infrastructure;
   }
 
-  private workflowConfig(containerRecipeArn?: string): Partial<imagebuilder.CfnImageProps> | Partial<imagebuilder.CfnImagePipelineProps> | undefined {
+  private workflowConfig(containerRecipeArn?: string) {
     if (this.containerWorkflow && this.containerWorkflowExecutionRole && containerRecipeArn) {
       return {
         workflows: [{
