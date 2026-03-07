@@ -5,6 +5,8 @@ name: self-hosted-integration-test
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'
 
 jobs:
   self-hosted:
