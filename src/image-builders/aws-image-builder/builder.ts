@@ -551,7 +551,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
         recipes: [
           {
             name: recipe.name,
-            semanticVersion: recipe.version,
+            semanticVersion: '1.x.x',
           },
         ],
       },
@@ -910,7 +910,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
         recipes: [
           {
             name: recipe.name,
-            semanticVersion: recipe.version, // docs say it's optional, but it's not
+            semanticVersion: '1.x.x',
           },
         ],
       },

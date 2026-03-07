@@ -2305,12 +2305,7 @@
      "Recipes": [
       {
        "Name": "github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
-       "SemanticVersion": {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderContainerRecipeB2A421D7",
-         "Version"
-        ]
-       }
+       "SemanticVersion": "1.x.x"
       }
      ]
     },
@@ -2954,12 +2949,7 @@
      "Recipes": [
       {
        "Name": "github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
-       "SemanticVersion": {
-        "Fn::GetAtt": [
-         "AMILinuxBuilderAmiRecipe7C7ED6C7",
-         "Version"
-        ]
-       }
+       "SemanticVersion": "1.x.x"
       }
      ]
     },
@@ -5687,12 +5677,7 @@
      "Recipes": [
       {
        "Name": "github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
-       "SemanticVersion": {
-        "Fn::GetAtt": [
-         "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
-         "Version"
-        ]
-       }
+       "SemanticVersion": "1.x.x"
       }
      ]
     },
@@ -6257,12 +6242,7 @@
      "Recipes": [
       {
        "Name": "github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
-       "SemanticVersion": {
-        "Fn::GetAtt": [
-         "WindowsEC2BuilderAmiRecipe41A137FF",
-         "Version"
-        ]
-       }
+       "SemanticVersion": "1.x.x"
       }
      ]
     },
