@@ -200,9 +200,10 @@ export async function deleteRunner(octokit: RestOctokit, runnerLevel: RunnerLeve
   }
 }
 
-export async function redeliver(octokit: RestOctokit, deliveryId: number) {
+export async function redeliver(octokit: RestOctokit, deliveryId: BigInt) {
   const response = await octokit.rest.apps.redeliverWebhookDelivery({
-    delivery_id: deliveryId,
+    // waiting for new octokit -- https://github.com/octokit/request.js/issues/797#issuecomment-3953274583
+    delivery_id: deliveryId as unknown as number,
   });
 
   if (response.status !== 202) {
@@ -210,6 +211,6 @@ export async function redeliver(octokit: RestOctokit, deliveryId: number) {
   }
   console.log({
     notice: 'Successfully redelivered webhook delivery',
-    deliveryId,
+    deliveryId: String(deliveryId),
   });
 }
