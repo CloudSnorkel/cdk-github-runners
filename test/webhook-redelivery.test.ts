@@ -43,7 +43,7 @@ describe('webhook-redelivery.lambda handler', () => {
     }));
     await handler();
     expect(redeliver).toHaveBeenCalledTimes(1);
-    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 1);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 1n);
   });
 
   it('should not redeliver successful deliveries', async () => {
@@ -90,8 +90,8 @@ describe('webhook-redelivery.lambda handler', () => {
     await handler();
     // Both original and redelivery should be called
     expect(redeliver).toHaveBeenCalledTimes(2);
-    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 4);
-    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 5);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 4n);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 5n);
   });
 
   it('should skip redelivery if original failure is older than 3 hours', async () => {
@@ -132,7 +132,7 @@ describe('webhook-redelivery.lambda handler', () => {
 
     // Only the original should be redelivered, not the old redelivery
     expect(redeliver).toHaveBeenCalledTimes(1);
-    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 6);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 6n);
   });
 
   it('should handle pagination and redeliver all failures', async () => {
@@ -145,8 +145,8 @@ describe('webhook-redelivery.lambda handler', () => {
     }));
     await handler();
     expect(redeliver).toHaveBeenCalledTimes(2);
-    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 8);
-    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 9);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 8n);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 9n);
   });
 
   it('should throw if response status is not 200', async () => {
@@ -168,7 +168,7 @@ describe('webhook-redelivery.lambda handler', () => {
     }));
     await handler();
     expect(redeliver).toHaveBeenCalledTimes(1);
-    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 8);
+    expect(redeliver).toHaveBeenCalledWith(mockOctokit, 8n);
 
     // simulate cold-start
     clearFailuresCache();

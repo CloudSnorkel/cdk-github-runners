@@ -200,7 +200,7 @@ export async function deleteRunner(octokit: RestOctokit, runnerLevel: RunnerLeve
   }
 }
 
-export async function redeliver(octokit: RestOctokit, deliveryId: BigInt) {
+export async function redeliver(octokit: RestOctokit, deliveryId: bigint) {
   const response = await octokit.rest.apps.redeliverWebhookDelivery({
     // waiting for new octokit -- https://github.com/octokit/request.js/issues/797#issuecomment-3953274583
     delivery_id: deliveryId as unknown as number,

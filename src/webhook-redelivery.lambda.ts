@@ -125,7 +125,7 @@ export async function handler() {
         guid: guid,
         firstDeliveredAt: details.deliveredAt,
       });
-      await redeliver(octokit, BigInt(details.id));
+      await redeliver(octokit, details.id);
     } else {
       // if this is a redelivery, check if the original delivery is still within the time limit
       const originalFailure = failures.get(guid);
@@ -137,7 +137,7 @@ export async function handler() {
             guid: guid,
             firstDeliveredAt: originalFailure.firstDeliveredAt,
           });
-          await redeliver(octokit, BigInt(details.id));
+          await redeliver(octokit, details.id);
         } else {
           failures.delete(guid); // no need to keep track of this anymore
           console.log({
