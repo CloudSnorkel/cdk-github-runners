@@ -318,7 +318,12 @@ Promise<void | AWSLambda.SQSBatchResponse> {
       }
       await customResourceRespond(event, 'SUCCESS', 'OK', physicalId, {});
     } catch (e) {
-      console.error({ notice: 'Custom resource handler failed', error: `${e}` });
+      console.error({
+        notice: 'Custom resource handler failed',
+        requestType: event.RequestType,
+        logicalResourceId: event.LogicalResourceId,
+        errorType: e instanceof Error ? e.name : typeof e,
+      });
       await customResourceRespond(event, 'FAILED', (e as Error).message || 'Internal Error', physicalId, {});
     }
     return;

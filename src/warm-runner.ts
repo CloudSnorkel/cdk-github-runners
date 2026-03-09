@@ -86,9 +86,7 @@ function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule:
     throw new Error(`Provider ${providerPath} is not in the providers list of the GitHubRunners construct`);
   }
 
-  const labels = 'logGroup' in props.provider
-    ? props.provider.labels
-    : props.provider.providers[0]?.labels ?? [];
+  const labels = props.provider.labels;
 
   const repo = registrationLevel === 'repo' ? props.repo! : '';
   const configHash = crypto.createHash('sha256')
