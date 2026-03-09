@@ -17207,15 +17207,15 @@
      "Fn::Join": [
       "",
       [
-       "{\"StartAt\":\"Queue Idle Reaper\",\"States\":{\"Queue Idle Reaper\":{\"Next\":\"Run Providers\",\"Type\":\"Task\",\"ResultPath\":null,\"Resource\":\"arn:",
-       {
-        "Ref": "AWS::Partition"
-       },
-       ":states:::sqs:sendMessage\",\"Parameters\":{\"QueueUrl\":\"",
+       "{\"StartAt\":\"Queue Idle Reaper\",\"States\":{\"Queue Idle Reaper\":{\"QueryLanguage\":\"JSONata\",\"Next\":\"Run Providers\",\"Type\":\"Task\",\"Arguments\":{\"QueueUrl\":\"",
        {
         "Ref": "runnersIdleReaperQueue117EFB9F"
        },
-       "\",\"MessageBody\":{\"executionArn.$\":\"$$.Execution.Id\",\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"maxIdleSeconds\":300}}},\"Run Providers\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"States.ALL\"],\"IntervalSeconds\":60,\"MaxAttempts\":23,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"Error Handler\",\"States\":{\"Error Handler\":{\"Type\":\"Parallel\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Failed Runner\"}],\"Branches\":[{\"StartAt\":\"Get Runner Token\",\"States\":{\"Get Runner Token\":{\"Next\":\"Choose provider\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
+       "\",\"MessageBody\":{\"executionArn\":\"{% $states.context.Execution.Id %}\",\"runnerName\":\"{% $states.context.Execution.Name %}\",\"owner\":\"{% $states.input.owner %}\",\"repo\":\"{% $states.input.repo %}\",\"installationId\":\"{% $states.input.installationId %}\",\"maxIdleSeconds\":\"{% $exists($states.input.maxIdleSeconds) ? $states.input.maxIdleSeconds : 300 %}\"}},\"Output\":\"{% $states.input %}\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::sqs:sendMessage\"},\"Run Providers\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"States.ALL\"],\"IntervalSeconds\":60,\"MaxAttempts\":23,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"Error Handler\",\"States\":{\"Error Handler\":{\"Type\":\"Parallel\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Failed Runner\"}],\"Branches\":[{\"StartAt\":\"Get Runner Token\",\"States\":{\"Get Runner Token\":{\"Next\":\"Choose provider\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnerstokenretrieverD5E8392A",
@@ -18152,7 +18152,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "d3120b584b89779646d1d210316a528745635faf2342bfff284de8f370414fbf.zip"
+     "S3Key": "35bca000d607d6c88e3582805cbba253925bf347bb6268e016f1f0fa545aa589.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -18177,6 +18177,7 @@
         "Arn"
        ]
       },
+      "IDLE_TIMEOUT_SECONDS": "300",
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },
@@ -20930,6 +20931,30 @@
     ],
     "Name": "GitHub Runners/Webhook redeliveries",
     "QueryString": "fields @timestamp, message.notice, message.deliveryId, message.guid\n| filter isPresent(message.deliveryId)\n| sort @timestamp desc\n| limit 100"
+   }
+  },
+  "runnersWarmrunnerstatusB9D1210D": {
+   "Type": "AWS::Logs::QueryDefinition",
+   "Properties": {
+    "LogGroupNames": [
+     {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    ],
+    "Name": "GitHub Runners/Warm runner status",
+    "QueryString": "fields @timestamp, message.notice, message.input.runnerName, message.input.providerPath, message.started, message.stillRunning, message.runnerBusy\n| filter WARM RUNNERS NOT ENABLED\n| sort @timestamp desc\n| limit 200"
+   }
+  },
+  "runnersWarmrunnererrors7307E362": {
+   "Type": "AWS::Logs::QueryDefinition",
+   "Properties": {
+    "LogGroupNames": [
+     {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    ],
+    "Name": "GitHub Runners/Warm runner errors",
+    "QueryString": "fields @timestamp, message.notice, message.input.runnerName, message.error\n| filter WARM RUNNERS NOT ENABLED\n| filter level = \"ERROR\"\n| sort @timestamp desc\n| limit 100"
    }
   },
   "OrchestratorLogFB9610E7": {

@@ -37,6 +37,10 @@
       "type": "build"
     },
     {
+      "name": "@aws-sdk/client-sqs",
+      "type": "build"
+    },
+    {
       "name": "@aws-sdk/client-ssm",
       "type": "build"
     },
