@@ -307,7 +307,7 @@ async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octo
  *    - **Idle and within deadline**: retry later to check again.
  */
 export async function handler(event: AWSLambda.SQSEvent | WarmRunnerFillPayload | AWSLambda.CloudFormationCustomResourceEvent):
-  Promise<void | AWSLambda.SQSBatchResponse> {
+Promise<void | AWSLambda.SQSBatchResponse> {
 
   if (isCustomResourceEvent(event)) {
     const physicalId = ('PhysicalResourceId' in event ? event.PhysicalResourceId : undefined) ?? event.LogicalResourceId;
