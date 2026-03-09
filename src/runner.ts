@@ -1053,15 +1053,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   /**
-   * The warm runner manager Lambda, if any warm runner configs have been added.
-   *
-   * @internal
-   */
-  public get _warmRunnerManagerFunction(): lambda.IFunction | undefined {
-    return this.warmRunnerManager;
-  }
-
-  /**
    * Register a warm runner config hash. All registered hashes are passed to the
    * manager Lambda via WARM_CONFIG_HASHES env var so keepers can detect stale configs.
    *
@@ -1073,13 +1064,13 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
   /**
    * Lazily create shared warm runner infrastructure (Lambda, SQS queue).
-   * Returns the manager Lambda function for use as an EventBridge target.
+   * Returns the manager Lambda and queue for use as EventBridge targets.
    *
    * @internal
    */
-  public _ensureWarmRunnerInfra(): lambda.Function {
-    if (this.warmRunnerManager) {
-      return this.warmRunnerManager;
+  public _ensureWarmRunnerInfra(): { lambda: lambda.Function; queue: sqs.Queue } {
+    if (this.warmRunnerManager && this.warmRunnerQueue) {
+      return { lambda: this.warmRunnerManager, queue: this.warmRunnerQueue };
     }
 
     this.warmRunnerQueue = new sqs.Queue(this, 'Warm Runner Queue', {
@@ -1114,6 +1105,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     }));
     this.warmRunnerQueue.grantSendMessages(this.warmRunnerManager);
 
-    return this.warmRunnerManager;
+    return { lambda: this.warmRunnerManager, queue: this.warmRunnerQueue };
   }
 }

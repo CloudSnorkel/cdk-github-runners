@@ -7,10 +7,11 @@
  * ## Lifecycle
  *
  * 1. **Fill** — An EventBridge cron rule (midnight UTC for always-on, or window
- *    start for scheduled) and a CloudFormation custom resource (on deploy) both
- *    invoke this Lambda with a fill payload. The filler starts `count` Step Function
- *    executions, each of which provisions one runner. For every runner started, a
- *    keeper message is enqueued to the shared SQS queue.
+ *    start for scheduled) sends a fill payload to the shared SQS queue. A
+ *    CloudFormation custom resource (on deploy) invokes this Lambda directly.
+ *    Both paths start `count` Step Function executions and enqueue one keeper
+ *    message per runner. Using SQS for EventBridge fills gives stable messageId
+ *    for idempotent retries (Lambda timeout mid-fill → no duplicate runners).
  *
  * 2. **Keeper** — Each keeper message tracks one runner. The SQS queue delivers the
  *    message, this Lambda inspects the runner, and one of the following happens:
@@ -62,6 +63,7 @@
  *   fails to provision (or whose replacement fails) will be unavailable until the
  *   retry succeeds. This behavior will be improved in a future release.
  */
+import * as crypto from 'crypto';
 import {
   DescribeExecutionCommand,
   SFNClient,
@@ -99,7 +101,7 @@ export interface WarmRunnerFillPayload {
   readonly providerPath: string;
   readonly providerLabels: string[];
   readonly count: number;
-  readonly warmRunnerMaxIdleSeconds: number;
+  readonly duration: number;
   readonly owner: string;
   readonly repo: string;
   readonly configHash: string;
@@ -118,7 +120,7 @@ function isCustomResourceEvent(event: unknown): event is AWSLambda.CloudFormatio
   return typeof e?.RequestType === 'string' && typeof e?.ResponseURL === 'string';
 }
 
-function requireEnv(name: string): string {
+function requireEnv(name: string) {
   const value = process.env[name];
   if (!value) {
     throw new Error(`Missing environment variable ${name}`);
@@ -134,18 +136,22 @@ interface StartWarmRunnerInput {
   readonly installationId?: number;
   readonly absoluteDeadline: number; // Unix ms
   readonly configHash: string;
+  readonly executionName: string;
 }
 
-function generateExecutionName(providerPath: string): string {
-  // Strip stack name (first path segment) so runner name doesn't include it
+/**
+ * Deterministic execution name for idempotent fills. Same seed → same name, so retries
+ * (custom resource, SQS redelivery) don't create duplicate runners.
+ */
+function deterministicExecutionName(providerPath: string, seed: string) {
   const pathWithoutStack = providerPath.split('/').slice(1).join('/') || providerPath;
-  const suffix = `${Math.random().toString(36).slice(2, 16)}`;
   const sanitized = `warm-${pathWithoutStack.replace(/[^a-zA-Z0-9-]/g, '-')}`;
-  const maxPrefixLen = SFN_EXECUTION_NAME_MAX_LENGTH - suffix.length - 1;
-  return `${sanitized.slice(0, maxPrefixLen)}-${suffix}`;
+  const hash = crypto.createHash('sha256').update(seed).digest('hex').slice(0, 16);
+  const maxPrefixLen = SFN_EXECUTION_NAME_MAX_LENGTH - hash.length - 1;
+  return `${sanitized.slice(0, maxPrefixLen)}-${hash}`;
 }
 
-async function resolveInstallationId(owner: string, repo: string): Promise<number | undefined> {
+async function resolveInstallationId(owner: string, repo: string) {
   const appOctokit = await getAppOctokit();
   if (!appOctokit) {
     return undefined; // PAT authentication — no installation ID needed
@@ -160,7 +166,7 @@ async function resolveInstallationId(owner: string, repo: string): Promise<numbe
   }
 }
 
-async function startWarmRunnerAndEnqueue(input: StartWarmRunnerInput): Promise<void> {
+async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
   const stepFunctionArn = requireEnv('STEP_FUNCTION_ARN');
   const queueUrl = requireEnv('WARM_RUNNER_QUEUE_URL');
 
@@ -173,31 +179,41 @@ async function startWarmRunnerAndEnqueue(input: StartWarmRunnerInput): Promise<v
     return;
   }
 
-  const executionName = generateExecutionName(input.providerPath);
-
-  const result = await sfn.send(new StartExecutionCommand({
-    stateMachineArn: stepFunctionArn,
-    name: executionName,
-    input: JSON.stringify({
-      owner: input.owner,
-      repo: input.repo || '',
-      jobId: -1,
-      jobUrl: '',
-      installationId: input.installationId ?? -1,
-      jobLabels: input.providerLabels.join(','),
-      provider: input.providerPath,
-      labels: input.providerLabels.join(','),
-      maxIdleSeconds: remainingSeconds,
-    }),
-  }));
-
-  if (!result.executionArn) {
-    throw new Error('StartExecution did not return executionArn');
+  let executionArn: string;
+  try {
+    const result = await sfn.send(new StartExecutionCommand({
+      stateMachineArn: stepFunctionArn,
+      name: input.executionName,
+      input: JSON.stringify({
+        owner: input.owner,
+        repo: input.repo || '',
+        jobId: -1,
+        jobUrl: '',
+        installationId: input.installationId ?? -1,
+        jobLabels: input.providerLabels.join(','),
+        provider: input.providerPath,
+        labels: input.providerLabels.join(','),
+        maxIdleSeconds: remainingSeconds,
+      }),
+    }));
+    executionArn = result.executionArn!;
+  } catch (e: unknown) {
+    if ((e as { name?: string }).name === 'ExecutionAlreadyExists') {
+      // Idempotent retry: execution was already started (e.g. Lambda timed out mid-fill).
+      // Don't enqueue — the first attempt already did; duplicate keeper messages would cause duplicate replacements.
+      console.log({
+        notice: 'ExecutionAlreadyExists — idempotent retry, skipping enqueue',
+        executionName: input.executionName,
+      });
+      return;
+    } else {
+      throw e;
+    }
   }
 
   const message: WarmRunnerKeeperMessage = {
-    executionArn: result.executionArn,
-    runnerName: executionName,
+    executionArn,
+    runnerName: input.executionName,
     owner: input.owner,
     repo: input.repo,
     installationId: input.installationId,
@@ -214,8 +230,8 @@ async function startWarmRunnerAndEnqueue(input: StartWarmRunnerInput): Promise<v
 
   console.log({
     notice: 'Started warm runner and enqueued keeper message',
-    executionName,
-    executionArn: result.executionArn,
+    runnerName: input.executionName,
+    executionArn,
     remainingSeconds,
   });
 }
@@ -233,12 +249,12 @@ async function startWarmRunnerAndEnqueue(input: StartWarmRunnerInput): Promise<v
  * For normal cron rotation (same config), the old runners reach their deadline and are stopped
  * by the keeper as usual, causing only a brief overlap (typically minutes).
  */
-async function runFiller(input: WarmRunnerFillPayload): Promise<void> {
+async function runFiller(input: WarmRunnerFillPayload, getNameForSlot: (slot: number) => string) {
   const installationId = await resolveInstallationId(input.owner, input.repo);
-  const absoluteDeadline = Date.now() + input.warmRunnerMaxIdleSeconds * 1000;
+  const absoluteDeadline = Date.now() + input.duration * 1000;
 
   for (let i = 0; i < input.count; i++) {
-    await startWarmRunnerAndEnqueue({
+    await startWarmRunnerAndEnqueueKeeper({
       providerPath: input.providerPath,
       providerLabels: input.providerLabels,
       owner: input.owner,
@@ -246,6 +262,7 @@ async function runFiller(input: WarmRunnerFillPayload): Promise<void> {
       installationId,
       absoluteDeadline,
       configHash: input.configHash,
+      executionName: getNameForSlot(i),
     });
   }
 
@@ -256,7 +273,7 @@ async function runFiller(input: WarmRunnerFillPayload): Promise<void> {
   });
 }
 
-async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octokit, secrets: GitHubSecrets): Promise<void> {
+async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octokit, secrets: GitHubSecrets) {
   try {
     await sfn.send(new StopExecutionCommand({
       executionArn: input.executionArn,
@@ -291,11 +308,10 @@ async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octo
  *    `ResourceProperties` and runs `runFiller` to start warm runners immediately.
  *    Delete is a no-op (runners wind down via keeper or deadline).
  *
- * 2. **Direct fill invocation** (`action: 'fill'`):
- *    Triggered by EventBridge cron schedule. Unconditionally starts `count` warm
- *    runners for the given config and enqueues a keeper message per runner.
- *
- * 3. **SQS keeper messages** (SQS event with `Records`):
+ * 2. **SQS messages** (fill or keeper):
+ *    - **Fill** (body has `action: 'fill'`): from EventBridge cron. Uses messageId
+ *      for deterministic execution names (idempotent on redelivery).
+ *    - **Keeper**: tracks one runner. Uses SQS message cycling for periodic checks.
  *    Each message tracks one warm runner. The keeper checks:
  *    - **Config hash**: if the message's `configHash` doesn't match the current
  *      `WARM_CONFIG_HASHES` env var, the runner is from a stale config — stop it
@@ -306,15 +322,17 @@ async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octo
  *    - **Past deadline**: stop the Step Function and delete the GitHub runner.
  *    - **Idle and within deadline**: retry later to check again.
  */
-export async function handler(event: AWSLambda.SQSEvent | WarmRunnerFillPayload | AWSLambda.CloudFormationCustomResourceEvent):
-Promise<void | AWSLambda.SQSBatchResponse> {
-
+export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormationCustomResourceEvent) {
   if (isCustomResourceEvent(event)) {
     const physicalId = ('PhysicalResourceId' in event ? event.PhysicalResourceId : undefined) ?? event.LogicalResourceId;
     try {
       if (event.RequestType === 'Create' || event.RequestType === 'Update') {
         const props = event.ResourceProperties as unknown as WarmRunnerFillPayload;
-        await runFiller(props);
+        // LogicalResourceId + RequestType + configHash are stable across CloudFormation retries.
+        // RequestId changes per retry, so we don't use it.
+        const getNameForSlot = (slot: number) =>
+          deterministicExecutionName(props.providerPath, `${event.LogicalResourceId}:${event.RequestType}:${props.configHash}:${slot}`);
+        await runFiller(props, getNameForSlot);
       }
       await customResourceRespond(event, 'SUCCESS', 'OK', physicalId, {});
     } catch (e) {
@@ -324,23 +342,33 @@ Promise<void | AWSLambda.SQSBatchResponse> {
     return;
   }
 
-  if (isFillInput(event)) {
-    await runFiller(event);
-    return;
-  }
-
   if (!isSqsEvent(event)) {
     console.error({ notice: 'Unknown event type; ignoring', event });
     return;
   }
 
-  // keeper
   const validHashes = new Set((process.env.WARM_CONFIG_HASHES ?? '').split(',').filter(Boolean));
   const result: AWSLambda.SQSBatchResponse = { batchItemFailures: [] };
   const octokitCache = new Map<number | undefined, { octokit: Octokit; secrets: GitHubSecrets }>();
 
   for (const record of event.Records) {
-    const input = JSON.parse(record.body) as WarmRunnerKeeperMessage;
+    const body = JSON.parse(record.body) as WarmRunnerKeeperMessage | WarmRunnerFillPayload;
+
+    // Fill from EventBridge (via SQS): messageId is stable across redeliveries.
+    if (isFillInput(body)) {
+      try {
+        const getNameForSlot = (slot: number) =>
+          deterministicExecutionName(body.providerPath, `${record.messageId}:${slot}`);
+        await runFiller(body, getNameForSlot);
+      } catch (e) {
+        console.error({ notice: 'Fill failed', requestId: record.messageId, error: e });
+        result.batchItemFailures.push({ itemIdentifier: record.messageId });
+      }
+      continue;
+    }
+
+    // Keeper message
+    const input = body as WarmRunnerKeeperMessage;
     console.log({
       notice: 'Checking warm runner',
       input,
@@ -394,7 +422,7 @@ Promise<void | AWSLambda.SQSBatchResponse> {
         runnerBusy: runner?.busy ?? false,
       });
       try {
-        await startWarmRunnerAndEnqueue({
+        await startWarmRunnerAndEnqueueKeeper({
           providerPath: input.providerPath,
           providerLabels: input.providerLabels,
           owner: input.owner,
@@ -402,6 +430,7 @@ Promise<void | AWSLambda.SQSBatchResponse> {
           installationId: input.installationId,
           absoluteDeadline: input.absoluteDeadline,
           configHash: input.configHash,
+          executionName: deterministicExecutionName(input.providerPath, record.messageId),
         });
       } catch (e) {
         console.error({

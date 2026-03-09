@@ -99,20 +99,20 @@ function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule:
     providerPath,
     providerLabels: labels,
     count: props.count,
-    warmRunnerMaxIdleSeconds: duration, // TODO long ass name that's not entirely accurate
+    duration,
     owner: props.owner,
     repo,
     configHash,
   };
 
-  const managerFn = props.runners._ensureWarmRunnerInfra();
+  const { lambda: managerFn, queue } = props.runners._ensureWarmRunnerInfra();
   props.runners._registerWarmConfigHash(configHash);
 
-  // Schedule to fill the warm pool (usually daily)
+  // Schedule to fill the warm pool (usually daily). Sends to SQS so we get stable messageId for idempotent fills.
   new events.Rule(scope, 'Schedule', {
     schedule,
-    targets: [new events_targets.LambdaFunction(managerFn, {
-      event: events.RuleTargetInput.fromObject(fillPayload),
+    targets: [new events_targets.SqsQueue(queue, {
+      message: events.RuleTargetInput.fromObject(fillPayload),
     })],
   });
 

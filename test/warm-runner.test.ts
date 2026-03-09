@@ -117,7 +117,7 @@ describe('AlwaysOnWarmRunner', () => {
       registrationLevel: 'org',
     });
 
-    expect(warm._fillPayload.warmRunnerMaxIdleSeconds).toBe(86400);
+    expect(warm._fillPayload.duration).toBe(86400);
     expect(warm._fillPayload.count).toBe(3);
     expect(warm._fillPayload.owner).toBe('my-org');
     expect(warm._fillPayload.repo).toBe('');
@@ -167,7 +167,7 @@ describe('ScheduledWarmRunner', () => {
       ScheduleExpression: 'cron(0 13 ? * MON-FRI *)',
     });
 
-    expect(warm._fillPayload.warmRunnerMaxIdleSeconds).toBe(7200);
+    expect(warm._fillPayload.duration).toBe(7200);
     expect(warm._fillPayload.count).toBe(5);
   });
 });
@@ -224,7 +224,7 @@ describe('Warm runners with composite providers', () => {
     });
 
     expect(warm._fillPayload.providerPath).toBe(composite.node.path);
-    expect(warm._fillPayload.warmRunnerMaxIdleSeconds).toBe(28800);
+    expect(warm._fillPayload.duration).toBe(28800);
     expect(warm._fillPayload.repo).toBe('my-repo');
   });
 
@@ -296,8 +296,8 @@ describe('Warm runner infra is shared', () => {
     });
     expect(Object.keys(warmRules)).toHaveLength(2);
 
-    expect(warm1._fillPayload.warmRunnerMaxIdleSeconds).toBe(86400);
-    expect(warm2._fillPayload.warmRunnerMaxIdleSeconds).toBe(3600);
+    expect(warm1._fillPayload.duration).toBe(86400);
+    expect(warm2._fillPayload.duration).toBe(3600);
   });
 
   test('WARM_CONFIG_HASHES env var contains all config hashes', () => {

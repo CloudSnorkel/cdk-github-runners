@@ -367,5 +367,3 @@ runners.failedImageBuildsTopic();
 runners.createLogsInsightsQueries();
 
 app.synth();
-
-// TODO document that timeout of codebuild can also affect warm runners but it will create a new one
