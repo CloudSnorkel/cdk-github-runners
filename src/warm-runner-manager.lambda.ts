@@ -361,7 +361,8 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
           deterministicExecutionName(body.providerPath, `${record.messageId}:${slot}`);
         await runFiller(body, getNameForSlot);
       } catch (e) {
-        console.error({ notice: 'Fill failed', requestId: record.messageId, error: e });
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error({ notice: 'Fill failed', requestId: record.messageId, errorMessage });
         result.batchItemFailures.push({ itemIdentifier: record.messageId });
       }
       continue;
