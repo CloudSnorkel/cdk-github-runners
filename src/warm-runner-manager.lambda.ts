@@ -307,7 +307,7 @@ async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octo
  *    - **Idle and within deadline**: retry later to check again.
  */
 export async function handler(event: AWSLambda.SQSEvent | WarmRunnerFillPayload | AWSLambda.CloudFormationCustomResourceEvent):
-Promise<void | AWSLambda.SQSBatchResponse> {
+  Promise<void | AWSLambda.SQSBatchResponse> {
 
   if (isCustomResourceEvent(event)) {
     const physicalId = ('PhysicalResourceId' in event ? event.PhysicalResourceId : undefined) ?? event.LogicalResourceId;
@@ -318,12 +318,7 @@ Promise<void | AWSLambda.SQSBatchResponse> {
       }
       await customResourceRespond(event, 'SUCCESS', 'OK', physicalId, {});
     } catch (e) {
-      console.error({
-        notice: 'Custom resource handler failed',
-        requestType: event.RequestType,
-        logicalResourceId: event.LogicalResourceId,
-        errorType: e instanceof Error ? e.name : typeof e,
-      });
+      console.error({ notice: 'Custom resource handler failed' });
       await customResourceRespond(event, 'FAILED', (e as Error).message || 'Internal Error', physicalId, {});
     }
     return;
