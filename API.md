@@ -2,6 +2,167 @@
 
 ## Constructs <a name="Constructs" id="Constructs"></a>
 
+### AlwaysOnWarmRunner <a name="AlwaysOnWarmRunner" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner"></a>
+
+Warm runners that run 24/7. Fills at midnight UTC; each runner stays alive 24 hours.
+
+Runners will be provisioned using the specified provider and registered in the specified repository or organization.
+
+Registration level must match the one selected during setup. See {@link SETUP_GITHUB.md } for more information on the selection.
+
+## Limitations
+
+- Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
+- You may briefly see more than `count` runners when changing config or at rotation.
+- To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
+- Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and can be tweaked using `retryOptions`. This will be improved in the future.
+
+*Example*
+
+```typescript
+new AlwaysOnWarmRunner(stack, 'AlwaysOnLinux', {
+  runners,
+  provider: myProvider,
+  count: 3,
+  owner: 'my-org',
+  repo: 'my-repo',
+});
+```
+
+
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.Initializer"></a>
+
+```typescript
+import { AlwaysOnWarmRunner } from '@cloudsnorkel/cdk-github-runners'
+
+new AlwaysOnWarmRunner(scope: Construct, id: string, props: AlwaysOnWarmRunnerProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps">AlwaysOnWarmRunnerProps</a></code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Required</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps">AlwaysOnWarmRunnerProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.with">with</a></code> | Applies one or more mixins to this construct. |
+
+---
+
+##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `with` <a name="with" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.with"></a>
+
+```typescript
+public with(mixins: ...IMixin[]): IConstruct
+```
+
+Applies one or more mixins to this construct.
+
+Mixins are applied in order. The list of constructs is captured at the
+start of the call, so constructs added by a mixin will not be visited.
+Use multiple `with()` calls if subsequent mixins should apply to added
+constructs.
+
+###### `mixins`<sup>Required</sup> <a name="mixins" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.with.parameter.mixins"></a>
+
+- *Type:* ...constructs.IMixin[]
+
+The mixins to apply.
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### `isConstruct` <a name="isConstruct" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.isConstruct"></a>
+
+```typescript
+import { AlwaysOnWarmRunner } from '@cloudsnorkel/cdk-github-runners'
+
+AlwaysOnWarmRunner.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+Use this method instead of `instanceof` to properly detect `Construct`
+instances, even when the construct library is symlinked.
+
+Explanation: in JavaScript, multiple copies of the `constructs` library on
+disk are seen as independent, completely different libraries. As a
+consequence, the class `Construct` in each copy of the `constructs` library
+is seen as a different class, and an instance of one class will not test as
+`instanceof` the other class. `npm install` will not create installations
+like this, but users may manually symlink construct libraries together or
+use a monorepo tool: in those cases, multiple copies of the `constructs`
+library can be accidentally installed, and `instanceof` will behave
+unpredictably. It is safest to avoid using `instanceof`, and using
+this type-testing method instead.
+
+###### `x`<sup>Required</sup> <a name="x" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+
 ### AmiBuilder <a name="AmiBuilder" id="@cloudsnorkel/cdk-github-runners.AmiBuilder"></a>
 
 - *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
@@ -3685,6 +3846,7 @@ Creates CloudWatch Logs Insights saved queries that can be used to debug issues 
 * "Ignored webhook" helps understand why runners aren't started
 * "Ignored jobs based on labels" helps debug label matching issues
 * "Webhook started runners" helps understand which runners were started
+* "Warm runner status" and "Warm runner errors" (when warm runners are configured)
 
 ##### `failedImageBuildsTopic` <a name="failedImageBuildsTopic" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic"></a>
 
@@ -5247,6 +5409,169 @@ The principal to grant permissions to.
 ---
 
 
+### ScheduledWarmRunner <a name="ScheduledWarmRunner" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner"></a>
+
+Warm runners active during a time window specified by start time (`schedule`) and duration (`duration`).
+
+Runners will be provisioned using the specified provider and registered in the specified repository or organization.
+
+Registration level must match the one selected during setup. See {@link SETUP_GITHUB.md } for more information on the selection.
+
+## Limitations
+
+- Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
+- You may briefly see more than `count` runners when changing config or at rotation.
+- To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
+- Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and can be tweaked using `retryOptions`. This will be improved in the future.
+
+*Example*
+
+```typescript
+new ScheduledWarmRunner(stack, 'BusinessHours', {
+  runners,
+  provider: myProvider,
+  count: 3,
+  owner: 'my-org',
+  repo: 'my-repo',
+  schedule: events.Schedule.cron({ hour: '13', minute: '0', weekDay: 'MON-FRI' }),
+  duration: cdk.Duration.hours(2),
+});
+```
+
+
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.Initializer"></a>
+
+```typescript
+import { ScheduledWarmRunner } from '@cloudsnorkel/cdk-github-runners'
+
+new ScheduledWarmRunner(scope: Construct, id: string, props: ScheduledWarmRunnerProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps">ScheduledWarmRunnerProps</a></code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Required</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps">ScheduledWarmRunnerProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.with">with</a></code> | Applies one or more mixins to this construct. |
+
+---
+
+##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `with` <a name="with" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.with"></a>
+
+```typescript
+public with(mixins: ...IMixin[]): IConstruct
+```
+
+Applies one or more mixins to this construct.
+
+Mixins are applied in order. The list of constructs is captured at the
+start of the call, so constructs added by a mixin will not be visited.
+Use multiple `with()` calls if subsequent mixins should apply to added
+constructs.
+
+###### `mixins`<sup>Required</sup> <a name="mixins" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.with.parameter.mixins"></a>
+
+- *Type:* ...constructs.IMixin[]
+
+The mixins to apply.
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### `isConstruct` <a name="isConstruct" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.isConstruct"></a>
+
+```typescript
+import { ScheduledWarmRunner } from '@cloudsnorkel/cdk-github-runners'
+
+ScheduledWarmRunner.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+Use this method instead of `instanceof` to properly detect `Construct`
+instances, even when the construct library is symlinked.
+
+Explanation: in JavaScript, multiple copies of the `constructs` library on
+disk are seen as independent, completely different libraries. As a
+consequence, the class `Construct` in each copy of the `constructs` library
+is seen as a different class, and an instance of one class will not test as
+`instanceof` the other class. `npm install` will not create installations
+like this, but users may manually symlink construct libraries together or
+use a monorepo tool: in those cases, multiple copies of the `constructs`
+library can be accidentally installed, and `instanceof` will behave
+unpredictably. It is safest to avoid using `instanceof`, and using
+this type-testing method instead.
+
+###### `x`<sup>Required</sup> <a name="x" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+
 ### Secrets <a name="Secrets" id="@cloudsnorkel/cdk-github-runners.Secrets"></a>
 
 Secrets required for GitHub runners operation.
@@ -5439,6 +5764,113 @@ Webhook secret used to confirm events are coming from GitHub and nowhere else.
 
 
 ## Structs <a name="Structs" id="Structs"></a>
+
+### AlwaysOnWarmRunnerProps <a name="AlwaysOnWarmRunnerProps" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps"></a>
+
+Properties for always on warm runners.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.Initializer"></a>
+
+```typescript
+import { AlwaysOnWarmRunnerProps } from '@cloudsnorkel/cdk-github-runners'
+
+const alwaysOnWarmRunnerProps: AlwaysOnWarmRunnerProps = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.count">count</a></code> | <code>number</code> | Number of warm runners to maintain. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.owner">owner</a></code> | <code>string</code> | GitHub owner where runners will be registered (org or user login). |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.provider">provider</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a> \| <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a></code> | Provider to use. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.runners">runners</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners">GitHubRunners</a></code> | The GitHubRunners construct that owns the shared warm runner infrastructure. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.registrationLevel">registrationLevel</a></code> | <code>string</code> | Registration level — must match how your runners are set up in GitHub. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.repo">repo</a></code> | <code>string</code> | Repository name (without owner) where runners will be registered. |
+
+---
+
+##### `count`<sup>Required</sup> <a name="count" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.count"></a>
+
+```typescript
+public readonly count: number;
+```
+
+- *Type:* number
+
+Number of warm runners to maintain.
+
+---
+
+##### `owner`<sup>Required</sup> <a name="owner" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.owner"></a>
+
+```typescript
+public readonly owner: string;
+```
+
+- *Type:* string
+
+GitHub owner where runners will be registered (org or user login).
+
+---
+
+##### `provider`<sup>Required</sup> <a name="provider" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.provider"></a>
+
+```typescript
+public readonly provider: IRunnerProvider | ICompositeProvider;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a> | <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a>
+
+Provider to use.
+
+Warm runners bypass the provider selector — they always use
+this provider, regardless of job characteristics. Labels cannot be modified.
+
+---
+
+##### `runners`<sup>Required</sup> <a name="runners" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.runners"></a>
+
+```typescript
+public readonly runners: GitHubRunners;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners">GitHubRunners</a>
+
+The GitHubRunners construct that owns the shared warm runner infrastructure.
+
+---
+
+##### `registrationLevel`<sup>Optional</sup> <a name="registrationLevel" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.registrationLevel"></a>
+
+```typescript
+public readonly registrationLevel: string;
+```
+
+- *Type:* string
+- *Default:* 'repo'
+
+Registration level — must match how your runners are set up in GitHub.
+
+Choose
+'org' for org-wide runners, 'repo' for repo-level. See the setup wizard or
+{@link SETUP_GITHUB.md } for choosing repo vs org.
+
+---
+
+##### `repo`<sup>Optional</sup> <a name="repo" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.repo"></a>
+
+```typescript
+public readonly repo: string;
+```
+
+- *Type:* string
+
+Repository name (without owner) where runners will be registered.
+
+Required when `registrationLevel` is 'repo'.
+
+---
 
 ### AmiBuilderProps <a name="AmiBuilderProps" id="@cloudsnorkel/cdk-github-runners.AmiBuilderProps"></a>
 
@@ -9393,6 +9825,142 @@ public readonly runnerTokenPath: string;
 - *Type:* string
 
 Path to runner token used to register token.
+
+---
+
+### ScheduledWarmRunnerProps <a name="ScheduledWarmRunnerProps" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps"></a>
+
+Properties for scheduled warm runners.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.Initializer"></a>
+
+```typescript
+import { ScheduledWarmRunnerProps } from '@cloudsnorkel/cdk-github-runners'
+
+const scheduledWarmRunnerProps: ScheduledWarmRunnerProps = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.count">count</a></code> | <code>number</code> | Number of warm runners to maintain. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.duration">duration</a></code> | <code>aws-cdk-lib.Duration</code> | How long each should the warm runners be maintained from the fill time. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.owner">owner</a></code> | <code>string</code> | GitHub owner where runners will be registered (org or user login). |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.provider">provider</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a> \| <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a></code> | Provider to use. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.runners">runners</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners">GitHubRunners</a></code> | The GitHubRunners construct that owns the shared warm runner infrastructure. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.schedule">schedule</a></code> | <code>aws-cdk-lib.aws_events.Schedule</code> | When to start filling the pool (e.g. start of business hours). |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.registrationLevel">registrationLevel</a></code> | <code>string</code> | Registration level — must match how your runners are set up in GitHub. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.repo">repo</a></code> | <code>string</code> | Repository name (without owner) where runners will be registered. |
+
+---
+
+##### `count`<sup>Required</sup> <a name="count" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.count"></a>
+
+```typescript
+public readonly count: number;
+```
+
+- *Type:* number
+
+Number of warm runners to maintain.
+
+---
+
+##### `duration`<sup>Required</sup> <a name="duration" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.duration"></a>
+
+```typescript
+public readonly duration: Duration;
+```
+
+- *Type:* aws-cdk-lib.Duration
+
+How long each should the warm runners be maintained from the fill time.
+
+Defines the end of the
+window (schedule + duration).
+
+---
+
+##### `owner`<sup>Required</sup> <a name="owner" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.owner"></a>
+
+```typescript
+public readonly owner: string;
+```
+
+- *Type:* string
+
+GitHub owner where runners will be registered (org or user login).
+
+---
+
+##### `provider`<sup>Required</sup> <a name="provider" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.provider"></a>
+
+```typescript
+public readonly provider: IRunnerProvider | ICompositeProvider;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a> | <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a>
+
+Provider to use.
+
+Warm runners bypass the provider selector — they always use
+this provider, regardless of job characteristics. Labels cannot be modified.
+
+---
+
+##### `runners`<sup>Required</sup> <a name="runners" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.runners"></a>
+
+```typescript
+public readonly runners: GitHubRunners;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners">GitHubRunners</a>
+
+The GitHubRunners construct that owns the shared warm runner infrastructure.
+
+---
+
+##### `schedule`<sup>Required</sup> <a name="schedule" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.schedule"></a>
+
+```typescript
+public readonly schedule: Schedule;
+```
+
+- *Type:* aws-cdk-lib.aws_events.Schedule
+
+When to start filling the pool (e.g. start of business hours).
+
+---
+
+##### `registrationLevel`<sup>Optional</sup> <a name="registrationLevel" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.registrationLevel"></a>
+
+```typescript
+public readonly registrationLevel: string;
+```
+
+- *Type:* string
+- *Default:* 'repo'
+
+Registration level — must match how your runners are set up in GitHub.
+
+Choose
+'org' for org-wide runners, 'repo' for repo-level. See the setup wizard or
+{@link SETUP_GITHUB.md } for choosing repo vs org.
+
+---
+
+##### `repo`<sup>Optional</sup> <a name="repo" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.repo"></a>
+
+```typescript
+public readonly repo: string;
+```
+
+- *Type:* string
+
+Repository name (without owner) where runners will be registered.
+
+Required when `registrationLevel` is 'repo'.
 
 ---
 
