@@ -66,8 +66,8 @@ export interface ScheduledWarmRunnerProps extends WarmRunnerBaseProps {
   readonly schedule: events.Schedule;
 
   /**
-   * How long each should the warm runners be maintained from the fill time. Defines the end of the
-   * window (schedule + duration).
+   * How long the warm runners should be maintained from the fill time (schedule). Defines the end of the
+   * window (schedule time + duration).
    */
   readonly duration: cdk.Duration;
 }

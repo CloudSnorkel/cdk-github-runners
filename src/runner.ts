@@ -710,6 +710,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     reaper.addEventSource(new lambda_event_sources.SqsEventSource(queue, {
       reportBatchItemFailures: true,
       maxBatchingWindow: cdk.Duration.minutes(1),
+      batchSize: 10,
     }));
 
     this.secrets.github.grantRead(reaper);
@@ -1101,7 +1102,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     this.warmRunnerManager.addEventSource(new lambda_event_sources.SqsEventSource(this.warmRunnerQueue, {
       reportBatchItemFailures: true,
-      maxBatchingWindow: cdk.Duration.minutes(1),
+      maxBatchingWindow: cdk.Duration.seconds(10),
+      batchSize: 10,
     }));
     this.warmRunnerQueue.grantSendMessages(this.warmRunnerManager);
 

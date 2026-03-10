@@ -352,7 +352,17 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
   const octokitCache = new Map<number | undefined, { octokit: Octokit; secrets: GitHubSecrets }>();
 
   for (const record of event.Records) {
-    const body = JSON.parse(record.body) as WarmRunnerKeeperMessage | WarmRunnerFillPayload;
+    let body: WarmRunnerKeeperMessage | WarmRunnerFillPayload;
+    try {
+      body = JSON.parse(record.body) as WarmRunnerKeeperMessage | WarmRunnerFillPayload;
+    } catch (e) {
+      console.error({
+        notice: 'Failed to parse message body',
+        requestId: record.messageId,
+        errorType: e instanceof Error ? e.name : 'UnknownError',
+      });
+      continue;
+    }
 
     // Fill from EventBridge (via SQS): messageId is stable across redeliveries.
     if (isFillInput(body)) {
@@ -361,8 +371,11 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
           deterministicExecutionName(body.providerPath, `${record.messageId}:${slot}`);
         await runFiller(body, getNameForSlot);
       } catch (e) {
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        console.error({ notice: 'Fill failed', requestId: record.messageId, errorMessage });
+        console.error({
+          notice: 'Fill failed',
+          requestId: record.messageId,
+          errorType: e instanceof Error ? e.name : 'UnknownError',
+        });
         result.batchItemFailures.push({ itemIdentifier: record.messageId });
       }
       continue;

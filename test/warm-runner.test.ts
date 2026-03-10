@@ -86,7 +86,7 @@ describe('AlwaysOnWarmRunner', () => {
 
     template.hasResourceProperties('AWS::SQS::Queue', {
       VisibilityTimeout: 60,
-      RedeliveryPolicy: Match.absent(),
+      RedrivePolicy: Match.absent(),
     });
 
     template.hasResourceProperties('AWS::SQS::Queue', Match.objectLike({
