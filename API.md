@@ -9845,7 +9845,7 @@ const scheduledWarmRunnerProps: ScheduledWarmRunnerProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.count">count</a></code> | <code>number</code> | Number of warm runners to maintain. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.duration">duration</a></code> | <code>aws-cdk-lib.Duration</code> | How long each should the warm runners be maintained from the fill time. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.duration">duration</a></code> | <code>aws-cdk-lib.Duration</code> | How long the warm runners should be maintained from the fill time (schedule). |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.owner">owner</a></code> | <code>string</code> | GitHub owner where runners will be registered (org or user login). |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.provider">provider</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a> \| <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a></code> | Provider to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.runners">runners</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners">GitHubRunners</a></code> | The GitHubRunners construct that owns the shared warm runner infrastructure. |
@@ -9875,10 +9875,10 @@ public readonly duration: Duration;
 
 - *Type:* aws-cdk-lib.Duration
 
-How long each should the warm runners be maintained from the fill time.
+How long the warm runners should be maintained from the fill time (schedule).
 
 Defines the end of the
-window (schedule + duration).
+window (schedule time + duration).
 
 ---
 
