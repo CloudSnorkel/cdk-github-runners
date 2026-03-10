@@ -15300,6 +15300,7 @@
   "runnersIdleReaperSqsEventSourcegithubrunnerstestrunnersIdleReaperQueue5E84F4E4B0DB6768": {
    "Type": "AWS::Lambda::EventSourceMapping",
    "Properties": {
+    "BatchSize": 10,
     "EventSourceArn": {
      "Fn::GetAtt": [
       "runnersIdleReaperQueue117EFB9F",
