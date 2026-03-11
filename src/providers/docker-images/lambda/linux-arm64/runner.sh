@@ -12,10 +12,15 @@ mkdir /tmp/home
 export HOME=/tmp/home
 
 # start runner
-if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
-./config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" --name "${RUNNER_NAME}" ${RUNNER_FLAGS}
-echo Config done
-./run.sh
+if [ -n "${JIT_CONFIG:-}" ]; then
+  echo "JIT mode enabled, skipping config.sh"
+  ./run.sh --jitconfig "${JIT_CONFIG}"
+else
+  if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
+  ./config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" --name "${RUNNER_NAME}" ${RUNNER_FLAGS}
+  echo Config done
+  ./run.sh
+fi
 echo Run done
 
 # print status for metrics

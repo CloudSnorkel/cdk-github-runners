@@ -423,6 +423,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           repoPath: stepfunctions.JsonPath.stringAt('$.repo'),
           registrationUrl: stepfunctions.JsonPath.stringAt('$.runner.registrationUrl'),
           labelsPath: stepfunctions.JsonPath.stringAt('$.labels'),
+          jitConfigPath: stepfunctions.JsonPath.stringAt('$.runner.jitConfig'),
         },
       );
       providerChooser.when(

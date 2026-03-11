@@ -12,6 +12,7 @@ exports.handler = async (event, context) => {
         RUNNER_NAME: event.runnerName,
         RUNNER_LABEL: event.label,
         REGISTRATION_URL: event.registrationUrl,
+        JIT_CONFIG: event.jitConfig || '',
       },
     });
     shellScript.stdout.on('data', (data) => {

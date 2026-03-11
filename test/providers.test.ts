@@ -220,6 +220,7 @@ describe('Providers', () => {
         registrationUrl: 'https://github.com',
         githubDomainPath: 'github.com',
         labelsPath: '$.labels',
+        jitConfigPath: '$.runner.jitConfig',
       });
 
       new sfn.StateMachine(stack, 'sm', {
@@ -266,6 +267,7 @@ describe('Providers', () => {
         registrationUrl: 'https://github.com',
         githubDomainPath: 'github.com',
         labelsPath: '$.labels',
+        jitConfigPath: '$.runner.jitConfig',
       });
 
       new sfn.StateMachine(stack, 'sm-constraints', {
