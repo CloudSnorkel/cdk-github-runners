@@ -176,6 +176,11 @@ project.vscode.settings.addSettings({
   'svelte.plugin.svelte.enable': false,
 });
 
+// patch existing mergify rule to require test-examples
+const mergifyFile = project.tryFindObjectFile('.mergify.yml');
+mergifyFile.addToArray('queue_rules.0.queue_conditions', 'status-success=test-examples');
+mergifyFile.addToArray('pull_request_rules.0.conditions', 'status-success=test-examples');
+
 // funding
 project.package.addField('funding', 'https://github.com/sponsors/CloudSnorkel');
 
