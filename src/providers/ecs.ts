@@ -209,6 +209,19 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
    * @default undefined (no placement constraints)
    */
   readonly placementConstraints?: ecs.PlacementConstraint[];
+
+  /**
+   * Number of GPUs to request for the runner task. When set, the task will be scheduled on GPU-capable instances.
+   *
+   * Requires a GPU-capable instance type (e.g., g4dn.xlarge for 1 GPU, g4dn.12xlarge for 4 GPUs) and GPU AMI.
+   * When creating a new cluster, instanceType defaults to g4dn.xlarge and the ECS Optimized GPU AMI is used.
+   *
+   * Your runner image must include NVIDIA drivers. Add {@link RunnerImageComponent.nvidiaDrivers} to your image builder,
+   * or use {@link ecs.EcsOptimizedImage.amazonLinux2}({@link ecs.AmiHardwareType.GPU}) as base which has drivers pre-installed.
+   *
+   * @default undefined (no GPU)
+   */
+  readonly gpu?: number;
 }
 
 interface EcsEc2LaunchTargetOptions extends stepfunctions_tasks.EcsEc2LaunchTargetOptions {
@@ -387,6 +400,11 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    */
   private readonly placementConstraints?: ecs.PlacementConstraint[];
 
+  /**
+   * Number of GPUs requested for the runner task (0 = no GPU).
+   */
+  private readonly gpuCount: number;
+
   readonly retryableErrors = [
     'Ecs.EcsException',
     'ECS.AmazonECSException',
@@ -407,6 +425,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     this.assignPublicIp = props?.assignPublicIp ?? true;
     this.placementStrategies = props?.placementStrategies;
     this.placementConstraints = props?.placementConstraints;
+    this.gpuCount = props?.gpu ?? 0;
     this.cluster = props?.cluster ? props.cluster : new ecs.Cluster(
       this,
       'cluster',
@@ -514,6 +533,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         cpu: props?.cpu ?? 1024,
         memoryLimitMiB: props?.memoryLimitMiB ?? (props?.memoryReservationMiB ? undefined : 3500),
         memoryReservationMiB: props?.memoryReservationMiB,
+        gpuCount: this.gpuCount > 0 ? this.gpuCount : undefined,
         logging: ecs.AwsLogDriver.awsLogs({
           logGroup: this.logGroup,
           streamPrefix: 'runner',
@@ -531,13 +551,24 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   }
 
   private defaultClusterInstanceType() {
+    if (this.gpuCount > 0) {
+      if (!this.image.architecture.is(Architecture.X86_64)) {
+        throw new Error('ECS GPU is only supported for x64 architecture. GPU instances (g4dn, g5, p3, etc.) are x64 only.');
+      }
+      if (this.gpuCount <= 1) {
+        return ec2.InstanceType.of(ec2.InstanceClass.G4DN, ec2.InstanceSize.XLARGE);
+      }
+      if (this.gpuCount <= 4) {
+        return ec2.InstanceType.of(ec2.InstanceClass.G4DN, ec2.InstanceSize.XLARGE12);
+      }
+      return ec2.InstanceType.of(ec2.InstanceClass.P3, ec2.InstanceSize.XLARGE16);
+    }
     if (this.image.architecture.is(Architecture.X86_64)) {
       return ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
     }
     if (this.image.architecture.is(Architecture.ARM64)) {
       return ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE);
     }
-
     throw new Error(`Unable to find instance type for ECS instances for ${this.image.architecture.name}`);
   }
 
@@ -547,12 +578,17 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     let found = false;
 
     if (this.image.os.isIn(Os._ALL_LINUX_VERSIONS)) {
-      if (this.image.architecture.is(Architecture.X86_64)) {
+      if (this.gpuCount > 0 && this.image.architecture.is(Architecture.X86_64)) {
+        baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.GPU);
+        ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2/gpu/recommended/image_id';
+        found = true;
+      }
+      if (!found && this.image.architecture.is(Architecture.X86_64)) {
         baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.STANDARD);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id';
         found = true;
       }
-      if (this.image.architecture.is(Architecture.ARM64)) {
+      if (!found && this.image.architecture.is(Architecture.ARM64)) {
         baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.ARM);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/arm64/recommended/image_id';
         found = true;

@@ -10,7 +10,7 @@ import {
   Duration,
   RemovalPolicy,
 } from 'aws-cdk-lib';
-import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
+import { ComputeType, LinuxGpuBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
@@ -138,6 +138,17 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
    * @default true
    */
   readonly dockerInDocker?: boolean;
+
+  /**
+   * Use GPU compute for builds. When enabled, uses BUILD_GENERAL1_SMALL (4 vCPU, 16 GB RAM, 1 NVIDIA A10G GPU).
+   *
+   * Your runner image must include NVIDIA drivers for GPU workloads. Add {@link RunnerImageComponent.nvidiaDrivers} to your image builder.
+   *
+   * GPU compute is only available for Linux x64 images. Not supported on Windows or ARM.
+   *
+   * @default false
+   */
+  readonly gpu?: boolean;
 }
 
 /**
@@ -338,10 +349,22 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       ];
     }
 
+    const useGpu = props?.gpu ?? false;
+    if (useGpu) {
+      if (image.os.is(Os.WINDOWS) || image.architecture.is(Architecture.ARM64)) {
+        throw new Error('CodeBuild GPU is only supported for Linux x64 images. Set gpu: false or use a Linux x64 image.');
+      }
+      if (props?.computeType !== undefined && props.computeType !== ComputeType.SMALL && props.computeType !== ComputeType.LARGE) {
+        throw new Error(`CodeBuild GPU only supports SMALL (1 GPU) or LARGE (4 GPUs). Got ${props.computeType}.`);
+      }
+    }
+
     // choose build image
     let buildImage: codebuild.IBuildImage | undefined;
     if (image.os.isIn(Os._ALL_LINUX_VERSIONS)) {
-      if (image.architecture.is(Architecture.X86_64)) {
+      if (useGpu && image.architecture.is(Architecture.X86_64)) {
+        buildImage = LinuxGpuBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);
+      } else if (image.architecture.is(Architecture.X86_64)) {
         buildImage = codebuild.LinuxBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);
       } else if (image.architecture.is(Architecture.ARM64)) {
         buildImage = codebuild.LinuxArmBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);

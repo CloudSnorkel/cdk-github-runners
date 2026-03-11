@@ -682,6 +682,106 @@ export abstract class RunnerImageComponent {
   }
 
   /**
+   * A component to install NVIDIA drivers for GPU support.
+   *
+   * Use this when running runners on GPU instances (e.g., g4dn, g5, g5g, p3, p4d) with EC2, ECS, or CodeBuild GPU environments.
+   * The driver version should match the CUDA version required by your workload.
+   *
+   * Supported on Ubuntu (x64 and arm64), Amazon Linux 2, Amazon Linux 2023, and Windows.
+   *
+   * @param version NVIDIA driver version. Format varies by OS: Ubuntu uses branch (e.g., '535', '580'). AL2 requires full
+   *   runfile version (e.g., '580.105.08'). AL2023 uses module stream (e.g., '580-open', 'open-dkms').
+   *   Windows uses full version (e.g., '565.55'). Default: '580' (Ubuntu), '580.105.08' (AL2), '580-open' (AL2023), latest (Windows)
+   */
+  static nvidiaDrivers(version?: string): RunnerImageComponent {
+    const useVersion = validateVersion(version);
+    return new class extends RunnerImageComponent {
+      name = 'NvidiaDrivers';
+
+      getCommands(os: Os, architecture: Architecture): string[] {
+        if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
+          const v = useVersion ?? '580';
+          if (architecture.is(Architecture.X86_64) || architecture.is(Architecture.ARM64)) {
+            // Use NVIDIA repo (Option 1) - avoids Ubuntu package dependency issues.
+            // x64: nvidia-open-580. ARM64/sbsa: nvidia-driver-580-open (different package name in sbsa repo).
+            const nvidiaPkg =
+              architecture.is(Architecture.ARM64)
+                ? (v ? `nvidia-driver-${v}-open` : 'nvidia-driver-open')
+                : (v ? `nvidia-open-${v}` : 'nvidia-open');
+            return [
+              'export DEBIAN_FRONTEND=noninteractive',
+              `apt-get install -y dkms linux-headers-aws linux-modules-extra-aws wget`,
+              'DISTRO=$(. /etc/os-release;echo $ID$VERSION_ID | sed -e \'s/\\.//g\')',
+              'ARCH=$(arch | grep -q x86 && echo x86_64 || echo sbsa)',
+              'wget -q https://developer.download.nvidia.com/compute/cuda/repos/$DISTRO/$ARCH/cuda-keyring_1.1-1_all.deb -O /tmp/cuda-keyring.deb',
+              'dpkg -i /tmp/cuda-keyring.deb',
+              'rm -f /tmp/cuda-keyring.deb',
+              'apt-get update',
+              `apt-get install -y ${nvidiaPkg}`,
+            ];
+          }
+        } else if (os.is(Os.LINUX_AMAZON_2)) {
+          // AL2: CUDA repo nvidia-driver-branch-* packages are deprecated (CentOS 7 EOL).
+          // Use runfile installer per AWS re:Post. Requires full version (e.g. 580.105.08).
+          // --no-kernel-modules: build runs on non-GPU instance (Image Builder); modules built on first boot via systemd.
+          const v = useVersion ?? '580.105.08';
+          if (!v.includes('.')) {
+            throw new Error(
+              `Amazon Linux 2 requires full NVIDIA driver version (e.g. 580.105.08), not branch number. Got: ${v}`,
+            );
+          }
+          return [
+            'yum update -y',
+            'amazon-linux-extras install -y epel',
+            'yum install -y dkms kernel-devel kernel-devel-$(uname -r) vulkan-devel libglvnd-devel elfutils-libelf-devel automake make gcc gcc-c++ gcc10 gcc10-c++ xorg-x11-server-Xorg xorg-x11-fonts-Type1 xorg-x11-drivers',
+            'systemctl enable --now dkms',
+            'cd /tmp',
+            `DRIVER_VERSION=${v}`,
+            'curl -L -O https://us.download.nvidia.com/tesla/$DRIVER_VERSION/NVIDIA-Linux-$(arch)-$DRIVER_VERSION.run',
+            'chmod +x ./NVIDIA-Linux-$(arch)-$DRIVER_VERSION.run',
+            'CC=/usr/bin/gcc10-cc ./NVIDIA-Linux-$(arch)-$DRIVER_VERSION.run -s --no-kernel-modules',
+            '[ -d /usr/src/nvidia-$DRIVER_VERSION ] && (dkms add -m nvidia -v $DRIVER_VERSION 2>/dev/null || true)',
+            'sed -i "s/\\\"\'make\'/& CC=\\/usr\\/bin\\/gcc10-gcc /" /usr/src/nvidia-$DRIVER_VERSION/dkms.conf 2>/dev/null || true',
+            `printf '[Unit]\\nDescription=Build NVIDIA kernel modules on first boot\\nAfter=network.target\\nBefore=multi-user.target\\n\\n[Service]\\nType=oneshot\\nRemainAfterExit=yes\\nExecStart=/bin/sh -c "dkms install -m nvidia -v ${v} -k \\$(uname -r) || true"\\n\\n[Install]\\nWantedBy=multi-user.target\\n' > /etc/systemd/system/nvidia-dkms-build.service`,
+            'systemctl enable nvidia-dkms-build.service',
+          ];
+        } else if (os.is(Os.LINUX_AMAZON_2023)) {
+          // AL2023: useVersion can be '580-open' (default), 'open-dkms' (latest), or '535' (becomes '535-open')
+          const raw = useVersion ?? '580-open';
+          const moduleStream = /^\d+$/.test(raw) ? `${raw}-open` : raw;
+          const arch = architecture.is(Architecture.ARM64) ? 'sbsa' : 'x86_64';
+          return [
+            'dnf clean all',
+            'dnf install -y dkms',
+            'systemctl enable --now dkms',
+            'dnf install -q -y kernel-headers-$(uname -r) kernel-devel-$(uname -r) kernel-modules-extra-$(uname -r) kernel-modules-extra-common-$(uname -r) --allowerasing || true',
+            `dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/amzn2023/${arch}/cuda-amzn2023.repo`,
+            'dnf clean expire-cache',
+            `dnf module enable -y nvidia-driver:${moduleStream}`,
+            'dnf install -y nvidia-driver-cuda kmod-nvidia-open-dkms',
+          ];
+        } else if (os.is(Os.WINDOWS)) {
+          const v = useVersion;
+          const installCmd = v
+            ? `choco install nvidia-display-driver --version=${v} -y`
+            : 'choco install nvidia-display-driver -y';
+          return [
+            "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))",
+            '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")',
+            installCmd,
+          ];
+        }
+
+        throw new Error(`Unsupported OS/architecture for NVIDIA drivers: ${os.name}/${architecture.name}`);
+      }
+
+      shouldReboot(os: Os, _architecture: Architecture): boolean {
+        return os.is(Os.WINDOWS);
+      }
+    }();
+  }
+
+  /**
    * A component to add environment variables for jobs the runner executes.
    *
    * These variables only affect the jobs ran by the runner. They are not global. They do not affect other components.
