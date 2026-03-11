@@ -710,7 +710,7 @@ export abstract class RunnerImageComponent {
                 : (v ? `nvidia-open-${v}` : 'nvidia-open');
             return [
               'export DEBIAN_FRONTEND=noninteractive',
-              `apt-get install -y dkms linux-headers-aws linux-modules-extra-aws wget`,
+              'apt-get install -y dkms linux-headers-aws linux-modules-extra-aws wget',
               'DISTRO=$(. /etc/os-release;echo $ID$VERSION_ID | sed -e \'s/\\.//g\')',
               'ARCH=$(arch | grep -q x86 && echo x86_64 || echo sbsa)',
               'wget -q https://developer.download.nvidia.com/compute/cuda/repos/$DISTRO/$ARCH/cuda-keyring_1.1-1_all.deb -O /tmp/cuda-keyring.deb',
