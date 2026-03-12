@@ -369,6 +369,14 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         lambdaFunction: this.tokenRetriever(),
         payloadResponseOnly: true,
         resultPath: '$.runner',
+        payload: stepfunctions.TaskInput.fromObject({
+          'owner.$': '$.owner',
+          'repo.$': '$.repo',
+          'installationId.$': '$.installationId',
+          'labels.$': '$.labels',
+          'jobId.$': '$.jobId',
+          'runnerName.$': '$$.Execution.Name',
+        }),
       },
     );
 
