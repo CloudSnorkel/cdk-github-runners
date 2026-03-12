@@ -2,14 +2,16 @@
 /**
  * Example: GPU support for GitHub Actions runners.
  *
- * Demonstrates nvidiaDrivers component across all provider types, CPU architectures,
- * and OSes to verify the component works for every supported config.
- * 
- * You probably don't want to use this example as-is. Instead, you should pick the provider type you want and comment out the others.
+ * Supported: EC2 (Ubuntu x64/ARM64, AL2023, Windows), CodeBuild, ECS.
+ * Note: EC2 AL2 is NOT supported (nvidia rpms require a newer rpm lib than available in AL2).
  *
- * Provider types: EC2 (all OSes), CodeBuild (x64), ECS (x64)
- * CPU types: x64, ARM64
- * OSes: Ubuntu, Amazon Linux 2, Amazon Linux 2023, Windows
+ * For EC2 Ubuntu x64, the default builder auto-selects a GPU base image (DLAMI).
+ * For EC2 Ubuntu ARM64 or AL2023, use a custom builder: baseAmi: BaseImage.fromGpuBase(os, architecture)
+ * For EC2 Windows, subscribe at https://aws.amazon.com/marketplace/pp/prodview-f4reygwmtxipu then use
+ *   baseAmi: BaseImage.fromMarketplaceProductId('<product-id>')
+ * For CodeBuild/ECS, use a custom builder with an ECR Public deep learning container base image
+ *   (e.g. BaseContainerImage.fromEcrPublic('deep-learning-containers', 'base', '<tag>'))
+ *   or BaseContainerImage.fromDockerHub('nvidia/cuda', '<tag>') (Docker Hub may throttle).
  */
 
 import { App, Stack, Size } from 'aws-cdk-lib';
@@ -19,7 +21,8 @@ import {
   Ec2RunnerProvider,
   CodeBuildRunnerProvider,
   EcsRunnerProvider,
-  RunnerImageComponent,
+  BaseImage,
+  BaseContainerImage,
   Os,
   Architecture,
 } from '@cloudsnorkel/cdk-github-runners';
@@ -38,126 +41,123 @@ class GpuStack extends Stack {
 
     const g4dn = InstanceType.of(InstanceClass.G4DN, InstanceSize.XLARGE);
 
-    // EC2 Ubuntu x64
-    const ec2UbuntuImageBuilder = Ec2RunnerProvider.imageBuilder(this, 'EC2UbuntuImageBuilder', {
-      os: Os.LINUX_UBUNTU,
-      architecture: Architecture.X86_64,
-      vpc,
-      awsImageBuilderOptions: { storageSize: Size.gibibytes(50) },
-    });
-    ec2UbuntuImageBuilder.addComponent(RunnerImageComponent.nvidiaDrivers());
-
-    const ec2UbuntuProvider = new Ec2RunnerProvider(this, 'EC2UbuntuProvider', {
+    // EC2 Ubuntu x64 - default builder auto-uses GPU base (DLAMI)
+    // To customize the image builder, use:
+    //
+    //   const imageBuilder = Ec2RunnerProvider.imageBuilder(this, 'ImageBuilder', {
+    //     baseAmi: BaseImage.fromGpuBase(Os.LINUX_UBUNTU, Architecture.X86_64),
+    //   });
+    //   imageBuilder.addComponent(...);
+    //   const provider = new Ec2RunnerProvider(this, 'Provider', {
+    //     imageBuilder: imageBuilder,
+    //   });
+    const ec2UbuntuProvider = new Ec2RunnerProvider(this, 'EC2 Ubuntu x64', {
       labels: ['ec2', 'gpu', 'ubuntu', 'x64'],
       vpc,
       instanceType: g4dn,
-      imageBuilder: ec2UbuntuImageBuilder,
-      storageSize: Size.gibibytes(50),
+      storageSize: Size.gibibytes(100), // base image is bigger than default 30GB
     });
 
-    // EC2 Ubuntu ARM64 (G5g)
-    const ec2UbuntuArm64ImageBuilder = Ec2RunnerProvider.imageBuilder(this, 'EC2UbuntuArm64ImageBuilder', {
-      os: Os.LINUX_UBUNTU,
-      architecture: Architecture.ARM64,
-      vpc,
-      awsImageBuilderOptions: {
-        instanceType: InstanceType.of(InstanceClass.M6G, InstanceSize.LARGE),
-        storageSize: Size.gibibytes(50),
-      },
-    });
-    ec2UbuntuArm64ImageBuilder.addComponent(RunnerImageComponent.nvidiaDrivers());
-
-    const ec2UbuntuArm64Provider = new Ec2RunnerProvider(this, 'EC2UbuntuArm64Provider', {
+    // EC2 Ubuntu ARM64 (G5g) - default builder auto-uses GPU base
+    const ec2UbuntuArm64Provider = new Ec2RunnerProvider(this, 'EC2 Ubuntu ARM64', {
       labels: ['ec2', 'gpu', 'ubuntu', 'arm64'],
       vpc,
       instanceType: InstanceType.of(InstanceClass.G5G, InstanceSize.XLARGE),
-      imageBuilder: ec2UbuntuArm64ImageBuilder,
-      storageSize: Size.gibibytes(50),
+      storageSize: Size.gibibytes(100), // base image is bigger than default 30GB
+      imageBuilder: Ec2RunnerProvider.imageBuilder(this, 'Ubuntu ARM64 Image Builder', {
+        vpc,
+        architecture: Architecture.ARM64,
+        baseAmi: BaseImage.fromGpuBase(Os.LINUX_UBUNTU, Architecture.ARM64),
+        awsImageBuilderOptions: {
+          instanceType: InstanceType.of(InstanceClass.M6G, InstanceSize.LARGE),
+        },
+      }),
     });
 
-    // EC2 Amazon Linux 2
-    const ec2Al2ImageBuilder = Ec2RunnerProvider.imageBuilder(this, 'EC2Al2ImageBuilder', {
-      os: Os.LINUX_AMAZON_2,
-      architecture: Architecture.X86_64,
-      vpc,
-      awsImageBuilderOptions: { storageSize: Size.gibibytes(50) },
-    });
-    ec2Al2ImageBuilder.addComponent(RunnerImageComponent.nvidiaDrivers());
-
-    const ec2Al2Provider = new Ec2RunnerProvider(this, 'EC2Al2Provider', {
+    // EC2 Amazon Linux 2 - custom builder required (default is Ubuntu)
+    //  --- fails because nvidia rpms require newer rpm lib than available in AL2
+    /*
+    const ec2Al2Provider = new Ec2RunnerProvider(this, 'EC2 Amazon Linux 2', {
       labels: ['ec2', 'gpu', 'al2'],
       vpc,
       instanceType: g4dn,
-      imageBuilder: ec2Al2ImageBuilder,
-      storageSize: Size.gibibytes(50),
+      imageBuilder: Ec2RunnerProvider.imageBuilder(this, 'Amazon Linux 2 Image Builder', {
+        vpc,
+        os: Os.LINUX_AMAZON_2,
+        baseAmi: BaseImage.fromGpuBase(Os.LINUX_AMAZON_2, Architecture.X86_64),
+      }),
     });
+    */
 
-    // EC2 Amazon Linux 2023
-    const ec2Al2023ImageBuilder = Ec2RunnerProvider.imageBuilder(this, 'EC2Al2023ImageBuilder', {
-      os: Os.LINUX_AMAZON_2023,
-      architecture: Architecture.X86_64,
-      vpc,
-      awsImageBuilderOptions: { storageSize: Size.gibibytes(50) },
-    });
-    ec2Al2023ImageBuilder.addComponent(RunnerImageComponent.nvidiaDrivers());
-
-    const ec2Al2023Provider = new Ec2RunnerProvider(this, 'EC2Al2023Provider', {
+    // EC2 Amazon Linux 2023 - custom builder required
+    const ec2Al2023Provider = new Ec2RunnerProvider(this, 'EC2 Amazon Linux 2023', {
       labels: ['ec2', 'gpu', 'al2023'],
       vpc,
       instanceType: g4dn,
-      imageBuilder: ec2Al2023ImageBuilder,
-      storageSize: Size.gibibytes(50),
+      storageSize: Size.gibibytes(100), // base image is bigger than default 30GB
+      imageBuilder: Ec2RunnerProvider.imageBuilder(this, 'Amazon Linux 2023 Image Builder', {
+        vpc,
+        os: Os.LINUX_AMAZON_2023,
+        baseAmi: BaseImage.fromGpuBase(Os.LINUX_AMAZON_2023, Architecture.X86_64),
+      }),
     });
 
-    // EC2 Windows
-    const ec2WindowsImageBuilder = Ec2RunnerProvider.imageBuilder(this, 'EC2WindowsImageBuilder', {
-      os: Os.WINDOWS,
-      architecture: Architecture.X86_64,
-      vpc,
-      awsImageBuilderOptions: { storageSize: Size.gibibytes(80) },
-    });
-    ec2WindowsImageBuilder.addComponent(RunnerImageComponent.nvidiaDrivers());
-
-    const ec2WindowsProvider = new Ec2RunnerProvider(this, 'EC2WindowsProvider', {
+    // EC2 Windows - subscribe first to NVIDIA RTX Virtual Workstation at
+    // https://aws.amazon.com/marketplace/pp/prodview-f4reygwmtxipu, then this example will work.
+    // You can also any other AMI with NVIDIA drivers installed. It's also possible to use a custom
+    // image builder and install the drivers using RunnerImageComponent.custom(). Usually this will
+    // require the builder itself to be running on a GPU instance.
+    const ec2WindowsProvider = new Ec2RunnerProvider(this, 'EC2 Windows', {
       labels: ['ec2', 'gpu', 'windows'],
       vpc,
       instanceType: g4dn,
-      imageBuilder: ec2WindowsImageBuilder,
-      storageSize: Size.gibibytes(80),
+      storageSize: Size.gibibytes(100), // base image is bigger than default 30GB
+      imageBuilder: Ec2RunnerProvider.imageBuilder(this, 'Windows Image Builder', {
+        vpc,
+        os: Os.WINDOWS,
+        baseAmi: BaseImage.fromMarketplaceProductId('prod-77u2eeb33lmrm'),
+        awsImageBuilderOptions: {
+          instanceType: g4dn, // AMI requires it
+        },
+      }),
     });
 
-    // CodeBuild
-    const codebuildImageBuilder = CodeBuildRunnerProvider.imageBuilder(this, 'CodeBuildGpuImageBuilder', {
-      os: Os.LINUX_UBUNTU,
-      architecture: Architecture.X86_64,
-    });
-    codebuildImageBuilder.addComponent(RunnerImageComponent.nvidiaDrivers());
+    // --- Container based runners ---
 
-    const codebuildProvider = new CodeBuildRunnerProvider(this, 'CodeBuildProvider', {
+    // For container based runners, you need to pick the base image that works for your usecase.
+    // There is sadly not an easy way to always pick the latest.
+    // For this example, we'll use the latest Deep Learning Containers base image.
+    // Find more versions at https://gallery.ecr.aws/deep-learning-containers/base
+    // You can also use `BaseContainerImage.fromDockerHub('nvidia/cuda', '13.0.2-runtime-ubuntu22.04')` but Docker Hub always throttles
+
+    // CodeBuild - default builder auto-uses nvidia/cuda base when gpu: true
+    const codebuildProvider = new CodeBuildRunnerProvider(this, 'CodeBuild', {
       labels: ['codebuild', 'gpu'],
-      imageBuilder: codebuildImageBuilder,
       gpu: true,
+      imageBuilder: CodeBuildRunnerProvider.imageBuilder(this, 'CodeBuild Image Builder', {
+        vpc,
+        os: Os.LINUX_UBUNTU_2204,
+        baseDockerImage: BaseContainerImage.fromEcrPublic('deep-learning-containers', 'base', '13.0.2-gpu-py313-ubuntu22.04-ec2'),
+      }),
     });
 
-    // ECS
-    const ecsImageBuilder = EcsRunnerProvider.imageBuilder(this, 'EcsGpuImageBuilder', {
-      os: Os.LINUX_UBUNTU,
-      architecture: Architecture.X86_64,
-    });
-    ecsImageBuilder.addComponent(RunnerImageComponent.nvidiaDrivers());
-
-    const ecsProvider = new EcsRunnerProvider(this, 'EcsProvider', {
+    // ECS - default builder auto-uses nvidia/cuda base when gpu > 0
+    const ecsProvider = new EcsRunnerProvider(this, 'ECS', {
       labels: ['ecs', 'gpu'],
       vpc,
-      imageBuilder: ecsImageBuilder,
       gpu: 1,
+      imageBuilder: EcsRunnerProvider.imageBuilder(this, 'ECS Image Builder', {
+        vpc,
+        os: Os.LINUX_UBUNTU_2204,
+        baseDockerImage: BaseContainerImage.fromEcrPublic('deep-learning-containers', 'base', '13.0.2-gpu-py313-ubuntu22.04-ec2'),
+      }),
     });
 
     new GitHubRunners(this, 'GitHubRunners', {
       providers: [
         ec2UbuntuProvider,
         ec2UbuntuArm64Provider,
-        ec2Al2Provider,
+        // ec2Al2Provider,
         ec2Al2023Provider,
         ec2WindowsProvider,
         codebuildProvider,

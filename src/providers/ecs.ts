@@ -30,6 +30,7 @@ import {
 } from './common';
 import { ecsRunCommand } from './fargate';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
+import { BaseContainerImage } from '../image-builders/aws-image-builder';
 import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT, MINIMAL_ECS_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
 /**
@@ -216,8 +217,9 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
    * Requires a GPU-capable instance type (e.g., g4dn.xlarge for 1 GPU, g4dn.12xlarge for 4 GPUs) and GPU AMI.
    * When creating a new cluster, instanceType defaults to g4dn.xlarge and the ECS Optimized GPU AMI is used.
    *
-   * Your runner image must include NVIDIA drivers. Add {@link RunnerImageComponent.nvidiaDrivers} to your image builder,
-   * or use {@link ecs.EcsOptimizedImage.amazonLinux2}({@link ecs.AmiHardwareType.GPU}) as base which has drivers pre-installed.
+   * We automatically use a GPU base image (nvidia/cuda) with CUDA pre-installed. If you provide your own
+   * image builder, use `baseDockerImage: BaseContainerImage.fromGpuBase(os, architecture)`, or another image
+   * preloaded with CUDA runtime, or use an image component to install CUDA runtime.
    *
    * @default undefined (no GPU)
    */

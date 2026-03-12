@@ -27,6 +27,7 @@ import {
   generateStateName,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
+import { BaseContainerImage } from '../image-builders/aws-image-builder';
 
 
 export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
@@ -142,7 +143,9 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
   /**
    * Use GPU compute for builds. When enabled, uses BUILD_GENERAL1_SMALL (4 vCPU, 16 GB RAM, 1 NVIDIA A10G GPU).
    *
-   * Your runner image must include NVIDIA drivers for GPU workloads. Add {@link RunnerImageComponent.nvidiaDrivers} to your image builder.
+   * We automatically use a GPU base image (nvidia/cuda) with CUDA pre-installed. If you provide your own
+   * image builder, use `baseDockerImage: BaseContainerImage.fromGpuBase(os, architecture)`, or another image
+   * preloaded with CUDA runtime, or use an image component to install CUDA runtime.
    *
    * GPU compute is only available for Linux x64 images. Not supported on Windows or ARM.
    *
@@ -332,7 +335,9 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       },
     };
 
-    const imageBuilder = props?.imageBuilder ?? CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder');
+    const imageBuilder = props?.imageBuilder ?? CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder', {
+      baseDockerImage: props?.gpu ? BaseContainerImage.fromGpuBase(Os.LINUX_UBUNTU, Architecture.X86_64) : undefined,
+    });
     const image = this.image = imageBuilder.bindDockerImage();
 
     if (image.os.is(Os.WINDOWS)) {
@@ -349,8 +354,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       ];
     }
 
-    const useGpu = props?.gpu ?? false;
-    if (useGpu) {
+    if (props?.gpu) {
       if (image.os.is(Os.WINDOWS) || image.architecture.is(Architecture.ARM64)) {
         throw new Error('CodeBuild GPU is only supported for Linux x64 images. Set gpu: false or use a Linux x64 image.');
       }
@@ -362,7 +366,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
     // choose build image
     let buildImage: codebuild.IBuildImage | undefined;
     if (image.os.isIn(Os._ALL_LINUX_VERSIONS)) {
-      if (useGpu && image.architecture.is(Architecture.X86_64)) {
+      if (props?.gpu && image.architecture.is(Architecture.X86_64)) {
         buildImage = LinuxGpuBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);
       } else if (image.architecture.is(Architecture.X86_64)) {
         buildImage = codebuild.LinuxBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);

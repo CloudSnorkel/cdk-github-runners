@@ -466,6 +466,19 @@ describe('BaseImage', () => {
     expect(baseImage.image).toContain(':imagebuilder:');
     expect(baseImage.image).toContain(':aws:image/ubuntu-server-22-lts-x86/1.0.0');
   });
+
+  test('fromGpuBase throws for Windows with guidance to use fromMarketplaceProductId', () => {
+    expect(() => BaseImage.fromGpuBase(Os.WINDOWS, Architecture.X86_64)).toThrow(
+      /Subscribe to NVIDIA RTX Virtual Workstation.*fromMarketplaceProductId/,
+    );
+  });
+
+  test('fromGpuBase throws for unknown os/arch', () => {
+    expect(() => BaseImage.fromGpuBase(Os.LINUX_UBUNTU_2204, Architecture.ARM64)).not.toThrow();
+    expect(() => BaseImage.fromGpuBase(Os.WINDOWS, Architecture.ARM64)).toThrow(
+      /No GPU base AMI for/,
+    );
+  });
 });
 
 describe('BaseContainerImage', () => {
@@ -521,6 +534,18 @@ describe('BaseContainerImage', () => {
     const baseImage = BaseContainerImage.fromString('public.ecr.aws/lts/ubuntu:22.04');
     expect(baseImage.image).toBe('public.ecr.aws/lts/ubuntu:22.04');
     expect(baseImage.ecrRepository).toBeUndefined();
+  });
+
+  test('fromGpuBase throws for Windows', () => {
+    expect(() => BaseContainerImage.fromGpuBase(Os.WINDOWS, Architecture.X86_64)).toThrow(
+      /No GPU base container for Windows/,
+    );
+  });
+
+  test('fromGpuBase throws for Amazon Linux 2', () => {
+    expect(() => BaseContainerImage.fromGpuBase(Os.LINUX_AMAZON_2, Architecture.X86_64)).toThrow(
+      /No GPU base container for.*Amazon Linux 2/,
+    );
   });
 
   test('fromEcr does not set ecrRepository for non-ECR images', () => {

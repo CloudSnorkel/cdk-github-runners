@@ -4,7 +4,7 @@ Demonstrates GPU support for GitHub Actions runners across EC2, CodeBuild, and E
 
 **Supported**: EC2 (Ubuntu, AL2, AL2023, Windows), CodeBuild, ECS. Default builders auto-select GPU base images (DLAMI for EC2, nvidia/cuda for CodeBuild/ECS).
 
-For EC2 with AL2/AL2023, use a custom builder: `baseAmi: BaseImage.fromGpuBase(os, architecture)`. For EC2 Windows, subscribe at [NVIDIA RTX Virtual Workstation](https://aws.amazon.com/marketplace/pp/prodview-f4reygwmtxipu) then use `baseAmi: BaseImage.fromMarketplaceProductId('<product-id>')`.
+For EC2 with AL2/AL2023, use a custom builder: `base_ami=BaseImage.from_gpu_base(os, architecture)`. For EC2 Windows, subscribe at [NVIDIA RTX Virtual Workstation](https://aws.amazon.com/marketplace/pp/prodview-f4reygwmtxipu) then use `base_ami=BaseImage.from_marketplace_product_id('<product-id>')`.
 
 ## Configs Covered
 
