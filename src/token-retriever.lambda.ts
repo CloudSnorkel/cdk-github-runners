@@ -122,7 +122,7 @@ async function getJitConfig(
   const body = {
     name: runnerName,
     runner_group_id: runnerGroupId,
-    labels: labels.map(l => l.trim()).filter(l => l.length > 0),
+    labels: (Array.isArray(labels) ? labels : (labels as unknown as string).split(',')).map((l: string) => l.trim()).filter((l: string) => l.length > 0),
     work_folder: '_work',
   };
 
