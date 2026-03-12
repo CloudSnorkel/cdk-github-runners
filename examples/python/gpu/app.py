@@ -8,7 +8,7 @@ Note: EC2 AL2 is NOT supported (nvidia rpms require a newer rpm lib than availab
 For EC2 Ubuntu x64, the default builder auto-selects a GPU base image (DLAMI).
 For EC2 Ubuntu ARM64 or AL2023, use a custom builder: base_ami=BaseImage.from_gpu_base(os, architecture)
 For EC2 Windows, subscribe at https://aws.amazon.com/marketplace/pp/prodview-f4reygwmtxipu then use
-  base_ami=BaseImage.from_marketplace_product_id('<product-id>')
+  base_ami=BaseImage.from_marketplace_product_id('prod-77u2eeb33lmrm')
 For CodeBuild/ECS, use a custom builder with an ECR Public deep learning container base image
   (e.g. BaseContainerImage.from_ecr_public('deep-learning-containers', 'base', '<tag>'))
   or BaseContainerImage.from_docker_hub('nvidia/cuda', '<tag>') (Docker Hub may throttle).
@@ -49,7 +49,7 @@ class GpuStack(Stack):
         #
         #   image_builder = Ec2RunnerProvider.image_builder(self, "ImageBuilder", base_ami=BaseImage.from_gpu_base(Os.LINUX_UBUNTU, Architecture.X86_64))
         #   image_builder.add_component(...)
-        #   provider = Ec2RunnerProvider(self, "Provider", image_builder=image_builder)
+        #   provider = Ec2RunnerProvider(self, "Provider", instance_type=InstanceType.of(InstanceClass.G4DN, InstanceSize.XLARGE), image_builder=image_builder)
         ec2_ubuntu_provider = Ec2RunnerProvider(
             self, "EC2 Ubuntu x64",
             labels=["ec2", "gpu", "ubuntu", "x64"],
@@ -59,21 +59,17 @@ class GpuStack(Stack):
         )
 
         # EC2 Ubuntu ARM64 (G5g) - default builder auto-uses GPU base
+        # To customize the image builder, use:
+        #
+        #   image_builder = Ec2RunnerProvider.image_builder(self, "ImageBuilder", base_ami=BaseImage.from_gpu_base(Os.LINUX_UBUNTU, Architecture.ARM64))
+        #   image_builder.add_component(...)
+        #   provider = Ec2RunnerProvider(self, "Provider", instance_type=InstanceType.of(InstanceClass.G5G, InstanceSize.XLARGE), image_builder=image_builder)
         ec2_ubuntu_arm64_provider = Ec2RunnerProvider(
             self, "EC2 Ubuntu ARM64",
             labels=["ec2", "gpu", "ubuntu", "arm64"],
             vpc=vpc,
             instance_type=ec2.InstanceType.of(ec2.InstanceClass.G5G, ec2.InstanceSize.XLARGE),
             storage_size=Size.gibibytes(100),  # base image is bigger than default 30GB
-            image_builder=Ec2RunnerProvider.image_builder(
-                self, "Ubuntu ARM64 Image Builder",
-                vpc=vpc,
-                architecture=Architecture.ARM64,
-                base_ami=BaseImage.from_gpu_base(Os.LINUX_UBUNTU, Architecture.ARM64),
-                aws_image_builder_options=AwsImageBuilderRunnerImageBuilderProps(
-                    instance_type=ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
-                ),
-            ),
         )
 
         # EC2 Amazon Linux 2 - custom builder required (default is Ubuntu)

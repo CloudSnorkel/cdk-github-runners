@@ -4,9 +4,6 @@ import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
 import { Architecture, Os } from '../../providers';
 
-/** CUDA version for GPU base containers. Bump on library release to pick up newer NVIDIA images. */
-const CUDA_TAG = '13.1.1';
-
 /**
  * Type that can be used to specify a base image - either a string (deprecated) or a BaseImage object.
  *

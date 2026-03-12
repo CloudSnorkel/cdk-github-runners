@@ -8,23 +8,23 @@
  * For EC2 Ubuntu x64, the default builder auto-selects a GPU base image (DLAMI).
  * For EC2 Ubuntu ARM64 or AL2023, use a custom builder: baseAmi: BaseImage.fromGpuBase(os, architecture)
  * For EC2 Windows, subscribe at https://aws.amazon.com/marketplace/pp/prodview-f4reygwmtxipu then use
- *   baseAmi: BaseImage.fromMarketplaceProductId('<product-id>')
+ *   baseAmi: BaseImage.fromMarketplaceProductId('prod-77u2eeb33lmrm')
  * For CodeBuild/ECS, use a custom builder with an ECR Public deep learning container base image
  *   (e.g. BaseContainerImage.fromEcrPublic('deep-learning-containers', 'base', '<tag>'))
  *   or BaseContainerImage.fromDockerHub('nvidia/cuda', '<tag>') (Docker Hub may throttle).
  */
 
-import { App, Stack, Size } from 'aws-cdk-lib';
-import { Vpc, SubnetType, InstanceType, InstanceClass, InstanceSize } from 'aws-cdk-lib/aws-ec2';
+import { App, Size, Stack } from 'aws-cdk-lib';
+import { InstanceClass, InstanceSize, InstanceType, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import {
-  GitHubRunners,
-  Ec2RunnerProvider,
-  CodeBuildRunnerProvider,
-  EcsRunnerProvider,
-  BaseImage,
-  BaseContainerImage,
-  Os,
   Architecture,
+  BaseContainerImage,
+  BaseImage,
+  CodeBuildRunnerProvider,
+  Ec2RunnerProvider,
+  EcsRunnerProvider,
+  GitHubRunners,
+  Os,
 } from '@cloudsnorkel/cdk-github-runners';
 
 class GpuStack extends Stack {
@@ -50,6 +50,7 @@ class GpuStack extends Stack {
     //   imageBuilder.addComponent(...);
     //   const provider = new Ec2RunnerProvider(this, 'Provider', {
     //     imageBuilder: imageBuilder,
+    //     instanceType: InstanceType.of(InstanceClass.G4DN, InstanceSize.XLARGE),
     //   });
     const ec2UbuntuProvider = new Ec2RunnerProvider(this, 'EC2 Ubuntu x64', {
       labels: ['ec2', 'gpu', 'ubuntu', 'x64'],
@@ -59,19 +60,21 @@ class GpuStack extends Stack {
     });
 
     // EC2 Ubuntu ARM64 (G5g) - default builder auto-uses GPU base
+    // To customize the image builder, use:
+    //
+    //   const imageBuilder = Ec2RunnerProvider.imageBuilder(this, 'ImageBuilder', {
+    //     baseAmi: BaseImage.fromGpuBase(Os.LINUX_UBUNTU, Architecture.ARM64),
+    //   });
+    //   imageBuilder.addComponent(...);
+    //   const provider = new Ec2RunnerProvider(this, 'Provider', {
+    //     imageBuilder: imageBuilder,
+    //     instanceType: InstanceType.of(InstanceClass.G5G, InstanceSize.XLARGE),
+    //   });
     const ec2UbuntuArm64Provider = new Ec2RunnerProvider(this, 'EC2 Ubuntu ARM64', {
       labels: ['ec2', 'gpu', 'ubuntu', 'arm64'],
       vpc,
       instanceType: InstanceType.of(InstanceClass.G5G, InstanceSize.XLARGE),
       storageSize: Size.gibibytes(100), // base image is bigger than default 30GB
-      imageBuilder: Ec2RunnerProvider.imageBuilder(this, 'Ubuntu ARM64 Image Builder', {
-        vpc,
-        architecture: Architecture.ARM64,
-        baseAmi: BaseImage.fromGpuBase(Os.LINUX_UBUNTU, Architecture.ARM64),
-        awsImageBuilderOptions: {
-          instanceType: InstanceType.of(InstanceClass.M6G, InstanceSize.LARGE),
-        },
-      }),
     });
 
     // EC2 Amazon Linux 2 - custom builder required (default is Ubuntu)
