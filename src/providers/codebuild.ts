@@ -143,8 +143,7 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
    * Use GPU compute for builds. When enabled, uses BUILD_GENERAL1_SMALL (4 vCPU, 16 GB RAM, 1 NVIDIA A10G GPU).
    *
    * We automatically use a GPU base image (nvidia/cuda) with CUDA pre-installed. If you provide your own
-   * image builder, use `baseDockerImage: BaseContainerImage.fromGpuBase(os, architecture)`, or another image
-   * preloaded with CUDA runtime, or use an image component to install CUDA runtime.
+   * image builder, use an image preloaded with CUDA runtime, or use an image component to install CUDA runtime.
    *
    * GPU compute is only available for Linux x64 images. Not supported on Windows or ARM.
    *

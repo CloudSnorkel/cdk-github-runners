@@ -536,18 +536,6 @@ describe('BaseContainerImage', () => {
     expect(baseImage.ecrRepository).toBeUndefined();
   });
 
-  test('fromGpuBase throws for Windows', () => {
-    expect(() => BaseContainerImage.fromGpuBase(Os.WINDOWS, Architecture.X86_64)).toThrow(
-      /No GPU base container for Windows/,
-    );
-  });
-
-  test('fromGpuBase throws for Amazon Linux 2', () => {
-    expect(() => BaseContainerImage.fromGpuBase(Os.LINUX_AMAZON_2, Architecture.X86_64)).toThrow(
-      /No GPU base container for.*Amazon Linux 2/,
-    );
-  });
-
   test('fromEcr does not set ecrRepository for non-ECR images', () => {
     const baseImage1 = BaseContainerImage.fromDockerHub('ubuntu', '22.04');
     expect(baseImage1.ecrRepository).toBeUndefined();

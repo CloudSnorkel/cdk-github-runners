@@ -217,8 +217,7 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
    * When creating a new cluster, instanceType defaults to g4dn.xlarge and the ECS Optimized GPU AMI is used.
    *
    * We automatically use a GPU base image (nvidia/cuda) with CUDA pre-installed. If you provide your own
-   * image builder, use `baseDockerImage: BaseContainerImage.fromGpuBase(os, architecture)`, or another image
-   * preloaded with CUDA runtime, or use an image component to install CUDA runtime.
+   * image builder, use an image preloaded with CUDA runtime, or use an image component to install CUDA runtime.
    *
    * @default undefined (no GPU)
    */
