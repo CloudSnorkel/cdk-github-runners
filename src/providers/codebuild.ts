@@ -17,6 +17,7 @@ import { Construct } from 'constructs';
 import {
   Architecture,
   BaseProvider,
+  generateStateName,
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
@@ -24,10 +25,8 @@ import {
   RunnerProviderProps,
   RunnerRuntimeParameters,
   RunnerVersion,
-  generateStateName,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
-import { BaseContainerImage } from '../image-builders/aws-image-builder';
 
 
 export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
@@ -335,9 +334,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       },
     };
 
-    const imageBuilder = props?.imageBuilder ?? CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder', {
-      baseDockerImage: props?.gpu ? BaseContainerImage.fromGpuBase(Os.LINUX_UBUNTU, Architecture.X86_64) : undefined,
-    });
+    const imageBuilder = props?.imageBuilder ?? CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder');
     const image = this.image = imageBuilder.bindDockerImage();
 
     if (image.os.is(Os.WINDOWS)) {

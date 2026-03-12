@@ -410,11 +410,17 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.spotMaxPrice = props?.spotMaxPrice;
     this.defaultLabels = props?.defaultLabels ?? true;
 
+    const arch = this.instanceType.architecture === ec2.InstanceArchitecture.ARM_64 ? Architecture.ARM64 : Architecture.X86_64;
+
     this.amiBuilder = props?.imageBuilder ?? props?.amiBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
       vpc: props?.vpc,
       subnetSelection: props?.subnetSelection,
       securityGroups: this.securityGroups,
-      baseAmi: isGpuInstanceType(this.instanceType) ? BaseImage.fromGpuBase(Os.LINUX_UBUNTU, Architecture.X86_64) : undefined,
+      baseAmi: isGpuInstanceType(this.instanceType) ? BaseImage.fromGpuBase(Os.LINUX_UBUNTU, arch) : undefined,
+      architecture: arch,
+      awsImageBuilderOptions: {
+        instanceType: arch.is(Architecture.ARM64) ? ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE) : undefined,
+      },
     });
     this.ami = this.amiBuilder.bindAmi();
 

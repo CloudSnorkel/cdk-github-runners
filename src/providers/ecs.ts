@@ -18,6 +18,7 @@ import {
   amiRootDevice,
   Architecture,
   BaseProvider,
+  generateStateName,
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
@@ -25,12 +26,10 @@ import {
   RunnerProviderProps,
   RunnerRuntimeParameters,
   RunnerVersion,
-  generateStateName,
   StorageOptions,
 } from './common';
 import { ecsRunCommand } from './fargate';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
-import { BaseContainerImage } from '../image-builders/aws-image-builder';
 import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT, MINIMAL_ECS_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
 /**
@@ -441,7 +440,14 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       throw new Error('storageSize is required when storageOptions are specified');
     }
 
-    const imageBuilder = props?.imageBuilder ?? EcsRunnerProvider.imageBuilder(this, 'Image Builder');
+    const defaultImageBuilderArchitecture =
+      !props?.capacityProvider && props?.instanceType?.architecture === ec2.InstanceArchitecture.ARM_64
+        ? Architecture.ARM64
+        : Architecture.X86_64;
+
+    const imageBuilder = props?.imageBuilder ?? EcsRunnerProvider.imageBuilder(this, 'Image Builder', {
+      architecture: defaultImageBuilderArchitecture,
+    });
     const image = this.image = imageBuilder.bindDockerImage();
 
     if (props?.capacityProvider) {
