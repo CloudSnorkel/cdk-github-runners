@@ -420,7 +420,14 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       throw new Error('storageSize is required when storageOptions are specified');
     }
 
-    const imageBuilder = props?.imageBuilder ?? EcsRunnerProvider.imageBuilder(this, 'Image Builder');
+    const defaultImageBuilderArchitecture =
+      !props?.capacityProvider && props?.instanceType?.architecture === ec2.InstanceArchitecture.ARM_64
+        ? Architecture.ARM64
+        : Architecture.X86_64;
+
+    const imageBuilder = props?.imageBuilder ?? EcsRunnerProvider.imageBuilder(this, 'Image Builder', {
+      architecture: defaultImageBuilderArchitecture,
+    });
     const image = this.image = imageBuilder.bindDockerImage();
 
     if (props?.capacityProvider) {

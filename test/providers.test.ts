@@ -147,6 +147,43 @@ describe('Providers', () => {
       template.resourceCountIs('AWS::AutoScaling::AutoScalingGroup', 1);
     });
 
+    test('Default image builder uses ARM architecture when ARM instance type is selected', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new EcsRunnerProvider(stack, 'providerArm', {
+        vpc,
+        securityGroups: [sg],
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
+      });
+
+      const template = Template.fromStack(stack);
+
+      template.hasResourceProperties('AWS::CodeBuild::Project', Match.objectLike({
+        Environment: {
+          Type: 'ARM_CONTAINER',
+        },
+      }));
+    });
+
+    test('Default image builder uses x86 architecture when no ARM instance type is selected', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new EcsRunnerProvider(stack, 'providerX86', {
+        vpc,
+        securityGroups: [sg],
+      });
+
+      const template = Template.fromStack(stack);
+
+      template.hasResourceProperties('AWS::CodeBuild::Project', Match.objectLike({
+        Environment: {
+          Type: 'LINUX_CONTAINER',
+        },
+      }));
+    });
+
     test('Memory reservation', () => {
       const vpc = new ec2.Vpc(stack, 'vpc');
       const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
@@ -327,6 +364,23 @@ describe('Providers', () => {
         imageBuilder: ib,
         storageSize: cdk.Size.gibibytes(500),
       });
+    });
+
+    test('Default image builder uses ARM build instance when runner instance type is ARM', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new Ec2RunnerProvider(stack, 'provider arm', {
+        vpc,
+        securityGroups: [sg],
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
+      });
+
+      const template = Template.fromStack(stack);
+
+      template.hasResourceProperties('AWS::ImageBuilder::InfrastructureConfiguration', Match.objectLike({
+        InstanceTypes: ['m6g.large'],
+      }));
     });
   });
 });
