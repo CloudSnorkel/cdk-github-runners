@@ -6212,7 +6212,8 @@ public readonly gpu: boolean;
 
 Use GPU compute for builds. When enabled, uses BUILD_GENERAL1_SMALL (4 vCPU, 16 GB RAM, 1 NVIDIA A10G GPU).
 
-Your runner image must include NVIDIA drivers for GPU workloads. Add {@link RunnerImageComponent.nvidiaDrivers} to your image builder.
+We automatically use a GPU base image (nvidia/cuda) with CUDA pre-installed. If you provide your own
+image builder, use an image preloaded with CUDA runtime, or use an image component to install CUDA runtime.
 
 GPU compute is only available for Linux x64 images. Not supported on Windows or ARM.
 
@@ -6698,6 +6699,11 @@ public readonly instanceType: InstanceType;
 
 Instance type for launched runner instances.
 
+For GPU instance types (g4dn, g5, p3, etc.), we automatically use a GPU base image (AWS Deep Learning AMI)
+with NVIDIA drivers pre-installed. If you provide your own image builder, use
+`baseAmi: BaseImage.fromGpuBase(os, architecture)` or another image preloaded with NVIDIA drivers, or use
+an image component to install NVIDIA drivers.
+
 ---
 
 ##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.labels"></a>
@@ -7020,8 +7026,8 @@ Number of GPUs to request for the runner task. When set, the task will be schedu
 Requires a GPU-capable instance type (e.g., g4dn.xlarge for 1 GPU, g4dn.12xlarge for 4 GPUs) and GPU AMI.
 When creating a new cluster, instanceType defaults to g4dn.xlarge and the ECS Optimized GPU AMI is used.
 
-Your runner image must include NVIDIA drivers. Add {@link RunnerImageComponent.nvidiaDrivers} to your image builder,
-or use {@link ecs.EcsOptimizedImage.amazonLinux2}({@link ecs.AmiHardwareType.GPU}) as base which has drivers pre-installed.
+We automatically use a GPU base image (nvidia/cuda) with CUDA pre-installed. If you provide your own
+image builder, use an image preloaded with CUDA runtime, or use an image component to install CUDA runtime.
 
 ---
 
@@ -9890,6 +9896,7 @@ new BaseImage(image: string)
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromAmiId">fromAmiId</a></code> | The AMI ID to use as a base image in an image recipe. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromGpuBase">fromGpuBase</a></code> | A base AMI with NVIDIA drivers pre-installed for GPU workloads. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromImageBuilder">fromImageBuilder</a></code> | An AWS-provided EC2 Image Builder image to use as a base image in an image recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromMarketplaceProductId">fromMarketplaceProductId</a></code> | The marketplace product ID for an AMI product to use as the base image in an image recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromSsmParameter">fromSsmParameter</a></code> | The SSM parameter to use as the base image in an image recipe. |
@@ -9913,6 +9920,36 @@ The AMI ID to use as a base image in an image recipe.
 - *Type:* string
 
 The AMI ID to use as the base image.
+
+---
+
+##### `fromGpuBase` <a name="fromGpuBase" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromGpuBase"></a>
+
+```typescript
+import { BaseImage } from '@cloudsnorkel/cdk-github-runners'
+
+BaseImage.fromGpuBase(os: Os, architecture: Architecture)
+```
+
+A base AMI with NVIDIA drivers pre-installed for GPU workloads.
+
+Uses AWS Deep Learning AMIs for Linux (Ubuntu, Amazon Linux 2, Amazon Linux 2023).
+For Windows, subscribe to NVIDIA RTX Virtual Workstation in AWS Marketplace, then use
+{@link fromMarketplaceProductId} with the product ID.
+
+###### `os`<sup>Required</sup> <a name="os" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromGpuBase.parameter.os"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
+
+Target operating system.
+
+---
+
+###### `architecture`<sup>Required</sup> <a name="architecture" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromGpuBase.parameter.architecture"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
+
+Target architecture.
 
 ---
 
@@ -10844,7 +10881,6 @@ Returns true if the image builder should be rebooted after this component is ins
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubCli">githubCli</a></code> | A component to install the GitHub CLI. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubRunner">githubRunner</a></code> | A component to install the GitHub Actions Runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.lambdaEntrypoint">lambdaEntrypoint</a></code> | A component to set up the required Lambda entrypoint for Lambda runners. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.nvidiaDrivers">nvidiaDrivers</a></code> | A component to install NVIDIA drivers for GPU support. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.requiredPackages">requiredPackages</a></code> | A component to install the required packages for the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.runnerUser">runnerUser</a></code> | A component to prepare the required runner user. |
 
@@ -11055,33 +11091,6 @@ RunnerImageComponent.lambdaEntrypoint()
 ```
 
 A component to set up the required Lambda entrypoint for Lambda runners.
-
-##### `nvidiaDrivers` <a name="nvidiaDrivers" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.nvidiaDrivers"></a>
-
-```typescript
-import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
-
-RunnerImageComponent.nvidiaDrivers(version?: string)
-```
-
-A component to install NVIDIA drivers for GPU support.
-
-Use this when running runners on GPU instances (e.g., g4dn, g5, g5g, p3, p4d) with EC2, ECS, or CodeBuild GPU environments.
-The driver version should match the CUDA version required by your workload.
-
-Supported on Ubuntu (x64 and arm64), Amazon Linux 2, Amazon Linux 2023, and Windows.
-
-###### `version`<sup>Optional</sup> <a name="version" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.nvidiaDrivers.parameter.version"></a>
-
-- *Type:* string
-
-NVIDIA driver version.
-
-Format varies by OS: Ubuntu uses branch (e.g., '535', '580'). AL2 requires full
-runfile version (e.g., '580.105.08'). AL2023 uses module stream (e.g., '580-open', 'open-dkms').
-Windows uses full version (e.g., '565.55'). Default: '580' (Ubuntu), '580.105.08' (AL2), '580-open' (AL2023), latest (Windows)
-
----
 
 ##### `requiredPackages` <a name="requiredPackages" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.requiredPackages"></a>
 
