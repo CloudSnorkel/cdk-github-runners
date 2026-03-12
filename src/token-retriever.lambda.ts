@@ -94,6 +94,22 @@ export async function handler(event: StepFunctionLambdaInput) {
 
 type RunnerLevel = 'repo' | 'org' | undefined;
 
+/**
+ * Ensure JIT runners include the default GitHub runner labels.
+ * Unlike config.sh which adds these automatically, the generate-jitconfig
+ * API only registers the labels you explicitly provide.
+ */
+function ensureDefaultLabels(labels: string[]): string[] {
+  const defaultLabels = ['self-hosted'];
+  const lowerLabels = labels.map(l => l.toLowerCase());
+  for (const dl of defaultLabels) {
+    if (!lowerLabels.includes(dl.toLowerCase())) {
+      labels.unshift(dl);
+    }
+  }
+  return labels;
+}
+
 async function checkJobStatus(
   octokit: Octokit,
   owner: string,
@@ -122,7 +138,7 @@ async function getJitConfig(
   const body = {
     name: runnerName,
     runner_group_id: runnerGroupId,
-    labels: (Array.isArray(labels) ? labels : (labels as unknown as string).split(',')).map((l: string) => l.trim()).filter((l: string) => l.length > 0),
+    labels: ensureDefaultLabels((Array.isArray(labels) ? labels : (labels as unknown as string).split(',')).map((l: string) => l.trim()).filter((l: string) => l.length > 0)),
     work_folder: '_work',
   };
 
