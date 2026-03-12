@@ -18,17 +18,42 @@ export async function handler(event: StepFunctionLambdaInput) {
       octokit,
     } = await getOctokit(event.installationId);
 
-    // Use JIT runner config when jobId is available (preferred).
-    // JIT runners are assigned to a specific job, preventing race conditions
-    // where multiple runners compete for the same job in the org/repo pool.
-    // Falls back to registration tokens when jobId is not available (e.g. older webhook payloads).
+    // Before creating a runner, check if the job is still queued.
+    // This prevents wasting resources when a job was already picked up by
+    // another runner (e.g., during retries or when runners race for jobs
+    // with identical labels under burst load).
+    if (event.jobId) {
+      const jobStatus = await checkJobStatus(octokit, event.owner, event.repo, event.jobId);
+      if (jobStatus !== 'queued') {
+        console.log({
+          notice: 'Job is no longer queued, skipping runner creation',
+          jobId: event.jobId,
+          jobStatus,
+          owner: event.owner,
+          repo: event.repo,
+        });
+        return {
+          domain: githubSecrets.domain,
+          skip: true,
+          token: '',
+          registrationUrl: '',
+          jitConfig: '',
+          runnerId: 0,
+        };
+      }
+    }
+
+    // Use JIT runner config when jobId is available.
+    // JIT provides a cleaner registration path (no config.sh needed) and
+    // built-in ephemeral behavior. Note: JIT does not pin runners to specific
+    // jobs — GitHub still dispatches based on label matching.
     if (event.jobId) {
       const jitResult = await getJitConfig(octokit, githubSecrets.runnerLevel, event.owner, event.repo, event.runnerName, event.labels, event.jobId);
       return {
         domain: githubSecrets.domain,
         jitConfig: jitResult.encodedJitConfig,
         runnerId: jitResult.runnerId,
-        // Keep token and registrationUrl empty for JIT - providers check for jitConfig first
+        skip: false,
         token: '',
         registrationUrl: '',
       };
@@ -52,6 +77,7 @@ export async function handler(event: StepFunctionLambdaInput) {
       registrationUrl,
       jitConfig: '',
       runnerId: 0,
+      skip: false,
     };
   } catch (error) {
     console.error({
@@ -67,6 +93,20 @@ export async function handler(event: StepFunctionLambdaInput) {
 }
 
 type RunnerLevel = 'repo' | 'org' | undefined;
+
+async function checkJobStatus(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  jobId: number,
+): Promise<string> {
+  const response = await octokit.rest.actions.getJobForWorkflowRun({
+    owner,
+    repo,
+    job_id: jobId,
+  });
+  return response.data.status;
+}
 
 async function getJitConfig(
   octokit: Octokit,

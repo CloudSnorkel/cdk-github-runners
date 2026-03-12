@@ -337,10 +337,10 @@ export interface RunnerProviderProps {
  * Workflow job parameters as parsed from the webhook event. Pass these into your runner executor and run something like:
  *
  * ```sh
- * # JIT mode (preferred - runner is assigned to a specific job):
+ * # JIT mode (preferred - cleaner registration, built-in ephemeral):
  * ./run.sh --jitconfig "${JIT_CONFIG}"
  *
- * # Legacy mode (fallback - runner registers to pool and picks up any matching job):
+ * # Legacy mode (fallback - two-step registration):
  * ./config.sh --unattended --url "{REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --name "${RUNNER_NAME}" --disableupdate
  * ```
  *
@@ -384,9 +384,10 @@ export interface RunnerRuntimeParameters {
 
   /**
    * Path to JIT (just-in-time) runner configuration. When present, the runner should use
-   * `run.sh --jitconfig` instead of `config.sh` + `run.sh`. JIT runners are assigned to
-   * a specific workflow job, eliminating race conditions where multiple runners compete
-   * for the same job. Empty string when JIT is not available (falls back to legacy token flow).
+   * `run.sh --jitconfig` instead of `config.sh` + `run.sh`. JIT provides a simpler
+   * registration flow and built-in ephemeral behavior. Note: JIT does not pin runners
+   * to specific jobs — GitHub dispatches based on label matching.
+   * Empty string when JIT is not available (falls back to legacy token flow).
    */
   readonly jitConfigPath: string;
 

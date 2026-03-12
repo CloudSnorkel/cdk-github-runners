@@ -85,7 +85,7 @@ EOF
 }
 action () {
   if [ -n "$jitConfig" ]; then
-    # JIT mode: runner is pre-assigned to a specific job, no config.sh needed
+    # JIT mode: cleaner registration, no config.sh needed
     sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh --jitconfig "$jitConfig" || exit 2
   else
     # Legacy mode: register runner to pool with token
@@ -173,7 +173,7 @@ function setup_logs () {
 function action () {
   cd /actions
   if ($jitConfig -ne "") {
-    # JIT mode: runner is pre-assigned to a specific job, no config.cmd needed
+    # JIT mode: cleaner registration, no config.cmd needed
     ./run.cmd --jitconfig "$jitConfig" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
     if ($LASTEXITCODE -ne 0) { return 2 }
   } else {

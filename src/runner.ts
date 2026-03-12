@@ -439,10 +439,20 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     providerChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown label'));
 
+    // Check if the token retriever indicated the job is no longer queued.
+    // This prevents launching a runner for a job that was already picked up
+    // by another runner (common during retries under burst load).
+    const jobStillQueued = new stepfunctions.Choice(this, 'Job Still Queued?');
+    jobStillQueued.when(
+      stepfunctions.Condition.booleanEquals('$.runner.skip', true),
+      new stepfunctions.Succeed(this, 'Job Already Handled'),
+    );
+    jobStillQueued.otherwise(providerChooser);
+
     const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
       new stepfunctions.Parallel(this, 'Error Handler').branch(
         // we get a token for every retry because the token can expire faster than the job can timeout
-        tokenRetrieverTask.next(providerChooser),
+        tokenRetrieverTask.next(jobStillQueued),
       ).addCatch(
         // delete runner on failure as it won't remove itself and there is a limit on the number of registered runners
         deleteFailedRunnerTask,
