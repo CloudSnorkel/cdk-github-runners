@@ -6537,6 +6537,7 @@ const codeBuildRunnerProviderProps: CodeBuildRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. See the {@link ComputeType} enum for the possible values. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.gpu">gpu</a></code> | <code>boolean</code> | Use GPU compute for builds. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.group">group</a></code> | <code>string</code> | GitHub Actions runner group name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build Docker images containing GitHub Runner and all requirements. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
@@ -6629,6 +6630,31 @@ Support building and running Docker images by enabling Docker-in-Docker (dind) a
 
 Disabling this can
 speed up provisioning of CodeBuild runners. If you don't intend on running or building Docker images, disable this for faster start-up times.
+
+---
+
+##### `gpu`<sup>Optional</sup> <a name="gpu" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.gpu"></a>
+
+```typescript
+public readonly gpu: boolean;
+```
+
+- *Type:* boolean
+- *Default:* false
+
+Use GPU compute for builds.
+
+When enabled, the default compute type is BUILD_GENERAL1_SMALL (4 vCPU, 16 GB RAM, 1 NVIDIA A10G GPU).
+
+You can override the compute type using the `computeType` property (for example, to use BUILD_GENERAL1_LARGE for more resources),
+subject to the supported GPU compute types.
+
+When using GPU compute, ensure your runner image includes any required GPU libraries (for example, CUDA)
+either by using a base image that has them preinstalled (such as an appropriate nvidia/cuda image) or by
+adding image components that install them. The default image builder does not automatically switch to a
+CUDA-enabled base image when GPU is enabled.
+
+GPU compute is only available for Linux x64 images. Not supported on Windows or ARM.
 
 ---
 
@@ -7112,6 +7138,11 @@ public readonly instanceType: InstanceType;
 
 Instance type for launched runner instances.
 
+For GPU instance types (g4dn, g5, p3, etc.), we automatically use a GPU base image (AWS Deep Learning AMI)
+with NVIDIA drivers pre-installed. If you provide your own image builder, use
+`baseAmi: BaseImage.fromGpuBase(os, architecture)` or another image preloaded with NVIDIA drivers, or use
+an image component to install NVIDIA drivers.
+
 ---
 
 ##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.labels"></a>
@@ -7281,6 +7312,7 @@ const ecsRunnerProviderProps: EcsRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_ecs.Cluster</code> | Existing ECS cluster to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.cpu">cpu</a></code> | <code>number</code> | The number of cpu units used by the task. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.gpu">gpu</a></code> | <code>number</code> | Number of GPUs to request for the runner task. When set, the task will be scheduled on GPU-capable instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.group">group</a></code> | <code>string</code> | GitHub Actions runner group name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build Docker images containing GitHub Runner and all requirements. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.instanceType">instanceType</a></code> | <code>aws-cdk-lib.aws_ec2.InstanceType</code> | Instance type of ECS cluster instances. |
@@ -7416,6 +7448,26 @@ Support building and running Docker images by enabling Docker-in-Docker (dind) a
 
 Disabling this can
 speed up provisioning of CodeBuild runners. If you don't intend on running or building Docker images, disable this for faster start-up times.
+
+---
+
+##### `gpu`<sup>Optional</sup> <a name="gpu" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.gpu"></a>
+
+```typescript
+public readonly gpu: number;
+```
+
+- *Type:* number
+- *Default:* undefined (no GPU)
+
+Number of GPUs to request for the runner task. When set, the task will be scheduled on GPU-capable instances.
+
+Requires a GPU-capable instance type (e.g., g4dn.xlarge for 1 GPU, g4dn.12xlarge for 4 GPUs) and GPU AMI.
+When creating a new cluster, instanceType defaults to g4dn.xlarge and the ECS Optimized GPU AMI is used.
+
+You must ensure that the task's container image includes the CUDA runtime. Provide a CUDA-enabled base image
+via `baseDockerImage`, use an image builder that starts from a GPU-capable image (such as nvidia/cuda), or add
+an image component that installs the CUDA runtime into the image.
 
 ---
 
@@ -10420,6 +10472,7 @@ new BaseImage(image: string)
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromAmiId">fromAmiId</a></code> | The AMI ID to use as a base image in an image recipe. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromGpuBase">fromGpuBase</a></code> | A base AMI with NVIDIA drivers pre-installed for GPU workloads. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromImageBuilder">fromImageBuilder</a></code> | An AWS-provided EC2 Image Builder image to use as a base image in an image recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromMarketplaceProductId">fromMarketplaceProductId</a></code> | The marketplace product ID for an AMI product to use as the base image in an image recipe. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.BaseImage.fromSsmParameter">fromSsmParameter</a></code> | The SSM parameter to use as the base image in an image recipe. |
@@ -10443,6 +10496,36 @@ The AMI ID to use as a base image in an image recipe.
 - *Type:* string
 
 The AMI ID to use as the base image.
+
+---
+
+##### `fromGpuBase` <a name="fromGpuBase" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromGpuBase"></a>
+
+```typescript
+import { BaseImage } from '@cloudsnorkel/cdk-github-runners'
+
+BaseImage.fromGpuBase(os: Os, architecture: Architecture)
+```
+
+A base AMI with NVIDIA drivers pre-installed for GPU workloads.
+
+Uses AWS Deep Learning AMIs for Linux (Ubuntu, Amazon Linux 2, Amazon Linux 2023).
+For Windows, subscribe to NVIDIA RTX Virtual Workstation in AWS Marketplace, then use
+{@link fromMarketplaceProductId} with the product ID.
+
+###### `os`<sup>Required</sup> <a name="os" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromGpuBase.parameter.os"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a>
+
+Target operating system.
+
+---
+
+###### `architecture`<sup>Required</sup> <a name="architecture" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromGpuBase.parameter.architecture"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
+
+Target architecture.
 
 ---
 

@@ -10,13 +10,14 @@ import {
   Duration,
   RemovalPolicy,
 } from 'aws-cdk-lib';
-import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
+import { ComputeType, LinuxGpuBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
   Architecture,
   BaseProvider,
+  generateStateName,
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
@@ -24,7 +25,6 @@ import {
   RunnerProviderProps,
   RunnerRuntimeParameters,
   RunnerVersion,
-  generateStateName,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 
@@ -138,6 +138,23 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
    * @default true
    */
   readonly dockerInDocker?: boolean;
+
+  /**
+   * Use GPU compute for builds. When enabled, the default compute type is BUILD_GENERAL1_SMALL (4 vCPU, 16 GB RAM, 1 NVIDIA A10G GPU).
+   *
+   * You can override the compute type using the `computeType` property (for example, to use BUILD_GENERAL1_LARGE for more resources),
+   * subject to the supported GPU compute types.
+   *
+   * When using GPU compute, ensure your runner image includes any required GPU libraries (for example, CUDA)
+   * either by using a base image that has them preinstalled (such as an appropriate nvidia/cuda image) or by
+   * adding image components that install them. The default image builder does not automatically switch to a
+   * CUDA-enabled base image when GPU is enabled.
+   *
+   * GPU compute is only available for Linux x64 images. Not supported on Windows or ARM.
+   *
+   * @default false
+   */
+  readonly gpu?: boolean;
 }
 
 /**
@@ -338,10 +355,21 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       ];
     }
 
+    if (props?.gpu) {
+      if (image.os.is(Os.WINDOWS) || image.architecture.is(Architecture.ARM64)) {
+        throw new Error('CodeBuild GPU is only supported for Linux x64 images. Set gpu: false or use a Linux x64 image.');
+      }
+      if (props?.computeType !== undefined && props.computeType !== ComputeType.SMALL && props.computeType !== ComputeType.LARGE) {
+        throw new Error(`CodeBuild GPU only supports SMALL (1 GPU) or LARGE (4 GPUs). Got ${props.computeType}.`);
+      }
+    }
+
     // choose build image
     let buildImage: codebuild.IBuildImage | undefined;
     if (image.os.isIn(Os._ALL_LINUX_VERSIONS)) {
-      if (image.architecture.is(Architecture.X86_64)) {
+      if (props?.gpu && image.architecture.is(Architecture.X86_64)) {
+        buildImage = LinuxGpuBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);
+      } else if (image.architecture.is(Architecture.X86_64)) {
         buildImage = codebuild.LinuxBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);
       } else if (image.architecture.is(Architecture.ARM64)) {
         buildImage = codebuild.LinuxArmBuildImage.fromEcrRepository(image.imageRepository, image.imageTag);

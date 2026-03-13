@@ -466,6 +466,19 @@ describe('BaseImage', () => {
     expect(baseImage.image).toContain(':imagebuilder:');
     expect(baseImage.image).toContain(':aws:image/ubuntu-server-22-lts-x86/1.0.0');
   });
+
+  test('fromGpuBase throws for Windows with guidance to use fromMarketplaceProductId', () => {
+    expect(() => BaseImage.fromGpuBase(Os.WINDOWS, Architecture.X86_64)).toThrow(
+      /Subscribe to NVIDIA RTX Virtual Workstation.*fromMarketplaceProductId/,
+    );
+  });
+
+  test('fromGpuBase allows supported os/arch and throws for unsupported ones', () => {
+    expect(() => BaseImage.fromGpuBase(Os.LINUX_UBUNTU_2204, Architecture.ARM64)).not.toThrow();
+    expect(() => BaseImage.fromGpuBase(Os.WINDOWS, Architecture.ARM64)).toThrow(
+      /No GPU base AMI for/,
+    );
+  });
 });
 
 describe('BaseContainerImage', () => {

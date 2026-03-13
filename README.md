@@ -540,6 +540,7 @@ We provide comprehensive examples in the [`examples/`](examples/) folder to help
 
 ### Customization
 - **[Add Software](examples/typescript/add-software/)** - Add custom software to runner images (also available in [Python](examples/python/add-software/))
+- **[GPU](examples/typescript/gpu/)** - GPU support with NVIDIA drivers across EC2, CodeBuild, and ECS (also available in [Python](examples/python/gpu/))
 
 ### Enterprise & Monitoring
 - **[GHES](examples/typescript/ghes/)** - Configure runners for GitHub Enterprise Server (also available in [Python](examples/python/ghes/))

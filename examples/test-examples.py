@@ -39,6 +39,8 @@ if not npm_path:
     print_colored("  ✗ npm not found. Please install npm.", Colors.RED)
     sys.exit(1)
 
+_python_requirements_baseline: Optional[str] = None
+
 
 class Colors:
     """ANSI color codes for terminal output."""
@@ -128,9 +130,10 @@ def normalize_json(json_str: str) -> str:
 
 def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], str]:
     """Synthesize a CDK example and return success, template, and error message."""
+    global _python_requirements_baseline
     project_root = Path(__file__).parent.parent
     example_dir = Path(__file__).parent / example_path
-    
+
     # Install dependencies first
     if lang == "typescript":
         start_time = time.time()
@@ -159,26 +162,37 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
             return False, None, f"npm install local package failed: {err}\n{out}"
         print_colored(f"    ✓ Local package installed ({format_duration(duration)})", Colors.GREEN)
     elif lang == "python":
-        start_time = time.time()
-        print_colored(f"  Installing dependencies for {example_path}...", Colors.BLUE)
-        code, out, err = run_command(["pip", "install", "--upgrade", "--force-reinstall", "-r", "requirements.txt"], cwd=example_dir)
-        duration = time.time() - start_time
-        if code != 0:
-            return False, None, f"pip install requirements failed: {err}\n{out}"
-        print_colored(f"    ✓ Dependencies installed ({format_duration(duration)})", Colors.GREEN)
-        
-        # Install local package - glob the full real path
-        start_time = time.time()
-        print_colored(f"  Installing local package for {example_path}...", Colors.BLUE)
-        dist_python_dir = (project_root / "dist" / "python").resolve()
-        whl_files = list(dist_python_dir.glob("*.whl"))
-        if not whl_files:
-            return False, None, f"No .whl files found in {dist_python_dir}"
-        code, out, err = run_command(["pip", "install", "--upgrade", "--force-reinstall"] + [w.absolute() for w in whl_files], cwd=example_dir)
-        duration = time.time() - start_time
-        if code != 0:
-            return False, None, f"pip install local package failed: {err}\n{out}"
-        print_colored(f"    ✓ Local package installed ({format_duration(duration)})", Colors.GREEN)
+        req_path = example_dir / "requirements.txt"
+        if not req_path.exists():
+            return False, None, "requirements.txt not found"
+        current_req = req_path.read_text()
+
+        if _python_requirements_baseline is None:
+            # First Python example - install requirements and local package
+            start_time = time.time()
+            print_colored(f"  Installing dependencies for {example_path}...", Colors.BLUE)
+            code, out, err = run_command(["pip", "install", "--upgrade", "-r", "requirements.txt"], cwd=example_dir)
+            duration = time.time() - start_time
+            if code != 0:
+                return False, None, f"pip install requirements failed: {err}\n{out}"
+            print_colored(f"    ✓ Dependencies installed ({format_duration(duration)})", Colors.GREEN)
+
+            start_time = time.time()
+            print_colored(f"  Installing local package for {example_path}...", Colors.BLUE)
+            dist_python_dir = (project_root / "dist" / "python").resolve()
+            whl_files = list(dist_python_dir.glob("*.whl"))
+            if not whl_files:
+                return False, None, f"No .whl files found in {dist_python_dir}"
+            code, out, err = run_command(["pip", "install", "--force-reinstall"] + [str(w) for w in whl_files], cwd=example_dir)
+            duration = time.time() - start_time
+            if code != 0:
+                return False, None, f"pip install local package failed: {err}\n{out}"
+            print_colored(f"    ✓ Local package installed ({format_duration(duration)})", Colors.GREEN)
+            _python_requirements_baseline = current_req
+        else:
+            if current_req != _python_requirements_baseline:
+                return False, None, f"requirements.txt differs from first Python example"
+            print_colored(f"  ✓ requirements.txt matches first example (skipping install)", Colors.GREEN)
     
     # Run CDK synth (exclude metadata for cleaner diffs)
     start_time = time.time()

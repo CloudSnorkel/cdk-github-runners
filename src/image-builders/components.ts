@@ -236,7 +236,7 @@ export abstract class RunnerImageComponent {
           return [
             `curl -fsSL "https://awscli.amazonaws.com/${zipName}" -o awscliv2.zip`,
             'unzip -q awscliv2.zip',
-            './aws/install',
+            './aws/install --update',
             'rm -rf awscliv2.zip aws',
           ];
         } else if (os.is(Os.WINDOWS)) {
