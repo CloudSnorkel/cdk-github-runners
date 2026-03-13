@@ -226,9 +226,14 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
       'sh', '-c',
       `${dindCommand}
         cd /home/runner &&
-        if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
-        ./config.sh --unattended --url "$REGISTRATION_URL" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&
-        ./run.sh &&
+        if [ -n "$JIT_CONFIG" ]; then
+          echo "JIT mode enabled, skipping config.sh" &&
+          ./run.sh --jitconfig "$JIT_CONFIG"
+        else
+          if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
+          ./config.sh --unattended --url "$REGISTRATION_URL" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&
+          ./run.sh
+        fi &&
         STATUS=$(grep -Phors "finish job request for job [0-9a-f-]+ with result: .*" _diag | tail -n1 | awk '{print $NF}') &&
         [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"`,
     ];
@@ -508,6 +513,10 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
               {
                 name: 'RUNNER_TOKEN',
                 value: parameters.runnerTokenPath,
+              },
+              {
+                name: 'JIT_CONFIG',
+                value: parameters.jitConfigPath,
               },
               {
                 name: 'RUNNER_NAME',

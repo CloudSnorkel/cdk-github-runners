@@ -52,6 +52,7 @@ registrationURL="{}"
 runnerGroup1="{}"
 runnerGroup2="{}"
 defaultLabels="{}"
+jitConfig="{}"
 
 export AWS_RETRY_MODE=standard # better retry
 
@@ -84,20 +85,26 @@ EOF
   /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2
 }
 action () {
-  # Determine the value of RUNNER_FLAGS
-  if [ "$(< /home/runner/RUNNER_VERSION)" = "latest" ]; then
-    RUNNER_FLAGS=""
+  if [ -n "$jitConfig" ]; then
+    # JIT mode: cleaner registration, no config.sh needed
+    sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh --jitconfig "$jitConfig" || exit 2
   else
-    RUNNER_FLAGS="--disableupdate"
+    # Legacy mode: register runner to pool with token
+    # Determine the value of RUNNER_FLAGS
+    if [ "$(< /home/runner/RUNNER_VERSION)" = "latest" ]; then
+      RUNNER_FLAGS=""
+    else
+      RUNNER_FLAGS="--disableupdate"
+    fi
+
+    labelsTemplate="$labels,cdkghr:started:$(date +%s)"
+
+    # Execute the configuration command for runner registration
+    sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1
+
+    # Execute the run command
+    sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
   fi
-
-  labelsTemplate="$labels,cdkghr:started:$(date +%s)"
-
-  # Execute the configuration command for runner registration
-  sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1
-
-  # Execute the run command
-  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
 
   # Retrieve the status
   STATUS=$(grep -Phors "finish job request for job [0-9a-f-]+ with result: .*" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')
@@ -130,6 +137,7 @@ $registrationURL="{}"
 $runnerGroup1="{}"
 $runnerGroup2="{}"
 $defaultLabels="{}"
+$jitConfig="{}"
 
 $Env:AWS_RETRY_MODE = "standard"  # better retry
 
@@ -165,13 +173,20 @@ function setup_logs () {
 }
 function action () {
   cd /actions
-  $RunnerVersion = Get-Content /actions/RUNNER_VERSION -Raw
-  if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
-  ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" \${runnerGroup1} \${runnerGroup2} \${defaultLabels} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  if ($jitConfig -ne "") {
+    # JIT mode: cleaner registration, no config.cmd needed
+    ./run.cmd --jitconfig "$jitConfig" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+    if ($LASTEXITCODE -ne 0) { return 2 }
+  } else {
+    # Legacy mode: register runner to pool with token
+    $RunnerVersion = Get-Content /actions/RUNNER_VERSION -Raw
+    if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
+    ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" \${runnerGroup1} \${runnerGroup2} \${defaultLabels} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
 
-  if ($LASTEXITCODE -ne 0) { return 1 }
-  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
-  if ($LASTEXITCODE -ne 0) { return 2 }
+    if ($LASTEXITCODE -ne 0) { return 1 }
+    ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+    if ($LASTEXITCODE -ne 0) { return 2 }
+  }
 
   $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1
 
@@ -478,6 +493,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       // this is split into 2 for powershell otherwise it will pass "--runnergroup name" as a single argument and config.sh will fail
       this.group ? this.group : '',
       this.defaultLabels ? '' : '--no-default-labels',
+      parameters.jitConfigPath,
     ];
 
     const passUserData = new stepfunctions.Pass(this, 'Data', {
