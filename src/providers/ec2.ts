@@ -549,22 +549,29 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
               SpotInstanceType: 'one-time',
             },
           } : undefined,
-          TagSpecifications: [ // manually propagate tags
-            {
-              ResourceType: 'instance',
-              Tags: [{
-                Key: 'GitHubRunners:Provider',
-                Value: this.node.path,
-              }],
-            },
-            {
-              ResourceType: 'volume',
-              Tags: [{
-                Key: 'GitHubRunners:Provider',
-                Value: this.node.path,
-              }],
-            },
-          ],
+          TagSpecifications: ['instance', 'volume'].map(resType => { // manually propagate tags
+            return {
+              ResourceType: resType,
+              Tags: [
+                {
+                  Key: 'Name',
+                  Value: parameters.runnerNamePath,
+                },
+                {
+                  Key: 'GitHubRunners:Provider',
+                  Value: this.node.path,
+                },
+                {
+                  Key: 'GitHubRunners:Repo',
+                  Value: stepfunctions.JsonPath.format('{}/{}', parameters.ownerPath, parameters.repoPath),
+                },
+                {
+                  Key: 'GitHubRunners:Labels',
+                  Value: parameters.labelsPath,
+                },
+              ],
+            };
+          }),
         },
         iamResources: ['*'],
       });
