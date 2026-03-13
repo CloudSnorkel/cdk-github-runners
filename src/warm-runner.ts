@@ -72,7 +72,7 @@ export interface ScheduledWarmRunnerProps extends WarmRunnerBaseProps {
   readonly duration: cdk.Duration;
 }
 
-function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule: events.Schedule, duration: number): WarmRunnerFillPayload {
+function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule: events.Schedule, duration: number, createInitialFill: boolean) {
   const registrationLevel = props.registrationLevel ?? 'repo';
   if (registrationLevel === 'org' && props.repo) {
     throw new Error('Do not specify repo when registrationLevel is \'org\'');
@@ -116,13 +116,15 @@ function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule:
     })],
   });
 
-  // Fill the warm pool immediately on deploy
-  // Config hash changes will trigger draining of previous versions
-  new cdk.CustomResource(scope, 'Initial Fill', {
-    serviceToken: managerFn.functionArn,
-    resourceType: 'Custom::WarmRunnerFill',
-    properties: fillPayload,
-  });
+  // Fill the warm pool immediately on deploy (AlwaysOnWarmRunner only).
+  // ScheduledWarmRunner does not get deployment-fill. First fill happens at the next schedule fire.
+  if (createInitialFill) {
+    new cdk.CustomResource(scope, 'Initial Fill', {
+      serviceToken: managerFn.functionArn,
+      resourceType: 'Custom::WarmRunnerFill',
+      properties: fillPayload,
+    });
+  }
 
   return fillPayload;
 }
@@ -159,7 +161,7 @@ export class AlwaysOnWarmRunner extends Construct {
 
   constructor(scope: Construct, id: string, props: AlwaysOnWarmRunnerProps) {
     super(scope, id);
-    this._fillPayload = buildWarmRunner(this, props, events.Schedule.cron({ hour: '0', minute: '0' }), cdk.Duration.days(1).toSeconds());
+    this._fillPayload = buildWarmRunner(this, props, events.Schedule.cron({ hour: '0', minute: '0' }), cdk.Duration.days(1).toSeconds(), true);
   }
 }
 
@@ -172,6 +174,9 @@ export class AlwaysOnWarmRunner extends Construct {
  *
  * ## Limitations
  *
+ * - **No deployment-fill**: Unlike AlwaysOnWarmRunner, scheduled warm runners do not get an initial fill on deploy.
+ *   The first fill happens at the next schedule occurrence (e.g. if you deploy at 1pm for a 2pm schedule,
+ *   runners will not appear until 2pm).
  * - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
  * - You may briefly see more than `count` runners when changing config or at rotation.
  * - To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
@@ -197,6 +202,6 @@ export class ScheduledWarmRunner extends Construct {
 
   constructor(scope: Construct, id: string, props: ScheduledWarmRunnerProps) {
     super(scope, id);
-    this._fillPayload = buildWarmRunner(this, props, props.schedule, props.duration.toSeconds());
+    this._fillPayload = buildWarmRunner(this, props, props.schedule, props.duration.toSeconds(), false);
   }
 }

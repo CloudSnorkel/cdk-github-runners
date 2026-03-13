@@ -7,11 +7,12 @@
  * ## Lifecycle
  *
  * 1. **Fill** — An EventBridge cron rule (midnight UTC for always-on, or window
- *    start for scheduled) sends a fill payload to the shared SQS queue. A
- *    CloudFormation custom resource (on deploy) invokes this Lambda directly.
- *    Both paths start `count` Step Function executions and enqueue one keeper
- *    message per runner. Using SQS for EventBridge fills gives stable messageId
- *    for idempotent retries (Lambda timeout mid-fill → no duplicate runners).
+ *    start for scheduled) sends a fill payload to the shared SQS queue. For
+ *    AlwaysOnWarmRunner only, a CloudFormation custom resource (on deploy)
+ *    invokes this Lambda directly to fill immediately; the deadline is set to
+ *    the next midnight UTC (not full 24h) so runners last until the next cron
+ *    fill. ScheduledWarmRunner has no deployment-fill — first fill is at the
+ *    next schedule occurrence.
  *
  * 2. **Keeper** — Each keeper message tracks one runner. The SQS queue delivers the
  *    message, this Lambda inspects the runner, and one of the following happens:
@@ -151,6 +152,13 @@ function deterministicExecutionName(providerPath: string, seed: string) {
   return `${sanitized.slice(0, maxPrefixLen)}-${hash}`;
 }
 
+/** Returns Unix ms of the next midnight UTC. Used for AlwaysOn deployment-fill deadline. */
+function getNextMidnightUtcMs(): number {
+  const now = new Date();
+  const nextMidnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0, 0));
+  return nextMidnight.getTime();
+}
+
 async function resolveInstallationId(owner: string, repo: string) {
   const appOctokit = await getAppOctokit();
   if (!appOctokit) {
@@ -248,10 +256,12 @@ async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
  * WARM_CONFIG_HASHES env var — the keeper discards stale messages and stops those runners.
  * For normal cron rotation (same config), the old runners reach their deadline and are stopped
  * by the keeper as usual, causing only a brief overlap (typically minutes).
+ *
+ * @param absoluteDeadlineOverride If provided, use this instead of now + duration (for AlwaysOn deployment-fill).
  */
-async function runFiller(input: WarmRunnerFillPayload, getNameForSlot: (slot: number) => string) {
+async function runFiller(input: WarmRunnerFillPayload, getNameForSlot: (slot: number) => string, absoluteDeadlineOverride?: number) {
   const installationId = await resolveInstallationId(input.owner, input.repo);
-  const absoluteDeadline = Date.now() + input.duration * 1000;
+  const absoluteDeadline = absoluteDeadlineOverride ?? Date.now() + input.duration * 1000;
 
   for (let i = 0; i < input.count; i++) {
     await startWarmRunnerAndEnqueueKeeper({
@@ -304,9 +314,9 @@ async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octo
  * Warm runner manager Lambda — handles three invocation modes:
  *
  * 1. **CloudFormation Custom Resource** (`RequestType` + `ResponseURL` present):
- *    Triggered on stack deploy (Create/Update). Extracts the fill payload from
- *    `ResourceProperties` and runs `runFiller` to start warm runners immediately.
- *    Delete is a no-op (runners wind down via keeper or deadline).
+ *    Triggered on stack deploy (Create/Update) for AlwaysOnWarmRunner only. Runs
+ *    runFiller with deadline = next midnight UTC so runners last until the next
+ *    cron fill. Delete is a no-op.
  *
  * 2. **SQS messages** (fill or keeper):
  *    - **Fill** (body has `action: 'fill'`): from EventBridge cron. Uses messageId
@@ -328,11 +338,10 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
     try {
       if (event.RequestType === 'Create' || event.RequestType === 'Update') {
         const props = event.ResourceProperties as unknown as WarmRunnerFillPayload;
-        // LogicalResourceId + RequestType + configHash are stable across CloudFormation retries.
-        // RequestId changes per retry, so we don't use it.
         const getNameForSlot = (slot: number) =>
           deterministicExecutionName(props.providerPath, `${event.LogicalResourceId}:${event.RequestType}:${props.configHash}:${slot}`);
-        await runFiller(props, getNameForSlot);
+        const deadline = getNextMidnightUtcMs();
+        await runFiller(props, getNameForSlot, deadline);
       }
       await customResourceRespond(event, 'SUCCESS', 'OK', physicalId, {});
     } catch (e) {
@@ -405,7 +414,7 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
     }
 
     // stale config — best-effort stop, then discard message (runner will self-terminate at its idle timeout)
-    if (input.configHash && !validHashes.has(input.configHash)) {
+    if (!validHashes.has(input.configHash)) {
       console.log({
         notice: 'Config hash mismatch — stopping stale warm runner',
         messageHash: input.configHash,

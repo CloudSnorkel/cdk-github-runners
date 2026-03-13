@@ -67,7 +67,7 @@ describe('Warm runner validation', () => {
 });
 
 describe('AlwaysOnWarmRunner', () => {
-  test('creates queue, lambda, and EventBridge rule', () => {
+  test('creates queue, lambda, EventBridge rule, and custom resource for deployment-fill', () => {
     const provider = new LambdaRunnerProvider(stack, 'p1');
 
     const runners = new GitHubRunners(stack, 'runners', {
@@ -100,6 +100,8 @@ describe('AlwaysOnWarmRunner', () => {
     template.hasResourceProperties('AWS::Events::Rule', {
       ScheduleExpression: 'cron(0 0 * * ? *)',
     });
+
+    template.resourceCountIs('Custom::WarmRunnerFill', 1);
   });
 
   test('fill payload has 24h maxIdleSeconds', () => {
@@ -144,6 +146,25 @@ describe('AlwaysOnWarmRunner', () => {
 });
 
 describe('ScheduledWarmRunner', () => {
+  test('does not create custom resource (no deployment-fill)', () => {
+    const provider = new LambdaRunnerProvider(stack, 'p1');
+    const runners = new GitHubRunners(stack, 'runners', { providers: [provider] });
+
+    new ScheduledWarmRunner(stack, 'warm', {
+      runners,
+      provider,
+      count: 2,
+      owner: 'my-org',
+      registrationLevel: 'org',
+      schedule: events.Schedule.cron({ hour: '14', minute: '0' }),
+      duration: cdk.Duration.hours(2),
+    });
+
+    const template = Template.fromStack(stack);
+    const customResources = template.findResources('Custom::WarmRunnerFill');
+    expect(Object.keys(customResources)).toHaveLength(0);
+  });
+
   test('uses provided schedule and duration', () => {
     const provider = new LambdaRunnerProvider(stack, 'p1');
 
