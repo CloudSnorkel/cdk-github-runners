@@ -35,6 +35,9 @@ class GpuStack(Stack):
     def __init__(self, scope, construct_id, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
 
+        # Note: Creating a VPC is not required. Providers can use the default VPC or an existing VPC.
+        # We create one here to make this example self-contained and testable.
+        # Create a VPC with public and private subnets
         vpc = ec2.Vpc(
             self, "VPC",
             max_azs=2,

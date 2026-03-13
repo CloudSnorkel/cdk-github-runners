@@ -33,6 +33,9 @@ class GpuStack extends Stack {
   constructor(scope: App, id: string) {
     super(scope, id);
 
+    // Note: Creating a VPC is not required. Providers can use the default VPC or an existing VPC.
+    // We create one here to make this example self-contained and testable.
+    // Create a VPC with public and private subnets
     const vpc = new Vpc(this, 'VPC', {
       maxAzs: 2,
       subnetConfiguration: [
