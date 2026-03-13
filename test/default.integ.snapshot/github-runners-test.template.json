@@ -7790,7 +7790,7 @@
       "Arn"
      ]
     },
-    "Ami": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id"
+    "Ami": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -7943,7 +7943,7 @@
        ]
       }
      },
-     "ImageId": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id",
+     "ImageId": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id",
      "InstanceMarketOptions": {
       "MarketType": "spot",
       "SpotOptions": {
@@ -8555,7 +8555,7 @@
       "Arn"
      ]
     },
-    "Ami": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id"
+    "Ami": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -8708,7 +8708,7 @@
        ]
       }
      },
-     "ImageId": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id",
+     "ImageId": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id",
      "InstanceType": "m6i.large",
      "MetadataOptions": {
       "HttpTokens": "required"
@@ -9221,7 +9221,7 @@
       "Arn"
      ]
     },
-    "Ami": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id"
+    "Ami": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -9374,7 +9374,7 @@
        ]
       }
      },
-     "ImageId": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id",
+     "ImageId": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id",
      "InstanceMarketOptions": {
       "MarketType": "spot",
       "SpotOptions": {
@@ -10018,7 +10018,7 @@
        ]
       }
      },
-     "ImageId": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2023/arm64/recommended/image_id",
+     "ImageId": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2/arm64/recommended/image_id",
      "InstanceType": "m6g.large",
      "MetadataOptions": {
       "HttpTokens": "required"

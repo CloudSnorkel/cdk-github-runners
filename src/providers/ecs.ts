@@ -569,7 +569,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       if (this.gpuCount <= 4) {
         return ec2.InstanceType.of(ec2.InstanceClass.G4DN, ec2.InstanceSize.XLARGE12);
       }
-      return ec2.InstanceType.of(ec2.InstanceClass.P3, ec2.InstanceSize.XLARGE16);
+      if (this.gpuCount <= 8) {
+        return ec2.InstanceType.of(ec2.InstanceClass.P3, ec2.InstanceSize.XLARGE16);
+      }
+      throw new Error(`Unsupported GPU count: ${this.gpuCount}`);
     }
     if (this.image.architecture.is(Architecture.X86_64)) {
       return ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
@@ -593,12 +596,12 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       }
       if (!found && this.image.architecture.is(Architecture.X86_64)) {
         baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.STANDARD);
-        ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id';
+        ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id';
         found = true;
       }
       if (!found && this.image.architecture.is(Architecture.ARM64)) {
         baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.ARM);
-        ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/arm64/recommended/image_id';
+        ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2/arm64/recommended/image_id';
         found = true;
       }
     }
