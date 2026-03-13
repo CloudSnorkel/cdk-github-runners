@@ -5419,6 +5419,9 @@ Registration level must match the one selected during setup. See {@link SETUP_GI
 
 ## Limitations
 
+- **No deployment-fill**: Unlike AlwaysOnWarmRunner, scheduled warm runners do not get an initial fill on deploy.
+  The first fill happens at the next schedule occurrence (e.g. if you deploy at 1pm for a 2pm schedule,
+  runners will not appear until 2pm).
 - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
 - You may briefly see more than `count` runners when changing config or at rotation.
 - To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
