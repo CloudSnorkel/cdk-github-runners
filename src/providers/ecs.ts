@@ -593,13 +593,11 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.GPU);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2/gpu/recommended/image_id';
         found = true;
-      }
-      if (!found && this.image.architecture.is(Architecture.X86_64)) {
+      } else if (this.image.architecture.is(Architecture.X86_64)) {
         baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.STANDARD);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id';
         found = true;
-      }
-      if (!found && this.image.architecture.is(Architecture.ARM64)) {
+      } else if (this.image.architecture.is(Architecture.ARM64)) {
         baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.ARM);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2/arm64/recommended/image_id';
         found = true;
@@ -613,7 +611,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     }
 
     if (!found) {
-      throw new Error(`Unable to find AMI for ECS instances for ${this.image.os.name}/${this.image.architecture.name}`);
+      throw new Error(`Unable to find AMI for ECS instances for ${this.image.os.name}/${this.image.architecture.name} (gpuCount=${this.gpuCount})`);
     }
 
     const image: ec2.IMachineImage = {
