@@ -147,12 +147,13 @@ export function discoverCertificateFiles(sourcePath: string): string[] {
 /**
  * Returns true if the instance type has an NVIDIA GPU.
  *
- * Uses AWS naming convention: GPU instances use 'g' (g4dn, g5, g6, g9...) or 'p' (p3, p4d, p5, p6...)
- * prefix followed by a digit. This is future-proof for new families like g9, p6.
+ * Uses AWS naming convention: most NVIDIA GPU instances use 'g' (g4dn, g5, g6, g9...) or 'p' (p3, p4d, p5, p6...)
+ * prefix followed by a digit. Explicitly excludes known non-NVIDIA GPU families such as g4ad (AMD).
  *
  * @internal
  */
 export function isGpuInstanceType(instanceType: ec2.InstanceType): boolean {
   const s = instanceType.toString().toLowerCase();
-  return /^[gp]\d/.test(s);
+  // Match GPU instance families starting with g/p + digit, but exclude known non-NVIDIA GPU families.
+  return /^[gp]\d/.test(s) && !s.startsWith('g4ad');
 }

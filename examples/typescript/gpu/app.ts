@@ -133,7 +133,7 @@ class GpuStack extends Stack {
     // Find more versions at https://gallery.ecr.aws/deep-learning-containers/base
     // You can also use `BaseContainerImage.fromDockerHub('nvidia/cuda', '13.0.2-runtime-ubuntu22.04')` but Docker Hub always throttles
 
-    // CodeBuild - default builder auto-uses nvidia/cuda base when gpu: true
+    // CodeBuild - example using gpu: true with an explicitly specified GPU-capable base image
     const codebuildProvider = new CodeBuildRunnerProvider(this, 'CodeBuild', {
       labels: ['codebuild', 'gpu'],
       gpu: true,
@@ -144,7 +144,7 @@ class GpuStack extends Stack {
       }),
     });
 
-    // ECS - default builder auto-uses nvidia/cuda base when gpu > 0
+    // ECS - example using gpu > 0 with an explicitly specified GPU-capable base image
     const ecsProvider = new EcsRunnerProvider(this, 'ECS', {
       labels: ['ecs', 'gpu'],
       vpc,

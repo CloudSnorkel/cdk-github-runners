@@ -473,7 +473,7 @@ describe('BaseImage', () => {
     );
   });
 
-  test('fromGpuBase throws for unknown os/arch', () => {
+  test('fromGpuBase allows supported os/arch and throws for unsupported ones', () => {
     expect(() => BaseImage.fromGpuBase(Os.LINUX_UBUNTU_2204, Architecture.ARM64)).not.toThrow();
     expect(() => BaseImage.fromGpuBase(Os.WINDOWS, Architecture.ARM64)).toThrow(
       /No GPU base AMI for/,

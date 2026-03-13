@@ -140,10 +140,15 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
   readonly dockerInDocker?: boolean;
 
   /**
-   * Use GPU compute for builds. When enabled, uses BUILD_GENERAL1_SMALL (4 vCPU, 16 GB RAM, 1 NVIDIA A10G GPU).
+   * Use GPU compute for builds. When enabled, the default compute type is BUILD_GENERAL1_SMALL (4 vCPU, 16 GB RAM, 1 NVIDIA A10G GPU).
    *
-   * We automatically use a GPU base image (nvidia/cuda) with CUDA pre-installed. If you provide your own
-   * image builder, use an image preloaded with CUDA runtime, or use an image component to install CUDA runtime.
+   * You can override the compute type using the `computeType` property (for example, to use BUILD_GENERAL1_LARGE for more resources),
+   * subject to the supported GPU compute types.
+   *
+   * When using GPU compute, ensure your runner image includes any required GPU libraries (for example, CUDA)
+   * either by using a base image that has them preinstalled (such as an appropriate nvidia/cuda image) or by
+   * adding image components that install them. The default image builder does not automatically switch to a
+   * CUDA-enabled base image when GPU is enabled.
    *
    * GPU compute is only available for Linux x64 images. Not supported on Windows or ARM.
    *
