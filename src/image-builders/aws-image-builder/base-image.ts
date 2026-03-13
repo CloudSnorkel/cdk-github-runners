@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
+import { Architecture, Os } from '../../providers';
 
 /**
  * Type that can be used to specify a base image - either a string (deprecated) or a BaseImage object.
@@ -81,6 +82,45 @@ export class BaseImage {
    */
   public static fromString(baseImageString: string): BaseImage {
     return new BaseImage(baseImageString);
+  }
+
+  /**
+   * A base AMI with NVIDIA drivers pre-installed for GPU workloads.
+   *
+   * Uses AWS Deep Learning AMIs for Linux (Ubuntu, Amazon Linux 2, Amazon Linux 2023).
+   * For Windows, subscribe to NVIDIA RTX Virtual Workstation in AWS Marketplace, then use
+   * {@link fromMarketplaceProductId} with the product ID.
+   *
+   * @param os Target operating system
+   * @param architecture Target architecture
+   * @throws Error if the OS/architecture combo has no GPU base AMI
+   */
+  public static fromGpuBase(os: Os, architecture: Architecture): BaseImage {
+    const arch = architecture.is(Architecture.X86_64) ? 'x86_64' : 'arm64';
+
+    if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_UBUNTU_2204) || os.is(Os.LINUX)) {
+      return BaseImage.fromSsmParameterName(`/aws/service/deeplearning/ami/${arch}/base-oss-nvidia-driver-gpu-ubuntu-22.04/latest/ami-id`);
+    }
+    if (os.is(Os.LINUX_UBUNTU_2404)) {
+      return BaseImage.fromSsmParameterName(`/aws/service/deeplearning/ami/${arch}/base-oss-nvidia-driver-gpu-ubuntu-24.04/latest/ami-id`);
+    }
+    if (os.is(Os.LINUX_AMAZON_2)) {
+      return BaseImage.fromSsmParameterName(`/aws/service/deeplearning/ami/${arch}/base-oss-nvidia-driver-amazon-linux-2/latest/ami-id`);
+    }
+    if (os.is(Os.LINUX_AMAZON_2023)) {
+      return BaseImage.fromSsmParameterName(`/aws/service/deeplearning/ami/${arch}/base-oss-nvidia-driver-gpu-amazon-linux-2023/latest/ami-id`);
+    }
+    if (os.is(Os.WINDOWS) && architecture.is(Architecture.X86_64)) {
+      throw new Error(
+        'No GPU base AMI for Windows. Subscribe to NVIDIA RTX Virtual Workstation (WinServer 2022) at ' +
+        'https://aws.amazon.com/marketplace/pp/prodview-f4reygwmtxipu (free), then use ' +
+        "`baseAmi: BaseImage.fromMarketplaceProductId('prod-77u2eeb33lmrm')` (other AMIs with NVIDIA drivers installed can also be used).",
+      );
+    }
+
+    throw new Error(
+      `No GPU base AMI for ${os.name} / ${architecture.name}.`,
+    );
   }
 
   /**
