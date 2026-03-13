@@ -2,6 +2,8 @@
 """
 Example: GPU support for GitHub Actions runners.
 
+When testing or copying this, you probably want just one provider and not all of them.
+
 Supported: EC2 (Ubuntu x64/ARM64, AL2023, Windows), CodeBuild, ECS.
 Note: EC2 AL2 is NOT supported (nvidia rpms require a newer rpm lib than available in AL2).
 
