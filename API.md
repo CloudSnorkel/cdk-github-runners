@@ -6105,7 +6105,7 @@ const codeBuildRunnerProviderProps: CodeBuildRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.retryOptions">retryOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.computeType">computeType</a></code> | <code>aws-cdk-lib.aws_codebuild.ComputeType</code> | The type of compute to use for this build. See the {@link ComputeType} enum for the possible values. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.gpu">gpu</a></code> | <code>boolean</code> | Use GPU compute for builds. When enabled, uses BUILD_GENERAL1_SMALL (4 vCPU, 16 GB RAM, 1 NVIDIA A10G GPU). |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.gpu">gpu</a></code> | <code>boolean</code> | Use GPU compute for builds. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.group">group</a></code> | <code>string</code> | GitHub Actions runner group name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build Docker images containing GitHub Runner and all requirements. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProviderProps.property.label">label</a></code> | <code>string</code> | GitHub Actions label used for this provider. |
@@ -6210,10 +6210,17 @@ public readonly gpu: boolean;
 - *Type:* boolean
 - *Default:* false
 
-Use GPU compute for builds. When enabled, uses BUILD_GENERAL1_SMALL (4 vCPU, 16 GB RAM, 1 NVIDIA A10G GPU).
+Use GPU compute for builds.
 
-We automatically use a GPU base image (nvidia/cuda) with CUDA pre-installed. If you provide your own
-image builder, use an image preloaded with CUDA runtime, or use an image component to install CUDA runtime.
+When enabled, the default compute type is BUILD_GENERAL1_SMALL (4 vCPU, 16 GB RAM, 1 NVIDIA A10G GPU).
+
+You can override the compute type using the `computeType` property (for example, to use BUILD_GENERAL1_LARGE for more resources),
+subject to the supported GPU compute types.
+
+When using GPU compute, ensure your runner image includes any required GPU libraries (for example, CUDA)
+either by using a base image that has them preinstalled (such as an appropriate nvidia/cuda image) or by
+adding image components that install them. The default image builder does not automatically switch to a
+CUDA-enabled base image when GPU is enabled.
 
 GPU compute is only available for Linux x64 images. Not supported on Windows or ARM.
 
@@ -7026,8 +7033,9 @@ Number of GPUs to request for the runner task. When set, the task will be schedu
 Requires a GPU-capable instance type (e.g., g4dn.xlarge for 1 GPU, g4dn.12xlarge for 4 GPUs) and GPU AMI.
 When creating a new cluster, instanceType defaults to g4dn.xlarge and the ECS Optimized GPU AMI is used.
 
-We automatically use a GPU base image (nvidia/cuda) with CUDA pre-installed. If you provide your own
-image builder, use an image preloaded with CUDA runtime, or use an image component to install CUDA runtime.
+You must ensure that the task's container image includes the CUDA runtime. Provide a CUDA-enabled base image
+via `baseDockerImage`, use an image builder that starts from a GPU-capable image (such as nvidia/cuda), or add
+an image component that installs the CUDA runtime into the image.
 
 ---
 
