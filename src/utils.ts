@@ -155,5 +155,5 @@ export function discoverCertificateFiles(sourcePath: string): string[] {
 export function isGpuInstanceType(instanceType: ec2.InstanceType): boolean {
   const s = instanceType.toString().toLowerCase();
   // Match GPU instance families starting with g/p + digit, but exclude known non-NVIDIA GPU families.
-  return /^[gp]\d/.test(s) && !s.startsWith('g4ad');
+  return /^[gp]\d+(?!ad)/.test(s);
 }
