@@ -200,7 +200,7 @@ async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
         installationId: input.installationId ?? -1,
         jobLabels: input.providerLabels.join(','),
         provider: input.providerPath,
-        labels: input.providerLabels.join(','),
+        labels: input.providerLabels.join(',') + ',cdkghr:warm',
         maxIdleSeconds: remainingSeconds,
       }),
     }));
@@ -292,7 +292,9 @@ async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octo
     }));
   } catch (e) {
     console.error({
-      notice: `Failed to stop step function ${input.executionArn}: ${e}`,
+      notice: 'Failed to stop step function',
+      executionArn: input.executionArn,
+      error: e,
       input,
     });
   }
@@ -303,7 +305,9 @@ async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octo
       await deleteRunner(octokit, secrets.runnerLevel, input.owner, input.repo, runner.id);
     } catch (e) {
       console.error({
-        notice: `Failed to delete runner ${runner.id}: ${e}`,
+        notice: 'Failed to delete runner',
+        runnerId: runner.id,
+        error: e,
         input,
       });
     }
@@ -345,7 +349,7 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
       }
       await customResourceRespond(event, 'SUCCESS', 'OK', physicalId, {});
     } catch (e) {
-      console.error({ notice: 'Custom resource handler failed' });
+      console.error({ notice: 'Custom resource handler failed', error: e });
       await customResourceRespond(event, 'FAILED', (e as Error).message || 'Internal Error', physicalId, {});
     }
     return;
@@ -368,7 +372,7 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
       console.error({
         notice: 'Failed to parse message body',
         requestId: record.messageId,
-        errorType: e instanceof Error ? e.name : 'UnknownError',
+        error: e,
       });
       continue;
     }
@@ -383,7 +387,7 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
         console.error({
           notice: 'Fill failed',
           requestId: record.messageId,
-          errorType: e instanceof Error ? e.name : 'UnknownError',
+          error: e,
         });
         result.batchItemFailures.push({ itemIdentifier: record.messageId });
       }
@@ -424,7 +428,7 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
       try {
         await stopAndDeleteRunner(input, octokit, secrets);
       } catch (e) {
-        console.error({ notice: 'Best-effort cleanup of stale warm runner failed; it will self-terminate at idle timeout', input, error: `${e}` });
+        console.error({ notice: 'Best-effort cleanup of stale warm runner failed; it will self-terminate at idle timeout', input, error: e });
       }
       continue;
     }
