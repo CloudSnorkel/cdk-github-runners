@@ -75,7 +75,7 @@ async function deleteResources(props: DeleteResourcesProps) {
       console.warn({
         notice: 'Failed to delete AMI',
         image: imageId,
-        error: `${e}`,
+        error: e,
       });
     }
   }
@@ -106,7 +106,7 @@ async function deleteResources(props: DeleteResourcesProps) {
       console.warn({
         notice: 'Failed to delete docker image',
         image,
-        error: `${e}`,
+        error: e,
       });
     }
   }
@@ -126,7 +126,7 @@ async function deleteResources(props: DeleteResourcesProps) {
       console.warn({
         notice: 'Failed to delete image version build',
         build,
-        error: `${e}`,
+        error: e,
       });
     }
   }
@@ -160,7 +160,7 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
   } catch (e) {
     console.error({
       notice: 'Failed to delete Image Builder resources',
-      error: `${e}`,
+      error: e,
     });
     await customResourceRespond(event, 'FAILED', (e as Error).message || 'Internal Error', 'FAIL', {});
   }

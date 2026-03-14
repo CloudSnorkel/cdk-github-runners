@@ -132,7 +132,7 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
               executionArn: input.executionArn,
               runnerId: runner.id,
               runnerName: input.runnerName,
-              error: `${e}`,
+              error: e,
               input,
             });
             retryLater();
@@ -152,7 +152,7 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
               notice: 'Failed to delete runner',
               runnerId: runner.id,
               runnerName: input.runnerName,
-              error: `${e}`,
+              error: e,
               input,
             });
             retryLater();

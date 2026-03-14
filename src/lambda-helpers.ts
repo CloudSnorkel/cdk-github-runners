@@ -16,13 +16,13 @@ const sm = new SecretsManagerClient();
 
 export async function getSecretValue(arn: string | undefined) {
   if (!arn) {
-    throw new Error('Missing secret ARN');
+    throw new Error('Missing secret ARN (are Lambda environment variables corrupted?)');
   }
 
   const secret = await sm.send(new GetSecretValueCommand({ SecretId: arn }));
 
   if (!secret.SecretString) {
-    throw new Error('Missing SecretString');
+    throw new Error('Secrets Manager getSecretValue returned no SecretString for the requested secret.');
   }
 
   return secret.SecretString;
@@ -34,7 +34,7 @@ export async function getSecretJsonValue(arn: string | undefined) {
 
 export async function updateSecretValue(arn: string | undefined, value: string) {
   if (!arn) {
-    throw new Error('Missing secret ARN');
+    throw new Error('Missing secret ARN (are Lambda environment variables corrupted?)');
   }
 
   await sm.send(new UpdateSecretCommand({ SecretId: arn, SecretString: value }));
