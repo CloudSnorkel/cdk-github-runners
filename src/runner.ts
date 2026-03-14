@@ -905,7 +905,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * * "Ignored webhook" helps understand why runners aren't started
    * * "Ignored jobs based on labels" helps debug label matching issues
    * * "Webhook started runners" helps understand which runners were started
-   * 
+   *
    * @param prefix Prefix for the query definitions. Defaults to "GitHub Runners".
    */
   public createLogsInsightsQueries(prefix = 'GitHub Runners') {
