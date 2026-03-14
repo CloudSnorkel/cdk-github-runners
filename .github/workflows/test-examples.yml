@@ -23,4 +23,4 @@ jobs:
       - name: Install CDK
         run: npm install -g aws-cdk
       - name: Run test-examples script
-        run: python examples/test-examples.py --skip-deploy
+        run: PYTHONUNBUFFERED=1 python examples/test-examples.py --skip-deploy
