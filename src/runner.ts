@@ -905,10 +905,12 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * * "Ignored webhook" helps understand why runners aren't started
    * * "Ignored jobs based on labels" helps debug label matching issues
    * * "Webhook started runners" helps understand which runners were started
+   *
+   * @param prefix Prefix for the query definitions. Defaults to "GitHub Runners".
    */
-  public createLogsInsightsQueries() {
+  public createLogsInsightsQueries(prefix = 'GitHub Runners') {
     new logs.QueryDefinition(this, 'Webhook errors', {
-      queryDefinitionName: 'GitHub Runners/Webhook errors',
+      queryDefinitionName: `${prefix}/Webhook errors`,
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
         filterStatements: [
@@ -921,7 +923,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Orchestration errors', {
-      queryDefinitionName: 'GitHub Runners/Orchestration errors',
+      queryDefinitionName: `${prefix}/Orchestration errors`,
       logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
       queryString: new logs.QueryString({
         filterStatements: [
@@ -933,7 +935,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Runner image build errors', {
-      queryDefinitionName: 'GitHub Runners/Runner image build errors',
+      queryDefinitionName: `${prefix}/Runner image build errors`,
       logGroups: [singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD)],
       queryString: new logs.QueryString({
         filterStatements: [
@@ -945,7 +947,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Ignored webhooks', {
-      queryDefinitionName: 'GitHub Runners/Ignored webhooks',
+      queryDefinitionName: `${prefix}/Ignored webhooks`,
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
         fields: ['@timestamp', 'message.notice'],
@@ -959,7 +961,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Ignored jobs based on labels', {
-      queryDefinitionName: 'GitHub Runners/Ignored jobs based on labels',
+      queryDefinitionName: `${prefix}/Ignored jobs based on labels`,
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
         fields: ['@timestamp', 'message.notice'],
@@ -973,7 +975,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Webhook started runners', {
-      queryDefinitionName: 'GitHub Runners/Webhook started runners',
+      queryDefinitionName: `${prefix}/Webhook started runners`,
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
         fields: ['@timestamp', 'message.sfnInput.jobUrl', 'message.sfnInput.jobLabels', 'message.sfnInput.labels', 'message.sfnInput.provider'],
@@ -987,7 +989,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Webhook redeliveries', {
-      queryDefinitionName: 'GitHub Runners/Webhook redeliveries',
+      queryDefinitionName: `${prefix}/Webhook redeliveries`,
       logGroups: [this.redeliverer.handler.logGroup],
       queryString: new logs.QueryString({
         fields: ['@timestamp', 'message.notice', 'message.deliveryId', 'message.guid'],
