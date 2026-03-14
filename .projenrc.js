@@ -27,6 +27,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@aws-sdk/client-lambda',
     '@aws-sdk/client-secrets-manager',
     '@aws-sdk/client-sns',
+    '@aws-sdk/client-sqs',
     '@aws-sdk/client-ssm',
     '@aws-sdk/client-sfn',
     '@types/aws-lambda',
