@@ -75,7 +75,7 @@ async function deleteResources(props: DeleteResourcesProps) {
       console.warn({
         notice: 'Failed to delete AMI',
         image: imageId,
-        error: e,
+        error: `${e}`,
       });
     }
   }
@@ -106,7 +106,7 @@ async function deleteResources(props: DeleteResourcesProps) {
       console.warn({
         notice: 'Failed to delete docker image',
         image,
-        error: e,
+        error: `${e}`,
       });
     }
   }
@@ -126,7 +126,7 @@ async function deleteResources(props: DeleteResourcesProps) {
       console.warn({
         notice: 'Failed to delete image version build',
         build,
-        error: e,
+        error: `${e}`,
       });
     }
   }

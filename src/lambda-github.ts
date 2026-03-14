@@ -75,7 +75,7 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Re
     } catch (e) {
       console.log({
         notice: 'Octokit cache is invalid',
-        error: e,
+        error: `${e}`,
       });
       octokitCache.delete(cacheKey);
     }

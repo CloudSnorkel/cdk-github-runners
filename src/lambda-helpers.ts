@@ -22,7 +22,7 @@ export async function getSecretValue(arn: string | undefined) {
   const secret = await sm.send(new GetSecretValueCommand({ SecretId: arn }));
 
   if (!secret.SecretString) {
-    throw new Error(`No SecretString in ${arn}`);
+    throw new Error('Missing SecretString');
   }
 
   return secret.SecretString;

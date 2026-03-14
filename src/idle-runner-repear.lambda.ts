@@ -22,6 +22,7 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
     const input = JSON.parse(record.body) as IdleReaperLambdaInput;
     console.log({
       notice: 'Checking runner',
+      runnerName: input.runnerName,
       input,
     });
 
@@ -33,6 +34,7 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
       // no need to test again as runner already finished
       console.log({
         notice: 'Runner already finished',
+        runnerName: input.runnerName,
         input,
       });
       continue;
@@ -60,6 +62,7 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
     if (!runner) {
       console.log({
         notice: 'Runner not running yet',
+        runnerName: input.runnerName,
         input,
       });
       retryLater();
@@ -72,6 +75,8 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
     if (runner.busy) {
       console.log({
         notice: 'Runner is not idle',
+        runnerId: runner.id,
+        runnerName: input.runnerName,
         input,
       });
       retryLater();
@@ -88,14 +93,21 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
         const diffMs = now.getTime() - startedDate.getTime();
 
         console.log({
-          notice: `Runner ${input.runnerName} started ${diffMs / 1000} seconds ago`,
+          notice: 'Runner is idle',
+          runnerId: runner.id,
+          runnerName: input.runnerName,
+          idleSeconds: diffMs / 1000,
           input,
         });
 
         if (diffMs > 1000 * input.maxIdleSeconds) {
           // max idle time reached, delete runner
           console.log({
-            notice: `Runner ${input.runnerName} is idle for too long`,
+            notice: 'Runner is idle for too long',
+            runnerId: runner.id,
+            runnerName: input.runnerName,
+            idleSeconds: diffMs / 1000,
+            maxIdleSeconds: input.maxIdleSeconds,
             input,
           });
 
@@ -103,7 +115,10 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
             // stop step function first, so it's marked as aborted with the proper error
             // if we delete the runner first, the step function will be marked as failed with a generic error
             console.log({
-              notice: `Stopping step function ${input.executionArn}...`,
+              notice: 'Stopping step function',
+              executionArn: input.executionArn,
+              runnerId: runner.id,
+              runnerName: input.runnerName,
               input,
             });
             await sfn.send(new StopExecutionCommand({
@@ -113,7 +128,11 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
             }));
           } catch (e) {
             console.error({
-              notice: `Failed to stop step function ${input.executionArn}: ${e}`,
+              notice: 'Failed to stop step function',
+              executionArn: input.executionArn,
+              runnerId: runner.id,
+              runnerName: input.runnerName,
+              error: `${e}`,
               input,
             });
             retryLater();
@@ -122,13 +141,18 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
 
           try {
             console.log({
-              notice: `Deleting runner ${runner.id}...`,
+              notice: 'Deleting runner',
+              runnerId: runner.id,
+              runnerName: input.runnerName,
               input,
             });
             await deleteRunner(octokit, secrets.runnerLevel, input.owner, input.repo, runner.id);
           } catch (e) {
             console.error({
-              notice: `Failed to delete runner ${runner.id}: ${e}`,
+              notice: 'Failed to delete runner',
+              runnerId: runner.id,
+              runnerName: input.runnerName,
+              error: `${e}`,
               input,
             });
             retryLater();
@@ -148,6 +172,8 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
       // no started label? retry later (it won't retry forever as eventually the runner will stop and the step function will finish)
       console.error({
         notice: 'No `cdkghr:started:xxx` label found???',
+        runnerId: runner.id,
+        runnerName: input.runnerName,
         input,
       });
       retryLater();
