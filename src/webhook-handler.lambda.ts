@@ -70,7 +70,7 @@ async function isDeploymentPending(payload: any) {
   } catch (e) {
     console.error({
       notice: 'Unable to check deployment. Try adding deployment read permission.',
-      error: `${e}`,
+      error: e,
     });
     return false;
   }
@@ -206,7 +206,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
   } catch (e) {
     console.error({
       notice: 'Bad signature',
-      error: `${e}`,
+      error: e,
     });
     return {
       statusCode: 403,
