@@ -175,7 +175,7 @@ export async function handler(event: ApiGatewayEvent): Promise<AWSLambda.APIGate
   } catch (e) {
     console.error({
       notice: 'Setup handler failed',
-      error: `${e}`,
+      error: e,
     });
     return response(500, `<b>Error:</b> ${e}`);
   }

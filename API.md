@@ -3837,7 +3837,7 @@ The mixins to apply.
 ##### `createLogsInsightsQueries` <a name="createLogsInsightsQueries" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.createLogsInsightsQueries"></a>
 
 ```typescript
-public createLogsInsightsQueries(): void
+public createLogsInsightsQueries(prefix?: string): void
 ```
 
 Creates CloudWatch Logs Insights saved queries that can be used to debug issues with the runners.
@@ -3847,6 +3847,16 @@ Creates CloudWatch Logs Insights saved queries that can be used to debug issues 
 * "Ignored jobs based on labels" helps debug label matching issues
 * "Webhook started runners" helps understand which runners were started
 * "Warm runner status" and "Warm runner errors" (when warm runners are configured)
+
+###### `prefix`<sup>Optional</sup> <a name="prefix" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.createLogsInsightsQueries.parameter.prefix"></a>
+
+- *Type:* string
+
+Prefix for the query definitions.
+
+Defaults to "GitHub Runners".
+
+---
 
 ##### `failedImageBuildsTopic` <a name="failedImageBuildsTopic" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic"></a>
 
