@@ -225,43 +225,6 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
   readonly gpu?: number;
 }
 
-interface EcsEc2LaunchTargetOptions extends stepfunctions_tasks.EcsEc2LaunchTargetOptions {
-  readonly capacityProvider: string;
-}
-
-/**
- * Custom ECS EC2 launch target that allows specifying capacity provider strategy and propagating tags.
- */
-class CustomEcsEc2LaunchTarget extends stepfunctions_tasks.EcsEc2LaunchTarget {
-  private readonly capacityProvider: string;
-
-  constructor(options: EcsEc2LaunchTargetOptions) {
-    super(options);
-    this.capacityProvider = options.capacityProvider;
-  }
-
-  /**
-   * Called when the ECS launch type configured on RunTask
-   */
-  public bind(_task: stepfunctions_tasks.EcsRunTask,
-    _launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
-    const base = super.bind(_task, _launchTargetOptions);
-    return {
-      ...base,
-      parameters: {
-        ...(base.parameters ?? {}),
-        PropagateTags: ecs.PropagatedTagSource.TASK_DEFINITION,
-        CapacityProviderStrategy: [
-          {
-            CapacityProvider: this.capacityProvider,
-          },
-        ],
-        LaunchType: undefined, // You may choose a capacity provider or a launch type but not both.
-      },
-    };
-  }
-}
-
 /**
  * GitHub Actions runner provider using ECS on EC2 to execute jobs.
  *
@@ -674,12 +637,15 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,
         cluster: this.cluster,
-        launchTarget: new CustomEcsEc2LaunchTarget({
-          capacityProvider: this.capacityProvider.capacityProviderName,
+        launchTarget: new stepfunctions_tasks.EcsEc2LaunchTarget({
+          capacityProviderOptions: stepfunctions_tasks.CapacityProviderOptions.custom([{
+            capacityProvider: this.capacityProvider.capacityProviderName,
+          }]),
           placementStrategies: this.placementStrategies,
           placementConstraints: this.placementConstraints,
         }),
         enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
+        propagatedTagSource: ecs.PropagatedTagSource.TASK_DEFINITION,
         assignPublicIp: this.assignPublicIp,
         containerOverrides: [
           {
