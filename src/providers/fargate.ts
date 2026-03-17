@@ -176,42 +176,6 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
 }
 
 /**
- * Properties for EcsFargateLaunchTarget.
- */
-interface EcsFargateLaunchTargetProps {
-  readonly spot: boolean;
-}
-
-/**
- * Our special launch target that can use spot instances and set EnableExecuteCommand.
- */
-class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
-  constructor(readonly props: EcsFargateLaunchTargetProps) {
-  }
-
-  /**
-   * Called when the Fargate launch type configured on RunTask
-   */
-  public bind(_task: stepfunctions_tasks.EcsRunTask,
-    launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
-    if (!launchTargetOptions.taskDefinition.isFargateCompatible) {
-      throw new Error('Supplied TaskDefinition is not compatible with Fargate');
-    }
-
-    return {
-      parameters: {
-        PropagateTags: ecs.PropagatedTagSource.TASK_DEFINITION,
-        CapacityProviderStrategy: [
-          {
-            CapacityProvider: this.props.spot ? 'FARGATE_SPOT' : 'FARGATE',
-          },
-        ],
-      },
-    };
-  }
-}
-
-/**
  * @internal
  */
 export function ecsRunCommand(os: Os, dind: boolean): string[] {
@@ -494,10 +458,14 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,
         cluster: this.cluster,
-        launchTarget: new EcsFargateLaunchTarget({
-          spot: this.spot,
+        launchTarget: new stepfunctions_tasks.EcsFargateLaunchTarget({
+          platformVersion: ecs.FargatePlatformVersion.LATEST,
+          capacityProviderOptions: stepfunctions_tasks.CapacityProviderOptions.custom([{
+            capacityProvider: this.spot ? 'FARGATE_SPOT' : 'FARGATE',
+          }]),
         }),
         enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
+        propagatedTagSource: ecs.PropagatedTagSource.TASK_DEFINITION,
         subnets: this.subnetSelection,
         assignPublicIp: this.assignPublicIp,
         securityGroups: this.securityGroups,
