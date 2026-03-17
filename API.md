@@ -4,7 +4,7 @@
 
 ### AlwaysOnWarmRunner <a name="AlwaysOnWarmRunner" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner"></a>
 
-Warm runners that run 24/7. Fills at midnight UTC; each runner stays alive 24 hours.
+Warm runners that run 24/7. Fills at midnight UTC and each runner stays alive for 24 hours.
 
 Runners will be provisioned using the specified provider and registered in the specified repository or organization.
 
@@ -15,7 +15,10 @@ Registration level must match the one selected during setup. See {@link SETUP_GI
 - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
 - You may briefly see more than `count` runners when changing config or at rotation.
 - To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
-- Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and can be tweaked using `retryOptions`. This will be improved in the future.
+  If you don't follow this procedure, warm runners may linger until they expire.
+- Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a
+  gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
+  can be tweaked using `retryOptions`. This will be improved in the future.
 
 *Example*
 
@@ -5429,25 +5432,29 @@ Registration level must match the one selected during setup. See {@link SETUP_GI
 
 ## Limitations
 
-- **No deployment-fill**: Unlike AlwaysOnWarmRunner, scheduled warm runners do not get an initial fill on deploy.
-  The first fill happens at the next schedule occurrence (e.g. if you deploy at 1pm for a 2pm schedule,
-  runners will not appear until 2pm).
+- **No deployment-fill**: Unlike `AlwaysOnWarmRunner`, scheduled warm runners do not get an initial
+  fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
+  a 2pm schedule, runners will not appear until 2pm.
 - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
 - You may briefly see more than `count` runners when changing config or at rotation.
 - To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
-- Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and can be tweaked using `retryOptions`. This will be improved in the future.
+  If you don't follow this procedure, warm runners may linger until they expire.
+- Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a
+  gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
+  can be tweaked using `retryOptions`. This will be improved in the future.
 
 *Example*
 
 ```typescript
-new ScheduledWarmRunner(stack, 'BusinessHours', {
+// Rate: fill every 12 hours
+new ScheduledWarmRunner(stack, 'Every 12 Hours', {
   runners,
   provider: myProvider,
-  count: 3,
+  count: 2,
   owner: 'my-org',
   repo: 'my-repo',
-  schedule: events.Schedule.cron({ hour: '13', minute: '0', weekDay: 'MON-FRI' }),
-  duration: cdk.Duration.hours(2),
+  schedule: events.Schedule.rate(cdk.Duration.hours(5)),
+  duration: cdk.Duration.hours(12),
 });
 ```
 
