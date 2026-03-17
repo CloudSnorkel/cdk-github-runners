@@ -5,6 +5,7 @@ import {
   aws_events_targets as events_targets,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { CronExpressionParser } from 'cron-parser';
 import { ICompositeProvider, IRunnerProvider } from './providers';
 import { GitHubRunners } from './runner';
 import { WarmRunnerFillPayload } from './warm-runner-manager.lambda';
@@ -130,7 +131,7 @@ function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule:
 }
 
 /**
- * Warm runners that run 24/7. Fills at midnight UTC; each runner stays alive 24 hours.
+ * Warm runners that run 24/7. Fills at midnight UTC and each runner stays alive for 24 hours.
  *
  * Runners will be provisioned using the specified provider and registered in the specified repository or organization.
  *
@@ -141,7 +142,10 @@ function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule:
  * - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
  * - You may briefly see more than `count` runners when changing config or at rotation.
  * - To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
- * - Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and can be tweaked using `retryOptions`. This will be improved in the future.
+ *   If you don't follow this procedure, warm runners may linger until they expire.
+ * - Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a
+ *   gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
+ *   can be tweaked using `retryOptions`. This will be improved in the future.
  *
  * @example
  * new AlwaysOnWarmRunner(stack, 'AlwaysOnLinux', {
@@ -166,6 +170,58 @@ export class AlwaysOnWarmRunner extends Construct {
 }
 
 /**
+ * Convert AWS EventBridge cron format to cron-parser format.
+ * AWS: cron(min hour dom month dow year), cron-parser: sec min hour dom month dow
+ */
+function awsCronToParserFormat(expressionString: string): string {
+  const match = expressionString.match(/^cron\((.+)\)$/);
+  if (!match) return expressionString;
+  const [, inner] = match;
+  const parts = inner.trim().split(/\s+/);
+  if (parts.length !== 6) return expressionString;
+  const [minute, hour, dom, month, dow] = parts;
+  return `0 ${minute} ${hour} ${dom} ${month} ${dow}`;
+}
+
+/**
+ * Parse AWS EventBridge rate expression and return interval in seconds.
+ * Format: rate(value unit) e.g. rate(2 hours), rate(5 minutes), rate(1 day)
+ */
+function parseRateInterval(expressionString: string): number | undefined {
+  const match = expressionString.match(/^rate\((\d+)\s+(minute|minutes|hour|hours|day|days)\)$/i);
+  if (!match) return undefined;
+  const value = parseInt(match[1], 10);
+  const unit = match[2].toLowerCase();
+  if (value <= 0) return undefined;
+  const secondsPerUnit: Record<string, number> = {
+    minute: 60,
+    minutes: 60,
+    hour: 3600,
+    hours: 3600,
+    day: 86400,
+    days: 86400,
+  };
+  return value * secondsPerUnit[unit];
+}
+
+/**
+ * Get the interval between schedule occurrences in seconds.
+ * Supports both cron and rate expressions.
+ */
+function getScheduleIntervalSeconds(expressionString: string): number | undefined {
+  const rateInterval = parseRateInterval(expressionString);
+  if (rateInterval !== undefined) return rateInterval;
+
+  try {
+    const cronExpression = CronExpressionParser.parse(awsCronToParserFormat(expressionString));
+    const next = cronExpression.take(2);
+    return (next[1].getTime() - next[0].getTime()) / 1000;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Warm runners active during a time window specified by start time (`schedule`) and duration (`duration`).
  *
  * Runners will be provisioned using the specified provider and registered in the specified repository or organization.
@@ -174,16 +230,20 @@ export class AlwaysOnWarmRunner extends Construct {
  *
  * ## Limitations
  *
- * - **No deployment-fill**: Unlike AlwaysOnWarmRunner, scheduled warm runners do not get an initial fill on deploy.
- *   The first fill happens at the next schedule occurrence (e.g. if you deploy at 1pm for a 2pm schedule,
- *   runners will not appear until 2pm).
+ * - **No deployment-fill**: Unlike `AlwaysOnWarmRunner`, scheduled warm runners do not get an initial
+ *   fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
+ *   a 2pm schedule, runners will not appear until 2pm.
  * - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
  * - You may briefly see more than `count` runners when changing config or at rotation.
  * - To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
- * - Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and can be tweaked using `retryOptions`. This will be improved in the future.
+ *   If you don't follow this procedure, warm runners may linger until they expire.
+ * - Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a
+ *   gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
+ *   can be tweaked using `retryOptions`. This will be improved in the future.
  *
  * @example
- * new ScheduledWarmRunner(stack, 'BusinessHours', {
+ * // Cron: fill at 1pm on weekdays
+ * new ScheduledWarmRunner(stack, 'Business Hours', {
  *   runners,
  *   provider: myProvider,
  *   count: 3,
@@ -191,6 +251,18 @@ export class AlwaysOnWarmRunner extends Construct {
  *   repo: 'my-repo',
  *   schedule: events.Schedule.cron({ hour: '13', minute: '0', weekDay: 'MON-FRI' }),
  *   duration: cdk.Duration.hours(2),
+ * });
+ *
+ * @example
+ * // Rate: fill every 12 hours
+ * new ScheduledWarmRunner(stack, 'Every 12 Hours', {
+ *   runners,
+ *   provider: myProvider,
+ *   count: 2,
+ *   owner: 'my-org',
+ *   repo: 'my-repo',
+ *   schedule: events.Schedule.rate(cdk.Duration.hours(5)),
+ *   duration: cdk.Duration.hours(12),
  * });
  */
 export class ScheduledWarmRunner extends Construct {
@@ -202,6 +274,21 @@ export class ScheduledWarmRunner extends Construct {
 
   constructor(scope: Construct, id: string, props: ScheduledWarmRunnerProps) {
     super(scope, id);
+
+    // make sure the duration is not longer than the interval between next two schedule occurrences
+    const interval = getScheduleIntervalSeconds(props.schedule.expressionString);
+    if (interval !== undefined && interval < props.duration.toSeconds()) {
+      cdk.Annotations.of(this).addError(`ScheduledWarmRunner duration ${props.duration.toHumanString()} is longer than the interval ${cdk.Duration.seconds(interval).toHumanString()} between next two schedule occurrences. This will result in overlapping warm runners at the start of the next schedule occurrence.`);
+    }
+
+    // warn for short interval
+    if (interval !== undefined && interval < cdk.Duration.hours(1).toSeconds()) {
+      cdk.Annotations.of(this).addWarningV2(
+        '@cloudsnorkel/cdk-github-runners:ScheduledWarmRunner.intervalTooShort',
+        `ScheduledWarmRunner interval ${cdk.Duration.seconds(interval).toHumanString()} is less than 1 hour, which may result in more warm runners than expected`,
+      );
+    }
+
     this._fillPayload = buildWarmRunner(this, props, props.schedule, props.duration.toSeconds(), false);
   }
 }

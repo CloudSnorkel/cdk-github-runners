@@ -127,6 +127,9 @@
     "aws-cdk-lib": "^2.239.0",
     "constructs": "^10.5.1"
   },
+  "dependencies": {
+    "cron-parser": "^5.5.0"
+  },
   "keywords": [
     "aws",
     "aws-cdk",

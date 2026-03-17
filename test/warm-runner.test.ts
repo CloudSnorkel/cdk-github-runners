@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_events as events } from 'aws-cdk-lib';
-import { Match, Template } from 'aws-cdk-lib/assertions';
+import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import { AlwaysOnWarmRunner, CodeBuildRunnerProvider, CompositeProvider, GitHubRunners, LambdaRunnerProvider, ScheduledWarmRunner } from '../src';
 import { cleanUp } from './test-utils';
 
@@ -190,6 +190,126 @@ describe('ScheduledWarmRunner', () => {
 
     expect(warm._fillPayload.duration).toBe(7200);
     expect(warm._fillPayload.count).toBe(5);
+  });
+
+  test('adds error when duration exceeds schedule interval', () => {
+    const provider = new LambdaRunnerProvider(stack, 'p1');
+    const runners = new GitHubRunners(stack, 'runners', { providers: [provider] });
+
+    // Daily at midnight: interval = 86400 seconds. Duration 25 hours = 90000 > interval
+    new ScheduledWarmRunner(stack, 'warm', {
+      runners,
+      provider,
+      count: 2,
+      owner: 'my-org',
+      registrationLevel: 'org',
+      schedule: events.Schedule.cron({ hour: '0', minute: '0' }),
+      duration: cdk.Duration.hours(25),
+    });
+
+    Annotations.fromStack(stack).hasError(
+      '/test/warm',
+      Match.stringLikeRegexp('duration 1 day 1 hour is longer than the interval 1 day between next two schedule occurrences'),
+    );
+  });
+
+  test('adds warning when schedule interval is less than 1 hour', () => {
+    const provider = new LambdaRunnerProvider(stack, 'p1');
+    const runners = new GitHubRunners(stack, 'runners', { providers: [provider] });
+
+    // Every 30 minutes: interval = 1800 seconds < 3600
+    new ScheduledWarmRunner(stack, 'warm', {
+      runners,
+      provider,
+      count: 2,
+      owner: 'my-org',
+      registrationLevel: 'org',
+      schedule: events.Schedule.cron({ minute: '0,30', hour: '*' }),
+      duration: cdk.Duration.minutes(20),
+    });
+
+    Annotations.fromStack(stack).hasWarning(
+      '/test/warm',
+      Match.stringLikeRegexp('interval 30 minutes is less than 1 hour'),
+    );
+  });
+
+  test('no error or warning when duration fits within interval and interval >= 1 hour', () => {
+    const provider = new LambdaRunnerProvider(stack, 'p1');
+    const runners = new GitHubRunners(stack, 'runners', { providers: [provider] });
+
+    new ScheduledWarmRunner(stack, 'warm', {
+      runners,
+      provider,
+      count: 2,
+      owner: 'my-org',
+      registrationLevel: 'org',
+      schedule: events.Schedule.cron({ hour: '14', minute: '0' }),
+      duration: cdk.Duration.hours(2),
+    });
+
+    Annotations.fromStack(stack).hasNoError('/test/warm', Match.anyValue());
+    Annotations.fromStack(stack).hasNoWarning('/test/warm', Match.anyValue());
+  });
+
+  test('rate schedule: adds error when duration exceeds interval', () => {
+    const provider = new LambdaRunnerProvider(stack, 'p1');
+    const runners = new GitHubRunners(stack, 'runners', { providers: [provider] });
+
+    // rate(2 hours) = 7200 seconds. Duration 3 hours = 10800 > interval
+    new ScheduledWarmRunner(stack, 'warm', {
+      runners,
+      provider,
+      count: 2,
+      owner: 'my-org',
+      registrationLevel: 'org',
+      schedule: events.Schedule.rate(cdk.Duration.hours(2)),
+      duration: cdk.Duration.hours(3),
+    });
+
+    Annotations.fromStack(stack).hasError(
+      '/test/warm',
+      Match.stringLikeRegexp('duration 3 hours is longer than the interval 2 hours between next two schedule occurrences'),
+    );
+  });
+
+  test('rate schedule: adds warning when interval is less than 1 hour', () => {
+    const provider = new LambdaRunnerProvider(stack, 'p1');
+    const runners = new GitHubRunners(stack, 'runners', { providers: [provider] });
+
+    // rate(30 minutes) = 1800 seconds < 3600
+    new ScheduledWarmRunner(stack, 'warm', {
+      runners,
+      provider,
+      count: 2,
+      owner: 'my-org',
+      registrationLevel: 'org',
+      schedule: events.Schedule.rate(cdk.Duration.minutes(30)),
+      duration: cdk.Duration.minutes(15),
+    });
+
+    Annotations.fromStack(stack).hasWarning(
+      '/test/warm',
+      Match.stringLikeRegexp('interval 30 minutes is less than 1 hour'),
+    );
+  });
+
+  test('rate schedule: no error or warning when duration fits within interval', () => {
+    const provider = new LambdaRunnerProvider(stack, 'p1');
+    const runners = new GitHubRunners(stack, 'runners', { providers: [provider] });
+
+    new ScheduledWarmRunner(stack, 'warm', {
+      runners,
+      provider,
+      count: 2,
+      owner: 'my-org',
+      registrationLevel: 'org',
+      schedule: events.Schedule.rate(cdk.Duration.hours(2)),
+      duration: cdk.Duration.hours(1),
+    });
+
+    Annotations.fromStack(stack).hasNoError('/test/warm', Match.anyValue());
+    Annotations.fromStack(stack).hasNoWarning('/test/warm', Match.anyValue());
   });
 });
 

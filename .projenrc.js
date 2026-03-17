@@ -44,6 +44,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'eslint-plugin-svelte@^2.29.0',
   ],
   deps: [
+    'cron-parser',
   ],
   releaseToNpm: true,
   npmAccess: NpmAccess.PUBLIC,

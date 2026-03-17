@@ -16,36 +16,38 @@
  *
  * 2. **Keeper** — Each keeper message tracks one runner. The SQS queue delivers the
  *    message, this Lambda inspects the runner, and one of the following happens:
+ *    - Runner is past its deadline → the keeper stops the Step Function and deletes
+ *      the runner. No replacement is created.
  *    - Runner is idle and within deadline → message is returned to the queue
  *      (via batch item failure) to be checked again after the visibility timeout.
  *    - Runner is busy or its Step Function finished → a replacement runner is
  *      started with the same deadline, and a new keeper message is enqueued.
- *    - Runner is past its deadline → the Step Function is stopped and the GitHub
- *      runner is deleted. No replacement is created.
  *    - Config hash mismatch (config was changed/removed since this runner was
  *      created) → the runner is stopped and deleted. No replacement is created.
  *      This is how old runners are cleaned up quickly on config changes.
  *
- * 3. **Natural expiry** — Each runner's Step Function is started with a
- *    `maxIdleSeconds` equal to the remaining time until its deadline. If the
- *    keeper somehow fails to stop it, the runner will self-terminate when the
- *    Step Function's idle timeout fires. This is a safety net, not the primary
- *    shutdown mechanism.
+ * 3. **Shutdown mechanisms** — The keeper is the primary mechanism for enforcing the
+ *    absolute deadline: when a runner is past its deadline, the keeper stops the
+ *    Step Function and deletes the runner. Fallbacks:
+ *    - **Idle reaper**: Measures idle time from runner *registration* (cdkghr:started
+ *      label), not step function start. So it fires at deadline + provisioning delay.
+ *      It's a fallback if the keeper misses a message; it does not enforce the
+ *      absolute deadline precisely.
+ *    - **Step Function idle timeout**: Each runner is started with `maxIdleSeconds`
+ *      matching the deadline. If both keeper and idle reaper miss it, the Step
+ *      Function will self-terminate when its idle timeout fires.
  *
  * ## Config hash
  *
- * Each warm runner config (provider, count, labels, owner, repo, idle timeout) is
+ * Each warm runner config (provider, count, labels, owner, repo, duration) is
  * hashed at CDK synth time. All current hashes are stored in the WARM_CONFIG_HASHES
  * environment variable. Fill payloads and keeper messages carry the hash. When the
  * keeper processes a message whose hash is not in the current set, it knows the
- * config was changed or removed and stops the runner immediately. This minimizes
- * over-provisioning on config changes to the time it takes SQS to redeliver the
- * keeper messages (visibility timeout, typically ~1 minute).
+ * config was changed or removed and stops the runner immediately. This helps quickly
+ * get rid of stale runners while keeping over-provisioning to a minimum.
  *
  * ## Gotchas
  *
- * - The SQS queue is shared across ALL warm runner configs. Queue depth is not a
- *   reliable indicator of per-config runner count.
  * - Keeper messages rely on SQS redelivery (batch item failure) for periodic
  *   checking. The visibility timeout (1 min) determines how often runners are
  *   polled. Failed messages are retried until they succeed or the runner
@@ -53,16 +55,17 @@
  * - Each fill unconditionally starts `count` runners — it does not check how many
  *   are already running. On cron fire, this creates a brief overlap with the
  *   previous cycle's runners (which are near their deadline).
- * - Removing a warm runner construct from CDK does not immediately stop its
- *   runners. The config hash is removed from the env var on deploy, so keepers
- *   will stop them on next processing, but until then runners persist. For
- *   immediate cleanup, set count to 0 and deploy before removing the construct.
+ * - Removing all warm runners configurations may result in warm runners staying
+ *   around until they expire. To remove all warm runners quickly, set count to 0
+ *   and deploy. Only once all the warm runners are stopped, you can remove all
+ *   configurations and deploy again.
  * - **Gaps in coverage**: The Step Function that provisions each warm runner uses
  *   increasing timeouts between retries for provider failures (CodeBuild timeout,
  *   Lambda timeout, capacity errors, etc.). While a warm runner slot is retrying,
- *   that slot has no runner — creating gaps in coverage. An idle warm runner that
- *   fails to provision (or whose replacement fails) will be unavailable until the
- *   retry succeeds. This behavior will be improved in a future release.
+ *   that slot has no runner. This may create gaps in coverage. An idle warm runner
+ *   that fails to provision (or whose replacement fails) will be unavailable until
+ *   the retry succeeds. Current retry mechanism has built-in back-off rate and can
+ *   be tweaked using `retryOptions`. This will be improved in the future.
  */
 import * as crypto from 'crypto';
 import {
@@ -70,6 +73,7 @@ import {
   SFNClient,
   StartExecutionCommand,
   StopExecutionCommand,
+  ExecutionAlreadyExists,
 } from '@aws-sdk/client-sfn';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import type { Octokit } from '@octokit/rest';
@@ -138,6 +142,7 @@ interface StartWarmRunnerInput {
   readonly absoluteDeadline: number; // Unix ms
   readonly configHash: string;
   readonly executionName: string;
+  readonly slot?: number; // 0-based index when filling multiple slots; helps correlate logs
 }
 
 /**
@@ -159,10 +164,11 @@ function getNextMidnightUtcMs(): number {
   return nextMidnight.getTime();
 }
 
+/** Find installation id for our app. Normal code path gets this from the webhook payload, but we schedule these ourselves. */
 async function resolveInstallationId(owner: string, repo: string) {
   const appOctokit = await getAppOctokit();
   if (!appOctokit) {
-    return undefined; // PAT authentication — no installation ID needed
+    return undefined; // PAT authentication
   }
 
   if (repo) {
@@ -174,6 +180,7 @@ async function resolveInstallationId(owner: string, repo: string) {
   }
 }
 
+/** Start a warm runner and enqueue a keeper message using SQS. */
 async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
   const stepFunctionArn = requireEnv('STEP_FUNCTION_ARN');
   const queueUrl = requireEnv('WARM_RUNNER_QUEUE_URL');
@@ -182,6 +189,8 @@ async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
   if (remainingSeconds <= 0) {
     console.log({
       notice: 'Absolute deadline already passed; not starting replacement',
+      configHash: input.configHash,
+      runnerName: input.executionName,
       input,
     });
     return;
@@ -200,18 +209,20 @@ async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
         installationId: input.installationId ?? -1,
         jobLabels: input.providerLabels.join(','),
         provider: input.providerPath,
-        labels: input.providerLabels.join(',') + ',cdkghr:warm',
+        labels: [...input.providerLabels, 'cdkghr:warm'].join(','),
         maxIdleSeconds: remainingSeconds,
       }),
     }));
     executionArn = result.executionArn!;
-  } catch (e: unknown) {
-    if ((e as { name?: string }).name === 'ExecutionAlreadyExists') {
+  } catch (e) {
+    if (e instanceof ExecutionAlreadyExists) {
       // Idempotent retry: execution was already started (e.g. Lambda timed out mid-fill).
-      // Don't enqueue — the first attempt already did; duplicate keeper messages would cause duplicate replacements.
+      // Don't enqueue. The first attempt already did, so duplicate keeper messages would cause duplicate replacements.
       console.log({
         notice: 'ExecutionAlreadyExists — idempotent retry, skipping enqueue',
-        executionName: input.executionName,
+        configHash: input.configHash,
+        slot: input.slot,
+        runnerName: input.executionName,
       });
       return;
     } else {
@@ -238,6 +249,8 @@ async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
 
   console.log({
     notice: 'Started warm runner and enqueued keeper message',
+    configHash: input.configHash,
+    slot: input.slot,
     runnerName: input.executionName,
     executionArn,
     remainingSeconds,
@@ -247,19 +260,12 @@ async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
 /**
  * Unconditionally starts `count` warm runners for the given config and enqueues keeper messages.
  *
- * We intentionally do NOT check current queue depth or existing runner count. SQS queue depth
- * metrics (ApproximateNumberOfMessages) are unreliable and the queue is shared across all warm
- * runner configs, making per-config depth meaningless.
- *
- * Each fill creates a fresh batch. Old runners from a previous config are cleaned up quickly:
- * their keeper messages carry the old configHash, which won't match the current
- * WARM_CONFIG_HASHES env var — the keeper discards stale messages and stops those runners.
- * For normal cron rotation (same config), the old runners reach their deadline and are stopped
- * by the keeper as usual, causing only a brief overlap (typically minutes).
- *
- * @param absoluteDeadlineOverride If provided, use this instead of now + duration (for AlwaysOn deployment-fill).
+ * @param input the fill payload
+ * @param getNameForSlot a function to generate a unique and stable execution name for each slot
+ * @param source the source of the fill for debugging purposes
+ * @param absoluteDeadlineOverride if provided, use this instead of now + duration (for AlwaysOn deployment-fill)
  */
-async function runFiller(input: WarmRunnerFillPayload, getNameForSlot: (slot: number) => string, absoluteDeadlineOverride?: number) {
+async function runFiller(input: WarmRunnerFillPayload, getNameForSlot: (slot: number) => string, source: string, absoluteDeadlineOverride?: number) {
   const installationId = await resolveInstallationId(input.owner, input.repo);
   const absoluteDeadline = absoluteDeadlineOverride ?? Date.now() + input.duration * 1000;
 
@@ -273,26 +279,32 @@ async function runFiller(input: WarmRunnerFillPayload, getNameForSlot: (slot: nu
       absoluteDeadline,
       configHash: input.configHash,
       executionName: getNameForSlot(i),
+      slot: i,
     });
   }
 
   console.log({
-    notice: 'Fill complete — started warm runners',
+    notice: 'Fill complete - started warm runners',
+    source,
+    configHash: input.configHash,
     providerPath: input.providerPath,
     started: input.count,
   });
 }
 
-async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octokit, secrets: GitHubSecrets) {
+/** Stop the step function and delete the runner from GitHub. */
+async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octokit, secrets: GitHubSecrets, reason: string) {
   try {
     await sfn.send(new StopExecutionCommand({
       executionArn: input.executionArn,
-      error: 'WarmRunnerExpired',
-      cause: `Warm runner ${input.runnerName} stopped by keeper`,
+      error: reason,
+      cause: 'Warm runner stopped by keeper',
     }));
   } catch (e) {
     console.error({
       notice: 'Failed to stop step function',
+      configHash: input.configHash,
+      runnerName: input.runnerName,
       executionArn: input.executionArn,
       error: e,
       input,
@@ -306,6 +318,8 @@ async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octo
     } catch (e) {
       console.error({
         notice: 'Failed to delete runner',
+        configHash: input.configHash,
+        runnerName: input.runnerName,
         runnerId: runner.id,
         error: e,
         input,
@@ -315,37 +329,38 @@ async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octo
 }
 
 /**
- * Warm runner manager Lambda — handles three invocation modes:
+ * Warm runner manager Lambda - handles three invocation modes:
  *
- * 1. **CloudFormation Custom Resource** (`RequestType` + `ResponseURL` present):
- *    Triggered on stack deploy (Create/Update) for AlwaysOnWarmRunner only. Runs
- *    runFiller with deadline = next midnight UTC so runners last until the next
- *    cron fill. Delete is a no-op.
- *
- * 2. **SQS messages** (fill or keeper):
- *    - **Fill** (body has `action: 'fill'`): from EventBridge cron. Uses messageId
- *      for deterministic execution names (idempotent on redelivery).
- *    - **Keeper**: tracks one runner. Uses SQS message cycling for periodic checks.
- *    Each message tracks one warm runner. The keeper checks:
- *    - **Config hash**: if the message's `configHash` doesn't match the current
- *      `WARM_CONFIG_HASHES` env var, the runner is from a stale config — stop it
- *      and discard the message without replacement.
- *    - **Busy/finished**: if the Step Function ended or the GitHub runner is busy,
- *      start a replacement runner (inheriting the same deadline and config hash).
- *    - **Not registered yet**: retry later (message goes back to queue).
- *    - **Past deadline**: stop the Step Function and delete the GitHub runner.
- *    - **Idle and within deadline**: retry later to check again.
+ * 1. CloudFormation Custom Resource - triggered on stack deploy (Create/Update) for AlwaysOnWarmRunner only. Runs
+ *    runFiller with deadline = next midnight UTC so runners last until the next cron fill. Delete is a no-op.
+ * 2. SQS messages - fill or keeper
+ *    - Fill - from EventBridge cron. Uses messageId for deterministic execution names (idempotent on redelivery).
+ *    - Keeper - tracks one runner. Uses SQS message cycling for periodic checks.
+ *      Each message tracks one warm runner. The keeper checks:
+ *      - Past deadline - stop the Step Function and delete the runner.
+ *      - Config hash - if the message's `configHash` doesn't match the current `WARM_CONFIG_HASHES` env var, the runner is from a stale config - stop it and discard the message without replacement.
+ *      - Busy/finished - if the Step Function ended or the GitHub runner is busy (took a job), start a replacement runner (inheriting the same deadline and config hash).
+ *      - Not found yet (runner/infrastructure still starting) - retry later (message goes back to queue).
+ *      - Still idle - retry later to check again.
  */
 export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormationCustomResourceEvent) {
   if (isCustomResourceEvent(event)) {
     const physicalId = ('PhysicalResourceId' in event ? event.PhysicalResourceId : undefined) ?? event.LogicalResourceId;
     try {
+      const props = event.ResourceProperties as unknown as WarmRunnerFillPayload;
+      console.log({
+        notice: 'Custom resource fill',
+        requestType: event.RequestType,
+        logicalResourceId: event.LogicalResourceId,
+        configHash: props.configHash,
+        providerPath: props.providerPath,
+        count: props.count,
+      });
       if (event.RequestType === 'Create' || event.RequestType === 'Update') {
-        const props = event.ResourceProperties as unknown as WarmRunnerFillPayload;
         const getNameForSlot = (slot: number) =>
           deterministicExecutionName(props.providerPath, `${event.LogicalResourceId}:${event.RequestType}:${props.configHash}:${slot}`);
         const deadline = getNextMidnightUtcMs();
-        await runFiller(props, getNameForSlot, deadline);
+        await runFiller(props, getNameForSlot, 'customResource', deadline);
       }
       await customResourceRespond(event, 'SUCCESS', 'OK', physicalId, {});
     } catch (e) {
@@ -377,33 +392,52 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
       continue;
     }
 
-    // Fill from EventBridge (via SQS): messageId is stable across redeliveries.
-    if (isFillInput(body)) {
+    const retryLater = () => result.batchItemFailures.push({ itemIdentifier: record.messageId });
+
+    const isFill = isFillInput(body);
+    const configHash = (body as WarmRunnerFillPayload & WarmRunnerKeeperMessage).configHash;
+    const runnerName = isFill ? undefined : (body as WarmRunnerKeeperMessage).runnerName;
+    console.log({
+      notice: 'Processing SQS message',
+      messageId: record.messageId,
+      configHash,
+      runnerName,
+    });
+
+    // scheduled fill from EventBridge via SQS
+    if (isFill) {
+      const fillPayload = body as WarmRunnerFillPayload;
       try {
+        console.log({
+          notice: 'Scheduled fill',
+          configHash,
+          providerPath: fillPayload.providerPath,
+          count: fillPayload.count,
+        });
         const getNameForSlot = (slot: number) =>
-          deterministicExecutionName(body.providerPath, `${record.messageId}:${slot}`);
-        await runFiller(body, getNameForSlot);
+          deterministicExecutionName(fillPayload.providerPath, `${record.messageId}:${slot}`);
+        await runFiller(fillPayload, getNameForSlot, 'scheduled', undefined);
       } catch (e) {
         console.error({
           notice: 'Fill failed',
-          requestId: record.messageId,
+          messageId: record.messageId,
+          configHash: fillPayload.configHash,
           error: e,
         });
-        result.batchItemFailures.push({ itemIdentifier: record.messageId });
+        retryLater();
       }
       continue;
     }
 
-    // Keeper message
+    // keeper message
     const input = body as WarmRunnerKeeperMessage;
     console.log({
       notice: 'Checking warm runner',
-      input,
+      configHash: input.configHash,
+      runnerName: input.runnerName,
     });
 
-    const retryLater = () => result.batchItemFailures.push({ itemIdentifier: record.messageId });
-
-    // get github access (cached per installationId)
+    // get github access (cached per installationId to avoid re-reading the secrets manager and Github API every time)
     let octokit: Octokit;
     let secrets: GitHubSecrets;
     const cached = octokitCache.get(input.installationId);
@@ -417,18 +451,46 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
       octokitCache.set(input.installationId, { octokit, secrets });
     }
 
-    // stale config — best-effort stop, then discard message (runner will self-terminate at its idle timeout)
+    // stale config - best-effort stop, then discard message (runner will self-terminate at its idle timeout)
     if (!validHashes.has(input.configHash)) {
       console.log({
-        notice: 'Config hash mismatch — stopping stale warm runner',
-        messageHash: input.configHash,
-        validHashes: [...validHashes],
+        notice: 'Config hash mismatch (new CDK deployment, old runner) - stopping stale warm runner',
+        configHash: input.configHash,
+        runnerName: input.runnerName,
+        validHashes: validHashes,
       });
 
       try {
-        await stopAndDeleteRunner(input, octokit, secrets);
+        await stopAndDeleteRunner(input, octokit, secrets, 'StaleWarmRunner');
       } catch (e) {
-        console.error({ notice: 'Best-effort cleanup of stale warm runner failed; it will self-terminate at idle timeout', input, error: e });
+        console.error({
+          notice: 'Best-effort cleanup of stale warm runner failed; it will self-terminate at idle timeout',
+          configHash: input.configHash,
+          runnerName: input.runnerName,
+          error: e,
+        });
+      }
+      continue;
+    }
+
+    // past deadline - keeper must stop and delete the runner
+    if (Date.now() >= input.absoluteDeadline) {
+      console.log({
+        notice: 'Warm runner past deadline, stopping and deleting',
+        configHash: input.configHash,
+        runnerName: input.runnerName,
+      });
+      try {
+        await stopAndDeleteRunner(input, octokit, secrets, 'WarmRunnerExpired');
+      } catch (e) {
+        console.error({
+          notice: 'Failed to stop expired warm runner',
+          configHash: input.configHash,
+          runnerName: input.runnerName,
+          error: e,
+        });
+        // don't retry to not accidentally create a new runner
+        // idle reaper will take care of it soon enough
       }
       continue;
     }
@@ -440,11 +502,12 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
     // find runner
     const runner = await getRunner(octokit, secrets.runnerLevel, input.owner, input.repo, input.runnerName);
 
-    // need replacement: execution finished (not running) or runner took a job (busy)
+    // need replacement: step function finished (not running) or runner took a job (busy)
     if (!stillRunning || runner?.busy) {
       console.log({
         notice: 'Warm runner finished or busy; starting replacement',
-        input,
+        configHash: input.configHash,
+        runnerName: input.runnerName,
         stillRunning,
         runnerBusy: runner?.busy ?? false,
       });
@@ -462,7 +525,8 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
       } catch (e) {
         console.error({
           notice: 'Failed to start replacement warm runner',
-          input,
+          configHash: input.configHash,
+          runnerName: input.runnerName,
           error: e,
         });
         retryLater();
@@ -470,28 +534,23 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
       continue;
     }
 
-    // execution still running and runner not found yet
+    // step function still running but runner not found yet
     if (!runner) {
       console.log({
         notice: 'Runner not running yet',
-        input,
+        configHash: input.configHash,
+        runnerName: input.runnerName,
       });
       retryLater();
       continue;
     }
 
-    // runner exists and not busy — check expiry
-    if (Date.now() >= input.absoluteDeadline) {
-      console.log({
-        notice: 'Warm runner past deadline, stopping and deleting',
-        input,
-      });
-
-      await stopAndDeleteRunner(input, octokit, secrets);
-      continue;
-    }
-
-    // still idle and within deadline — check again later
+    // still idle - check again later
+    console.log({
+      notice: 'Runner still idle - will check again later',
+      configHash: input.configHash,
+      runnerName: input.runnerName,
+    });
     retryLater();
   }
 
