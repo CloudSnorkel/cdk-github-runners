@@ -34,6 +34,7 @@ import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
 import { TokenRetrieverFunction } from './token-retriever-function';
 import { discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
+import { WarmRunnerManagerFunction } from './warm-runner-manager-function';
 import { GithubWebhookHandler } from './webhook';
 import { GithubWebhookRedelivery } from './webhook-redelivery';
 
@@ -304,6 +305,9 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private readonly extraLambdaProps: lambda.FunctionOptions;
   private stateMachineLogGroup?: logs.LogGroup;
   private jobsCompletedMetricFiltersInitialized = false;
+  private warmRunnerManager?: lambda.Function;
+  private warmRunnerQueue?: sqs.Queue;
+  private warmConfigHashes: string[] = [];
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
@@ -350,6 +354,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       providerSelector: this.props?.providerSelector,
       extraLambdaProps: this.extraLambdaProps,
       extraLambdaEnv: this.extraLambdaEnv,
+      idleTimeoutSeconds: this.props?.idleTimeout?.toSeconds(),
     });
     this.redeliverer = new GithubWebhookRedelivery(this, 'Webhook Redelivery', {
       secrets: this.secrets,
@@ -399,17 +404,20 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     const idleReaper = this.idleReaper();
+    const defaultIdleSeconds = (props?.idleTimeout ?? cdk.Duration.minutes(5)).toSeconds();
+
     const queueIdleReaperTask = new stepfunctions_tasks.SqsSendMessage(this, 'Queue Idle Reaper', {
       queue: this.idleReaperQueue(idleReaper),
+      queryLanguage: stepfunctions.QueryLanguage.JSONATA,
       messageBody: stepfunctions.TaskInput.fromObject({
-        executionArn: stepfunctions.JsonPath.stringAt('$$.Execution.Id'),
-        runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
-        owner: stepfunctions.JsonPath.stringAt('$.owner'),
-        repo: stepfunctions.JsonPath.stringAt('$.repo'),
-        installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
-        maxIdleSeconds: (props?.idleTimeout ?? cdk.Duration.minutes(5)).toSeconds(),
+        executionArn: '{% $states.context.Execution.Id %}',
+        runnerName: '{% $states.context.Execution.Name %}',
+        owner: '{% $states.input.owner %}',
+        repo: '{% $states.input.repo %}',
+        installationId: '{% $states.input.installationId %}',
+        maxIdleSeconds: `{% $exists($states.input.maxIdleSeconds) ? $states.input.maxIdleSeconds : ${defaultIdleSeconds} %}`,
       }),
-      resultPath: stepfunctions.JsonPath.DISCARD,
+      outputs: '{% $states.input %}', // discard
     });
 
     const providerChooser = new stepfunctions.Choice(this, 'Choose provider');
@@ -702,6 +710,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     reaper.addEventSource(new lambda_event_sources.SqsEventSource(queue, {
       reportBatchItemFailures: true,
       maxBatchingWindow: cdk.Duration.minutes(1),
+      batchSize: 10,
     }));
 
     this.secrets.github.grantRead(reaper);
@@ -905,6 +914,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * * "Ignored webhook" helps understand why runners aren't started
    * * "Ignored jobs based on labels" helps debug label matching issues
    * * "Webhook started runners" helps understand which runners were started
+   * * "Warm runner status" and "Warm runner errors" (when warm runners are configured)
    *
    * @param prefix Prefix for the query definitions. Defaults to "GitHub Runners".
    */
@@ -1000,5 +1010,105 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         limit: 100,
       }),
     });
+
+    new logs.QueryDefinition(this, 'Warm runner status', {
+      queryDefinitionName: `${prefix}/Warm runner status`,
+      logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
+      queryString: new logs.QueryString({
+        fields: ['@timestamp', 'message.notice', 'message.input.runnerName', 'message.input.providerPath', 'message.started', 'message.stillRunning', 'message.runnerBusy'],
+        filterStatements: [
+          cdk.Lazy.string({
+            produce: () => {
+              if (this.warmRunnerManager) {
+                return `strcontains(@logStream, "${this.warmRunnerManager.functionName}")`;
+              } else {
+                return 'WARM RUNNERS NOT ENABLED';
+              }
+            },
+          }),
+        ],
+        sort: '@timestamp desc',
+        limit: 200,
+      }),
+    });
+
+    new logs.QueryDefinition(this, 'Warm runner errors', {
+      queryDefinitionName: `${prefix}/Warm runner errors`,
+      logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
+      queryString: new logs.QueryString({
+        fields: ['@timestamp', 'message.notice', 'message.input.runnerName', 'message.error'],
+        filterStatements: [
+          cdk.Lazy.string({
+            produce: () => {
+              if (this.warmRunnerManager) {
+                return `strcontains(@logStream, "${this.warmRunnerManager.functionName}")`;
+              } else {
+                return 'WARM RUNNERS NOT ENABLED';
+              }
+            },
+          }),
+          'level = "ERROR"',
+        ],
+        sort: '@timestamp desc',
+        limit: 100,
+      }),
+    });
+  }
+
+  /**
+   * Register a warm runner config hash. All registered hashes are passed to the
+   * manager Lambda via WARM_CONFIG_HASHES env var so keepers can detect stale configs.
+   *
+   * @internal
+   */
+  public _registerWarmConfigHash(hash: string): void {
+    this.warmConfigHashes.push(hash);
+  }
+
+  /**
+   * Lazily create shared warm runner infrastructure (Lambda, SQS queue).
+   * Returns the manager Lambda and queue for use as EventBridge targets.
+   *
+   * @internal
+   */
+  public _ensureWarmRunnerInfra(): { lambda: lambda.Function; queue: sqs.Queue } {
+    if (this.warmRunnerManager && this.warmRunnerQueue) {
+      return { lambda: this.warmRunnerManager, queue: this.warmRunnerQueue };
+    }
+
+    this.warmRunnerQueue = new sqs.Queue(this, 'Warm Runner Queue', {
+      visibilityTimeout: cdk.Duration.minutes(1),
+    });
+
+    this.warmRunnerManager = new WarmRunnerManagerFunction(this, 'Warm Runner Manager', {
+      description: 'Manage warm GitHub runners: fill on invoke, keep alive via SQS',
+      environment: {
+        GITHUB_SECRET_ARN: this.secrets.github.secretArn,
+        GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+        STEP_FUNCTION_ARN: this.orchestrator.stateMachineArn,
+        WARM_RUNNER_QUEUE_URL: this.warmRunnerQueue.queueUrl,
+        WARM_CONFIG_HASHES: cdk.Lazy.string({ produce: () => this.warmConfigHashes.join(',') }),
+        ...this.extraLambdaEnv,
+      },
+      timeout: cdk.Duration.seconds(50),
+      logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
+      loggingFormat: lambda.LoggingFormat.JSON,
+      ...this.extraLambdaProps,
+    });
+
+    this.secrets.github.grantRead(this.warmRunnerManager);
+    this.secrets.githubPrivateKey.grantRead(this.warmRunnerManager);
+    this.orchestrator.grantRead(this.warmRunnerManager);
+    this.orchestrator.grantStartExecution(this.warmRunnerManager);
+    this.orchestrator.grantExecution(this.warmRunnerManager, 'states:StopExecution');
+
+    this.warmRunnerManager.addEventSource(new lambda_event_sources.SqsEventSource(this.warmRunnerQueue, {
+      reportBatchItemFailures: true,
+      maxBatchingWindow: cdk.Duration.seconds(10),
+      batchSize: 10,
+    }));
+    this.warmRunnerQueue.grantSendMessages(this.warmRunnerManager);
+
+    return { lambda: this.warmRunnerManager, queue: this.warmRunnerQueue };
   }
 }

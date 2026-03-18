@@ -37,6 +37,10 @@
       "type": "build"
     },
     {
+      "name": "@aws-sdk/client-sqs",
+      "type": "build"
+    },
+    {
       "name": "@aws-sdk/client-ssm",
       "type": "build"
     },
@@ -207,6 +211,10 @@
       "name": "vite",
       "version": "^7",
       "type": "build"
+    },
+    {
+      "name": "cron-parser",
+      "type": "bundled"
     },
     {
       "name": "aws-cdk-lib",
