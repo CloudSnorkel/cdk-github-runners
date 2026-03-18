@@ -10752,7 +10752,7 @@
          {
           "Ref": "WindowsImageBuilderRepositoryA4CBB6D8"
          },
-         ":latest }\n[Environment]::SetEnvironmentVariable(\"ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION\", \"5s\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER\", \"5s\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_TASK_IAM_ROLE\", \"true\", \"Machine\")\nRemove-Item -Recurse C:\\ProgramData\\Amazon\\ECS\\Cache\nImport-Module ECSTools\n[Environment]::SetEnvironmentVariable(\"ECS_CLUSTER\", \"",
+         ":latest }\n[Environment]::SetEnvironmentVariable(\"ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION\", \"5s\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER\", \"5s\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_TASK_IAM_ROLE\", \"true\", \"Machine\")\n(Get-Content \"C:\\Program Files\\WindowsPowerShell\\Modules\\ECSTools\\ECSTools.psm1\").Replace('if ($EnableTaskIAMRole) {', '$EnableTaskIAMRole = $true; if ($EnableTaskIAMRole) {') | Set-Content \"C:\\Program Files\\WindowsPowerShell\\Modules\\ECSTools\\ECSTools.psm1\" -Force\nRemove-Item -Recurse C:\\ProgramData\\Amazon\\ECS\\Cache\nImport-Module ECSTools\n[Environment]::SetEnvironmentVariable(\"ECS_CLUSTER\", \"",
          {
           "Ref": "ECSWindowscluster14061F74"
          },
