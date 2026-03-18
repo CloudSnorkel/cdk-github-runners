@@ -613,6 +613,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         '[Environment]::SetEnvironmentVariable("ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER", "5s", "Machine")',
         // https://github.com/aws/aws-cdk/issues/36805
         '[Environment]::SetEnvironmentVariable("ECS_ENABLE_TASK_IAM_ROLE", "true", "Machine")',
+        '(Get-Content "C:\\Program Files\\WindowsPowerShell\\Modules\\ECSTools\\ECSTools.psm1").Replace(\'if ($EnableTaskIAMRole) {\', \'$EnableTaskIAMRole = $true; if ($EnableTaskIAMRole) {\') | Set-Content "C:\\Program Files\\WindowsPowerShell\\Modules\\ECSTools\\ECSTools.psm1" -Force',
       ];
     }
     return [
