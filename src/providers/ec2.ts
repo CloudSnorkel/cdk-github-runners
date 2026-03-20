@@ -16,6 +16,7 @@ import {
   amiRootDevice,
   Architecture,
   BaseProvider,
+  generateStateName,
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
@@ -23,23 +24,24 @@ import {
   RunnerProviderProps,
   RunnerRuntimeParameters,
   RunnerVersion,
-  generateStateName,
   StorageOptions,
 } from './common';
 import {
   AwsImageBuilderRunnerImageBuilder,
+  BaseImage,
   IRunnerImageBuilder,
   RunnerImageBuilder,
   RunnerImageBuilderProps,
   RunnerImageBuilderType,
   RunnerImageComponent,
 } from '../image-builders';
-import { BaseImage } from '../image-builders/aws-image-builder';
 import { isGpuInstanceType, MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
 // this script is specifically made so `poweroff` is absolutely always called
 // each `{}` is a variable coming from `params` below
-const linuxUserDataTemplate = `#!/bin/bash -x
+const linuxUserDataTemplate = `#!/bin/bash
+set -x -o pipefail
+
 TASK_TOKEN="{}"
 logGroupName="{}"
 runnerNamePath="{}"
@@ -54,6 +56,7 @@ runnerGroup2="{}"
 defaultLabels="{}"
 
 export AWS_RETRY_MODE=standard # better retry
+touch /var/log/runner.log
 
 heartbeat () {
   while true; do
@@ -109,7 +112,7 @@ heartbeat &
 if setup_logs && action |& tee /var/log/runner.log; then
   aws stepfunctions send-task-success --task-token "$TASK_TOKEN" --task-output '{"ok": true}' |& tee -a /var/log/runner.log
 else
-  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" |& tee -a /var/log/runner.log
+  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" --error Runner.Error.$? --cause "Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $(tail -n 1 /var/log/runner.log)" |& tee -a /var/log/runner.log
 fi
 sleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
 poweroff
@@ -186,7 +189,8 @@ $r = action
 if ($r -eq 0) {
   aws stepfunctions send-task-success --task-token "$TASK_TOKEN" --task-output '{ }' 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
 } else {
-  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  $lastLine = Get-Content -Path C:/actions/runner.log -Tail 1 -ErrorAction SilentlyContinue
+  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" --error Runner.Error.$r --cause "Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $lastLine" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
 }
 Start-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
 Stop-Computer -ComputerName localhost -Force
