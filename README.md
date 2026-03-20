@@ -54,7 +54,7 @@ A runner provider creates compute resources on-demand and uses [actions/runner][
 
 |                  | EC2               | CodeBuild                  | Fargate        | ECS            | Lambda        |
 |------------------|-------------------|----------------------------|----------------|----------------|---------------|
-| **Time limit**   | Unlimited         | 8 hours                    | Unlimited      | Unlimited      | 15 minutes    |
+| **Time limit**   | Unlimited         | 36 hours (default 1 hour)  | Unlimited      | Unlimited      | 15 minutes    |
 | **vCPUs**        | Unlimited         | 2, 4, 8, or 72             | 0.25 to 4      | Unlimited      | 1 to 6        |
 | **RAM**          | Unlimited         | 3gb, 7gb, 15gb, or 145gb   | 512mb to 30gb  | Unlimited      | 128mb to 10gb |
 | **Storage**      | Unlimited         | 50gb to 824gb              | 20gb to 200gb  | Unlimited      | Up to 10gb    |
