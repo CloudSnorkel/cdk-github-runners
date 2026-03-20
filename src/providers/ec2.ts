@@ -56,6 +56,7 @@ runnerGroup2="{}"
 defaultLabels="{}"
 
 export AWS_RETRY_MODE=standard # better retry
+touch /var/log/runner.log
 
 heartbeat () {
   while true; do
