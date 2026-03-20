@@ -657,6 +657,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
                 value: parameters.runnerTokenPath,
               },
               {
+                name: 'JIT_CONFIG',
+                value: parameters.jitConfigPath,
+              },
+              {
                 name: 'RUNNER_NAME',
                 value: parameters.runnerNamePath,
               },

@@ -341,6 +341,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
         lambdaFunction: this.function,
         payload: stepfunctions.TaskInput.fromObject({
           token: parameters.runnerTokenPath,
+          jitConfig: parameters.jitConfigPath,
           runnerName: parameters.runnerNamePath,
           label: parameters.labelsPath,
           githubDomain: parameters.githubDomainPath,

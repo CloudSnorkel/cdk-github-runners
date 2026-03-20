@@ -317,6 +317,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
           RUNNER_GROUP1: '',
           RUNNER_GROUP2: '',
           DEFAULT_LABELS: '',
+          JIT_CONFIG: '',
         },
       },
       phases: {
@@ -324,13 +325,12 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
           commands: [
             this.dind ? 'nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &' : '',
             this.dind ? 'timeout 15 sh -c "until docker info; do echo .; sleep 1; done"' : '',
-            'if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi',
-            'sudo -Hu runner /home/runner/config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" ${RUNNER_FLAGS} --name "${RUNNER_NAME}" ${RUNNER_GROUP1} ${RUNNER_GROUP2} ${DEFAULT_LABELS}',
+            'if [ -n "${JIT_CONFIG}" ]; then echo "JIT mode enabled, skipping config.sh"; else if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi && sudo -Hu runner /home/runner/config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" ${RUNNER_FLAGS} --name "${RUNNER_NAME}" ${RUNNER_GROUP1} ${RUNNER_GROUP2} ${DEFAULT_LABELS}; fi',
           ],
         },
         build: {
           commands: [
-            'sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh',
+            'if [ -n "${JIT_CONFIG}" ]; then sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh --jitconfig "${JIT_CONFIG}"; else sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh; fi',
             'STATUS=$(grep -Phors "finish job request for job [0-9a-f-]+ with result: .*" /home/runner/_diag/ | tail -n1 | awk \'{print $NF}\')',
             '[ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"',
           ],
@@ -443,6 +443,10 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
           RUNNER_TOKEN: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
             value: parameters.runnerTokenPath,
+          },
+          JIT_CONFIG: {
+            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
+            value: parameters.jitConfigPath,
           },
           RUNNER_NAME: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
