@@ -8,27 +8,49 @@ Warm runners that run 24/7. Fills at midnight UTC and each runner stays alive fo
 
 Runners will be provisioned using the specified provider and registered in the specified repository or organization.
 
-Registration level must match the one selected during setup. See {@link SETUP_GITHUB.md } for more information on the selection.
+Registration level must match the one selected during setup.
+
+> [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
 
 ## Limitations
 
 - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
 - You may briefly see more than `count` runners when changing config or at rotation.
 - To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
-  If you don't follow this procedure, warm runners may linger until they expire.
+If you don't follow this procedure, warm runners may linger until they expire.
 - Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a
-  gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
-  can be tweaked using `retryOptions`. This will be improved in the future.
+gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
+can be tweaked using `retryOptions`. This will be improved in the future.
 
 ```typescript
 new AlwaysOnWarmRunner(stack, 'AlwaysOnLinux', {
-  runners,
-  provider: myProvider,
-  count: 3,
-  owner: 'my-org',
-  repo: 'my-repo',
+runners,
+provider: myProvider,
+count: 3,
+owner: 'my-org',
+repo: 'my-repo',
 });
-```
+```](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
+
+## Limitations
+
+- Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
+- You may briefly see more than `count` runners when changing config or at rotation.
+- To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
+If you don't follow this procedure, warm runners may linger until they expire.
+- Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a
+gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
+can be tweaked using `retryOptions`. This will be improved in the future.
+
+```typescript
+new AlwaysOnWarmRunner(stack, 'AlwaysOnLinux', {
+runners,
+provider: myProvider,
+count: 3,
+owner: 'my-org',
+repo: 'my-repo',
+});
+```)
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.Initializer"></a>
 
@@ -5506,46 +5528,87 @@ Warm runners active during a time window specified by start time (`schedule`) an
 
 Runners will be provisioned using the specified provider and registered in the specified repository or organization.
 
-Registration level must match the one selected during setup. See {@link SETUP_GITHUB.md } for more information on the selection.
+Registration level must match the one selected during setup.
+
+> [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
 
 ## Limitations
 
 - **No deployment-fill**: Unlike `AlwaysOnWarmRunner`, scheduled warm runners do not get an initial
-  fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
-  a 2pm schedule, runners will not appear until 2pm.
+fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
+a 2pm schedule, runners will not appear until 2pm.
 - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
 - You may briefly see more than `count` runners when changing config or at rotation.
 - To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
-  If you don't follow this procedure, warm runners may linger until they expire.
+If you don't follow this procedure, warm runners may linger until they expire.
 - Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a
-  gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
-  can be tweaked using `retryOptions`. This will be improved in the future.
+gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
+can be tweaked using `retryOptions`. This will be improved in the future.
 
 ```typescript
 // Cron: fill at 1pm on weekdays
 new ScheduledWarmRunner(stack, 'Business Hours', {
-  runners,
-  provider: myProvider,
-  count: 3,
-  owner: 'my-org',
-  repo: 'my-repo',
-  schedule: events.Schedule.cron({ hour: '13', minute: '0', weekDay: 'MON-FRI' }),
-  duration: cdk.Duration.hours(2),
+runners,
+provider: myProvider,
+count: 3,
+owner: 'my-org',
+repo: 'my-repo',
+schedule: events.Schedule.cron({ hour: '13', minute: '0', weekDay: 'MON-FRI' }),
+duration: cdk.Duration.hours(2),
 });
 ```
 
 ```typescript
 // Rate: fill every 12 hours
 new ScheduledWarmRunner(stack, 'Every 12 Hours', {
-  runners,
-  provider: myProvider,
-  count: 2,
-  owner: 'my-org',
-  repo: 'my-repo',
-  schedule: events.Schedule.rate(cdk.Duration.hours(5)),
-  duration: cdk.Duration.hours(12),
+runners,
+provider: myProvider,
+count: 2,
+owner: 'my-org',
+repo: 'my-repo',
+schedule: events.Schedule.rate(cdk.Duration.hours(5)),
+duration: cdk.Duration.hours(12),
+});
+```](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
+
+## Limitations
+
+- **No deployment-fill**: Unlike `AlwaysOnWarmRunner`, scheduled warm runners do not get an initial
+fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
+a 2pm schedule, runners will not appear until 2pm.
+- Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
+- You may briefly see more than `count` runners when changing config or at rotation.
+- To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
+If you don't follow this procedure, warm runners may linger until they expire.
+- Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a
+gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
+can be tweaked using `retryOptions`. This will be improved in the future.
+
+```typescript
+// Cron: fill at 1pm on weekdays
+new ScheduledWarmRunner(stack, 'Business Hours', {
+runners,
+provider: myProvider,
+count: 3,
+owner: 'my-org',
+repo: 'my-repo',
+schedule: events.Schedule.cron({ hour: '13', minute: '0', weekDay: 'MON-FRI' }),
+duration: cdk.Duration.hours(2),
 });
 ```
+
+```typescript
+// Rate: fill every 12 hours
+new ScheduledWarmRunner(stack, 'Every 12 Hours', {
+runners,
+provider: myProvider,
+count: 2,
+owner: 'my-org',
+repo: 'my-repo',
+schedule: events.Schedule.rate(cdk.Duration.hours(5)),
+duration: cdk.Duration.hours(12),
+});
+```)
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.Initializer"></a>
 
@@ -5961,8 +6024,9 @@ public readonly registrationLevel: string;
 Registration level — must match how your runners are set up in GitHub.
 
 Choose
-'org' for org-wide runners, 'repo' for repo-level. See the setup wizard or
-{@link SETUP_GITHUB.md } for choosing repo vs org.
+'org' for org-wide runners, 'repo' for repo-level. See the setup wizard for choosing repo vs org.
+
+> [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md)
 
 ---
 
@@ -8355,7 +8419,9 @@ Optional Lambda function to customize provider selection logic and label assignm
 
 **WARNING: Provider selection is not a guarantee that a specific provider will be assigned for the job. GitHub Actions may assign the job to any runner with matching labels. The provider selector only determines which provider's runner will be *created*, but GitHub Actions may route the job to any available runner with the required labels.**
 
-**For reliable provider assignment based on job characteristics, consider using repo-level runner registration where you can control which runners are available for specific repositories. See {@link SETUP_GITHUB.md } for more details on the different registration levels. This information is also available while using the setup wizard.
+**For reliable provider assignment based on job characteristics, consider using repo-level runner registration where you can control which runners are available for specific repositories. This information is also available while using the setup wizard.
+
+> [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md)
 
 ---
 
@@ -9985,8 +10051,9 @@ public readonly registrationLevel: string;
 Registration level — must match how your runners are set up in GitHub.
 
 Choose
-'org' for org-wide runners, 'repo' for repo-level. See the setup wizard or
-{@link SETUP_GITHUB.md } for choosing repo vs org.
+'org' for org-wide runners, 'repo' for repo-level. See the setup wizard for choosing repo vs org.
+
+> [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md)
 
 ---
 
