@@ -20,10 +20,10 @@ import {
   generateStateName,
   IRunnerProvider,
   IRunnerProviderStatus,
+  IRunnerRuntimeParameters,
   Os,
   RunnerImage,
   RunnerProviderProps,
-  RunnerRuntimeParameters,
   RunnerVersion,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
@@ -431,7 +431,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
    *
    * @param parameters workflow job details
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
+  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.CodeBuildStartBuild(
       this,
       'State',

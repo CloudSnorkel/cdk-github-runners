@@ -10,7 +10,6 @@ import {
   Stack,
 } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
   amiRootDevice,
@@ -19,10 +18,10 @@ import {
   generateStateName,
   IRunnerProvider,
   IRunnerProviderStatus,
+  IRunnerRuntimeParameters,
   Os,
   RunnerAmi,
   RunnerProviderProps,
-  RunnerRuntimeParameters,
   RunnerVersion,
   StorageOptions,
 } from './common';
@@ -414,6 +413,10 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.spotMaxPrice = props?.spotMaxPrice;
     this.defaultLabels = props?.defaultLabels ?? true;
 
+    if (this.subnets.length === 0) {
+      cdk.Annotations.of(this).addError('At least one subnet is required');
+    }
+
     const arch = this.instanceType.architecture === ec2.InstanceArchitecture.ARM_64 ? Architecture.ARM64 : Architecture.X86_64;
 
     this.amiBuilder = props?.imageBuilder ?? props?.amiBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
@@ -465,7 +468,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
    *
    * @param parameters workflow job details
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
+  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
     // we need to build user data in two steps because passing the template as the first parameter to stepfunctions.JsonPath.format fails on syntax
 
     const params = [
@@ -510,7 +513,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       return new stepfunctions_tasks.CallAwsService(this, subnet.subnetId, {
         stateName: generateStateName(this, subnet.subnetId),
         comment: subnet.availabilityZone,
-        integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+        integrationPattern: stepfunctions.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         service: 'ec2',
         action: 'runInstances',
         heartbeatTimeout: stepfunctions.Timeout.duration(Duration.minutes(10)),
@@ -581,18 +584,21 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       });
     });
 
-    // start with the first subnet
     passUserData.next(subnetRunners[0]);
 
-    // chain up the rest of the subnets
+    let current = subnetRunners[0];
     for (let i = 1; i < subnetRunners.length; i++) {
-      subnetRunners[i - 1].addCatch(subnetRunners[i], {
-        errors: ['Ec2.Ec2Exception', 'States.Timeout'],
-        resultPath: stepfunctions.JsonPath.stringAt('$.lastSubnetError'),
-      });
+      const next = subnetRunners[i];
+      parameters.addCatchAndCleanUp(current, next);
+      current = next;
     }
 
-    return passUserData;
+    return new SimpleFragment(
+      this,
+      'Fragment',
+      passUserData,
+      current,
+    );
   }
 
   grantStateMachine(stateMachineRole: iam.IGrantable) {
@@ -658,3 +664,21 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
  */
 export class Ec2Runner extends Ec2RunnerProvider {
 }
+
+/**
+ * Subgraph from the userdata `Pass` through the last subnet `RunInstances` task, so composite fallback can attach
+ * `Catch` to a task state (not the leading `Pass`, which has no `addCatch`).
+ *
+ * @internal
+ */
+class SimpleFragment extends stepfunctions.StateMachineFragment {
+  readonly startState: stepfunctions.State;
+  readonly endStates: stepfunctions.INextable[];
+
+  constructor(scope: Construct, id: string, start: stepfunctions.State, end: stepfunctions.INextable) {
+    super(scope, id);
+    this.startState = start;
+    this.endStates = [end];
+  }
+}
+

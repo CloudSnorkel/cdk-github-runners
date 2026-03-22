@@ -308,6 +308,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private warmRunnerManager?: lambda.Function;
   private warmRunnerQueue?: sqs.Queue;
   private warmConfigHashes: string[] = [];
+  private deleteFailedRunnerIndex = 0;
+  private deleteFailedRunnerFunction?: lambda.IFunction;
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
@@ -377,32 +379,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       },
     );
 
-    let deleteFailedRunnerFunction = this.deleteFailedRunner();
-    const deleteFailedRunnerTask = new stepfunctions_tasks.LambdaInvoke(
-      this,
-      'Delete Failed Runner',
-      {
-        lambdaFunction: deleteFailedRunnerFunction,
-        payloadResponseOnly: true,
-        resultPath: '$.delete',
-        payload: stepfunctions.TaskInput.fromObject({
-          runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
-          owner: stepfunctions.JsonPath.stringAt('$.owner'),
-          repo: stepfunctions.JsonPath.stringAt('$.repo'),
-          installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
-          error: stepfunctions.JsonPath.objectAt('$.error'),
-        }),
-      },
-    );
-    deleteFailedRunnerTask.addRetry({
-      errors: [
-        'RunnerBusy',
-      ],
-      interval: cdk.Duration.minutes(1),
-      backoffRate: 1,
-      maxAttempts: 60,
-    });
-
     const idleReaper = this.idleReaper();
     const defaultIdleSeconds = (props?.idleTimeout ?? cdk.Duration.minutes(5)).toSeconds();
 
@@ -431,6 +407,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           repoPath: stepfunctions.JsonPath.stringAt('$.repo'),
           registrationUrl: stepfunctions.JsonPath.stringAt('$.runner.registrationUrl'),
           labelsPath: stepfunctions.JsonPath.stringAt('$.labels'),
+          addCatchAndCleanUp: (state, next) => this.addCatchAndCleanUp(state, next),
         },
       );
       providerChooser.when(
@@ -446,18 +423,13 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     providerChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown label'));
 
-    const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
-      new stepfunctions.Parallel(this, 'Error Handler').branch(
-        // we get a token for every retry because the token can expire faster than the job can timeout
-        tokenRetrieverTask.next(providerChooser),
-      ).addCatch(
-        // delete runner on failure as it won't remove itself and there is a limit on the number of registered runners
-        deleteFailedRunnerTask,
-        {
-          resultPath: '$.error',
-        },
-      ),
+    const errorHandler = new stepfunctions.Parallel(this, 'Error Handler').branch(
+      // we get a token for every retry because the token can expire faster than the job can timeout
+      tokenRetrieverTask.next(providerChooser),
     );
+    this.addCatchAndCleanUp(errorHandler);
+
+    const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(errorHandler);
 
     if (props?.retryOptions?.retry ?? true) {
       const interval = props?.retryOptions?.interval ?? cdk.Duration.minutes(1);
@@ -559,6 +531,43 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     this.secrets.githubPrivateKey.grantRead(func);
 
     return func;
+  }
+
+  private addCatchAndCleanUp(state: stepfunctions.TaskStateBase | stepfunctions.Parallel | stepfunctions.Map, next?: stepfunctions.IChainable) {
+    this.deleteFailedRunnerFunction ??= this.deleteFailedRunner();
+    this.deleteFailedRunnerIndex++;
+    const task = new stepfunctions_tasks.LambdaInvoke(this, `Delete Failed Runner ${this.deleteFailedRunnerIndex}`, {
+      stateName: `Delete Failed Runner ${this.deleteFailedRunnerIndex}`,
+      comment: 'Clean-up failed runner from GitHub Actions (if present)',
+      lambdaFunction: this.deleteFailedRunnerFunction,
+      payloadResponseOnly: true,
+      resultPath: '$.delete',
+      payload: stepfunctions.TaskInput.fromObject({
+        runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+        owner: stepfunctions.JsonPath.stringAt('$.owner'),
+        repo: stepfunctions.JsonPath.stringAt('$.repo'),
+        installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
+        error: stepfunctions.JsonPath.objectAt('$.error'),
+      }),
+    });
+    task.addRetry({
+      errors: ['RunnerBusy'],
+      interval: cdk.Duration.minutes(1),
+      backoffRate: 1,
+      maxAttempts: 60,
+    });
+    if (next) {
+      const nextStart = next.startState;
+      task.next(nextStart);
+      task.addCatch(nextStart, {
+        errors: [stepfunctions.Errors.ALL],
+        resultPath: stepfunctions.JsonPath.DISCARD,
+      });
+    }
+    state.addCatch(task, {
+      errors: [stepfunctions.Errors.ALL],
+      resultPath: '$.error',
+    });
   }
 
   private statusFunction() {

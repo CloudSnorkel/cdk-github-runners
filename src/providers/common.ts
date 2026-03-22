@@ -342,7 +342,7 @@ export interface RunnerProviderProps {
  *
  * All parameters are specified as step function paths and therefore must be used only in step function task parameters.
  */
-export interface RunnerRuntimeParameters {
+export interface IRunnerRuntimeParameters {
   /**
    * Path to runner token used to register token.
    */
@@ -378,7 +378,23 @@ export interface RunnerRuntimeParameters {
    */
   readonly labelsPath: string;
 
+  /**
+   * Catches all errors and cleans up the failed runner from GitHub Actions.
+   *
+   * It is important to fully clean up after any failed runner provisioning. GitHub
+   * will fail booting a new runner if the previous one with the same name is not
+   * fully cleaned up.
+   *
+   * @param state state whose failures should trigger cleanup
+   * @param next optional subgraph to run after cleanup
+   */
+  addCatchAndCleanUp(state: stepfunctions.TaskStateBase | stepfunctions.Parallel | stepfunctions.Map, next?: stepfunctions.IChainable): void;
 }
+
+/**
+ * @deprecated Use {@link IRunnerRuntimeParameters}.
+ */
+export type RunnerRuntimeParameters = IRunnerRuntimeParameters;
 
 /**
  * Image status returned from runner providers to be displayed in status.json.
@@ -499,7 +515,7 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, ICons
    *
    * @param parameters specific build parameters
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable;
+  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable;
 
   /**
    * An optional method that modifies the role of the state machine after all the tasks have been generated. This can be used to add additional policy
@@ -541,11 +557,14 @@ export interface ICompositeProvider extends IConstruct {
   /**
    * Generate step function tasks that execute the runner.
    *
+   * If the provider has multiple attempts, each attempt should be followed by a `Catch` that deletes the failed runner. Use
+   * {@link IRunnerRuntimeParameters.addCatchAndCleanUp} to add the catch.
+   *
    * Called by GithubRunners and shouldn't be called manually.
    *
    * @param parameters specific build parameters
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable;
+  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable;
 
   /**
    * An optional method that modifies the role of the state machine after all the tasks have been generated. This can be used to add additional policy
