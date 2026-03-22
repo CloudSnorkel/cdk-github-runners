@@ -676,7 +676,7 @@ export abstract class BaseProvider extends Construct {
 
   protected labelsFromProperties(defaultLabel: string, propsLabel: string | undefined, propsLabels: string[] | undefined): string[] {
     if (propsLabels && propsLabel) {
-      throw new Error('Must supply either `label` or `labels` in runner properties, but not both. Try removing the `label` property.');
+      cdk.Annotations.of(this).addError('Must supply either `label` or `labels` in runner properties, but not both. Try removing the `label` property.');
     }
 
     if (propsLabels) {

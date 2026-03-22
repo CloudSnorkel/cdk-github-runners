@@ -339,7 +339,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     }
 
     if (this.providers.length == 0) {
-      throw new Error('At least one runner provider is required');
+      Annotations.of(this).addError('At least one runner provider is required');
     }
 
     this.checkIntersectingLabels();
@@ -696,7 +696,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         }
         if (p1.labels.every(l => p2.labels.includes(l))) {
           if (p2.labels.every(l => p1.labels.includes(l))) {
-            throw new Error(`Both ${p1.node.path} and ${p2.node.path} use the same labels [${p1.labels.join(', ')}]`);
+            Annotations.of(this).addError(`Both ${p1.node.path} and ${p2.node.path} use the same labels [${p1.labels.join(', ')}]`);
+            return;
           }
           Annotations.of(p1).addWarning(`Labels [${p1.labels.join(', ')}] intersect with another provider (${p2.node.path} -- [${p2.labels.join(', ')}]). If a workflow specifies the labels [${p1.labels.join(', ')}], it is not guaranteed which provider will be used. It is recommended you do not use intersecting labels`);
         }
