@@ -267,7 +267,7 @@ describe('Providers', () => {
         placementStrategies: [ecs.PlacementStrategy.packedByCpu()],
       });
 
-      const task = provider.getStepFunctionTask({
+      const runtimeParamsPlacement = {
         runnerTokenPath: '$.runner.token',
         runnerNamePath: '$$.Execution.Name',
         ownerPath: '$.owner',
@@ -275,7 +275,14 @@ describe('Providers', () => {
         registrationUrl: 'https://github.com',
         githubDomainPath: 'github.com',
         labelsPath: '$.labels',
-      });
+        addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
+          (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'CleanupStubPlacement'), {
+            errors: [sfn.Errors.ALL],
+            resultPath: '$.error',
+          });
+        },
+      };
+      const task = provider.getStepFunctionTask(runtimeParamsPlacement);
 
       new sfn.StateMachine(stack, 'sm', {
         definitionBody: sfn.DefinitionBody.fromChainable(task),
@@ -313,7 +320,7 @@ describe('Providers', () => {
         placementConstraints: [ecs.PlacementConstraint.distinctInstances()],
       });
 
-      const task = provider.getStepFunctionTask({
+      const runtimeParams = {
         runnerTokenPath: '$.runner.token',
         runnerNamePath: '$$.Execution.Name',
         ownerPath: '$.owner',
@@ -321,7 +328,14 @@ describe('Providers', () => {
         registrationUrl: 'https://github.com',
         githubDomainPath: 'github.com',
         labelsPath: '$.labels',
-      });
+        addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
+          (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'CleanupStubConstraints'), {
+            errors: [sfn.Errors.ALL],
+            resultPath: '$.error',
+          });
+        },
+      };
+      const task = provider.getStepFunctionTask(runtimeParams);
 
       new sfn.StateMachine(stack, 'sm-constraints', {
         definitionBody: sfn.DefinitionBody.fromChainable(task),

@@ -147,7 +147,7 @@ function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule:
  *   gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
  *   can be tweaked using `retryOptions`. This will be improved in the future.
  *
- * @example
+ * ```typescript
  * new AlwaysOnWarmRunner(stack, 'AlwaysOnLinux', {
  *   runners,
  *   provider: myProvider,
@@ -155,6 +155,7 @@ function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule:
  *   owner: 'my-org',
  *   repo: 'my-repo',
  * });
+ * ```
  */
 export class AlwaysOnWarmRunner extends Construct {
   /**
@@ -241,7 +242,7 @@ function getScheduleIntervalSeconds(expressionString: string): number | undefine
  *   gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
  *   can be tweaked using `retryOptions`. This will be improved in the future.
  *
- * @example
+ * ```typescript
  * // Cron: fill at 1pm on weekdays
  * new ScheduledWarmRunner(stack, 'Business Hours', {
  *   runners,
@@ -252,8 +253,9 @@ function getScheduleIntervalSeconds(expressionString: string): number | undefine
  *   schedule: events.Schedule.cron({ hour: '13', minute: '0', weekDay: 'MON-FRI' }),
  *   duration: cdk.Duration.hours(2),
  * });
+ * ```
  *
- * @example
+ * ```typescript
  * // Rate: fill every 12 hours
  * new ScheduledWarmRunner(stack, 'Every 12 Hours', {
  *   runners,
@@ -264,6 +266,7 @@ function getScheduleIntervalSeconds(expressionString: string): number | undefine
  *   schedule: events.Schedule.rate(cdk.Duration.hours(5)),
  *   duration: cdk.Duration.hours(12),
  * });
+ * ```
  */
 export class ScheduledWarmRunner extends Construct {
   /**

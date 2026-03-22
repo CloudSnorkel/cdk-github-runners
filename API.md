@@ -20,8 +20,6 @@ Registration level must match the one selected during setup. See {@link SETUP_GI
   gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
   can be tweaked using `retryOptions`. This will be improved in the future.
 
-*Example*
-
 ```typescript
 new AlwaysOnWarmRunner(stack, 'AlwaysOnLinux', {
   runners,
@@ -31,7 +29,6 @@ new AlwaysOnWarmRunner(stack, 'AlwaysOnLinux', {
   repo: 'my-repo',
 });
 ```
-
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.Initializer"></a>
 
@@ -836,7 +833,7 @@ The mixins to apply.
 ##### ~~`getStepFunctionTask`~~ <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.getStepFunctionTask"></a>
 
 ```typescript
-public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
 ```
 
 Generate step function task(s) to start a new runner.
@@ -845,7 +842,7 @@ Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.getStepFunctionTask.parameter.parameters"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
 
 workflow job details.
 
@@ -1244,7 +1241,7 @@ The mixins to apply.
 ##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.getStepFunctionTask"></a>
 
 ```typescript
-public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
 ```
 
 Generate step function task(s) to start a new runner.
@@ -1253,7 +1250,7 @@ Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
 
 workflow job details.
 
@@ -1893,7 +1890,7 @@ The mixins to apply.
 ##### ~~`getStepFunctionTask`~~ <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.getStepFunctionTask"></a>
 
 ```typescript
-public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
 ```
 
 Generate step function task(s) to start a new runner.
@@ -1902,7 +1899,7 @@ Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.getStepFunctionTask.parameter.parameters"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
 
 workflow job details.
 
@@ -2212,7 +2209,7 @@ The mixins to apply.
 ##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.getStepFunctionTask"></a>
 
 ```typescript
-public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
 ```
 
 Generate step function task(s) to start a new runner.
@@ -2221,7 +2218,7 @@ Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.getStepFunctionTask.parameter.parameters"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
 
 workflow job details.
 
@@ -2523,7 +2520,7 @@ The mixins to apply.
 ##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.getStepFunctionTask"></a>
 
 ```typescript
-public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
 ```
 
 Generate step function task(s) to start a new runner.
@@ -2532,7 +2529,7 @@ Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
 
 workflow job details.
 
@@ -2838,7 +2835,7 @@ The mixins to apply.
 ##### ~~`getStepFunctionTask`~~ <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.FargateRunner.getStepFunctionTask"></a>
 
 ```typescript
-public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
 ```
 
 Generate step function task(s) to start a new runner.
@@ -2847,7 +2844,7 @@ Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.FargateRunner.getStepFunctionTask.parameter.parameters"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
 
 workflow job details.
 
@@ -3327,7 +3324,7 @@ The mixins to apply.
 ##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.getStepFunctionTask"></a>
 
 ```typescript
-public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
 ```
 
 Generate step function task(s) to start a new runner.
@@ -3336,7 +3333,7 @@ Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
 
 workflow job details.
 
@@ -4462,7 +4459,7 @@ The mixins to apply.
 ##### ~~`getStepFunctionTask`~~ <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.getStepFunctionTask"></a>
 
 ```typescript
-public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
 ```
 
 Generate step function task(s) to start a new runner.
@@ -4471,7 +4468,7 @@ Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.getStepFunctionTask.parameter.parameters"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
 
 workflow job details.
 
@@ -4862,7 +4859,7 @@ The mixins to apply.
 ##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.getStepFunctionTask"></a>
 
 ```typescript
-public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
 ```
 
 Generate step function task(s) to start a new runner.
@@ -4871,7 +4868,7 @@ Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
 
 workflow job details.
 
@@ -5443,7 +5440,18 @@ Registration level must match the one selected during setup. See {@link SETUP_GI
   gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
   can be tweaked using `retryOptions`. This will be improved in the future.
 
-*Example*
+```typescript
+// Cron: fill at 1pm on weekdays
+new ScheduledWarmRunner(stack, 'Business Hours', {
+  runners,
+  provider: myProvider,
+  count: 3,
+  owner: 'my-org',
+  repo: 'my-repo',
+  schedule: events.Schedule.cron({ hour: '13', minute: '0', weekDay: 'MON-FRI' }),
+  duration: cdk.Duration.hours(2),
+});
+```
 
 ```typescript
 // Rate: fill every 12 hours
@@ -5457,7 +5465,6 @@ new ScheduledWarmRunner(stack, 'Every 12 Hours', {
   duration: cdk.Duration.hours(12),
 });
 ```
-
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.Initializer"></a>
 
@@ -9780,126 +9787,6 @@ public readonly retryOptions: ProviderRetryOptions;
 
 ---
 
-### RunnerRuntimeParameters <a name="RunnerRuntimeParameters" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters"></a>
-
-Workflow job parameters as parsed from the webhook event. Pass these into your runner executor and run something like:.
-
-```sh
-./config.sh --unattended --url "{REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --name "${RUNNER_NAME}" --disableupdate
-```
-
-All parameters are specified as step function paths and therefore must be used only in step function task parameters.
-
-#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.Initializer"></a>
-
-```typescript
-import { RunnerRuntimeParameters } from '@cloudsnorkel/cdk-github-runners'
-
-const runnerRuntimeParameters: RunnerRuntimeParameters = { ... }
-```
-
-#### Properties <a name="Properties" id="Properties"></a>
-
-| **Name** | **Type** | **Description** |
-| --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.githubDomainPath">githubDomainPath</a></code> | <code>string</code> | Path to GitHub domain. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.labelsPath">labelsPath</a></code> | <code>string</code> | Path to comma-separated labels string to use for runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.ownerPath">ownerPath</a></code> | <code>string</code> | Path to repository owner name. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.registrationUrl">registrationUrl</a></code> | <code>string</code> | Repository or organization URL to register runner at. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.repoPath">repoPath</a></code> | <code>string</code> | Path to repository name. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerNamePath">runnerNamePath</a></code> | <code>string</code> | Path to desired runner name. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerTokenPath">runnerTokenPath</a></code> | <code>string</code> | Path to runner token used to register token. |
-
----
-
-##### `githubDomainPath`<sup>Required</sup> <a name="githubDomainPath" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.githubDomainPath"></a>
-
-```typescript
-public readonly githubDomainPath: string;
-```
-
-- *Type:* string
-
-Path to GitHub domain.
-
-Most of the time this will be github.com but for self-hosted GitHub instances, this will be different.
-
----
-
-##### `labelsPath`<sup>Required</sup> <a name="labelsPath" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.labelsPath"></a>
-
-```typescript
-public readonly labelsPath: string;
-```
-
-- *Type:* string
-
-Path to comma-separated labels string to use for runner.
-
----
-
-##### `ownerPath`<sup>Required</sup> <a name="ownerPath" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.ownerPath"></a>
-
-```typescript
-public readonly ownerPath: string;
-```
-
-- *Type:* string
-
-Path to repository owner name.
-
----
-
-##### `registrationUrl`<sup>Required</sup> <a name="registrationUrl" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.registrationUrl"></a>
-
-```typescript
-public readonly registrationUrl: string;
-```
-
-- *Type:* string
-
-Repository or organization URL to register runner at.
-
----
-
-##### `repoPath`<sup>Required</sup> <a name="repoPath" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.repoPath"></a>
-
-```typescript
-public readonly repoPath: string;
-```
-
-- *Type:* string
-
-Path to repository name.
-
----
-
-##### `runnerNamePath`<sup>Required</sup> <a name="runnerNamePath" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerNamePath"></a>
-
-```typescript
-public readonly runnerNamePath: string;
-```
-
-- *Type:* string
-
-Path to desired runner name.
-
-We specifically set the name to make troubleshooting easier.
-
----
-
-##### `runnerTokenPath`<sup>Required</sup> <a name="runnerTokenPath" id="@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters.property.runnerTokenPath"></a>
-
-```typescript
-public readonly runnerTokenPath: string;
-```
-
-- *Type:* string
-
-Path to runner token used to register token.
-
----
-
 ### ScheduledWarmRunnerProps <a name="ScheduledWarmRunnerProps" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps"></a>
 
 Properties for scheduled warm runners.
@@ -12174,16 +12061,19 @@ log groups, or retryable errors as they delegate to their sub-providers.
 ##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.getStepFunctionTask"></a>
 
 ```typescript
-public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
 ```
 
 Generate step function tasks that execute the runner.
+
+If the provider has multiple attempts, each attempt should be followed by a `Catch` that deletes the failed runner. Use
+{@link IRunnerRuntimeParameters.addCatchAndCleanUp} to add the catch.
 
 Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.getStepFunctionTask.parameter.parameters"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
 
 specific build parameters.
 
@@ -12528,7 +12418,7 @@ Implementations create all required resources and return a step function task th
 ##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.getStepFunctionTask"></a>
 
 ```typescript
-public getStepFunctionTask(parameters: RunnerRuntimeParameters): IChainable
+public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
 ```
 
 Generate step function tasks that execute the runner.
@@ -12537,7 +12427,7 @@ Called by GithubRunners and shouldn't be called manually.
 
 ###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerRuntimeParameters">RunnerRuntimeParameters</a>
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
 
 specific build parameters.
 
@@ -12801,6 +12691,156 @@ public readonly vpcArn: string;
 - *Type:* string
 
 VPC where runners will be launched.
+
+---
+
+### IRunnerRuntimeParameters <a name="IRunnerRuntimeParameters" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters"></a>
+
+- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
+
+Workflow job parameters as parsed from the webhook event. Pass these into your runner executor and run something like:.
+
+```sh
+./config.sh --unattended --url "{REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --name "${RUNNER_NAME}" --disableupdate
+```
+
+All parameters are specified as step function paths and therefore must be used only in step function task parameters.
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.addCatchAndCleanUp">addCatchAndCleanUp</a></code> | Catches all errors and cleans up the failed runner from GitHub Actions. |
+
+---
+
+##### `addCatchAndCleanUp` <a name="addCatchAndCleanUp" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.addCatchAndCleanUp"></a>
+
+```typescript
+public addCatchAndCleanUp(state: TaskStateBase | Parallel | Map, next?: IChainable): void
+```
+
+Catches all errors and cleans up the failed runner from GitHub Actions.
+
+It is important to fully clean up after any failed runner provisioning. GitHub
+will fail booting a new runner if the previous one with the same name is not
+fully cleaned up.
+
+###### `state`<sup>Required</sup> <a name="state" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.addCatchAndCleanUp.parameter.state"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.TaskStateBase | aws-cdk-lib.aws_stepfunctions.Parallel | aws-cdk-lib.aws_stepfunctions.Map
+
+state whose failures should trigger cleanup.
+
+---
+
+###### `next`<sup>Optional</sup> <a name="next" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.addCatchAndCleanUp.parameter.next"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.IChainable
+
+optional subgraph to run after cleanup.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.githubDomainPath">githubDomainPath</a></code> | <code>string</code> | Path to GitHub domain. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.labelsPath">labelsPath</a></code> | <code>string</code> | Path to comma-separated labels string to use for runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.ownerPath">ownerPath</a></code> | <code>string</code> | Path to repository owner name. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.registrationUrl">registrationUrl</a></code> | <code>string</code> | Repository or organization URL to register runner at. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.repoPath">repoPath</a></code> | <code>string</code> | Path to repository name. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.runnerNamePath">runnerNamePath</a></code> | <code>string</code> | Path to desired runner name. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.runnerTokenPath">runnerTokenPath</a></code> | <code>string</code> | Path to runner token used to register token. |
+
+---
+
+##### `githubDomainPath`<sup>Required</sup> <a name="githubDomainPath" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.githubDomainPath"></a>
+
+```typescript
+public readonly githubDomainPath: string;
+```
+
+- *Type:* string
+
+Path to GitHub domain.
+
+Most of the time this will be github.com but for self-hosted GitHub instances, this will be different.
+
+---
+
+##### `labelsPath`<sup>Required</sup> <a name="labelsPath" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.labelsPath"></a>
+
+```typescript
+public readonly labelsPath: string;
+```
+
+- *Type:* string
+
+Path to comma-separated labels string to use for runner.
+
+---
+
+##### `ownerPath`<sup>Required</sup> <a name="ownerPath" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.ownerPath"></a>
+
+```typescript
+public readonly ownerPath: string;
+```
+
+- *Type:* string
+
+Path to repository owner name.
+
+---
+
+##### `registrationUrl`<sup>Required</sup> <a name="registrationUrl" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.registrationUrl"></a>
+
+```typescript
+public readonly registrationUrl: string;
+```
+
+- *Type:* string
+
+Repository or organization URL to register runner at.
+
+---
+
+##### `repoPath`<sup>Required</sup> <a name="repoPath" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.repoPath"></a>
+
+```typescript
+public readonly repoPath: string;
+```
+
+- *Type:* string
+
+Path to repository name.
+
+---
+
+##### `runnerNamePath`<sup>Required</sup> <a name="runnerNamePath" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.runnerNamePath"></a>
+
+```typescript
+public readonly runnerNamePath: string;
+```
+
+- *Type:* string
+
+Path to desired runner name.
+
+We specifically set the name to make troubleshooting easier.
+
+---
+
+##### `runnerTokenPath`<sup>Required</sup> <a name="runnerTokenPath" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.runnerTokenPath"></a>
+
+```typescript
+public readonly runnerTokenPath: string;
+```
+
+- *Type:* string
+
+Path to runner token used to register token.
 
 ---
 

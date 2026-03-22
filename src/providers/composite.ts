@@ -1,6 +1,12 @@
 import { aws_iam as iam, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { ICompositeProvider, IRunnerProvider, IRunnerProviderStatus, RunnerRuntimeParameters, generateStateName } from './common';
+import {
+  generateStateName,
+  ICompositeProvider,
+  IRunnerProvider,
+  IRunnerProviderStatus,
+  IRunnerRuntimeParameters,
+} from './common';
 
 /**
  * Configuration for weighted distribution of runners.
@@ -132,8 +138,7 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
    * @param parameters Runtime parameters for the step function task
    * @returns A Step Functions chainable that implements the fallback logic
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    // Get all provider chainables upfront
+  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
     const providerChainables = this.providers.map(p => p.getStepFunctionTask(parameters));
 
     // Wrap providers with multiple end states in a Parallel state
@@ -151,11 +156,8 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
       const currentProvider = wrappedProviderChainables[i];
       const nextProvider = wrappedProviderChainables[i + 1];
 
-      const endState = (currentProvider as stepfunctions.State).endStates[0] as any;
-      endState.addCatch(nextProvider, {
-        errors: ['States.ALL'],
-        resultPath: `$.fallbackError${i + 1}`,
-      });
+      const endState = currentProvider.endStates[0] as stepfunctions.TaskStateBase | stepfunctions.Parallel;
+      parameters.addCatchAndCleanUp(endState, nextProvider);
     }
 
     return wrappedProviderChainables[0];
@@ -166,17 +168,13 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
    * This avoids wrapping in a Parallel state when possible.
    */
   private canAddCatchDirectly(provider: stepfunctions.IChainable): boolean {
-    if (!(provider instanceof stepfunctions.State)) {
-      return false;
+    if (provider instanceof stepfunctions.StateMachineFragment) {
+      return provider.endStates.length === 1;
     }
-    const endStates = provider.endStates;
-    if (endStates.length !== 1 || !(endStates[0] instanceof stepfunctions.State)) {
-      return false;
+    if (provider instanceof stepfunctions.State) {
+      return provider.endStates.length === 1;
     }
-    // Use 'any' type assertion because not all State types have addCatch in their type definition,
-    // but Task states and other executable states do support it at runtime
-    const endState = endStates[0] as any;
-    return typeof endState.addCatch === 'function';
+    return false;
   }
 
   grantStateMachine(stateMachineRole: iam.IGrantable): void {
@@ -186,7 +184,6 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
   }
 
   status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
-    // Return statuses from all sub-providers
     return this.providers.map(provider => provider.status(statusFunctionRole));
   }
 }
@@ -217,7 +214,7 @@ class DistributedRunnerProvider extends Construct implements ICompositeProvider 
    * to ensure the random value can be up to totalWeight (inclusive), which allows the last provider to be selected
    * when rand equals totalWeight.
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
+  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
     const totalWeight = this.weightedProviders.reduce((sum, wp) => sum + wp.weight, 0);
     const rand = new stepfunctions.Pass(this, 'Rand', {
       stateName: generateStateName(this, 'rand'),
@@ -231,7 +228,6 @@ class DistributedRunnerProvider extends Construct implements ICompositeProvider 
     });
     rand.next(choice);
 
-    // Find provider with the highest weight
     let rollingWeight = 0;
     for (const wp of this.weightedProviders) {
       rollingWeight += wp.weight;
@@ -251,7 +247,6 @@ class DistributedRunnerProvider extends Construct implements ICompositeProvider 
   }
 
   status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
-    // Return statuses from all sub-providers
     return this.providers.map(provider => provider.status(statusFunctionRole));
   }
 }

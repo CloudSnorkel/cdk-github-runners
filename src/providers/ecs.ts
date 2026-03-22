@@ -21,10 +21,10 @@ import {
   generateStateName,
   IRunnerProvider,
   IRunnerProviderStatus,
+  IRunnerRuntimeParameters,
   Os,
   RunnerImage,
   RunnerProviderProps,
-  RunnerRuntimeParameters,
   RunnerVersion,
   StorageOptions,
 } from './common';
@@ -629,7 +629,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    *
    * @param parameters workflow job details
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
+  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.EcsRunTask(
       this,
       'State',
