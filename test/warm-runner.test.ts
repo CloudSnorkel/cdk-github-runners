@@ -15,38 +15,46 @@ beforeEach(() => {
 afterEach(() => cleanUp(app));
 
 describe('Warm runner validation', () => {
-  test('org registration with repo throws', () => {
+  test('org registration with repo adds error annotation', () => {
     const provider = new LambdaRunnerProvider(stack, 'p1');
     const runners = new GitHubRunners(stack, 'runners', { providers: [provider] });
 
-    expect(() => {
-      new AlwaysOnWarmRunner(stack, 'warm', {
-        runners,
-        provider,
-        count: 1,
-        owner: 'my-org',
-        registrationLevel: 'org',
-        repo: 'my-repo',
-      });
-    }).toThrow(/Do not specify repo when registrationLevel is 'org'/);
+    new AlwaysOnWarmRunner(stack, 'warm', {
+      runners,
+      provider,
+      count: 1,
+      owner: 'my-org',
+      registrationLevel: 'org',
+      repo: 'my-repo',
+    });
+
+    Annotations.fromStack(stack).hasError(
+      '/test/warm',
+      Match.stringLikeRegexp("Do not specify repo when registrationLevel is 'org'"),
+    );
   });
 
-  test('repo registration without repo throws', () => {
+  test('repo registration without repo adds error annotation', () => {
     const provider = new LambdaRunnerProvider(stack, 'p1');
     const runners = new GitHubRunners(stack, 'runners', { providers: [provider] });
 
-    expect(() => {
-      new AlwaysOnWarmRunner(stack, 'warm', {
-        runners,
-        provider,
-        count: 1,
-        owner: 'my-org',
-        registrationLevel: 'repo',
-      });
-    }).toThrow(/repo is required when registrationLevel is 'repo'/);
+    const warm = new AlwaysOnWarmRunner(stack, 'warm', {
+      runners,
+      provider,
+      count: 1,
+      owner: 'my-org',
+      registrationLevel: 'repo',
+    });
+
+    Annotations.fromStack(stack).hasError(
+      '/test/warm',
+      Match.stringLikeRegexp("repo is required when registrationLevel is 'repo'"),
+    );
+    expect(warm._fillPayload.repo).toBe('');
+    Template.fromStack(stack);
   });
 
-  test('provider not in providers list throws', () => {
+  test('provider not in providers list adds error annotation', () => {
     const p1 = new LambdaRunnerProvider(stack, 'p1');
     const p2 = new LambdaRunnerProvider(stack, 'p2', { labels: ['other'] });
 
@@ -54,15 +62,18 @@ describe('Warm runner validation', () => {
       providers: [p1],
     });
 
-    expect(() => {
-      new AlwaysOnWarmRunner(stack, 'warm', {
-        runners,
-        provider: p2,
-        count: 1,
-        owner: 'my-org',
-        registrationLevel: 'org',
-      });
-    }).toThrow(/not in the providers list/);
+    new AlwaysOnWarmRunner(stack, 'warm', {
+      runners,
+      provider: p2,
+      count: 1,
+      owner: 'my-org',
+      registrationLevel: 'org',
+    });
+
+    Annotations.fromStack(stack).hasError(
+      '/test/warm',
+      Match.stringLikeRegexp('not in the providers list'),
+    );
   });
 });
 
@@ -378,15 +389,18 @@ describe('Warm runners with composite providers', () => {
       providers: [composite],
     });
 
-    expect(() => {
-      new AlwaysOnWarmRunner(stack, 'warm', {
-        runners,
-        provider: p1,
-        count: 1,
-        owner: 'my-org',
-        registrationLevel: 'org',
-      });
-    }).toThrow(/not in the providers list/);
+    new AlwaysOnWarmRunner(stack, 'warm', {
+      runners,
+      provider: p1,
+      count: 1,
+      owner: 'my-org',
+      registrationLevel: 'org',
+    });
+
+    Annotations.fromStack(stack).hasError(
+      '/test/warm',
+      Match.stringLikeRegexp('not in the providers list'),
+    );
   });
 });
 

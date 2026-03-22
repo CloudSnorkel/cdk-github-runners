@@ -35,6 +35,15 @@ describe('GitHubRunners', () => {
     );
   });
 
+  test('At least one provider is required', () => {
+    new GitHubRunners(stack, 'runners', { providers: [] });
+    Annotations.fromStack(stack).hasError(
+      '/test/runners',
+      'At least one runner provider is required',
+    );
+    Template.fromStack(stack);
+  });
+
   test('Intersecting labels warning', () => {
     new GitHubRunners(stack, 'runners', {
       providers: [
@@ -72,18 +81,22 @@ describe('GitHubRunners', () => {
   });
 
   test('Duplicate labels error', () => {
-    expect(() => {
-      new GitHubRunners(stack, 'runners', {
-        providers: [
-          new CodeBuildRunnerProvider(stack, 'p1', {
-            labels: ['a'],
-          }),
-          new CodeBuildRunnerProvider(stack, 'p2', {
-            labels: ['a'],
-          }),
-        ],
-      });
-    }).toThrow('Both test/p1 and test/p2 use the same labels [a]');
+    new GitHubRunners(stack, 'runners', {
+      providers: [
+        new CodeBuildRunnerProvider(stack, 'p1', {
+          labels: ['a'],
+        }),
+        new CodeBuildRunnerProvider(stack, 'p2', {
+          labels: ['a'],
+        }),
+      ],
+    });
+
+    Annotations.fromStack(stack).hasError(
+      '/test/runners',
+      'Both test/p1 and test/p2 use the same labels [a]',
+    );
+    Template.fromStack(stack);
   });
 
   test('Metrics', () => {
@@ -114,11 +127,15 @@ describe('GitHubRunners', () => {
     const p2 = new CodeBuildRunnerProvider(stack, 'p2', { labels: ['a'] });
     const composite = CompositeProvider.fallback(stack, 'composite', [p1, p1b]);
 
-    expect(() => {
-      new GitHubRunners(stack, 'runners', {
-        providers: [p2, composite],
-      });
-    }).toThrow('Both test/p2 and test/composite use the same labels [a]');
+    new GitHubRunners(stack, 'runners', {
+      providers: [p2, composite],
+    });
+
+    Annotations.fromStack(stack).hasError(
+      '/test/runners',
+      'Both test/p2 and test/composite use the same labels [a]',
+    );
+    Template.fromStack(stack);
   });
 
   test('Duplicate labels error between composite providers', () => {
@@ -129,11 +146,15 @@ describe('GitHubRunners', () => {
     const composite1 = CompositeProvider.fallback(stack, 'composite1', [p1, p1b]);
     const composite2 = CompositeProvider.fallback(stack, 'composite2', [p2, p2b]);
 
-    expect(() => {
-      new GitHubRunners(stack, 'runners', {
-        providers: [composite1, composite2],
-      });
-    }).toThrow('Both test/composite1 and test/composite2 use the same labels [a]');
+    new GitHubRunners(stack, 'runners', {
+      providers: [composite1, composite2],
+    });
+
+    Annotations.fromStack(stack).hasError(
+      '/test/runners',
+      'Both test/composite1 and test/composite2 use the same labels [a]',
+    );
+    Template.fromStack(stack);
   });
 
   test('Intersecting labels warning with composite providers', () => {
