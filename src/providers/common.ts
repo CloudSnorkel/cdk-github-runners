@@ -556,7 +556,7 @@ export interface ICompositeProvider extends IConstruct {
 
   /**
    * Generate step function tasks that execute the runner.
-   * 
+   *
    * If the provider has multiple attempts, each attempt should be followed by a `Catch` that deletes the failed runner. Use
    * {@link IRunnerRuntimeParameters.addCatchAndCleanUp} to add the catch.
    *
