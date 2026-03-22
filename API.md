@@ -20,8 +20,6 @@ Registration level must match the one selected during setup. See {@link SETUP_GI
   gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
   can be tweaked using `retryOptions`. This will be improved in the future.
 
-*Example*
-
 ```typescript
 new AlwaysOnWarmRunner(stack, 'AlwaysOnLinux', {
   runners,
@@ -31,7 +29,6 @@ new AlwaysOnWarmRunner(stack, 'AlwaysOnLinux', {
   repo: 'my-repo',
 });
 ```
-
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.Initializer"></a>
 
@@ -5443,7 +5440,18 @@ Registration level must match the one selected during setup. See {@link SETUP_GI
   gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
   can be tweaked using `retryOptions`. This will be improved in the future.
 
-*Example*
+```typescript
+// Cron: fill at 1pm on weekdays
+new ScheduledWarmRunner(stack, 'Business Hours', {
+  runners,
+  provider: myProvider,
+  count: 3,
+  owner: 'my-org',
+  repo: 'my-repo',
+  schedule: events.Schedule.cron({ hour: '13', minute: '0', weekDay: 'MON-FRI' }),
+  duration: cdk.Duration.hours(2),
+});
+```
 
 ```typescript
 // Rate: fill every 12 hours
@@ -5457,7 +5465,6 @@ new ScheduledWarmRunner(stack, 'Every 12 Hours', {
   duration: cdk.Duration.hours(12),
 });
 ```
-
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.Initializer"></a>
 
