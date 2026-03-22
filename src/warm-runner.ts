@@ -39,8 +39,9 @@ export interface WarmRunnerBaseProps {
 
   /**
    * Registration level — must match how your runners are set up in GitHub. Choose
-   * 'org' for org-wide runners, 'repo' for repo-level. See the setup wizard or
-   * {@link SETUP_GITHUB.md} for choosing repo vs org.
+   * 'org' for org-wide runners, 'repo' for repo-level. See the setup wizard for choosing repo vs org.
+   *
+   * @see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
    *
    * @default 'repo'
    */
@@ -135,7 +136,9 @@ function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule:
  *
  * Runners will be provisioned using the specified provider and registered in the specified repository or organization.
  *
- * Registration level must match the one selected during setup. See {@link SETUP_GITHUB.md} for more information on the selection.
+ * Registration level must match the one selected during setup.
+ *
+ * @see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
  *
  * ## Limitations
  *
@@ -227,7 +230,9 @@ function getScheduleIntervalSeconds(expressionString: string): number | undefine
  *
  * Runners will be provisioned using the specified provider and registered in the specified repository or organization.
  *
- * Registration level must match the one selected during setup. See {@link SETUP_GITHUB.md} for more information on the selection.
+ * Registration level must match the one selected during setup.
+ *
+ * @see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
  *
  * ## Limitations
  *
