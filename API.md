@@ -798,6 +798,7 @@ new CodeBuildRunner(scope: Construct, id: string, props?: CodeBuildRunnerProvide
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -880,6 +881,14 @@ Also gives the status function any needed permissions to query the Docker image 
 - *Type:* aws-cdk-lib.aws_iam.IGrantable
 
 ---
+
+##### ~~`stepFunctionConstants`~~ <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.stepFunctionConstants"></a>
+
+```typescript
+public stepFunctionConstants(): {[ key: string ]: string}
+```
+
+Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -1206,6 +1215,7 @@ new CodeBuildRunnerProvider(scope: Construct, id: string, props?: CodeBuildRunne
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -1288,6 +1298,14 @@ Also gives the status function any needed permissions to query the Docker image 
 - *Type:* aws-cdk-lib.aws_iam.IGrantable
 
 ---
+
+##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.stepFunctionConstants"></a>
+
+```typescript
+public stepFunctionConstants(): {[ key: string ]: string}
+```
+
+Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -1855,6 +1873,7 @@ new Ec2Runner(scope: Construct, id: string, props?: Ec2RunnerProviderProps)
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -1937,6 +1956,14 @@ Also gives the status function any needed permissions to query the Docker image 
 - *Type:* aws-cdk-lib.aws_iam.IGrantable
 
 ---
+
+##### ~~`stepFunctionConstants`~~ <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.stepFunctionConstants"></a>
+
+```typescript
+public stepFunctionConstants(): {[ key: string ]: string}
+```
+
+Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -2174,6 +2201,7 @@ new Ec2RunnerProvider(scope: Construct, id: string, props?: Ec2RunnerProviderPro
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -2256,6 +2284,14 @@ Also gives the status function any needed permissions to query the Docker image 
 - *Type:* aws-cdk-lib.aws_iam.IGrantable
 
 ---
+
+##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.stepFunctionConstants"></a>
+
+```typescript
+public stepFunctionConstants(): {[ key: string ]: string}
+```
+
+Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -2485,6 +2521,7 @@ new EcsRunnerProvider(scope: Construct, id: string, props?: EcsRunnerProviderPro
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -2567,6 +2604,14 @@ Also gives the status function any needed permissions to query the Docker image 
 - *Type:* aws-cdk-lib.aws_iam.IGrantable
 
 ---
+
+##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.stepFunctionConstants"></a>
+
+```typescript
+public stepFunctionConstants(): {[ key: string ]: string}
+```
+
+Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -2800,6 +2845,7 @@ new FargateRunner(scope: Construct, id: string, props?: FargateRunnerProviderPro
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -2882,6 +2928,14 @@ Also gives the status function any needed permissions to query the Docker image 
 - *Type:* aws-cdk-lib.aws_iam.IGrantable
 
 ---
+
+##### ~~`stepFunctionConstants`~~ <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.FargateRunner.stepFunctionConstants"></a>
+
+```typescript
+public stepFunctionConstants(): {[ key: string ]: string}
+```
+
+Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -3289,6 +3343,7 @@ new FargateRunnerProvider(scope: Construct, id: string, props?: FargateRunnerPro
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -3371,6 +3426,14 @@ Also gives the status function any needed permissions to query the Docker image 
 - *Type:* aws-cdk-lib.aws_iam.IGrantable
 
 ---
+
+##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.stepFunctionConstants"></a>
+
+```typescript
+public stepFunctionConstants(): {[ key: string ]: string}
+```
+
+Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -4424,6 +4487,7 @@ new LambdaRunner(scope: Construct, id: string, props?: LambdaRunnerProviderProps
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -4506,6 +4570,14 @@ Also gives the status function any needed permissions to query the Docker image 
 - *Type:* aws-cdk-lib.aws_iam.IGrantable
 
 ---
+
+##### ~~`stepFunctionConstants`~~ <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.stepFunctionConstants"></a>
+
+```typescript
+public stepFunctionConstants(): {[ key: string ]: string}
+```
+
+Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -4824,6 +4896,7 @@ new LambdaRunnerProvider(scope: Construct, id: string, props?: LambdaRunnerProvi
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -4906,6 +4979,14 @@ Also gives the status function any needed permissions to query the Docker image 
 - *Type:* aws-cdk-lib.aws_iam.IGrantable
 
 ---
+
+##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.stepFunctionConstants"></a>
+
+```typescript
+public stepFunctionConstants(): {[ key: string ]: string}
+```
+
+Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -12055,6 +12136,7 @@ log groups, or retryable errors as they delegate to their sub-providers.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function tasks that execute the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.status">status</a></code> | Return statuses of all sub-providers to be used in the main status function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Merged constants from all sub-providers for the single orchestrator `$.consts` pass. Duplicate keys across sub-providers must be avoided. |
 
 ---
 
@@ -12115,6 +12197,14 @@ Also gives the status function any needed permissions to query the Docker images
 grantable for the status function.
 
 ---
+
+##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.stepFunctionConstants"></a>
+
+```typescript
+public stepFunctionConstants(): {[ key: string ]: string}
+```
+
+Merged constants from all sub-providers for the single orchestrator `$.consts` pass. Duplicate keys across sub-providers must be avoided.
 
 #### Properties <a name="Properties" id="Properties"></a>
 
@@ -12405,6 +12495,8 @@ Interface for all runner providers.
 
 Implementations create all required resources and return a step function task that starts those resources from {@link getStepFunctionTask}.
 
+This interface is not guranteed to be stable. If you end up implementing your own provider, please let us know so we can consider changing that contract.
+
 #### Methods <a name="Methods" id="Methods"></a>
 
 | **Name** | **Description** |
@@ -12412,6 +12504,7 @@ Implementations create all required resources and return a step function task th
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function tasks that execute the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Static string constants injected once into the orchestrator execution input at `$.consts`. Use unique keys for dynamic values (e.g. include `this.node.path` in the key). Values must be plain strings known at synthesis time. |
 
 ---
 
@@ -12469,6 +12562,16 @@ Also gives the status function any needed permissions to query the Docker image 
 grantable for the status function.
 
 ---
+
+##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.stepFunctionConstants"></a>
+
+```typescript
+public stepFunctionConstants(): {[ key: string ]: string}
+```
+
+Static string constants injected once into the orchestrator execution input at `$.consts`. Use unique keys for dynamic values (e.g. include `this.node.path` in the key). Values must be plain strings known at synthesis time.
+
+To use the constants in your provider, use `'$.consts.key'` as a path.
 
 #### Properties <a name="Properties" id="Properties"></a>
 
