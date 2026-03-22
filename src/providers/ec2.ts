@@ -461,9 +461,13 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.logGroup.grantWrite(this);
   }
 
+  private userDataConst() {
+    return this.ami.os.is(Os.WINDOWS) ? 'ec2UserDataWindows' : 'ec2UserDataLinux';
+  }
+
   public stepFunctionConstants(): Record<string, string> {
     const userdataTemplate = this.ami.os.is(Os.WINDOWS) ? windowsUserDataTemplate : linuxUserDataTemplate;
-    return { [`ec2UserData${this.ami.os.name.replace(' ', '_')}`]: userdataTemplate };
+    return { [this.userDataConst()]: userdataTemplate };
   }
 
   /**
@@ -524,7 +528,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
           UserData: stepfunctions.JsonPath.base64Encode(
             stepfunctions.JsonPath.format(
               // see stepFunctionConstants()
-              stepfunctions.JsonPath.stringAt(`$.consts.ec2UserData${this.ami.os.name.replace(' ', '_')}`),
+              stepfunctions.JsonPath.stringAt(`$.consts.${this.userDataConst()}`),
               ...params,
             ),
           ),

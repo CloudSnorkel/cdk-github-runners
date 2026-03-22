@@ -484,7 +484,7 @@ export interface IRunnerProviderStatus {
 /**
  * Interface for all runner providers. Implementations create all required resources and return a step function task that starts those resources from {@link getStepFunctionTask}.
  *
- * This interface is not guranteed to be stable. If you end up implementing your own provider, please let us know so we can consider changing that contract.
+ * This interface is not guaranteed to be stable. If you end up implementing your own provider, please let us know so we can consider changing that contract.
  */
 export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, IConstruct {
   /**
