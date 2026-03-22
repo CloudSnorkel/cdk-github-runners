@@ -16,10 +16,10 @@ import {
   BaseProvider,
   IRunnerProvider,
   IRunnerProviderStatus,
+  IRunnerRuntimeParameters,
   Os,
   RunnerImage,
   RunnerProviderProps,
-  RunnerRuntimeParameters,
   RunnerVersion,
   generateStateName,
 } from './common';
@@ -449,7 +449,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
    *
    * @param parameters workflow job details
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
+  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.EcsRunTask(
       this,
       'State',
