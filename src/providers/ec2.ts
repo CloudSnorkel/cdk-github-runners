@@ -10,9 +10,6 @@ import {
   Stack,
 } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
-import { State } from 'aws-cdk-lib/aws-stepfunctions/lib/states/state';
-import type { INextable } from 'aws-cdk-lib/aws-stepfunctions/lib/types';
 import { Construct } from 'constructs';
 import {
   amiRootDevice,
@@ -516,7 +513,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       return new stepfunctions_tasks.CallAwsService(this, subnet.subnetId, {
         stateName: generateStateName(this, subnet.subnetId),
         comment: subnet.availabilityZone,
-        integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+        integrationPattern: stepfunctions.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         service: 'ec2',
         action: 'runInstances',
         heartbeatTimeout: stepfunctions.Timeout.duration(Duration.minutes(10)),
@@ -598,9 +595,9 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
 
     return new SimpleFragment(
       this,
-      generateStateName(this, 'Fragment'),
+      'Fragment',
       passUserData,
-      subnetRunners[subnetRunners.length - 1],
+      current,
     );
   }
 
@@ -675,8 +672,8 @@ export class Ec2Runner extends Ec2RunnerProvider {
  * @internal
  */
 class SimpleFragment extends stepfunctions.StateMachineFragment {
-  readonly startState: State;
-  readonly endStates: INextable[];
+  readonly startState: stepfunctions.State;
+  readonly endStates: stepfunctions.INextable[];
 
   constructor(scope: Construct, id: string, start: stepfunctions.State, end: stepfunctions.INextable) {
     super(scope, id);

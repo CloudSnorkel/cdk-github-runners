@@ -535,7 +535,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
   private addCatchAndCleanUp(state: stepfunctions.TaskStateBase | stepfunctions.Parallel | stepfunctions.Map, next?: stepfunctions.IChainable) {
     this.deleteFailedRunnerFunction ??= this.deleteFailedRunner();
-    const task = new stepfunctions_tasks.LambdaInvoke(this, `Delete Failed Runner ${this.deleteFailedRunnerIndex++}`, {
+    this.deleteFailedRunnerIndex++;
+    const task = new stepfunctions_tasks.LambdaInvoke(this, `Delete Failed Runner ${this.deleteFailedRunnerIndex}`, {
       stateName: `Delete Failed Runner ${this.deleteFailedRunnerIndex}`,
       comment: 'Clean-up failed runner from GitHub Actions (if present)',
       lambdaFunction: this.deleteFailedRunnerFunction,
