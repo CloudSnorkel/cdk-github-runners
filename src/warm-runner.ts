@@ -76,20 +76,20 @@ export interface ScheduledWarmRunnerProps extends WarmRunnerBaseProps {
 function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule: events.Schedule, duration: number, createInitialFill: boolean) {
   const registrationLevel = props.registrationLevel ?? 'repo';
   if (registrationLevel === 'org' && props.repo) {
-    throw new Error('Do not specify repo when registrationLevel is \'org\'');
+    cdk.Annotations.of(scope).addError('Do not specify repo when registrationLevel is \'org\'');
   }
   if (registrationLevel === 'repo' && !props.repo) {
-    throw new Error('repo is required when registrationLevel is \'repo\'');
+    cdk.Annotations.of(scope).addError('repo is required when registrationLevel is \'repo\'');
   }
 
   const providerPath = props.provider.node.path;
   if (!props.runners.providers.some(p => p.node.path === providerPath)) {
-    throw new Error(`Provider ${providerPath} is not in the providers list of the GitHubRunners construct`);
+    cdk.Annotations.of(scope).addError(`Provider ${providerPath} is not in the providers list of the GitHubRunners construct`);
   }
 
   const labels = props.provider.labels;
 
-  const repo = registrationLevel === 'repo' ? props.repo! : '';
+  const repo = registrationLevel === 'repo' ? (props.repo ?? '') : '';
   const configHash = crypto.createHash('sha256')
     .update(JSON.stringify({ providerPath, providerLabels: labels, count: props.count, duration, owner: props.owner, repo }))
     .digest('hex')

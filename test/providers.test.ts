@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_ecs as ecs, aws_stepfunctions as sfn } from 'aws-cdk-lib';
-import { Match, Template } from 'aws-cdk-lib/assertions';
+import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import { CodeBuildRunnerProvider, Ec2RunnerProvider, EcsRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
 import { cleanUp } from './test-utils';
@@ -121,6 +121,24 @@ describe('Providers', () => {
           },
         ],
       }));
+    });
+
+    test('storageOptions without storageSize adds error annotation and synthesizes', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new EcsRunnerProvider(stack, 'providerNoSize', {
+        vpc,
+        securityGroups: [sg],
+        storageOptions: { volumeType: ec2.EbsDeviceVolumeType.GP3 },
+      });
+
+      Annotations.fromStack(stack).hasError(
+        '/test/providerNoSize',
+        'storageSize is required when storageOptions are specified',
+      );
+
+      Template.fromStack(stack);
     });
 
     test('Custom capacity provider', () => {
@@ -343,13 +361,17 @@ describe('Providers', () => {
         },
       });
 
-      expect(() => {
-        new Ec2RunnerProvider(stack, 'provider 1', {
-          vpc: vpc,
-          securityGroups: [sg],
-          imageBuilder: ib,
-        });
-      }).toThrow('Runner storage size (30 GiB) must be at least the same as the image builder storage size (50 GiB)');
+      new Ec2RunnerProvider(stack, 'provider 1', {
+        vpc: vpc,
+        securityGroups: [sg],
+        imageBuilder: ib,
+      });
+
+      Annotations.fromStack(stack).hasError(
+        '/test/provider 1',
+        Match.stringLikeRegexp('Runner storage size \\(30 GiB\\) must be at least the same as the image builder storage size \\(50 GiB\\)'),
+      );
+      Template.fromStack(stack);
 
       new Ec2RunnerProvider(stack, 'provider 2', {
         vpc: vpc,

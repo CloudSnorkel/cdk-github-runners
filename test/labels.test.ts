@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2 } from 'aws-cdk-lib';
+import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import { CodeBuildRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
 import { cleanUp } from './test-utils';
 
@@ -76,5 +77,18 @@ describe('Labels', () => {
     expect(labels.labels).toStrictEqual(['hello', 'world']);
 
   // TODO test state machine definition
+  });
+
+  test('label and labels together adds error and prefers labels', () => {
+    const p = new CodeBuildRunnerProvider(stack, 'both', {
+      label: 'a',
+      labels: ['b', 'c'],
+    });
+    expect(p.labels).toStrictEqual(['b', 'c']);
+    Annotations.fromStack(stack).hasError(
+      '/test/both',
+      Match.stringLikeRegexp('Must supply either `label` or `labels`'),
+    );
+    Template.fromStack(stack);
   });
 });

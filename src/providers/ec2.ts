@@ -430,12 +430,12 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
 
     if (this.amiBuilder instanceof AwsImageBuilderRunnerImageBuilder) {
       if (this.amiBuilder.storageSize && this.storageSize.toBytes() < this.amiBuilder.storageSize.toBytes()) {
-        throw new Error(`Runner storage size (${this.storageSize.toGibibytes()} GiB) must be at least the same as the image builder storage size (${this.amiBuilder.storageSize.toGibibytes()} GiB)`);
+        cdk.Annotations.of(this).addError(`Runner storage size (${this.storageSize.toGibibytes()} GiB) must be at least the same as the image builder storage size (${this.amiBuilder.storageSize.toGibibytes()} GiB)`);
       }
     }
 
     if (!this.ami.architecture.instanceTypeMatch(this.instanceType)) {
-      throw new Error(`AMI architecture (${this.ami.architecture.name}) doesn't match runner instance type (${this.instanceType} / ${this.instanceType.architecture})`);
+      cdk.Annotations.of(this).addError(`AMI architecture (${this.ami.architecture.name}) doesn't match runner instance type (${this.instanceType} / ${this.instanceType.architecture})`);
     }
 
     this.grantPrincipal = this.role = new iam.Role(this, 'Role', {

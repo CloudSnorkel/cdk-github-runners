@@ -400,7 +400,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     );
 
     if (props?.storageOptions && !props?.storageSize) {
-      throw new Error('storageSize is required when storageOptions are specified');
+      cdk.Annotations.of(this).addError('storageSize is required when storageOptions are specified');
     }
 
     const defaultImageBuilderArchitecture =
@@ -425,16 +425,16 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       const launchTemplate = new ec2.LaunchTemplate(this, 'Launch Template', {
         machineImage: this.defaultClusterInstanceAmi(),
         instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
-        blockDevices: props?.storageSize ? [
+        blockDevices: (props?.storageSize || props?.storageOptions) ? [
           {
             deviceName: amiRootDevice(this, this.defaultClusterInstanceAmi().getImage(this).imageId).ref,
             volume: {
               ebsDevice: {
                 deleteOnTermination: true,
-                volumeSize: props.storageSize.toGibibytes(),
-                volumeType: props.storageOptions?.volumeType,
-                iops: props.storageOptions?.iops,
-                throughput: props.storageOptions?.throughput,
+                volumeSize: props?.storageSize?.toGibibytes() ?? 30,
+                volumeType: props?.storageOptions?.volumeType,
+                iops: props?.storageOptions?.iops,
+                throughput: props?.storageOptions?.throughput,
               },
             },
           },
