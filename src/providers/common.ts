@@ -483,6 +483,8 @@ export interface IRunnerProviderStatus {
 
 /**
  * Interface for all runner providers. Implementations create all required resources and return a step function task that starts those resources from {@link getStepFunctionTask}.
+ * 
+ * This interface is not guranteed to be stable. If you end up implementing your own provider, please let us know so we can consider changing that contract.
  */
 export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, IConstruct {
   /**
@@ -516,6 +518,16 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, ICons
    * @param parameters specific build parameters
    */
   getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable;
+
+  /**
+   * Static string constants injected once into the orchestrator execution input at `$.consts`. Use unique keys for
+   * dynamic values (e.g. include `this.node.path` in the key). Values must be plain strings known at synthesis time.
+   *
+   * To use the constants in your provider, use `'$.consts.key'` as a path.
+   *
+   * @default `{}` — {@link BaseProvider} returns an empty object; override when needed (e.g. EC2 userdata template).
+   */
+  stepFunctionConstants(): Record<string, string>;
 
   /**
    * An optional method that modifies the role of the state machine after all the tasks have been generated. This can be used to add additional policy
@@ -567,6 +579,12 @@ export interface ICompositeProvider extends IConstruct {
   getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable;
 
   /**
+   * Merged constants from all sub-providers for the single orchestrator `$.consts` pass. Duplicate keys across
+   * sub-providers must be avoided.
+   */
+  stepFunctionConstants(): Record<string, string>;
+
+  /**
    * An optional method that modifies the role of the state machine after all the tasks have been generated. This can be used to add additional policy
    * statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
    *
@@ -580,6 +598,26 @@ export interface ICompositeProvider extends IConstruct {
    * @param statusFunctionRole grantable for the status function
    */
   status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[];
+}
+
+/**
+ * Merges static-const maps; throws if two maps use the same key with different values.
+ *
+ * @internal
+ */
+export function mergeConstMaps(...maps: Readonly<Record<string, string>>[]): Record<string, string> {
+  const merged: Record<string, string> = {};
+  for (const part of maps) {
+    for (const [key, value] of Object.entries(part)) {
+      if (Object.prototype.hasOwnProperty.call(merged, key) && merged[key] !== value) {
+        throw new Error(
+          `Duplicate stepFunctionConstants() key "${key}" with different values. Use unique keys per provider (e.g. include the construct id or node address).`,
+        );
+      }
+      merged[key] = value;
+    }
+  }
+  return merged;
 }
 
 /**
@@ -627,6 +665,13 @@ export abstract class BaseProvider extends Construct {
     super(scope, id);
 
     cdk.Tags.of(this).add('GitHubRunners:Provider', this.node.path);
+  }
+
+  /**
+   * Override to inject static strings into `$.consts` on the orchestrator state machine.
+   */
+  public stepFunctionConstants(): Record<string, string> {
+    return {};
   }
 
   protected labelsFromProperties(defaultLabel: string, propsLabel: string | undefined, propsLabels: string[] | undefined): string[] {

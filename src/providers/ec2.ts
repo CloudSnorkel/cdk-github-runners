@@ -461,6 +461,11 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.logGroup.grantWrite(this);
   }
 
+  public stepFunctionConstants(): Record<string, string> {
+    const userdataTemplate = this.ami.os.is(Os.WINDOWS) ? windowsUserDataTemplate : linuxUserDataTemplate;
+    return { [`ec2UserData${this.ami.os.name.replace(' ', '_')}`]: userdataTemplate };
+  }
+
   /**
    * Generate step function task(s) to start a new runner.
    *
@@ -486,14 +491,6 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       this.group ? this.group : '',
       this.defaultLabels ? '' : '--no-default-labels',
     ];
-
-    const passUserData = new stepfunctions.Pass(this, 'Data', {
-      stateName: generateStateName(this, 'data'),
-      parameters: {
-        userdataTemplate: this.ami.os.is(Os.WINDOWS) ? windowsUserDataTemplate : linuxUserDataTemplate,
-      },
-      resultPath: stepfunctions.JsonPath.stringAt('$.ec2'),
-    });
 
     // we use ec2:RunInstances because we must
     // we can't use fleets because they don't let us override user data, security groups or even disk size
@@ -526,7 +523,8 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
           InstanceType: this.instanceType.toString(),
           UserData: stepfunctions.JsonPath.base64Encode(
             stepfunctions.JsonPath.format(
-              stepfunctions.JsonPath.stringAt('$.ec2.userdataTemplate'),
+              // see stepFunctionConstants()
+              stepfunctions.JsonPath.stringAt(`$.consts.ec2UserData${this.ami.os.name.replace(' ', '_')}`),
               ...params,
             ),
           ),
@@ -584,8 +582,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       });
     });
 
-    passUserData.next(subnetRunners[0]);
-
+    const head = subnetRunners[0];
     let current = subnetRunners[0];
     for (let i = 1; i < subnetRunners.length; i++) {
       const next = subnetRunners[i];
@@ -596,7 +593,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     return new SimpleFragment(
       this,
       'Fragment',
-      passUserData,
+      head,
       current,
     );
   }
@@ -666,9 +663,6 @@ export class Ec2Runner extends Ec2RunnerProvider {
 }
 
 /**
- * Subgraph from the userdata `Pass` through the last subnet `RunInstances` task, so composite fallback can attach
- * `Catch` to a task state (not the leading `Pass`, which has no `addCatch`).
- *
  * @internal
  */
 class SimpleFragment extends stepfunctions.StateMachineFragment {

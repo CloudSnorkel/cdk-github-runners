@@ -27,6 +27,10 @@ class MockCompositeProvider extends Construct implements ICompositeProvider {
     return new stepfunctions.Pass(this, `${this.node.id}Task`);
   }
 
+  stepFunctionConstants(): Record<string, string> {
+    return {};
+  }
+
   grantStateMachine(_stateMachineRole: iam.IGrantable): void {
     // Mock implementation - do nothing
   }
@@ -448,6 +452,10 @@ describe('ICompositeProvider', () => {
         return new stepfunctions.Pass(this, `${this.node.id}Task`);
       }
 
+      stepFunctionConstants(): Record<string, string> {
+        return {};
+      }
+
       grantStateMachine(_stateMachineRole: iam.IGrantable): void {
         // Do nothing
       }
@@ -486,6 +494,10 @@ describe('ICompositeProvider', () => {
 
       getStepFunctionTask(_parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
         return new stepfunctions.Pass(this, `${this.node.id}Task`);
+      }
+
+      stepFunctionConstants(): Record<string, string> {
+        return {};
       }
 
       grantStateMachine(_stateMachineRole: iam.IGrantable): void {

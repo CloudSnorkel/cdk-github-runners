@@ -27,6 +27,7 @@ import {
   ICompositeProvider,
   IRunnerProvider,
   LambdaRunnerProvider,
+  mergeConstMaps,
   ProviderRetryOptions,
 } from './providers';
 import { Secrets } from './secrets';
@@ -396,6 +397,17 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       outputs: '{% $states.input %}', // discard
     });
 
+    const providerConsts = mergeConstMaps(...this.providers.map(p => p.stepFunctionConstants()));
+    const afterRunnerToken =
+      Object.keys(providerConsts).length > 0
+        ? tokenRetrieverTask.next(
+          new stepfunctions.Pass(this, 'Provider Constants', {
+            parameters: providerConsts,
+            resultPath: '$.consts',
+          }),
+        )
+        : tokenRetrieverTask;
+
     const providerChooser = new stepfunctions.Choice(this, 'Choose provider');
     for (const provider of this.providers) {
       const providerTask = provider.getStepFunctionTask(
@@ -425,7 +437,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     const errorHandler = new stepfunctions.Parallel(this, 'Error Handler').branch(
       // we get a token for every retry because the token can expire faster than the job can timeout
-      tokenRetrieverTask.next(providerChooser),
+      afterRunnerToken.next(providerChooser),
     );
     this.addCatchAndCleanUp(errorHandler);
 

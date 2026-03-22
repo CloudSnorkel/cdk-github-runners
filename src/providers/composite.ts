@@ -6,6 +6,7 @@ import {
   IRunnerProvider,
   IRunnerProviderStatus,
   IRunnerRuntimeParameters,
+  mergeConstMaps,
 } from './common';
 
 /**
@@ -177,6 +178,10 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
     return false;
   }
 
+  stepFunctionConstants(): Record<string, string> {
+    return mergeConstMaps(...this.providers.map(p => p.stepFunctionConstants()));
+  }
+
   grantStateMachine(stateMachineRole: iam.IGrantable): void {
     for (const provider of this.providers) {
       provider.grantStateMachine(stateMachineRole);
@@ -238,6 +243,10 @@ class DistributedRunnerProvider extends Construct implements ICompositeProvider 
     }
 
     return rand;
+  }
+
+  stepFunctionConstants(): Record<string, string> {
+    return mergeConstMaps(...this.providers.map(p => p.stepFunctionConstants()));
   }
 
   grantStateMachine(stateMachineRole: iam.IGrantable): void {
