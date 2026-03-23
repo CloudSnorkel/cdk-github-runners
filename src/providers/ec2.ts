@@ -62,7 +62,6 @@ heartbeat () {
     SPOT_ACTION=$(curl -s -f -H "X-aws-ec2-metadata-token: $(curl -s -f -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 1" 2>/dev/null)" "http://169.254.169.254/latest/meta-data/spot/instance-action" 2>/dev/null) || true
     if [ -n "$SPOT_ACTION" ]; then
       aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" --error SpotInterrupted --cause "EC2 Spot instance interruption: $SPOT_ACTION" || true
-      kill -TERM $PPID 2>/dev/null || true
       exit 0
     fi
     aws stepfunctions send-task-heartbeat --task-token "$TASK_TOKEN"
@@ -152,7 +151,6 @@ Start-Job -ScriptBlock {
       $spot = Invoke-RestMethod -Uri "http://169.254.169.254/latest/meta-data/spot/instance-action" -Headers @{"X-aws-ec2-metadata-token"=(Invoke-RestMethod -Method PUT -Uri "http://169.254.169.254/latest/api/token" -Headers @{"X-aws-ec2-metadata-token-ttl-seconds"="1"} -TimeoutSec 2)} -TimeoutSec 2
       $spotJson = if ($spot -is [string]) { $spot } else { $spot | ConvertTo-Json -Compress }
       aws stepfunctions send-task-failure --task-token "$using:TASK_TOKEN" --error SpotInterrupted --cause "EC2 Spot instance interruption: $spotJson"
-      Stop-Process -Id $using:HeartbeatParentPid -Force -ErrorAction SilentlyContinue
       break
     } catch {
     }
