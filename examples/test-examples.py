@@ -29,10 +29,11 @@ if not cdk_path:
     print_colored("  ✗ CDK not found. Please install AWS CDK CLI.", Colors.RED)
     sys.exit(1)
 
-npm_path = shutil.which("npm")
-if not npm_path:
-    print_colored("  ✗ npm not found. Please install npm.", Colors.RED)
+pnpm_path = shutil.which("pnpm")
+if not pnpm_path:
+    print_colored("  ✗ pnpm not found. Please install pnpm.", Colors.RED)
     sys.exit(1)
+
 
 _python_requirements_baseline: Optional[str] = None
 
@@ -133,10 +134,10 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
     if lang == "typescript":
         start_time = time.time()
         print_colored(f"  Installing dependencies for {example_path}...", Colors.BLUE)
-        code, out, err = run_command([npm_path, "install"], cwd=example_dir)
+        code, out, err = run_command([pnpm_path, "install"], cwd=example_dir)
         duration = time.time() - start_time
         if code != 0:
-            return False, None, f"npm install failed: {err}\n{out}"
+            return False, None, f"pnpm install failed: {err}\n{out}"
         print_colored(f"    ✓ Dependencies installed ({format_duration(duration)})", Colors.GREEN)
 
         # Install local package - use the pre-copied simple name
@@ -147,7 +148,7 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
         if not simple_tgz_path.exists():
             return False, None, f"Package file not found: {simple_tgz_path}"
 
-        # Use relative path from example directory
+        # Use relative path from example directory to the simple tgz path
         code, out, err = run_command([pnpm_path, "add", simple_tgz_path.absolute()], cwd=example_dir)
         duration = time.time() - start_time
         if code != 0:
@@ -357,6 +358,13 @@ def check_prerequisites() -> bool:
         return False
     print_colored("  ✓ CDK found", Colors.GREEN)
 
+    # Check pnpm (for TypeScript examples)
+    code, _, _ = run_command([pnpm_path, "--version"])
+    if code != 0:
+        print_colored("  ✗ pnpm not found. TypeScript examples will fail.", Colors.YELLOW)
+    else:
+        print_colored("  ✓ pnpm found", Colors.GREEN)
+
     # Check python (for Python examples)
     code, _, _ = run_command(["python", "--version"])
     if code != 0:
@@ -417,8 +425,8 @@ def main():
         project_root = Path(__file__).parent.parent
 
         start_time = time.time()
-        print_colored("Running npm run bundle...", Colors.BLUE)
-        code, out, err = run_command([npm_path, "run", "bundle"], cwd=project_root)
+        print_colored("Running pnpm run bundle...", Colors.BLUE)
+        code, out, err = run_command([pnpm_path, "run", "bundle"], cwd=project_root)
         duration = time.time() - start_time
         if code != 0:
             print_colored(f"  ✗ Bundle failed: {err}\n{out}", Colors.RED)
@@ -428,8 +436,8 @@ def main():
         print()
 
         start_time = time.time()
-        print_colored("Running npm run compile...", Colors.BLUE)
-        code, out, err = run_command([npm_path, "run", "compile"], cwd=project_root)
+        print_colored("Running pnpm run compile...", Colors.BLUE)
+        code, out, err = run_command([pnpm_path, "run", "compile"], cwd=project_root)
         duration = time.time() - start_time
         if code != 0:
             print_colored(f"  ✗ Compile failed: {err}\n{out}", Colors.RED)
