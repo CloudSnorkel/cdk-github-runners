@@ -130,6 +130,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
 const releaseWorkflow = project.github.tryFindWorkflow('release');
 releaseWorkflow.file.addDeletionOverride('on.push');
 
+// more consistent snapshots across systems
+project.npmrc.addConfig('node-linker', 'hoisted');
+
 // bundle docker images
 project.bundler.bundleTask.exec('cp -r src/providers/docker-images assets');
 project.bundler.bundleTask.exec('cp -r src/providers/lambda-*.sh assets/providers');
