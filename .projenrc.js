@@ -43,6 +43,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'vite@^7',
     'vite-plugin-singlefile@^2',
     'eslint-plugin-svelte@^2.29.0',
+    // https://github.com/projen/projen/issues/4368
+    'shx',
   ],
   deps: [
   ],

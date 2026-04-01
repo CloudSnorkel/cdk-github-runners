@@ -114,6 +114,7 @@
     "jsii-rosetta": "~5.9.0",
     "projen": "^0.99.21",
     "sass": "^1.54.0",
+    "shx": "^0.4.0",
     "svelte": "^5",
     "svelte-check": "^4",
     "svelte-preprocess": "^6",

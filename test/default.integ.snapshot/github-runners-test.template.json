@@ -14925,7 +14925,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "266aee4337100463a0d6a0e0c2a6645f730cf5714affc9f6417614f6a210a7eb.zip"
+     "S3Key": "851b5c74301eaf584f781e9265b443527a35e56c23c249774e7ecefabb75eba2.zip"
     },
     "Description": "Get token from GitHub Actions used to start new self-hosted runner",
     "Environment": {
