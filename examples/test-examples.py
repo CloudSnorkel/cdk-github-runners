@@ -29,9 +29,9 @@ if not cdk_path:
     print_colored("  ✗ CDK not found. Please install AWS CDK CLI.", Colors.RED)
     sys.exit(1)
 
-yarn_path = shutil.which("yarn")
-if not yarn_path:
-    print_colored("  ✗ yarn not found. Please install yarn.", Colors.RED)
+pnpm_path = shutil.which("pnpm")
+if not pnpm_path:
+    print_colored("  ✗ pnpm not found. Please install pnpm.", Colors.RED)
     sys.exit(1)
 
 npm_path = shutil.which("npm")
@@ -138,10 +138,10 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
     if lang == "typescript":
         start_time = time.time()
         print_colored(f"  Installing dependencies for {example_path}...", Colors.BLUE)
-        code, out, err = run_command([yarn_path, "install"], cwd=example_dir)
+        code, out, err = run_command([pnpm_path, "install"], cwd=example_dir)
         duration = time.time() - start_time
         if code != 0:
-            return False, None, f"yarn install failed: {err}\n{out}"
+            return False, None, f"pnpm install failed: {err}\n{out}"
         print_colored(f"    ✓ Dependencies installed ({format_duration(duration)})", Colors.GREEN)
         
         # Install local package - use the pre-copied simple name
@@ -153,9 +153,8 @@ def synth_example(example_path: str, lang: str) -> Tuple[bool, Optional[str], st
             return False, None, f"Package file not found: {simple_tgz_path}"
         
         # Use relative path from example directory
-        # Note: Using npm instead of yarn for local packages because yarn caches file: packages,
+        # Note: Using npm instead of pnpm for local packages because pnpm caches file: packages,
         # which can cause issues when the package is rebuilt. npm doesn't cache file: packages the same way.
-        # We still use yarn for regular dependencies (above) and in GitHub Actions for caching benefits.
         code, out, err = run_command([npm_path, "install", "--no-save", simple_tgz_path.absolute()], cwd=example_dir)
         duration = time.time() - start_time
         if code != 0:
@@ -365,12 +364,12 @@ def check_prerequisites() -> bool:
         return False
     print_colored("  ✓ CDK found", Colors.GREEN)
     
-    # Check yarn (for TypeScript examples)
-    code, _, _ = run_command([yarn_path, "--version"])
+    # Check pnpm (for TypeScript examples)
+    code, _, _ = run_command([pnpm_path, "--version"])
     if code != 0:
-        print_colored("  ✗ yarn not found. TypeScript examples will fail.", Colors.YELLOW)
+        print_colored("  ✗ pnpm not found. TypeScript examples will fail.", Colors.YELLOW)
     else:
-        print_colored("  ✓ yarn found", Colors.GREEN)
+        print_colored("  ✓ pnpm found", Colors.GREEN)
     
     # Check python (for Python examples)
     code, _, _ = run_command(["python", "--version"])
@@ -432,8 +431,8 @@ def main():
         project_root = Path(__file__).parent.parent
         
         start_time = time.time()
-        print_colored("Running yarn run bundle...", Colors.BLUE)
-        code, out, err = run_command([yarn_path, "run", "bundle"], cwd=project_root)
+        print_colored("Running pnpm run bundle...", Colors.BLUE)
+        code, out, err = run_command([pnpm_path, "run", "bundle"], cwd=project_root)
         duration = time.time() - start_time
         if code != 0:
             print_colored(f"  ✗ Bundle failed: {err}\n{out}", Colors.RED)
@@ -443,8 +442,8 @@ def main():
         print()
         
         start_time = time.time()
-        print_colored("Running yarn run compile...", Colors.BLUE)
-        code, out, err = run_command([yarn_path, "run", "compile"], cwd=project_root)
+        print_colored("Running pnpm run compile...", Colors.BLUE)
+        code, out, err = run_command([pnpm_path, "run", "compile"], cwd=project_root)
         duration = time.time() - start_time
         if code != 0:
             print_colored(f"  ✗ Compile failed: {err}\n{out}", Colors.RED)
@@ -454,8 +453,8 @@ def main():
         print()
         
         start_time = time.time()
-        print_colored("Running yarn run package:js...", Colors.BLUE)
-        code, out, err = run_command([yarn_path, "run", "package:js"], cwd=project_root)
+        print_colored("Running pnpm run package:js...", Colors.BLUE)
+        code, out, err = run_command([pnpm_path, "run", "package:js"], cwd=project_root)
         duration = time.time() - start_time
         if code != 0:
             print_colored(f"  ✗ Package JS failed: {err}\n{out}", Colors.RED)
@@ -475,8 +474,8 @@ def main():
             print()
         
         start_time = time.time()
-        print_colored("Running yarn run package:python...", Colors.BLUE)
-        code, out, err = run_command([yarn_path, "run", "package:python"], cwd=project_root)
+        print_colored("Running pnpm run package:python...", Colors.BLUE)
+        code, out, err = run_command([pnpm_path, "run", "package:python"], cwd=project_root)
         duration = time.time() - start_time
         if code != 0:
             print_colored(f"  ✗ Package Python failed: {err}\n{out}", Colors.RED)

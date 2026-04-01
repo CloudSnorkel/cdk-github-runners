@@ -133,6 +133,7 @@
   "bundledDependencies": [
     "cron-parser"
   ],
+  "pnpm": {},
   "keywords": [
     "aws",
     "aws-cdk",

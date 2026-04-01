@@ -20,12 +20,17 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "10"
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
+          cache: pnpm
       - name: Install dependencies
-        run: yarn install --check-files --frozen-lockfile
+        run: pnpm install
       - name: Snapshot main
         run: |
           npm run integ:default:snapshot
@@ -34,7 +39,7 @@ jobs:
           BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: git checkout "$BRANCH"
       - name: Install dependencies
-        run: yarn install --check-files --frozen-lockfile
+        run: pnpm install
       - name: Snapshot branch
         run: |
           npm run integ:default:snapshot

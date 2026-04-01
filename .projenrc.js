@@ -13,6 +13,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   repositoryUrl: 'https://github.com/CloudSnorkel/cdk-github-runners.git',
   license: 'Apache-2.0',
   description: 'CDK construct to create GitHub Actions self-hosted runners. Creates ephemeral runners on demand. Easy to deploy and highly customizable.',
+  packageManager: 'pnpm',
   devDeps: [
     'esbuild', // for faster NodejsFunction bundling
     '@octokit/core',
@@ -100,6 +101,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
         cron: ['0 0 1 * *'],
       },
     },
+    cooldown: 5, // don't include updates from the last five days to try and dodge supply chain attacks
   },
   githubOptions: {
     pullRequestLintOptions: {
