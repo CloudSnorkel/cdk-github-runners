@@ -120,7 +120,7 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Re
 
 // This function is used to get the Octokit instance for the app itself, not for a specific installation.
 // With PAT authentication, it returns undefined.
-export async function getAppOctokit() {
+export async function getAppOctokit(): Promise<RestOctokit | undefined> {
   if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
     throw new Error('Missing environment variables');
   }
