@@ -176,6 +176,10 @@
       "type": "build"
     },
     {
+      "name": "shx",
+      "type": "build"
+    },
+    {
       "name": "svelte-check",
       "version": "^4",
       "type": "build"

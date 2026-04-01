@@ -18,6 +18,7 @@
 /.gitignore linguist-generated
 /.mergify.yml linguist-generated
 /.npmignore linguist-generated
+/.npmrc linguist-generated
 /.projen/** linguist-generated
 /.projen/deps.json linguist-generated
 /.projen/files.json linguist-generated
@@ -27,6 +28,7 @@
 /cdk.json linguist-generated
 /LICENSE linguist-generated
 /package.json linguist-generated
+/pnpm-lock.yaml linguist-generated
 /src/delete-failed-runner-function.ts linguist-generated
 /src/idle-runner-repear-function.ts linguist-generated
 /src/image-builders/aws-image-builder/delete-resources-function.ts linguist-generated
@@ -41,5 +43,4 @@
 /src/webhook-handler-function.ts linguist-generated
 /src/webhook-redelivery-function.ts linguist-generated
 /tsconfig.dev.json linguist-generated linguist-language=JSON-with-Comments
-/yarn.lock linguist-generated
 Dockerfile eol=lf

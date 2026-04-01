@@ -18,13 +18,17 @@ jobs:
         uses: actions/checkout@v5
         with:
           ref: main
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "10"
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: lts/*
-          cache: yarn
+          cache: pnpm
       - name: Install dependencies
-        run: yarn install --check-files --frozen-lockfile
+        run: pnpm i --frozen-lockfile
       - name: Upgrade dependencies
         run: npx projen upgrade
       - name: Find mutations

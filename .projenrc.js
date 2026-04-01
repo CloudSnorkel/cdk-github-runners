@@ -13,6 +13,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   repositoryUrl: 'https://github.com/CloudSnorkel/cdk-github-runners.git',
   license: 'Apache-2.0',
   description: 'CDK construct to create GitHub Actions self-hosted runners. Creates ephemeral runners on demand. Easy to deploy and highly customizable.',
+  packageManager: 'pnpm',
   devDeps: [
     'esbuild', // for faster NodejsFunction bundling
     '@octokit/core',
@@ -42,6 +43,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'vite@^7',
     'vite-plugin-singlefile@^2',
     'eslint-plugin-svelte@^2.29.0',
+    // https://github.com/projen/projen/issues/4368
+    'shx',
   ],
   deps: [
   ],
@@ -100,6 +103,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
         cron: ['0 0 1 * *'],
       },
     },
+    cooldown: 5, // don't include updates from the last five days to try and dodge supply chain attacks
   },
   githubOptions: {
     pullRequestLintOptions: {
@@ -127,6 +131,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
 // disable automatic releases, but keep workflow that can be triggered manually
 const releaseWorkflow = project.github.tryFindWorkflow('release');
 releaseWorkflow.file.addDeletionOverride('on.push');
+
+// more consistent snapshots across systems
+project.npmrc.addConfig('node-linker', 'hoisted');
 
 // bundle docker images
 project.bundler.bundleTask.exec('cp -r src/providers/docker-images assets');
