@@ -1,9 +1,13 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_ecr as ecr, aws_ssm as ssm } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
+import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import {
   AmiBuilder,
   Architecture,
+  BaseContainerImage,
+  BaseImage,
+  CodeBuildRunnerImageBuilder,
   CodeBuildRunnerProvider,
   ContainerImageBuilder,
   Ec2RunnerProvider,
@@ -15,9 +19,6 @@ import {
   RunnerImageBuilderType,
   RunnerImageComponent,
 } from '../src';
-import { cleanUp } from './test-utils';
-import { BaseContainerImage, BaseImage } from '../src/image-builders/aws-image-builder/base-image';
-import { CodeBuildRunnerImageBuilder } from '../src/image-builders/codebuild';
 
 describe('Image Builder', () => {
   let app: cdk.App;
@@ -28,7 +29,7 @@ describe('Image Builder', () => {
     stack = new cdk.Stack(app, 'test');
   });
 
-  afterEach(() => cleanUp(app));
+  afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
   test('AMI builder matching instance type (DEPRECATED)', () => {
 
@@ -340,7 +341,7 @@ describe('Component caching', () => {
     stack = new cdk.Stack(app, 'test');
   });
 
-  afterEach(() => cleanUp(app));
+  afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
   test('Components with same name but different commands get different IDs', () => {
     const vpc = new ec2.Vpc(stack, 'vpc');
@@ -417,7 +418,7 @@ describe('BaseImage', () => {
     stack = new cdk.Stack(app, 'test');
   });
 
-  afterEach(() => cleanUp(app));
+  afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
   test('fromAmiId creates correct image string', () => {
     const baseImage = BaseImage.fromAmiId('ami-1234567890abcdef0');
@@ -490,7 +491,7 @@ describe('BaseContainerImage', () => {
     stack = new cdk.Stack(app, 'test');
   });
 
-  afterEach(() => cleanUp(app));
+  afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
   test('fromDockerHub creates correct image string', () => {
     const baseImage = BaseContainerImage.fromDockerHub('ubuntu', '22.04');
@@ -557,7 +558,7 @@ describe('CodeBuildRunnerImageBuilder ECR permissions', () => {
     stack = new cdk.Stack(app, 'test');
   });
 
-  afterEach(() => cleanUp(app));
+  afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
   test('grants ECR pull permissions when using BaseContainerImage.fromEcr()', () => {
     const baseImageRepo = new ecr.Repository(stack, 'BaseImageRepo', {

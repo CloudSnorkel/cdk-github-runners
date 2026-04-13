@@ -2,8 +2,8 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_ecs as ecs, aws_stepfunctions as sfn } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
+import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import { CodeBuildRunnerProvider, Ec2RunnerProvider, EcsRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
-import { cleanUp } from './test-utils';
 
 describe('Providers', () => {
   let app: cdk.App;
@@ -14,7 +14,7 @@ describe('Providers', () => {
     stack = new cdk.Stack(app, 'test');
   });
 
-  afterEach(() => cleanUp(app));
+  afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
   test('CodeBuild provider', () => {
 

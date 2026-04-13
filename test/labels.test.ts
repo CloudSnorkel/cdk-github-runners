@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2 } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
+import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import { CodeBuildRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
-import { cleanUp } from './test-utils';
 
 describe('Labels', () => {
   let app: cdk.App;
@@ -13,7 +13,7 @@ describe('Labels', () => {
     stack = new cdk.Stack(app, 'test');
   });
 
-  afterEach(() => cleanUp(app));
+  afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
   test('CodeBuild provider labels', () => {
 

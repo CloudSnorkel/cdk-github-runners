@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_s3 as s3 } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
+import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import {
   AwsImageBuilderRunnerImageBuilder,
   CodeBuildRunnerImageBuilder,
@@ -9,7 +10,6 @@ import {
   FargateRunnerProvider,
   LambdaRunnerProvider,
 } from '../src';
-import { cleanUp } from './test-utils';
 
 describe('IAM', () => {
   let app: cdk.App;
@@ -20,7 +20,7 @@ describe('IAM', () => {
     stack = new cdk.Stack(app, 'test');
   });
 
-  afterEach(() => cleanUp(app));
+  afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
   const bucketReadMatch = Match.objectLike({
     PolicyDocument: {
