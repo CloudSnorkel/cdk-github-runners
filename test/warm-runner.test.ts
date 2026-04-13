@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_events as events } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
+import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import { AlwaysOnWarmRunner, CodeBuildRunnerProvider, CompositeProvider, GitHubRunners, LambdaRunnerProvider, ScheduledWarmRunner } from '../src';
-import { cleanUp } from './test-utils';
 
 let app: cdk.App;
 let stack: cdk.Stack;
@@ -12,7 +12,7 @@ beforeEach(() => {
   stack = new cdk.Stack(app, 'test');
 });
 
-afterEach(() => cleanUp(app));
+afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
 describe('Warm runner validation', () => {
   test('org registration with repo adds error annotation', () => {

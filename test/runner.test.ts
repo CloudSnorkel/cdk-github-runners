@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_ecr as ecr } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
+import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import { CodeBuildRunnerProvider, CompositeProvider, GitHubRunners, LambdaRunnerProvider, StaticRunnerImage } from '../src';
-import { cleanUp } from './test-utils';
 
 let app: cdk.App;
 let stack: cdk.Stack;
@@ -13,7 +13,7 @@ describe('GitHubRunners', () => {
     stack = new cdk.Stack(app, 'test');
   });
 
-  afterEach(() => cleanUp(app));
+  afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
   test('Create GithubRunners with state machine logging enabled', () => {
     new GitHubRunners(stack, 'runners', {

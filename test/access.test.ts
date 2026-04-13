@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2 } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
+import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import { GitHubRunners, LambdaAccess, LambdaRunnerProvider } from '../src';
-import { cleanUp } from './test-utils';
 
 describe('Access', () => {
   let app: cdk.App;
@@ -13,7 +13,7 @@ describe('Access', () => {
     stack = new cdk.Stack(app, 'test');
   });
 
-  afterEach(() => cleanUp(app));
+  afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
   test('Default access', () => {
 
