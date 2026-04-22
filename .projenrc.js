@@ -119,8 +119,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
   },
   workflowPackageCache: true,
   pullRequestTemplate: false,
-  tsJestOptions: {
-    transformOptions: {
+  tsconfigDev: {
+    compilerOptions: {
       // massively increased unit tests speed
       // side-effect: disable type checking in unit test code
       isolatedModules: true,
