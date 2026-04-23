@@ -34,6 +34,7 @@ import { Secrets } from './secrets';
 import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
 import { TokenRetrieverFunction } from './token-retriever-function';
+import { TroubleshootFunction } from './troubleshoot-function';
 import { discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
 import { WarmRunnerManagerFunction } from './warm-runner-manager-function';
 import { GithubWebhookHandler } from './webhook';
@@ -176,6 +177,13 @@ export interface GitHubRunnersProps {
    * @default LambdaAccess.noAccess()
    */
   readonly statusAccess?: LambdaAccess;
+
+  /**
+   * Access configuration for the troubleshoot function. This function analyzes runner health and returns detailed diagnostic information including execution history, so you should only allow access to it from trusted IPs, if at all.
+   *
+   * @default LambdaAccess.noAccess()
+   */
+  readonly troubleshootAccess?: LambdaAccess;
 
   /**
    * Options to retry operation in case of failure like missing capacity, or API quota issues.
@@ -369,6 +377,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     this.setupUrl = this.setupFunction();
     this.statusFunction();
+    this.troubleshootFunction();
   }
 
   private stateMachine(props?: GitHubRunnersProps) {
@@ -648,6 +657,83 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       new cdk.CfnOutput(
         this,
         'status url',
+        {
+          value: url,
+        },
+      );
+    }
+  }
+
+  private troubleshootFunction() {
+    const troubleshootFn = new TroubleshootFunction(
+      this,
+      'troubleshoot',
+      {
+        description: 'Diagnose issues with self-hosted GitHub Actions runners',
+        environment: {
+          WEBHOOK_SECRET_ARN: this.secrets.webhook.secretArn,
+          GITHUB_SECRET_ARN: this.secrets.github.secretArn,
+          GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+          WEBHOOK_URL: this.webhook.url,
+          WEBHOOK_HANDLER_ARN: this.webhook.handler.latestVersion.functionArn,
+          STEP_FUNCTION_ARN: this.orchestrator.stateMachineArn,
+          STEP_FUNCTION_LOG_GROUP: this.stateMachineLogGroup?.logGroupName ?? '',
+          ...this.extraLambdaEnv,
+        },
+        timeout: cdk.Duration.minutes(5),
+        logGroup: singletonLogGroup(this, SingletonLogType.SETUP),
+        loggingFormat: lambda.LoggingFormat.JSON,
+        ...this.extraLambdaProps,
+      },
+    );
+
+    const providers = this.providers.flatMap(provider => {
+      const status = provider.status(troubleshootFn);
+      return Array.isArray(status) ? status : [status];
+    });
+
+    const stack = cdk.Stack.of(this);
+    const f = (troubleshootFn.node.defaultChild as lambda.CfnFunction);
+    f.addPropertyOverride('Environment.Variables.LOGICAL_ID', f.logicalId);
+    f.addPropertyOverride('Environment.Variables.STACK_NAME', stack.stackName);
+    f.addMetadata('providers', providers);
+    troubleshootFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['cloudformation:DescribeStackResource'],
+      resources: [stack.stackId],
+    }));
+
+    this.secrets.webhook.grantRead(troubleshootFn);
+    this.secrets.github.grantRead(troubleshootFn);
+    this.secrets.githubPrivateKey.grantRead(troubleshootFn);
+
+    // SFN permissions beyond grantRead: GetExecutionHistory
+    this.orchestrator.grantRead(troubleshootFn);
+    troubleshootFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['states:GetExecutionHistory'],
+      resources: [`${this.orchestrator.stateMachineArn}:*`, this.orchestrator.stateMachineArn],
+    }));
+
+    // CloudWatch Logs permissions for webhook handler log analysis
+    troubleshootFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['logs:FilterLogEvents'],
+      resources: [this.webhook.handler.logGroup.logGroupArn],
+    }));
+
+    new cdk.CfnOutput(
+      this,
+      'troubleshoot command',
+      {
+        value: `aws --region ${stack.region} lambda invoke --function-name ${troubleshootFn.functionName} troubleshoot.json`,
+      },
+    );
+
+    const access = this.props?.troubleshootAccess ?? LambdaAccess.noAccess();
+    const url = access.bind(this, 'troubleshoot access', troubleshootFn);
+
+    if (url !== '') {
+      new cdk.CfnOutput(
+        this,
+        'troubleshoot url',
         {
           value: url,
         },

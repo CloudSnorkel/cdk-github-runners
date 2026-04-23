@@ -559,28 +559,55 @@ If you have more to share, please open a PR adding examples to the `examples` fo
 
 ## Troubleshooting
 
-Runners are started in response to a webhook coming in from GitHub. If there are any issues starting the runner like missing capacity or transient API issues, the provider will keep retrying for 24 hours. Configuration issue related errors like pointing to a missing AMI will not be retried. GitHub itself will cancel the job if it can't find a runner for 24 hours. If your jobs don't start, follow the steps below to examine all parts of this workflow.
+Runners are started in response to a webhook coming in from GitHub. If there are any issues starting the runner like missing capacity or transient API issues, the provider will keep retrying for 24 hours. Configuration issue related errors like pointing to a missing AMI will not be retried. GitHub itself will cancel the job if it can't find a runner for 24 hours.
 
-1. Always start with the status function, make sure no errors are reported, and confirm all status codes are OK
-2. Make sure `runs-on` in the workflow matches the expected labels set in the runner provider
-3. Diagnose relevant executions of the orchestrator step function by visiting the URL in `troubleshooting.stepFunctionUrl` from `status.json`
-   1. If the execution failed, check your runner provider configuration for errors
-   2. If the execution is still running for a long time, check the execution events to see why runner starting is being retried
-   3. If there are no relevant executions, move to the next step
-4. Confirm the webhook Lambda was called by visiting the URL in `troubleshooting.webhookHandlerUrl` from `status.json`
-   1. If it's not called or logs errors, confirm the webhook settings on the GitHub side
-   2. If you see too many errors, make sure you're only sending `workflow_job` events
-5. When using GitHub app, make sure there are active installations in `github.auth.app.installations`
+### Step 1: Check status
 
-All logs are saved in CloudWatch.
-* Log group names can be found in `status.json` for each provider, image builder, and other parts of the system
-* Some useful Logs Insights queries can be enabled with `GitHubRunners.createLogsInsightsQueries()`
-
-To get `status.json`, check out the CloudFormation stack output for a command that generates it. The command looks like:
+Start with the **status function** to verify everything is connected. Execute the status command from your CloudFormation stack outputs and open the resulting `status.json`:
 
 ```
 aws --region us-east-1 lambda invoke --function-name status-XYZ123 status.json
 ```
+
+Confirm `github.auth.status` and `github.webhook.status` are OK. Make sure `runs-on` in the workflow matches the expected labels set in the runner provider.
+
+### Step 2: Run the troubleshooter
+
+For deeper diagnosis, use the **troubleshoot function**. It analyzes Step Functions execution history, webhook delivery health, label mismatches, and more -- then returns categorized issues with direct links to the relevant CloudWatch log groups and Step Functions executions.
+
+```
+aws --region us-east-1 lambda invoke --function-name troubleshoot-XYZ123 troubleshoot.json
+```
+
+The troubleshooter detects:
+
+* **Configuration issues**: GitHub auth failures, webhook URL mismatches, unreadable secrets
+* **Stolen runners**: runners provisioned for repos where the GitHub App is not installed
+* **Capacity failures**: spot interruptions, insufficient capacity, CodeBuild/Fargate capacity errors
+* **Failed starts**: runner token errors, early provider task failures
+* **Idle reaps**: excessive idle runners from `max-parallel` workflows
+* **Stuck executions**: runners that have been running for an unusually long time
+* **Execution name collisions**: duplicate execution names from long repo names
+* **Webhook delivery failures**: failed webhook deliveries from GitHub
+* **Label mismatches**: webhooks ignored because `runs-on` labels don't match any provider
+* **Stale images**: container images or AMIs that haven't been rebuilt recently
+* **EC2 API throttling**: throttled API calls during burst starts
+
+Each issue includes a severity level, actionable suggestion, and direct links to the AWS Console for further investigation.
+
+To expose the troubleshoot function via URL, set the `troubleshootAccess` prop:
+
+```typescript
+new GitHubRunners(this, 'runners', {
+  troubleshootAccess: LambdaAccess.lambdaUrl(),
+});
+```
+
+### Manual investigation
+
+All logs are saved in CloudWatch.
+* Log group names can be found in `status.json` for each provider, image builder, and other parts of the system
+* Some useful Logs Insights queries can be enabled with `GitHubRunners.createLogsInsightsQueries()`
 
 ## Monitoring
 

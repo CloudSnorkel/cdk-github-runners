@@ -29,6 +29,8 @@
     "bundle:status.lambda:watch": "npx projen bundle:status.lambda:watch",
     "bundle:token-retriever.lambda": "npx projen bundle:token-retriever.lambda",
     "bundle:token-retriever.lambda:watch": "npx projen bundle:token-retriever.lambda:watch",
+    "bundle:troubleshoot.lambda": "npx projen bundle:troubleshoot.lambda",
+    "bundle:troubleshoot.lambda:watch": "npx projen bundle:troubleshoot.lambda:watch",
     "bundle:warm-runner-manager.lambda": "npx projen bundle:warm-runner-manager.lambda",
     "bundle:warm-runner-manager.lambda:watch": "npx projen bundle:warm-runner-manager.lambda:watch",
     "bundle:webhook-handler.lambda": "npx projen bundle:webhook-handler.lambda",
@@ -73,6 +75,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-cloudformation": "^3.1019.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.1034.0",
     "@aws-sdk/client-codebuild": "^3.1019.0",
     "@aws-sdk/client-ec2": "^3.1019.0",
     "@aws-sdk/client-ecr": "^3.1019.0",
