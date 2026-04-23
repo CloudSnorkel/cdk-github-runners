@@ -33,8 +33,8 @@ import {
 import { Secrets } from './secrets';
 import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
-import { TroubleshootFunction } from './troubleshoot-function';
 import { TokenRetrieverFunction } from './token-retriever-function';
+import { TroubleshootFunction } from './troubleshoot-function';
 import { discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
 import { WarmRunnerManagerFunction } from './warm-runner-manager-function';
 import { GithubWebhookHandler } from './webhook';

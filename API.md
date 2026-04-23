@@ -8299,6 +8299,7 @@ const gitHubRunnersProps: GitHubRunnersProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups attached to all management functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.setupAccess">setupAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the setup function. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.statusAccess">statusAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the status function. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.troubleshootAccess">troubleshootAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the troubleshoot function. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC used for all management functions. Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.vpcSubnets">vpcSubnets</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | VPC subnets used for all management functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.webhookAccess">webhookAccess</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a></code> | Access configuration for the webhook function. |
@@ -8522,6 +8523,21 @@ public readonly statusAccess: LambdaAccess;
 Access configuration for the status function.
 
 This function returns a lot of sensitive information about the runner, so you should only allow access to it from trusted IPs, if at all.
+
+---
+
+##### `troubleshootAccess`<sup>Optional</sup> <a name="troubleshootAccess" id="@cloudsnorkel/cdk-github-runners.GitHubRunnersProps.property.troubleshootAccess"></a>
+
+```typescript
+public readonly troubleshootAccess: LambdaAccess;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a>
+- *Default:* LambdaAccess.noAccess()
+
+Access configuration for the troubleshoot function.
+
+This function analyzes runner health and returns detailed diagnostic information including execution history, so you should only allow access to it from trusted IPs, if at all.
 
 ---
 
