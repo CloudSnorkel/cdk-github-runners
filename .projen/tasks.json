@@ -62,6 +62,9 @@
           "spawn": "bundle:token-retriever.lambda"
         },
         {
+          "spawn": "bundle:troubleshoot.lambda"
+        },
+        {
           "spawn": "bundle:warm-runner-manager.lambda"
         },
         {
@@ -276,6 +279,24 @@
       "steps": [
         {
           "exec": "esbuild --bundle src/token-retriever.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/token-retriever.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+        }
+      ]
+    },
+    "bundle:troubleshoot.lambda": {
+      "name": "bundle:troubleshoot.lambda",
+      "description": "Create a JavaScript bundle from src/troubleshoot.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/troubleshoot.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/troubleshoot.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+        }
+      ]
+    },
+    "bundle:troubleshoot.lambda:watch": {
+      "name": "bundle:troubleshoot.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/troubleshoot.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/troubleshoot.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/troubleshoot.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -693,13 +714,13 @@
       },
       "steps": [
         {
-          "exec": "pnpm dlx npm-check-updates@18 --upgrade --target=minor --cooldown=5 --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-cloudformation,@aws-sdk/client-codebuild,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-sqs,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@types/aws-lambda,@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,projen,shx,ts-jest,ts-node,typescript,cron-parser"
+          "exec": "pnpm dlx npm-check-updates@18 --upgrade --target=minor --cooldown=5 --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-cloudformation,@aws-sdk/client-cloudwatch-logs,@aws-sdk/client-codebuild,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-sqs,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@types/aws-lambda,@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,projen,shx,ts-jest,ts-node,typescript,cron-parser"
         },
         {
           "exec": "pnpm i --no-frozen-lockfile"
         },
         {
-          "exec": "pnpm update @aws-sdk/client-cloudformation @aws-sdk/client-codebuild @aws-sdk/client-ec2 @aws-sdk/client-ecr @aws-sdk/client-imagebuilder @aws-sdk/client-lambda @aws-sdk/client-secrets-manager @aws-sdk/client-sfn @aws-sdk/client-sns @aws-sdk/client-sqs @aws-sdk/client-ssm @octokit/auth-app @octokit/core @octokit/request-error @octokit/rest @stylistic/eslint-plugin @sveltejs/vite-plugin-svelte @tsconfig/svelte @types/aws-lambda @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk bootstrap commit-and-tag-version esbuild eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-svelte eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii projen sass shx svelte-check svelte-preprocess svelte ts-jest ts-node typescript vite-plugin-singlefile vite cron-parser aws-cdk-lib constructs --config.minimum-release-age=7200"
+          "exec": "pnpm update @aws-sdk/client-cloudformation @aws-sdk/client-cloudwatch-logs @aws-sdk/client-codebuild @aws-sdk/client-ec2 @aws-sdk/client-ecr @aws-sdk/client-imagebuilder @aws-sdk/client-lambda @aws-sdk/client-secrets-manager @aws-sdk/client-sfn @aws-sdk/client-sns @aws-sdk/client-sqs @aws-sdk/client-ssm @octokit/auth-app @octokit/core @octokit/request-error @octokit/rest @stylistic/eslint-plugin @sveltejs/vite-plugin-svelte @tsconfig/svelte @types/aws-lambda @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk bootstrap commit-and-tag-version esbuild eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-svelte eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii projen sass shx svelte-check svelte-preprocess svelte ts-jest ts-node typescript vite-plugin-singlefile vite cron-parser aws-cdk-lib constructs --config.minimum-release-age=7200"
         },
         {
           "exec": "npx projen"

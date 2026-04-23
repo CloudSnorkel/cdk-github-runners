@@ -157,6 +157,7 @@
           "src/setup.lambda.ts",
           "src/status.lambda.ts",
           "src/token-retriever.lambda.ts",
+          "src/troubleshoot.lambda.ts",
           "src/warm-runner-manager.lambda.ts",
           "src/webhook-handler.lambda.ts",
           "src/webhook-redelivery.lambda.ts",
@@ -167,6 +168,7 @@
           "src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
           "src/lambda-helpers.ts",
           "src/lambda-github.ts",
+          "src/troubleshoot-helpers.ts",
           "setup/src/main.ts"
         ],
         "optionalDependencies": false,

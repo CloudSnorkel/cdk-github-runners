@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_ecr as ecr } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
-import { CodeBuildRunnerProvider, CompositeProvider, GitHubRunners, LambdaRunnerProvider, StaticRunnerImage } from '../src';
+import { CodeBuildRunnerProvider, CompositeProvider, GitHubRunners, LambdaAccess, LambdaRunnerProvider, StaticRunnerImage } from '../src';
 
 let app: cdk.App;
 let stack: cdk.Stack;
@@ -366,5 +366,67 @@ describe('GitHubRunners', () => {
         SecurityGroupIds: Match.anyValue(),
       }),
     });
+  });
+
+  test('Troubleshoot function is always created with CfnOutput', () => {
+    new GitHubRunners(stack, 'runners', {
+      providers: [new LambdaRunnerProvider(stack, 'p1')],
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties('AWS::Lambda::Function', {
+      Description: 'Diagnose issues with self-hosted GitHub Actions runners',
+      Timeout: 300,
+    });
+
+    // verify CfnOutput for troubleshoot command exists
+    const outputs = template.findOutputs('*');
+    const troubleshootOutputs = Object.entries(outputs).filter(([, v]) =>
+      JSON.stringify(v).includes('troubleshoot.json'),
+    );
+    expect(troubleshootOutputs.length).toBe(1);
+  });
+
+  test('Troubleshoot access with Lambda URL', () => {
+    new GitHubRunners(stack, 'runners', {
+      providers: [new LambdaRunnerProvider(stack, 'p1')],
+      troubleshootAccess: LambdaAccess.lambdaUrl(),
+    });
+
+    const template = Template.fromStack(stack);
+
+    // setup + webhook + troubleshoot = 3 Lambda URLs
+    template.resourceCountIs('AWS::Lambda::Url', 3);
+  });
+
+  test('Troubleshoot function has SFN and logs permissions', () => {
+    new GitHubRunners(stack, 'runners', {
+      providers: [new LambdaRunnerProvider(stack, 'p1')],
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties('AWS::IAM::Policy', Match.objectLike({
+      PolicyDocument: Match.objectLike({
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Action: 'states:GetExecutionHistory',
+            Effect: 'Allow',
+          }),
+        ]),
+      }),
+    }));
+
+    template.hasResourceProperties('AWS::IAM::Policy', Match.objectLike({
+      PolicyDocument: Match.objectLike({
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Action: 'logs:FilterLogEvents',
+            Effect: 'Allow',
+          }),
+        ]),
+      }),
+    }));
   });
 });

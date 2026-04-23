@@ -31,6 +31,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@aws-sdk/client-sqs',
     '@aws-sdk/client-ssm',
     '@aws-sdk/client-sfn',
+    '@aws-sdk/client-cloudwatch-logs',
     '@types/aws-lambda',
     // for setup ui
     '@sveltejs/vite-plugin-svelte@^6',
@@ -173,6 +174,7 @@ cdkConfig.json.addDeletionOverride('output');
 // allow lambda utility files to import dev dependencies
 project.eslint.allowDevDeps('src/lambda-helpers.ts');
 project.eslint.allowDevDeps('src/lambda-github.ts');
+project.eslint.allowDevDeps('src/troubleshoot-helpers.ts');
 project.eslint.allowDevDeps('setup/src/main.ts');
 
 // vscode auto formatting

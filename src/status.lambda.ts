@@ -1,86 +1,10 @@
-import { CloudFormationClient, DescribeStackResourceCommand } from '@aws-sdk/client-cloudformation';
-import { DescribeLaunchTemplateVersionsCommand, EC2Client } from '@aws-sdk/client-ec2';
-import { ECRClient, DescribeImagesCommand } from '@aws-sdk/client-ecr';
 import { DescribeExecutionCommand, ListExecutionsCommand, SFNClient } from '@aws-sdk/client-sfn';
 import * as AWSLambda from 'aws-lambda';
 import { baseUrlFromDomain, GitHubSecrets, loadOctokitAuthApp, loadOctokitCore } from './lambda-github';
 import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
+import { generateProvidersStatus, lambdaArnToLogGroup, lambdaArnToUrl, secretArnToUrl, stepFunctionArnToUrl } from './troubleshoot-helpers';
 
-const cfn = new CloudFormationClient();
-const ec2 = new EC2Client();
-const ecr = new ECRClient();
 const sf = new SFNClient();
-
-function secretArnToUrl(arn: string) {
-  const parts = arn.split(':'); // arn:aws:secretsmanager:us-east-1:12345678:secret:secret-name-REVISION
-  const region = parts[3];
-  const fullName = parts[6];
-  const name = fullName.slice(0, fullName.lastIndexOf('-'));
-
-  return `https://${region}.console.aws.amazon.com/secretsmanager/home?region=${region}#!/secret?name=${name}`;
-}
-
-function lambdaArnToUrl(arn: string) {
-  const parts = arn.split(':'); // arn:aws:lambda:us-east-1:12345678:function:name-XYZ
-  const region = parts[3];
-  const name = parts[6];
-
-  return `https://${region}.console.aws.amazon.com/lambda/home?region=${region}#/functions/${name}?tab=monitoring`;
-}
-
-function lambdaArnToLogGroup(arn: string) {
-  const parts = arn.split(':'); // arn:aws:lambda:us-east-1:12345678:function:name-XYZ
-  const name = parts[6];
-
-  return `/aws/lambda/${name}`;
-}
-
-function stepFunctionArnToUrl(arn: string) {
-  const parts = arn.split(':'); // arn:aws:states:us-east-1:12345678:stateMachine:name-XYZ
-  const region = parts[3];
-
-  return `https://${region}.console.aws.amazon.com/states/home?region=${region}#/statemachines/view/${arn}`;
-}
-
-async function generateProvidersStatus(stack: string, logicalId: string) {
-  const resource = await cfn.send(new DescribeStackResourceCommand({ StackName: stack, LogicalResourceId: logicalId }));
-  const providers = JSON.parse(resource.StackResourceDetail?.Metadata ?? '{}').providers as any[] | undefined;
-
-  if (!providers) {
-    return {};
-  }
-
-  return Promise.all(providers.map(async (p) => {
-    // add ECR data, if image is from ECR
-    if (p.image?.imageRepository?.match(/[0-9]+\.dkr\.ecr\.[a-z0-9\-]+\.amazonaws\.com\/.+/)) {
-      const tags = await ecr.send(new DescribeImagesCommand({
-        repositoryName: p.image.imageRepository.split('/')[1],
-        filter: {
-          tagStatus: 'TAGGED',
-        },
-        maxResults: 1,
-      }));
-      if (tags.imageDetails && tags.imageDetails?.length >= 1) {
-        p.image.latestImage = {
-          tags: tags.imageDetails[0].imageTags,
-          digest: tags.imageDetails[0].imageDigest,
-          date: tags.imageDetails[0].imagePushedAt,
-        };
-      }
-    }
-    // add AMI data, if image is AMI
-    if (p.ami?.launchTemplate) {
-      const versions = await ec2.send(new DescribeLaunchTemplateVersionsCommand({
-        LaunchTemplateId: p.ami.launchTemplate,
-        Versions: ['$Default'],
-      }));
-      if (versions.LaunchTemplateVersions && versions.LaunchTemplateVersions.length >= 1) {
-        p.ami.latestAmi = versions.LaunchTemplateVersions[0].LaunchTemplateData?.ImageId;
-      }
-    }
-    return p;
-  }));
-}
 
 interface AppInstallation {
   readonly id: number;
