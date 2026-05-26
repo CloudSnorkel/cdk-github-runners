@@ -51,7 +51,7 @@ export async function handler(event: AWSLambda.CloudFormationCustomResourceEvent
   } catch (e) {
     console.error({
       notice: 'Failed to start CodeBuild project',
-      error: `${e}`,
+      error: e,
     });
     await customResourceRespond(event, 'FAILED', (e as Error).message || 'Internal Error', context.logStreamName, {});
   }

@@ -9,6 +9,7 @@
     ".github/workflows/upgrade-main.yml",
     ".gitignore",
     ".mergify.yml",
+    ".npmrc",
     ".projen/deps.json",
     ".projen/files.json",
     ".projen/tasks.json",
@@ -25,6 +26,7 @@
     "src/setup-function.ts",
     "src/status-function.ts",
     "src/token-retriever-function.ts",
+    "src/warm-runner-manager-function.ts",
     "src/webhook-handler-function.ts",
     "src/webhook-redelivery-function.ts",
     "tsconfig.dev.json"

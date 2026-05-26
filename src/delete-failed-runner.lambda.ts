@@ -60,7 +60,7 @@ export async function handler(event: StepFunctionLambdaInput) {
         repo: event.repo,
         runnerId: runner.id,
         runnerName: event.runnerName,
-        error: `${e}`,
+        error: e,
       });
     }
   }

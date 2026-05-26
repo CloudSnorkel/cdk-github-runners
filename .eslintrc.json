@@ -157,6 +157,7 @@
           "src/setup.lambda.ts",
           "src/status.lambda.ts",
           "src/token-retriever.lambda.ts",
+          "src/warm-runner-manager.lambda.ts",
           "src/webhook-handler.lambda.ts",
           "src/webhook-redelivery.lambda.ts",
           "src/image-builders/build-image.lambda.ts",

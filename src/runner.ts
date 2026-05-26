@@ -27,6 +27,7 @@ import {
   ICompositeProvider,
   IRunnerProvider,
   LambdaRunnerProvider,
+  mergeConstMaps,
   ProviderRetryOptions,
 } from './providers';
 import { Secrets } from './secrets';
@@ -34,6 +35,7 @@ import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
 import { TokenRetrieverFunction } from './token-retriever-function';
 import { discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
+import { WarmRunnerManagerFunction } from './warm-runner-manager-function';
 import { GithubWebhookHandler } from './webhook';
 import { GithubWebhookRedelivery } from './webhook-redelivery';
 
@@ -200,7 +202,9 @@ export interface GitHubRunnersProps {
    *
    * **WARNING: Provider selection is not a guarantee that a specific provider will be assigned for the job. GitHub Actions may assign the job to any runner with matching labels. The provider selector only determines which provider's runner will be *created*, but GitHub Actions may route the job to any available runner with the required labels.**
    *
-   * **For reliable provider assignment based on job characteristics, consider using repo-level runner registration where you can control which runners are available for specific repositories. See {@link SETUP_GITHUB.md} for more details on the different registration levels. This information is also available while using the setup wizard.
+   * **For reliable provider assignment based on job characteristics, consider using repo-level runner registration where you can control which runners are available for specific repositories. This information is also available while using the setup wizard.
+   *
+   * @see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
    */
   readonly providerSelector?: lambda.IFunction;
 }
@@ -304,6 +308,11 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private readonly extraLambdaProps: lambda.FunctionOptions;
   private stateMachineLogGroup?: logs.LogGroup;
   private jobsCompletedMetricFiltersInitialized = false;
+  private warmRunnerManager?: lambda.Function;
+  private warmRunnerQueue?: sqs.Queue;
+  private warmConfigHashes: string[] = [];
+  private deleteFailedRunnerIndex = 0;
+  private deleteFailedRunnerFunction?: lambda.IFunction;
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
@@ -332,7 +341,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     }
 
     if (this.providers.length == 0) {
-      throw new Error('At least one runner provider is required');
+      Annotations.of(this).addError('At least one runner provider is required');
     }
 
     this.checkIntersectingLabels();
@@ -350,6 +359,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       providerSelector: this.props?.providerSelector,
       extraLambdaProps: this.extraLambdaProps,
       extraLambdaEnv: this.extraLambdaEnv,
+      idleTimeoutSeconds: this.props?.idleTimeout?.toSeconds(),
     });
     this.redeliverer = new GithubWebhookRedelivery(this, 'Webhook Redelivery', {
       secrets: this.secrets,
@@ -380,45 +390,33 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       },
     );
 
-    let deleteFailedRunnerFunction = this.deleteFailedRunner();
-    const deleteFailedRunnerTask = new stepfunctions_tasks.LambdaInvoke(
-      this,
-      'Delete Failed Runner',
-      {
-        lambdaFunction: deleteFailedRunnerFunction,
-        payloadResponseOnly: true,
-        resultPath: '$.delete',
-        payload: stepfunctions.TaskInput.fromObject({
-          runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
-          owner: stepfunctions.JsonPath.stringAt('$.owner'),
-          repo: stepfunctions.JsonPath.stringAt('$.repo'),
-          installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
-          error: stepfunctions.JsonPath.objectAt('$.error'),
-        }),
-      },
-    );
-    deleteFailedRunnerTask.addRetry({
-      errors: [
-        'RunnerBusy',
-      ],
-      interval: cdk.Duration.minutes(1),
-      backoffRate: 1,
-      maxAttempts: 60,
-    });
-
     const idleReaper = this.idleReaper();
+    const defaultIdleSeconds = (props?.idleTimeout ?? cdk.Duration.minutes(5)).toSeconds();
+
     const queueIdleReaperTask = new stepfunctions_tasks.SqsSendMessage(this, 'Queue Idle Reaper', {
       queue: this.idleReaperQueue(idleReaper),
+      queryLanguage: stepfunctions.QueryLanguage.JSONATA,
       messageBody: stepfunctions.TaskInput.fromObject({
-        executionArn: stepfunctions.JsonPath.stringAt('$$.Execution.Id'),
-        runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
-        owner: stepfunctions.JsonPath.stringAt('$.owner'),
-        repo: stepfunctions.JsonPath.stringAt('$.repo'),
-        installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
-        maxIdleSeconds: (props?.idleTimeout ?? cdk.Duration.minutes(5)).toSeconds(),
+        executionArn: '{% $states.context.Execution.Id %}',
+        runnerName: '{% $states.context.Execution.Name %}',
+        owner: '{% $states.input.owner %}',
+        repo: '{% $states.input.repo %}',
+        installationId: '{% $states.input.installationId %}',
+        maxIdleSeconds: `{% $exists($states.input.maxIdleSeconds) ? $states.input.maxIdleSeconds : ${defaultIdleSeconds} %}`,
       }),
-      resultPath: stepfunctions.JsonPath.DISCARD,
+      outputs: '{% $states.input %}', // discard
     });
+
+    const providerConsts = mergeConstMaps(...this.providers.map(p => p.stepFunctionConstants()));
+    const afterRunnerToken =
+      Object.keys(providerConsts).length > 0
+        ? tokenRetrieverTask.next(
+          new stepfunctions.Pass(this, 'Provider Constants', {
+            parameters: providerConsts,
+            resultPath: '$.consts',
+          }),
+        )
+        : tokenRetrieverTask;
 
     const providerChooser = new stepfunctions.Choice(this, 'Choose provider');
     for (const provider of this.providers) {
@@ -432,6 +430,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           registrationUrl: stepfunctions.JsonPath.stringAt('$.runner.registrationUrl'),
           labelsPath: stepfunctions.JsonPath.stringAt('$.labels'),
           jitConfigPath: stepfunctions.JsonPath.stringAt('$.runner.jitConfig'),
+          addCatchAndCleanUp: (state, next) => this.addCatchAndCleanUp(state, next),
         },
       );
       providerChooser.when(
@@ -457,18 +456,13 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     );
     jobStillQueued.otherwise(providerChooser);
 
-    const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
-      new stepfunctions.Parallel(this, 'Error Handler').branch(
-        // we get a token for every retry because the token can expire faster than the job can timeout
-        tokenRetrieverTask.next(jobStillQueued),
-      ).addCatch(
-        // delete runner on failure as it won't remove itself and there is a limit on the number of registered runners
-        deleteFailedRunnerTask,
-        {
-          resultPath: '$.error',
-        },
-      ),
+    const errorHandler = new stepfunctions.Parallel(this, 'Error Handler').branch(
+      // we get a token for every retry because the token can expire faster than the job can timeout
+      afterRunnerToken.next(jobStillQueued),
     );
+    this.addCatchAndCleanUp(errorHandler);
+
+    const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(errorHandler);
 
     if (props?.retryOptions?.retry ?? true) {
       const interval = props?.retryOptions?.interval ?? cdk.Duration.minutes(1);
@@ -570,6 +564,43 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     this.secrets.githubPrivateKey.grantRead(func);
 
     return func;
+  }
+
+  private addCatchAndCleanUp(state: stepfunctions.TaskStateBase | stepfunctions.Parallel | stepfunctions.Map, next?: stepfunctions.IChainable) {
+    this.deleteFailedRunnerFunction ??= this.deleteFailedRunner();
+    this.deleteFailedRunnerIndex++;
+    const task = new stepfunctions_tasks.LambdaInvoke(this, `Delete Failed Runner ${this.deleteFailedRunnerIndex}`, {
+      stateName: `Delete Failed Runner ${this.deleteFailedRunnerIndex}`,
+      comment: 'Clean-up failed runner from GitHub Actions (if present)',
+      lambdaFunction: this.deleteFailedRunnerFunction,
+      payloadResponseOnly: true,
+      resultPath: '$.delete',
+      payload: stepfunctions.TaskInput.fromObject({
+        runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+        owner: stepfunctions.JsonPath.stringAt('$.owner'),
+        repo: stepfunctions.JsonPath.stringAt('$.repo'),
+        installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
+        error: stepfunctions.JsonPath.objectAt('$.error'),
+      }),
+    });
+    task.addRetry({
+      errors: ['RunnerBusy'],
+      interval: cdk.Duration.minutes(1),
+      backoffRate: 1,
+      maxAttempts: 60,
+    });
+    if (next) {
+      const nextStart = next.startState;
+      task.next(nextStart);
+      task.addCatch(nextStart, {
+        errors: [stepfunctions.Errors.ALL],
+        resultPath: stepfunctions.JsonPath.DISCARD,
+      });
+    }
+    state.addCatch(task, {
+      errors: [stepfunctions.Errors.ALL],
+      resultPath: '$.error',
+    });
   }
 
   private statusFunction() {
@@ -686,7 +717,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         }
         if (p1.labels.every(l => p2.labels.includes(l))) {
           if (p2.labels.every(l => p1.labels.includes(l))) {
-            throw new Error(`Both ${p1.node.path} and ${p2.node.path} use the same labels [${p1.labels.join(', ')}]`);
+            Annotations.of(this).addError(`Both ${p1.node.path} and ${p2.node.path} use the same labels [${p1.labels.join(', ')}]`);
+            return;
           }
           Annotations.of(p1).addWarning(`Labels [${p1.labels.join(', ')}] intersect with another provider (${p2.node.path} -- [${p2.labels.join(', ')}]). If a workflow specifies the labels [${p1.labels.join(', ')}], it is not guaranteed which provider will be used. It is recommended you do not use intersecting labels`);
         }
@@ -721,6 +753,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     reaper.addEventSource(new lambda_event_sources.SqsEventSource(queue, {
       reportBatchItemFailures: true,
       maxBatchingWindow: cdk.Duration.minutes(1),
+      batchSize: 10,
     }));
 
     this.secrets.github.grantRead(reaper);
@@ -924,10 +957,13 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * * "Ignored webhook" helps understand why runners aren't started
    * * "Ignored jobs based on labels" helps debug label matching issues
    * * "Webhook started runners" helps understand which runners were started
+   * * "Warm runner status" and "Warm runner errors" (when warm runners are configured)
+   *
+   * @param prefix Prefix for the query definitions. Defaults to "GitHub Runners".
    */
-  public createLogsInsightsQueries() {
+  public createLogsInsightsQueries(prefix = 'GitHub Runners') {
     new logs.QueryDefinition(this, 'Webhook errors', {
-      queryDefinitionName: 'GitHub Runners/Webhook errors',
+      queryDefinitionName: `${prefix}/Webhook errors`,
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
         filterStatements: [
@@ -940,7 +976,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Orchestration errors', {
-      queryDefinitionName: 'GitHub Runners/Orchestration errors',
+      queryDefinitionName: `${prefix}/Orchestration errors`,
       logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
       queryString: new logs.QueryString({
         filterStatements: [
@@ -952,7 +988,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Runner image build errors', {
-      queryDefinitionName: 'GitHub Runners/Runner image build errors',
+      queryDefinitionName: `${prefix}/Runner image build errors`,
       logGroups: [singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD)],
       queryString: new logs.QueryString({
         filterStatements: [
@@ -964,7 +1000,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Ignored webhooks', {
-      queryDefinitionName: 'GitHub Runners/Ignored webhooks',
+      queryDefinitionName: `${prefix}/Ignored webhooks`,
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
         fields: ['@timestamp', 'message.notice'],
@@ -978,7 +1014,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Ignored jobs based on labels', {
-      queryDefinitionName: 'GitHub Runners/Ignored jobs based on labels',
+      queryDefinitionName: `${prefix}/Ignored jobs based on labels`,
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
         fields: ['@timestamp', 'message.notice'],
@@ -992,7 +1028,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Webhook started runners', {
-      queryDefinitionName: 'GitHub Runners/Webhook started runners',
+      queryDefinitionName: `${prefix}/Webhook started runners`,
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
         fields: ['@timestamp', 'message.sfnInput.jobUrl', 'message.sfnInput.jobLabels', 'message.sfnInput.labels', 'message.sfnInput.provider'],
@@ -1006,7 +1042,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Webhook redeliveries', {
-      queryDefinitionName: 'GitHub Runners/Webhook redeliveries',
+      queryDefinitionName: `${prefix}/Webhook redeliveries`,
       logGroups: [this.redeliverer.handler.logGroup],
       queryString: new logs.QueryString({
         fields: ['@timestamp', 'message.notice', 'message.deliveryId', 'message.guid'],
@@ -1017,5 +1053,105 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         limit: 100,
       }),
     });
+
+    new logs.QueryDefinition(this, 'Warm runner status', {
+      queryDefinitionName: `${prefix}/Warm runner status`,
+      logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
+      queryString: new logs.QueryString({
+        fields: ['@timestamp', 'message.notice', 'message.input.runnerName', 'message.input.providerPath', 'message.started', 'message.stillRunning', 'message.runnerBusy'],
+        filterStatements: [
+          cdk.Lazy.string({
+            produce: () => {
+              if (this.warmRunnerManager) {
+                return `strcontains(@logStream, "${this.warmRunnerManager.functionName}")`;
+              } else {
+                return 'WARM RUNNERS NOT ENABLED';
+              }
+            },
+          }),
+        ],
+        sort: '@timestamp desc',
+        limit: 200,
+      }),
+    });
+
+    new logs.QueryDefinition(this, 'Warm runner errors', {
+      queryDefinitionName: `${prefix}/Warm runner errors`,
+      logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
+      queryString: new logs.QueryString({
+        fields: ['@timestamp', 'message.notice', 'message.input.runnerName', 'message.error'],
+        filterStatements: [
+          cdk.Lazy.string({
+            produce: () => {
+              if (this.warmRunnerManager) {
+                return `strcontains(@logStream, "${this.warmRunnerManager.functionName}")`;
+              } else {
+                return 'WARM RUNNERS NOT ENABLED';
+              }
+            },
+          }),
+          'level = "ERROR"',
+        ],
+        sort: '@timestamp desc',
+        limit: 100,
+      }),
+    });
+  }
+
+  /**
+   * Register a warm runner config hash. All registered hashes are passed to the
+   * manager Lambda via WARM_CONFIG_HASHES env var so keepers can detect stale configs.
+   *
+   * @internal
+   */
+  public _registerWarmConfigHash(hash: string): void {
+    this.warmConfigHashes.push(hash);
+  }
+
+  /**
+   * Lazily create shared warm runner infrastructure (Lambda, SQS queue).
+   * Returns the manager Lambda and queue for use as EventBridge targets.
+   *
+   * @internal
+   */
+  public _ensureWarmRunnerInfra(): { lambda: lambda.Function; queue: sqs.Queue } {
+    if (this.warmRunnerManager && this.warmRunnerQueue) {
+      return { lambda: this.warmRunnerManager, queue: this.warmRunnerQueue };
+    }
+
+    this.warmRunnerQueue = new sqs.Queue(this, 'Warm Runner Queue', {
+      visibilityTimeout: cdk.Duration.minutes(1),
+    });
+
+    this.warmRunnerManager = new WarmRunnerManagerFunction(this, 'Warm Runner Manager', {
+      description: 'Manage warm GitHub runners: fill on invoke, keep alive via SQS',
+      environment: {
+        GITHUB_SECRET_ARN: this.secrets.github.secretArn,
+        GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+        STEP_FUNCTION_ARN: this.orchestrator.stateMachineArn,
+        WARM_RUNNER_QUEUE_URL: this.warmRunnerQueue.queueUrl,
+        WARM_CONFIG_HASHES: cdk.Lazy.string({ produce: () => this.warmConfigHashes.join(',') }),
+        ...this.extraLambdaEnv,
+      },
+      timeout: cdk.Duration.seconds(50),
+      logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
+      loggingFormat: lambda.LoggingFormat.JSON,
+      ...this.extraLambdaProps,
+    });
+
+    this.secrets.github.grantRead(this.warmRunnerManager);
+    this.secrets.githubPrivateKey.grantRead(this.warmRunnerManager);
+    this.orchestrator.grantRead(this.warmRunnerManager);
+    this.orchestrator.grantStartExecution(this.warmRunnerManager);
+    this.orchestrator.grantExecution(this.warmRunnerManager, 'states:StopExecution');
+
+    this.warmRunnerManager.addEventSource(new lambda_event_sources.SqsEventSource(this.warmRunnerQueue, {
+      reportBatchItemFailures: true,
+      maxBatchingWindow: cdk.Duration.seconds(10),
+      batchSize: 10,
+    }));
+    this.warmRunnerQueue.grantSendMessages(this.warmRunnerManager);
+
+    return { lambda: this.warmRunnerManager, queue: this.warmRunnerQueue };
   }
 }

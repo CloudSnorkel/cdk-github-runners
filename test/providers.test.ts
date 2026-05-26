@@ -1,9 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_ecs as ecs, aws_stepfunctions as sfn } from 'aws-cdk-lib';
-import { Match, Template } from 'aws-cdk-lib/assertions';
+import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
+import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import { CodeBuildRunnerProvider, Ec2RunnerProvider, EcsRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
-import { cleanUp } from './test-utils';
 
 describe('Providers', () => {
   let app: cdk.App;
@@ -14,7 +14,7 @@ describe('Providers', () => {
     stack = new cdk.Stack(app, 'test');
   });
 
-  afterEach(() => cleanUp(app));
+  afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
   test('CodeBuild provider', () => {
 
@@ -123,6 +123,24 @@ describe('Providers', () => {
       }));
     });
 
+    test('storageOptions without storageSize adds error annotation and synthesizes', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new EcsRunnerProvider(stack, 'providerNoSize', {
+        vpc,
+        securityGroups: [sg],
+        storageOptions: { volumeType: ec2.EbsDeviceVolumeType.GP3 },
+      });
+
+      Annotations.fromStack(stack).hasError(
+        '/test/providerNoSize',
+        'storageSize is required when storageOptions are specified',
+      );
+
+      Template.fromStack(stack);
+    });
+
     test('Custom capacity provider', () => {
       const vpc = new ec2.Vpc(stack, 'vpc');
       const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
@@ -145,6 +163,43 @@ describe('Providers', () => {
 
       // don't create our own autoscaling group when capacity provider is specified
       template.resourceCountIs('AWS::AutoScaling::AutoScalingGroup', 1);
+    });
+
+    test('Default image builder uses ARM architecture when ARM instance type is selected', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new EcsRunnerProvider(stack, 'providerArm', {
+        vpc,
+        securityGroups: [sg],
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
+      });
+
+      const template = Template.fromStack(stack);
+
+      template.hasResourceProperties('AWS::CodeBuild::Project', Match.objectLike({
+        Environment: {
+          Type: 'ARM_CONTAINER',
+        },
+      }));
+    });
+
+    test('Default image builder uses x86 architecture when no ARM instance type is selected', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new EcsRunnerProvider(stack, 'providerX86', {
+        vpc,
+        securityGroups: [sg],
+      });
+
+      const template = Template.fromStack(stack);
+
+      template.hasResourceProperties('AWS::CodeBuild::Project', Match.objectLike({
+        Environment: {
+          Type: 'LINUX_CONTAINER',
+        },
+      }));
     });
 
     test('Memory reservation', () => {
@@ -212,7 +267,7 @@ describe('Providers', () => {
         placementStrategies: [ecs.PlacementStrategy.packedByCpu()],
       });
 
-      const task = provider.getStepFunctionTask({
+      const runtimeParamsPlacement = {
         runnerTokenPath: '$.runner.token',
         runnerNamePath: '$$.Execution.Name',
         ownerPath: '$.owner',
@@ -221,7 +276,14 @@ describe('Providers', () => {
         githubDomainPath: 'github.com',
         labelsPath: '$.labels',
         jitConfigPath: '$.runner.jitConfig',
-      });
+        addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
+          (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'CleanupStubPlacement'), {
+            errors: [sfn.Errors.ALL],
+            resultPath: '$.error',
+          });
+        },
+      };
+      const task = provider.getStepFunctionTask(runtimeParamsPlacement);
 
       new sfn.StateMachine(stack, 'sm', {
         definitionBody: sfn.DefinitionBody.fromChainable(task),
@@ -259,7 +321,7 @@ describe('Providers', () => {
         placementConstraints: [ecs.PlacementConstraint.distinctInstances()],
       });
 
-      const task = provider.getStepFunctionTask({
+      const runtimeParams = {
         runnerTokenPath: '$.runner.token',
         runnerNamePath: '$$.Execution.Name',
         ownerPath: '$.owner',
@@ -268,7 +330,14 @@ describe('Providers', () => {
         githubDomainPath: 'github.com',
         labelsPath: '$.labels',
         jitConfigPath: '$.runner.jitConfig',
-      });
+        addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
+          (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'CleanupStubConstraints'), {
+            errors: [sfn.Errors.ALL],
+            resultPath: '$.error',
+          });
+        },
+      };
+      const task = provider.getStepFunctionTask(runtimeParams);
 
       new sfn.StateMachine(stack, 'sm-constraints', {
         definitionBody: sfn.DefinitionBody.fromChainable(task),
@@ -308,13 +377,17 @@ describe('Providers', () => {
         },
       });
 
-      expect(() => {
-        new Ec2RunnerProvider(stack, 'provider 1', {
-          vpc: vpc,
-          securityGroups: [sg],
-          imageBuilder: ib,
-        });
-      }).toThrow('Runner storage size (30 GiB) must be at least the same as the image builder storage size (50 GiB)');
+      new Ec2RunnerProvider(stack, 'provider 1', {
+        vpc: vpc,
+        securityGroups: [sg],
+        imageBuilder: ib,
+      });
+
+      Annotations.fromStack(stack).hasError(
+        '/test/provider 1',
+        Match.stringLikeRegexp('Runner storage size \\(30 GiB\\) must be at least the same as the image builder storage size \\(50 GiB\\)'),
+      );
+      Template.fromStack(stack);
 
       new Ec2RunnerProvider(stack, 'provider 2', {
         vpc: vpc,
@@ -329,6 +402,23 @@ describe('Providers', () => {
         imageBuilder: ib,
         storageSize: cdk.Size.gibibytes(500),
       });
+    });
+
+    test('Default image builder uses ARM build instance when runner instance type is ARM', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new Ec2RunnerProvider(stack, 'provider arm', {
+        vpc,
+        securityGroups: [sg],
+        instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
+      });
+
+      const template = Template.fromStack(stack);
+
+      template.hasResourceProperties('AWS::ImageBuilder::InfrastructureConfiguration', Match.objectLike({
+        InstanceTypes: ['m6g.large'],
+      }));
     });
   });
 });

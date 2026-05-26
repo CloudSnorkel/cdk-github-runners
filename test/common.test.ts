@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import { Stack } from 'aws-cdk-lib';
+import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import { Construct } from 'constructs';
-import { cleanUp } from './test-utils';
-import { generateStateName } from '../src/providers/common';
+import { generateStateName } from '../src';
 
 describe('generateStateName', () => {
   let app: cdk.App;
@@ -13,7 +13,7 @@ describe('generateStateName', () => {
     stack = new Stack(app, 'TestStack');
   });
 
-  afterEach(() => cleanUp(app));
+  afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
   test('creates state name from construct path without suffix', () => {
     const construct = new Construct(stack, 'MyProvider');

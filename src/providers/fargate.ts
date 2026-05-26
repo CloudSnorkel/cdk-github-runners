@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as cdk from 'aws-cdk-lib';
 import {
   aws_ec2 as ec2,
   aws_ecs as ecs,
@@ -16,10 +17,10 @@ import {
   BaseProvider,
   IRunnerProvider,
   IRunnerProviderStatus,
+  IRunnerRuntimeParameters,
   Os,
   RunnerImage,
   RunnerProviderProps,
-  RunnerRuntimeParameters,
   RunnerVersion,
   generateStateName,
 } from './common';
@@ -173,42 +174,6 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    * @default false
    */
   readonly spot?: boolean;
-}
-
-/**
- * Properties for EcsFargateLaunchTarget.
- */
-interface EcsFargateLaunchTargetProps {
-  readonly spot: boolean;
-}
-
-/**
- * Our special launch target that can use spot instances and set EnableExecuteCommand.
- */
-class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
-  constructor(readonly props: EcsFargateLaunchTargetProps) {
-  }
-
-  /**
-   * Called when the Fargate launch type configured on RunTask
-   */
-  public bind(_task: stepfunctions_tasks.EcsRunTask,
-    launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
-    if (!launchTargetOptions.taskDefinition.isFargateCompatible) {
-      throw new Error('Supplied TaskDefinition is not compatible with Fargate');
-    }
-
-    return {
-      parameters: {
-        PropagateTags: ecs.PropagatedTagSource.TASK_DEFINITION,
-        CapacityProviderStrategy: [
-          {
-            CapacityProvider: this.props.spot ? 'FARGATE_SPOT' : 'FARGATE',
-          },
-        ],
-      },
-    };
-  }
 }
 
 /**
@@ -431,19 +396,23 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
     } else if (image.architecture.is(Architecture.X86_64)) {
       arch = ecs.CpuArchitecture.X86_64;
     } else {
-      throw new Error(`${image.architecture.name} is not supported on Fargate`);
+      cdk.Annotations.of(this).addError(`${image.architecture.name} is not supported on Fargate`);
+      arch = ecs.CpuArchitecture.X86_64; // so the code below doesn't throw an exception
     }
 
+    let fargateRunnerCommandOs = image.os;
     let os: ecs.OperatingSystemFamily;
     if (image.os.isIn(Os._ALL_LINUX_VERSIONS)) {
       os = ecs.OperatingSystemFamily.LINUX;
     } else if (image.os.is(Os.WINDOWS)) {
       os = ecs.OperatingSystemFamily.WINDOWS_SERVER_2019_CORE;
       if (props?.ephemeralStorageGiB) {
-        throw new Error('Ephemeral storage is not supported on Fargate Windows');
+        cdk.Annotations.of(this).addError('Ephemeral storage is not supported on Fargate Windows');
       }
     } else {
-      throw new Error(`${image.os.name} is not supported on Fargate`);
+      cdk.Annotations.of(this).addError(`${image.os.name} is not supported on Fargate`);
+      os = ecs.OperatingSystemFamily.LINUX;
+      fargateRunnerCommandOs = Os.LINUX_UBUNTU;
     }
 
     this.logGroup = new logs.LogGroup(this, 'logs', {
@@ -457,7 +426,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       {
         cpu: props?.cpu ?? 1024,
         memoryLimitMiB: props?.memoryLimitMiB ?? 2048,
-        ephemeralStorageGiB: props?.ephemeralStorageGiB ?? (!image.os.is(Os.WINDOWS) ? 25 : undefined),
+        ephemeralStorageGiB: image.os.is(Os.WINDOWS) ? undefined : props?.ephemeralStorageGiB ?? 25,
         runtimePlatform: {
           operatingSystemFamily: os,
           cpuArchitecture: arch,
@@ -472,7 +441,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
           logGroup: this.logGroup,
           streamPrefix: 'runner',
         }),
-        command: ecsRunCommand(this.image.os, false),
+        command: ecsRunCommand(fargateRunnerCommandOs, false),
         user: image.os.is(Os.WINDOWS) ? undefined : 'runner',
       },
     );
@@ -490,7 +459,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
    *
    * @param parameters workflow job details
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
+  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.EcsRunTask(
       this,
       'State',
@@ -499,10 +468,14 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,
         cluster: this.cluster,
-        launchTarget: new EcsFargateLaunchTarget({
-          spot: this.spot,
+        launchTarget: new stepfunctions_tasks.EcsFargateLaunchTarget({
+          platformVersion: ecs.FargatePlatformVersion.LATEST,
+          capacityProviderOptions: stepfunctions_tasks.CapacityProviderOptions.custom([{
+            capacityProvider: this.spot ? 'FARGATE_SPOT' : 'FARGATE',
+          }]),
         }),
         enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
+        propagatedTagSource: ecs.PropagatedTagSource.TASK_DEFINITION,
         subnets: this.subnetSelection,
         assignPublicIp: this.assignPublicIp,
         securityGroups: this.securityGroups,

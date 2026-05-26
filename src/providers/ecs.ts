@@ -18,14 +18,14 @@ import {
   amiRootDevice,
   Architecture,
   BaseProvider,
+  generateStateName,
   IRunnerProvider,
   IRunnerProviderStatus,
+  IRunnerRuntimeParameters,
   Os,
   RunnerImage,
   RunnerProviderProps,
-  RunnerRuntimeParameters,
   RunnerVersion,
-  generateStateName,
   StorageOptions,
 } from './common';
 import { ecsRunCommand } from './fargate';
@@ -209,43 +209,20 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
    * @default undefined (no placement constraints)
    */
   readonly placementConstraints?: ecs.PlacementConstraint[];
-}
-
-interface EcsEc2LaunchTargetOptions extends stepfunctions_tasks.EcsEc2LaunchTargetOptions {
-  readonly capacityProvider: string;
-}
-
-/**
- * Custom ECS EC2 launch target that allows specifying capacity provider strategy and propagating tags.
- */
-class CustomEcsEc2LaunchTarget extends stepfunctions_tasks.EcsEc2LaunchTarget {
-  private readonly capacityProvider: string;
-
-  constructor(options: EcsEc2LaunchTargetOptions) {
-    super(options);
-    this.capacityProvider = options.capacityProvider;
-  }
 
   /**
-   * Called when the ECS launch type configured on RunTask
+   * Number of GPUs to request for the runner task. When set, the task will be scheduled on GPU-capable instances.
+   *
+   * Requires a GPU-capable instance type (e.g., g4dn.xlarge for 1 GPU, g4dn.12xlarge for 4 GPUs) and GPU AMI.
+   * When creating a new cluster, instanceType defaults to g4dn.xlarge and the ECS Optimized GPU AMI is used.
+   *
+   * You must ensure that the task's container image includes the CUDA runtime. Provide a CUDA-enabled base image
+   * via `baseDockerImage`, use an image builder that starts from a GPU-capable image (such as nvidia/cuda), or add
+   * an image component that installs the CUDA runtime into the image.
+   *
+   * @default undefined (no GPU)
    */
-  public bind(_task: stepfunctions_tasks.EcsRunTask,
-    _launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
-    const base = super.bind(_task, _launchTargetOptions);
-    return {
-      ...base,
-      parameters: {
-        ...(base.parameters ?? {}),
-        PropagateTags: ecs.PropagatedTagSource.TASK_DEFINITION,
-        CapacityProviderStrategy: [
-          {
-            CapacityProvider: this.capacityProvider,
-          },
-        ],
-        LaunchType: undefined, // You may choose a capacity provider or a launch type but not both.
-      },
-    };
-  }
+  readonly gpu?: number;
 }
 
 /**
@@ -387,6 +364,11 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    */
   private readonly placementConstraints?: ecs.PlacementConstraint[];
 
+  /**
+   * Number of GPUs requested for the runner task (0 = no GPU).
+   */
+  private readonly gpuCount: number;
+
   readonly retryableErrors = [
     'Ecs.EcsException',
     'ECS.AmazonECSException',
@@ -407,6 +389,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     this.assignPublicIp = props?.assignPublicIp ?? true;
     this.placementStrategies = props?.placementStrategies;
     this.placementConstraints = props?.placementConstraints;
+    this.gpuCount = props?.gpu ?? 0;
     this.cluster = props?.cluster ? props.cluster : new ecs.Cluster(
       this,
       'cluster',
@@ -417,10 +400,17 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     );
 
     if (props?.storageOptions && !props?.storageSize) {
-      throw new Error('storageSize is required when storageOptions are specified');
+      cdk.Annotations.of(this).addError('storageSize is required when storageOptions are specified');
     }
 
-    const imageBuilder = props?.imageBuilder ?? EcsRunnerProvider.imageBuilder(this, 'Image Builder');
+    const defaultImageBuilderArchitecture =
+      !props?.capacityProvider && props?.instanceType?.architecture === ec2.InstanceArchitecture.ARM_64
+        ? Architecture.ARM64
+        : Architecture.X86_64;
+
+    const imageBuilder = props?.imageBuilder ?? EcsRunnerProvider.imageBuilder(this, 'Image Builder', {
+      architecture: defaultImageBuilderArchitecture,
+    });
     const image = this.image = imageBuilder.bindDockerImage();
 
     if (props?.capacityProvider) {
@@ -435,16 +425,16 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       const launchTemplate = new ec2.LaunchTemplate(this, 'Launch Template', {
         machineImage: this.defaultClusterInstanceAmi(),
         instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
-        blockDevices: props?.storageSize ? [
+        blockDevices: (props?.storageSize || props?.storageOptions) ? [
           {
             deviceName: amiRootDevice(this, this.defaultClusterInstanceAmi().getImage(this).imageId).ref,
             volume: {
               ebsDevice: {
                 deleteOnTermination: true,
-                volumeSize: props.storageSize.toGibibytes(),
-                volumeType: props.storageOptions?.volumeType,
-                iops: props.storageOptions?.iops,
-                throughput: props.storageOptions?.throughput,
+                volumeSize: props?.storageSize?.toGibibytes() ?? 30,
+                volumeType: props?.storageOptions?.volumeType,
+                iops: props?.storageOptions?.iops,
+                throughput: props?.storageOptions?.throughput,
               },
             },
           },
@@ -493,12 +483,6 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       },
     );
 
-    if (image.os.is(Os.WINDOWS)) {
-      // https://github.com/aws/aws-cdk/issues/36805
-      this.capacityProvider.autoScalingGroup.addUserData('[Environment]::SetEnvironmentVariable("ECS_ENABLE_TASK_IAM_ROLE", "true", "Machine")');
-      this.capacityProvider.autoScalingGroup.addUserData(`Initialize-ECSAgent -Cluster '${this.cluster.clusterName}' -EnableTaskIAMRole`);
-    }
-
     this.logGroup = new logs.LogGroup(this, 'logs', {
       retention: props?.logRetention ?? RetentionDays.ONE_MONTH,
       removalPolicy: RemovalPolicy.DESTROY,
@@ -514,6 +498,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         cpu: props?.cpu ?? 1024,
         memoryLimitMiB: props?.memoryLimitMiB ?? (props?.memoryReservationMiB ? undefined : 3500),
         memoryReservationMiB: props?.memoryReservationMiB,
+        gpuCount: this.gpuCount > 0 ? this.gpuCount : undefined,
         logging: ecs.AwsLogDriver.awsLogs({
           logGroup: this.logGroup,
           streamPrefix: 'runner',
@@ -531,13 +516,27 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   }
 
   private defaultClusterInstanceType() {
+    if (this.gpuCount > 0) {
+      if (!this.image.architecture.is(Architecture.X86_64)) {
+        throw new Error('ECS GPU is only supported for x64 architecture. GPU instances (g4dn, g5, p3, etc.) are x64 only.');
+      }
+      if (this.gpuCount <= 1) {
+        return ec2.InstanceType.of(ec2.InstanceClass.G4DN, ec2.InstanceSize.XLARGE);
+      }
+      if (this.gpuCount <= 4) {
+        return ec2.InstanceType.of(ec2.InstanceClass.G4DN, ec2.InstanceSize.XLARGE12);
+      }
+      if (this.gpuCount <= 8) {
+        return ec2.InstanceType.of(ec2.InstanceClass.P3, ec2.InstanceSize.XLARGE16);
+      }
+      throw new Error(`Unsupported GPU count: ${this.gpuCount}`);
+    }
     if (this.image.architecture.is(Architecture.X86_64)) {
       return ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
     }
     if (this.image.architecture.is(Architecture.ARM64)) {
       return ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE);
     }
-
     throw new Error(`Unable to find instance type for ECS instances for ${this.image.architecture.name}`);
   }
 
@@ -547,13 +546,16 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     let found = false;
 
     if (this.image.os.isIn(Os._ALL_LINUX_VERSIONS)) {
-      if (this.image.architecture.is(Architecture.X86_64)) {
-        baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.STANDARD);
+      if (this.gpuCount > 0 && this.image.architecture.is(Architecture.X86_64)) {
+        baseImage = ecs.EcsOptimizedImage.amazonLinux2023(ecs.AmiHardwareType.GPU);
+        ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/gpu/recommended/image_id';
+        found = true;
+      } else if (this.image.architecture.is(Architecture.X86_64)) {
+        baseImage = ecs.EcsOptimizedImage.amazonLinux2023(ecs.AmiHardwareType.STANDARD);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id';
         found = true;
-      }
-      if (this.image.architecture.is(Architecture.ARM64)) {
-        baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.ARM);
+      } else if (this.image.architecture.is(Architecture.ARM64)) {
+        baseImage = ecs.EcsOptimizedImage.amazonLinux2023(ecs.AmiHardwareType.ARM);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/arm64/recommended/image_id';
         found = true;
       }
@@ -566,7 +568,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     }
 
     if (!found) {
-      throw new Error(`Unable to find AMI for ECS instances for ${this.image.os.name}/${this.image.architecture.name}`);
+      throw new Error(`Unable to find AMI for ECS instances for ${this.image.os.name}/${this.image.architecture.name} (gpuCount=${this.gpuCount})`);
     }
 
     const image: ec2.IMachineImage = {
@@ -609,6 +611,9 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       return [
         '[Environment]::SetEnvironmentVariable("ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION", "5s", "Machine")',
         '[Environment]::SetEnvironmentVariable("ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER", "5s", "Machine")',
+        // https://github.com/aws/aws-cdk/issues/36805
+        '[Environment]::SetEnvironmentVariable("ECS_ENABLE_TASK_IAM_ROLE", "true", "Machine")',
+        '(Get-Content "C:\\Program Files\\WindowsPowerShell\\Modules\\ECSTools\\ECSTools.psm1").Replace(\'if ($EnableTaskIAMRole) {\', \'$EnableTaskIAMRole = $true; if ($EnableTaskIAMRole) {\') | Set-Content "C:\\Program Files\\WindowsPowerShell\\Modules\\ECSTools\\ECSTools.psm1" -Force',
       ];
     }
     return [
@@ -624,7 +629,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    *
    * @param parameters workflow job details
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
+  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.EcsRunTask(
       this,
       'State',
@@ -633,12 +638,15 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         integrationPattern: IntegrationPattern.RUN_JOB, // sync
         taskDefinition: this.task,
         cluster: this.cluster,
-        launchTarget: new CustomEcsEc2LaunchTarget({
-          capacityProvider: this.capacityProvider.capacityProviderName,
+        launchTarget: new stepfunctions_tasks.EcsEc2LaunchTarget({
+          capacityProviderOptions: stepfunctions_tasks.CapacityProviderOptions.custom([{
+            capacityProvider: this.capacityProvider.capacityProviderName,
+          }]),
           placementStrategies: this.placementStrategies,
           placementConstraints: this.placementConstraints,
         }),
         enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
+        propagatedTagSource: ecs.PropagatedTagSource.TASK_DEFINITION,
         assignPublicIp: this.assignPublicIp,
         containerOverrides: [
           {

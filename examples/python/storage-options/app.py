@@ -14,6 +14,7 @@ from cloudsnorkel.cdk_github_runners import (
     Ec2RunnerProvider,
     CodeBuildRunnerProvider,
     StorageOptions,
+    AwsImageBuilderRunnerImageBuilderProps,
 )
 
 
@@ -58,9 +59,9 @@ class StorageOptionsStack(Stack):
             ami_builder=Ec2RunnerProvider.image_builder(
                 self, "Ami Builder",
                 vpc=vpc,
-                aws_image_builder_options={
-                    "storage_size": Size.gibibytes(50),  # 50 GB for AMI builder (default is usually 30GB for Linux)
-                }
+                aws_image_builder_options=AwsImageBuilderRunnerImageBuilderProps(
+                    storage_size=Size.gibibytes(50),  # 50 GB for AMI builder (default is usually 30GB for Linux)
+                )
             )
         )
 

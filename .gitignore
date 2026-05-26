@@ -44,6 +44,7 @@ junit.xml
 !/.github/workflows/release.yml
 !/.mergify.yml
 !/.github/workflows/upgrade-main.yml
+!/.npmrc
 !/test/
 !/tsconfig.dev.json
 !/src/
@@ -59,6 +60,7 @@ tsconfig.json
 !/src/setup-function.ts
 !/src/status-function.ts
 !/src/token-retriever-function.ts
+!/src/warm-runner-manager-function.ts
 !/src/webhook-handler-function.ts
 !/src/webhook-redelivery-function.ts
 !/src/image-builders/build-image-function.ts
