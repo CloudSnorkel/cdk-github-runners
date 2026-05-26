@@ -3,7 +3,7 @@ import { aws_ec2 as ec2, aws_ecs as ecs, aws_stepfunctions as sfn } from 'aws-cd
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
-import { CodeBuildRunnerProvider, Ec2RunnerProvider, EcsRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
+import { CodeBuildRunnerProvider, Ec2RunnerProvider, EcsRunnerProvider, FargateRunnerProvider, GitHubRunners, LambdaRunnerProvider } from '../src';
 
 describe('Providers', () => {
   let app: cdk.App;
@@ -419,6 +419,33 @@ describe('Providers', () => {
       template.hasResourceProperties('AWS::ImageBuilder::InfrastructureConfiguration', Match.objectLike({
         InstanceTypes: ['m6g.large'],
       }));
+    });
+
+    test('Ec2RunnerProvider heartbeatTimeout flows into SFN HeartbeatSeconds', () => {
+      const testStack = new cdk.Stack();
+      const vpc = new ec2.Vpc(testStack, 'Vpc');
+      new GitHubRunners(testStack, 'Runners', {
+        providers: [
+          new Ec2RunnerProvider(testStack, 'Ec2', {
+            vpc,
+            heartbeatTimeout: cdk.Duration.minutes(90),
+          }),
+        ],
+      });
+      const template = Template.fromStack(testStack);
+      const sm = template.findResources('AWS::StepFunctions::StateMachine');
+      expect(JSON.stringify(sm)).toContain('\\"HeartbeatSeconds\\":5400');
+    });
+
+    test('Ec2RunnerProvider heartbeatTimeout defaults to 10 minutes', () => {
+      const testStack = new cdk.Stack();
+      const vpc = new ec2.Vpc(testStack, 'Vpc');
+      new GitHubRunners(testStack, 'Runners', {
+        providers: [new Ec2RunnerProvider(testStack, 'Ec2', { vpc })],
+      });
+      const template = Template.fromStack(testStack);
+      const sm = template.findResources('AWS::StepFunctions::StateMachine');
+      expect(JSON.stringify(sm)).toContain('\\"HeartbeatSeconds\\":600');
     });
   });
 });

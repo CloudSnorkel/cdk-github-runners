@@ -5,7 +5,6 @@ import {
   aws_logs as logs,
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
-  Duration,
   RemovalPolicy,
   Stack,
 } from 'aws-cdk-lib';
@@ -344,6 +343,19 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
    * @default no max price (you will pay current spot price)
    */
   readonly spotMaxPrice?: string;
+
+  /**
+   * Maximum time the Step Functions task waits between EC2 heartbeats before
+   * falling back to the next subnet / failing the task.
+   *
+   * If your job runs longer than 10 minutes you must raise this — the previous
+   * hardcoded 10-minute default caused false "stuck" detections for any job
+   * that took longer to complete than the heartbeat interval (e.g. LocalStack
+   * snapshot deploys, integration tests with large fixture setup, etc.).
+   *
+   * @default cdk.Duration.minutes(10)
+   */
+  readonly heartbeatTimeout?: cdk.Duration;
 }
 
 /**
@@ -421,6 +433,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   private readonly storageOptions?: StorageOptions;
   private readonly spot: boolean;
   private readonly spotMaxPrice: string | undefined;
+  private readonly heartbeatTimeout: cdk.Duration;
   private readonly vpc: ec2.IVpc;
   private readonly subnets: ec2.ISubnet[];
   private readonly securityGroups: ec2.ISecurityGroup[];
@@ -439,6 +452,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.storageOptions = props?.storageOptions;
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;
+    this.heartbeatTimeout = props?.heartbeatTimeout ?? cdk.Duration.minutes(10);
     this.defaultLabels = props?.defaultLabels ?? true;
 
     if (this.subnets.length === 0) {
@@ -546,7 +560,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
         integrationPattern: stepfunctions.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         service: 'ec2',
         action: 'runInstances',
-        heartbeatTimeout: stepfunctions.Timeout.duration(Duration.minutes(10)),
+        heartbeatTimeout: stepfunctions.Timeout.duration(this.heartbeatTimeout),
         parameters: {
           LaunchTemplate: {
             LaunchTemplateId: this.ami.launchTemplate.launchTemplateId,
