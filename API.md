@@ -7292,7 +7292,7 @@ public readonly heartbeatTimeout: Duration;
 ```
 
 - *Type:* aws-cdk-lib.Duration
-- *Default:* Duration.minutes(10)
+- *Default:* cdk.Duration.minutes(10)
 
 Maximum time the Step Functions task waits between EC2 heartbeats before falling back to the next subnet / failing the task.
 
