@@ -79,7 +79,7 @@ jobs:
       # create a PR against the dependencies update PR for a proper snapshot
       - name: Create Pull Request
         if: steps.create_patch.outputs.patch_created
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.PROJEN_GITHUB_TOKEN }}
           commit-message: |-
