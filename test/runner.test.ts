@@ -328,17 +328,15 @@ describe('GitHubRunners', () => {
 
     const template = Template.fromStack(stack);
 
+    // the providers map lives in stack metadata because it can grow past the 4KB Lambda environment limit
     template.hasResource('AWS::Lambda::Function', {
       Properties: {
         Description: 'Handle GitHub webhook and start runner orchestrator',
-        Environment: {
-          Variables: {
-            // The PROVIDERS env var should include only 'test/composite' and 'test/p3'
-            PROVIDERS: JSON.stringify({
-              'test/composite': ['linux'],
-              'test/p3': ['macos'],
-            }),
-          },
+      },
+      Metadata: {
+        providers: {
+          'test/composite': ['linux'],
+          'test/p3': ['macos'],
         },
       },
     });

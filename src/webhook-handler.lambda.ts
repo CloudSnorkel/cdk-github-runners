@@ -4,6 +4,7 @@ import { SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import * as AWSLambda from 'aws-lambda';
 import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
+import { getOwnResourceMetadata } from './lambda-stack-metadata';
 import { ProviderSelectorInput, ProviderSelectorResult } from './webhook';
 
 const sf = new SFNClient();
@@ -136,12 +137,54 @@ export async function callProviderSelector(
   return JSON.parse(Buffer.from(result.Payload).toString()) as ProviderSelectorResult;
 }
 
+// the providers map can grow past the 4KB Lambda environment limit, so it's stored as CloudFormation resource
+// metadata of this function; cached here so a burst of webhooks doesn't hammer CloudFormation
+let providersCache: { providers: Record<string, string[]>; expiration: number } | undefined;
+const PROVIDERS_CACHE_TTL_MS = 60 * 1000;
+
+/**
+ * Clear the providers cache. Exported for unit testing.
+ *
+ * @internal
+ */
+export function clearProvidersCache() {
+  providersCache = undefined;
+}
+
+/**
+ * Map of all available providers to their labels, in label matching order.
+ *
+ * @internal
+ */
+export async function availableProviders(): Promise<Record<string, string[]>> {
+  // unit test override
+  if (process.env.PROVIDERS) {
+    return JSON.parse(process.env.PROVIDERS);
+  }
+
+  if (providersCache && Date.now() < providersCache.expiration) {
+    return providersCache.providers;
+  }
+
+  const providers = await getOwnResourceMetadata<Record<string, string[]>>('providers');
+  if (!providers) {
+    throw new Error('Providers metadata is missing from webhook handler resource');
+  }
+
+  providersCache = {
+    providers,
+    expiration: Date.now() + PROVIDERS_CACHE_TTL_MS,
+  };
+
+  return providers;
+}
+
 /**
  * Exported for unit testing.
  * @internal
  */
 export async function selectProvider(payload: any, jobLabels: string[], hook = callProviderSelector): Promise<ProviderSelectorResult> {
-  const providers = JSON.parse(process.env.PROVIDERS!);
+  const providers = await availableProviders();
   const defaultProvider = matchLabelsToProvider(jobLabels, providers);
   const defaultLabels = defaultProvider ? providers[defaultProvider] : undefined;
   const defaultSelection = { provider: defaultProvider, labels: defaultLabels };
@@ -194,7 +237,8 @@ export function generateExecutionName(event: any, payload: any): string {
 }
 
 export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
-  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.PROVIDERS || !process.env.REQUIRE_SELF_HOSTED_LABEL) {
+  const providersConfigured = process.env.PROVIDERS || (process.env.STACK_NAME && process.env.LOGICAL_ID);
+  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN || !providersConfigured || !process.env.REQUIRE_SELF_HOSTED_LABEL) {
     throw new Error('Missing environment variables');
   }
 

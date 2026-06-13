@@ -267,46 +267,8 @@ describe('Providers', () => {
         placementStrategies: [ecs.PlacementStrategy.packedByCpu()],
       });
 
-      const runtimeParamsPlacement = {
-        runnerTokenPath: '$.runner.token',
-        runnerNamePath: '$$.Execution.Name',
-        ownerPath: '$.owner',
-        repoPath: '$.repo',
-        registrationUrl: 'https://github.com',
-        githubDomainPath: 'github.com',
-        labelsPath: '$.labels',
-        addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
-          (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'CleanupStubPlacement'), {
-            errors: [sfn.Errors.ALL],
-            resultPath: '$.error',
-          });
-        },
-      };
-      const task = provider.getStepFunctionTask(runtimeParamsPlacement);
-
-      new sfn.StateMachine(stack, 'sm', {
-        definitionBody: sfn.DefinitionBody.fromChainable(task),
-      });
-
-      const template = Template.fromStack(stack);
-
-      function extractStateMachineDefinition(tmpl: Template): string {
-        const sms = tmpl.findResources('AWS::StepFunctions::StateMachine');
-        const smKeys = Object.keys(sms);
-        if (smKeys.length !== 1) throw new Error(`expected 1 SM, got ${smKeys.length}`);
-        const sm = sms[smKeys[0]];
-        const def = sm.Properties.DefinitionString;
-        const parts = def?.['Fn::Join']?.[1];
-        if (!Array.isArray(parts)) throw new Error('unexpected DefinitionString shape');
-        return parts.map((p: any) => (typeof p === 'string' ? p : '')).join('');
-      }
-
-      const def = JSON.parse(extractStateMachineDefinition(template));
-      const ecsPlacement = def?.States?.providerPlacement;
-      expect(ecsPlacement?.Type).toBe('Task');
-      const ps = ecsPlacement?.Parameters?.PlacementStrategy;
-      expect(Array.isArray(ps)).toBe(true);
-      expect(ps).toEqual([{ Field: 'CPU', Type: 'binpack' }]);
+      // the runner config feeds PlacementStrategy of ecs:runTask as-is
+      expect((provider as any)._runnerConfig().placementStrategies).toEqual([{ Field: 'CPU', Type: 'binpack' }]);
     });
 
     test('passes PlacementConstraints to RunTask', () => {
@@ -320,46 +282,8 @@ describe('Providers', () => {
         placementConstraints: [ecs.PlacementConstraint.distinctInstances()],
       });
 
-      const runtimeParams = {
-        runnerTokenPath: '$.runner.token',
-        runnerNamePath: '$$.Execution.Name',
-        ownerPath: '$.owner',
-        repoPath: '$.repo',
-        registrationUrl: 'https://github.com',
-        githubDomainPath: 'github.com',
-        labelsPath: '$.labels',
-        addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
-          (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'CleanupStubConstraints'), {
-            errors: [sfn.Errors.ALL],
-            resultPath: '$.error',
-          });
-        },
-      };
-      const task = provider.getStepFunctionTask(runtimeParams);
-
-      new sfn.StateMachine(stack, 'sm-constraints', {
-        definitionBody: sfn.DefinitionBody.fromChainable(task),
-      });
-
-      const template = Template.fromStack(stack);
-
-      function extractStateMachineDefinition(tmpl: Template): string {
-        const sms = tmpl.findResources('AWS::StepFunctions::StateMachine');
-        const smKeys = Object.keys(sms);
-        if (smKeys.length !== 1) throw new Error(`expected 1 SM, got ${smKeys.length}`);
-        const sm = sms[smKeys[0]];
-        const def = sm.Properties.DefinitionString;
-        const parts = def?.['Fn::Join']?.[1];
-        if (!Array.isArray(parts)) throw new Error('unexpected DefinitionString shape');
-        return parts.map((p: any) => (typeof p === 'string' ? p : '')).join('');
-      }
-
-      const def = JSON.parse(extractStateMachineDefinition(template));
-      const ecsTask = def?.States?.providerPlacementConstraints;
-      expect(ecsTask?.Type).toBe('Task');
-      const pc = ecsTask?.Parameters?.PlacementConstraints;
-      expect(Array.isArray(pc)).toBe(true);
-      expect(pc).toEqual([{ Type: 'distinctInstance' }]);
+      // the runner config feeds PlacementConstraints of ecs:runTask as-is
+      expect((provider as any)._runnerConfig().placementConstraints).toEqual([{ Type: 'distinctInstance' }]);
     });
   });
 

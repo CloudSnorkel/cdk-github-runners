@@ -334,69 +334,6 @@ export interface RunnerProviderProps {
 }
 
 /**
- * Workflow job parameters as parsed from the webhook event. Pass these into your runner executor and run something like:
- *
- * ```sh
- * ./config.sh --unattended --url "{REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --name "${RUNNER_NAME}" --disableupdate
- * ```
- *
- * All parameters are specified as step function paths and therefore must be used only in step function task parameters.
- */
-export interface IRunnerRuntimeParameters {
-  /**
-   * Path to runner token used to register token.
-   */
-  readonly runnerTokenPath: string;
-
-  /**
-   * Path to desired runner name. We specifically set the name to make troubleshooting easier.
-   */
-  readonly runnerNamePath: string;
-
-  /**
-   * Path to GitHub domain. Most of the time this will be github.com but for self-hosted GitHub instances, this will be different.
-   */
-  readonly githubDomainPath: string;
-
-  /**
-   * Path to repository owner name.
-   */
-  readonly ownerPath: string;
-
-  /**
-   * Path to repository name.
-   */
-  readonly repoPath: string;
-
-  /**
-   * Repository or organization URL to register runner at.
-   */
-  readonly registrationUrl: string;
-
-  /**
-   * Path to comma-separated labels string to use for runner.
-   */
-  readonly labelsPath: string;
-
-  /**
-   * Catches all errors and cleans up the failed runner from GitHub Actions.
-   *
-   * It is important to fully clean up after any failed runner provisioning. GitHub
-   * will fail booting a new runner if the previous one with the same name is not
-   * fully cleaned up.
-   *
-   * @param state state whose failures should trigger cleanup
-   * @param next optional subgraph to run after cleanup
-   */
-  addCatchAndCleanUp(state: stepfunctions.TaskStateBase | stepfunctions.Parallel | stepfunctions.Map, next?: stepfunctions.IChainable): void;
-}
-
-/**
- * @deprecated Use {@link IRunnerRuntimeParameters}.
- */
-export type RunnerRuntimeParameters = IRunnerRuntimeParameters;
-
-/**
  * Image status returned from runner providers to be displayed in status.json.
  */
 export interface IRunnerImageStatus {
@@ -482,9 +419,11 @@ export interface IRunnerProviderStatus {
 }
 
 /**
- * Interface for all runner providers. Implementations create all required resources and return a step function task that starts those resources from {@link getStepFunctionTask}.
+ * Interface for all runner providers.
  *
- * This interface is not guaranteed to be stable. If you end up implementing your own provider, please let us know so we can consider changing that contract.
+ * Note that this interface cannot be implemented by external code. The state machine that orchestrates the
+ * runners only supports the built-in providers. If the built-in providers don't cover your use case, please open
+ * an issue so we can discuss it.
  */
 export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, IConstruct {
   /**
@@ -502,53 +441,151 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, ICons
    * Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
    */
   readonly logGroup: logs.ILogGroup;
-
-  /**
-   * List of step functions errors that should be retried.
-   *
-   * @deprecated do not use
-   */
-  readonly retryableErrors: string[];
-
-  /**
-   * Generate step function tasks that execute the runner.
-   *
-   * Called by GithubRunners and shouldn't be called manually.
-   *
-   * @param parameters specific build parameters
-   */
-  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable;
-
-  /**
-   * Static string constants injected once into the orchestrator execution input at `$.consts`. Use unique keys for
-   * dynamic values (e.g. include `this.node.path` in the key). Values must be plain strings known at synthesis time.
-   *
-   * To use the constants in your provider, use `'$.consts.key'` as a path.
-   *
-   * @default `{}` — {@link BaseProvider} returns an empty object; override when needed (e.g. EC2 userdata template).
-   */
-  stepFunctionConstants(): Record<string, string>;
-
-  /**
-   * An optional method that modifies the role of the state machine after all the tasks have been generated. This can be used to add additional policy
-   * statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-   *
-   * @param stateMachineRole role for the state machine that executes the task returned from {@link getStepFunctionTask}.
-   */
-  grantStateMachine(stateMachineRole: iam.IGrantable): void;
-
-  /**
-   * Return status of the runner provider to be used in the main status function. Also gives the status function any needed permissions to query the Docker image or AMI.
-   *
-   * @param statusFunctionRole grantable for the status function
-   */
-  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus;
 }
 
 /**
- * Interface for composite runner providers that interact with multiple sub-providers.
+ * Internal contract between GitHubRunners and the providers (built-in providers and composites). All members are
+ * hidden from the public API on purpose: the orchestrator state machine has one shared, parameterized fragment per
+ * provider family, and only the families implemented in this library are supported.
+ *
+ * @internal
+ */
+export interface IParameterizedProvider extends IConstruct {
+  /**
+   * GitHub Actions labels used for this provider.
+   */
+  readonly labels: string[];
+
+  /**
+   * All runner families used by this provider's config, including fallback and distribution targets. GitHubRunners
+   * instantiates one state machine fragment per family in use.
+   */
+  readonly _runnerFamilies: string[];
+
+  /**
+   * JSON-serializable runtime configuration for this provider, embedded into the state machine definition and read
+   * by the shared family fragments at `$.providerParams`. May contain CloudFormation tokens. The config can chain
+   * another config at `fallback` (tried when this one fails) or hold a `distribute` list of weighted configs.
+   */
+  _runnerConfig(): any;
+
+  /**
+   * Grant the state machine role everything the shared family fragments need to run THIS provider.
+   */
+  _grantStateMachine(stateMachineRole: iam.IGrantable): void;
+
+  /**
+   * Static string constants injected once into the orchestrator execution input at `$.consts`. Values must be
+   * plain strings known at synthesis time and identical across providers using the same key.
+   */
+  _stepFunctionConstants(): Record<string, string>;
+
+  /**
+   * Return status of the runner provider to be used in the main status function. Also gives the status function
+   * any needed permissions to query the Docker image or AMI. Composite providers return one status per
+   * sub-provider.
+   */
+  _status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus | IRunnerProviderStatus[];
+}
+
+/**
+ * Check that the given provider supports the internal orchestration contract.
+ *
+ * instanceof doesn't work reliably across CDK library copies, so we duck-type instead.
+ *
+ * @internal
+ */
+export function isParameterizedProvider(provider: IConstruct): provider is IParameterizedProvider {
+  return '_runnerFamilies' in provider && '_runnerConfig' in provider && '_grantStateMachine' in provider;
+}
+
+/**
+ * One branch of the provider family Choice state: run `chainable` when `condition` matches the selected
+ * provider config. Most families have exactly one branch; EC2 has two (spot and on-demand).
+ *
+ * @internal
+ */
+export interface FamilyFragmentBranch {
+  readonly condition: stepfunctions.Condition;
+  readonly chainable: stepfunctions.IChainable;
+}
+
+/**
+ * Environment variables passed to the runner, in the same order as before parameterized fragments were
+ * introduced. Static per-provider values come from `$.providerParams`, runtime values from the execution input.
+ * For use in JSONata states only.
+ *
+ * @internal
+ */
+export function runnerEnvironment(format: (name: string, value: string) => any): any[] {
+  return [
+    format('RUNNER_TOKEN', '{% $states.input.runner.token %}'),
+    format('RUNNER_NAME', '{% $states.context.Execution.Name %}'),
+    format('RUNNER_LABEL', '{% $states.input.labels %}'),
+    format('RUNNER_GROUP1', '{% $states.input.providerParams.group1 %}'),
+    format('RUNNER_GROUP2', '{% $states.input.providerParams.group2 %}'),
+    format('DEFAULT_LABELS', '{% $states.input.providerParams.defaultLabels %}'),
+    format('GITHUB_DOMAIN', '{% $states.input.runner.domain %}'),
+    format('OWNER', '{% $states.input.owner %}'),
+    format('REPO', '{% $states.input.repo %}'),
+    format('REGISTRATION_URL', '{% $states.input.runner.registrationUrl %}'),
+  ];
+}
+
+/**
+ * Interface for runner providers that can share a single parameterized state-machine fragment per provider
+ * family. Instead of a dedicated state-machine branch per provider, all providers of the same family (e.g. all
+ * CodeBuild providers) share one branch. Per-provider runtime parameters are published to an SSM parameter and
+ * passed into the state machine through the execution input. This keeps the state machine definition and IAM
+ * policies small even with hundreds of providers.
+ *
+ * All built-in providers implement this interface. The set of supported families is internal to
+ * {@link GitHubRunners} and is not extensible yet. Custom providers should implement only {@link IRunnerProvider}
+ * and will get a dedicated state-machine branch like before.
+ */
+export interface IParameterizedRunnerProvider extends IRunnerProvider {
+  /**
+   * Provider family key. One of 'codebuild', 'fargate', 'ecs', 'lambda' or 'ec2'. All providers of the same
+   * family share a single state-machine fragment that is parameterized with {@link runnerConfig} values at
+   * runtime.
+   */
+  readonly runnerFamily: string;
+
+  /**
+   * JSON-serializable runtime parameters for this specific provider, fed into the shared family fragment through
+   * the state machine execution input. Values may contain CloudFormation tokens.
+   *
+   * Called by GithubRunners and shouldn't be called manually.
+   */
+  runnerConfig(): any;
+
+  /**
+   * Grant the state machine role all permissions required by the shared family fragment to run THIS provider.
+   * This replaces both the automatic task-construct policies and {@link IRunnerProvider.grantStateMachine} for
+   * parameterized providers.
+   *
+   * @param stateMachineRole role for the state machine that executes the shared family fragment
+   */
+  grantParameterizedStateMachine(stateMachineRole: iam.IGrantable): void;
+}
+
+/**
+ * Check if the given provider supports shared parameterized state-machine fragments.
+ *
+ * instanceof doesn't work reliably across CDK library copies, so we duck-type instead.
+ *
+ * @internal
+ */
+export function isParameterizedRunnerProvider(provider: IConstruct): provider is IParameterizedRunnerProvider {
+  return 'runnerFamily' in provider && 'runnerConfig' in provider && 'grantParameterizedStateMachine' in provider;
+}
+
+/**
+ * Interface for composite runner providers that combine multiple sub-providers.
  * Unlike IRunnerProvider, composite providers do not have connections, grant capabilities,
- * log groups, or retryable errors as they delegate to their sub-providers.
+ * or log groups as they delegate to their sub-providers.
+ *
+ * Note that this interface cannot be implemented by external code. Use {@link CompositeProvider} factory methods.
  */
 export interface ICompositeProvider extends IConstruct {
   /**
@@ -565,39 +602,6 @@ export interface ICompositeProvider extends IConstruct {
    * This is used to extract providers for metric filters and other operations.
    */
   readonly providers: IRunnerProvider[];
-
-  /**
-   * Generate step function tasks that execute the runner.
-   *
-   * If the provider has multiple attempts, each attempt should be followed by a `Catch` that deletes the failed runner. Use
-   * {@link IRunnerRuntimeParameters.addCatchAndCleanUp} to add the catch.
-   *
-   * Called by GithubRunners and shouldn't be called manually.
-   *
-   * @param parameters specific build parameters
-   */
-  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable;
-
-  /**
-   * Merged constants from all sub-providers for the single orchestrator `$.consts` pass. Duplicate keys across
-   * sub-providers must be avoided.
-   */
-  stepFunctionConstants(): Record<string, string>;
-
-  /**
-   * An optional method that modifies the role of the state machine after all the tasks have been generated. This can be used to add additional policy
-   * statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-   *
-   * @param stateMachineRole role for the state machine that executes the task returned from {@link getStepFunctionTask}.
-   */
-  grantStateMachine(stateMachineRole: iam.IGrantable): void;
-
-  /**
-   * Return statuses of all sub-providers to be used in the main status function. Also gives the status function any needed permissions to query the Docker images or AMIs.
-   *
-   * @param statusFunctionRole grantable for the status function
-   */
-  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[];
 }
 
 /**
@@ -669,8 +673,10 @@ export abstract class BaseProvider extends Construct {
 
   /**
    * Override to inject static strings into `$.consts` on the orchestrator state machine.
+   *
+   * @internal
    */
-  public stepFunctionConstants(): Record<string, string> {
+  public _stepFunctionConstants(): Record<string, string> {
     return {};
   }
 

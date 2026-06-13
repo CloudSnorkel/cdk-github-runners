@@ -5,6 +5,25 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 /**
+ * Attach a value as CloudFormation metadata of the given function's resource, and let the function read it back
+ * at runtime with getOwnResourceMetadata() from lambda-stack-metadata.ts. Used for values that can grow past the
+ * 4KB Lambda environment variables limit, like the providers map.
+ *
+ * @internal
+ */
+export function addFunctionMetadata(func: lambda.Function, key: string, value: any) {
+  const stack = cdk.Stack.of(func);
+  const resource = func.node.defaultChild as lambda.CfnFunction;
+  resource.addPropertyOverride('Environment.Variables.LOGICAL_ID', resource.logicalId);
+  resource.addPropertyOverride('Environment.Variables.STACK_NAME', stack.stackName);
+  resource.addMetadata(key, value);
+  func.addToRolePolicy(new iam.PolicyStatement({
+    actions: ['cloudformation:DescribeStackResource'],
+    resources: [stack.stackId],
+  }));
+}
+
+/**
  * Initialize or return a singleton Lambda function instance.
  *
  * @internal

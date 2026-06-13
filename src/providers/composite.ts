@@ -1,11 +1,10 @@
-import { aws_iam as iam, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
+import { aws_iam as iam } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
-  generateStateName,
   ICompositeProvider,
   IRunnerProvider,
   IRunnerProviderStatus,
-  IRunnerRuntimeParameters,
+  isParameterizedProvider,
   mergeConstMaps,
 } from './common';
 
@@ -23,6 +22,16 @@ export interface WeightedRunnerProvider {
    * Must be a positive number.
    */
   readonly weight: number;
+}
+
+/**
+ * Append a fallback config at the end of the given config's fallback chain.
+ */
+function appendFallback(config: any, fallback: any): any {
+  return {
+    ...config,
+    fallback: config.fallback ? appendFallback(config.fallback, fallback) : fallback,
+  };
 }
 
 /**
@@ -51,6 +60,7 @@ export class CompositeProvider {
     }
 
     this.validateLabels(providers);
+    this.validateParameterized(providers);
 
     return new FallbackRunnerProvider(scope, id, providers);
   }
@@ -77,6 +87,7 @@ export class CompositeProvider {
 
     // Validate labels
     this.validateLabels(weightedProviders.map(wp => wp.provider));
+    this.validateParameterized(weightedProviders.map(wp => wp.provider));
 
     // Validate weights
     for (const wp of weightedProviders) {
@@ -103,10 +114,27 @@ export class CompositeProvider {
       }
     }
   }
+
+  /**
+   * Validates that all providers are built-in providers the orchestrator knows how to run.
+   *
+   * @param providers Providers to validate
+   */
+  private static validateParameterized(providers: IRunnerProvider[]): void {
+    for (const provider of providers) {
+      if (!isParameterizedProvider(provider)) {
+        throw new Error(`${provider.node.path} is not a built-in runner provider. Only built-in providers are supported.`);
+      }
+    }
+  }
 }
 
 /**
  * Internal implementation of fallback runner provider.
+ *
+ * The fallback strategy is implemented at runtime by the orchestrator state machine: each provider's runner
+ * config can chain another config at `fallback`, which is tried when the provider fails. This composite simply
+ * chains the configs of all its sub-providers in order.
  *
  * @internal
  */
@@ -121,80 +149,55 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
   }
 
   /**
-   * Builds a Step Functions state machine that implements a fallback strategy.
-   *
-   * This method constructs a chain where each provider catches errors and falls back
-   * to the next provider in sequence. We iterate forward through providers, attaching
-   * catch handlers to each one (except the last) that route to the next provider.
-   *
-   * Example with providers [A, B, C]:
-   * - Save firstProvider = A (this will be returned)
-   * - Iteration 1 (i=0, provider A): A catches errors → falls back to B
-   * - Iteration 2 (i=1, provider B): B catches errors → falls back to C
-   * - Result: A → (on error) → B → (on error) → C
-   *
-   * Some providers generate one state while others (like EC2) may generate more complex chains.
-   * We try to avoid creating a complicated state machine, but complex chains may require wrapping in Parallel.
-   *
-   * @param parameters Runtime parameters for the step function task
-   * @returns A Step Functions chainable that implements the fallback logic
+   * @internal
    */
-  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
-    const providerChainables = this.providers.map(p => p.getStepFunctionTask(parameters));
-
-    // Wrap providers with multiple end states in a Parallel state
-    const wrappedProviderChainables = providerChainables.map((p, i) => {
-      if (this.canAddCatchDirectly(p)) {
-        return p;
-      }
-      return new stepfunctions.Parallel(this, `Attempt #${i + 1}`, {
-        stateName: generateStateName(this, `attempt #${i + 1}`),
-      }).branch(p);
-    });
-
-    // Attach catch handlers to each provider (except the last) to fall back to the next provider
-    for (let i = 0; i < this.providers.length - 1; i++) {
-      const currentProvider = wrappedProviderChainables[i];
-      const nextProvider = wrappedProviderChainables[i + 1];
-
-      const endState = currentProvider.endStates[0] as stepfunctions.TaskStateBase | stepfunctions.Parallel;
-      parameters.addCatchAndCleanUp(endState, nextProvider);
-    }
-
-    return wrappedProviderChainables[0];
+  public get _runnerFamilies(): string[] {
+    return [...new Set(this.providers.flatMap(p => isParameterizedProvider(p) ? p._runnerFamilies : []))];
   }
 
   /**
-   * Checks if we can add a catch handler directly to the provider's end state.
-   * This avoids wrapping in a Parallel state when possible.
+   * @internal
    */
-  private canAddCatchDirectly(provider: stepfunctions.IChainable): boolean {
-    if (provider instanceof stepfunctions.StateMachineFragment) {
-      return provider.endStates.length === 1;
-    }
-    if (provider instanceof stepfunctions.State) {
-      return provider.endStates.length === 1;
-    }
-    return false;
+  _runnerConfig(): any {
+    // chain all sub-provider configs; sub-providers may have their own fallback chains (e.g. EC2 subnets), so
+    // each fallback goes at the end of the previous chain
+    return this.providers
+      .map(p => isParameterizedProvider(p) ? p._runnerConfig() : {})
+      .reduceRight((fallback, config) => appendFallback(config, fallback));
   }
 
-  stepFunctionConstants(): Record<string, string> {
-    return mergeConstMaps(...this.providers.map(p => p.stepFunctionConstants()));
+  /**
+   * @internal
+   */
+  _stepFunctionConstants(): Record<string, string> {
+    return mergeConstMaps(...this.providers.map(p => isParameterizedProvider(p) ? p._stepFunctionConstants() : {}));
   }
 
-  grantStateMachine(stateMachineRole: iam.IGrantable): void {
+  /**
+   * @internal
+   */
+  _grantStateMachine(stateMachineRole: iam.IGrantable): void {
     for (const provider of this.providers) {
-      provider.grantStateMachine(stateMachineRole);
+      if (isParameterizedProvider(provider)) {
+        provider._grantStateMachine(stateMachineRole);
+      }
     }
   }
 
-  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
-    return this.providers.map(provider => provider.status(statusFunctionRole));
+  /**
+   * @internal
+   */
+  _status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
+    return this.providers.flatMap(provider => isParameterizedProvider(provider) ? provider._status(statusFunctionRole) : []);
   }
 }
 
 /**
  * Internal implementation of distributed runner provider.
+ *
+ * The distribution strategy is implemented at runtime by the orchestrator state machine: a config holding a
+ * `distribute` list of weighted configs makes the state machine pick one config randomly by weight before running
+ * it.
  *
  * @internal
  */
@@ -209,53 +212,46 @@ class DistributedRunnerProvider extends Construct implements ICompositeProvider 
   }
 
   /**
-   * Weighted random selection algorithm:
-   * 1. Generate a random number in [1, totalWeight+1)
-   * 2. Build cumulative weight ranges for each provider (e.g., weights [10,20,30] -> ranges [1-10, 11-30, 31-60])
-   * 3. Use Step Functions Choice state to route to the provider whose range contains the random number
-   *    The first matching condition wins, so we check if rand <= cumulativeWeight for each provider in order
-   *
-   * Note: States.MathRandom returns a value in [start, end) where end is exclusive. We use [1, totalWeight+1)
-   * to ensure the random value can be up to totalWeight (inclusive), which allows the last provider to be selected
-   * when rand equals totalWeight.
+   * @internal
    */
-  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
-    const totalWeight = this.weightedProviders.reduce((sum, wp) => sum + wp.weight, 0);
-    const rand = new stepfunctions.Pass(this, 'Rand', {
-      stateName: generateStateName(this, 'rand'),
-      parameters: {
-        rand: stepfunctions.JsonPath.mathRandom(1, totalWeight + 1),
-      },
-      resultPath: '$.composite',
-    });
-    const choice = new stepfunctions.Choice(this, 'Choice', {
-      stateName: generateStateName(this, 'choice'),
-    });
-    rand.next(choice);
-
-    let rollingWeight = 0;
-    for (const wp of this.weightedProviders) {
-      rollingWeight += wp.weight;
-      choice.when(
-        stepfunctions.Condition.numberLessThanEquals('$.composite.rand', rollingWeight),
-        wp.provider.getStepFunctionTask(parameters),
-      );
-    }
-
-    return rand;
+  public get _runnerFamilies(): string[] {
+    return [...new Set(this.providers.flatMap(p => isParameterizedProvider(p) ? p._runnerFamilies : []))];
   }
 
-  stepFunctionConstants(): Record<string, string> {
-    return mergeConstMaps(...this.providers.map(p => p.stepFunctionConstants()));
+  /**
+   * @internal
+   */
+  _runnerConfig(): any {
+    return {
+      distribute: this.weightedProviders.map(wp => ({
+        weight: wp.weight,
+        config: isParameterizedProvider(wp.provider) ? wp.provider._runnerConfig() : {},
+      })),
+    };
   }
 
-  grantStateMachine(stateMachineRole: iam.IGrantable): void {
-    for (const wp of this.weightedProviders) {
-      wp.provider.grantStateMachine(stateMachineRole);
+  /**
+   * @internal
+   */
+  _stepFunctionConstants(): Record<string, string> {
+    return mergeConstMaps(...this.providers.map(p => isParameterizedProvider(p) ? p._stepFunctionConstants() : {}));
+  }
+
+  /**
+   * @internal
+   */
+  _grantStateMachine(stateMachineRole: iam.IGrantable): void {
+    for (const provider of this.providers) {
+      if (isParameterizedProvider(provider)) {
+        provider._grantStateMachine(stateMachineRole);
+      }
     }
   }
 
-  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
-    return this.providers.map(provider => provider.status(statusFunctionRole));
+  /**
+   * @internal
+   */
+  _status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
+    return this.providers.flatMap(provider => isParameterizedProvider(provider) ? provider._status(statusFunctionRole) : []);
   }
 }

@@ -1,29 +1,30 @@
 import * as path from 'path';
 import {
   Annotations,
+  ArnFormat,
+  Aws,
   aws_codebuild as codebuild,
   aws_ec2 as ec2,
   aws_iam as iam,
   aws_logs as logs,
   aws_stepfunctions as stepfunctions,
-  aws_stepfunctions_tasks as stepfunctions_tasks,
   Duration,
   RemovalPolicy,
+  Stack,
 } from 'aws-cdk-lib';
 import { ComputeType, LinuxGpuBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
   Architecture,
   BaseProvider,
-  generateStateName,
+  FamilyFragmentBranch,
   IRunnerProvider,
   IRunnerProviderStatus,
-  IRunnerRuntimeParameters,
   Os,
   RunnerImage,
   RunnerProviderProps,
+  runnerEnvironment,
   RunnerVersion,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
@@ -196,6 +197,33 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'codebuild', 'linux-arm64');
 
   /**
+   * Shared state machine fragment that runs any CodeBuild provider, reading per-provider configuration generated
+   * by {@link _runnerConfig} from `$.providerParams`. Mirrors what CodeBuildStartBuild used to render when each
+   * provider had a dedicated state.
+   *
+   * @internal
+   */
+  public static _stateMachineFragments(scope: Construct): FamilyFragmentBranch[] {
+    return [{
+      condition: stepfunctions.Condition.and(
+        stepfunctions.Condition.isPresent('$.providerParams.family'),
+        stepfunctions.Condition.stringEquals('$.providerParams.family', 'codebuild'),
+      ),
+      chainable: new stepfunctions.CustomState(scope, 'CodeBuild Runner', {
+        stateJson: {
+          Type: 'Task',
+          QueryLanguage: 'JSONata',
+          Resource: `arn:${Aws.PARTITION}:states:::codebuild:startBuild.sync`,
+          Arguments: {
+            ProjectName: '{% $states.input.providerParams.projectName %}',
+            EnvironmentVariablesOverride: runnerEnvironment((name, value) => ({ Name: name, Type: 'PLAINTEXT', Value: value })),
+          },
+        },
+      }),
+    }];
+  }
+
+  /**
    * Create new image builder that builds CodeBuild specific runner images.
    *
    * You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
@@ -259,10 +287,12 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
    */
   readonly logGroup: logs.ILogGroup;
 
-  readonly retryableErrors = [
-    'CodeBuild.CodeBuildException',
-    'CodeBuild.AccountLimitExceededException',
-  ];
+  /**
+   * Runner families used by this provider.
+   *
+   * @internal
+   */
+  readonly _runnerFamilies: string[] = ['codebuild'];
 
   private readonly group?: string;
   private readonly vpc?: ec2.IVpc;
@@ -425,70 +455,45 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
   }
 
   /**
-   * Generate step function task(s) to start a new runner.
+   * Runtime configuration for the shared CodeBuild family fragment.
    *
-   * Called by GithubRunners and shouldn't be called manually.
-   *
-   * @param parameters workflow job details
+   * @internal
    */
-  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
-    return new stepfunctions_tasks.CodeBuildStartBuild(
-      this,
-      'State',
-      {
-        stateName: generateStateName(this),
-        integrationPattern: IntegrationPattern.RUN_JOB, // sync
-        project: this.project,
-        environmentVariablesOverride: {
-          RUNNER_TOKEN: {
-            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: parameters.runnerTokenPath,
-          },
-          RUNNER_NAME: {
-            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: parameters.runnerNamePath,
-          },
-          RUNNER_LABEL: {
-            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: parameters.labelsPath,
-          },
-          RUNNER_GROUP1: {
-            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: this.group ? '--runnergroup' : '',
-          },
-          RUNNER_GROUP2: {
-            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: this.group ? this.group : '',
-          },
-          DEFAULT_LABELS: {
-            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: this.defaultLabels ? '' : '--no-default-labels',
-          },
-          GITHUB_DOMAIN: {
-            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: parameters.githubDomainPath,
-          },
-          OWNER: {
-            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: parameters.ownerPath,
-          },
-          REPO: {
-            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: parameters.repoPath,
-          },
-          REGISTRATION_URL: {
-            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value: parameters.registrationUrl,
-          },
-        },
-      },
-    );
+  _runnerConfig(): any {
+    return {
+      family: 'codebuild',
+      projectName: this.project.projectName,
+      group1: this.group ? '--runnergroup' : '',
+      group2: this.group ? this.group : '',
+      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+    };
   }
 
-  grantStateMachine(_: iam.IGrantable) {
+  /**
+   * @internal
+   */
+  _grantStateMachine(stateMachineRole: iam.IGrantable) {
+    stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+      actions: ['codebuild:StartBuild', 'codebuild:StopBuild', 'codebuild:BatchGetBuilds', 'codebuild:BatchGetReports'],
+      resources: [this.project.projectArn],
+    }));
+    // managed rule used by the startBuild.sync integration; same statement for every CodeBuild provider so CDK
+    // policy minimization keeps only one copy
+    stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+      actions: ['events:PutTargets', 'events:PutRule', 'events:DescribeRule'],
+      resources: [Stack.of(this).formatArn({
+        service: 'events',
+        resource: 'rule',
+        resourceName: 'StepFunctionsGetEventForCodeBuildStartBuildRule',
+        arnFormat: ArnFormat.SLASH_RESOURCE_NAME,
+      })],
+    }));
   }
 
-  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
+  /**
+   * @internal
+   */
+  _status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
     this.image.imageRepository.grant(statusFunctionRole, 'ecr:DescribeImages');
 
     return {

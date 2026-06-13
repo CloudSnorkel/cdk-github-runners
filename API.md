@@ -817,10 +817,6 @@ new CodeBuildRunner(scope: Construct, id: string, props?: CodeBuildRunnerProvide
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.with">with</a></code> | Applies one or more mixins to this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -852,65 +848,6 @@ constructs.
 The mixins to apply.
 
 ---
-
-##### ~~`getStepFunctionTask`~~ <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.getStepFunctionTask"></a>
-
-```typescript
-public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
-```
-
-Generate step function task(s) to start a new runner.
-
-Called by GithubRunners and shouldn't be called manually.
-
-###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.getStepFunctionTask.parameter.parameters"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
-
-workflow job details.
-
----
-
-##### ~~`grantStateMachine`~~ <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.grantStateMachine"></a>
-
-```typescript
-public grantStateMachine(_: IGrantable): void
-```
-
-An optional method that modifies the role of the state machine after all the tasks have been generated.
-
-This can be used to add additional policy
-statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-
-###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.grantStateMachine.parameter._"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### ~~`status`~~ <a name="status" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.status"></a>
-
-```typescript
-public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
-```
-
-Return status of the runner provider to be used in the main status function.
-
-Also gives the status function any needed permissions to query the Docker image or AMI.
-
-###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.status.parameter.statusFunctionRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### ~~`stepFunctionConstants`~~ <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.stepFunctionConstants"></a>
-
-```typescript
-public stepFunctionConstants(): {[ key: string ]: string}
-```
-
-Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -1007,7 +944,6 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.project">project</a></code> | <code>aws-cdk-lib.aws_codebuild.Project</code> | CodeBuild project hosting the runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -1110,20 +1046,6 @@ public readonly project: Project;
 - *Type:* aws-cdk-lib.aws_codebuild.Project
 
 CodeBuild project hosting the runner.
-
----
-
-##### ~~`retryableErrors`~~<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunner.property.retryableErrors"></a>
-
-- *Deprecated:* use {@link CodeBuildRunnerProvider }
-
-```typescript
-public readonly retryableErrors: string[];
-```
-
-- *Type:* string[]
-
-List of step functions errors that should be retried.
 
 ---
 
@@ -1234,10 +1156,6 @@ new CodeBuildRunnerProvider(scope: Construct, id: string, props?: CodeBuildRunne
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.with">with</a></code> | Applies one or more mixins to this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -1269,65 +1187,6 @@ constructs.
 The mixins to apply.
 
 ---
-
-##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.getStepFunctionTask"></a>
-
-```typescript
-public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
-```
-
-Generate step function task(s) to start a new runner.
-
-Called by GithubRunners and shouldn't be called manually.
-
-###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
-
-workflow job details.
-
----
-
-##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.grantStateMachine"></a>
-
-```typescript
-public grantStateMachine(_: IGrantable): void
-```
-
-An optional method that modifies the role of the state machine after all the tasks have been generated.
-
-This can be used to add additional policy
-statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-
-###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.grantStateMachine.parameter._"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.status"></a>
-
-```typescript
-public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
-```
-
-Return status of the runner provider to be used in the main status function.
-
-Also gives the status function any needed permissions to query the Docker image or AMI.
-
-###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.status.parameter.statusFunctionRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.stepFunctionConstants"></a>
-
-```typescript
-public stepFunctionConstants(): {[ key: string ]: string}
-```
-
-Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -1424,7 +1283,6 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.project">project</a></code> | <code>aws-cdk-lib.aws_codebuild.Project</code> | CodeBuild project hosting the runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -1515,18 +1373,6 @@ public readonly project: Project;
 - *Type:* aws-cdk-lib.aws_codebuild.Project
 
 CodeBuild project hosting the runner.
-
----
-
-##### `retryableErrors`<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.property.retryableErrors"></a>
-
-```typescript
-public readonly retryableErrors: string[];
-```
-
-- *Type:* string[]
-
-List of step functions errors that should be retried.
 
 ---
 
@@ -1892,10 +1738,6 @@ new Ec2Runner(scope: Construct, id: string, props?: Ec2RunnerProviderProps)
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.with">with</a></code> | Applies one or more mixins to this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -1927,65 +1769,6 @@ constructs.
 The mixins to apply.
 
 ---
-
-##### ~~`getStepFunctionTask`~~ <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.getStepFunctionTask"></a>
-
-```typescript
-public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
-```
-
-Generate step function task(s) to start a new runner.
-
-Called by GithubRunners and shouldn't be called manually.
-
-###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.getStepFunctionTask.parameter.parameters"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
-
-workflow job details.
-
----
-
-##### ~~`grantStateMachine`~~ <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.grantStateMachine"></a>
-
-```typescript
-public grantStateMachine(stateMachineRole: IGrantable): void
-```
-
-An optional method that modifies the role of the state machine after all the tasks have been generated.
-
-This can be used to add additional policy
-statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-
-###### `stateMachineRole`<sup>Required</sup> <a name="stateMachineRole" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.grantStateMachine.parameter.stateMachineRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### ~~`status`~~ <a name="status" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.status"></a>
-
-```typescript
-public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
-```
-
-Return status of the runner provider to be used in the main status function.
-
-Also gives the status function any needed permissions to query the Docker image or AMI.
-
-###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.status.parameter.statusFunctionRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### ~~`stepFunctionConstants`~~ <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.stepFunctionConstants"></a>
-
-```typescript
-public stepFunctionConstants(): {[ key: string ]: string}
-```
-
-Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -2081,7 +1864,6 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -2157,20 +1939,6 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ---
 
-##### ~~`retryableErrors`~~<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.Ec2Runner.property.retryableErrors"></a>
-
-- *Deprecated:* use {@link Ec2RunnerProvider }
-
-```typescript
-public readonly retryableErrors: string[];
-```
-
-- *Type:* string[]
-
-List of step functions errors that should be retried.
-
----
-
 
 ### Ec2RunnerProvider <a name="Ec2RunnerProvider" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider"></a>
 
@@ -2220,10 +1988,6 @@ new Ec2RunnerProvider(scope: Construct, id: string, props?: Ec2RunnerProviderPro
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.with">with</a></code> | Applies one or more mixins to this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -2255,65 +2019,6 @@ constructs.
 The mixins to apply.
 
 ---
-
-##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.getStepFunctionTask"></a>
-
-```typescript
-public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
-```
-
-Generate step function task(s) to start a new runner.
-
-Called by GithubRunners and shouldn't be called manually.
-
-###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.getStepFunctionTask.parameter.parameters"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
-
-workflow job details.
-
----
-
-##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.grantStateMachine"></a>
-
-```typescript
-public grantStateMachine(stateMachineRole: IGrantable): void
-```
-
-An optional method that modifies the role of the state machine after all the tasks have been generated.
-
-This can be used to add additional policy
-statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-
-###### `stateMachineRole`<sup>Required</sup> <a name="stateMachineRole" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.grantStateMachine.parameter.stateMachineRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.status"></a>
-
-```typescript
-public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
-```
-
-Return status of the runner provider to be used in the main status function.
-
-Also gives the status function any needed permissions to query the Docker image or AMI.
-
-###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.status.parameter.statusFunctionRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.stepFunctionConstants"></a>
-
-```typescript
-public stepFunctionConstants(): {[ key: string ]: string}
-```
-
-Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -2409,7 +2114,6 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -2475,18 +2179,6 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ---
 
-##### `retryableErrors`<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.property.retryableErrors"></a>
-
-```typescript
-public readonly retryableErrors: string[];
-```
-
-- *Type:* string[]
-
-List of step functions errors that should be retried.
-
----
-
 
 ### EcsRunnerProvider <a name="EcsRunnerProvider" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider"></a>
 
@@ -2540,10 +2232,6 @@ new EcsRunnerProvider(scope: Construct, id: string, props?: EcsRunnerProviderPro
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.with">with</a></code> | Applies one or more mixins to this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -2575,65 +2263,6 @@ constructs.
 The mixins to apply.
 
 ---
-
-##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.getStepFunctionTask"></a>
-
-```typescript
-public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
-```
-
-Generate step function task(s) to start a new runner.
-
-Called by GithubRunners and shouldn't be called manually.
-
-###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
-
-workflow job details.
-
----
-
-##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.grantStateMachine"></a>
-
-```typescript
-public grantStateMachine(_: IGrantable): void
-```
-
-An optional method that modifies the role of the state machine after all the tasks have been generated.
-
-This can be used to add additional policy
-statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-
-###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.grantStateMachine.parameter._"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.status"></a>
-
-```typescript
-public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
-```
-
-Return status of the runner provider to be used in the main status function.
-
-Also gives the status function any needed permissions to query the Docker image or AMI.
-
-###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.status.parameter.statusFunctionRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.stepFunctionConstants"></a>
-
-```typescript
-public stepFunctionConstants(): {[ key: string ]: string}
-```
-
-Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -2729,7 +2358,6 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -2809,18 +2437,6 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ---
 
-##### `retryableErrors`<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.property.retryableErrors"></a>
-
-```typescript
-public readonly retryableErrors: string[];
-```
-
-- *Type:* string[]
-
-List of step functions errors that should be retried.
-
----
-
 
 ### FargateRunner <a name="FargateRunner" id="@cloudsnorkel/cdk-github-runners.FargateRunner"></a>
 
@@ -2864,10 +2480,6 @@ new FargateRunner(scope: Construct, id: string, props?: FargateRunnerProviderPro
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.with">with</a></code> | Applies one or more mixins to this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -2899,65 +2511,6 @@ constructs.
 The mixins to apply.
 
 ---
-
-##### ~~`getStepFunctionTask`~~ <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.FargateRunner.getStepFunctionTask"></a>
-
-```typescript
-public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
-```
-
-Generate step function task(s) to start a new runner.
-
-Called by GithubRunners and shouldn't be called manually.
-
-###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.FargateRunner.getStepFunctionTask.parameter.parameters"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
-
-workflow job details.
-
----
-
-##### ~~`grantStateMachine`~~ <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.FargateRunner.grantStateMachine"></a>
-
-```typescript
-public grantStateMachine(_: IGrantable): void
-```
-
-An optional method that modifies the role of the state machine after all the tasks have been generated.
-
-This can be used to add additional policy
-statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-
-###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.FargateRunner.grantStateMachine.parameter._"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### ~~`status`~~ <a name="status" id="@cloudsnorkel/cdk-github-runners.FargateRunner.status"></a>
-
-```typescript
-public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
-```
-
-Return status of the runner provider to be used in the main status function.
-
-Also gives the status function any needed permissions to query the Docker image or AMI.
-
-###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.FargateRunner.status.parameter.statusFunctionRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### ~~`stepFunctionConstants`~~ <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.FargateRunner.stepFunctionConstants"></a>
-
-```typescript
-public stepFunctionConstants(): {[ key: string ]: string}
-```
-
-Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -3055,7 +2608,6 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image loaded with GitHub Actions Runner and its prerequisites. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.spot">spot</a></code> | <code>boolean</code> | Use spot pricing for Fargate tasks. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.task">task</a></code> | <code>aws-cdk-lib.aws_ecs.FargateTaskDefinition</code> | Fargate task hosting the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunner.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets used for hosting the runner task. |
@@ -3190,20 +2742,6 @@ public readonly logGroup: ILogGroup;
 Log group where provided runners will save their logs.
 
 Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
-
----
-
-##### ~~`retryableErrors`~~<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.FargateRunner.property.retryableErrors"></a>
-
-- *Deprecated:* use {@link FargateRunnerProvider }
-
-```typescript
-public readonly retryableErrors: string[];
-```
-
-- *Type:* string[]
-
-List of step functions errors that should be retried.
 
 ---
 
@@ -3362,10 +2900,6 @@ new FargateRunnerProvider(scope: Construct, id: string, props?: FargateRunnerPro
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.with">with</a></code> | Applies one or more mixins to this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -3397,65 +2931,6 @@ constructs.
 The mixins to apply.
 
 ---
-
-##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.getStepFunctionTask"></a>
-
-```typescript
-public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
-```
-
-Generate step function task(s) to start a new runner.
-
-Called by GithubRunners and shouldn't be called manually.
-
-###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
-
-workflow job details.
-
----
-
-##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.grantStateMachine"></a>
-
-```typescript
-public grantStateMachine(_: IGrantable): void
-```
-
-An optional method that modifies the role of the state machine after all the tasks have been generated.
-
-This can be used to add additional policy
-statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-
-###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.grantStateMachine.parameter._"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.status"></a>
-
-```typescript
-public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
-```
-
-Return status of the runner provider to be used in the main status function.
-
-Also gives the status function any needed permissions to query the Docker image or AMI.
-
-###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.status.parameter.statusFunctionRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.stepFunctionConstants"></a>
-
-```typescript
-public stepFunctionConstants(): {[ key: string ]: string}
-```
-
-Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -3553,7 +3028,6 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image loaded with GitHub Actions Runner and its prerequisites. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.spot">spot</a></code> | <code>boolean</code> | Use spot pricing for Fargate tasks. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.task">task</a></code> | <code>aws-cdk-lib.aws_ecs.FargateTaskDefinition</code> | Fargate task hosting the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Subnets used for hosting the runner task. |
@@ -3676,18 +3150,6 @@ public readonly logGroup: ILogGroup;
 Log group where provided runners will save their logs.
 
 Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
-
----
-
-##### `retryableErrors`<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.property.retryableErrors"></a>
-
-```typescript
-public readonly retryableErrors: string[];
-```
-
-- *Type:* string[]
-
-List of step functions errors that should be retried.
 
 ---
 
@@ -4506,10 +3968,6 @@ new LambdaRunner(scope: Construct, id: string, props?: LambdaRunnerProviderProps
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.with">with</a></code> | Applies one or more mixins to this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -4541,65 +3999,6 @@ constructs.
 The mixins to apply.
 
 ---
-
-##### ~~`getStepFunctionTask`~~ <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.getStepFunctionTask"></a>
-
-```typescript
-public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
-```
-
-Generate step function task(s) to start a new runner.
-
-Called by GithubRunners and shouldn't be called manually.
-
-###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.getStepFunctionTask.parameter.parameters"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
-
-workflow job details.
-
----
-
-##### ~~`grantStateMachine`~~ <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.grantStateMachine"></a>
-
-```typescript
-public grantStateMachine(_: IGrantable): void
-```
-
-An optional method that modifies the role of the state machine after all the tasks have been generated.
-
-This can be used to add additional policy
-statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-
-###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.grantStateMachine.parameter._"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### ~~`status`~~ <a name="status" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.status"></a>
-
-```typescript
-public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
-```
-
-Return status of the runner provider to be used in the main status function.
-
-Also gives the status function any needed permissions to query the Docker image or AMI.
-
-###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.status.parameter.statusFunctionRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### ~~`stepFunctionConstants`~~ <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.stepFunctionConstants"></a>
-
-```typescript
-public stepFunctionConstants(): {[ key: string ]: string}
-```
-
-Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -4696,7 +4095,6 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image loaded with GitHub Actions Runner and its prerequisites. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -4802,20 +4200,6 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ---
 
-##### ~~`retryableErrors`~~<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.LambdaRunner.property.retryableErrors"></a>
-
-- *Deprecated:* use {@link LambdaRunnerProvider }
-
-```typescript
-public readonly retryableErrors: string[];
-```
-
-- *Type:* string[]
-
-List of step functions errors that should be retried.
-
----
-
 #### Constants <a name="Constants" id="Constants"></a>
 
 | **Name** | **Type** | **Description** |
@@ -4915,10 +4299,6 @@ new LambdaRunnerProvider(scope: Construct, id: string, props?: LambdaRunnerProvi
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.with">with</a></code> | Applies one or more mixins to this construct. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function task(s) to start a new runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Override to inject static strings into `$.consts` on the orchestrator state machine. |
 
 ---
 
@@ -4950,65 +4330,6 @@ constructs.
 The mixins to apply.
 
 ---
-
-##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.getStepFunctionTask"></a>
-
-```typescript
-public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
-```
-
-Generate step function task(s) to start a new runner.
-
-Called by GithubRunners and shouldn't be called manually.
-
-###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
-
-workflow job details.
-
----
-
-##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.grantStateMachine"></a>
-
-```typescript
-public grantStateMachine(_: IGrantable): void
-```
-
-An optional method that modifies the role of the state machine after all the tasks have been generated.
-
-This can be used to add additional policy
-statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-
-###### `_`<sup>Required</sup> <a name="_" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.grantStateMachine.parameter._"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.status"></a>
-
-```typescript
-public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
-```
-
-Return status of the runner provider to be used in the main status function.
-
-Also gives the status function any needed permissions to query the Docker image or AMI.
-
-###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.status.parameter.statusFunctionRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
----
-
-##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.stepFunctionConstants"></a>
-
-```typescript
-public stepFunctionConstants(): {[ key: string ]: string}
-```
-
-Override to inject static strings into `$.consts` on the orchestrator state machine.
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -5105,7 +4426,6 @@ Included components:
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.image">image</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImage">RunnerImage</a></code> | Docker image loaded with GitHub Actions Runner and its prerequisites. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -5196,18 +4516,6 @@ public readonly logGroup: ILogGroup;
 Log group where provided runners will save their logs.
 
 Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
-
----
-
-##### `retryableErrors`<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.property.retryableErrors"></a>
-
-```typescript
-public readonly retryableErrors: string[];
-```
-
-- *Type:* string[]
-
-List of step functions errors that should be retried.
 
 ---
 
@@ -12191,87 +11499,13 @@ WindowsComponents.githubRunner(scope: Construct, id: string, runnerVersion: Runn
 
 - *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a>
 
-Interface for composite runner providers that interact with multiple sub-providers.
+Interface for composite runner providers that combine multiple sub-providers.
 
 Unlike IRunnerProvider, composite providers do not have connections, grant capabilities,
-log groups, or retryable errors as they delegate to their sub-providers.
+or log groups as they delegate to their sub-providers.
 
-#### Methods <a name="Methods" id="Methods"></a>
+Note that this interface cannot be implemented by external code. Use {@link CompositeProvider } factory methods.
 
-| **Name** | **Description** |
-| --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function tasks that execute the runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.status">status</a></code> | Return statuses of all sub-providers to be used in the main status function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Merged constants from all sub-providers for the single orchestrator `$.consts` pass. Duplicate keys across sub-providers must be avoided. |
-
----
-
-##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.getStepFunctionTask"></a>
-
-```typescript
-public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
-```
-
-Generate step function tasks that execute the runner.
-
-If the provider has multiple attempts, each attempt should be followed by a `Catch` that deletes the failed runner. Use
-{@link IRunnerRuntimeParameters.addCatchAndCleanUp} to add the catch.
-
-Called by GithubRunners and shouldn't be called manually.
-
-###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.getStepFunctionTask.parameter.parameters"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
-
-specific build parameters.
-
----
-
-##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.grantStateMachine"></a>
-
-```typescript
-public grantStateMachine(stateMachineRole: IGrantable): void
-```
-
-An optional method that modifies the role of the state machine after all the tasks have been generated.
-
-This can be used to add additional policy
-statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-
-###### `stateMachineRole`<sup>Required</sup> <a name="stateMachineRole" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.grantStateMachine.parameter.stateMachineRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
-role for the state machine that executes the task returned from {@link getStepFunctionTask}.
-
----
-
-##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.status"></a>
-
-```typescript
-public status(statusFunctionRole: IGrantable): IRunnerProviderStatus[]
-```
-
-Return statuses of all sub-providers to be used in the main status function.
-
-Also gives the status function any needed permissions to query the Docker images or AMIs.
-
-###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.status.parameter.statusFunctionRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
-grantable for the status function.
-
----
-
-##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.ICompositeProvider.stepFunctionConstants"></a>
-
-```typescript
-public stepFunctionConstants(): {[ key: string ]: string}
-```
-
-Merged constants from all sub-providers for the single orchestrator `$.consts` pass. Duplicate keys across sub-providers must be avoided.
 
 #### Properties <a name="Properties" id="Properties"></a>
 
@@ -12412,6 +11646,158 @@ public readonly grantPrincipal: IPrincipal;
 - *Type:* aws-cdk-lib.aws_iam.IPrincipal
 
 The principal to grant permissions to.
+
+---
+
+### IParameterizedRunnerProvider <a name="IParameterizedRunnerProvider" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider"></a>
+
+- *Extends:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
+
+- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider">IParameterizedRunnerProvider</a>
+
+Interface for runner providers that can share a single parameterized state-machine fragment per provider family.
+
+Instead of a dedicated state-machine branch per provider, all providers of the same family (e.g. all
+CodeBuild providers) share one branch. Per-provider runtime parameters are published to an SSM parameter and
+passed into the state machine through the execution input. This keeps the state machine definition and IAM
+policies small even with hundreds of providers.
+
+All built-in providers implement this interface. The set of supported families is internal to
+{@link GitHubRunners } and is not extensible yet. Custom providers should implement only {@link IRunnerProvider}
+and will get a dedicated state-machine branch like before.
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.grantParameterizedStateMachine">grantParameterizedStateMachine</a></code> | Grant the state machine role all permissions required by the shared family fragment to run THIS provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.runnerConfig">runnerConfig</a></code> | JSON-serializable runtime parameters for this specific provider, fed into the shared family fragment through the state machine execution input. |
+
+---
+
+##### `grantParameterizedStateMachine` <a name="grantParameterizedStateMachine" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.grantParameterizedStateMachine"></a>
+
+```typescript
+public grantParameterizedStateMachine(stateMachineRole: IGrantable): void
+```
+
+Grant the state machine role all permissions required by the shared family fragment to run THIS provider.
+
+This replaces both the automatic task-construct policies and {@link IRunnerProvider.grantStateMachine } for
+parameterized providers.
+
+###### `stateMachineRole`<sup>Required</sup> <a name="stateMachineRole" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.grantParameterizedStateMachine.parameter.stateMachineRole"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IGrantable
+
+role for the state machine that executes the shared family fragment.
+
+---
+
+##### `runnerConfig` <a name="runnerConfig" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.runnerConfig"></a>
+
+```typescript
+public runnerConfig(): any
+```
+
+JSON-serializable runtime parameters for this specific provider, fed into the shared family fragment through the state machine execution input.
+
+Values may contain CloudFormation tokens.
+
+Called by GithubRunners and shouldn't be called manually.
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | The principal to grant permissions to. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.runnerFamily">runnerFamily</a></code> | <code>string</code> | Provider family key. |
+
+---
+
+##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.connections"></a>
+
+```typescript
+public readonly connections: Connections;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.Connections
+
+The network connections associated with this resource.
+
+---
+
+##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.grantPrincipal"></a>
+
+```typescript
+public readonly grantPrincipal: IPrincipal;
+```
+
+- *Type:* aws-cdk-lib.aws_iam.IPrincipal
+
+The principal to grant permissions to.
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+
+GitHub Actions labels used for this provider.
+
+These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+job's labels, this provider will be chosen and spawn a new runner.
+
+---
+
+##### `logGroup`<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.logGroup"></a>
+
+```typescript
+public readonly logGroup: ILogGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_logs.ILogGroup
+
+Log group where provided runners will save their logs.
+
+Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+##### `runnerFamily`<sup>Required</sup> <a name="runnerFamily" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.runnerFamily"></a>
+
+```typescript
+public readonly runnerFamily: string;
+```
+
+- *Type:* string
+
+Provider family key.
+
+One of 'codebuild', 'fargate', 'ecs', 'lambda' or 'ec2'. All providers of the same
+family share a single state-machine fragment that is parameterized with {@link runnerConfig} values at
+runtime.
 
 ---
 
@@ -12556,89 +11942,14 @@ Log group name for the image builder where history of image builds can be analyz
 
 - *Extends:* aws-cdk-lib.aws_ec2.IConnectable, aws-cdk-lib.aws_iam.IGrantable, constructs.IConstruct
 
-- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner">CodeBuildRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider">CodeBuildRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner">Ec2Runner</a>, <a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider">Ec2RunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider">EcsRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunner">FargateRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider">FargateRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner">LambdaRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider">LambdaRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
+- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner">CodeBuildRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider">CodeBuildRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner">Ec2Runner</a>, <a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider">Ec2RunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider">EcsRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunner">FargateRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider">FargateRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner">LambdaRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider">LambdaRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider">IParameterizedRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
 
 Interface for all runner providers.
 
-Implementations create all required resources and return a step function task that starts those resources from {@link getStepFunctionTask}.
+Note that this interface cannot be implemented by external code. The state machine that orchestrates the
+runners only supports the built-in providers. If the built-in providers don't cover your use case, please open
+an issue so we can discuss it.
 
-This interface is not guaranteed to be stable. If you end up implementing your own provider, please let us know so we can consider changing that contract.
-
-#### Methods <a name="Methods" id="Methods"></a>
-
-| **Name** | **Description** |
-| --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.getStepFunctionTask">getStepFunctionTask</a></code> | Generate step function tasks that execute the runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.grantStateMachine">grantStateMachine</a></code> | An optional method that modifies the role of the state machine after all the tasks have been generated. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.status">status</a></code> | Return status of the runner provider to be used in the main status function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.stepFunctionConstants">stepFunctionConstants</a></code> | Static string constants injected once into the orchestrator execution input at `$.consts`. Use unique keys for dynamic values (e.g. include `this.node.path` in the key). Values must be plain strings known at synthesis time. |
-
----
-
-##### `getStepFunctionTask` <a name="getStepFunctionTask" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.getStepFunctionTask"></a>
-
-```typescript
-public getStepFunctionTask(parameters: IRunnerRuntimeParameters): IChainable
-```
-
-Generate step function tasks that execute the runner.
-
-Called by GithubRunners and shouldn't be called manually.
-
-###### `parameters`<sup>Required</sup> <a name="parameters" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.getStepFunctionTask.parameter.parameters"></a>
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
-
-specific build parameters.
-
----
-
-##### `grantStateMachine` <a name="grantStateMachine" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.grantStateMachine"></a>
-
-```typescript
-public grantStateMachine(stateMachineRole: IGrantable): void
-```
-
-An optional method that modifies the role of the state machine after all the tasks have been generated.
-
-This can be used to add additional policy
-statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-
-###### `stateMachineRole`<sup>Required</sup> <a name="stateMachineRole" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.grantStateMachine.parameter.stateMachineRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
-role for the state machine that executes the task returned from {@link getStepFunctionTask}.
-
----
-
-##### `status` <a name="status" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.status"></a>
-
-```typescript
-public status(statusFunctionRole: IGrantable): IRunnerProviderStatus
-```
-
-Return status of the runner provider to be used in the main status function.
-
-Also gives the status function any needed permissions to query the Docker image or AMI.
-
-###### `statusFunctionRole`<sup>Required</sup> <a name="statusFunctionRole" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.status.parameter.statusFunctionRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
-grantable for the status function.
-
----
-
-##### `stepFunctionConstants` <a name="stepFunctionConstants" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.stepFunctionConstants"></a>
-
-```typescript
-public stepFunctionConstants(): {[ key: string ]: string}
-```
-
-Static string constants injected once into the orchestrator execution input at `$.consts`. Use unique keys for dynamic values (e.g. include `this.node.path` in the key). Values must be plain strings known at synthesis time.
-
-To use the constants in your provider, use `'$.consts.key'` as a path.
 
 #### Properties <a name="Properties" id="Properties"></a>
 
@@ -12649,7 +11960,6 @@ To use the constants in your provider, use `'$.consts.key'` as a path.
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.retryableErrors">retryableErrors</a></code> | <code>string[]</code> | List of step functions errors that should be retried. |
 
 ---
 
@@ -12716,20 +12026,6 @@ public readonly logGroup: ILogGroup;
 Log group where provided runners will save their logs.
 
 Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
-
----
-
-##### ~~`retryableErrors`~~<sup>Required</sup> <a name="retryableErrors" id="@cloudsnorkel/cdk-github-runners.IRunnerProvider.property.retryableErrors"></a>
-
-- *Deprecated:* do not use
-
-```typescript
-public readonly retryableErrors: string[];
-```
-
-- *Type:* string[]
-
-List of step functions errors that should be retried.
 
 ---
 
@@ -12861,156 +12157,6 @@ public readonly vpcArn: string;
 - *Type:* string
 
 VPC where runners will be launched.
-
----
-
-### IRunnerRuntimeParameters <a name="IRunnerRuntimeParameters" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters"></a>
-
-- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters">IRunnerRuntimeParameters</a>
-
-Workflow job parameters as parsed from the webhook event. Pass these into your runner executor and run something like:.
-
-```sh
-./config.sh --unattended --url "{REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --name "${RUNNER_NAME}" --disableupdate
-```
-
-All parameters are specified as step function paths and therefore must be used only in step function task parameters.
-
-#### Methods <a name="Methods" id="Methods"></a>
-
-| **Name** | **Description** |
-| --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.addCatchAndCleanUp">addCatchAndCleanUp</a></code> | Catches all errors and cleans up the failed runner from GitHub Actions. |
-
----
-
-##### `addCatchAndCleanUp` <a name="addCatchAndCleanUp" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.addCatchAndCleanUp"></a>
-
-```typescript
-public addCatchAndCleanUp(state: TaskStateBase | Parallel | Map, next?: IChainable): void
-```
-
-Catches all errors and cleans up the failed runner from GitHub Actions.
-
-It is important to fully clean up after any failed runner provisioning. GitHub
-will fail booting a new runner if the previous one with the same name is not
-fully cleaned up.
-
-###### `state`<sup>Required</sup> <a name="state" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.addCatchAndCleanUp.parameter.state"></a>
-
-- *Type:* aws-cdk-lib.aws_stepfunctions.TaskStateBase | aws-cdk-lib.aws_stepfunctions.Parallel | aws-cdk-lib.aws_stepfunctions.Map
-
-state whose failures should trigger cleanup.
-
----
-
-###### `next`<sup>Optional</sup> <a name="next" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.addCatchAndCleanUp.parameter.next"></a>
-
-- *Type:* aws-cdk-lib.aws_stepfunctions.IChainable
-
-optional subgraph to run after cleanup.
-
----
-
-#### Properties <a name="Properties" id="Properties"></a>
-
-| **Name** | **Type** | **Description** |
-| --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.githubDomainPath">githubDomainPath</a></code> | <code>string</code> | Path to GitHub domain. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.labelsPath">labelsPath</a></code> | <code>string</code> | Path to comma-separated labels string to use for runner. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.ownerPath">ownerPath</a></code> | <code>string</code> | Path to repository owner name. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.registrationUrl">registrationUrl</a></code> | <code>string</code> | Repository or organization URL to register runner at. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.repoPath">repoPath</a></code> | <code>string</code> | Path to repository name. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.runnerNamePath">runnerNamePath</a></code> | <code>string</code> | Path to desired runner name. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.runnerTokenPath">runnerTokenPath</a></code> | <code>string</code> | Path to runner token used to register token. |
-
----
-
-##### `githubDomainPath`<sup>Required</sup> <a name="githubDomainPath" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.githubDomainPath"></a>
-
-```typescript
-public readonly githubDomainPath: string;
-```
-
-- *Type:* string
-
-Path to GitHub domain.
-
-Most of the time this will be github.com but for self-hosted GitHub instances, this will be different.
-
----
-
-##### `labelsPath`<sup>Required</sup> <a name="labelsPath" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.labelsPath"></a>
-
-```typescript
-public readonly labelsPath: string;
-```
-
-- *Type:* string
-
-Path to comma-separated labels string to use for runner.
-
----
-
-##### `ownerPath`<sup>Required</sup> <a name="ownerPath" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.ownerPath"></a>
-
-```typescript
-public readonly ownerPath: string;
-```
-
-- *Type:* string
-
-Path to repository owner name.
-
----
-
-##### `registrationUrl`<sup>Required</sup> <a name="registrationUrl" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.registrationUrl"></a>
-
-```typescript
-public readonly registrationUrl: string;
-```
-
-- *Type:* string
-
-Repository or organization URL to register runner at.
-
----
-
-##### `repoPath`<sup>Required</sup> <a name="repoPath" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.repoPath"></a>
-
-```typescript
-public readonly repoPath: string;
-```
-
-- *Type:* string
-
-Path to repository name.
-
----
-
-##### `runnerNamePath`<sup>Required</sup> <a name="runnerNamePath" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.runnerNamePath"></a>
-
-```typescript
-public readonly runnerNamePath: string;
-```
-
-- *Type:* string
-
-Path to desired runner name.
-
-We specifically set the name to make troubleshooting easier.
-
----
-
-##### `runnerTokenPath`<sup>Required</sup> <a name="runnerTokenPath" id="@cloudsnorkel/cdk-github-runners.IRunnerRuntimeParameters.property.runnerTokenPath"></a>
-
-```typescript
-public readonly runnerTokenPath: string;
-```
-
-- *Type:* string
-
-Path to runner token used to register token.
 
 ---
 

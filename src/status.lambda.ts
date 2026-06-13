@@ -1,12 +1,11 @@
-import { CloudFormationClient, DescribeStackResourceCommand } from '@aws-sdk/client-cloudformation';
 import { DescribeLaunchTemplateVersionsCommand, EC2Client } from '@aws-sdk/client-ec2';
 import { ECRClient, DescribeImagesCommand } from '@aws-sdk/client-ecr';
 import { DescribeExecutionCommand, ListExecutionsCommand, SFNClient } from '@aws-sdk/client-sfn';
 import * as AWSLambda from 'aws-lambda';
 import { baseUrlFromDomain, GitHubSecrets, loadOctokitAuthApp, loadOctokitCore } from './lambda-github';
 import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
+import { getOwnResourceMetadata } from './lambda-stack-metadata';
 
-const cfn = new CloudFormationClient();
 const ec2 = new EC2Client();
 const ecr = new ECRClient();
 const sf = new SFNClient();
@@ -42,9 +41,8 @@ function stepFunctionArnToUrl(arn: string) {
   return `https://${region}.console.aws.amazon.com/states/home?region=${region}#/statemachines/view/${arn}`;
 }
 
-async function generateProvidersStatus(stack: string, logicalId: string) {
-  const resource = await cfn.send(new DescribeStackResourceCommand({ StackName: stack, LogicalResourceId: logicalId }));
-  const providers = JSON.parse(resource.StackResourceDetail?.Metadata ?? '{}').providers as any[] | undefined;
+async function generateProvidersStatus() {
+  const providers = await getOwnResourceMetadata<any[]>('providers');
 
   if (!providers) {
     return {};
@@ -158,7 +156,7 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
         personalAuthToken: '',
       },
     },
-    providers: await generateProvidersStatus(process.env.STACK_NAME, process.env.LOGICAL_ID),
+    providers: await generateProvidersStatus(),
     troubleshooting: {
       webhookHandlerArn: process.env.WEBHOOK_HANDLER_ARN,
       webhookHandlerUrl: lambdaArnToUrl(process.env.WEBHOOK_HANDLER_ARN),

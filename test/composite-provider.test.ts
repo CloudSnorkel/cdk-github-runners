@@ -12,7 +12,6 @@ import {
   IRunnerProvider,
   IRunnerProviderStatus,
   LambdaRunnerProvider,
-  RunnerRuntimeParameters,
 } from '../src';
 
 /**
@@ -21,6 +20,8 @@ import {
 class MockCompositeProvider extends Construct implements ICompositeProvider {
   public readonly labels: string[];
   public readonly providers: IRunnerProvider[];
+
+  readonly _runnerFamilies: string[] = ['lambda'];
 
   constructor(
     scope: Construct,
@@ -33,19 +34,19 @@ class MockCompositeProvider extends Construct implements ICompositeProvider {
     this.providers = [];
   }
 
-  getStepFunctionTask(_parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    return new stepfunctions.Pass(this, `${this.node.id}Task`);
+  _runnerConfig(): any {
+    return { family: 'lambda', functionArn: 'arn:aws:lambda:us-east-1:123456789012:function:mock', group: '', defaultLabels: '' };
   }
 
-  stepFunctionConstants(): Record<string, string> {
+  _stepFunctionConstants(): Record<string, string> {
     return {};
   }
 
-  grantStateMachine(_stateMachineRole: iam.IGrantable): void {
+  _grantStateMachine(_stateMachineRole: iam.IGrantable): void {
     // Mock implementation - do nothing
   }
 
-  status(_statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
+  _status(_statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
     return this.subProviderStatuses;
   }
 }
@@ -454,23 +455,25 @@ describe('ICompositeProvider', () => {
       public readonly labels: string[] = ['test'];
       public readonly providers: IRunnerProvider[] = [];
 
+      readonly _runnerFamilies: string[] = ['lambda'];
+
       constructor(scope: Construct, id: string) {
         super(scope, id);
       }
 
-      getStepFunctionTask(_parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-        return new stepfunctions.Pass(this, `${this.node.id}Task`);
+      _runnerConfig(): any {
+        return { family: 'lambda', functionArn: 'arn:aws:lambda:us-east-1:123456789012:function:mock', group: '', defaultLabels: '' };
       }
 
-      stepFunctionConstants(): Record<string, string> {
+      _stepFunctionConstants(): Record<string, string> {
         return {};
       }
 
-      grantStateMachine(_stateMachineRole: iam.IGrantable): void {
+      _grantStateMachine(_stateMachineRole: iam.IGrantable): void {
         // Do nothing
       }
 
-      status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
+      _status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
         receivedRole = statusFunctionRole;
         return [
           {
@@ -498,23 +501,25 @@ describe('ICompositeProvider', () => {
       public readonly labels: string[] = ['test'];
       public readonly providers: IRunnerProvider[] = [];
 
+      readonly _runnerFamilies: string[] = ['lambda'];
+
       constructor(scope: Construct, id: string) {
         super(scope, id);
       }
 
-      getStepFunctionTask(_parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-        return new stepfunctions.Pass(this, `${this.node.id}Task`);
+      _runnerConfig(): any {
+        return { family: 'lambda', functionArn: 'arn:aws:lambda:us-east-1:123456789012:function:mock', group: '', defaultLabels: '' };
       }
 
-      stepFunctionConstants(): Record<string, string> {
+      _stepFunctionConstants(): Record<string, string> {
         return {};
       }
 
-      grantStateMachine(_stateMachineRole: iam.IGrantable): void {
+      _grantStateMachine(_stateMachineRole: iam.IGrantable): void {
         grantStateMachineCalled = true;
       }
 
-      status(_statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
+      _status(_statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
         return [
           {
             type: 'test',
