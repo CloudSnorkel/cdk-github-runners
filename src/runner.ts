@@ -336,7 +336,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private warmRunnerManager?: lambda.Function;
   private warmRunnerQueue?: sqs.Queue;
   private warmConfigHashes: string[] = [];
-  private deleteFailedRunnerIndex = 0;
   private deleteFailedRunnerFunction?: lambda.IFunction;
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
@@ -548,13 +547,22 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     fallbackChoice.otherwise(allFailed);
     useFallback.next(tryProvider);
 
-    const errorHandler = new stepfunctions.Parallel(this, 'Error Handler').branch(
+    // The fallback loop above already deletes the failed runner after every attempt (via 'Clean Up Failed
+    // Runner') before giving up, so there's no need for a separate catch-and-clean-up around the whole branch
+    // like there used to be. 'All Attempts Failed' is a Fail state, so it fails this branch and the retry below
+    // fires after the runner has already been cleaned up.
+    //
+    // The old code used two nested Parallels ('Run Providers' wrapping 'Error Handler') only to force the
+    // ordering "clean up, then retry": Step Functions applies Retry before Catch on a single state, so the
+    // clean-up had to live on the inner Parallel's Catch and the retry on the outer one. Now that the inner
+    // fallback loop cleans up before re-raising, we can collapse the two into one Parallel.
+    //
+    // TODO compare this against the pre-refactor orchestrator (git show 6d24561:src/runner.ts) by hand to
+    // confirm we didn't drop any failure/cleanup/retry behavior.
+    const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
       // we get a token for every retry because the token can expire faster than the job can timeout
       tokenRetrieverTask.next(constsPass).next(selectConfig).next(tryProvider),
     );
-    this.addCatchAndCleanUp(errorHandler);
-
-    const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(errorHandler);
 
     if (props?.retryOptions?.retry ?? true) {
       const interval = props?.retryOptions?.interval ?? cdk.Duration.minutes(1);
@@ -658,43 +666,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     this.secrets.githubPrivateKey.grantRead(func);
 
     return func;
-  }
-
-  private addCatchAndCleanUp(state: stepfunctions.TaskStateBase | stepfunctions.Parallel | stepfunctions.Map, next?: stepfunctions.IChainable) {
-    this.deleteFailedRunnerFunction ??= this.deleteFailedRunner();
-    this.deleteFailedRunnerIndex++;
-    const task = new stepfunctions_tasks.LambdaInvoke(this, `Delete Failed Runner ${this.deleteFailedRunnerIndex}`, {
-      stateName: `Delete Failed Runner ${this.deleteFailedRunnerIndex}`,
-      comment: 'Clean-up failed runner from GitHub Actions (if present)',
-      lambdaFunction: this.deleteFailedRunnerFunction,
-      payloadResponseOnly: true,
-      resultPath: '$.delete',
-      payload: stepfunctions.TaskInput.fromObject({
-        runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
-        owner: stepfunctions.JsonPath.stringAt('$.owner'),
-        repo: stepfunctions.JsonPath.stringAt('$.repo'),
-        installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
-        error: stepfunctions.JsonPath.objectAt('$.error'),
-      }),
-    });
-    task.addRetry({
-      errors: ['RunnerBusy'],
-      interval: cdk.Duration.minutes(1),
-      backoffRate: 1,
-      maxAttempts: 60,
-    });
-    if (next) {
-      const nextStart = next.startState;
-      task.next(nextStart);
-      task.addCatch(nextStart, {
-        errors: [stepfunctions.Errors.ALL],
-        resultPath: stepfunctions.JsonPath.DISCARD,
-      });
-    }
-    state.addCatch(task, {
-      errors: [stepfunctions.Errors.ALL],
-      resultPath: '$.error',
-    });
   }
 
   private statusFunction() {
