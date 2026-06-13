@@ -475,12 +475,6 @@ export interface IParameterizedProvider extends IConstruct {
   _grantStateMachine(stateMachineRole: iam.IGrantable): void;
 
   /**
-   * Static string constants injected once into the orchestrator execution input at `$.consts`. Values must be
-   * plain strings known at synthesis time and identical across providers using the same key.
-   */
-  _stepFunctionConstants(): Record<string, string>;
-
-  /**
    * Return status of the runner provider to be used in the main status function. Also gives the status function
    * any needed permissions to query the Docker image or AMI. Composite providers return one status per
    * sub-provider.
@@ -605,26 +599,6 @@ export interface ICompositeProvider extends IConstruct {
 }
 
 /**
- * Merges static-const maps; throws if two maps use the same key with different values.
- *
- * @internal
- */
-export function mergeConstMaps(...maps: Readonly<Record<string, string>>[]): Record<string, string> {
-  const merged: Record<string, string> = {};
-  for (const part of maps) {
-    for (const [key, value] of Object.entries(part)) {
-      if (Object.prototype.hasOwnProperty.call(merged, key) && merged[key] !== value) {
-        throw new Error(
-          `Duplicate stepFunctionConstants() key "${key}" with different values. Use unique keys per provider (e.g. include the construct id or node address).`,
-        );
-      }
-      merged[key] = value;
-    }
-  }
-  return merged;
-}
-
-/**
  * Storage options for the runner instance.
  */
 export interface StorageOptions {
@@ -669,15 +643,6 @@ export abstract class BaseProvider extends Construct {
     super(scope, id);
 
     cdk.Tags.of(this).add('GitHubRunners:Provider', this.node.path);
-  }
-
-  /**
-   * Override to inject static strings into `$.consts` on the orchestrator state machine.
-   *
-   * @internal
-   */
-  public _stepFunctionConstants(): Record<string, string> {
-    return {};
   }
 
   protected labelsFromProperties(defaultLabel: string, propsLabel: string | undefined, propsLabels: string[] | undefined): string[] {

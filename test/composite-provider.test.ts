@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2, aws_iam as iam, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_iam as iam } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import { Construct } from 'constructs';
@@ -38,9 +38,6 @@ class MockCompositeProvider extends Construct implements ICompositeProvider {
     return { family: 'lambda', functionArn: 'arn:aws:lambda:us-east-1:123456789012:function:mock', group: '', defaultLabels: '' };
   }
 
-  _stepFunctionConstants(): Record<string, string> {
-    return {};
-  }
 
   _grantStateMachine(_stateMachineRole: iam.IGrantable): void {
     // Mock implementation - do nothing
@@ -465,9 +462,6 @@ describe('ICompositeProvider', () => {
         return { family: 'lambda', functionArn: 'arn:aws:lambda:us-east-1:123456789012:function:mock', group: '', defaultLabels: '' };
       }
 
-      _stepFunctionConstants(): Record<string, string> {
-        return {};
-      }
 
       _grantStateMachine(_stateMachineRole: iam.IGrantable): void {
         // Do nothing
@@ -511,9 +505,6 @@ describe('ICompositeProvider', () => {
         return { family: 'lambda', functionArn: 'arn:aws:lambda:us-east-1:123456789012:function:mock', group: '', defaultLabels: '' };
       }
 
-      _stepFunctionConstants(): Record<string, string> {
-        return {};
-      }
 
       _grantStateMachine(_stateMachineRole: iam.IGrantable): void {
         grantStateMachineCalled = true;

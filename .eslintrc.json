@@ -167,6 +167,7 @@
           "src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
           "src/lambda-helpers.ts",
           "src/lambda-github.ts",
+          "src/lambda-stack-metadata.ts",
           "setup/src/main.ts"
         ],
         "optionalDependencies": false,

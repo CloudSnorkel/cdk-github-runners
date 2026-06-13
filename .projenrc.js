@@ -173,6 +173,7 @@ cdkConfig.json.addDeletionOverride('output');
 // allow lambda utility files to import dev dependencies
 project.eslint.allowDevDeps('src/lambda-helpers.ts');
 project.eslint.allowDevDeps('src/lambda-github.ts');
+project.eslint.allowDevDeps('src/lambda-stack-metadata.ts');
 project.eslint.allowDevDeps('setup/src/main.ts');
 
 // vscode auto formatting

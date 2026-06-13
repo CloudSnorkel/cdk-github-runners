@@ -5,7 +5,6 @@ import {
   IRunnerProvider,
   IRunnerProviderStatus,
   isParameterizedProvider,
-  mergeConstMaps,
 } from './common';
 
 /**
@@ -169,13 +168,6 @@ class FallbackRunnerProvider extends Construct implements ICompositeProvider {
   /**
    * @internal
    */
-  _stepFunctionConstants(): Record<string, string> {
-    return mergeConstMaps(...this.providers.map(p => isParameterizedProvider(p) ? p._stepFunctionConstants() : {}));
-  }
-
-  /**
-   * @internal
-   */
   _grantStateMachine(stateMachineRole: iam.IGrantable): void {
     for (const provider of this.providers) {
       if (isParameterizedProvider(provider)) {
@@ -228,13 +220,6 @@ class DistributedRunnerProvider extends Construct implements ICompositeProvider 
         config: isParameterizedProvider(wp.provider) ? wp.provider._runnerConfig() : {},
       })),
     };
-  }
-
-  /**
-   * @internal
-   */
-  _stepFunctionConstants(): Record<string, string> {
-    return mergeConstMaps(...this.providers.map(p => isParameterizedProvider(p) ? p._stepFunctionConstants() : {}));
   }
 
   /**

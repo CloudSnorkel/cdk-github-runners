@@ -31,7 +31,6 @@ import {
   IRunnerProvider,
   isParameterizedProvider,
   LambdaRunnerProvider,
-  mergeConstMaps,
   ProviderRetryOptions,
 } from './providers';
 import { Secrets } from './secrets';
@@ -54,6 +53,14 @@ const FAMILY_FRAGMENTS: Record<string, (scope: Construct) => FamilyFragmentBranc
   ecs: EcsRunnerProvider._stateMachineFragments,
   fargate: FargateRunnerProvider._stateMachineFragments,
   lambda: LambdaRunnerProvider._stateMachineFragments,
+};
+
+/**
+ * Static strings the family fragments need at `$.consts`, like the EC2 userdata templates. Kept out of the
+ * per-provider configs because they're big and shared by all providers of the family.
+ */
+const FAMILY_CONSTANTS: Record<string, () => Record<string, string>> = {
+  ec2: Ec2RunnerProvider._stateMachineConstants,
 };
 
 /**
@@ -436,10 +443,15 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       outputs: '{% $states.input %}', // discard
     });
 
+    const families = [...new Set(this.parameterizedProviders.flatMap(p => p._runnerFamilies))].sort();
+
     // every provider's runtime configuration is embedded in the definition at $.consts.providerConfigs and
     // selected by the provider path the webhook passes in the execution input; the family fragments then read it
     // from $.providerParams, so one fragment per family can run any number of providers
-    const providerConsts = mergeConstMaps(...this.parameterizedProviders.map(p => p._stepFunctionConstants()));
+    const providerConsts: Record<string, string> = {};
+    for (const family of families) {
+      Object.assign(providerConsts, FAMILY_CONSTANTS[family]?.() ?? {});
+    }
     const providerConfigs: Record<string, any> = {};
     for (const provider of this.parameterizedProviders) {
       providerConfigs[provider.node.path] = provider._runnerConfig();
@@ -479,7 +491,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     // one fragment per family in use, with stable construct IDs so adding or removing providers doesn't change
     // the state machine
-    const families = [...new Set(this.parameterizedProviders.flatMap(p => p._runnerFamilies))].sort();
     for (const family of families) {
       const builder = FAMILY_FRAGMENTS[family];
       if (!builder) {
