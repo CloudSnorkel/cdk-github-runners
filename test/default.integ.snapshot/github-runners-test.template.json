@@ -14925,7 +14925,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "e8e74d30d2249165453c8466b5c1dafb4010995da236a7b310acbdb363ac9c7b.zip"
+     "S3Key": "851b5c74301eaf584f781e9265b443527a35e56c23c249774e7ecefabb75eba2.zip"
     },
     "Description": "Get token from GitHub Actions used to start new self-hosted runner",
     "Environment": {
@@ -15149,7 +15149,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "effed7ccc2b0e95581d4dcf59b960ca0d56664bc03f24a35b07406a4e09e01e3.zip"
+     "S3Key": "d49ad127a9d5b4924c2145de719bdf9bde3f11761cd90d01ff39e13636e72892.zip"
     },
     "Description": "Stop idle GitHub runners to avoid paying for runners when the job was already canceled",
     "Environment": {
@@ -15286,7 +15286,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "c5a316df6051b43b0932cd848bdc5764278bea798c7e0c95699e4f17d51d44ed.zip"
+     "S3Key": "33ce91ede34c8a804212c8c7d36263157a3910653b23519c65f0a07e1bfde0e9.zip"
     },
     "Description": "Delete failed GitHub Actions runner on error",
     "Environment": {
@@ -15359,7 +15359,7 @@
        "Resource": [
         {
          "Fn::GetAtt": [
-          "runnersdeleterunner7F8D5293",
+          "runnerstokenretrieverD5E8392A",
           "Arn"
          ]
         },
@@ -15369,7 +15369,7 @@
           [
            {
             "Fn::GetAtt": [
-             "runnersdeleterunner7F8D5293",
+             "runnerstokenretrieverD5E8392A",
              "Arn"
             ]
            },
@@ -15385,7 +15385,7 @@
        "Resource": [
         {
          "Fn::GetAtt": [
-          "runnerstokenretrieverD5E8392A",
+          "runnersdeleterunner7F8D5293",
           "Arn"
          ]
         },
@@ -15395,7 +15395,7 @@
           [
            {
             "Fn::GetAtt": [
-             "runnerstokenretrieverD5E8392A",
+             "runnersdeleterunner7F8D5293",
              "Arn"
             ]
            },
@@ -17212,7 +17212,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":states:::sqs:sendMessage\"},\"Run Providers\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"States.ALL\"],\"IntervalSeconds\":60,\"MaxAttempts\":23,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"Error Handler\",\"States\":{\"Error Handler\":{\"Type\":\"Parallel\",\"End\":true,\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Delete Failed Runner 1\"}],\"Branches\":[{\"StartAt\":\"Get Runner Token\",\"States\":{\"Get Runner Token\":{\"Next\":\"Provider Constants\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
+       ":states:::sqs:sendMessage\"},\"Run Providers\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"States.ALL\"],\"IntervalSeconds\":60,\"MaxAttempts\":23,\"BackoffRate\":1.3}],\"Branches\":[{\"StartAt\":\"Get Runner Token\",\"States\":{\"Get Runner Token\":{\"Next\":\"Provider Constants\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnerstokenretrieverD5E8392A",
@@ -17246,7 +17246,7 @@
        {
         "Ref": "ECSSpotCapacityProvider93132CFA"
        },
-       "\",\"enableExecuteCommand\":true,\"group1\":\"\",\"group2\":\"\",\"defaultLabels\":\"\",\"fallback\":{\"family\":\"ecs\",\"clusterArn\":\"",
+       "\",\"enableExecuteCommand\":true,\"placementStrategies\":[],\"placementConstraints\":[],\"group1\":\"\",\"group2\":\"\",\"defaultLabels\":\"\",\"fallback\":{\"family\":\"ecs\",\"clusterArn\":\"",
        {
         "Fn::GetAtt": [
          "ECSNonSpotclusterD12EB68A",
@@ -17257,7 +17257,7 @@
        {
         "Ref": "ECSNonSpotCapacityProviderB509DEC8"
        },
-       "\",\"enableExecuteCommand\":true,\"group1\":\"\",\"group2\":\"\",\"defaultLabels\":\"\"}},\"github-runners-test/ECS Ubuntu 2404\":{\"family\":\"ecs\",\"clusterArn\":\"",
+       "\",\"enableExecuteCommand\":true,\"placementStrategies\":[],\"placementConstraints\":[],\"group1\":\"\",\"group2\":\"\",\"defaultLabels\":\"\"}},\"github-runners-test/ECS Ubuntu 2404\":{\"family\":\"ecs\",\"clusterArn\":\"",
        {
         "Fn::GetAtt": [
          "ECSUbuntu2404cluster21C05FA1",
@@ -17268,7 +17268,7 @@
        {
         "Ref": "ECSUbuntu2404CapacityProviderFAE73340"
        },
-       "\",\"enableExecuteCommand\":true,\"group1\":\"\",\"group2\":\"\",\"defaultLabels\":\"\"},\"github-runners-test/ECS ARM64\":{\"family\":\"ecs\",\"clusterArn\":\"",
+       "\",\"enableExecuteCommand\":true,\"placementStrategies\":[],\"placementConstraints\":[],\"group1\":\"\",\"group2\":\"\",\"defaultLabels\":\"\"},\"github-runners-test/ECS ARM64\":{\"family\":\"ecs\",\"clusterArn\":\"",
        {
         "Fn::GetAtt": [
          "ECSARM64cluster4ECAA083",
@@ -17279,7 +17279,7 @@
        {
         "Ref": "ECSARM64CapacityProvider8627FEF9"
        },
-       "\",\"enableExecuteCommand\":true,\"group1\":\"\",\"group2\":\"\",\"defaultLabels\":\"\"},\"github-runners-test/ECS Windows\":{\"family\":\"ecs\",\"clusterArn\":\"",
+       "\",\"enableExecuteCommand\":true,\"placementStrategies\":[],\"placementConstraints\":[],\"group1\":\"\",\"group2\":\"\",\"defaultLabels\":\"\"},\"github-runners-test/ECS Windows\":{\"family\":\"ecs\",\"clusterArn\":\"",
        {
         "Fn::GetAtt": [
          "ECSWindowscluster14061F74",
@@ -17290,7 +17290,7 @@
        {
         "Ref": "ECSWindowsCapacityProvider8F8896A5"
        },
-       "\",\"enableExecuteCommand\":false,\"group1\":\"\",\"group2\":\"\",\"defaultLabels\":\"\"},\"github-runners-test/Lambda\":{\"family\":\"lambda\",\"functionArn\":\"",
+       "\",\"enableExecuteCommand\":false,\"placementStrategies\":[],\"placementConstraints\":[],\"group1\":\"\",\"group2\":\"\",\"defaultLabels\":\"\"},\"github-runners-test/Lambda\":{\"family\":\"lambda\",\"functionArn\":\"",
        {
         "Fn::GetAtt": [
          "LambdaFunction9233991D",
@@ -17759,14 +17759,7 @@
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"error.$\":\"$.error\"}},\"All Attempts Failed\":{\"Type\":\"Fail\",\"ErrorPath\":\"$.error.Error\",\"CausePath\":\"$.error.Cause\"}}}]},\"Delete Failed Runner 1\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"Comment\":\"Clean-up failed runner from GitHub Actions (if present)\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
-       {
-        "Fn::GetAtt": [
-         "runnersdeleterunner7F8D5293",
-         "Arn"
-        ]
-       },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"error.$\":\"$.error\"}}}}]}}}"
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"error.$\":\"$.error\"}},\"All Attempts Failed\":{\"Type\":\"Fail\",\"ErrorPath\":\"$.error.Error\",\"CausePath\":\"$.error.Cause\"}}}]}}}"
       ]
      ]
     },
@@ -17909,7 +17902,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "47e38b9dd833c1f726ecb808fccdcad63fbe77283ec4b6a25c33ffeb73be9605.zip"
+     "S3Key": "cdb144ca62f04feccf46c744277019e4f3cc5fac77fa3bc2c55b3981159361a0.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -18166,7 +18159,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "2baed4b95d89d75ac2ee910bdab2c48b0417774ac1a74c81cfc9c675b3e5ea98.zip"
+     "S3Key": "783ddbe13c9716d0c49d4d2f503de7762b18eb9895b4836c2f0ab39d6ba8d388.zip"
     },
     "Description": "Check for GitHub webhook delivery failures and redeliver them",
     "Environment": {
@@ -18361,7 +18354,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "b3a732696e7c1290a71207da365471599289904b94a3b5dd701591f2c9b461b4.zip"
+     "S3Key": "04fca6529a5e2cd2369af8d2b93590b0d4d1023352d3648c1b00f934277866bb.zip"
     },
     "Description": "Setup GitHub Actions integration with self-hosted runners",
     "Environment": {
@@ -18695,7 +18688,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "803a0fb21519141f52ca3b3d6098e3d041c6e16ed6b161f1eb454f8b4b49586d.zip"
+     "S3Key": "64b6374952eb8934f8dbf6d43ebcf8d08a8932c7522217ea72dabf0d61271435.zip"
     },
     "Description": "Provide user with status about self-hosted GitHub Actions runners",
     "Environment": {
