@@ -264,7 +264,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
             CapacityProviderStrategy: [{
               CapacityProvider: '{% $states.input.providerParams.capacityProviderName %}',
             }],
-            // ready-made API-shaped arrays; omitted by JSONata when the provider has none configured
+            // ready-made API-shaped arrays, empty when the provider has none configured
             PlacementConstraints: '{% $states.input.providerParams.placementConstraints %}',
             PlacementStrategy: '{% $states.input.providerParams.placementStrategies %}',
             EnableExecuteCommand: '{% $states.input.providerParams.enableExecuteCommand %}',
@@ -679,8 +679,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       containerName: this.container.containerName,
       capacityProviderName: this.capacityProvider.capacityProviderName,
       enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
-      placementStrategies: placementStrategies.length > 0 ? placementStrategies : undefined,
-      placementConstraints: placementConstraints.length > 0 ? placementConstraints : undefined,
+      // always emit as arrays (empty when none configured); a missing key would make the JSONata
+      // expression in _stateMachineFragments resolve to nothing and raise States.QueryEvaluationError
+      placementStrategies,
+      placementConstraints,
       group1: this.group ? '--runnergroup' : '',
       group2: this.group ? this.group : '',
       defaultLabels: this.defaultLabels ? '' : '--no-default-labels',

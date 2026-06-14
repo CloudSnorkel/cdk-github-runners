@@ -567,8 +567,9 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
       subnets: this.cluster.vpc.selectSubnets(subnetSelection).subnetIds,
       securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
-      // EcsRunTask omits AssignPublicIp when public IP is not requested
-      assignPublicIp: this.assignPublicIp ? 'ENABLED' : undefined,
+      // always emit (ENABLED/DISABLED); a missing key would make the JSONata expression in
+      // _stateMachineFragments resolve to nothing and raise States.QueryEvaluationError
+      assignPublicIp: this.assignPublicIp ? 'ENABLED' : 'DISABLED',
       group1: this.group ? '--runnergroup' : '',
       group2: this.group ? this.group : '',
       defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
