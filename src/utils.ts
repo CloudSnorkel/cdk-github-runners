@@ -164,6 +164,56 @@ export function discoverCertificateFiles(sourcePath: string): string[] {
 }
 
 /**
+ * De-duplicate repeated CloudFormation tokens (shared subnet ids, cluster ARNs, cross-stack `Fn::ImportValue`s,
+ * ...) found in a Step Functions definition fragment into a `definitionSubstitutions` map. Each distinct token
+ * gets a single `${__sfnsub_N}` placeholder, so its intrinsic renders once in the template instead of once per
+ * occurrence (e.g. once per provider sharing a VPC). `obj` is mutated in place, replacing every token leaf with
+ * its placeholder; the returned map is meant to be passed straight to `StateMachine`'s `definitionSubstitutions`.
+ *
+ * This is safe only because the orchestrator definition contains no other `${...}` sequences: JSONata uses
+ * `{% %}`, and the EC2 user data escapes its braces (rendered as `$\{...\}`), so CloudFormation's Fn::Sub-style
+ * substitution leaves everything but our synthetic placeholders untouched.
+ *
+ * @internal
+ */
+export function dedupeStateMachineTokens(scope: Construct, obj: any): Record<string, string> {
+  const stack = cdk.Stack.of(scope);
+  const substitutions: Record<string, string> = {};
+  const keyByToken = new Map<string, string>();
+
+  // key the cache by the resolved intrinsic so identical imports/GetAtts collapse even if their opaque token
+  // strings differ
+  const placeholder = (value: string): string => {
+    const id = JSON.stringify(stack.resolve(value));
+    let key = keyByToken.get(id);
+    if (!key) {
+      key = `__sfnsub_${keyByToken.size}`;
+      keyByToken.set(id, key);
+      substitutions[key] = value;
+    }
+    return `\${${key}}`;
+  };
+
+  const walk = (node: any): any => {
+    if (typeof node === 'string') {
+      return cdk.Token.isUnresolved(node) ? placeholder(node) : node;
+    }
+    if (Array.isArray(node)) {
+      return node.map(walk);
+    }
+    if (node && typeof node === 'object') {
+      for (const key of Object.keys(node)) {
+        node[key] = walk(node[key]);
+      }
+    }
+    return node;
+  };
+
+  walk(obj);
+  return substitutions;
+}
+
+/**
  * Returns true if the instance type has an NVIDIA GPU.
  *
  * Uses AWS naming convention: most NVIDIA GPU instances use 'g' (g4dn, g5, g6, g9...) or 'p' (p3, p4d, p5, p6...)

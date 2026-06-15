@@ -37,6 +37,14 @@ function countOccurrences(haystack: string, needle: string): number {
   return haystack.split(needle).length - 1;
 }
 
+// the orchestrator's definitionSubstitutions map (token -> intrinsic), where each distinct CloudFormation token
+// renders once instead of once per occurrence in the definition
+function definitionSubstitutions(template: Template): Record<string, any> {
+  const machines = Object.values(template.findResources('AWS::StepFunctions::StateMachine'));
+  expect(machines).toHaveLength(1);
+  return machines[0].Properties.DefinitionSubstitutions ?? {};
+}
+
 // all state names in the definition, ignoring per-provider tokens
 function stateNames(definition: string): string[] {
   return [...definition.matchAll(/"([^"]+)":\{"Type":/g)].map(m => m[1]).sort();
@@ -107,11 +115,38 @@ describe('Parameterized providers', () => {
       ],
     });
 
-    const definition = definitionString(Template.fromStack(stack));
+    const template = Template.fromStack(stack);
+    const definition = definitionString(template);
 
-    // the config map and runtime lookup by $.provider
-    expect(definition).toContain('"providerConfigs":{"test/p1":{"family":"codebuild","projectName":"<TOKEN>","group1":"--runnergroup","group2":"my-group","defaultLabels":"--no-default-labels"}}');
+    // the config map and runtime lookup by $.provider; dynamic tokens (the project name) are de-duplicated into
+    // definitionSubstitutions, so the config embeds a ${...} placeholder rather than the token itself
+    expect(definition).toContain('"providerConfigs":{"test/p1":{"family":"codebuild","projectName":"${__sfnsub_0}","group1":"--runnergroup","group2":"my-group","defaultLabels":"--no-default-labels"}}');
     expect(definition).toContain('$lookup($states.input.consts.providerConfigs, $states.input.provider)');
+    expect(definitionSubstitutions(template).__sfnsub_0).toBeDefined();
+  });
+
+  test('tokens shared across providers are de-duplicated into one substitution', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    new GitHubRunners(stack, 'runners', {
+      providers: [
+        new FargateRunnerProvider(stack, 'f1', { vpc, imageBuilder: staticImage(stack, 'i1') }),
+        new FargateRunnerProvider(stack, 'f2', { vpc, imageBuilder: staticImage(stack, 'i2') }),
+        new FargateRunnerProvider(stack, 'f3', { vpc, imageBuilder: staticImage(stack, 'i3') }),
+      ],
+    });
+
+    const template = Template.fromStack(stack);
+    const definition = definitionString(template);
+    const subs = definitionSubstitutions(template);
+
+    // all three providers share the VPC's public subnets (Fargate defaults to assignPublicIp), so each subnet's
+    // intrinsic must appear once in the substitutions map even though the definition references it once per provider
+    const subnetSubKeys = Object.entries(subs).filter(([, v]) => JSON.stringify(v).includes('PublicSubnet')).map(([k]) => k);
+    expect(subnetSubKeys.length).toBe(vpc.publicSubnets.length);
+    for (const key of subnetSubKeys) {
+      // referenced once per provider (3x), but the heavy intrinsic lives in the map only once
+      expect(countOccurrences(definition, `\${${key}}`)).toBe(3);
+    }
   });
 
   test('fragments read all task parameters from the selected config', () => {

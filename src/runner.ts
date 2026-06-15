@@ -37,7 +37,7 @@ import { Secrets } from './secrets';
 import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
 import { TokenRetrieverFunction } from './token-retriever-function';
-import { addFunctionMetadata, discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
+import { addFunctionMetadata, dedupeStateMachineTokens, discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
 import { WarmRunnerManagerFunction } from './warm-runner-manager-function';
 import { GithubWebhookHandler } from './webhook';
 import { GithubWebhookRedelivery } from './webhook-redelivery';
@@ -455,11 +455,20 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     for (const provider of this.parameterizedProviders) {
       providerConfigs[provider.node.path] = provider._runnerConfig();
     }
+    const consts = {
+      ...providerConsts,
+      providerConfigs,
+    };
+
+    // One state per provider family means every provider's dynamic tokens now funnel through `consts`, so a single
+    // pass can de-duplicate repeated CloudFormation tokens (shared subnets/clusters, cross-stack imports) into the
+    // state machine's `definitionSubstitutions`, where each intrinsic renders once instead of once per provider.
+    // Flip OPTIMIZE_DEFINITION to false to embed the tokens inline like before.
+    const OPTIMIZE_DEFINITION = true;
+    const definitionSubstitutions = OPTIMIZE_DEFINITION ? dedupeStateMachineTokens(this, consts) : undefined;
+
     const constsPass = new stepfunctions.Pass(this, 'Provider Constants', {
-      parameters: {
-        ...providerConsts,
-        providerConfigs,
-      },
+      parameters: consts,
       resultPath: '$.consts',
     });
 
@@ -605,6 +614,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       'Runner Orchestrator',
       {
         definitionBody: stepfunctions.DefinitionBody.fromChainable(queueIdleReaperTask.next(runProviders)),
+        definitionSubstitutions,
         logs: logOptions,
       },
     );
