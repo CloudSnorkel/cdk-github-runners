@@ -642,6 +642,13 @@ Thanks to our generous sponsors who helped make this project possible!
       </a>
     </td>
     <td align="center">
+      <a href="https://github.com/qnicondavid">
+        <img src="https://github.com/qnicondavid.png?size=100" width="100" height="100" alt="Nicon-David Milandru" />
+        <br />
+        <sub><b>Nicon-David Milandru</b></sub>
+      </a>
+    </td>
+    <td align="center">
       <a href="https://github.com/andresionek91">
         <img src="https://github.com/andresionek91.png?size=100" width="100" height="100" alt="Andre Sionek" />
         <br />
