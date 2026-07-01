@@ -42,5 +42,6 @@
 /src/warm-runner-manager-function.ts linguist-generated
 /src/webhook-handler-function.ts linguist-generated
 /src/webhook-redelivery-function.ts linguist-generated
-/tsconfig.dev.json linguist-generated linguist-language=JSON-with-Comments
+/test/tsconfig.json linguist-generated linguist-language=JSON-with-Comments
+/tsconfig.json linguist-generated
 Dockerfile eol=lf
