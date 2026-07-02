@@ -14,7 +14,12 @@
   "parserOptions": {
     "ecmaVersion": 2018,
     "sourceType": "module",
-    "projectService": true
+    "projectService": {
+      "allowDefaultProject": [
+        ".projenrc.js"
+      ],
+      "defaultProject": "./tsconfig.json"
+    }
   },
   "extends": [
     "plugin:import/typescript"
