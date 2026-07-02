@@ -1,4 +1,4 @@
-import type { Octokit } from '@octokit/rest';
+import type { Octokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
 import { getOctokit } from './lambda-github';
 import { StepFunctionLambdaInput } from './lambda-helpers';
 

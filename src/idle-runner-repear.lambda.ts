@@ -1,5 +1,5 @@
 import { DescribeExecutionCommand, SFNClient, StopExecutionCommand } from '@aws-sdk/client-sfn';
-import type { Octokit } from '@octokit/rest';
+import type { Octokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
 import * as AWSLambda from 'aws-lambda';
 import { deleteRunner, getOctokit, getRunner, GitHubSecrets } from './lambda-github';
 

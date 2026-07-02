@@ -1,13 +1,13 @@
 import { createHash } from 'crypto';
-import type { Octokit as RestOctokit } from '@octokit/rest';
+import type { Octokit as RestOctokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
 import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
 
 // ---- Octokit ESM loader helpers (inlined) ----
 // Octokit packages are ESM, but our Lambda assets are bundled into CJS.
 // Using dynamic `import()` here lets esbuild include Octokit in the bundle.
-type OctokitRestModule = typeof import('@octokit/rest');
-type OctokitCoreModule = typeof import('@octokit/core');
-type OctokitAuthAppModule = typeof import('@octokit/auth-app');
+type OctokitRestModule = typeof import('@octokit/rest', { with: { 'resolution-mode': 'import' } });
+type OctokitCoreModule = typeof import('@octokit/core', { with: { 'resolution-mode': 'import' } });
+type OctokitAuthAppModule = typeof import('@octokit/auth-app', { with: { 'resolution-mode': 'import' } });
 
 let restModulePromise: Promise<OctokitRestModule> | undefined;
 let coreModulePromise: Promise<OctokitCoreModule> | undefined;
