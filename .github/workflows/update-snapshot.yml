@@ -16,14 +16,12 @@ jobs:
       CI: "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: "10"
+        uses: pnpm/action-setup@v5
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -61,13 +59,13 @@ jobs:
           grep ^diff /tmp/assets.diff
       - name: Upload assets.diff
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: assets.diff
           path: /tmp/assets.diff
       - name: Upload snapshot
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: snapshot
           path: test/default.integ.snapshot
