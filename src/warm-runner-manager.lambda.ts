@@ -76,7 +76,7 @@ import {
   ExecutionAlreadyExists,
 } from '@aws-sdk/client-sfn';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
-import type { Octokit } from '@octokit/rest';
+import type { Octokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
 import * as AWSLambda from 'aws-lambda';
 import { deleteRunner, getAppOctokit, getOctokit, getRunner, GitHubSecrets } from './lambda-github';
 import { customResourceRespond } from './lambda-helpers';

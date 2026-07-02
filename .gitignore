@@ -45,13 +45,13 @@ junit.xml
 !/.mergify.yml
 !/.github/workflows/upgrade-main.yml
 !/test/
-!/tsconfig.dev.json
+!/tsconfig.json
+!/test/tsconfig.json
 !/src/
 /lib
 /dist/
 !/.eslintrc.json
 .jsii
-tsconfig.json
 !/API.md
 /assets/
 !/src/delete-failed-runner-function.ts

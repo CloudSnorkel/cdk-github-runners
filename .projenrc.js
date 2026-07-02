@@ -175,6 +175,9 @@ project.eslint.allowDevDeps('src/lambda-helpers.ts');
 project.eslint.allowDevDeps('src/lambda-github.ts');
 project.eslint.allowDevDeps('setup/src/main.ts');
 
+// not part of the project and can use defaults
+project.eslint.allowDefaultProjectFiles('.projenrc.js');
+
 // vscode auto formatting
 project.vscode.settings.addSettings({
   'editor.formatOnSave': true,
