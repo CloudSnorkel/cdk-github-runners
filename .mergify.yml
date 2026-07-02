@@ -14,9 +14,10 @@ queue_rules:
       - status-success=package-go
       - status-success=test-examples
     merge_method: squash
-    commit_message_format:
-      title: pr-title
-      body: pr-body
+    commit_message_template: |-
+      {{ title }} (#{{ number }})
+
+      {{ body }}
 pull_request_rules:
   - name: Automatic merge on approval and successful build
     actions:
