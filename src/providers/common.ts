@@ -527,54 +527,6 @@ export function runnerEnvironment(format: (name: string, value: string) => any):
 }
 
 /**
- * Interface for runner providers that can share a single parameterized state-machine fragment per provider
- * family. Instead of a dedicated state-machine branch per provider, all providers of the same family (e.g. all
- * CodeBuild providers) share one branch. Per-provider runtime parameters are published to an SSM parameter and
- * passed into the state machine through the execution input. This keeps the state machine definition and IAM
- * policies small even with hundreds of providers.
- *
- * All built-in providers implement this interface. The set of supported families is internal to
- * {@link GitHubRunners} and is not extensible yet. Custom providers should implement only {@link IRunnerProvider}
- * and will get a dedicated state-machine branch like before.
- */
-export interface IParameterizedRunnerProvider extends IRunnerProvider {
-  /**
-   * Provider family key. One of 'codebuild', 'fargate', 'ecs', 'lambda' or 'ec2'. All providers of the same
-   * family share a single state-machine fragment that is parameterized with {@link runnerConfig} values at
-   * runtime.
-   */
-  readonly runnerFamily: string;
-
-  /**
-   * JSON-serializable runtime parameters for this specific provider, fed into the shared family fragment through
-   * the state machine execution input. Values may contain CloudFormation tokens.
-   *
-   * Called by GithubRunners and shouldn't be called manually.
-   */
-  runnerConfig(): any;
-
-  /**
-   * Grant the state machine role all permissions required by the shared family fragment to run THIS provider.
-   * This replaces both the automatic task-construct policies and {@link IRunnerProvider.grantStateMachine} for
-   * parameterized providers.
-   *
-   * @param stateMachineRole role for the state machine that executes the shared family fragment
-   */
-  grantParameterizedStateMachine(stateMachineRole: iam.IGrantable): void;
-}
-
-/**
- * Check if the given provider supports shared parameterized state-machine fragments.
- *
- * instanceof doesn't work reliably across CDK library copies, so we duck-type instead.
- *
- * @internal
- */
-export function isParameterizedRunnerProvider(provider: IConstruct): provider is IParameterizedRunnerProvider {
-  return 'runnerFamily' in provider && 'runnerConfig' in provider && 'grantParameterizedStateMachine' in provider;
-}
-
-/**
  * Interface for composite runner providers that combine multiple sub-providers.
  * Unlike IRunnerProvider, composite providers do not have connections, grant capabilities,
  * or log groups as they delegate to their sub-providers.

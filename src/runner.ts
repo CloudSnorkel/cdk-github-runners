@@ -460,13 +460,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       providerConfigs,
     };
 
-    // One state per provider family means every provider's dynamic tokens now funnel through `consts`, so a single
-    // pass can de-duplicate repeated CloudFormation tokens (shared subnets/clusters, cross-stack imports) into the
-    // state machine's `definitionSubstitutions`, where each intrinsic renders once instead of once per provider.
-    // Flip OPTIMIZE_DEFINITION to false to embed the tokens inline like before.
-    const OPTIMIZE_DEFINITION = true;
-    const definitionSubstitutions = OPTIMIZE_DEFINITION ? dedupeStateMachineTokens(this, consts) : undefined;
-
     const constsPass = new stepfunctions.Pass(this, 'Provider Constants', {
       parameters: consts,
       resultPath: '$.consts',
@@ -565,9 +558,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     // ordering "clean up, then retry": Step Functions applies Retry before Catch on a single state, so the
     // clean-up had to live on the inner Parallel's Catch and the retry on the outer one. Now that the inner
     // fallback loop cleans up before re-raising, we can collapse the two into one Parallel.
-    //
-    // TODO compare this against the pre-refactor orchestrator (git show 6d24561:src/runner.ts) by hand to
-    // confirm we didn't drop any failure/cleanup/retry behavior.
     const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
       // we get a token for every retry because the token can expire faster than the job can timeout
       tokenRetrieverTask.next(constsPass).next(selectConfig).next(tryProvider),
@@ -614,7 +604,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       'Runner Orchestrator',
       {
         definitionBody: stepfunctions.DefinitionBody.fromChainable(queueIdleReaperTask.next(runProviders)),
-        definitionSubstitutions,
+        definitionSubstitutions: dedupeStateMachineTokens(this, consts),
         logs: logOptions,
       },
     );

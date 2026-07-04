@@ -430,6 +430,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       },
     ];
   }
+
   /**
    * Create new image builder that builds EC2 specific runner images.
    *
@@ -585,7 +586,6 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     }
     return this.rootDeviceResource;
   }
-
 
   /**
    * @internal
