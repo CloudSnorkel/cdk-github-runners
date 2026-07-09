@@ -300,6 +300,23 @@ new GitHubRunners(this, 'runners', {
 });
 ```
 
+EC2 runners can additionally run commands on instance start-up, before the runner registers with GitHub and starts the job. This is useful for software that requires per-instance setup and can't simply be baked into the AMI, like security agents that register each instance. The commands run as root on Linux and as administrator on Windows. If any command fails, the instance terminates and the job won't start. Prefer baking software into the AMI with image builder components when possible, as start-up commands delay every job.
+
+```typescript
+const myProvider = new Ec2RunnerProvider(this, 'ec2 runner', {
+   labels: ['my-ec2'],
+   userDataCommands: [
+      'curl -sSL https://example.com/install-agent.sh | bash',
+      'systemctl start my-agent',
+   ],
+});
+
+// create the runner infrastructure
+new GitHubRunners(this, 'runners', {
+   providers: [myProvider],
+});
+```
+
 The runner OS and architecture is determined by the image it is set to use. For example, to create a Fargate runner provider for ARM64 set the `architecture` property for the image builder to `Architecture.ARM64` in the image builder properties.
 
 ```typescript

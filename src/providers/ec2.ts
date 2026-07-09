@@ -57,6 +57,7 @@ defaultLabels="{}"
 export AWS_RETRY_MODE=standard # better retry
 touch /var/log/runner.log
 
+%EXTRA_USER_DATA_COMMANDS%
 heartbeat () {
   while true; do
     SPOT_ACTION=$(curl -s -f -H "X-aws-ec2-metadata-token: $(curl -s -f -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 1" 2>/dev/null)" "http://169.254.169.254/latest/meta-data/spot/instance-action" 2>/dev/null) || true
@@ -120,7 +121,7 @@ else
 fi
 sleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
 poweroff
-`.replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
+`;
 
 // this script is specifically made so `poweroff` is absolutely always called
 // each `{}` is a variable coming from `params` below and their order should match the linux script
@@ -144,6 +145,7 @@ $Env:AWS_RETRY_MODE = "standard"  # better retry
 Set-Service -StartupType Manual AmazonSSMAgent
 Start-Service AmazonSSMAgent
 
+%EXTRA_USER_DATA_COMMANDS%
 $HeartbeatParentPid = $PID
 Start-Job -ScriptBlock {
   while ($true) {
@@ -207,7 +209,21 @@ if ($r -eq 0) {
 Start-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
 Stop-Computer -ComputerName localhost -Force
 </powershell>
-`.replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
+`;
+
+const extraUserDataCommandsPlaceholder = '%EXTRA_USER_DATA_COMMANDS%\n';
+
+/**
+ * Prepare a user data template for use with States.Format by escaping `{` and `}` as `\{` and `\}`, and then
+ * restoring the intentional `{}` placeholders. Extra user commands are inserted fully escaped so any braces they
+ * contain (e.g. `${VAR}` in shell) are always treated as literal characters and never as placeholders.
+ */
+function renderUserDataTemplate(template: string, extraCommands: string[]): string {
+  const escapedTemplate = template.replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
+  const escapedCommands = extraCommands.map(command => command.replace(/{/g, '\\{').replace(/}/g, '\\}')).join('\n');
+  // use a replacer function so `$` sequences in commands are not treated as special replacement patterns
+  return escapedTemplate.replace(extraUserDataCommandsPlaceholder, () => escapedCommands.length > 0 ? `${escapedCommands}\n` : '');
+}
 
 
 /**
@@ -329,6 +345,24 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
    * @default no max price (you will pay current spot price)
    */
   readonly spotMaxPrice?: string;
+
+  /**
+   * Additional commands to run on instance start-up, before the runner is registered and started.
+   *
+   * Use this to install and configure software that must run on the instance itself and can't be baked into the AMI,
+   * like security agents that need per-instance registration.
+   *
+   * The commands run as root on Linux (bash) and as administrator on Windows (PowerShell). If any command fails, the
+   * instance will terminate and the job will fail to start, so make sure the commands are reliable or add error
+   * handling (e.g. `|| true` on Linux).
+   *
+   * Note that these commands run every time an instance starts, and therefore delay the start of every job. If the
+   * software doesn't require per-instance setup, prefer baking it into the AMI with
+   * {@link Ec2RunnerProvider.imageBuilder} and {@link RunnerImageComponent.custom} for faster job start-up.
+   *
+   * @default no additional commands
+   */
+  readonly userDataCommands?: string[];
 }
 
 /**
@@ -410,6 +444,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   private readonly subnets: ec2.ISubnet[];
   private readonly securityGroups: ec2.ISecurityGroup[];
   private readonly defaultLabels: boolean;
+  private readonly userDataCommands: string[];
 
   constructor(scope: Construct, id: string, props?: Ec2RunnerProviderProps) {
     super(scope, id, props);
@@ -425,6 +460,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;
     this.defaultLabels = props?.defaultLabels ?? true;
+    this.userDataCommands = props?.userDataCommands ?? [];
 
     if (this.subnets.length === 0) {
       cdk.Annotations.of(this).addError('At least one subnet is required');
@@ -475,12 +511,14 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   }
 
   private userDataConst() {
-    return this.ami.os.is(Os.WINDOWS) ? 'ec2UserDataWindows' : 'ec2UserDataLinux';
+    const base = this.ami.os.is(Os.WINDOWS) ? 'ec2UserDataWindows' : 'ec2UserDataLinux';
+    // custom commands make the template unique to this provider, so the constant key must be unique too
+    return this.userDataCommands.length > 0 ? `${base}${this.node.addr}` : base;
   }
 
   public stepFunctionConstants(): Record<string, string> {
     const userdataTemplate = this.ami.os.is(Os.WINDOWS) ? windowsUserDataTemplate : linuxUserDataTemplate;
-    return { [this.userDataConst()]: userdataTemplate };
+    return { [this.userDataConst()]: renderUserDataTemplate(userdataTemplate, this.userDataCommands) };
   }
 
   /**

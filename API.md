@@ -7204,6 +7204,7 @@ const ec2RunnerProviderProps: Ec2RunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for launched runner instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnet">subnet</a></code> | <code>aws-cdk-lib.aws_ec2.ISubnet</code> | Subnet where the runner instances will be launched. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.userDataCommands">userDataCommands</a></code> | <code>string[]</code> | Additional commands to run on instance start-up, before the runner is registered and started. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC where runner instances will be launched. |
 
 ---
@@ -7444,6 +7445,30 @@ public readonly subnetSelection: SubnetSelection;
 Where to place the network interfaces within the VPC.
 
 Only the first matched subnet will be used.
+
+---
+
+##### `userDataCommands`<sup>Optional</sup> <a name="userDataCommands" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.userDataCommands"></a>
+
+```typescript
+public readonly userDataCommands: string[];
+```
+
+- *Type:* string[]
+- *Default:* no additional commands
+
+Additional commands to run on instance start-up, before the runner is registered and started.
+
+Use this to install and configure software that must run on the instance itself and can't be baked into the AMI,
+like security agents that need per-instance registration.
+
+The commands run as root on Linux (bash) and as administrator on Windows (PowerShell). If any command fails, the
+instance will terminate and the job will fail to start, so make sure the commands are reliable or add error
+handling (e.g. `|| true` on Linux).
+
+Note that these commands run every time an instance starts, and therefore delay the start of every job. If the
+software doesn't require per-instance setup, prefer baking it into the AMI with
+{@link Ec2RunnerProvider.imageBuilder} and {@link RunnerImageComponent.custom} for faster job start-up.
 
 ---
 

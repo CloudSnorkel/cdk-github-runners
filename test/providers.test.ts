@@ -3,7 +3,7 @@ import { aws_ec2 as ec2, aws_ecs as ecs, aws_stepfunctions as sfn } from 'aws-cd
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
-import { CodeBuildRunnerProvider, Ec2RunnerProvider, EcsRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
+import { Architecture, CodeBuildRunnerProvider, Ec2RunnerProvider, EcsRunnerProvider, FargateRunnerProvider, GitHubRunners, LambdaRunnerProvider, Os } from '../src';
 
 describe('Providers', () => {
   let app: cdk.App;
@@ -417,6 +417,105 @@ describe('Providers', () => {
       template.hasResourceProperties('AWS::ImageBuilder::InfrastructureConfiguration', Match.objectLike({
         InstanceTypes: ['m6g.large'],
       }));
+    });
+
+    test('No custom user data commands', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      const provider = new Ec2RunnerProvider(stack, 'provider', {
+        vpc,
+        securityGroups: [sg],
+      });
+
+      const consts = provider.stepFunctionConstants();
+      expect(Object.keys(consts)).toEqual(['ec2UserDataLinux']);
+      expect(consts.ec2UserDataLinux).not.toContain('%EXTRA_USER_DATA_COMMANDS%');
+    });
+
+    test('Custom user data commands', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      const provider = new Ec2RunnerProvider(stack, 'provider', {
+        vpc,
+        securityGroups: [sg],
+        userDataCommands: [
+          'curl -sSL https://example.com/install.sh | bash',
+          'echo "braces ${LIKE_THIS} and $& are kept literal"',
+        ],
+      });
+
+      const consts = provider.stepFunctionConstants();
+      const keys = Object.keys(consts);
+      expect(keys).toHaveLength(1);
+      // key must be unique so multiple providers with different commands don't clash in $.consts
+      expect(keys[0]).toMatch(/^ec2UserDataLinux.+/);
+
+      const template = consts[keys[0]];
+      expect(template).not.toContain('%EXTRA_USER_DATA_COMMANDS%');
+      expect(template).toContain('curl -sSL https://example.com/install.sh | bash');
+      // braces in commands must be escaped so States.Format doesn't treat them as placeholders
+      expect(template).toContain('echo "braces $\\{LIKE_THIS\\} and $& are kept literal"');
+      // commands must run before the runner starts
+      expect(template.indexOf('curl -sSL')).toBeLessThan(template.indexOf('heartbeat &'));
+      // intentional placeholders must be preserved
+      expect(template).toContain('TASK_TOKEN="{}"');
+    });
+
+    test('Custom user data commands on Windows', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      const provider = new Ec2RunnerProvider(stack, 'provider', {
+        vpc,
+        securityGroups: [sg],
+        imageBuilder: Ec2RunnerProvider.imageBuilder(stack, 'builder', {
+          vpc,
+          securityGroups: [sg],
+          os: Os.WINDOWS,
+          architecture: Architecture.X86_64,
+        }),
+        userDataCommands: ['Invoke-WebRequest -Uri https://example.com/install.ps1 | Invoke-Expression'],
+      });
+
+      const consts = provider.stepFunctionConstants();
+      const keys = Object.keys(consts);
+      expect(keys).toHaveLength(1);
+      expect(keys[0]).toMatch(/^ec2UserDataWindows.+/);
+
+      const template = consts[keys[0]];
+      expect(template).not.toContain('%EXTRA_USER_DATA_COMMANDS%');
+      expect(template).toContain('Invoke-WebRequest -Uri https://example.com/install.ps1 | Invoke-Expression');
+      expect(template.indexOf('Invoke-WebRequest -Uri https://example.com/install.ps1')).toBeLessThan(template.indexOf('$HeartbeatParentPid'));
+    });
+
+    test('Multiple providers with different user data commands', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      const provider1 = new Ec2RunnerProvider(stack, 'provider 1', {
+        labels: ['one'],
+        vpc,
+        securityGroups: [sg],
+        userDataCommands: ['echo one'],
+      });
+      const provider2 = new Ec2RunnerProvider(stack, 'provider 2', {
+        labels: ['two'],
+        vpc,
+        securityGroups: [sg],
+        userDataCommands: ['echo two'],
+      });
+      const provider3 = new Ec2RunnerProvider(stack, 'provider 3', {
+        labels: ['three'],
+        vpc,
+        securityGroups: [sg],
+      });
+
+      // merging constants of all providers must not throw a duplicate key error
+      expect(() => new GitHubRunners(stack, 'runners', {
+        providers: [provider1, provider2, provider3],
+      })).not.toThrow();
     });
   });
 });
