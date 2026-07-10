@@ -717,7 +717,7 @@ export abstract class RunnerImageComponent {
    *
    * Point this at a local script file. It is copied into the image, made executable, and the runner is
    * configured to run it before each job using the
-   * [`ACTIONS_RUNNER_HOOK_JOB_STARTED`](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/running-scripts-before-or-after-a-job)
+   * [`ACTIONS_RUNNER_HOOK_JOB_STARTED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
    * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
    *
    * Must be used after the {@link githubRunner} component.
@@ -725,7 +725,7 @@ export abstract class RunnerImageComponent {
    * @param sourcePath path to a local script file to run before every job
    */
   static jobStartedHook(sourcePath: string): RunnerImageComponent {
-    return RunnerImageComponent.jobHook('JobStartedHook', 'ACTIONS_RUNNER_HOOK_JOB_STARTED', sourcePath);
+    return RunnerImageComponent.jobHook('Job-Started-Hook', 'ACTIONS_RUNNER_HOOK_JOB_STARTED', sourcePath);
   }
 
   /**
@@ -733,7 +733,7 @@ export abstract class RunnerImageComponent {
    *
    * Point this at a local script file. It is copied into the image, made executable, and the runner is
    * configured to run it after each job using the
-   * [`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/running-scripts-before-or-after-a-job)
+   * [`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
    * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
    *
    * Must be used after the {@link githubRunner} component.
@@ -741,7 +741,7 @@ export abstract class RunnerImageComponent {
    * @param sourcePath path to a local script file to run after every job
    */
   static jobCompletedHook(sourcePath: string): RunnerImageComponent {
-    return RunnerImageComponent.jobHook('JobCompletedHook', 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED', sourcePath);
+    return RunnerImageComponent.jobHook('Job-Completed-Hook', 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED', sourcePath);
   }
 
   private static jobHook(name: string, envVar: string, sourcePath: string): RunnerImageComponent {
