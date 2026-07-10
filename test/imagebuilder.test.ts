@@ -1,3 +1,6 @@
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_ecr as ecr, aws_ssm as ssm } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
@@ -335,13 +338,27 @@ describe('Image Builder', () => {
 describe('Component caching', () => {
   let app: cdk.App;
   let stack: cdk.Stack;
+  const tempDirs: string[] = [];
 
   beforeEach(() => {
     app = new cdk.App();
     stack = new cdk.Stack(app, 'test');
   });
 
+  afterEach(() => {
+    // Remove any temp directories created during the test, even if it failed.
+    for (const dir of tempDirs.splice(0)) {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   afterAll(CloudAssembly.cleanupTemporaryDirectories);
+
+  function tempDir(prefix: string): string {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+    tempDirs.push(dir);
+    return dir;
+  }
 
   test('Components with same name but different commands get different IDs', () => {
     const vpc = new ec2.Vpc(stack, 'vpc');
@@ -406,6 +423,90 @@ describe('Component caching', () => {
     template.resourcePropertiesCountIs('AWS::ImageBuilder::Component', {
       Description: Match.stringLikeRegexp('Custom-SharedComponent.*'),
     }, 1);
+  });
+
+  test('Component with an asset is cached and reused', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    const dir = tempDir('ghr-reuse-');
+    fs.writeFileSync(path.join(dir, 'script.sh'), 'echo cache-me\n');
+
+    const component = RunnerImageComponent.custom({
+      name: 'AssetComponent',
+      assets: [{ source: path.join(dir, 'script.sh'), target: '/home/runner/script.sh' }],
+    });
+
+    const builder1 = Ec2RunnerProvider.imageBuilder(stack, 'builder1', { vpc });
+    const builder2 = Ec2RunnerProvider.imageBuilder(stack, 'builder2', { vpc });
+    builder1.addComponent(component);
+    builder2.addComponent(component);
+    builder1.bindAmi();
+    builder2.bindAmi();
+
+    // Used in two builders but cached and reused -> exactly one component resource.
+    Template.fromStack(stack).resourcePropertiesCountIs('AWS::ImageBuilder::Component', {
+      Description: Match.stringLikeRegexp('Custom-AssetComponent.*'),
+    }, 1);
+  });
+
+  test('Components with the same asset content but different paths get the same ID', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    // Same content, but different file names in different directories.
+    const dir1 = tempDir('ghr-a-');
+    const dir2 = tempDir('ghr-b-');
+    fs.writeFileSync(path.join(dir1, 'alpha.sh'), 'echo same-content\n');
+    fs.writeFileSync(path.join(dir2, 'beta.sh'), 'echo same-content\n');
+
+    const component1 = RunnerImageComponent.custom({
+      name: 'DedupComponent',
+      assets: [{ source: path.join(dir1, 'alpha.sh'), target: '/home/runner/script.sh' }],
+    });
+    const component2 = RunnerImageComponent.custom({
+      name: 'DedupComponent',
+      assets: [{ source: path.join(dir2, 'beta.sh'), target: '/home/runner/script.sh' }],
+    });
+
+    const builder1 = Ec2RunnerProvider.imageBuilder(stack, 'builder1', { vpc });
+    const builder2 = Ec2RunnerProvider.imageBuilder(stack, 'builder2', { vpc });
+    builder1.addComponent(component1);
+    builder2.addComponent(component2);
+    builder1.bindAmi();
+    builder2.bindAmi();
+
+    // The asset hash is content-based, so different file names/paths with identical
+    // content produce the same cache key -> a single shared component resource.
+    Template.fromStack(stack).resourcePropertiesCountIs('AWS::ImageBuilder::Component', {
+      Description: Match.stringLikeRegexp('Custom-DedupComponent.*'),
+    }, 1);
+  });
+
+  test('Component with a tokenized command gets a stable ID', () => {
+    // A command containing a CDK token must produce the same component logical ID even when the
+    // global token counter shifts (e.g. because unrelated tokens were created before it).
+    function tokenizedComponentLogicalId(extraTokens: number): string {
+      const tokenApp = new cdk.App();
+      const tokenStack = new cdk.Stack(tokenApp, 'test');
+      const vpc = new ec2.Vpc(tokenStack, 'vpc');
+      for (let i = 0; i < extraTokens; i++) {
+        cdk.Lazy.string({ produce: () => `extra${i}` });
+      }
+      const tokenValue = cdk.Lazy.string({ produce: () => 'resolved-value' });
+
+      const builder = Ec2RunnerProvider.imageBuilder(tokenStack, 'builder', { vpc });
+      builder.addComponent(RunnerImageComponent.custom({
+        name: 'Tokenized',
+        commands: [`echo ${tokenValue}`],
+      }));
+      builder.bindAmi();
+
+      const components = Template.fromStack(tokenStack).findResources('AWS::ImageBuilder::Component', {
+        Properties: { Description: Match.stringLikeRegexp('Custom-Tokenized.*') },
+      });
+      return Object.keys(components)[0];
+    }
+
+    expect(tokenizedComponentLogicalId(0)).toEqual(tokenizedComponentLogicalId(3));
   });
 });
 
