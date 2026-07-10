@@ -545,6 +545,13 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
 
     // permissions for SSM Session Manager
     this.task.taskRole.addToPrincipalPolicy(MINIMAL_ECS_SSM_SESSION_MANAGER_POLICY_STATEMENT);
+
+    if (props?.assignPublicIp) {
+      cdk.Annotations.of(this).addWarning('assignPublicIp is set to `true`, but ECS tasks on EC2 run using bridge mode. In bridge mode, the task ' +
+        'uses the host instance\'s network interface and IP address. The task will not have its own public IP address. Ensure that the host ' +
+        'instances have internet access (e.g., through a NAT gateway) if the tasks need to access external resources. Please open a GitHub issue ' +
+        'if you need VPC networking mode for ECS.');
+    }
   }
 
   private defaultClusterInstanceType() {

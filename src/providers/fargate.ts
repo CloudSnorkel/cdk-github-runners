@@ -320,7 +320,6 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
             TaskDefinition: '{% $states.input.providerParams.taskDefinitionFamily %}',
             NetworkConfiguration: {
               AwsvpcConfiguration: {
-                // JSONata drops the field when the parameter is absent, like EcsRunTask omits AssignPublicIp
                 AssignPublicIp: '{% $states.input.providerParams.assignPublicIp %}',
                 Subnets: '{% $states.input.providerParams.subnets %}',
                 SecurityGroups: '{% $states.input.providerParams.securityGroups %}',
@@ -569,8 +568,6 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
       subnets: this.cluster.vpc.selectSubnets(subnetSelection).subnetIds,
       securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
-      // always emit (ENABLED/DISABLED); a missing key would make the JSONata expression in
-      // _stateMachineFragments resolve to nothing and raise States.QueryEvaluationError
       assignPublicIp: this.assignPublicIp ? 'ENABLED' : 'DISABLED',
       group1: this.group ? '--runnergroup' : '',
       group2: this.group ? this.group : '',

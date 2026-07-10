@@ -372,7 +372,7 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
  * fields conditionally, which is why spot and on-demand providers get separate states instead of an optional
  * InstanceMarketOptions field.
  */
-function ec2RunInstancesState(spot: boolean): any {
+function ec2RunInstancesState(): any {
   return {
     Type: 'Task',
     Resource: `arn:${cdk.Aws.PARTITION}:states:::aws-sdk:ec2:runInstances.waitForTaskToken`,
@@ -401,7 +401,7 @@ function ec2RunInstancesState(spot: boolean): any {
       'SecurityGroupIds.$': '$.providerParams.securityGroupIds',
       'SubnetId.$': '$.providerParams.subnet',
       'BlockDeviceMappings.$': '$.providerParams.blockDeviceMappings',
-      ...spot ? { 'InstanceMarketOptions.$': '$.providerParams.instanceMarketOptions' } : {},
+      'InstanceMarketOptions.$': '$.providerParams.instanceMarketOptions',
       // the provider's `tags` prop, already merged with the standard runner tags by the orchestrator
       'TagSpecifications': [
         { 'ResourceType': 'instance', 'Tags.$': '$.providerParams.tags' },
@@ -444,15 +444,9 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     );
     return [
       {
-        condition: stepfunctions.Condition.and(family, stepfunctions.Condition.isPresent('$.providerParams.instanceMarketOptions')),
-        chainable: new stepfunctions.CustomState(scope, 'EC2 Spot Runner', {
-          stateJson: ec2RunInstancesState(true),
-        }),
-      },
-      {
         condition: family,
         chainable: new stepfunctions.CustomState(scope, 'EC2 Runner', {
-          stateJson: ec2RunInstancesState(false),
+          stateJson: ec2RunInstancesState(),
         }),
       },
     ];
@@ -694,7 +688,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
           MaxPrice: this.spotMaxPrice,
           SpotInstanceType: 'one-time',
         },
-      } : undefined,
+      } : {},
       // index into States.Array($.consts.ec2UserDataLinux, $.consts.ec2UserDataWindows)
       userDataTemplateIdx: this.ami.os.is(Os.WINDOWS) ? 1 : 0,
       // always present, even when empty: it's what opts this config into the standard runner tags the orchestrator
