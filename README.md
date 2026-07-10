@@ -541,6 +541,7 @@ We provide comprehensive examples in the [`examples/`](examples/) folder to help
 
 ### Customization
 - **[Add Software](examples/typescript/add-software/)** - Add custom software to runner images (also available in [Python](examples/python/add-software/))
+- **[Job Hooks](examples/typescript/job-hooks/)** - Run a script before every job using GitHub Actions runner hooks (also available in [Python](examples/python/job-hooks/))
 - **[GPU](examples/typescript/gpu/)** - GPU support with NVIDIA drivers across EC2, CodeBuild, and ECS (also available in [Python](examples/python/gpu/))
 
 ### Enterprise & Monitoring

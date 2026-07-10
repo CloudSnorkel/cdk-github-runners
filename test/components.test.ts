@@ -193,6 +193,55 @@ test('Environment variable escaping', () => {
   ]);
 });
 
+describe('Job hooks', () => {
+  test('jobStartedHook copies script and sets env var on Linux', () => {
+    const comp = RunnerImageComponent.jobStartedHook('/local/path/job-started.sh');
+
+    const assets = comp.getAssets(Os.LINUX_UBUNTU_2204, Architecture.X86_64);
+    expect(assets).toStrictEqual([{
+      source: '/local/path/job-started.sh',
+      target: '/home/runner/job-started.sh',
+    }]);
+
+    const commands = comp.getCommands(Os.LINUX_UBUNTU_2204, Architecture.X86_64);
+    expect(commands).toStrictEqual([
+      'chmod +x \'/home/runner/job-started.sh\'',
+      'echo \'ACTIONS_RUNNER_HOOK_JOB_STARTED=/home/runner/job-started.sh\' >> /home/runner/.env',
+    ]);
+  });
+
+  test('jobCompletedHook uses the completed env var', () => {
+    const comp = RunnerImageComponent.jobCompletedHook('/local/path/job-completed.sh');
+
+    const commands = comp.getCommands(Os.LINUX_AMAZON_2, Architecture.X86_64);
+    expect(commands).toStrictEqual([
+      'chmod +x \'/home/runner/job-completed.sh\'',
+      'echo \'ACTIONS_RUNNER_HOOK_JOB_COMPLETED=/home/runner/job-completed.sh\' >> /home/runner/.env',
+    ]);
+  });
+
+  test('job hook works on Windows', () => {
+    const comp = RunnerImageComponent.jobStartedHook('/local/path/job-started.ps1');
+
+    const assets = comp.getAssets(Os.WINDOWS, Architecture.X86_64);
+    expect(assets).toStrictEqual([{
+      source: '/local/path/job-started.ps1',
+      target: 'C:\\actions\\job-started.ps1',
+    }]);
+
+    const commands = comp.getCommands(Os.WINDOWS, Architecture.X86_64);
+    expect(commands).toStrictEqual([
+      'Add-Content -Path C:\\actions\\.env -Value \'ACTIONS_RUNNER_HOOK_JOB_STARTED=C:\\actions\\job-started.ps1\'',
+    ]);
+  });
+
+  test('job hook preserves the source file name', () => {
+    const comp = RunnerImageComponent.jobStartedHook('/some/dir/my-setup.sh');
+    const assets = comp.getAssets(Os.LINUX_UBUNTU_2204, Architecture.X86_64);
+    expect(assets[0].target).toBe('/home/runner/my-setup.sh');
+  });
+});
+
 test('Environment variable should not contain newlines', () => {
   expect(() => {
     RunnerImageComponent.environmentVariables({
