@@ -843,7 +843,7 @@ export abstract class RunnerImageComponent {
 
     // Create a cache key based on component identity and properties
     const stack = cdk.Stack.of(scope);
-    const cacheKey = this._getCacheKey(os, architecture, commands, assets, reboot);
+    const cacheKey = this._getCacheKey(stack, os, architecture, commands, assets, reboot);
 
     // Create a consistent ID based on the cache key to ensure the same component
     // always gets the same ID, regardless of the passed-in id parameter
@@ -881,13 +881,22 @@ export abstract class RunnerImageComponent {
    * Components with the same name, OS, architecture, commands, assets, and reboot flag will share the same key.
    * Returns a hash of all component properties to ensure uniqueness.
    *
+   * The key is built from a *canonical* representation of the inputs so it stays stable across synths
+   * and machines:
+   *  - Commands are resolved through the stack so CDK tokens (e.g. `Ref`/`Fn::GetAtt`) are hashed by
+   *    their stable intrinsic form, not by the `${Token[TOKEN.NN]}` placeholder whose counter changes
+   *    between synths.
+   *  - Assets are hashed by file content (path-independent) rather than by their local source path, so
+   *    the same file produces the same key regardless of where it lives on disk.
+   *
    * @internal
    */
-  private _getCacheKey(os: Os, architecture: Architecture, commands: string[], assets: RunnerImageAsset[], reboot: boolean): string {
-    // Create a hash of the component properties
-    const assetKeys = assets.map(a => `${a.source}:${a.target}`).sort().join('|');
-    const keyData = `${this.name}:${os.name}:${architecture.name}:${commands.join('\n')}:${assetKeys}:${reboot}`;
+  private _getCacheKey(stack: cdk.Stack, os: Os, architecture: Architecture, commands: string[], assets: RunnerImageAsset[], reboot: boolean) {
+    // Create a hash of the component properties. Only tokenized commands are resolved (plain commands
+    // are left as-is so their key is unchanged), and assets are keyed by content instead of path.
+    const commandKeys = commands.map(c => cdk.Token.isUnresolved(c) ? JSON.stringify(stack.resolve(c)) : c).join('\n');
+    const assetKeys = assets.map(a => `${cdk.FileSystem.fingerprint(a.source)}:${a.target}`).sort().join('|');
+    const keyData = `${this.name}:${os.name}:${architecture.name}:${commandKeys}:${assetKeys}:${reboot}`;
     return crypto.createHash('md5').update(keyData).digest('hex');
   }
 }
-
