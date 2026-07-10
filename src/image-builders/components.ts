@@ -745,13 +745,11 @@ export abstract class RunnerImageComponent {
   }
 
   private static jobHook(name: string, envVar: string, sourcePath: string): RunnerImageComponent {
-    const filename = path.basename(sourcePath);
-
     const scriptPath = (os: Os): string => {
       if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
-        return `/home/runner/${filename}`;
+        return `/home/runner/${envVar}.sh`;
       } else if (os.is(Os.WINDOWS)) {
-        return `C:\\actions\\${filename}`;
+        return `C:\\actions\\${envVar}.ps1`;
       }
       throw new Error(`Unsupported OS for job hook component: ${os.name}`);
     };
