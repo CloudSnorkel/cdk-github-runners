@@ -713,6 +713,75 @@ export abstract class RunnerImageComponent {
   }
 
   /**
+   * A component that runs a script before every job the runner executes.
+   *
+   * Point this at a local script file. It is copied into the image, made executable, and the runner is
+   * configured to run it before each job using the
+   * [`ACTIONS_RUNNER_HOOK_JOB_STARTED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
+   * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
+   *
+   * Must be used after the {@link githubRunner} component.
+   *
+   * @param sourcePath path to a local script file to run before every job
+   */
+  static jobStartedHook(sourcePath: string): RunnerImageComponent {
+    return RunnerImageComponent.jobHook('Job-Started-Hook', 'ACTIONS_RUNNER_HOOK_JOB_STARTED', sourcePath);
+  }
+
+  /**
+   * A component that runs a script after every job the runner executes.
+   *
+   * Point this at a local script file. It is copied into the image, made executable, and the runner is
+   * configured to run it after each job using the
+   * [`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
+   * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
+   *
+   * Must be used after the {@link githubRunner} component.
+   *
+   * @param sourcePath path to a local script file to run after every job
+   */
+  static jobCompletedHook(sourcePath: string): RunnerImageComponent {
+    return RunnerImageComponent.jobHook('Job-Completed-Hook', 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED', sourcePath);
+  }
+
+  private static jobHook(name: string, envVar: string, sourcePath: string): RunnerImageComponent {
+    const scriptPath = (os: Os): string => {
+      if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
+        return `/home/runner/${envVar}.sh`;
+      } else if (os.is(Os.WINDOWS)) {
+        return `C:\\actions\\${envVar}.ps1`;
+      }
+      throw new Error(`Unsupported OS for job hook component: ${os.name}`);
+    };
+
+    return new class extends RunnerImageComponent {
+      name = name;
+
+      getAssets(os: Os, _architecture: Architecture): RunnerImageAsset[] {
+        return [{
+          source: sourcePath,
+          target: scriptPath(os),
+        }];
+      }
+
+      getCommands(os: Os, _architecture: Architecture): string[] {
+        const target = scriptPath(os);
+        if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
+          return [
+            `chmod +x '${target}'`,
+            `echo '${envVar}=${target}' >> /home/runner/.env`,
+          ];
+        } else if (os.is(Os.WINDOWS)) {
+          return [
+            `Add-Content -Path C:\\actions\\.env -Value '${envVar}=${target}'`,
+          ];
+        }
+        throw new Error(`Unsupported OS for job hook component: ${os.name}`);
+      }
+    }();
+  }
+
+  /**
    * Component name.
    *
    * Used to identify component in image build logs, and for {@link IConfigurableRunnerImageBuilder.removeComponent}

@@ -11511,6 +11511,8 @@ Returns true if the image builder should be rebooted after this component is ins
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.git">git</a></code> | A component to install Git. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubCli">githubCli</a></code> | A component to install the GitHub CLI. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubRunner">githubRunner</a></code> | A component to install the GitHub Actions Runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobCompletedHook">jobCompletedHook</a></code> | A component that runs a script after every job the runner executes. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobStartedHook">jobStartedHook</a></code> | A component that runs a script before every job the runner executes. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.lambdaEntrypoint">lambdaEntrypoint</a></code> | A component to set up the required Lambda entrypoint for Lambda runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.requiredPackages">requiredPackages</a></code> | A component to install the required packages for the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.runnerUser">runnerUser</a></code> | A component to prepare the required runner user. |
@@ -11710,6 +11712,56 @@ This is the actual executable that connects to GitHub to ask for jobs and then e
 The version of the runner to install.
 
 Usually you would set this to latest.
+
+---
+
+##### `jobCompletedHook` <a name="jobCompletedHook" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobCompletedHook"></a>
+
+```typescript
+import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
+
+RunnerImageComponent.jobCompletedHook(sourcePath: string)
+```
+
+A component that runs a script after every job the runner executes.
+
+Point this at a local script file. It is copied into the image, made executable, and the runner is
+configured to run it after each job using the
+[`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
+environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
+
+Must be used after the {@link githubRunner} component.
+
+###### `sourcePath`<sup>Required</sup> <a name="sourcePath" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobCompletedHook.parameter.sourcePath"></a>
+
+- *Type:* string
+
+path to a local script file to run after every job.
+
+---
+
+##### `jobStartedHook` <a name="jobStartedHook" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobStartedHook"></a>
+
+```typescript
+import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
+
+RunnerImageComponent.jobStartedHook(sourcePath: string)
+```
+
+A component that runs a script before every job the runner executes.
+
+Point this at a local script file. It is copied into the image, made executable, and the runner is
+configured to run it before each job using the
+[`ACTIONS_RUNNER_HOOK_JOB_STARTED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
+environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
+
+Must be used after the {@link githubRunner} component.
+
+###### `sourcePath`<sup>Required</sup> <a name="sourcePath" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobStartedHook.parameter.sourcePath"></a>
+
+- *Type:* string
+
+path to a local script file to run before every job.
 
 ---
 
