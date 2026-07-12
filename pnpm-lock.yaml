@@ -133,8 +133,8 @@ importers:
         specifier: ~5.9.0
         version: 5.9.55
       projen:
-        specifier: ^0.101.4
-        version: 0.101.4(constructs@10.5.1)
+        specifier: ^0.101.5
+        version: 0.101.11(constructs@10.5.1)
       sass:
         specifier: ^1.54.0
         version: 1.101.0
@@ -3162,8 +3162,8 @@ packages:
   process-nextick-args@2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
 
-  projen@0.101.4:
-    resolution: {integrity: sha512-85HQncbGc18c+Fc0dLtWag0GGUS5Vt37tf6xBb7tR6lUJHCFWNrQHvKD+7PuyzwryGDcezl60JhErH+Wpf06xg==}
+  projen@0.101.11:
+    resolution: {integrity: sha512-tYHCtX8tqRcO+SZsK520zqA0InTS7tAXWGQ6EZxvsnJKgyVV4gnNIEr+9FYuWVEAKAi3/BBKYddjl++11YPxxw==}
     engines: {node: '>= 16.0.0'}
     hasBin: true
     peerDependencies:
@@ -7490,7 +7490,7 @@ snapshots:
 
   process-nextick-args@2.0.1: {}
 
-  projen@0.101.4(constructs@10.5.1):
+  projen@0.101.11(constructs@10.5.1):
     dependencies:
       constructs: 10.5.1
 
