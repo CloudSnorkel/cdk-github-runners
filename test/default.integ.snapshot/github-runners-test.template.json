@@ -515,11 +515,11 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > component7-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\nCOPY component7-EnvironmentVariables.sh /tmp\\nRUN /tmp/component7-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
+        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > component7-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\nCOPY component7-EnvironmentVariables.sh /tmp\\nRUN /tmp/component7-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -621,15 +621,15 @@
     ]
    }
   },
-  "FargatebuilderBuildWaitHandle09283239d3BD61035A": {
+  "FargatebuilderBuildWaitHandle9a8ddd0ed51BF0C3A5": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderBuildWait09283239d3DD8796F6": {
+  "FargatebuilderBuildWait9a8ddd0ed57BA08FC1": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderBuildWaitHandle09283239d3BD61035A"
+     "Ref": "FargatebuilderBuildWaitHandle9a8ddd0ed51BF0C3A5"
     },
     "Timeout": "3600"
    }
@@ -650,7 +650,7 @@
      "Ref": "FargatebuilderCodeBuild4F182743"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderBuildWaitHandle09283239d3BD61035A"
+     "Ref": "FargatebuilderBuildWaitHandle9a8ddd0ed51BF0C3A5"
     }
    },
    "DependsOn": [
@@ -1021,11 +1021,11 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > component7-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\nCOPY component7-EnvironmentVariables.sh /tmp\\nRUN /tmp/component7-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
+        " asset6-Custom-Undefined-0\",\n        \"cat > component6-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Custom-Undefined.sh\",\n        \"cat > component7-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Custom-Undefined-0 FUNDING.yml\\nCOPY component6-Custom-Undefined.sh /tmp\\nRUN /tmp/component6-Custom-Undefined.sh\\n\\nCOPY component7-EnvironmentVariables.sh /tmp\\nRUN /tmp/component7-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -1127,15 +1127,15 @@
     ]
    }
   },
-  "FargatebuilderarmBuildWaitHandleab986f90da05F848B2": {
+  "FargatebuilderarmBuildWaitHandle33f975cf3f6CACA0C5": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderarmBuildWaitab986f90daF8D1D861": {
+  "FargatebuilderarmBuildWait33f975cf3f4247CF34": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderarmBuildWaitHandleab986f90da05F848B2"
+     "Ref": "FargatebuilderarmBuildWaitHandle33f975cf3f6CACA0C5"
     },
     "Timeout": "3600"
    }
@@ -1156,7 +1156,7 @@
      "Ref": "FargatebuilderarmCodeBuild0D30679A"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderarmBuildWaitHandleab986f90da05F848B2"
+     "Ref": "FargatebuilderarmBuildWaitHandle33f975cf3f6CACA0C5"
     }
    },
    "DependsOn": [
@@ -1658,7 +1658,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\ndnf install -y openssl-libs krb5-libs zlib libicu-67.1\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\ndnf install -y openssl-libs krb5-libs zlib libicu-67.1\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/2fc3b84da69dcc5adb6dc4721b50c1166474fa7e5fd5f242e833d12ac28e09d9.sh"
         },
@@ -1670,7 +1670,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/amazonlinux/amazonlinux:2023\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 /bootstrap.sh\\nCOPY asset6-Lambda-Entrypoint-1 /runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nLABEL DISABLE_SOCI=1\\nENTRYPOINT [\\\"bash\\\", \\\"/bootstrap.sh\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/amazonlinux/amazonlinux:2023\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 /bootstrap.sh\\nCOPY asset6-Lambda-Entrypoint-1 /runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nLABEL DISABLE_SOCI=1\\nENTRYPOINT [\\\"bash\\\", \\\"/bootstrap.sh\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -1772,15 +1772,15 @@
     ]
    }
   },
-  "LambdaImageBuilderx64BuildWaitHandlef07bb4d126BE2B7EC1": {
+  "LambdaImageBuilderx64BuildWaitHandlebee88911b1506EAE12": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderx64BuildWaitf07bb4d126A75E7786": {
+  "LambdaImageBuilderx64BuildWaitbee88911b1A7A932E9": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandlef07bb4d126BE2B7EC1"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandlebee88911b1506EAE12"
     },
     "Timeout": "3600"
    }
@@ -1801,7 +1801,7 @@
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandlef07bb4d126BE2B7EC1"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandlebee88911b1506EAE12"
     }
    },
    "DependsOn": [
@@ -2033,7 +2033,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGitWindowsX86642b1c37eb5eComponentB5544AC3",
+        "GHRInternalComponentGitWindowsX8664b0e38ec8faComponent017846C3",
         "Arn"
        ]
       }
@@ -2041,7 +2041,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubCliWindowsX866410de5d6247Component271D5932",
+        "GHRInternalComponentGithubCliWindowsX866467859f2712ComponentDBADD3BF",
         "Arn"
        ]
       }
@@ -2057,7 +2057,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerWindowsX8664bebb7dbd02ComponentE8E32427",
+        "GHRInternalComponentGithubRunnerWindowsX86643e833d7379Component8639C395",
         "Arn"
        ]
       }
@@ -2588,7 +2588,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentRequiredPackagesUbuntuLinuxX8664d201948976ComponentDE30D331",
+        "GHRInternalComponentRequiredPackagesUbuntuLinuxX8664d2779bf2afComponent19B6D69E",
         "Arn"
        ]
       }
@@ -2596,7 +2596,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentCloudWatchAgentUbuntuLinuxX86649df7054ebaComponent6ABEB9FD",
+        "GHRInternalComponentCloudWatchAgentUbuntuLinuxX86644d18e89f56ComponentE82C1315",
         "Arn"
        ]
       }
@@ -2612,7 +2612,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGitUbuntuLinuxX86647f6ea71095Component5CE01998",
+        "GHRInternalComponentGitUbuntuLinuxX86649a2287f350Component73532396",
         "Arn"
        ]
       }
@@ -2620,7 +2620,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubCliUbuntuLinuxX8664c71af00302ComponentF133A64B",
+        "GHRInternalComponentGithubCliUbuntuLinuxX86647d8ed82743Component673C3562",
         "Arn"
        ]
       }
@@ -2628,7 +2628,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentAwsCliUbuntuLinuxX866445619929baComponent9958C7AA",
+        "GHRInternalComponentAwsCliUbuntuLinuxX866492471e0c32Component6AF6E074",
         "Arn"
        ]
       }
@@ -2636,7 +2636,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentDockerUbuntuLinuxX8664d88d3fd3fbComponentE4CCF34F",
+        "GHRInternalComponentDockerUbuntuLinuxX8664c3a026020eComponentF5D79A17",
         "Arn"
        ]
       }
@@ -2644,7 +2644,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerUbuntuLinuxX866412a0997e74Component330EDC71",
+        "GHRInternalComponentGithubRunnerUbuntuLinuxX8664b4f9f72dffComponentF5FD889B",
         "Arn"
        ]
       }
@@ -3274,11 +3274,11 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"cat > component6-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-GithubRunner.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"cat > component6-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-GithubRunner.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -3380,15 +3380,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderBuildWaitHandlee3475f9f338EF77B44": {
+  "CodeBuildImageBuilderBuildWaitHandlececf1e7d64E42D6A10": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderBuildWaite3475f9f335D7FCE24": {
+  "CodeBuildImageBuilderBuildWaitcecf1e7d64665ECB29": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandlee3475f9f338EF77B44"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandlececf1e7d64E42D6A10"
     },
     "Timeout": "3600"
    }
@@ -3409,7 +3409,7 @@
      "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandlee3475f9f338EF77B44"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandlececf1e7d64E42D6A10"
     }
    },
    "DependsOn": [
@@ -3780,11 +3780,11 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"cat > component6-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-GithubRunner.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"cat > component6-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-GithubRunner.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:24.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:24.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -3886,15 +3886,15 @@
     ]
    }
   },
-  "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle16d3f70a64ABDE43E0": {
+  "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlec0b7fcc5c804B92487": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildUbuntu2404ImageBuilderBuildWait16d3f70a64A58869AF": {
+  "CodeBuildUbuntu2404ImageBuilderBuildWaitc0b7fcc5c859F73F17": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle16d3f70a64ABDE43E0"
+     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlec0b7fcc5c804B92487"
     },
     "Timeout": "3600"
    }
@@ -3915,7 +3915,7 @@
      "Ref": "CodeBuildUbuntu2404ImageBuilderCodeBuild30AF5C46"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle16d3f70a64ABDE43E0"
+     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlec0b7fcc5c804B92487"
     }
    },
    "DependsOn": [
@@ -4286,11 +4286,11 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get update\\nDEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"cat > component6-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-GithubRunner.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"cat > component6-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\n/home/runner/bin/installdependencies.sh\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-GithubRunner.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -4392,15 +4392,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderarmBuildWaitHandle68f035bfc7515D8996": {
+  "CodeBuildImageBuilderarmBuildWaitHandled6ad467c50DB74DA25": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderarmBuildWait68f035bfc702E47C8B": {
+  "CodeBuildImageBuilderarmBuildWaitd6ad467c50560A5C5F": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle68f035bfc7515D8996"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandled6ad467c50DB74DA25"
     },
     "Timeout": "3600"
    }
@@ -4421,7 +4421,7 @@
      "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle68f035bfc7515D8996"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandled6ad467c50DB74DA25"
     }
    },
    "DependsOn": [
@@ -4923,7 +4923,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\ndnf install -y openssl-libs krb5-libs zlib libicu-67.1\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\ndnf install -y openssl-libs krb5-libs zlib libicu-67.1\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/2fc3b84da69dcc5adb6dc4721b50c1166474fa7e5fd5f242e833d12ac28e09d9.sh"
         },
@@ -4935,7 +4935,7 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/amazonlinux/amazonlinux:2023\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 /bootstrap.sh\\nCOPY asset6-Lambda-Entrypoint-1 /runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nLABEL DISABLE_SOCI=1\\nENTRYPOINT [\\\"bash\\\", \\\"/bootstrap.sh\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/amazonlinux/amazonlinux:2023\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset6-Lambda-Entrypoint-0 /bootstrap.sh\\nCOPY asset6-Lambda-Entrypoint-1 /runner.sh\\nCOPY component6-Lambda-Entrypoint.sh /tmp\\nRUN /tmp/component6-Lambda-Entrypoint.sh\\nLABEL DISABLE_SOCI=1\\nENTRYPOINT [\\\"bash\\\", \\\"/bootstrap.sh\\\"]\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_arm64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -5037,15 +5037,15 @@
     ]
    }
   },
-  "LambdaImageBuilderzBuildWaitHandlec383db2bf0771FC568": {
+  "LambdaImageBuilderzBuildWaitHandlee2cac39e3bDE977DF0": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderzBuildWaitc383db2bf0A6957784": {
+  "LambdaImageBuilderzBuildWaite2cac39e3b6AD708D4": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandlec383db2bf0771FC568"
+     "Ref": "LambdaImageBuilderzBuildWaitHandlee2cac39e3bDE977DF0"
     },
     "Timeout": "3600"
    }
@@ -5066,7 +5066,7 @@
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandlec383db2bf0771FC568"
+     "Ref": "LambdaImageBuilderzBuildWaitHandlee2cac39e3bDE977DF0"
     }
    },
    "DependsOn": [
@@ -5316,7 +5316,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentRequiredPackagesUbuntuLinuxARM6456cb0097b5Component43AA6DEF",
+        "GHRInternalComponentRequiredPackagesUbuntuLinuxARM64052072c9a6Component30B9F7E6",
         "Arn"
        ]
       }
@@ -5324,7 +5324,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentCloudWatchAgentUbuntuLinuxARM64db49b0565dComponent616AEF04",
+        "GHRInternalComponentCloudWatchAgentUbuntuLinuxARM648a1af6c684Component6B22D3C9",
         "Arn"
        ]
       }
@@ -5340,7 +5340,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGitUbuntuLinuxARM64a95898c2fcComponent2415F816",
+        "GHRInternalComponentGitUbuntuLinuxARM648ef7b4f196Component1E4C0732",
         "Arn"
        ]
       }
@@ -5348,7 +5348,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubCliUbuntuLinuxARM6419b0e44d09Component9ED027D4",
+        "GHRInternalComponentGithubCliUbuntuLinuxARM6490e43cf3beComponentF7F61583",
         "Arn"
        ]
       }
@@ -5356,7 +5356,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentAwsCliUbuntuLinuxARM6415965bf9ffComponentD602F318",
+        "GHRInternalComponentAwsCliUbuntuLinuxARM64cd50dd9966ComponentC6395E6D",
         "Arn"
        ]
       }
@@ -5364,7 +5364,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentDockerUbuntuLinuxARM642bc4e666f8ComponentA20F5E6F",
+        "GHRInternalComponentDockerUbuntuLinuxARM64a7017c00bcComponentBD1E648F",
         "Arn"
        ]
       }
@@ -5372,7 +5372,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerUbuntuLinuxARM64c1d48f5f94ComponentBA251D82",
+        "GHRInternalComponentGithubRunnerUbuntuLinuxARM642d000b0677Component398E4BDB",
         "Arn"
        ]
       }
@@ -5905,7 +5905,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGitWindowsX86642b1c37eb5eComponentB5544AC3",
+        "GHRInternalComponentGitWindowsX8664b0e38ec8faComponent017846C3",
         "Arn"
        ]
       }
@@ -5913,7 +5913,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubCliWindowsX866410de5d6247Component271D5932",
+        "GHRInternalComponentGithubCliWindowsX866467859f2712ComponentDBADD3BF",
         "Arn"
        ]
       }
@@ -5929,7 +5929,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentDockerWindowsX8664a52227b8abComponent42756297",
+        "GHRInternalComponentDockerWindowsX8664bf72275fa1Component8EDD4E11",
         "Arn"
        ]
       }
@@ -5937,7 +5937,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerWindowsX8664bebb7dbd02ComponentE8E32427",
+        "GHRInternalComponentGithubRunnerWindowsX86643e833d7379Component8639C395",
         "Arn"
        ]
       }
@@ -7549,22 +7549,22 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGitWindowsX86642b1c37eb5eComponentB5544AC3": {
+  "GHRInternalComponentGitWindowsX8664b0e38ec8faComponent017846C3": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"Git (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"$GIT_REVISION = ($GIT_VERSION -Split '.windows.')[1]\",\"If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = \\\"$GIT_VERSION_SHORT.$GIT_REVISION\\\"}\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList '/VERYSILENT'\",\"if ($p.ExitCode -ne 0) { throw \\\"Exit code is $p.ExitCode\\\" }\",\"del git-setup.exe\"]}}]}]}",
+    "Data": "{\"name\":\"Git (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl --retry 5 --retry-delay 30 -w \\\"%{redirect_url}\\\" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\\\latest-git\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-git\",\"$GIT_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"$GIT_VERSION_SHORT = ($GIT_VERSION -Split '.windows.')[0]\",\"$GIT_REVISION = ($GIT_VERSION -Split '.windows.')[1]\",\"If ($GIT_REVISION -gt 1) {$GIT_VERSION_SHORT = \\\"$GIT_VERSION_SHORT.$GIT_REVISION\\\"}\",\"Invoke-WebRequest -UseBasicParsing -Uri https://github.com/git-for-windows/git/releases/download/v${GIT_VERSION}/Git-${GIT_VERSION_SHORT}-64-bit.exe -OutFile git-setup.exe\",\"$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList '/VERYSILENT'\",\"if ($p.ExitCode -ne 0) { throw \\\"Exit code is $p.ExitCode\\\" }\",\"del git-setup.exe\"]}}]}]}",
     "Description": "Git component for Windows/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Git-Windows-X86-64-2b1c37eb5e-B14B3CFB",
+    "Name": "github-runners-test-GHRInternal--Component-Git-Windows-X86-64-b0e38ec8fa-5F687853",
     "Platform": "Windows",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubCliWindowsX866410de5d6247Component271D5932": {
+  "GHRInternalComponentGithubCliWindowsX866467859f2712ComponentDBADD3BF": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"GithubCli (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList '/i gh.msi /qn'\",\"if ($p.ExitCode -ne 0) { throw \\\"Exit code is $p.ExitCode\\\" }\",\"del gh.msi\"]}}]}]}",
+    "Data": "{\"name\":\"GithubCli (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl --retry 5 --retry-delay 30 -w \\\"%{redirect_url}\\\" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\\\latest-gh\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gh\",\"$GH_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi\\\" -OutFile gh.msi\",\"$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList '/i gh.msi /qn'\",\"if ($p.ExitCode -ne 0) { throw \\\"Exit code is $p.ExitCode\\\" }\",\"del gh.msi\"]}}]}]}",
     "Description": "GithubCli component for Windows/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubCli-Windows-X86-64-10de5d6247-014956DE",
+    "Name": "github-runners-test-GHRInternal--Component-GithubCli-Windows-X86-64-67859f2712-A0825B5E",
     "Platform": "Windows",
     "Version": "1.0.0"
    }
@@ -7579,12 +7579,12 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubRunnerWindowsX8664bebb7dbd02ComponentE8E32427": {
+  "GHRInternalComponentGithubRunnerWindowsX86643e833d7379Component8639C395": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"GithubRunner (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"mkdir C:\\\\hostedtoolcache\\\\windows\",\"mkdir C:\\\\tools\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/facebook/zstd/releases/latest > $Env:TEMP\\\\latest-zstd\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-zstd\",\"$ZSTD_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/facebook/zstd/releases/download/v$ZSTD_VERSION/zstd-v$ZSTD_VERSION-win64.zip\\\" -OutFile zstd.zip\",\"Expand-Archive zstd.zip -DestinationPath C:\\\\tools\",\"Move-Item -Path C:\\\\tools\\\\zstd-v$ZSTD_VERSION-win64\\\\zstd.exe C:\\\\tools\",\"Remove-Item -LiteralPath \\\"C:\\\\tools\\\\zstd-v$ZSTD_VERSION-win64\\\" -Force -Recurse\",\"del zstd.zip\",\"$persistedPaths = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)\",\"[Environment]::SetEnvironmentVariable(\\\"PATH\\\", $persistedPaths + \\\";C:\\\\tools\\\", [EnvironmentVariableTarget]::Machine)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\",\"echo latest | Out-File -Encoding ASCII -NoNewline C:\\\\actions\\\\RUNNER_VERSION\"]}}]}]}",
+    "Data": "{\"name\":\"GithubRunner (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl --retry 5 --retry-delay 30 -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"mkdir C:\\\\hostedtoolcache\\\\windows\",\"mkdir C:\\\\tools\",\"cmd /c curl --retry 5 --retry-delay 30 -w \\\"%{redirect_url}\\\" -fsS https://github.com/facebook/zstd/releases/latest > $Env:TEMP\\\\latest-zstd\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-zstd\",\"$ZSTD_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/facebook/zstd/releases/download/v$ZSTD_VERSION/zstd-v$ZSTD_VERSION-win64.zip\\\" -OutFile zstd.zip\",\"Expand-Archive zstd.zip -DestinationPath C:\\\\tools\",\"Move-Item -Path C:\\\\tools\\\\zstd-v$ZSTD_VERSION-win64\\\\zstd.exe C:\\\\tools\",\"Remove-Item -LiteralPath \\\"C:\\\\tools\\\\zstd-v$ZSTD_VERSION-win64\\\" -Force -Recurse\",\"del zstd.zip\",\"$persistedPaths = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)\",\"[Environment]::SetEnvironmentVariable(\\\"PATH\\\", $persistedPaths + \\\";C:\\\\tools\\\", [EnvironmentVariableTarget]::Machine)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\",\"echo latest | Out-File -Encoding ASCII -NoNewline C:\\\\actions\\\\RUNNER_VERSION\"]}}]}]}",
     "Description": "GithubRunner component for Windows/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Windows-X86-64-bebb7dbd02-95BBEF70",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Windows-X86-64-3e833d7379-60D2C29E",
     "Platform": "Windows",
     "Version": "1.0.0"
    }
@@ -11151,7 +11151,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderx64BuildWaitf07bb4d126A75E7786"
+        "Ref": "LambdaImageBuilderx64BuildWaitbee88911b1A7A932E9"
        },
        "\"}}"
       ]
@@ -11582,7 +11582,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderzBuildWaitc383db2bf0A6957784"
+        "Ref": "LambdaImageBuilderzBuildWaite2cac39e3b6AD708D4"
        },
        "\"}}"
       ]
@@ -13745,22 +13745,22 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "GHRInternalComponentRequiredPackagesUbuntuLinuxX8664d201948976ComponentDE30D331": {
+  "GHRInternalComponentRequiredPackagesUbuntuLinuxX8664d2779bf2afComponent19B6D69E": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"RequiredPackages (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\"]}}]}]}",
+    "Data": "{\"name\":\"RequiredPackages (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\"]}}]}]}",
     "Description": "RequiredPackages component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-RequiredPackages-Ubuntu-Linux-X86-64-d201948976-10CA9399",
+    "Name": "github-runners-test-GHRInternal--Component-RequiredPackages-Ubuntu-Linux-X86-64-d2779bf2af-A70EABD7",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentCloudWatchAgentUbuntuLinuxX86649df7054ebaComponent6ABEB9FD": {
+  "GHRInternalComponentCloudWatchAgentUbuntuLinuxX86644d18e89f56ComponentE82C1315": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"CloudWatchAgent (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
+    "Data": "{\"name\":\"CloudWatchAgent (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
     "Description": "CloudWatchAgent component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-CloudWatchAgent-Ubuntu-Linux-X86-64-9df7054eba-886DB030",
+    "Name": "github-runners-test-GHRInternal--Component-CloudWatchAgent-Ubuntu-Linux-X86-64-4d18e89f56-CE52BB13",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
@@ -13775,52 +13775,52 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGitUbuntuLinuxX86647f6ea71095Component5CE01998": {
+  "GHRInternalComponentGitUbuntuLinuxX86649a2287f350Component73532396": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"Git (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y git\"]}}]}]}",
+    "Data": "{\"name\":\"Git (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\"]}}]}]}",
     "Description": "Git component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Git-Ubuntu-Linux-X86-64-7f6ea71095-00E41E74",
+    "Name": "github-runners-test-GHRInternal--Component-Git-Ubuntu-Linux-X86-64-9a2287f350-FD170E5B",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubCliUbuntuLinuxX8664c71af00302ComponentF133A64B": {
+  "GHRInternalComponentGithubCliUbuntuLinuxX86647d8ed82743Component673C3562": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"GithubCli (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y gh\"]}}]}]}",
+    "Data": "{\"name\":\"GithubCli (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\"]}}]}]}",
     "Description": "GithubCli component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubCli-Ubuntu-Linux-X86-64-c71af00302-641D60CB",
+    "Name": "github-runners-test-GHRInternal--Component-GithubCli-Ubuntu-Linux-X86-64-7d8ed82743-AF9C6E78",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentAwsCliUbuntuLinuxX866445619929baComponent9958C7AA": {
+  "GHRInternalComponentAwsCliUbuntuLinuxX866492471e0c32Component6AF6E074": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"AwsCli (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\",\"unzip -q awscliv2.zip\",\"./aws/install --update\",\"rm -rf awscliv2.zip aws\"]}}]}]}",
+    "Data": "{\"name\":\"AwsCli (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\",\"unzip -q awscliv2.zip\",\"./aws/install --update\",\"rm -rf awscliv2.zip aws\"]}}]}]}",
     "Description": "AwsCli component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-AwsCli-Ubuntu-Linux-X86-64-45619929ba-B9514464",
+    "Name": "github-runners-test-GHRInternal--Component-AwsCli-Ubuntu-Linux-X86-64-92471e0c32-30FDFAFC",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentDockerUbuntuLinuxX8664d88d3fd3fbComponentE4CCF34F": {
+  "GHRInternalComponentDockerUbuntuLinuxX8664c3a026020eComponentF5D79A17": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"Docker (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
+    "Data": "{\"name\":\"Docker (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
     "Description": "Docker component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Docker-Ubuntu-Linux-X86-64-d88d3fd3fb-15200788",
+    "Name": "github-runners-test-GHRInternal--Component-Docker-Ubuntu-Linux-X86-64-c3a026020e-D28B38F1",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubRunnerUbuntuLinuxX866412a0997e74Component330EDC71": {
+  "GHRInternalComponentGithubRunnerUbuntuLinuxX8664b4f9f72dffComponentF5FD889B": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"GithubRunner (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\",\"echo -n latest > /home/runner/RUNNER_VERSION\",\"/home/runner/bin/installdependencies.sh\",\"mkdir -p /opt/hostedtoolcache\",\"chown runner /opt/hostedtoolcache\"]}}]}]}",
+    "Data": "{\"name\":\"GithubRunner (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\",\"echo -n latest > /home/runner/RUNNER_VERSION\",\"/home/runner/bin/installdependencies.sh\",\"mkdir -p /opt/hostedtoolcache\",\"chown runner /opt/hostedtoolcache\"]}}]}]}",
     "Description": "GithubRunner component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-X86-64-12a0997e74-0B1DFE19",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-X86-64-b4f9f72dff-97E16CD3",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
@@ -14428,22 +14428,22 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "GHRInternalComponentRequiredPackagesUbuntuLinuxARM6456cb0097b5Component43AA6DEF": {
+  "GHRInternalComponentRequiredPackagesUbuntuLinuxARM64052072c9a6Component30B9F7E6": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"RequiredPackages (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\"]}}]}]}",
+    "Data": "{\"name\":\"RequiredPackages (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\"]}}]}]}",
     "Description": "RequiredPackages component for Ubuntu Linux/ARM64",
-    "Name": "github-runners-test-GHRInternal--Component-RequiredPackages-Ubuntu-Linux-ARM64-56cb0097b5-829A6A92",
+    "Name": "github-runners-test-GHRInternal--Component-RequiredPackages-Ubuntu-Linux-ARM64-052072c9a6-6E214E2A",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentCloudWatchAgentUbuntuLinuxARM64db49b0565dComponent616AEF04": {
+  "GHRInternalComponentCloudWatchAgentUbuntuLinuxARM648a1af6c684Component6B22D3C9": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"CloudWatchAgent (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
+    "Data": "{\"name\":\"CloudWatchAgent (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
     "Description": "CloudWatchAgent component for Ubuntu Linux/ARM64",
-    "Name": "github-runners-test-GHRInternal--Component-CloudWatchAgent-Ubuntu-Linux-ARM64-db49b0565d-CD810FAF",
+    "Name": "github-runners-test-GHRInternal--Component-CloudWatchAgent-Ubuntu-Linux-ARM64-8a1af6c684-29752132",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
@@ -14458,52 +14458,52 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGitUbuntuLinuxARM64a95898c2fcComponent2415F816": {
+  "GHRInternalComponentGitUbuntuLinuxARM648ef7b4f196Component1E4C0732": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"Git (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y git\"]}}]}]}",
+    "Data": "{\"name\":\"Git (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\"]}}]}]}",
     "Description": "Git component for Ubuntu Linux/ARM64",
-    "Name": "github-runners-test-GHRInternal--Component-Git-Ubuntu-Linux-ARM64-a95898c2fc-40D7571B",
+    "Name": "github-runners-test-GHRInternal--Component-Git-Ubuntu-Linux-ARM64-8ef7b4f196-40F37E66",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubCliUbuntuLinuxARM6419b0e44d09Component9ED027D4": {
+  "GHRInternalComponentGithubCliUbuntuLinuxARM6490e43cf3beComponentF7F61583": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"GithubCli (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y gh\"]}}]}]}",
+    "Data": "{\"name\":\"GithubCli (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\"]}}]}]}",
     "Description": "GithubCli component for Ubuntu Linux/ARM64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubCli-Ubuntu-Linux-ARM64-19b0e44d09-09F05184",
+    "Name": "github-runners-test-GHRInternal--Component-GithubCli-Ubuntu-Linux-ARM64-90e43cf3be-9EF32953",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentAwsCliUbuntuLinuxARM6415965bf9ffComponentD602F318": {
+  "GHRInternalComponentAwsCliUbuntuLinuxARM64cd50dd9966ComponentC6395E6D": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"AwsCli (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\",\"unzip -q awscliv2.zip\",\"./aws/install --update\",\"rm -rf awscliv2.zip aws\"]}}]}]}",
+    "Data": "{\"name\":\"AwsCli (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\",\"unzip -q awscliv2.zip\",\"./aws/install --update\",\"rm -rf awscliv2.zip aws\"]}}]}]}",
     "Description": "AwsCli component for Ubuntu Linux/ARM64",
-    "Name": "github-runners-test-GHRInternal--Component-AwsCli-Ubuntu-Linux-ARM64-15965bf9ff-13742135",
+    "Name": "github-runners-test-GHRInternal--Component-AwsCli-Ubuntu-Linux-ARM64-cd50dd9966-683B8078",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentDockerUbuntuLinuxARM642bc4e666f8ComponentA20F5E6F": {
+  "GHRInternalComponentDockerUbuntuLinuxARM64a7017c00bcComponentBD1E648F": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"Docker (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get update\",\"DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
+    "Data": "{\"name\":\"Docker (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
     "Description": "Docker component for Ubuntu Linux/ARM64",
-    "Name": "github-runners-test-GHRInternal--Component-Docker-Ubuntu-Linux-ARM64-2bc4e666f8-83C24668",
+    "Name": "github-runners-test-GHRInternal--Component-Docker-Ubuntu-Linux-ARM64-a7017c00bc-036D0FD6",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubRunnerUbuntuLinuxARM64c1d48f5f94ComponentBA251D82": {
+  "GHRInternalComponentGithubRunnerUbuntuLinuxARM642d000b0677Component398E4BDB": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"GithubRunner (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\",\"echo -n latest > /home/runner/RUNNER_VERSION\",\"/home/runner/bin/installdependencies.sh\",\"mkdir -p /opt/hostedtoolcache\",\"chown runner /opt/hostedtoolcache\"]}}]}]}",
+    "Data": "{\"name\":\"GithubRunner (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\",\"echo -n latest > /home/runner/RUNNER_VERSION\",\"/home/runner/bin/installdependencies.sh\",\"mkdir -p /opt/hostedtoolcache\",\"chown runner /opt/hostedtoolcache\"]}}]}]}",
     "Description": "GithubRunner component for Ubuntu Linux/ARM64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-ARM64-c1d48f5f94-3182F17D",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-ARM64-2d000b0677-E7EA82A6",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
@@ -14727,12 +14727,12 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentDockerWindowsX8664a52227b8abComponent42756297": {
+  "GHRInternalComponentDockerWindowsX8664bf72275fa1Component8EDD4E11": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"Docker (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"$BaseUrl = \\\"https://download.docker.com/win/static/stable/x86_64/\\\"\",\"$html = Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl\",\"$files = $html.Links.href | Where-Object { $_ -match '^docker-[0-9\\\\.]+\\\\.zip$' }\",\"if (-not $files) { Write-Error \\\"No docker-*.zip files found.\\\" ; exit 1 }\",\"$latest = $files | Sort-Object { try { [Version]($_ -replace '^docker-|\\\\.zip$') } catch { [Version]\\\"0.0.0\\\" } } -Descending | Select-Object -First 1\",\"Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl$latest -OutFile docker.zip\",\"Expand-Archive docker.zip -DestinationPath \\\"$Env:ProgramFiles\\\"\",\"del docker.zip\",\"$persistedPaths = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)\",\"[Environment]::SetEnvironmentVariable(\\\"PATH\\\", $persistedPaths + \\\";$Env:ProgramFiles\\\\Docker\\\", [EnvironmentVariableTarget]::Machine)\",\"$env:PATH = $env:PATH + \\\";$Env:ProgramFiles\\\\Docker\\\"\",\"dockerd --register-service\",\"if ($LASTEXITCODE -ne 0) { throw \\\"Exit code is $LASTEXITCODE\\\" }\",\"Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart\",\"cmd /c curl -w \\\"%{redirect_url}\\\" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\\\latest-docker-compose\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-docker-compose\",\"$LatestDockerCompose = ($LatestUrl -Split '/')[-1]\",\"Invoke-WebRequest -UseBasicParsing -Uri  \\\"https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe\\\" -OutFile $Env:ProgramFiles\\\\Docker\\\\docker-compose.exe\",\"New-Item -ItemType directory -Path \\\"$Env:ProgramFiles\\\\Docker\\\\cli-plugins\\\"\",\"Copy-Item -Path \\\"$Env:ProgramFiles\\\\Docker\\\\docker-compose.exe\\\" -Destination \\\"$Env:ProgramFiles\\\\Docker\\\\cli-plugins\\\\docker-compose.exe\\\"\"]}},{\"name\":\"Reboot\",\"action\":\"Reboot\",\"inputs\":{}}]}]}",
+    "Data": "{\"name\":\"Docker (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"$BaseUrl = \\\"https://download.docker.com/win/static/stable/x86_64/\\\"\",\"$html = Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl\",\"$files = $html.Links.href | Where-Object { $_ -match '^docker-[0-9\\\\.]+\\\\.zip$' }\",\"if (-not $files) { Write-Error \\\"No docker-*.zip files found.\\\" ; exit 1 }\",\"$latest = $files | Sort-Object { try { [Version]($_ -replace '^docker-|\\\\.zip$') } catch { [Version]\\\"0.0.0\\\" } } -Descending | Select-Object -First 1\",\"Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl$latest -OutFile docker.zip\",\"Expand-Archive docker.zip -DestinationPath \\\"$Env:ProgramFiles\\\"\",\"del docker.zip\",\"$persistedPaths = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)\",\"[Environment]::SetEnvironmentVariable(\\\"PATH\\\", $persistedPaths + \\\";$Env:ProgramFiles\\\\Docker\\\", [EnvironmentVariableTarget]::Machine)\",\"$env:PATH = $env:PATH + \\\";$Env:ProgramFiles\\\\Docker\\\"\",\"dockerd --register-service\",\"if ($LASTEXITCODE -ne 0) { throw \\\"Exit code is $LASTEXITCODE\\\" }\",\"Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart\",\"cmd /c curl --retry 5 --retry-delay 30 -w \\\"%{redirect_url}\\\" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\\\latest-docker-compose\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-docker-compose\",\"$LatestDockerCompose = ($LatestUrl -Split '/')[-1]\",\"Invoke-WebRequest -UseBasicParsing -Uri  \\\"https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe\\\" -OutFile $Env:ProgramFiles\\\\Docker\\\\docker-compose.exe\",\"New-Item -ItemType directory -Path \\\"$Env:ProgramFiles\\\\Docker\\\\cli-plugins\\\"\",\"Copy-Item -Path \\\"$Env:ProgramFiles\\\\Docker\\\\docker-compose.exe\\\" -Destination \\\"$Env:ProgramFiles\\\\Docker\\\\cli-plugins\\\\docker-compose.exe\\\"\"]}},{\"name\":\"Reboot\",\"action\":\"Reboot\",\"inputs\":{}}]}]}",
     "Description": "Docker component for Windows/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Docker-Windows-X86-64-a52227b8ab-C238ED10",
+    "Name": "github-runners-test-GHRInternal--Component-Docker-Windows-X86-64-bf72275fa1-FA238745",
     "Platform": "Windows",
     "Version": "1.0.0"
    }

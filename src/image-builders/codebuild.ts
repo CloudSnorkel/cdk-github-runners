@@ -360,13 +360,13 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
             '  "Data": "$RANDOM"\n' +
             '}\n' +
             'EOF',
-            'if [ "$WAIT_HANDLE" != "unspecified" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$WAIT_HANDLE"; fi',
+            'if [ "$WAIT_HANDLE" != "unspecified" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$WAIT_HANDLE"; fi',
             // generate and push soci index
             // we do this after finishing the build, so we don't have to wait. it's also not required, so it's ok if it fails
             'if [ `docker inspect --format=\'{{json .Config.Labels.DISABLE_SOCI}}\' "$REPO_URI"` = "null" ]; then\n' +
             'docker rmi "$REPO_URI"\n' + // it downloads the image again to /tmp, so save on space
-            'LATEST_SOCI_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
-            `curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
+            'LATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
+            `curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
             './standalone-soci-indexer "$REPO_URI"\n' +
             'fi',
           ],
