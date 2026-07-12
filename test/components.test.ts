@@ -130,7 +130,7 @@ describe('Component version options', () => {
   test('docker uses latest on Ubuntu when version not specified', () => {
     const latest = RunnerImageComponent.docker();
     const ubuntu = latest.getCommands(Os.LINUX_UBUNTU_2204, Architecture.X86_64);
-    expect(ubuntu.some(c => c.includes('apt-get install') && c.includes('docker-ce '))).toBe(true);
+    expect(ubuntu.some(c => c.includes('apt-get') && c.includes('install') && c.includes('docker-ce '))).toBe(true);
   });
 
   test('dockerInDocker forwards version to docker (Windows)', () => {

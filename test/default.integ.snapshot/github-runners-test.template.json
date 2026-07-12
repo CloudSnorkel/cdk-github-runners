@@ -2562,7 +2562,7 @@
        {
         "Ref": "AWS::Region"
        },
-       ":aws:image/ubuntu-server-22-lts-x86/x.x.x"
+       ":aws:image/amazon-linux-2-x86/x.x.x"
       ]
      ]
     }
@@ -2588,7 +2588,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentRequiredPackagesUbuntuLinuxX8664d2779bf2afComponent19B6D69E",
+        "GHRInternalComponentRequiredPackagesAmazonLinux2X8664f76a9cf224Component61B83A97",
         "Arn"
        ]
       }
@@ -2596,7 +2596,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentCloudWatchAgentUbuntuLinuxX86644d18e89f56ComponentE82C1315",
+        "GHRInternalComponentCloudWatchAgentAmazonLinux2X86645a5d7e3381Component09EEBC88",
         "Arn"
        ]
       }
@@ -2604,7 +2604,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentRunnerUserUbuntuLinuxX86643e5e4f9f04ComponentCD37EC8F",
+        "GHRInternalComponentRunnerUserAmazonLinux2X8664a3d63a0623Component4C8DC2C6",
         "Arn"
        ]
       }
@@ -2612,7 +2612,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGitUbuntuLinuxX86649a2287f350Component73532396",
+        "GHRInternalComponentGitAmazonLinux2X86644f3c1dbe02Component67F5F603",
         "Arn"
        ]
       }
@@ -2620,7 +2620,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubCliUbuntuLinuxX86647d8ed82743Component673C3562",
+        "GHRInternalComponentGithubCliAmazonLinux2X86648b60bb2ed4ComponentC5FA384A",
         "Arn"
        ]
       }
@@ -2628,7 +2628,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentAwsCliUbuntuLinuxX866492471e0c32Component6AF6E074",
+        "GHRInternalComponentAwsCliAmazonLinux2X8664bae8e13177Component7730180E",
         "Arn"
        ]
       }
@@ -2636,7 +2636,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentDockerUbuntuLinuxX8664c3a026020eComponentF5D79A17",
+        "GHRInternalComponentDockerAmazonLinux2X8664423b37d782Component03C03B8A",
         "Arn"
        ]
       }
@@ -2644,7 +2644,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerUbuntuLinuxX8664b4f9f72dffComponentF5FD889B",
+        "GHRInternalComponentGithubRunnerAmazonLinux2X86647d445c8012Component291949DC",
         "Arn"
        ]
       }
@@ -2652,7 +2652,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentCustomUndefinedUbuntuLinuxX866420ed999f0eComponent2D4BD0B0",
+        "GHRInternalComponentCustomUndefinedAmazonLinux2X86643920899611Component62732FD6",
         "Arn"
        ]
       }
@@ -2660,7 +2660,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentEnvironmentVariablesUbuntuLinuxX8664fb25b400aeComponent513D0C74",
+        "GHRInternalComponentEnvironmentVariablesAmazonLinux2X8664950495c1b6Component4BED4722",
         "Arn"
        ]
       }
@@ -2679,7 +2679,7 @@
        {
         "Ref": "AWS::Region"
        },
-       ":aws:image/ubuntu-server-22-lts-x86/x.x.x"
+       ":aws:image/amazon-linux-2-x86/x.x.x"
       ]
      ]
     },
@@ -13745,94 +13745,94 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "GHRInternalComponentRequiredPackagesUbuntuLinuxX8664d2779bf2afComponent19B6D69E": {
+  "GHRInternalComponentRequiredPackagesAmazonLinux2X8664f76a9cf224Component61B83A97": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"RequiredPackages (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\"]}}]}]}",
-    "Description": "RequiredPackages component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-RequiredPackages-Ubuntu-Linux-X86-64-d2779bf2af-A70EABD7",
+    "Data": "{\"name\":\"RequiredPackages (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"yum update -y\",\"yum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils\"]}}]}]}",
+    "Description": "RequiredPackages component for Amazon Linux 2/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-RequiredPackages-Amazon-Linux-2-X86-64-f76a9cf224-3E8C88A7",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentCloudWatchAgentUbuntuLinuxX86644d18e89f56ComponentE82C1315": {
+  "GHRInternalComponentCloudWatchAgentAmazonLinux2X86645a5d7e3381Component09EEBC88": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"CloudWatchAgent (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
-    "Description": "CloudWatchAgent component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-CloudWatchAgent-Ubuntu-Linux-X86-64-4d18e89f56-CE52BB13",
+    "Data": "{\"name\":\"CloudWatchAgent (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"yum install -y amazon-cloudwatch-agent\"]}}]}]}",
+    "Description": "CloudWatchAgent component for Amazon Linux 2/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-CloudWatchAgent-Amazon-Linux-2-X86-64-5a5d7e3381-B2385728",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentRunnerUserUbuntuLinuxX86643e5e4f9f04ComponentCD37EC8F": {
+  "GHRInternalComponentRunnerUserAmazonLinux2X8664a3d63a0623Component4C8DC2C6": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"RunnerUser (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"addgroup runner\",\"adduser --system --disabled-password --home /home/runner --ingroup runner runner\",\"echo \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\"]}}]}]}",
-    "Description": "RunnerUser component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-RunnerUser-Ubuntu-Linux-X86-64-3e5e4f9f04-800313BE",
+    "Data": "{\"name\":\"RunnerUser (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"/usr/sbin/groupadd runner\",\"/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\",\"mkdir -p /home/runner\",\"chown runner /home/runner\",\"echo \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\"]}}]}]}",
+    "Description": "RunnerUser component for Amazon Linux 2/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-RunnerUser-Amazon-Linux-2-X86-64-a3d63a0623-586982F4",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGitUbuntuLinuxX86649a2287f350Component73532396": {
+  "GHRInternalComponentGitAmazonLinux2X86644f3c1dbe02Component67F5F603": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"Git (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\"]}}]}]}",
-    "Description": "Git component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Git-Ubuntu-Linux-X86-64-9a2287f350-FD170E5B",
+    "Data": "{\"name\":\"Git (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"yum install -y git\"]}}]}]}",
+    "Description": "Git component for Amazon Linux 2/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-Git-Amazon-Linux-2-X86-64-4f3c1dbe02-B3C2CE30",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubCliUbuntuLinuxX86647d8ed82743Component673C3562": {
+  "GHRInternalComponentGithubCliAmazonLinux2X86648b60bb2ed4ComponentC5FA384A": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"GithubCli (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\"]}}]}]}",
-    "Description": "GithubCli component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubCli-Ubuntu-Linux-X86-64-7d8ed82743-AF9C6E78",
+    "Data": "{\"name\":\"GithubCli (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\",\"yum install -y gh\"]}}]}]}",
+    "Description": "GithubCli component for Amazon Linux 2/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-GithubCli-Amazon-Linux-2-X86-64-8b60bb2ed4-3425D6C3",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentAwsCliUbuntuLinuxX866492471e0c32Component6AF6E074": {
+  "GHRInternalComponentAwsCliAmazonLinux2X8664bae8e13177Component7730180E": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"AwsCli (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\",\"unzip -q awscliv2.zip\",\"./aws/install --update\",\"rm -rf awscliv2.zip aws\"]}}]}]}",
-    "Description": "AwsCli component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-AwsCli-Ubuntu-Linux-X86-64-92471e0c32-30FDFAFC",
+    "Data": "{\"name\":\"AwsCli (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\",\"unzip -q awscliv2.zip\",\"./aws/install --update\",\"rm -rf awscliv2.zip aws\"]}}]}]}",
+    "Description": "AwsCli component for Amazon Linux 2/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-AwsCli-Amazon-Linux-2-X86-64-bae8e13177-E4EAFC17",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentDockerUbuntuLinuxX8664c3a026020eComponentF5D79A17": {
+  "GHRInternalComponentDockerAmazonLinux2X8664423b37d782Component03C03B8A": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"Docker (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
-    "Description": "Docker component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Docker-Ubuntu-Linux-X86-64-c3a026020e-D28B38F1",
+    "Data": "{\"name\":\"Docker (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"amazon-linux-extras install docker\",\"usermod -a -G docker runner\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)\",\"chmod +x /usr/bin/docker-compose\",\"ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose\"]}}]}]}",
+    "Description": "Docker component for Amazon Linux 2/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-Docker-Amazon-Linux-2-X86-64-423b37d782-A44570EA",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubRunnerUbuntuLinuxX8664b4f9f72dffComponentF5FD889B": {
+  "GHRInternalComponentGithubRunnerAmazonLinux2X86647d445c8012Component291949DC": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"GithubRunner (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\",\"echo -n latest > /home/runner/RUNNER_VERSION\",\"/home/runner/bin/installdependencies.sh\",\"mkdir -p /opt/hostedtoolcache\",\"chown runner /opt/hostedtoolcache\"]}}]}]}",
-    "Description": "GithubRunner component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-X86-64-b4f9f72dff-97E16CD3",
+    "Data": "{\"name\":\"GithubRunner (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\",\"echo -n latest > /home/runner/RUNNER_VERSION\",\"yum install -y openssl-libs krb5-libs zlib libicu60\",\"mkdir -p /opt/hostedtoolcache\",\"chown runner /opt/hostedtoolcache\"]}}]}]}",
+    "Description": "GithubRunner component for Amazon Linux 2/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Amazon-Linux-2-X86-64-7d445c8012-F639F3DF",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentCustomUndefinedUbuntuLinuxX866420ed999f0eComponent2D4BD0B0": {
+  "GHRInternalComponentCustomUndefinedAmazonLinux2X86643920899611Component62732FD6": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
     "Data": {
      "Fn::Join": [
       "",
       [
-       "{\"name\":\"Custom-Undefined (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[{\"source\":\"",
+       "{\"name\":\"Custom-Undefined (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[{\"source\":\"",
        {
         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
        },
@@ -13840,18 +13840,18 @@
       ]
      ]
     },
-    "Description": "Custom-Undefined component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Custom-Undefined-Ubuntu-Linux-X86-64-20ed999f0e-44A3D40D",
+    "Description": "Custom-Undefined component for Amazon Linux 2/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-Custom-Undefined-Amazon-Linux-2-X86-64-3920899611-7210ABDD",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentEnvironmentVariablesUbuntuLinuxX8664fb25b400aeComponent513D0C74": {
+  "GHRInternalComponentEnvironmentVariablesAmazonLinux2X8664950495c1b6Component4BED4722": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"EnvironmentVariables (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"echo 'HELLO=world' >> /home/runner/.env\",\"echo 'FOO=bar' >> /home/runner/.env\"]}}]}]}",
-    "Description": "EnvironmentVariables component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-EnvironmentVariables-Ubuntu-Linux-X86-64-fb25b400ae-18971D64",
+    "Data": "{\"name\":\"EnvironmentVariables (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"echo 'HELLO=world' >> /home/runner/.env\",\"echo 'FOO=bar' >> /home/runner/.env\"]}}]}]}",
+    "Description": "EnvironmentVariables component for Amazon Linux 2/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-EnvironmentVariables-Amazon-Linux-2-X86-64-950495c1b6-9C093384",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
