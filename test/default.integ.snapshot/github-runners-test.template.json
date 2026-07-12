@@ -2065,7 +2065,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentCustomUndefinedWindowsX8664d3f7a4c3acComponent5FD862BB",
+        "GHRInternalComponentCustomUndefinedWindowsX8664e5637be034Component8D6515FA",
         "Arn"
        ]
       }
@@ -2652,7 +2652,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentCustomUndefinedUbuntuLinuxX8664d28bedb034Component81A79437",
+        "GHRInternalComponentCustomUndefinedUbuntuLinuxX866420ed999f0eComponent2D4BD0B0",
         "Arn"
        ]
       }
@@ -5380,7 +5380,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentCustomUndefinedUbuntuLinuxARM643b200da124Component670BA366",
+        "GHRInternalComponentCustomUndefinedUbuntuLinuxARM64ef11787edeComponentE759CB67",
         "Arn"
        ]
       }
@@ -5945,7 +5945,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentCustomUndefinedWindowsX8664d3f7a4c3acComponent5FD862BB",
+        "GHRInternalComponentCustomUndefinedWindowsX8664e5637be034Component8D6515FA",
         "Arn"
        ]
       }
@@ -7589,7 +7589,7 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentCustomUndefinedWindowsX8664d3f7a4c3acComponent5FD862BB": {
+  "GHRInternalComponentCustomUndefinedWindowsX8664e5637be034Component8D6515FA": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
     "Data": {
@@ -7605,7 +7605,7 @@
      ]
     },
     "Description": "Custom-Undefined component for Windows/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Custom-Undefined-Windows-X86-64-d3f7a4c3ac-4BCD8C61",
+    "Name": "github-runners-test-GHRInternal--Component-Custom-Undefined-Windows-X86-64-e5637be034-84ED5980",
     "Platform": "Windows",
     "Version": "1.0.0"
    }
@@ -7705,7 +7705,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "61d2ddf38d0094d5e2a132012961e9636df7ab755aca217fd3b11a545cdcde52.zip"
+     "S3Key": "c8204ff40a1a2de9aebe5c4383623c9db9683a11ff3ba0fcfffa6e3aa388a359.zip"
     },
     "Description": "Custom resource handler that deletes resources of old versions of EC2 Image Builder images",
     "Environment": {
@@ -13825,7 +13825,7 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentCustomUndefinedUbuntuLinuxX8664d28bedb034Component81A79437": {
+  "GHRInternalComponentCustomUndefinedUbuntuLinuxX866420ed999f0eComponent2D4BD0B0": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
     "Data": {
@@ -13841,7 +13841,7 @@
      ]
     },
     "Description": "Custom-Undefined component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Custom-Undefined-Ubuntu-Linux-X86-64-d28bedb034-19D022C3",
+    "Name": "github-runners-test-GHRInternal--Component-Custom-Undefined-Ubuntu-Linux-X86-64-20ed999f0e-44A3D40D",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
@@ -14508,7 +14508,7 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentCustomUndefinedUbuntuLinuxARM643b200da124Component670BA366": {
+  "GHRInternalComponentCustomUndefinedUbuntuLinuxARM64ef11787edeComponentE759CB67": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
     "Data": {
@@ -14524,7 +14524,7 @@
      ]
     },
     "Description": "Custom-Undefined component for Ubuntu Linux/ARM64",
-    "Name": "github-runners-test-GHRInternal--Component-Custom-Undefined-Ubuntu-Linux-ARM64-3b200da124-273B52A1",
+    "Name": "github-runners-test-GHRInternal--Component-Custom-Undefined-Ubuntu-Linux-ARM64-ef11787ede-28F2A0A0",
     "Platform": "Linux",
     "Version": "1.0.0"
    }

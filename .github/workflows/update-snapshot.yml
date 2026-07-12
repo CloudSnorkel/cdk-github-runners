@@ -55,6 +55,7 @@ jobs:
           git diff --staged -U0 | grep '"path":' | cut -d '"' -f 4 | xargs -rL 2 diff -ruN > /tmp/assets.diff
       - name: List diff files
         if: steps.create_patch.outputs.patch_created
+        continue-on-error: true
         run: |-
           grep ^diff /tmp/assets.diff
       - name: Upload assets.diff

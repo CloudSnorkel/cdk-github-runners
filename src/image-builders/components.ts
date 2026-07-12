@@ -713,6 +713,75 @@ export abstract class RunnerImageComponent {
   }
 
   /**
+   * A component that runs a script before every job the runner executes.
+   *
+   * Point this at a local script file. It is copied into the image, made executable, and the runner is
+   * configured to run it before each job using the
+   * [`ACTIONS_RUNNER_HOOK_JOB_STARTED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
+   * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
+   *
+   * Must be used after the {@link githubRunner} component.
+   *
+   * @param sourcePath path to a local script file to run before every job
+   */
+  static jobStartedHook(sourcePath: string): RunnerImageComponent {
+    return RunnerImageComponent.jobHook('Job-Started-Hook', 'ACTIONS_RUNNER_HOOK_JOB_STARTED', sourcePath);
+  }
+
+  /**
+   * A component that runs a script after every job the runner executes.
+   *
+   * Point this at a local script file. It is copied into the image, made executable, and the runner is
+   * configured to run it after each job using the
+   * [`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
+   * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
+   *
+   * Must be used after the {@link githubRunner} component.
+   *
+   * @param sourcePath path to a local script file to run after every job
+   */
+  static jobCompletedHook(sourcePath: string): RunnerImageComponent {
+    return RunnerImageComponent.jobHook('Job-Completed-Hook', 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED', sourcePath);
+  }
+
+  private static jobHook(name: string, envVar: string, sourcePath: string): RunnerImageComponent {
+    const scriptPath = (os: Os): string => {
+      if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
+        return `/home/runner/${envVar}.sh`;
+      } else if (os.is(Os.WINDOWS)) {
+        return `C:\\actions\\${envVar}.ps1`;
+      }
+      throw new Error(`Unsupported OS for job hook component: ${os.name}`);
+    };
+
+    return new class extends RunnerImageComponent {
+      name = name;
+
+      getAssets(os: Os, _architecture: Architecture): RunnerImageAsset[] {
+        return [{
+          source: sourcePath,
+          target: scriptPath(os),
+        }];
+      }
+
+      getCommands(os: Os, _architecture: Architecture): string[] {
+        const target = scriptPath(os);
+        if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
+          return [
+            `chmod +x '${target}'`,
+            `echo '${envVar}=${target}' >> /home/runner/.env`,
+          ];
+        } else if (os.is(Os.WINDOWS)) {
+          return [
+            `Add-Content -Path C:\\actions\\.env -Value '${envVar}=${target}'`,
+          ];
+        }
+        throw new Error(`Unsupported OS for job hook component: ${os.name}`);
+      }
+    }();
+  }
+
+  /**
    * Component name.
    *
    * Used to identify component in image build logs, and for {@link IConfigurableRunnerImageBuilder.removeComponent}
@@ -772,7 +841,7 @@ export abstract class RunnerImageComponent {
 
     // Create a cache key based on component identity and properties
     const stack = cdk.Stack.of(scope);
-    const cacheKey = this._getCacheKey(os, architecture, commands, assets, reboot);
+    const cacheKey = this._getCacheKey(stack, os, architecture, commands, assets, reboot);
 
     // Create a consistent ID based on the cache key to ensure the same component
     // always gets the same ID, regardless of the passed-in id parameter
@@ -810,13 +879,22 @@ export abstract class RunnerImageComponent {
    * Components with the same name, OS, architecture, commands, assets, and reboot flag will share the same key.
    * Returns a hash of all component properties to ensure uniqueness.
    *
+   * The key is built from a *canonical* representation of the inputs so it stays stable across synths
+   * and machines:
+   *  - Commands are resolved through the stack so CDK tokens (e.g. `Ref`/`Fn::GetAtt`) are hashed by
+   *    their stable intrinsic form, not by the `${Token[TOKEN.NN]}` placeholder whose counter changes
+   *    between synths.
+   *  - Assets are hashed by file content (path-independent) rather than by their local source path, so
+   *    the same file produces the same key regardless of where it lives on disk.
+   *
    * @internal
    */
-  private _getCacheKey(os: Os, architecture: Architecture, commands: string[], assets: RunnerImageAsset[], reboot: boolean): string {
-    // Create a hash of the component properties
-    const assetKeys = assets.map(a => `${a.source}:${a.target}`).sort().join('|');
-    const keyData = `${this.name}:${os.name}:${architecture.name}:${commands.join('\n')}:${assetKeys}:${reboot}`;
+  private _getCacheKey(stack: cdk.Stack, os: Os, architecture: Architecture, commands: string[], assets: RunnerImageAsset[], reboot: boolean) {
+    // Create a hash of the component properties. Only tokenized commands are resolved (plain commands
+    // are left as-is so their key is unchanged), and assets are keyed by content instead of path.
+    const commandKeys = commands.map(c => cdk.Token.isUnresolved(c) ? JSON.stringify(stack.resolve(c)) : c).join('\n');
+    const assetKeys = assets.map(a => `${cdk.FileSystem.fingerprint(a.source)}:${a.target}`).sort().join('|');
+    const keyData = `${this.name}:${os.name}:${architecture.name}:${commandKeys}:${assetKeys}:${reboot}`;
     return crypto.createHash('md5').update(keyData).digest('hex');
   }
 }
-
