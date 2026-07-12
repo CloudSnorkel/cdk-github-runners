@@ -595,6 +595,10 @@ Other useful metrics to track:
 1. Use `GitHubRunners.metricJobCompleted()` to get a metric for the number of completed jobs broken down by labels and job success.
 2. Use `GitHubRunners.metricTime()` to get a metric for the total time a runner is running. This includes the overhead of starting the runner.
 
+## Known Issues
+
+1. Docker images built with AWS Image Builder (by default only Windows Docker images) might not be fully rolled back on deployment failure. If your stack fails to deploy after an image was already built, the new image will stay around. It will be automatically replaced on the next build interval but that might take up to 7 days with default settings (`rebuildInterval`). It's recommended to not leave stacks in `UPDATE_ROLLBACK_COMPLETE` state if you're using Windows Docker images.
+
 ## Getting Help
 
 Need help? We're here for you!
