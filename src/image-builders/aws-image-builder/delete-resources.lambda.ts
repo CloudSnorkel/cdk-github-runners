@@ -93,6 +93,18 @@ async function deleteResources(props: DeleteResourcesProps) {
       const repo = parts[0];
       const tag = parts[1];
 
+      // skip 'latest' as it's a shared tag across recipe versions.
+      // without this skip, simple recipe upgrades will end up with latest being gone and runners not starting.
+      // old image versions will still point to 'latest' even when a new one replaced it.
+      // on complete stack destruction, ecr.Repository(... emptyOnDelete: true ...) will take care of it.
+      if (tag === 'latest') {
+        console.log({
+          notice: 'Skipping latest tag as it is shared',
+          image,
+        });
+        continue;
+      }
+
       // delete image
       await ecr.send(new BatchDeleteImageCommand({
         repositoryName: repo,
