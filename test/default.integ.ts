@@ -145,6 +145,15 @@ const ec2WindowsImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'Windows EC
 ec2WindowsImageBuilder.addComponent(extraFilesComponentWindows);
 ec2WindowsImageBuilder.addComponent(envComponent);
 
+// build but don't use AL2 image
+// we build so we can confirm all the default components work
+// we don't use because it's EOL
+// node 24, required by all recent actions, doesn't even work there
+// .../node: /lib64/libm.so.6: version `GLIBC_2.27' not found
+FargateRunnerProvider.imageBuilder(stack, 'AL2 builder', {
+  os: Os.LINUX_AMAZON_2,
+}).bindDockerImage();
+
 const runners = new GitHubRunners(stack, 'runners', {
   providers: [
     new CodeBuildRunnerProvider(stack, 'CodeBuildx64', {
