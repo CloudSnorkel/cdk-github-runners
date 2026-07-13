@@ -418,5 +418,90 @@ describe('Providers', () => {
         InstanceTypes: ['m6g.large'],
       }));
     });
+
+    test('instanceTags are merged into RunInstances TagSpecifications', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      const provider = new Ec2RunnerProvider(stack, 'provider tags', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ec2-tags'],
+        instanceTags: {
+          SecurityMonitoring: 'enabled',
+        },
+      });
+
+      const runtimeParams = {
+        runnerTokenPath: '$.runner.token',
+        runnerNamePath: '$$.Execution.Name',
+        ownerPath: '$.owner',
+        repoPath: '$.repo',
+        registrationUrl: 'https://github.com',
+        githubDomainPath: 'github.com',
+        labelsPath: '$.labels',
+        addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
+          (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'CleanupStubTags'), {
+            errors: [sfn.Errors.ALL],
+            resultPath: '$.error',
+          });
+        },
+      };
+      const task = provider.getStepFunctionTask(runtimeParams);
+
+      new sfn.StateMachine(stack, 'sm', {
+        definitionBody: sfn.DefinitionBody.fromChainable(task),
+      });
+
+      const template = Template.fromStack(stack);
+
+      function extractStateMachineDefinition(tmpl: Template): string {
+        const sms = tmpl.findResources('AWS::StepFunctions::StateMachine');
+        const smKeys = Object.keys(sms);
+        if (smKeys.length !== 1) throw new Error(`expected 1 SM, got ${smKeys.length}`);
+        const sm = sms[smKeys[0]];
+        const def = sm.Properties.DefinitionString;
+        const parts = def?.['Fn::Join']?.[1];
+        if (!Array.isArray(parts)) throw new Error('unexpected DefinitionString shape');
+        return parts.map((p: any) => (typeof p === 'string' ? p : '')).join('');
+      }
+
+      const def = JSON.parse(extractStateMachineDefinition(template));
+      const runInstances = Object.values(def.States).find((state: any) =>
+        state?.Parameters?.TagSpecifications,
+      ) as any;
+      expect(runInstances).toBeDefined();
+
+      for (const spec of runInstances.Parameters.TagSpecifications) {
+        expect(['instance', 'volume']).toContain(spec.ResourceType);
+        const tags = Object.fromEntries(spec.Tags.map((t: any) => [t.Key, t.Value]));
+        expect(tags.SecurityMonitoring).toBe('enabled');
+        expect(tags.Name).toBeDefined();
+        expect(tags['GitHubRunners:Provider']).toBeDefined();
+      }
+    });
+
+    test('instanceTags cannot override reserved keys', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new Ec2RunnerProvider(stack, 'provider reserved tags', {
+        vpc,
+        securityGroups: [sg],
+        instanceTags: {
+          'Name': 'nope',
+          'GitHubRunners:Provider': 'nope',
+        },
+      });
+
+      Annotations.fromStack(stack).hasError(
+        '/test/provider reserved tags',
+        Match.stringLikeRegexp('instanceTags cannot override reserved tag "Name"'),
+      );
+      Annotations.fromStack(stack).hasError(
+        '/test/provider reserved tags',
+        Match.stringLikeRegexp('instanceTags cannot override reserved tag "GitHubRunners:Provider"'),
+      );
+    });
   });
 });

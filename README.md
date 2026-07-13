@@ -300,6 +300,21 @@ new GitHubRunners(this, 'runners', {
 });
 ```
 
+EC2 runners can also set additional instance (and volume) tags at launch time via `instanceTags`. These are applied in the `RunInstances` call, so they exist from the moment the instance is created. Use this when security monitoring must enroll the host by tag before the runner job starts — job-started hooks are too late for short-lived ephemeral runners. Reserved keys `Name` and `GitHubRunners:*` are owned by the provider and cannot be overridden.
+
+```typescript
+const myProvider = new Ec2RunnerProvider(this, 'ec2 runner', {
+   labels: ['my-ec2'],
+   instanceTags: {
+      SecurityMonitoring: 'enabled',
+   },
+});
+
+new GitHubRunners(this, 'runners', {
+   providers: [myProvider],
+});
+```
+
 The runner OS and architecture is determined by the image it is set to use. For example, to create a Fargate runner provider for ARM64 set the `architecture` property for the image builder to `Architecture.ARM64` in the image builder properties.
 
 ```typescript

@@ -329,6 +329,20 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
    * @default no max price (you will pay current spot price)
    */
   readonly spotMaxPrice?: string;
+
+  /**
+   * Additional tags to apply to launched runner instances and their volumes.
+   *
+   * These are merged into the EC2 `RunInstances` `TagSpecifications` at launch time, so tags are present
+   * from the moment the instance exists. Use this when security monitoring must enroll the host by tag
+   * before the runner job starts — job-started hooks are too late for short-lived ephemeral runners.
+   *
+   * Reserved keys `Name` and any key starting with `GitHubRunners:` are set by the provider and cannot
+   * be overridden.
+   *
+   * @default no additional tags
+   */
+  readonly instanceTags?: { [key: string]: string };
 }
 
 /**
@@ -410,6 +424,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   private readonly subnets: ec2.ISubnet[];
   private readonly securityGroups: ec2.ISecurityGroup[];
   private readonly defaultLabels: boolean;
+  private readonly instanceTags: { [key: string]: string };
 
   constructor(scope: Construct, id: string, props?: Ec2RunnerProviderProps) {
     super(scope, id, props);
@@ -425,6 +440,15 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;
     this.defaultLabels = props?.defaultLabels ?? true;
+    this.instanceTags = props?.instanceTags ?? {};
+
+    for (const key of Object.keys(this.instanceTags)) {
+      if (key === 'Name' || key.startsWith('GitHubRunners:')) {
+        cdk.Annotations.of(this).addError(
+          `instanceTags cannot override reserved tag "${key}" (Name and GitHubRunners:* are set by the provider)`,
+        );
+      }
+    }
 
     if (this.subnets.length === 0) {
       cdk.Annotations.of(this).addError('At least one subnet is required');
@@ -591,6 +615,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
                   Key: 'GitHubRunners:Labels',
                   Value: parameters.labelsPath,
                 },
+                ...Object.entries(this.instanceTags).map(([Key, Value]) => ({ Key, Value })),
               ],
             };
           }),
