@@ -7194,6 +7194,7 @@ const ec2RunnerProviderProps: Ec2RunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.amiBuilder">amiBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | *No description.* |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.group">group</a></code> | <code>string</code> | GitHub Actions runner group name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build AMI containing GitHub Runner and all requirements. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.instanceTags">instanceTags</a></code> | <code>{[ key: string ]: string}</code> | Additional tags to apply to launched runner instances and their volumes. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.instanceType">instanceType</a></code> | <code>aws-cdk-lib.aws_ec2.InstanceType</code> | Instance type for launched runner instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.securityGroup">securityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security Group to assign to launched runner instances. |
@@ -7296,6 +7297,26 @@ public readonly imageBuilder: IRunnerImageBuilder;
 Runner image builder used to build AMI containing GitHub Runner and all requirements.
 
 The image builder determines the OS and architecture of the runner.
+
+---
+
+##### `instanceTags`<sup>Optional</sup> <a name="instanceTags" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.instanceTags"></a>
+
+```typescript
+public readonly instanceTags: {[ key: string ]: string};
+```
+
+- *Type:* {[ key: string ]: string}
+- *Default:* no additional tags
+
+Additional tags to apply to launched runner instances and their volumes.
+
+These are merged into the EC2 `RunInstances` `TagSpecifications` at launch time, so tags are present
+from the moment the instance exists. Use this when security monitoring must enroll the host by tag
+before the runner job starts — job-started hooks are too late for short-lived ephemeral runners.
+
+Reserved keys `Name` and any key starting with `GitHubRunners:` are set by the provider and cannot
+be overridden.
 
 ---
 
