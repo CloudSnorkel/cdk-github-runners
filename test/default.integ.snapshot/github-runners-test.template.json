@@ -2562,7 +2562,7 @@
        {
         "Ref": "AWS::Region"
        },
-       ":aws:image/amazon-linux-2-x86/x.x.x"
+       ":aws:image/ubuntu-server-22-lts-x86/x.x.x"
       ]
      ]
     }
@@ -2588,7 +2588,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentRequiredPackagesAmazonLinux2X8664f76a9cf224Component61B83A97",
+        "GHRInternalComponentRequiredPackagesUbuntuLinuxX8664d2779bf2afComponent19B6D69E",
         "Arn"
        ]
       }
@@ -2596,7 +2596,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentCloudWatchAgentAmazonLinux2X86645a5d7e3381Component09EEBC88",
+        "GHRInternalComponentCloudWatchAgentUbuntuLinuxX86644d18e89f56ComponentE82C1315",
         "Arn"
        ]
       }
@@ -2604,7 +2604,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentRunnerUserAmazonLinux2X8664a3d63a0623Component4C8DC2C6",
+        "GHRInternalComponentRunnerUserUbuntuLinuxX86643e5e4f9f04ComponentCD37EC8F",
         "Arn"
        ]
       }
@@ -2612,7 +2612,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGitAmazonLinux2X86644f3c1dbe02Component67F5F603",
+        "GHRInternalComponentGitUbuntuLinuxX86649a2287f350Component73532396",
         "Arn"
        ]
       }
@@ -2620,7 +2620,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubCliAmazonLinux2X86648b60bb2ed4ComponentC5FA384A",
+        "GHRInternalComponentGithubCliUbuntuLinuxX86647d8ed82743Component673C3562",
         "Arn"
        ]
       }
@@ -2628,7 +2628,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentAwsCliAmazonLinux2X8664bae8e13177Component7730180E",
+        "GHRInternalComponentAwsCliUbuntuLinuxX866492471e0c32Component6AF6E074",
         "Arn"
        ]
       }
@@ -2636,7 +2636,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentDockerAmazonLinux2X8664423b37d782Component03C03B8A",
+        "GHRInternalComponentDockerUbuntuLinuxX8664c3a026020eComponentF5D79A17",
         "Arn"
        ]
       }
@@ -2644,7 +2644,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerAmazonLinux2X86647d445c8012Component291949DC",
+        "GHRInternalComponentGithubRunnerUbuntuLinuxX8664b4f9f72dffComponentF5FD889B",
         "Arn"
        ]
       }
@@ -2652,7 +2652,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentCustomUndefinedAmazonLinux2X86643920899611Component62732FD6",
+        "GHRInternalComponentCustomUndefinedUbuntuLinuxX866420ed999f0eComponent2D4BD0B0",
         "Arn"
        ]
       }
@@ -2660,7 +2660,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentEnvironmentVariablesAmazonLinux2X8664950495c1b6Component4BED4722",
+        "GHRInternalComponentEnvironmentVariablesUbuntuLinuxX8664fb25b400aeComponent513D0C74",
         "Arn"
        ]
       }
@@ -2679,7 +2679,7 @@
        {
         "Ref": "AWS::Region"
        },
-       ":aws:image/amazon-linux-2-x86/x.x.x"
+       ":aws:image/ubuntu-server-22-lts-x86/x.x.x"
       ]
      ]
     },
@@ -6249,6 +6249,563 @@
     "ResourceType": "AMI_IMAGE"
    }
   },
+  "AL2builderRole6A57C48A": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "AL2builderRoleDefaultPolicy6D6B4C08": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "AL2builderLogsD3AA8E96",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "AL2builderCodeBuild55A26C62"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "AL2builderCodeBuild55A26C62"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":report-group/",
+          {
+           "Ref": "AL2builderCodeBuild55A26C62"
+          },
+          "-*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "ecr:CompleteLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:InitiateLayerUpload",
+        "ecr:PutImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "AL2builderRepository4B2FA3E1",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "AL2builderRoleDefaultPolicy6D6B4C08",
+    "Roles": [
+     {
+      "Ref": "AL2builderRole6A57C48A"
+     }
+    ]
+   }
+  },
+  "AL2builderRepository4B2FA3E1": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "EmptyOnDelete": true,
+    "ImageScanningConfiguration": {
+     "ScanOnPush": true
+    },
+    "ImageTagMutability": "MUTABLE",
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove soci indexes for replaced images\",\"selection\":{\"tagStatus\":\"tagged\",\"tagPrefixList\":[\"sha256-\"],\"countType\":\"imageCountMoreThan\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}},{\"rulePriority\":2,\"description\":\"Remove untagged images that have been replaced by CodeBuild\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "AL2builderLogsD3AA8E96": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "AL2builderCodeBuild55A26C62": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "NO_ARTIFACTS"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/AL2 builder (Amazon Linux 2/X86_64)",
+    "EncryptionKey": "alias/aws/s3",
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "Image": "aws/codebuild/amazonlinux2-x86_64-standard:5.0",
+     "ImagePullCredentialsType": "CODEBUILD",
+     "PrivilegedMode": true,
+     "Type": "LINUX_CONTAINER"
+    },
+    "LogsConfig": {
+     "CloudWatchLogs": {
+      "GroupName": {
+       "Ref": "AL2builderLogsD3AA8E96"
+      },
+      "Status": "ENABLED"
+     }
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "AL2builderRole6A57C48A",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": {
+      "Fn::Join": [
+       "",
+       [
+        "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
+        {
+         "Fn::GetAtt": [
+          "AL2builderRepository4B2FA3E1",
+          "Arn"
+         ]
+        },
+        "\",\n      \"REPO_URI\": \"",
+        {
+         "Fn::Select": [
+          4,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "AL2builderRepository4B2FA3E1",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".dkr.ecr.",
+        {
+         "Fn::Select": [
+          3,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "AL2builderRepository4B2FA3E1",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".",
+        {
+         "Ref": "AWS::URLSuffix"
+        },
+        "/",
+        {
+         "Ref": "AL2builderRepository4B2FA3E1"
+        },
+        "\",\n      \"WAIT_HANDLE\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
+        {
+         "Ref": "AWS::AccountId"
+        },
+        ".dkr.ecr.",
+        {
+         "Ref": "AWS::Region"
+        },
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum update -y\\nyum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\nyum install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\necho -n latest > /home/runner/RUNNER_VERSION\\nyum install -y openssl-libs krb5-libs zlib libicu60\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/amazonlinux/amazonlinux:2\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-GithubRunner.sh /tmp\\nRUN /tmp/component5-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if [ `docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\"` = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
+       ]
+      ]
+     },
+     "Type": "NO_SOURCE"
+    },
+    "TimeoutInMinutes": 60
+   }
+  },
+  "AL2builderCodeBuildEventsRole08B9D4A3": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "events.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "AL2builderCodeBuildEventsRoleDefaultPolicy2C7004DB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "AL2builderCodeBuild55A26C62",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "AL2builderCodeBuildEventsRoleDefaultPolicy2C7004DB",
+    "Roles": [
+     {
+      "Ref": "AL2builderCodeBuildEventsRole08B9D4A3"
+     }
+    ]
+   }
+  },
+  "AL2builderCodeBuildBuildFailed88A3F6A0": {
+   "Type": "AWS::CodeStarNotifications::NotificationRule",
+   "Properties": {
+    "DetailType": "FULL",
+    "EventTypeIds": [
+     "codebuild-project-build-state-failed"
+    ],
+    "Name": "githubrunnerstestAL2builderCodeBuildBuildFailed70FEFBF4",
+    "Resource": {
+     "Fn::GetAtt": [
+      "AL2builderCodeBuild55A26C62",
+      "Arn"
+     ]
+    },
+    "Targets": [
+     {
+      "TargetAddress": {
+       "Ref": "runnersFailedRunnerImageBuilds233D2237"
+      },
+      "TargetType": "SNS"
+     }
+    ]
+   }
+  },
+  "AL2builderCRPolicy5C2984DF": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "AL2builderCodeBuild55A26C62",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "AL2builderCRPolicy5C2984DF",
+    "Roles": [
+     {
+      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+     }
+    ]
+   }
+  },
+  "AL2builderBuildWaitHandle89b5bedf3a478B40DA": {
+   "Type": "AWS::CloudFormation::WaitConditionHandle"
+  },
+  "AL2builderBuildWait89b5bedf3a479F7E48": {
+   "Type": "AWS::CloudFormation::WaitCondition",
+   "Properties": {
+    "Count": 1,
+    "Handle": {
+     "Ref": "AL2builderBuildWaitHandle89b5bedf3a478B40DA"
+    },
+    "Timeout": "3600"
+   }
+  },
+  "AL2builderBuilder9AEDF550": {
+   "Type": "Custom::ImageBuilder",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+      "Arn"
+     ]
+    },
+    "RepoName": {
+     "Ref": "AL2builderRepository4B2FA3E1"
+    },
+    "ProjectName": {
+     "Ref": "AL2builderCodeBuild55A26C62"
+    },
+    "WaitHandle": {
+     "Ref": "AL2builderBuildWaitHandle89b5bedf3a478B40DA"
+    }
+   },
+   "DependsOn": [
+    "AL2builderCodeBuildBuildFailed88A3F6A0",
+    "AL2builderCodeBuildEventsRoleDefaultPolicy2C7004DB",
+    "AL2builderCodeBuildEventsRole08B9D4A3",
+    "AL2builderCodeBuild55A26C62",
+    "AL2builderCRPolicy5C2984DF",
+    "AL2builderRoleDefaultPolicy6D6B4C08",
+    "AL2builderRole6A57C48A",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "AL2builderBuildSchedule8A782956": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Rebuild runner image for ",
+       {
+        "Ref": "AL2builderRepository4B2FA3E1"
+       }
+      ]
+     ]
+    },
+    "ScheduleExpression": "rate(7 days)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "AL2builderCodeBuild55A26C62",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "RoleArn": {
+       "Fn::GetAtt": [
+        "AL2builderCodeBuildEventsRole08B9D4A3",
+        "Arn"
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "RunnerImageBuildHelpersLog13186633": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "imagebuilder:DeleteImage",
+       "Effect": "Deny",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
+    "Roles": [
+     {
+      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+     }
+    ]
+   }
+  },
+  "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "e63a505c851c0e41097d427f77e39e18ea5239d0ca153b82e8c1e207cfd42b6d.zip"
+    },
+    "Description": "Custom resource handler that triggers CodeBuild to build runner images",
+    "Environment": {
+     "Variables": {
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "RunnerImageBuildHelpersLog13186633"
+     }
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Timeout": 180
+   },
+   "DependsOn": [
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
+    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
+   ]
+  },
   "CodeBuildx64LogsA21ECD59": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
@@ -6544,102 +7101,6 @@
     ],
     "TimeoutInMinutes": 60
    }
-  },
-  "RunnerImageBuildHelpersLog13186633": {
-   "Type": "AWS::Logs::LogGroup",
-   "Properties": {
-    "RetentionInDays": 30
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete"
-  },
-  "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "lambda.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-       ]
-      ]
-     }
-    ]
-   }
-  },
-  "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "imagebuilder:DeleteImage",
-       "Effect": "Deny",
-       "Resource": "*"
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
-    "Roles": [
-     {
-      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
-     }
-    ]
-   }
-  },
-  "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A": {
-   "Type": "AWS::Lambda::Function",
-   "Properties": {
-    "Code": {
-     "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-     },
-     "S3Key": "e63a505c851c0e41097d427f77e39e18ea5239d0ca153b82e8c1e207cfd42b6d.zip"
-    },
-    "Description": "Custom resource handler that triggers CodeBuild to build runner images",
-    "Environment": {
-     "Variables": {
-      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
-     }
-    },
-    "Handler": "index.handler",
-    "LoggingConfig": {
-     "LogFormat": "JSON",
-     "LogGroup": {
-      "Ref": "RunnerImageBuildHelpersLog13186633"
-     }
-    },
-    "Role": {
-     "Fn::GetAtt": [
-      "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
-      "Arn"
-     ]
-    },
-    "Runtime": "nodejs22.x",
-    "Timeout": 180
-   },
-   "DependsOn": [
-    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
-    "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
-   ]
   },
   "CodeBuildUbuntu2404x64Logs27D26829": {
    "Type": "AWS::Logs::LogGroup",
@@ -13745,94 +14206,94 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "GHRInternalComponentRequiredPackagesAmazonLinux2X8664f76a9cf224Component61B83A97": {
+  "GHRInternalComponentRequiredPackagesUbuntuLinuxX8664d2779bf2afComponent19B6D69E": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"RequiredPackages (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"yum update -y\",\"yum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils\"]}}]}]}",
-    "Description": "RequiredPackages component for Amazon Linux 2/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-RequiredPackages-Amazon-Linux-2-X86-64-f76a9cf224-3E8C88A7",
+    "Data": "{\"name\":\"RequiredPackages (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\"]}}]}]}",
+    "Description": "RequiredPackages component for Ubuntu Linux/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-RequiredPackages-Ubuntu-Linux-X86-64-d2779bf2af-A70EABD7",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentCloudWatchAgentAmazonLinux2X86645a5d7e3381Component09EEBC88": {
+  "GHRInternalComponentCloudWatchAgentUbuntuLinuxX86644d18e89f56ComponentE82C1315": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"CloudWatchAgent (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"yum install -y amazon-cloudwatch-agent\"]}}]}]}",
-    "Description": "CloudWatchAgent component for Amazon Linux 2/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-CloudWatchAgent-Amazon-Linux-2-X86-64-5a5d7e3381-B2385728",
+    "Data": "{\"name\":\"CloudWatchAgent (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb\",\"dpkg -i -E /tmp/amazon-cloudwatch-agent.deb\",\"rm /tmp/amazon-cloudwatch-agent.deb\"]}}]}]}",
+    "Description": "CloudWatchAgent component for Ubuntu Linux/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-CloudWatchAgent-Ubuntu-Linux-X86-64-4d18e89f56-CE52BB13",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentRunnerUserAmazonLinux2X8664a3d63a0623Component4C8DC2C6": {
+  "GHRInternalComponentRunnerUserUbuntuLinuxX86643e5e4f9f04ComponentCD37EC8F": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"RunnerUser (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"/usr/sbin/groupadd runner\",\"/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\",\"mkdir -p /home/runner\",\"chown runner /home/runner\",\"echo \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\"]}}]}]}",
-    "Description": "RunnerUser component for Amazon Linux 2/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-RunnerUser-Amazon-Linux-2-X86-64-a3d63a0623-586982F4",
+    "Data": "{\"name\":\"RunnerUser (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"addgroup runner\",\"adduser --system --disabled-password --home /home/runner --ingroup runner runner\",\"echo \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\"]}}]}]}",
+    "Description": "RunnerUser component for Ubuntu Linux/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-RunnerUser-Ubuntu-Linux-X86-64-3e5e4f9f04-800313BE",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGitAmazonLinux2X86644f3c1dbe02Component67F5F603": {
+  "GHRInternalComponentGitUbuntuLinuxX86649a2287f350Component73532396": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"Git (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"yum install -y git\"]}}]}]}",
-    "Description": "Git component for Amazon Linux 2/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Git-Amazon-Linux-2-X86-64-4f3c1dbe02-B3C2CE30",
+    "Data": "{\"name\":\"Git (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"add-apt-repository ppa:git-core/ppa\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\"]}}]}]}",
+    "Description": "Git component for Ubuntu Linux/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-Git-Ubuntu-Linux-X86-64-9a2287f350-FD170E5B",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubCliAmazonLinux2X86648b60bb2ed4ComponentC5FA384A": {
+  "GHRInternalComponentGithubCliUbuntuLinuxX86647d8ed82743Component673C3562": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"GithubCli (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\",\"yum install -y gh\"]}}]}]}",
-    "Description": "GithubCli component for Amazon Linux 2/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubCli-Amazon-Linux-2-X86-64-8b60bb2ed4-3425D6C3",
+    "Data": "{\"name\":\"GithubCli (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\",\"echo \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\"]}}]}]}",
+    "Description": "GithubCli component for Ubuntu Linux/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-GithubCli-Ubuntu-Linux-X86-64-7d8ed82743-AF9C6E78",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentAwsCliAmazonLinux2X8664bae8e13177Component7730180E": {
+  "GHRInternalComponentAwsCliUbuntuLinuxX866492471e0c32Component6AF6E074": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"AwsCli (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\",\"unzip -q awscliv2.zip\",\"./aws/install --update\",\"rm -rf awscliv2.zip aws\"]}}]}]}",
-    "Description": "AwsCli component for Amazon Linux 2/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-AwsCli-Amazon-Linux-2-X86-64-bae8e13177-E4EAFC17",
+    "Data": "{\"name\":\"AwsCli (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\",\"unzip -q awscliv2.zip\",\"./aws/install --update\",\"rm -rf awscliv2.zip aws\"]}}]}]}",
+    "Description": "AwsCli component for Ubuntu Linux/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-AwsCli-Ubuntu-Linux-X86-64-92471e0c32-30FDFAFC",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentDockerAmazonLinux2X8664423b37d782Component03C03B8A": {
+  "GHRInternalComponentDockerUbuntuLinuxX8664c3a026020eComponentF5D79A17": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"Docker (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"amazon-linux-extras install docker\",\"usermod -a -G docker runner\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)\",\"chmod +x /usr/bin/docker-compose\",\"ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose\"]}}]}]}",
-    "Description": "Docker component for Amazon Linux 2/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Docker-Amazon-Linux-2-X86-64-423b37d782-A44570EA",
+    "Data": "{\"name\":\"Docker (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\",\"echo   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\",\"usermod -aG docker runner\",\"ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\"]}}]}]}",
+    "Description": "Docker component for Ubuntu Linux/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-Docker-Ubuntu-Linux-X86-64-c3a026020e-D28B38F1",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubRunnerAmazonLinux2X86647d445c8012Component291949DC": {
+  "GHRInternalComponentGithubRunnerUbuntuLinuxX8664b4f9f72dffComponentF5FD889B": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"GithubRunner (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\",\"echo -n latest > /home/runner/RUNNER_VERSION\",\"yum install -y openssl-libs krb5-libs zlib libicu60\",\"mkdir -p /opt/hostedtoolcache\",\"chown runner /opt/hostedtoolcache\"]}}]}]}",
-    "Description": "GithubRunner component for Amazon Linux 2/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Amazon-Linux-2-X86-64-7d445c8012-F639F3DF",
+    "Data": "{\"name\":\"GithubRunner (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"RUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\",\"curl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"tar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\",\"rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\",\"echo -n latest > /home/runner/RUNNER_VERSION\",\"/home/runner/bin/installdependencies.sh\",\"mkdir -p /opt/hostedtoolcache\",\"chown runner /opt/hostedtoolcache\"]}}]}]}",
+    "Description": "GithubRunner component for Ubuntu Linux/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-X86-64-b4f9f72dff-97E16CD3",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentCustomUndefinedAmazonLinux2X86643920899611Component62732FD6": {
+  "GHRInternalComponentCustomUndefinedUbuntuLinuxX866420ed999f0eComponent2D4BD0B0": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
     "Data": {
      "Fn::Join": [
       "",
       [
-       "{\"name\":\"Custom-Undefined (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[{\"source\":\"",
+       "{\"name\":\"Custom-Undefined (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[{\"source\":\"",
        {
         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
        },
@@ -13840,18 +14301,18 @@
       ]
      ]
     },
-    "Description": "Custom-Undefined component for Amazon Linux 2/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-Custom-Undefined-Amazon-Linux-2-X86-64-3920899611-7210ABDD",
+    "Description": "Custom-Undefined component for Ubuntu Linux/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-Custom-Undefined-Ubuntu-Linux-X86-64-20ed999f0e-44A3D40D",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentEnvironmentVariablesAmazonLinux2X8664950495c1b6Component4BED4722": {
+  "GHRInternalComponentEnvironmentVariablesUbuntuLinuxX8664fb25b400aeComponent513D0C74": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"EnvironmentVariables (Amazon Linux 2/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"echo 'HELLO=world' >> /home/runner/.env\",\"echo 'FOO=bar' >> /home/runner/.env\"]}}]}]}",
-    "Description": "EnvironmentVariables component for Amazon Linux 2/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-EnvironmentVariables-Amazon-Linux-2-X86-64-950495c1b6-9C093384",
+    "Data": "{\"name\":\"EnvironmentVariables (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[]},{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"echo 'HELLO=world' >> /home/runner/.env\",\"echo 'FOO=bar' >> /home/runner/.env\"]}}]}]}",
+    "Description": "EnvironmentVariables component for Ubuntu Linux/X86_64",
+    "Name": "github-runners-test-GHRInternal--Component-EnvironmentVariables-Ubuntu-Linux-X86-64-fb25b400ae-18971D64",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
