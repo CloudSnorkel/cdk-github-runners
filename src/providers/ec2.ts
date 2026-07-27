@@ -521,8 +521,11 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     const instanceProfile = new iam.CfnInstanceProfile(this, 'Instance Profile', {
       roles: [this.role.roleName],
     });
-    const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
-    rootDeviceResource.node.addDependency(this.amiBuilder);
+    const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId, this.ami.cacheKey);
+    if (Construct.isConstruct(this.amiBuilder)) {
+      // if the user didn't create a static image builder and it's a real construct, we need to wait for it
+      rootDeviceResource.node.addDependency(this.amiBuilder);
+    }
     const subnetRunners = this.subnets.map(subnet => {
       return new stepfunctions_tasks.CallAwsService(this, subnet.subnetId, {
         stateName: generateStateName(this, subnet.subnetId),

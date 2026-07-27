@@ -14184,6 +14184,12 @@
     },
     "Ami": {
      "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+    },
+    "CacheKey": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderAmiRecipe7C7ED6C7",
+      "Version"
+     ]
     }
    },
    "DependsOn": [
@@ -14510,6 +14516,12 @@
     },
     "Ami": {
      "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+    },
+    "CacheKey": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderAmiRecipe7C7ED6C7",
+      "Version"
+     ]
     }
    },
    "DependsOn": [
@@ -14689,6 +14701,12 @@
     },
     "Ami": {
      "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+    },
+    "CacheKey": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderAmiRecipe7C7ED6C7",
+      "Version"
+     ]
     }
    },
    "DependsOn": [
@@ -14868,6 +14886,12 @@
     },
     "Ami": {
      "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
+    },
+    "CacheKey": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
+      "Version"
+     ]
     }
    },
    "DependsOn": [
@@ -15157,6 +15181,12 @@
     },
     "Ami": {
      "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
+    },
+    "CacheKey": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderAmiRecipe41A137FF",
+      "Version"
+     ]
     }
    },
    "DependsOn": [
