@@ -272,6 +272,16 @@ export interface RunnerAmi {
    * @deprecated open a ticket if you need this
    */
   readonly runnerVersion: RunnerVersion;
+
+  /**
+   * Set this to a value that changes whenever the AMI changes (the AMI id or any version string works).
+   *
+   * It's used to know when the AMI's root device name needs to be looked up again. If left empty, the root
+   * device name is looked up once and reused. That's fine as long as the AMI's root device never changes.
+   *
+   * This value may be used for other things in the future that require knowing when the AMI changed.
+   */
+  readonly cacheKey?: string;
 }
 
 /**
@@ -696,7 +706,7 @@ export abstract class BaseProvider extends Construct {
  *
  * @internal
  */
-export function amiRootDevice(scope: Construct, ami?: string) {
+export function amiRootDevice(scope: Construct, ami?: string, cacheKey?: string) {
   const crHandler = singletonLambda(AmiRootDeviceFunction, scope, 'AMI Root Device Reader', {
     description: 'Custom resource handler that discovers the boot drive device name for a given AMI',
     timeout: cdk.Duration.minutes(1),
@@ -720,6 +730,7 @@ export function amiRootDevice(scope: Construct, ami?: string) {
     resourceType: 'Custom::AmiRootDevice',
     properties: {
       Ami: ami ?? '',
+      CacheKey: cacheKey,
     },
   });
 }

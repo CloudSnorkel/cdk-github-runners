@@ -3,7 +3,17 @@ import { aws_ec2 as ec2, aws_ecs as ecs, aws_stepfunctions as sfn } from 'aws-cd
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
-import { CodeBuildRunnerProvider, Ec2RunnerProvider, EcsRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
+import {
+  Architecture,
+  CodeBuildRunnerProvider,
+  Ec2RunnerProvider,
+  EcsRunnerProvider,
+  FargateRunnerProvider,
+  IRunnerImageBuilder,
+  LambdaRunnerProvider,
+  Os,
+  RunnerVersion,
+} from '../src';
 
 describe('Providers', () => {
   let app: cdk.App;
@@ -503,5 +513,96 @@ describe('Providers', () => {
         Match.stringLikeRegexp('instanceTags cannot override reserved tag "GitHubRunners:Provider"'),
       );
     });
+  });
+
+  test('root device resolution re-runs when the AMI recipe changes (issue #962)', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+    const provider = new Ec2RunnerProvider(stack, 'provider', {
+      vpc,
+      securityGroups: [sg],
+    });
+
+    // amiRootDevice() is created inside getStepFunctionTask(), not the constructor, so we have to build it.
+    const task = provider.getStepFunctionTask({
+      runnerTokenPath: '$.runner.token',
+      runnerNamePath: '$$.Execution.Name',
+      ownerPath: '$.owner',
+      repoPath: '$.repo',
+      registrationUrl: 'https://github.com',
+      githubDomainPath: 'github.com',
+      labelsPath: '$.labels',
+      addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
+        (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'Cleanup'), {
+          errors: [sfn.Errors.ALL],
+          resultPath: '$.error',
+        });
+      },
+    });
+    new sfn.StateMachine(stack, 'sm', { definitionBody: sfn.DefinitionBody.fromChainable(task) });
+
+    const template = Template.fromStack(stack);
+
+    // The provider sizes the root volume by device name, so it must re-resolve the AMI's root device
+    // whenever a new AMI is built. CacheKey is wired to the recipe version so the custom resource re-runs
+    // on a recipe change (e.g. a base OS switch that moves the root device) instead of freezing at the
+    // first deploy — the #962 bug.
+    template.hasResourceProperties('Custom::AmiRootDevice', Match.objectLike({
+      CacheKey: {
+        'Fn::GetAtt': [Match.stringLikeRegexp('AmiRecipe'), 'Version'],
+      },
+    }));
+  });
+
+  test('externally-provided AMI resolves root device once (no cacheKey, no build dependency)', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+    // object-literal builder pointing at an existing AMI — the interface explicitly allows this
+    const byoBuilder: IRunnerImageBuilder = {
+      bindDockerImage() { throw new Error('not used'); },
+      bindAmi() {
+        return {
+          launchTemplate: ec2.LaunchTemplate.fromLaunchTemplateAttributes(stack, 'byo-lt', { launchTemplateId: 'lt-01234567' }),
+          architecture: Architecture.X86_64,
+          os: Os.LINUX_UBUNTU_2404,
+          runnerVersion: RunnerVersion.latest(),
+          // no cacheKey
+        };
+      },
+    };
+
+    const provider = new Ec2RunnerProvider(stack, 'byo', {
+      vpc,
+      securityGroups: [sg],
+      imageBuilder: byoBuilder,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE),
+    });
+
+    // must not throw: the object-literal builder isn't a construct, so addDependency is skipped
+    const task = provider.getStepFunctionTask({
+      runnerTokenPath: '$.runner.token',
+      runnerNamePath: '$$.Execution.Name',
+      ownerPath: '$.owner',
+      repoPath: '$.repo',
+      registrationUrl: 'https://github.com',
+      githubDomainPath: 'github.com',
+      labelsPath: '$.labels',
+      addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
+        (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'CleanupByo'), {
+          errors: [sfn.Errors.ALL],
+          resultPath: '$.error',
+        });
+      },
+    });
+    new sfn.StateMachine(stack, 'sm-byo', { definitionBody: sfn.DefinitionBody.fromChainable(task) });
+
+    const template = Template.fromStack(stack);
+
+    // no version to key on → resolve once, exactly like before the fix
+    template.hasResourceProperties('Custom::AmiRootDevice', Match.objectLike({
+      CacheKey: Match.absent(),
+    }));
   });
 });

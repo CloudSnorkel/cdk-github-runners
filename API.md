@@ -9306,6 +9306,7 @@ const runnerAmi: RunnerAmi = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerAmi.property.launchTemplate">launchTemplate</a></code> | <code>aws-cdk-lib.aws_ec2.ILaunchTemplate</code> | Launch template pointing to the latest AMI. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerAmi.property.os">os</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | OS type of the image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerAmi.property.runnerVersion">runnerVersion</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion">RunnerVersion</a></code> | Installed runner version. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerAmi.property.cacheKey">cacheKey</a></code> | <code>string</code> | Set this to a value that changes whenever the AMI changes (the AMI id or any version string works). |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerAmi.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.LogGroup</code> | Log group where image builds are logged. |
 
 ---
@@ -9357,6 +9358,23 @@ public readonly runnerVersion: RunnerVersion;
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion">RunnerVersion</a>
 
 Installed runner version.
+
+---
+
+##### `cacheKey`<sup>Optional</sup> <a name="cacheKey" id="@cloudsnorkel/cdk-github-runners.RunnerAmi.property.cacheKey"></a>
+
+```typescript
+public readonly cacheKey: string;
+```
+
+- *Type:* string
+
+Set this to a value that changes whenever the AMI changes (the AMI id or any version string works).
+
+It's used to know when the AMI's root device name needs to be looked up again. If left empty, the root
+device name is looked up once and reused. That's fine as long as the AMI's root device never changes.
+
+This value may be used for other things in the future that require knowing when the AMI changed.
 
 ---
 

@@ -821,6 +821,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       os: this.os,
       logGroup: log,
       runnerVersion: RunnerVersion.specific('unknown'),
+      cacheKey: recipe.version, // re-evaluate AMI whenever the recipe changes
     };
 
     this.amiCleaner(recipe, stackName, builderName);
