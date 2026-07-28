@@ -14,6 +14,7 @@ import {
   Os,
   RunnerVersion,
 } from '../src';
+import { stateMachineDefinition } from './sfn-helpers';
 
 describe('Providers', () => {
   let app: cdk.App;
@@ -300,18 +301,7 @@ describe('Providers', () => {
 
       const template = Template.fromStack(stack);
 
-      function extractStateMachineDefinition(tmpl: Template): string {
-        const sms = tmpl.findResources('AWS::StepFunctions::StateMachine');
-        const smKeys = Object.keys(sms);
-        if (smKeys.length !== 1) throw new Error(`expected 1 SM, got ${smKeys.length}`);
-        const sm = sms[smKeys[0]];
-        const def = sm.Properties.DefinitionString;
-        const parts = def?.['Fn::Join']?.[1];
-        if (!Array.isArray(parts)) throw new Error('unexpected DefinitionString shape');
-        return parts.map((p: any) => (typeof p === 'string' ? p : '')).join('');
-      }
-
-      const def = JSON.parse(extractStateMachineDefinition(template));
+      const def = stateMachineDefinition(template);
       const ecsPlacement = def?.States?.providerPlacement;
       expect(ecsPlacement?.Type).toBe('Task');
       const ps = ecsPlacement?.Parameters?.PlacementStrategy;
@@ -353,18 +343,7 @@ describe('Providers', () => {
 
       const template = Template.fromStack(stack);
 
-      function extractStateMachineDefinition(tmpl: Template): string {
-        const sms = tmpl.findResources('AWS::StepFunctions::StateMachine');
-        const smKeys = Object.keys(sms);
-        if (smKeys.length !== 1) throw new Error(`expected 1 SM, got ${smKeys.length}`);
-        const sm = sms[smKeys[0]];
-        const def = sm.Properties.DefinitionString;
-        const parts = def?.['Fn::Join']?.[1];
-        if (!Array.isArray(parts)) throw new Error('unexpected DefinitionString shape');
-        return parts.map((p: any) => (typeof p === 'string' ? p : '')).join('');
-      }
-
-      const def = JSON.parse(extractStateMachineDefinition(template));
+      const def = stateMachineDefinition(template);
       const ecsTask = def?.States?.providerPlacementConstraints;
       expect(ecsTask?.Type).toBe('Task');
       const pc = ecsTask?.Parameters?.PlacementConstraints;
@@ -429,7 +408,7 @@ describe('Providers', () => {
       }));
     });
 
-    test('instanceTags are merged into RunInstances TagSpecifications', () => {
+    test('tags are merged into RunInstances TagSpecifications', () => {
       const vpc = new ec2.Vpc(stack, 'vpc');
       const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
 
@@ -437,8 +416,9 @@ describe('Providers', () => {
         vpc,
         securityGroups: [sg],
         labels: ['ec2-tags'],
-        instanceTags: {
+        tags: {
           SecurityMonitoring: 'enabled',
+          Name: 'test',
         },
       });
 
@@ -465,18 +445,7 @@ describe('Providers', () => {
 
       const template = Template.fromStack(stack);
 
-      function extractStateMachineDefinition(tmpl: Template): string {
-        const sms = tmpl.findResources('AWS::StepFunctions::StateMachine');
-        const smKeys = Object.keys(sms);
-        if (smKeys.length !== 1) throw new Error(`expected 1 SM, got ${smKeys.length}`);
-        const sm = sms[smKeys[0]];
-        const def = sm.Properties.DefinitionString;
-        const parts = def?.['Fn::Join']?.[1];
-        if (!Array.isArray(parts)) throw new Error('unexpected DefinitionString shape');
-        return parts.map((p: any) => (typeof p === 'string' ? p : '')).join('');
-      }
-
-      const def = JSON.parse(extractStateMachineDefinition(template));
+      const def = stateMachineDefinition(template);
       const runInstances = Object.values(def.States).find((state: any) =>
         state?.Parameters?.TagSpecifications,
       ) as any;
@@ -486,32 +455,9 @@ describe('Providers', () => {
         expect(['instance', 'volume']).toContain(spec.ResourceType);
         const tags = Object.fromEntries(spec.Tags.map((t: any) => [t.Key, t.Value]));
         expect(tags.SecurityMonitoring).toBe('enabled');
-        expect(tags.Name).toBeDefined();
+        expect(tags.Name).toBe('test');
         expect(tags['GitHubRunners:Provider']).toBeDefined();
       }
-    });
-
-    test('instanceTags cannot override reserved keys', () => {
-      const vpc = new ec2.Vpc(stack, 'vpc');
-      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
-
-      new Ec2RunnerProvider(stack, 'provider reserved tags', {
-        vpc,
-        securityGroups: [sg],
-        instanceTags: {
-          'Name': 'nope',
-          'GitHubRunners:Provider': 'nope',
-        },
-      });
-
-      Annotations.fromStack(stack).hasError(
-        '/test/provider reserved tags',
-        Match.stringLikeRegexp('instanceTags cannot override reserved tag "Name"'),
-      );
-      Annotations.fromStack(stack).hasError(
-        '/test/provider reserved tags',
-        Match.stringLikeRegexp('instanceTags cannot override reserved tag "GitHubRunners:Provider"'),
-      );
     });
   });
 
