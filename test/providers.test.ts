@@ -14,6 +14,7 @@ import {
   Os,
   RunnerVersion,
 } from '../src';
+import { stateMachineDefinition } from './sfn-helpers';
 
 describe('Providers', () => {
   let app: cdk.App;
@@ -300,18 +301,7 @@ describe('Providers', () => {
 
       const template = Template.fromStack(stack);
 
-      function extractStateMachineDefinition(tmpl: Template): string {
-        const sms = tmpl.findResources('AWS::StepFunctions::StateMachine');
-        const smKeys = Object.keys(sms);
-        if (smKeys.length !== 1) throw new Error(`expected 1 SM, got ${smKeys.length}`);
-        const sm = sms[smKeys[0]];
-        const def = sm.Properties.DefinitionString;
-        const parts = def?.['Fn::Join']?.[1];
-        if (!Array.isArray(parts)) throw new Error('unexpected DefinitionString shape');
-        return parts.map((p: any) => (typeof p === 'string' ? p : '')).join('');
-      }
-
-      const def = JSON.parse(extractStateMachineDefinition(template));
+      const def = stateMachineDefinition(template);
       const ecsPlacement = def?.States?.providerPlacement;
       expect(ecsPlacement?.Type).toBe('Task');
       const ps = ecsPlacement?.Parameters?.PlacementStrategy;
@@ -353,18 +343,7 @@ describe('Providers', () => {
 
       const template = Template.fromStack(stack);
 
-      function extractStateMachineDefinition(tmpl: Template): string {
-        const sms = tmpl.findResources('AWS::StepFunctions::StateMachine');
-        const smKeys = Object.keys(sms);
-        if (smKeys.length !== 1) throw new Error(`expected 1 SM, got ${smKeys.length}`);
-        const sm = sms[smKeys[0]];
-        const def = sm.Properties.DefinitionString;
-        const parts = def?.['Fn::Join']?.[1];
-        if (!Array.isArray(parts)) throw new Error('unexpected DefinitionString shape');
-        return parts.map((p: any) => (typeof p === 'string' ? p : '')).join('');
-      }
-
-      const def = JSON.parse(extractStateMachineDefinition(template));
+      const def = stateMachineDefinition(template);
       const ecsTask = def?.States?.providerPlacementConstraints;
       expect(ecsTask?.Type).toBe('Task');
       const pc = ecsTask?.Parameters?.PlacementConstraints;
@@ -427,6 +406,58 @@ describe('Providers', () => {
       template.hasResourceProperties('AWS::ImageBuilder::InfrastructureConfiguration', Match.objectLike({
         InstanceTypes: ['m6g.large'],
       }));
+    });
+
+    test('tags are merged into RunInstances TagSpecifications', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      const provider = new Ec2RunnerProvider(stack, 'provider tags', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ec2-tags'],
+        tags: {
+          SecurityMonitoring: 'enabled',
+          Name: 'test',
+        },
+      });
+
+      const runtimeParams = {
+        runnerTokenPath: '$.runner.token',
+        runnerNamePath: '$$.Execution.Name',
+        ownerPath: '$.owner',
+        repoPath: '$.repo',
+        registrationUrl: 'https://github.com',
+        githubDomainPath: 'github.com',
+        labelsPath: '$.labels',
+        addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
+          (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'CleanupStubTags'), {
+            errors: [sfn.Errors.ALL],
+            resultPath: '$.error',
+          });
+        },
+      };
+      const task = provider.getStepFunctionTask(runtimeParams);
+
+      new sfn.StateMachine(stack, 'sm', {
+        definitionBody: sfn.DefinitionBody.fromChainable(task),
+      });
+
+      const template = Template.fromStack(stack);
+
+      const def = stateMachineDefinition(template);
+      const runInstances = Object.values(def.States).find((state: any) =>
+        state?.Parameters?.TagSpecifications,
+      ) as any;
+      expect(runInstances).toBeDefined();
+
+      for (const spec of runInstances.Parameters.TagSpecifications) {
+        expect(['instance', 'volume']).toContain(spec.ResourceType);
+        const tags = Object.fromEntries(spec.Tags.map((t: any) => [t.Key, t.Value]));
+        expect(tags.SecurityMonitoring).toBe('enabled');
+        expect(tags.Name).toBe('test');
+        expect(tags['GitHubRunners:Provider']).toBeDefined();
+      }
     });
   });
 

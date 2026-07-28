@@ -7204,6 +7204,7 @@ const ec2RunnerProviderProps: Ec2RunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for launched runner instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnet">subnet</a></code> | <code>aws-cdk-lib.aws_ec2.ISubnet</code> | Subnet where the runner instances will be launched. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.tags">tags</a></code> | <code>{[ key: string ]: string}</code> | Additional tags to apply to launched runner instances and their volumes. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC where runner instances will be launched. |
 
 ---
@@ -7444,6 +7445,22 @@ public readonly subnetSelection: SubnetSelection;
 Where to place the network interfaces within the VPC.
 
 Only the first matched subnet will be used.
+
+---
+
+##### `tags`<sup>Optional</sup> <a name="tags" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.tags"></a>
+
+```typescript
+public readonly tags: {[ key: string ]: string};
+```
+
+- *Type:* {[ key: string ]: string}
+- *Default:* no additional tags
+
+Additional tags to apply to launched runner instances and their volumes.
+
+These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
+You may override the built-in tags.
 
 ---
 

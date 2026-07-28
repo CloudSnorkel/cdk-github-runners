@@ -329,6 +329,16 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
    * @default no max price (you will pay current spot price)
    */
   readonly spotMaxPrice?: string;
+
+  /**
+   * Additional tags to apply to launched runner instances and their volumes.
+   *
+   * These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
+   * You may override the built-in tags.
+   *
+   * @default no additional tags
+   */
+  readonly tags?: { [key: string]: string };
 }
 
 /**
@@ -410,6 +420,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   private readonly subnets: ec2.ISubnet[];
   private readonly securityGroups: ec2.ISecurityGroup[];
   private readonly defaultLabels: boolean;
+  private readonly tags: { [key: string]: string };
 
   constructor(scope: Construct, id: string, props?: Ec2RunnerProviderProps) {
     super(scope, id, props);
@@ -425,6 +436,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;
     this.defaultLabels = props?.defaultLabels ?? true;
+    this.tags = props?.tags ?? {};
 
     if (this.subnets.length === 0) {
       cdk.Annotations.of(this).addError('At least one subnet is required');
@@ -517,6 +529,15 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     // we build a complicated chain of states here because ec2:RunInstances can only try one subnet at a time
     // if someone can figure out a good way to use Map for this, please open a PR
 
+    // calculate tags
+    const tags = {
+      'Name': parameters.runnerNamePath,
+      'GitHubRunners:Provider': this.node.path,
+      'GitHubRunners:Repo': stepfunctions.JsonPath.format('{}/{}', parameters.ownerPath, parameters.repoPath),
+      'GitHubRunners:Labels': parameters.labelsPath,
+      ...this.tags,
+    };
+
     // build a state for each subnet we want to try
     const instanceProfile = new iam.CfnInstanceProfile(this, 'Instance Profile', {
       roles: [this.role.roleName],
@@ -577,24 +598,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
           TagSpecifications: ['instance', 'volume'].map(resType => { // manually propagate tags
             return {
               ResourceType: resType,
-              Tags: [
-                {
-                  Key: 'Name',
-                  Value: parameters.runnerNamePath,
-                },
-                {
-                  Key: 'GitHubRunners:Provider',
-                  Value: this.node.path,
-                },
-                {
-                  Key: 'GitHubRunners:Repo',
-                  Value: stepfunctions.JsonPath.format('{}/{}', parameters.ownerPath, parameters.repoPath),
-                },
-                {
-                  Key: 'GitHubRunners:Labels',
-                  Value: parameters.labelsPath,
-                },
-              ],
+              Tags: Object.entries(tags).map(([Key, Value]) => ({ Key, Value })),
             };
           }),
         },
