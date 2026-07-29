@@ -212,11 +212,13 @@ export class ImageBuilderComponent extends cdk.Resource {
         }
       }
 
-      steps.push({
-        name: 'Download',
-        action: 'S3Download',
-        inputs,
-      });
+      if (inputs.length > 0) {
+        steps.push({
+          name: 'Download',
+          action: 'S3Download',
+          inputs,
+        });
+      }
 
       if (extractCommands.length > 0) {
         steps.push({
