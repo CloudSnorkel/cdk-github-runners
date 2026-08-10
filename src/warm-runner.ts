@@ -140,7 +140,7 @@ function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule:
  *
  * @see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
  *
- * ## Limitations
+ * **Limitations**
  *
  * - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
  * - You may briefly see more than `count` runners when changing config or at rotation.
@@ -234,7 +234,7 @@ function getScheduleIntervalSeconds(expressionString: string): number | undefine
  *
  * @see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
  *
- * ## Limitations
+ * **Limitations**
  *
  * - **No deployment-fill**: Unlike `AlwaysOnWarmRunner`, scheduled warm runners do not get an initial
  *   fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
