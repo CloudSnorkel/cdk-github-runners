@@ -12,7 +12,7 @@ Registration level must match the one selected during setup.
 
 > [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
 
-## Limitations
+**Limitations**
 
 - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
 - You may briefly see more than `count` runners when changing config or at rotation.
@@ -32,7 +32,7 @@ repo: 'my-repo',
 });
 ```](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
 
-## Limitations
+**Limitations**
 
 - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
 - You may briefly see more than `count` runners when changing config or at rotation.
@@ -5532,7 +5532,7 @@ Registration level must match the one selected during setup.
 
 > [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
 
-## Limitations
+**Limitations**
 
 - **No deployment-fill**: Unlike `AlwaysOnWarmRunner`, scheduled warm runners do not get an initial
 fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
@@ -5571,7 +5571,7 @@ duration: cdk.Duration.hours(12),
 });
 ```](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
 
-## Limitations
+**Limitations**
 
 - **No deployment-fill**: Unlike `AlwaysOnWarmRunner`, scheduled warm runners do not get an initial
 fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
