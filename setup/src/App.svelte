@@ -348,6 +348,9 @@
                 on which repositories to install this app after it's created.
               </li>
               <li>
+                Organization level is <b>required</b> for <a href="https://docs.github.com/en/actions/concepts/runners/runner-groups">runner groups</a>.
+              </li>
+              <li>
                 Do not use organization level registration if you don't fully trust all repositories in your organization.
               </li>
               <li>
