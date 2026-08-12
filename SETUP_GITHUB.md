@@ -53,6 +53,7 @@ You will need to make several decisions during setup. Here's a quick guide to he
 
 **When to use Organization-level:**
 - You need to minimize permissions (only requires `organization_self_hosted_runners`)
+- You want to use runner groups
 - You fully trust all repositories in your organization
 - You want all repositories to share the same pool of runners
 
