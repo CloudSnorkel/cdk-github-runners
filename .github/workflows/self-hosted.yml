@@ -219,7 +219,7 @@ jobs:
       contents: read
     steps:
       - run: |
-          Get-ChildItem env:
+          Get-ChildItem Env: | Where-Object { $_.Name -notmatch 'KEY|TOKEN' }
       - name: Check arch
         run: |
           if (Compare-Object "${{ matrix.arch }}" $Env:RUNNER_ARCH) {
