@@ -126,10 +126,9 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
     2. Open the URL in `github.webhook.secretUrl` from `status.json`, retrieve the secret value, and use it for webhook secret
 4. In the permissions section enable:
    1. Repository    -> Actions: Read and write
-   2. Repository    -> Administration: Read and write
-   3. Repository    -> Deployments: Read-only
-   4. Repository    -> Administration: Read and write (only for repository level runners)
-   5. Organization  -> Self-hosted runners: Read and write (only for organization level runners)
+   2. Repository    -> Deployments: Read-only
+   3. Repository    -> Administration: Read and write (only for repository level runners)
+   4. Organization  -> Self-hosted runners: Read and write (only for organization level runners)
 5. In the event subscription section enable:
     1. Workflow job
 6. Under "Where can this GitHub App be installed?" select "Only on this account"
