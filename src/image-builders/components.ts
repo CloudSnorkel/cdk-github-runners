@@ -702,7 +702,13 @@ export abstract class RunnerImageComponent {
 
       getCommands(os: Os, _architecture: Architecture) {
         if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
-          return Object.entries(vars).map(e => `echo '${e[0]}=${e[1].replace(/'/g, "'\"'\"'")}' >> /home/runner/.env`);
+          if (Object.keys(vars).length === 0) {
+            return [];
+          }
+          return [
+            ...Object.entries(vars).map(e => `echo '${e[0]}=${e[1].replace(/'/g, "'\"'\"'")}' >> /home/runner/.env`),
+            'chown runner /home/runner/.env', // env.sh modifies .env
+          ];
         } else if (os.is(Os.WINDOWS)) {
           return Object.entries(vars).map(e => `Add-Content -Path C:\\actions\\.env -Value '${e[0]}=${e[1].replace(/'/g, "''")}'`);
         } else {
@@ -770,6 +776,7 @@ export abstract class RunnerImageComponent {
           return [
             `chmod +x '${target}'`,
             `echo '${envVar}=${target}' >> /home/runner/.env`,
+            'chown runner /home/runner/.env', // env.sh modifies .env
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [

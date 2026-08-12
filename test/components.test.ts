@@ -185,6 +185,7 @@ test('Environment variable escaping', () => {
   expect(linuxCommands).toStrictEqual([
     'echo \'test=$h$e>>llo\'"\'"\'""\'"\'"\'\'"\'"\'"\' >> /home/runner/.env',
     'echo \'normal=bar\' >> /home/runner/.env',
+    'chown runner /home/runner/.env',
   ]);
 
   expect(winCommands).toStrictEqual([
@@ -207,6 +208,7 @@ describe('Job hooks', () => {
     expect(commands).toStrictEqual([
       'chmod +x \'/home/runner/ACTIONS_RUNNER_HOOK_JOB_STARTED.sh\'',
       'echo \'ACTIONS_RUNNER_HOOK_JOB_STARTED=/home/runner/ACTIONS_RUNNER_HOOK_JOB_STARTED.sh\' >> /home/runner/.env',
+      'chown runner /home/runner/.env',
     ]);
   });
 
@@ -217,6 +219,7 @@ describe('Job hooks', () => {
     expect(commands).toStrictEqual([
       'chmod +x \'/home/runner/ACTIONS_RUNNER_HOOK_JOB_COMPLETED.sh\'',
       'echo \'ACTIONS_RUNNER_HOOK_JOB_COMPLETED=/home/runner/ACTIONS_RUNNER_HOOK_JOB_COMPLETED.sh\' >> /home/runner/.env',
+      'chown runner /home/runner/.env',
     ]);
   });
 
