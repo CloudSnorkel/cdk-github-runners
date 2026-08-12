@@ -702,6 +702,9 @@ export abstract class RunnerImageComponent {
 
       getCommands(os: Os, _architecture: Architecture) {
         if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
+          if (Object.keys(vars).length === 0) {
+            return [];
+          }
           return [
             ...Object.entries(vars).map(e => `echo '${e[0]}=${e[1].replace(/'/g, "'\"'\"'")}' >> /home/runner/.env`),
             'chown runner /home/runner/.env', // env.sh modifies .env
