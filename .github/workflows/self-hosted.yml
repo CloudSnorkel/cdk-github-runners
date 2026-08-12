@@ -116,7 +116,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - run: export
+      - run: export | grep -v KEY | grep -v TOKEN
       - name: Check arch
         run: |
           if [ "${{ matrix.arch }}" != "${RUNNER_ARCH}" ]; then
