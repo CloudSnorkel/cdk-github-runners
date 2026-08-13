@@ -115,7 +115,10 @@
           "exec": "cp -r src/providers/docker-images assets"
         },
         {
-          "exec": "cp -r src/providers/lambda-*.sh assets/providers"
+          "exec": "cp -r src/providers/*.sh assets/providers"
+        },
+        {
+          "exec": "cp -r src/providers/*.ps1 assets/providers"
         },
         {
           "exec": "vite build setup"

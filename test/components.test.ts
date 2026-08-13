@@ -201,14 +201,12 @@ describe('Job hooks', () => {
     const assets = comp.getAssets(Os.LINUX_UBUNTU_2204, Architecture.X86_64);
     expect(assets).toStrictEqual([{
       source: '/local/path/job-started.sh',
-      target: '/home/runner/ACTIONS_RUNNER_HOOK_JOB_STARTED.sh',
+      target: '/home/runner/job-started-hook-user.sh',
     }]);
 
     const commands = comp.getCommands(Os.LINUX_UBUNTU_2204, Architecture.X86_64);
     expect(commands).toStrictEqual([
-      'chmod +x \'/home/runner/ACTIONS_RUNNER_HOOK_JOB_STARTED.sh\'',
-      'echo \'ACTIONS_RUNNER_HOOK_JOB_STARTED=/home/runner/ACTIONS_RUNNER_HOOK_JOB_STARTED.sh\' >> /home/runner/.env',
-      'chown runner /home/runner/.env',
+      'chmod +x \'/home/runner/job-started-hook-user.sh\'',
     ]);
   });
 
@@ -217,9 +215,7 @@ describe('Job hooks', () => {
 
     const commands = comp.getCommands(Os.LINUX_AMAZON_2, Architecture.X86_64);
     expect(commands).toStrictEqual([
-      'chmod +x \'/home/runner/ACTIONS_RUNNER_HOOK_JOB_COMPLETED.sh\'',
-      'echo \'ACTIONS_RUNNER_HOOK_JOB_COMPLETED=/home/runner/ACTIONS_RUNNER_HOOK_JOB_COMPLETED.sh\' >> /home/runner/.env',
-      'chown runner /home/runner/.env',
+      'chmod +x \'/home/runner/job-completed-hook-user.sh\'',
     ]);
   });
 
@@ -229,13 +225,11 @@ describe('Job hooks', () => {
     const assets = comp.getAssets(Os.WINDOWS, Architecture.X86_64);
     expect(assets).toStrictEqual([{
       source: '/local/path/job-started.ps1',
-      target: 'C:\\actions\\ACTIONS_RUNNER_HOOK_JOB_STARTED.ps1',
+      target: 'C:\\actions\\job-started-hook-user.ps1',
     }]);
 
     const commands = comp.getCommands(Os.WINDOWS, Architecture.X86_64);
-    expect(commands).toStrictEqual([
-      'Add-Content -Path C:\\actions\\.env -Value \'ACTIONS_RUNNER_HOOK_JOB_STARTED=C:\\actions\\ACTIONS_RUNNER_HOOK_JOB_STARTED.ps1\'',
-    ]);
+    expect(commands).toStrictEqual([]);
   });
 });
 

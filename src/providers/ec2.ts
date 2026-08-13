@@ -99,12 +99,18 @@ action () {
   fi
 
   labelsTemplate="$labels,cdkghr:started:$(date +%s)"
+  
+  # Report workflow id for stolen runner detection
+  /home/runner/job-reporter.sh "$runnerNamePath"
 
   # Execute the configuration command for runner registration
   sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1
 
   # Execute the run command
   sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
+  
+  # Stop the stolen reporter to avoid it keeping the instance alive
+  /home/runner/job-reporter.sh --stop
 
   # Retrieve the status
   STATUS=$(grep -Phors "finish job request for job [0-9a-f-]+ with result: .*" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')
@@ -170,6 +176,12 @@ function setup_logs () {
               \`"log_group_name\`": \`"$logGroupName\`",
               \`"log_stream_name\`": \`"$runnerNamePath\`",
               \`"timezone\`": \`"UTC\`"
+            },
+            {
+              \`"file_path\`": \`"/actions/workflow.log\`",
+              \`"log_group_name\`": \`"$logGroupName\`",
+              \`"log_stream_name\`": \`"$runnerNamePath-workflow\`",
+              \`"timezone\`": \`"UTC\`"
             }
           ]
         }
@@ -180,6 +192,9 @@ function setup_logs () {
 }
 function action () {
   cd /actions
+  
+  & ./job-reporter.ps1 "\${runnerNamePath}" /actions/workflow.log 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  
   $RunnerVersion = Get-Content /actions/RUNNER_VERSION -Raw
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
   ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" \${runnerGroup1} \${runnerGroup2} \${defaultLabels} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
