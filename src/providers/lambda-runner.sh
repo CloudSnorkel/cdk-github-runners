@@ -29,6 +29,7 @@ export HOME=/tmp/home
 
 # check for stolen runners
 ./job-reporter.sh "${RUNNER_NAME}"
+trap './job-reporter.sh --stop' EXIT
 
 # start runner
 if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
@@ -36,9 +37,6 @@ if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="
 echo Config done
 ./run.sh
 echo Run done
-
-# Stop the stolen reporter to avoid it keeping the container alive
-./job-reporter.sh --stop
 
 # print status for metrics
 STATUS=$(grep -Phors "finish job request for job [0-9a-f\-]+ with result: \K.*" _diag/ | tail -n1)
