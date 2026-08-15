@@ -84,6 +84,22 @@ test('Signature verification', () => {
   expect(generatedName).toBe('my-repo-name-that-is-very-l-ea8a0021-6ba6-4986-9102-51c567e55733');
 });
 
+test('Execution name is unique per delivery, not per job', () => {
+  // a job can be re-run and needs a new runner when it is, so the name must not be derived from the job
+  const payload = { repository: { name: 'my-repo' }, workflow_job: { id: 45678901234 } };
+
+  const first = webhook.generateExecutionName(
+    { headers: { 'x-github-delivery': 'ea8a0021-6ba6-4986-9102-51c567e55733' } },
+    payload,
+  );
+  const second = webhook.generateExecutionName(
+    { headers: { 'x-github-delivery': '11111111-2222-3333-4444-555555555555' } },
+    payload,
+  );
+
+  expect(first).not.toEqual(second);
+});
+
 describe('selectProvider', () => {
   const mockPayload = {
     repository: { name: 'test-repo', owner: { login: 'test-owner' } },

@@ -197,6 +197,22 @@
     "DefaultCapacityProviderStrategy": []
    }
   },
+  "SGADB53937": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "github-runners-test/SG",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   }
+  },
   "FargatebuilderRoleDA300BCD": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -517,11 +533,11 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/5302c27cfe7143069f82f9afc50dec81855b1b7aa300cb47bc1f1a6c00ab08e3.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
         },
         " asset5-GithubRunner-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9c704a15a38c5d488adc62df3906e71504d5908e2599b0fe5cfb52f6dbacf728.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fddbad14f70656ee40fb76eedf509f86ffff0488cc9325b606a9f03742599ac8.sh"
         },
         " asset5-GithubRunner-1\",\n        \"aws s3 cp ",
         {
@@ -633,15 +649,15 @@
     ]
    }
   },
-  "FargatebuilderBuildWaitHandle3f63091e06DB142E0E": {
+  "FargatebuilderBuildWaitHandle38af7cfc3aCEBA4F69": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderBuildWait3f63091e06FDA2DF49": {
+  "FargatebuilderBuildWait38af7cfc3aE4AD52A1": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderBuildWaitHandle3f63091e06DB142E0E"
+     "Ref": "FargatebuilderBuildWaitHandle38af7cfc3aCEBA4F69"
     },
     "Timeout": "3600"
    }
@@ -662,7 +678,7 @@
      "Ref": "FargatebuilderCodeBuild4F182743"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderBuildWaitHandle3f63091e06DB142E0E"
+     "Ref": "FargatebuilderBuildWaitHandle38af7cfc3aCEBA4F69"
     }
    },
    "DependsOn": [
@@ -1035,11 +1051,11 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/5302c27cfe7143069f82f9afc50dec81855b1b7aa300cb47bc1f1a6c00ab08e3.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
         },
         " asset5-GithubRunner-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9c704a15a38c5d488adc62df3906e71504d5908e2599b0fe5cfb52f6dbacf728.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fddbad14f70656ee40fb76eedf509f86ffff0488cc9325b606a9f03742599ac8.sh"
         },
         " asset5-GithubRunner-1\",\n        \"aws s3 cp ",
         {
@@ -1151,15 +1167,15 @@
     ]
    }
   },
-  "FargatebuilderarmBuildWaitHandle6259a0c114A315A05E": {
+  "FargatebuilderarmBuildWaitHandle23e06d1fd26786C6FD": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderarmBuildWait6259a0c11426C6412B": {
+  "FargatebuilderarmBuildWait23e06d1fd28F02C256": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderarmBuildWaitHandle6259a0c114A315A05E"
+     "Ref": "FargatebuilderarmBuildWaitHandle23e06d1fd26786C6FD"
     },
     "Timeout": "3600"
    }
@@ -1180,7 +1196,7 @@
      "Ref": "FargatebuilderarmCodeBuild0D30679A"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderarmBuildWaitHandle6259a0c114A315A05E"
+     "Ref": "FargatebuilderarmBuildWaitHandle23e06d1fd26786C6FD"
     }
    },
    "DependsOn": [
@@ -1684,11 +1700,11 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/5302c27cfe7143069f82f9afc50dec81855b1b7aa300cb47bc1f1a6c00ab08e3.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
         },
         " asset5-GithubRunner-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9c704a15a38c5d488adc62df3906e71504d5908e2599b0fe5cfb52f6dbacf728.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fddbad14f70656ee40fb76eedf509f86ffff0488cc9325b606a9f03742599ac8.sh"
         },
         " asset5-GithubRunner-1\",\n        \"aws s3 cp ",
         {
@@ -1700,7 +1716,7 @@
         },
         " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/426f6a9448d89246f271513e6ae56339c4ac10eb0d9d5cee75a6ee11850f14d7.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/d3cd7a1ef976369fa7eef7714dcf110b7257819d8f571a7881a380ff7fca4121.sh"
         },
         " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
         {
@@ -1808,15 +1824,15 @@
     ]
    }
   },
-  "LambdaImageBuilderx64BuildWaitHandle554700c9e1E8374ABC": {
+  "LambdaImageBuilderx64BuildWaitHandle8f3d653ab04F4BE0D8": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderx64BuildWait554700c9e13C1A594A": {
+  "LambdaImageBuilderx64BuildWait8f3d653ab0744D0D27": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle554700c9e1E8374ABC"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandle8f3d653ab04F4BE0D8"
     },
     "Timeout": "3600"
    }
@@ -1837,7 +1853,7 @@
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle554700c9e1E8374ABC"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandle8f3d653ab04F4BE0D8"
     }
    },
    "DependsOn": [
@@ -1888,22 +1904,6 @@
       }
      }
     ]
-   }
-  },
-  "WindowsImageBuilderSG5ACD1618": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/Windows Image Builder/SG",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
    }
   },
   "WindowsImageBuilderRole717C46A6": {
@@ -2093,7 +2093,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerWindowsX86645d6f712c6eComponent23AA0B3E",
+        "GHRInternalComponentGithubRunnerWindowsX8664eeedfc2e50Component10DCDFD3",
         "Arn"
        ]
       }
@@ -2168,7 +2168,7 @@
     "SecurityGroupIds": [
      {
       "Fn::GetAtt": [
-       "WindowsImageBuilderSG5ACD1618",
+       "SGADB53937",
        "GroupId"
       ]
      }
@@ -2386,22 +2386,6 @@
     "WindowsImageBuilderDockerLogE660E23E",
     "WindowsImageBuilderInfrastructureFF99A30B"
    ]
-  },
-  "AMILinuxBuilderSGEDC86329": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/AMI Linux Builder/SG",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
   },
   "AMILinuxBuilderRole0C42378A": {
    "Type": "AWS::IAM::Role",
@@ -2680,7 +2664,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerUbuntuLinuxX866480bf877ae7ComponentE06EE7A5",
+        "GHRInternalComponentGithubRunnerUbuntuLinuxX866440bd3d9323ComponentC7884323",
         "Arn"
        ]
       }
@@ -2763,7 +2747,7 @@
     "SecurityGroupIds": [
      {
       "Fn::GetAtt": [
-       "AMILinuxBuilderSGEDC86329",
+       "SGADB53937",
        "GroupId"
       ]
      }
@@ -3312,11 +3296,11 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/5302c27cfe7143069f82f9afc50dec81855b1b7aa300cb47bc1f1a6c00ab08e3.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
         },
         " asset6-GithubRunner-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9c704a15a38c5d488adc62df3906e71504d5908e2599b0fe5cfb52f6dbacf728.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fddbad14f70656ee40fb76eedf509f86ffff0488cc9325b606a9f03742599ac8.sh"
         },
         " asset6-GithubRunner-1\",\n        \"aws s3 cp ",
         {
@@ -3428,15 +3412,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderBuildWaitHandlefa9fbd83c618EF14CD": {
+  "CodeBuildImageBuilderBuildWaitHandle1dff63cc2dFF21DB79": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderBuildWaitfa9fbd83c62B351A22": {
+  "CodeBuildImageBuilderBuildWait1dff63cc2d9F265B41": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandlefa9fbd83c618EF14CD"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle1dff63cc2dFF21DB79"
     },
     "Timeout": "3600"
    }
@@ -3457,7 +3441,7 @@
      "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandlefa9fbd83c618EF14CD"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle1dff63cc2dFF21DB79"
     }
    },
    "DependsOn": [
@@ -3830,11 +3814,11 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/5302c27cfe7143069f82f9afc50dec81855b1b7aa300cb47bc1f1a6c00ab08e3.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
         },
         " asset6-GithubRunner-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9c704a15a38c5d488adc62df3906e71504d5908e2599b0fe5cfb52f6dbacf728.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fddbad14f70656ee40fb76eedf509f86ffff0488cc9325b606a9f03742599ac8.sh"
         },
         " asset6-GithubRunner-1\",\n        \"aws s3 cp ",
         {
@@ -3946,15 +3930,15 @@
     ]
    }
   },
-  "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle77fca0ac443B1C6DC5": {
+  "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlea34baa770bACFA5D1D": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildUbuntu2404ImageBuilderBuildWait77fca0ac44E649352C": {
+  "CodeBuildUbuntu2404ImageBuilderBuildWaita34baa770b8851FD1A": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle77fca0ac443B1C6DC5"
+     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlea34baa770bACFA5D1D"
     },
     "Timeout": "3600"
    }
@@ -3975,7 +3959,7 @@
      "Ref": "CodeBuildUbuntu2404ImageBuilderCodeBuild30AF5C46"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle77fca0ac443B1C6DC5"
+     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlea34baa770bACFA5D1D"
     }
    },
    "DependsOn": [
@@ -4348,11 +4332,11 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/5302c27cfe7143069f82f9afc50dec81855b1b7aa300cb47bc1f1a6c00ab08e3.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
         },
         " asset6-GithubRunner-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9c704a15a38c5d488adc62df3906e71504d5908e2599b0fe5cfb52f6dbacf728.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fddbad14f70656ee40fb76eedf509f86ffff0488cc9325b606a9f03742599ac8.sh"
         },
         " asset6-GithubRunner-1\",\n        \"aws s3 cp ",
         {
@@ -4464,15 +4448,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderarmBuildWaitHandle4b7919929a4D8F19FF": {
+  "CodeBuildImageBuilderarmBuildWaitHandlea0ec4d84e3AC32EDDF": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderarmBuildWait4b7919929aC5AB2CF8": {
+  "CodeBuildImageBuilderarmBuildWaita0ec4d84e3E97EF69E": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle4b7919929a4D8F19FF"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandlea0ec4d84e3AC32EDDF"
     },
     "Timeout": "3600"
    }
@@ -4493,7 +4477,7 @@
      "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle4b7919929a4D8F19FF"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandlea0ec4d84e3AC32EDDF"
     }
    },
    "DependsOn": [
@@ -4997,11 +4981,11 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/5302c27cfe7143069f82f9afc50dec81855b1b7aa300cb47bc1f1a6c00ab08e3.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
         },
         " asset5-GithubRunner-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9c704a15a38c5d488adc62df3906e71504d5908e2599b0fe5cfb52f6dbacf728.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fddbad14f70656ee40fb76eedf509f86ffff0488cc9325b606a9f03742599ac8.sh"
         },
         " asset5-GithubRunner-1\",\n        \"aws s3 cp ",
         {
@@ -5013,7 +4997,7 @@
         },
         " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/426f6a9448d89246f271513e6ae56339c4ac10eb0d9d5cee75a6ee11850f14d7.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/d3cd7a1ef976369fa7eef7714dcf110b7257819d8f571a7881a380ff7fca4121.sh"
         },
         " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
         {
@@ -5121,15 +5105,15 @@
     ]
    }
   },
-  "LambdaImageBuilderzBuildWaitHandle0b714542027975587F": {
+  "LambdaImageBuilderzBuildWaitHandleaf76550a973732FF70": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderzBuildWait0b71454202A35E18D5": {
+  "LambdaImageBuilderzBuildWaitaf76550a97D9163D2A": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle0b714542027975587F"
+     "Ref": "LambdaImageBuilderzBuildWaitHandleaf76550a973732FF70"
     },
     "Timeout": "3600"
    }
@@ -5150,7 +5134,7 @@
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle0b714542027975587F"
+     "Ref": "LambdaImageBuilderzBuildWaitHandleaf76550a973732FF70"
     }
    },
    "DependsOn": [
@@ -5201,22 +5185,6 @@
       }
      }
     ]
-   }
-  },
-  "AMILinuxarm64BuilderSG94315968": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/AMI Linux arm64 Builder/SG",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
    }
   },
   "AMILinuxarm64BuilderRole40D54E29": {
@@ -5456,7 +5424,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerUbuntuLinuxARM64a73a86554cComponent18F7A8DB",
+        "GHRInternalComponentGithubRunnerUbuntuLinuxARM646b27deb41dComponent4331AA18",
         "Arn"
        ]
       }
@@ -5539,7 +5507,7 @@
     "SecurityGroupIds": [
      {
       "Fn::GetAtt": [
-       "AMILinuxarm64BuilderSG94315968",
+       "SGADB53937",
        "GroupId"
       ]
      }
@@ -5766,22 +5734,6 @@
      ]
     },
     "ResourceType": "AMI_IMAGE"
-   }
-  },
-  "WindowsEC2BuilderSGE3F67842": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/Windows EC2 Builder/SG",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
    }
   },
   "WindowsEC2BuilderRole1BA7D3E7": {
@@ -6021,7 +5973,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerWindowsX86645d6f712c6eComponent23AA0B3E",
+        "GHRInternalComponentGithubRunnerWindowsX8664eeedfc2e50Component10DCDFD3",
         "Arn"
        ]
       }
@@ -6104,7 +6056,7 @@
     "SecurityGroupIds": [
      {
       "Fn::GetAtt": [
-       "WindowsEC2BuilderSGE3F67842",
+       "SGADB53937",
        "GroupId"
       ]
      }
@@ -6653,11 +6605,11 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum update -y\\nyum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\nyum install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/5302c27cfe7143069f82f9afc50dec81855b1b7aa300cb47bc1f1a6c00ab08e3.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
         },
         " asset5-GithubRunner-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9c704a15a38c5d488adc62df3906e71504d5908e2599b0fe5cfb52f6dbacf728.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fddbad14f70656ee40fb76eedf509f86ffff0488cc9325b606a9f03742599ac8.sh"
         },
         " asset5-GithubRunner-1\",\n        \"aws s3 cp ",
         {
@@ -6765,15 +6717,15 @@
     ]
    }
   },
-  "AL2builderBuildWaitHandlefb2b1077a893C1FC41": {
+  "AL2builderBuildWaitHandleb867792715923704F6": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "AL2builderBuildWaitfb2b1077a8B18E2BD8": {
+  "AL2builderBuildWaitb86779271540CB915D": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "AL2builderBuildWaitHandlefb2b1077a893C1FC41"
+     "Ref": "AL2builderBuildWaitHandleb867792715923704F6"
     },
     "Timeout": "3600"
    }
@@ -6794,7 +6746,7 @@
      "Ref": "AL2builderCodeBuild55A26C62"
     },
     "WaitHandle": {
-     "Ref": "AL2builderBuildWaitHandlefb2b1077a893C1FC41"
+     "Ref": "AL2builderBuildWaitHandleb867792715923704F6"
     }
    },
    "DependsOn": [
@@ -8177,7 +8129,7 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubRunnerWindowsX86645d6f712c6eComponent23AA0B3E": {
+  "GHRInternalComponentGithubRunnerWindowsX8664eeedfc2e50Component10DCDFD3": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
     "Data": {
@@ -8186,11 +8138,11 @@
       [
        "{\"name\":\"GithubRunner (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[{\"source\":\"",
        {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/a6170b27844e99c892c03eb9a1ba264868a110a6601903ed4945621fe9dee52d.ps1"
+        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cde8feb0c461c57fed7e0e26054827786135f9e657af6015a708f4861275e790.ps1"
        },
        "\",\"destination\":\"/actions/job-reporter.ps1\"},{\"source\":\"",
        {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/0bf2815bfb2b4626a0ae6128362f268b52a0c981449a23fa21e40e4291de2596.ps1"
+        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/344ae98c7b64c87e38a3687467dd67b459eada75f75cc1a8f84d35fff01c6dcd.ps1"
        },
        "\",\"destination\":\"/actions/job-started-hook.ps1\"},{\"source\":\"",
        {
@@ -8201,7 +8153,7 @@
      ]
     },
     "Description": "GithubRunner component for Windows/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Windows-X86-64-5d6f712c6e-4629CE31",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Windows-X86-64-eeedfc2e50-FBAE243F",
     "Platform": "Windows",
     "Version": "1.0.0"
    }
@@ -8350,28 +8302,6 @@
     "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy83DD2A7E",
     "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleB6525E5C"
    ]
-  },
-  "ECSSpotsecuritygroupF7F9906A": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/ECS Spot/security group",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/ECS Spot"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
   },
   "ECSSpotclusterE23D90F0": {
    "Type": "AWS::ECS::Cluster",
@@ -8574,7 +8504,7 @@
      "SecurityGroupIds": [
       {
        "Fn::GetAtt": [
-        "ECSSpotsecuritygroupF7F9906A",
+        "SGADB53937",
         "GroupId"
        ]
       }
@@ -9116,28 +9046,6 @@
     "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36"
    ]
   },
-  "ECSNonSpotsecuritygroup20AE443A": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/ECS Non-Spot/security group",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/ECS Non-Spot"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
-  },
   "ECSNonSpotclusterD12EB68A": {
    "Type": "AWS::ECS::Cluster",
    "Properties": {
@@ -9333,7 +9241,7 @@
      "SecurityGroupIds": [
       {
        "Fn::GetAtt": [
-        "ECSNonSpotsecuritygroup20AE443A",
+        "SGADB53937",
         "GroupId"
        ]
       }
@@ -9782,28 +9690,6 @@
     ]
    }
   },
-  "ECSUbuntu2404securitygroupEE405C76": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/ECS Ubuntu 2404/security group",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/ECS Ubuntu 2404"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
-  },
   "ECSUbuntu2404cluster21C05FA1": {
    "Type": "AWS::ECS::Cluster",
    "Properties": {
@@ -10005,7 +9891,7 @@
      "SecurityGroupIds": [
       {
        "Fn::GetAtt": [
-        "ECSUbuntu2404securitygroupEE405C76",
+        "SGADB53937",
         "GroupId"
        ]
       }
@@ -10454,28 +10340,6 @@
     ]
    }
   },
-  "ECSARM64securitygroup281D94B2": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/ECS ARM64/security group",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/ECS ARM64"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
-  },
   "ECSARM64cluster4ECAA083": {
    "Type": "AWS::ECS::Cluster",
    "Properties": {
@@ -10643,7 +10507,7 @@
      "SecurityGroupIds": [
       {
        "Fn::GetAtt": [
-        "ECSARM64securitygroup281D94B2",
+        "SGADB53937",
         "GroupId"
        ]
       }
@@ -11092,28 +10956,6 @@
     ]
    }
   },
-  "ECSWindowssecuritygroupB4EE54DA": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/ECS Windows/security group",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/ECS Windows"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
-  },
   "ECSWindowscluster14061F74": {
    "Type": "AWS::ECS::Cluster",
    "Properties": {
@@ -11281,7 +11123,7 @@
      "SecurityGroupIds": [
       {
        "Fn::GetAtt": [
-        "ECSWindowssecuritygroupB4EE54DA",
+        "SGADB53937",
         "GroupId"
        ]
       }
@@ -11768,7 +11610,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderx64BuildWait554700c9e13C1A594A"
+        "Ref": "LambdaImageBuilderx64BuildWait8f3d653ab0744D0D27"
        },
        "\"}}"
       ]
@@ -12199,7 +12041,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderzBuildWait0b71454202A35E18D5"
+        "Ref": "LambdaImageBuilderzBuildWaitaf76550a97D9163D2A"
        },
        "\"}}"
       ]
@@ -12428,28 +12270,6 @@
    "DependsOn": [
     "LambdaARMFunctionServiceRole136069A0"
    ]
-  },
-  "FargatesecuritygroupAFCAFD34": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/Fargate/security group",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/Fargate"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
   },
   "FargatelogsCB753638": {
    "Type": "AWS::Logs::LogGroup",
@@ -12720,28 +12540,6 @@
       "Ref": "FargatetaskExecutionRole88A42307"
      }
     ]
-   }
-  },
-  "Fargatex64spotsubnet1securitygroupE34C79C3": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/Fargate-x64-spot subnet 1/security group",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/Fargate-x64-spot subnet 1"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
    }
   },
   "Fargatex64spotsubnet1logs7081E8E6": {
@@ -13015,28 +12813,6 @@
     ]
    }
   },
-  "Fargatex64spotsubnet2securitygroupF09DD2CB": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/Fargate-x64-spot subnet 2/security group",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/Fargate-x64-spot subnet 2"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
-  },
   "Fargatex64spotsubnet2logs305194C7": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
@@ -13306,28 +13082,6 @@
       "Ref": "Fargatex64spotsubnet2taskExecutionRole25C88A6E"
      }
     ]
-   }
-  },
-  "Fargatearm64securitygroup08ABAD9E": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/Fargate-arm64/security group",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/Fargate-arm64"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
    }
   },
   "Fargatearm64logs00171A52": {
@@ -13601,28 +13355,6 @@
     ]
    }
   },
-  "Fargatearm64spotsecuritygroup20C885E4": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/Fargate-arm64-spot/security group",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/Fargate-arm64-spot"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
-  },
   "Fargatearm64spotlogsEFCCEC59": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
@@ -13894,28 +13626,6 @@
     ]
    }
   },
-  "FargateWindowssecuritygroupE684A7B0": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/Fargate-Windows/security group",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/Fargate-Windows"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
-  },
   "FargateWindowslogs52881DBF": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
@@ -14183,28 +13893,6 @@
     ]
    }
   },
-  "EC2LinuxSGF5B89300": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/EC2 Linux/SG",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/EC2 Linux"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
-  },
   "EC2LinuxRole8B6519A2": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -14362,8 +14050,7 @@
     "AMILinuxBuilderLifecyclePolicyAMIFB556CB2",
     "AMILinuxBuilderLifecyclePolicyAMIRole7BBFF711",
     "AMILinuxBuilderRoleDefaultPolicy69ED051F",
-    "AMILinuxBuilderRole0C42378A",
-    "AMILinuxBuilderSGEDC86329"
+    "AMILinuxBuilderRole0C42378A"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -14438,7 +14125,7 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubRunnerUbuntuLinuxX866480bf877ae7ComponentE06EE7A5": {
+  "GHRInternalComponentGithubRunnerUbuntuLinuxX866440bd3d9323ComponentC7884323": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
     "Data": {
@@ -14447,11 +14134,11 @@
       [
        "{\"name\":\"GithubRunner (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[{\"source\":\"",
        {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/5302c27cfe7143069f82f9afc50dec81855b1b7aa300cb47bc1f1a6c00ab08e3.sh"
+        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
        },
        "\",\"destination\":\"/home/runner/job-reporter.sh\"},{\"source\":\"",
        {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9c704a15a38c5d488adc62df3906e71504d5908e2599b0fe5cfb52f6dbacf728.sh"
+        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fddbad14f70656ee40fb76eedf509f86ffff0488cc9325b606a9f03742599ac8.sh"
        },
        "\",\"destination\":\"/home/runner/job-started-hook.sh\"},{\"source\":\"",
        {
@@ -14462,7 +14149,7 @@
      ]
     },
     "Description": "GithubRunner component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-X86-64-80bf877ae7-B8354741",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-X86-64-40bd3d9323-B0C7E6F1",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
@@ -14532,28 +14219,6 @@
       "PolicyName": "deny"
      }
     ]
-   }
-  },
-  "EC2Linux2SG0F0DCCF1": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/EC2 Linux 2/SG",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/EC2 Linux 2"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
    }
   },
   "EC2Linux2Role25F5EE10": {
@@ -14713,33 +14378,10 @@
     "AMILinuxBuilderLifecyclePolicyAMIFB556CB2",
     "AMILinuxBuilderLifecyclePolicyAMIRole7BBFF711",
     "AMILinuxBuilderRoleDefaultPolicy69ED051F",
-    "AMILinuxBuilderRole0C42378A",
-    "AMILinuxBuilderSGEDC86329"
+    "AMILinuxBuilderRole0C42378A"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
-  },
-  "EC2SpotLinuxSG8D846B64": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/EC2 Spot Linux/SG",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/EC2 Spot Linux"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
   },
   "EC2SpotLinuxRole86333E5D": {
    "Type": "AWS::IAM::Role",
@@ -14898,33 +14540,10 @@
     "AMILinuxBuilderLifecyclePolicyAMIFB556CB2",
     "AMILinuxBuilderLifecyclePolicyAMIRole7BBFF711",
     "AMILinuxBuilderRoleDefaultPolicy69ED051F",
-    "AMILinuxBuilderRole0C42378A",
-    "AMILinuxBuilderSGEDC86329"
+    "AMILinuxBuilderRole0C42378A"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
-  },
-  "EC2Linuxarm64SG550ECD6C": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/EC2 Linux arm64/SG",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/EC2 Linux arm64"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
-   }
   },
   "EC2Linuxarm64Role242F68FF": {
    "Type": "AWS::IAM::Role",
@@ -15082,8 +14701,7 @@
     "AMILinuxarm64BuilderLifecyclePolicyAMI44B6EABD",
     "AMILinuxarm64BuilderLifecyclePolicyAMIRole1D81BF43",
     "AMILinuxarm64BuilderRoleDefaultPolicy113305EE",
-    "AMILinuxarm64BuilderRole40D54E29",
-    "AMILinuxarm64BuilderSG94315968"
+    "AMILinuxarm64BuilderRole40D54E29"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -15158,7 +14776,7 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubRunnerUbuntuLinuxARM64a73a86554cComponent18F7A8DB": {
+  "GHRInternalComponentGithubRunnerUbuntuLinuxARM646b27deb41dComponent4331AA18": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
     "Data": {
@@ -15167,11 +14785,11 @@
       [
        "{\"name\":\"GithubRunner (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[{\"source\":\"",
        {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/5302c27cfe7143069f82f9afc50dec81855b1b7aa300cb47bc1f1a6c00ab08e3.sh"
+        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
        },
        "\",\"destination\":\"/home/runner/job-reporter.sh\"},{\"source\":\"",
        {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9c704a15a38c5d488adc62df3906e71504d5908e2599b0fe5cfb52f6dbacf728.sh"
+        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fddbad14f70656ee40fb76eedf509f86ffff0488cc9325b606a9f03742599ac8.sh"
        },
        "\",\"destination\":\"/home/runner/job-started-hook.sh\"},{\"source\":\"",
        {
@@ -15182,7 +14800,7 @@
      ]
     },
     "Description": "GithubRunner component for Ubuntu Linux/ARM64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-ARM64-a73a86554c-93A61A29",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-ARM64-6b27deb41d-45594C9D",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
@@ -15216,28 +14834,6 @@
     "Name": "github-runners-test-GHRInternal--Component-EnvironmentVariables-Ubuntu-Linux-ARM64-9b1efe2179-A9D5C15D",
     "Platform": "Linux",
     "Version": "1.0.0"
-   }
-  },
-  "EC2WindowsSG13E24976": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "github-runners-test/EC2 Windows/SG",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/EC2 Windows"
-     }
-    ],
-    "VpcId": {
-     "Ref": "Vpc8378EB38"
-    }
    }
   },
   "EC2WindowsRoleC0D850D2": {
@@ -15396,8 +14992,7 @@
     "WindowsEC2BuilderLifecyclePolicyAMIF732B3A7",
     "WindowsEC2BuilderLifecyclePolicyAMIRoleE85A7F2C",
     "WindowsEC2BuilderRoleDefaultPolicy8A5B4E85",
-    "WindowsEC2BuilderRole1BA7D3E7",
-    "WindowsEC2BuilderSGE3F67842"
+    "WindowsEC2BuilderRole1BA7D3E7"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -18078,7 +17673,7 @@
        "\"],\"SecurityGroups\":[\"",
        {
         "Fn::GetAtt": [
-         "FargatesecuritygroupAFCAFD34",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18100,7 +17695,7 @@
        "\"],\"SecurityGroups\":[\"",
        {
         "Fn::GetAtt": [
-         "Fargatex64spotsubnet1securitygroupE34C79C3",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18122,7 +17717,7 @@
        "\"],\"SecurityGroups\":[\"",
        {
         "Fn::GetAtt": [
-         "Fargatex64spotsubnet2securitygroupF09DD2CB",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18148,7 +17743,7 @@
        "\"],\"SecurityGroups\":[\"",
        {
         "Fn::GetAtt": [
-         "Fargatearm64securitygroup08ABAD9E",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18174,7 +17769,7 @@
        "\"],\"SecurityGroups\":[\"",
        {
         "Fn::GetAtt": [
-         "Fargatearm64spotsecuritygroup20C885E4",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18200,7 +17795,7 @@
        "\"],\"SecurityGroups\":[\"",
        {
         "Fn::GetAtt": [
-         "FargateWindowssecuritygroupE684A7B0",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18239,7 +17834,7 @@
        "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"SecurityGroupIds\":[\"",
        {
         "Fn::GetAtt": [
-         "EC2LinuxSGF5B89300",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18301,7 +17896,7 @@
        "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"SecurityGroupIds\":[\"",
        {
         "Fn::GetAtt": [
-         "EC2LinuxSGF5B89300",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18363,7 +17958,7 @@
        "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"SecurityGroupIds\":[\"",
        {
         "Fn::GetAtt": [
-         "EC2Linux2SG0F0DCCF1",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18425,7 +18020,7 @@
        "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"SecurityGroupIds\":[\"",
        {
         "Fn::GetAtt": [
-         "EC2Linux2SG0F0DCCF1",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18472,7 +18067,7 @@
        "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"SecurityGroupIds\":[\"",
        {
         "Fn::GetAtt": [
-         "EC2SpotLinuxSG8D846B64",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18534,7 +18129,7 @@
        "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"SecurityGroupIds\":[\"",
        {
         "Fn::GetAtt": [
-         "EC2SpotLinuxSG8D846B64",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18581,7 +18176,7 @@
        "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"SecurityGroupIds\":[\"",
        {
         "Fn::GetAtt": [
-         "EC2Linuxarm64SG550ECD6C",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18643,7 +18238,7 @@
        "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"SecurityGroupIds\":[\"",
        {
         "Fn::GetAtt": [
-         "EC2Linuxarm64SG550ECD6C",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18690,7 +18285,7 @@
        "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"SecurityGroupIds\":[\"",
        {
         "Fn::GetAtt": [
-         "EC2WindowsSG13E24976",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18752,7 +18347,7 @@
        "\"},\"MetadataOptions\":{\"HttpTokens\":\"required\"},\"SecurityGroupIds\":[\"",
        {
         "Fn::GetAtt": [
-         "EC2WindowsSG13E24976",
+         "SGADB53937",
          "GroupId"
         ]
        },
@@ -18789,6 +18384,718 @@
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "runnersStolenRunnersJobsDFC963A5": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "pk",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "pk",
+      "KeyType": "HASH"
+     }
+    ],
+    "TimeToLiveSpecification": {
+     "AttributeName": "ttl",
+     "Enabled": true
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "runnersStolenRunnersQueue65F1E43C": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "DelaySeconds": 60,
+    "VisibilityTimeout": 180
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "runnersStolenRunnersLambdaServiceRoleC553303C": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "runnersStolenRunnersLambdaServiceRoleDefaultPolicyFF7DB3A5": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "sqs:ReceiveMessage",
+        "sqs:ChangeMessageVisibility",
+        "sqs:GetQueueUrl",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersStolenRunnersQueue65F1E43C",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersStolenRunnersJobsDFC963A5",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersStolenRunnersJobsDFC963A5",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "sqs:SendMessage",
+        "sqs:GetQueueAttributes",
+        "sqs:GetQueueUrl"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersStolenRunnersQueue65F1E43C",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubEFD96479"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+       }
+      },
+      {
+       "Action": "states:StartExecution",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersRunnerOrchestratorF9B66EBA"
+       }
+      },
+      {
+       "Action": "states:DescribeExecution",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":states:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":execution:",
+          {
+           "Fn::Select": [
+            6,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "runnersRunnerOrchestratorF9B66EBA"
+              }
+             ]
+            }
+           ]
+          },
+          ":*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "runnersStolenRunnersLambdaServiceRoleDefaultPolicyFF7DB3A5",
+    "Roles": [
+     {
+      "Ref": "runnersStolenRunnersLambdaServiceRoleC553303C"
+     }
+    ]
+   }
+  },
+  "runnersStolenRunnersLambda2BF6DC14": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "33e7ab34567e3a032f142719df3560469797112464fd96df0ae8d45646d237fc.zip"
+    },
+    "Description": "Detect GitHub Actions runners stolen by other jobs and start a new runner for the abandoned job",
+    "Environment": {
+     "Variables": {
+      "GITHUB_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubEFD96479"
+      },
+      "GITHUB_PRIVATE_KEY_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+      },
+      "STEP_FUNCTION_ARN": {
+       "Ref": "runnersRunnerOrchestratorF9B66EBA"
+      },
+      "RUNNER_TRACKER_TABLE": {
+       "Ref": "runnersStolenRunnersJobsDFC963A5"
+      },
+      "RUNNER_TRACKER_TTL_SECONDS": "259200",
+      "JOB_ASSIGNMENT_QUEUE_URL": {
+       "Ref": "runnersStolenRunnersQueue65F1E43C"
+      },
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambdaServiceRoleC553303C",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Timeout": 120
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaServiceRoleDefaultPolicyFF7DB3A5",
+    "runnersStolenRunnersLambdaServiceRoleC553303C"
+   ]
+  },
+  "runnersStolenRunnersLambdaSqsEventSourcegithubrunnerstestrunnersStolenRunnersQueue63A6E39D4A2379B7": {
+   "Type": "AWS::Lambda::EventSourceMapping",
+   "Properties": {
+    "BatchSize": 10,
+    "EventSourceArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersQueue65F1E43C",
+      "Arn"
+     ]
+    },
+    "FunctionName": {
+     "Ref": "runnersStolenRunnersLambda2BF6DC14"
+    },
+    "FunctionResponseTypes": [
+     "ReportBatchItemFailures"
+    ],
+    "MaximumBatchingWindowInSeconds": 30
+   }
+  },
+  "runnersStolenRunnersLambdaRunnerReports64EB5565": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "Principal": "logs.amazonaws.com",
+    "SourceAccount": {
+     "Ref": "AWS::AccountId"
+    },
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":logs:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":log-group:*"
+      ]
+     ]
+    }
+   }
+  },
+  "runnersStolenRunnersRunnerReportsc850d92b19F1BA09": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "CodeBuildx64LogsA21ECD59"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc80bc04f4B8901B7": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "CodeBuildUbuntu2404x64Logs27D26829"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc8933c566C66D824": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "CodeBuildARMLogs7C7FC5A7"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc8b9e48361007C15": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "CodeBuildWindowsLogsF4DD93A5"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc8813a667494FF41": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "ECSSpotlogs75CE3929"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc81f9fc83D5AA7C3": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "ECSNonSpotlogsA90C16E5"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc83a7e9563D3A6DD": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "ECSUbuntu2404logsFB15C25B"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc8505fffD0F4F728": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "ECSARM64logs1A2F1E00"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc86d2027D35D7D3E": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "ECSWindowslogs83D9D352"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc880f7edEC5B4F2B": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "LambdaLog2764B04F"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc85b686bD3C7DE63": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "LambdaARMLogAA2DA09F"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc85d26f60891ACFA": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "FargatelogsCB753638"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc801e3a1335D1E88": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "Fargatex64spotsubnet1logs7081E8E6"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc815397dA9CD172F": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "Fargatex64spotsubnet2logs305194C7"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc8eb3104E8313D7B": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "Fargatearm64logs00171A52"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc83021573930A4BE": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "Fargatearm64spotlogsEFCCEC59"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc88ce15c9FF4EB33": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "FargateWindowslogs52881DBF"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc8ddb10092A41B6A": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "EC2LinuxLogsC4CD8F14"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc817400aE752D5DE": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "EC2Linux2Logs666ED658"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc8bd9f810FE70209": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "EC2SpotLinuxLogsF78D5F0E"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc8ca6a2843F21069": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "EC2Linuxarm64Logs577E371E"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
+  },
+  "runnersStolenRunnersRunnerReportsc8e391f00D147FC2": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersLambda2BF6DC14",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "CDKGHR JOB",
+    "LogGroupName": {
+     "Ref": "EC2WindowsLogsDC1F2ABF"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersLambdaRunnerReports64EB5565"
+   ]
   },
   "runnersWebhookHandlerwebhookhandlerServiceRole03DB58D2": {
    "Type": "AWS::IAM::Role",
@@ -18888,6 +19195,22 @@
          ]
         }
        ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersStolenRunnersJobsDFC963A5",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -18907,7 +19230,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "2accaaf962274a8a9177227792bbd71ec410779e5b22bbdcb4399774a929f7bf.zip"
+     "S3Key": "4517c5881fcfd6a3458b34f74bb07a33fb823e1cf0d17c1284e277ba9881387d.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -18933,7 +19256,11 @@
        ]
       },
       "IDLE_TIMEOUT_SECONDS": "300",
-      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
+      "RUNNER_TRACKER_TABLE": {
+       "Ref": "runnersStolenRunnersJobsDFC963A5"
+      },
+      "RUNNER_TRACKER_TTL_SECONDS": "259200"
      }
     },
     "Handler": "index.handler",
@@ -19992,7 +20319,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "ECSSpotsecuritygroupF7F9906A",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -20095,7 +20422,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "ECSNonSpotsecuritygroup20AE443A",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -20197,7 +20524,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "ECSUbuntu2404securitygroupEE405C76",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -20300,7 +20627,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "ECSARM64securitygroup281D94B2",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -20403,7 +20730,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "ECSWindowssecuritygroupB4EE54DA",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -20648,7 +20975,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "FargatesecuritygroupAFCAFD34",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -20751,7 +21078,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "Fargatex64spotsubnet1securitygroupE34C79C3",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -20854,7 +21181,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "Fargatex64spotsubnet2securitygroupF09DD2CB",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -20957,7 +21284,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "Fargatearm64securitygroup08ABAD9E",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -21060,7 +21387,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "Fargatearm64spotsecuritygroup20C885E4",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -21163,7 +21490,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "FargateWindowssecuritygroupE684A7B0",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -21243,7 +21570,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "EC2LinuxSGF5B89300",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -21277,7 +21604,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "EC2Linux2SG0F0DCCF1",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -21311,7 +21638,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "EC2SpotLinuxSG8D846B64",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -21345,7 +21672,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "EC2Linuxarm64SG550ECD6C",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -21379,7 +21706,7 @@
       "securityGroups": [
        {
         "Fn::GetAtt": [
-         "EC2WindowsSG13E24976",
+         "SGADB53937",
          "GroupId"
         ]
        }
@@ -21688,6 +22015,18 @@
     "QueryString": "fields @timestamp, message.notice, message.deliveryId, message.guid\n| filter isPresent(message.deliveryId)\n| sort @timestamp desc\n| limit 100"
    }
   },
+  "runnersStolenrunners28911EDB": {
+   "Type": "AWS::Logs::QueryDefinition",
+   "Properties": {
+    "LogGroupNames": [
+     {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    ],
+    "Name": "GitHub Runners/Stolen runners",
+    "QueryString": "fields @timestamp, message.notice, message.runnerName, message.stolenBy, message.stolenByJobUrl, message.jobUrl, message.restart\n| filter isPresent(message.metric) and strcontains(message.metric, \"Stolen\")\n| sort @timestamp desc\n| limit 100"
+   }
+  },
   "runnersWarmrunnerstatusB9D1210D": {
    "Type": "AWS::Logs::QueryDefinition",
    "Properties": {
@@ -21719,6 +22058,23 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "OrchestratorLogStolenRunnersfilterEC29C806": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "{ $.message.metric = \"StolenRunnerDetected\" }",
+    "LogGroupName": {
+     "Ref": "OrchestratorLogFB9610E7"
+    },
+    "MetricTransformations": [
+     {
+      "DefaultValue": 0,
+      "MetricName": "StolenRunners",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1"
+     }
+    ]
+   }
   },
   "SetupLog8A8B0E5C": {
    "Type": "AWS::Logs::LogGroup",

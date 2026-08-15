@@ -1,9 +1,10 @@
 import * as crypto from 'crypto';
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
-import { SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
+import { ExecutionAlreadyExists, SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import * as AWSLambda from 'aws-lambda';
 import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
+import { OrchestratorInput, recordControlledJob, trackerEnabled } from './lambda-tracker';
 import { ProviderSelectorInput, ProviderSelectorResult } from './webhook';
 
 const sf = new SFNClient();
@@ -297,7 +298,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
   // start execution
   const executionName = generateExecutionName(event, payload);
   const idleTimeoutSeconds = process.env.IDLE_TIMEOUT_SECONDS ? parseInt(process.env.IDLE_TIMEOUT_SECONDS, 10) : 300; // default 5 minutes
-  const input = {
+  const input: OrchestratorInput = {
     owner: payload.repository.owner.login,
     repo: payload.repository.name,
     jobId: payload.workflow_job.id,
@@ -308,16 +309,51 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     labels: selection.labels.join(','), // labels to use when registering runner
     maxIdleSeconds: idleTimeoutSeconds,
   };
-  const execution = await sf.send(new StartExecutionCommand({
-    stateMachineArn: process.env.STEP_FUNCTION_ARN,
-    input: JSON.stringify(input),
-    // name is not random so multiple execution of this webhook won't cause multiple builders to start
-    name: executionName,
-  }));
+
+  // remember that this job is one we serve, before its runner can possibly exist. best-effort on purpose --
+  // starting the runner matters more than being able to tell later that we started it.
+  if (trackerEnabled()) {
+    try {
+      await recordControlledJob(input);
+    } catch (e) {
+      console.error({
+        notice: 'Failed to record job for stolen runner detection. The runner will still start, but a runner that takes this job may be mistaken for a stolen one.',
+        jobId: input.jobId,
+        jobUrl: input.jobUrl,
+        error: `${e}`,
+      });
+    }
+  }
+
+  let executionArn: string | undefined;
+  try {
+    const execution = await sf.send(new StartExecutionCommand({
+      stateMachineArn: process.env.STEP_FUNCTION_ARN,
+      input: JSON.stringify(input),
+      // name is not random so multiple execution of this webhook won't cause multiple builders to start
+      name: executionName,
+    }));
+    executionArn = execution.executionArn;
+  } catch (e) {
+    if (e instanceof ExecutionAlreadyExists) {
+      // this delivery already started a runner. happens when GitHub or our own redelivery function redelivers an
+      // event we already handled. without this, every redelivery fails and gets redelivered again for hours.
+      console.log({
+        notice: 'Runner already started for this delivery',
+        runnerName: executionName,
+        job: payload.workflow_job,
+      });
+      return {
+        statusCode: 200,
+        body: 'OK. Runner already started for this delivery.',
+      };
+    }
+    throw e;
+  }
 
   console.log({
     notice: 'Started orchestrator',
-    execution: execution.executionArn,
+    execution: executionArn,
     sfnInput: input,
     job: payload.workflow_job,
   });

@@ -22,6 +22,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@octokit/rest',
     '@aws-sdk/client-cloudformation',
     '@aws-sdk/client-codebuild',
+    '@aws-sdk/client-dynamodb',
     '@aws-sdk/client-ec2',
     '@aws-sdk/client-ecr',
     '@aws-sdk/client-imagebuilder',
@@ -174,6 +175,7 @@ cdkConfig.json.addDeletionOverride('output');
 // allow lambda utility files to import dev dependencies
 project.eslint.allowDevDeps('src/lambda-helpers.ts');
 project.eslint.allowDevDeps('src/lambda-github.ts');
+project.eslint.allowDevDeps('src/lambda-tracker.ts');
 project.eslint.allowDevDeps('setup/src/main.ts');
 
 // not part of the project and can use defaults

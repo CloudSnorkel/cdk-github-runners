@@ -85,6 +85,7 @@ const sfn = new SFNClient();
 const sqs = new SQSClient();
 
 const SFN_EXECUTION_NAME_MAX_LENGTH = 80;
+export const WARM_RUNNER_JOB_ID = -1; // sentinel value for warm runners (not a real job)
 
 export interface WarmRunnerKeeperMessage {
   readonly executionArn: string;
@@ -204,7 +205,7 @@ async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
       input: JSON.stringify({
         owner: input.owner,
         repo: input.repo || '',
-        jobId: -1,
+        jobId: WARM_RUNNER_JOB_ID,
         jobUrl: '',
         installationId: input.installationId ?? -1,
         jobLabels: input.providerLabels.join(','),
