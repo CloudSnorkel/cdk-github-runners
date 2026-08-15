@@ -28,7 +28,7 @@ jest.mock('../src/lambda-github', () => ({
   getOctokit: async () => ({
     octokit: {
       paginate: (...args: unknown[]) => mockPaginate(...args),
-      rest: { actions: { listJobsForWorkflowRunAttempt: 'listJobsForWorkflowRunAttempt' } },
+      rest: { actions: { listJobsForWorkflowRun: 'listJobsForWorkflowRun' } },
     },
     githubSecrets: {},
   }),
