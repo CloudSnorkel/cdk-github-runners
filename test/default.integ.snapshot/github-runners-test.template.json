@@ -18601,7 +18601,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "33e7ab34567e3a032f142719df3560469797112464fd96df0ae8d45646d237fc.zip"
+     "S3Key": "0c406ce6545d1a22880a5469138287f1bae3410bc9db471e058fa349fd6bf1fc.zip"
     },
     "Description": "Detect GitHub Actions runners stolen by other jobs and start a new runner for the abandoned job",
     "Environment": {
