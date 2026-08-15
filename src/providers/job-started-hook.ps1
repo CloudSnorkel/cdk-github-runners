@@ -4,7 +4,7 @@ Set-Location $PSScriptRoot
 
 # notify the runner wrapper that a job started, so it can detect stolen runners
 try {
-    Add-Content -Path '.workflowid' -Value $env:GITHUB_RUN_ID
+    Add-Content -Path '.workflowid' -Value "REPO=$Env:GITHUB_REPOSITORY WORKFLOW_ID=$Env:GITHUB_RUN_ID"
 } catch {
     # ignore errors to not break the job
 }

@@ -10,7 +10,7 @@ else
 fi
 
 # notify the runner wrapper that a job started, so it can detect stolen runners
-echo $GITHUB_RUN_ID >> .workflowid || true
+echo REPO=$GITHUB_REPOSITORY WORKFLOW_ID=$GITHUB_RUN_ID >> .workflowid || true
 
 # run user hook if it exists
 if [ -x job-started-hook-user.sh ]; then

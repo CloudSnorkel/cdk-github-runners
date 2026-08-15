@@ -15,5 +15,5 @@ fi
 set +x  # don't spam log with sleeps
 (
   while [ ! -s .workflowid ]; do sleep 1; done
-  echo CDKGHR JOB RUNNER=$1 WORKFLOW_ID=`head -n 1 .workflowid`
+  echo CDKGHR JOB RUNNER=$1 `head -n 1 .workflowid`
 ) &
