@@ -248,16 +248,18 @@ async function handleRunnerLogs(event: AWSLambda.CloudWatchLogsEvent) {
   const payload = JSON.parse(zlib.gunzipSync(Buffer.from(event.awslogs.data, 'base64')).toString('utf8')) as AWSLambda.CloudWatchLogsDecodedData;
 
   const messages: RunnerReportMessage[] = [];
+  const reportedRunnersInThisDelivery = new Set<string>();
   for (const logEvent of payload.logEvents) {
     const message = parseRunnerReport(logEvent.message);
     if (message) {
       // don't let misconfigured/malicious jobs make us start or even query too many runners.
       // there should only ever be one report per runner and any malicious code shouldn't be able to guess our runner names.
       // runner names are based on github webhook execution ids, which are random uuids.
-      if (reportedRunners.has(message.runnerName)) {
+      if (reportedRunners.has(message.runnerName) || reportedRunnersInThisDelivery.has(message.runnerName)) {
         console.log({ notice: 'Already handled a report from this runner', runnerName: message.runnerName });
         continue;
       }
+      reportedRunnersInThisDelivery.add(message.runnerName);
       // put on queue so webhook has time to arrive and write to DDB before we try to read it
       messages.push(message);
     } else {

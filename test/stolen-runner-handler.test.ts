@@ -338,10 +338,14 @@ describe('runner log delivery', () => {
     expect(startedExecutions()).toHaveLength(0);
   });
 
+  // handleRunnerLogs remembers reported runners in module scope so a warm container doesn't re-queue them, and
+  // jest.clearAllMocks() can't reach that. every test below uses its own runner names so they don't suppress
+  // each other, and so they don't depend on the order they run in.
+
   test('only the first report from a runner is queued', async () => {
     // a runner runs one job, so it has one thing to say. a job printing the marker itself, or a duplicated
     // delivery, must not cost a step function call and a GitHub call each.
-    const line = `CDKGHR JOB RUNNER=${RUNNER_NAME} REPO=thief-org/thief-repo WORKFLOW_ID=987654321`;
+    const line = 'CDKGHR JOB RUNNER=flood-runner REPO=thief-org/thief-repo WORKFLOW_ID=987654321';
 
     await handler(logsEvent(Array(50).fill(line)));
 
@@ -352,9 +356,9 @@ describe('runner log delivery', () => {
   test('a repeat cannot hide behind a different repo or run', async () => {
     // only the runner name is deduplicated, because that is the only part a forged line cannot make up
     await handler(logsEvent([
-      `CDKGHR JOB RUNNER=${RUNNER_NAME} REPO=thief-org/thief-repo WORKFLOW_ID=987654321`,
-      `CDKGHR JOB RUNNER=${RUNNER_NAME} REPO=made-up/repo WORKFLOW_ID=1`,
-      `CDKGHR JOB RUNNER=${RUNNER_NAME} REPO=another/repo WORKFLOW_ID=2`,
+      'CDKGHR JOB RUNNER=disguise-runner REPO=thief-org/thief-repo WORKFLOW_ID=987654321',
+      'CDKGHR JOB RUNNER=disguise-runner REPO=made-up/repo WORKFLOW_ID=1',
+      'CDKGHR JOB RUNNER=disguise-runner REPO=another/repo WORKFLOW_ID=2',
     ]));
 
     const entries = mockSqsSend.mock.calls[0][0].input.Entries;
@@ -365,16 +369,27 @@ describe('runner log delivery', () => {
   test('runners sharing a log stream all get through', async () => {
     // the Lambda provider reuses a log stream across invocations, so one stream carries several runners
     await handler(logsEvent([
-      `CDKGHR JOB RUNNER=${RUNNER_NAME} REPO=org/repo WORKFLOW_ID=1`,
-      `CDKGHR JOB RUNNER=${RUNNER_NAME} REPO=org/repo WORKFLOW_ID=1`,
-      'CDKGHR JOB RUNNER=another-runner REPO=org/repo WORKFLOW_ID=2',
-      'CDKGHR JOB RUNNER=a-third-runner REPO=org/repo WORKFLOW_ID=3',
+      'CDKGHR JOB RUNNER=shared-one REPO=org/repo WORKFLOW_ID=1',
+      'CDKGHR JOB RUNNER=shared-one REPO=org/repo WORKFLOW_ID=1',
+      'CDKGHR JOB RUNNER=shared-two REPO=org/repo WORKFLOW_ID=2',
+      'CDKGHR JOB RUNNER=shared-three REPO=org/repo WORKFLOW_ID=3',
     ]));
 
     const entries = mockSqsSend.mock.calls[0][0].input.Entries;
     expect(entries).toHaveLength(3);
     expect(entries.map((e: any) => JSON.parse(e.MessageBody).runnerName))
-      .toEqual([RUNNER_NAME, 'another-runner', 'a-third-runner']);
+      .toEqual(['shared-one', 'shared-two', 'shared-three']);
+  });
+
+  test('a runner that already reported is not queued again by a later delivery', async () => {
+    // a warm container remembers, so a repeat spread across deliveries costs nothing either
+    const line = 'CDKGHR JOB RUNNER=across-deliveries REPO=org/repo WORKFLOW_ID=9';
+
+    await handler(logsEvent([line]));
+    expect(mockSqsSend).toHaveBeenCalledTimes(1);
+
+    await handler(logsEvent([line]));
+    expect(mockSqsSend).toHaveBeenCalledTimes(1);
   });
 
   test('unparsable lines are dropped', async () => {
