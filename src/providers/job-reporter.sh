@@ -15,5 +15,8 @@ fi
 set +x  # don't spam log with sleeps
 (
   while [ ! -s .workflowid ]; do sleep 1; done
-  echo CDKGHR JOB RUNNER=$1 `head -n 1 .workflowid`
+  WORKFLOW=`head -n 1 .workflowid`
+  # NONE means --stop woke us up because no job ever arrived. there is nothing to report and printing it anyway
+  # would send an unparsable line to the detector for every runner that idles out.
+  [ "$WORKFLOW" != NONE ] && echo CDKGHR JOB RUNNER=$1 $WORKFLOW
 ) &

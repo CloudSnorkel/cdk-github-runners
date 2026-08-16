@@ -1086,8 +1086,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
       queryString: new logs.QueryString({
         fields: [
-          '@timestamp', 'message.notice', 'message.runnerName', 'message.stolenBy', 'message.stolenByJobUrl',
-          'message.jobUrl', 'message.restart',
+          '@timestamp', 'message.notice', 'message.stolenRunnerName', 'message.runnerName', 'message.stolenByJobId',
+          'message.jobUrl', 'message.owner', 'message.repo', 'message.provider',
         ],
         filterStatements: [
           'isPresent(message.metric) and strcontains(message.metric, "Stolen")',

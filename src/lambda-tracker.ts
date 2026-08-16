@@ -15,12 +15,9 @@ import { DynamoDBClient, GetItemCommand, PutItemCommand } from '@aws-sdk/client-
 const ddb = new DynamoDBClient();
 
 /**
- * Default time-to-live for job records.
+ * Default time-to-live for job records in DynamoDB. GitHub jobs can wait up to 24 hours to get a runner. This adds some margin.
  *
- * GitHub jobs can stay queued for up to 24 hours and our step function keeps retrying to provision a runner for
- * about that long. A runner started at the very end of that window can then stay idle (warm runners stay up to 24
- * hours) before it picks anything up. Three days covers the worst case with room to spare. DynamoDB only ever
- * deletes items *after* their TTL (up to 48 hours after), never before, so this is a lower bound.
+ * If we accidentally provision a runner, that's expensive. Keeping a small record in DynamoDB for a few days is cheaper.
  *
  * @internal
  */

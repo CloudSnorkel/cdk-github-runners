@@ -2,6 +2,7 @@ import * as crypto from 'crypto';
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { ExecutionAlreadyExists, SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import * as AWSLambda from 'aws-lambda';
+import { MAX_RUNNER_NAME_LENGTH } from './lambda-consts';
 import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
 import { OrchestratorInput, recordControlledJob, trackerEnabled } from './lambda-tracker';
@@ -190,7 +191,7 @@ export async function selectProvider(payload: any, jobLabels: string[], hook = c
  */
 export function generateExecutionName(event: any, payload: any): string {
   const deliveryId = getHeader(event, 'x-github-delivery') ?? `${Math.random()}`;
-  const repoNameTruncated = payload.repository.name.slice(0, 64 - deliveryId.length - 1);
+  const repoNameTruncated = payload.repository.name.slice(0, MAX_RUNNER_NAME_LENGTH - deliveryId.length - 1);
   return `${repoNameTruncated}-${deliveryId}`;
 }
 

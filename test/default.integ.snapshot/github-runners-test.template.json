@@ -533,7 +533,7 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/eaf02aaa945b227d842da5b8b1f0fd4954fa28fb3ac35f4f43baf3e7bc437f30.sh"
         },
         " asset5-GithubRunner-0\",\n        \"aws s3 cp ",
         {
@@ -649,15 +649,15 @@
     ]
    }
   },
-  "FargatebuilderBuildWaitHandle38af7cfc3aCEBA4F69": {
+  "FargatebuilderBuildWaitHandlec90fa608121CB149B4": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderBuildWait38af7cfc3aE4AD52A1": {
+  "FargatebuilderBuildWaitc90fa6081294D5A95D": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderBuildWaitHandle38af7cfc3aCEBA4F69"
+     "Ref": "FargatebuilderBuildWaitHandlec90fa608121CB149B4"
     },
     "Timeout": "3600"
    }
@@ -678,7 +678,7 @@
      "Ref": "FargatebuilderCodeBuild4F182743"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderBuildWaitHandle38af7cfc3aCEBA4F69"
+     "Ref": "FargatebuilderBuildWaitHandlec90fa608121CB149B4"
     }
    },
    "DependsOn": [
@@ -1051,7 +1051,7 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/eaf02aaa945b227d842da5b8b1f0fd4954fa28fb3ac35f4f43baf3e7bc437f30.sh"
         },
         " asset5-GithubRunner-0\",\n        \"aws s3 cp ",
         {
@@ -1167,15 +1167,15 @@
     ]
    }
   },
-  "FargatebuilderarmBuildWaitHandle23e06d1fd26786C6FD": {
+  "FargatebuilderarmBuildWaitHandlec2bde77b610BCA3148": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderarmBuildWait23e06d1fd28F02C256": {
+  "FargatebuilderarmBuildWaitc2bde77b6171C18CEF": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderarmBuildWaitHandle23e06d1fd26786C6FD"
+     "Ref": "FargatebuilderarmBuildWaitHandlec2bde77b610BCA3148"
     },
     "Timeout": "3600"
    }
@@ -1196,7 +1196,7 @@
      "Ref": "FargatebuilderarmCodeBuild0D30679A"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderarmBuildWaitHandle23e06d1fd26786C6FD"
+     "Ref": "FargatebuilderarmBuildWaitHandlec2bde77b610BCA3148"
     }
    },
    "DependsOn": [
@@ -1700,7 +1700,7 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/eaf02aaa945b227d842da5b8b1f0fd4954fa28fb3ac35f4f43baf3e7bc437f30.sh"
         },
         " asset5-GithubRunner-0\",\n        \"aws s3 cp ",
         {
@@ -1824,15 +1824,15 @@
     ]
    }
   },
-  "LambdaImageBuilderx64BuildWaitHandle8f3d653ab04F4BE0D8": {
+  "LambdaImageBuilderx64BuildWaitHandleddb5b937c7092FA46E": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderx64BuildWait8f3d653ab0744D0D27": {
+  "LambdaImageBuilderx64BuildWaitddb5b937c7298BAD7A": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle8f3d653ab04F4BE0D8"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandleddb5b937c7092FA46E"
     },
     "Timeout": "3600"
    }
@@ -1853,7 +1853,7 @@
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle8f3d653ab04F4BE0D8"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandleddb5b937c7092FA46E"
     }
    },
    "DependsOn": [
@@ -2093,7 +2093,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerWindowsX8664eeedfc2e50Component10DCDFD3",
+        "GHRInternalComponentGithubRunnerWindowsX866459aad391feComponentD83A341B",
         "Arn"
        ]
       }
@@ -2664,7 +2664,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerUbuntuLinuxX866440bd3d9323ComponentC7884323",
+        "GHRInternalComponentGithubRunnerUbuntuLinuxX86648bae522c31Component0C448C77",
         "Arn"
        ]
       }
@@ -3296,7 +3296,7 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/eaf02aaa945b227d842da5b8b1f0fd4954fa28fb3ac35f4f43baf3e7bc437f30.sh"
         },
         " asset6-GithubRunner-0\",\n        \"aws s3 cp ",
         {
@@ -3412,15 +3412,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderBuildWaitHandle1dff63cc2dFF21DB79": {
+  "CodeBuildImageBuilderBuildWaitHandle8017ff30e4BD05C0C8": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderBuildWait1dff63cc2d9F265B41": {
+  "CodeBuildImageBuilderBuildWait8017ff30e4EAA1C5B6": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandle1dff63cc2dFF21DB79"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle8017ff30e4BD05C0C8"
     },
     "Timeout": "3600"
    }
@@ -3441,7 +3441,7 @@
      "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandle1dff63cc2dFF21DB79"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle8017ff30e4BD05C0C8"
     }
    },
    "DependsOn": [
@@ -3814,7 +3814,7 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/eaf02aaa945b227d842da5b8b1f0fd4954fa28fb3ac35f4f43baf3e7bc437f30.sh"
         },
         " asset6-GithubRunner-0\",\n        \"aws s3 cp ",
         {
@@ -3930,15 +3930,15 @@
     ]
    }
   },
-  "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlea34baa770bACFA5D1D": {
+  "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlefe9a1e57d2601043A7": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildUbuntu2404ImageBuilderBuildWaita34baa770b8851FD1A": {
+  "CodeBuildUbuntu2404ImageBuilderBuildWaitfe9a1e57d2E729D6A5": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlea34baa770bACFA5D1D"
+     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlefe9a1e57d2601043A7"
     },
     "Timeout": "3600"
    }
@@ -3959,7 +3959,7 @@
      "Ref": "CodeBuildUbuntu2404ImageBuilderCodeBuild30AF5C46"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlea34baa770bACFA5D1D"
+     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlefe9a1e57d2601043A7"
     }
    },
    "DependsOn": [
@@ -4332,7 +4332,7 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/eaf02aaa945b227d842da5b8b1f0fd4954fa28fb3ac35f4f43baf3e7bc437f30.sh"
         },
         " asset6-GithubRunner-0\",\n        \"aws s3 cp ",
         {
@@ -4448,15 +4448,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderarmBuildWaitHandlea0ec4d84e3AC32EDDF": {
+  "CodeBuildImageBuilderarmBuildWaitHandle698df2affe675D91D8": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderarmBuildWaita0ec4d84e3E97EF69E": {
+  "CodeBuildImageBuilderarmBuildWait698df2affe83601F51": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandlea0ec4d84e3AC32EDDF"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle698df2affe675D91D8"
     },
     "Timeout": "3600"
    }
@@ -4477,7 +4477,7 @@
      "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandlea0ec4d84e3AC32EDDF"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle698df2affe675D91D8"
     }
    },
    "DependsOn": [
@@ -4981,7 +4981,7 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/eaf02aaa945b227d842da5b8b1f0fd4954fa28fb3ac35f4f43baf3e7bc437f30.sh"
         },
         " asset5-GithubRunner-0\",\n        \"aws s3 cp ",
         {
@@ -5105,15 +5105,15 @@
     ]
    }
   },
-  "LambdaImageBuilderzBuildWaitHandleaf76550a973732FF70": {
+  "LambdaImageBuilderzBuildWaitHandle4915a7a459653388EC": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderzBuildWaitaf76550a97D9163D2A": {
+  "LambdaImageBuilderzBuildWait4915a7a4595CE21B46": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandleaf76550a973732FF70"
+     "Ref": "LambdaImageBuilderzBuildWaitHandle4915a7a459653388EC"
     },
     "Timeout": "3600"
    }
@@ -5134,7 +5134,7 @@
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandleaf76550a973732FF70"
+     "Ref": "LambdaImageBuilderzBuildWaitHandle4915a7a459653388EC"
     }
    },
    "DependsOn": [
@@ -5424,7 +5424,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerUbuntuLinuxARM646b27deb41dComponent4331AA18",
+        "GHRInternalComponentGithubRunnerUbuntuLinuxARM64a19ca3def6Component7DB318A0",
         "Arn"
        ]
       }
@@ -5973,7 +5973,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerWindowsX8664eeedfc2e50Component10DCDFD3",
+        "GHRInternalComponentGithubRunnerWindowsX866459aad391feComponentD83A341B",
         "Arn"
        ]
       }
@@ -6605,7 +6605,7 @@
         },
         ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum update -y\\nyum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\nyum install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/eaf02aaa945b227d842da5b8b1f0fd4954fa28fb3ac35f4f43baf3e7bc437f30.sh"
         },
         " asset5-GithubRunner-0\",\n        \"aws s3 cp ",
         {
@@ -6717,15 +6717,15 @@
     ]
    }
   },
-  "AL2builderBuildWaitHandleb867792715923704F6": {
+  "AL2builderBuildWaitHandle60a17486bd12835FAD": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "AL2builderBuildWaitb86779271540CB915D": {
+  "AL2builderBuildWait60a17486bdE370ED2A": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "AL2builderBuildWaitHandleb867792715923704F6"
+     "Ref": "AL2builderBuildWaitHandle60a17486bd12835FAD"
     },
     "Timeout": "3600"
    }
@@ -6746,7 +6746,7 @@
      "Ref": "AL2builderCodeBuild55A26C62"
     },
     "WaitHandle": {
-     "Ref": "AL2builderBuildWaitHandleb867792715923704F6"
+     "Ref": "AL2builderBuildWaitHandle60a17486bd12835FAD"
     }
    },
    "DependsOn": [
@@ -8129,7 +8129,7 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubRunnerWindowsX8664eeedfc2e50Component10DCDFD3": {
+  "GHRInternalComponentGithubRunnerWindowsX866459aad391feComponentD83A341B": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
     "Data": {
@@ -8138,7 +8138,7 @@
       [
        "{\"name\":\"GithubRunner (Windows/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[{\"source\":\"",
        {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cde8feb0c461c57fed7e0e26054827786135f9e657af6015a708f4861275e790.ps1"
+        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/c0e9b4fa0c49440b572a839a018f3dab40c4c7c1d0b5a03054fa69680f996068.ps1"
        },
        "\",\"destination\":\"/actions/job-reporter.ps1\"},{\"source\":\"",
        {
@@ -8153,7 +8153,7 @@
      ]
     },
     "Description": "GithubRunner component for Windows/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Windows-X86-64-eeedfc2e50-FBAE243F",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Windows-X86-64-59aad391fe-B27B0A09",
     "Platform": "Windows",
     "Version": "1.0.0"
    }
@@ -11610,7 +11610,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderx64BuildWait8f3d653ab0744D0D27"
+        "Ref": "LambdaImageBuilderx64BuildWaitddb5b937c7298BAD7A"
        },
        "\"}}"
       ]
@@ -12041,7 +12041,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderzBuildWaitaf76550a97D9163D2A"
+        "Ref": "LambdaImageBuilderzBuildWait4915a7a4595CE21B46"
        },
        "\"}}"
       ]
@@ -14125,7 +14125,7 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubRunnerUbuntuLinuxX866440bd3d9323ComponentC7884323": {
+  "GHRInternalComponentGithubRunnerUbuntuLinuxX86648bae522c31Component0C448C77": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
     "Data": {
@@ -14134,7 +14134,7 @@
       [
        "{\"name\":\"GithubRunner (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[{\"source\":\"",
        {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
+        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/eaf02aaa945b227d842da5b8b1f0fd4954fa28fb3ac35f4f43baf3e7bc437f30.sh"
        },
        "\",\"destination\":\"/home/runner/job-reporter.sh\"},{\"source\":\"",
        {
@@ -14149,7 +14149,7 @@
      ]
     },
     "Description": "GithubRunner component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-X86-64-40bd3d9323-B0C7E6F1",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-X86-64-8bae522c31-B6D4A109",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
@@ -14776,7 +14776,7 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubRunnerUbuntuLinuxARM646b27deb41dComponent4331AA18": {
+  "GHRInternalComponentGithubRunnerUbuntuLinuxARM64a19ca3def6Component7DB318A0": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
     "Data": {
@@ -14785,7 +14785,7 @@
       [
        "{\"name\":\"GithubRunner (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Download\",\"action\":\"S3Download\",\"inputs\":[{\"source\":\"",
        {
-        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc3af65164568f5f087091a61a0a1becc31fa72f81c551c776f913d3e63c69d9.sh"
+        "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/eaf02aaa945b227d842da5b8b1f0fd4954fa28fb3ac35f4f43baf3e7bc437f30.sh"
        },
        "\",\"destination\":\"/home/runner/job-reporter.sh\"},{\"source\":\"",
        {
@@ -14800,7 +14800,7 @@
      ]
     },
     "Description": "GithubRunner component for Ubuntu Linux/ARM64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-ARM64-6b27deb41d-45594C9D",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Ubuntu-Linux-ARM64-a19ca3def6-94C84B4B",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
@@ -17499,7 +17499,7 @@
          "Arn"
         ]
        },
-       "\"},\"Provider Constants\":{\"Type\":\"Pass\",\"ResultPath\":\"$.consts\",\"Parameters\":{\"ec2UserDataLinux\":\"#!/bin/bash\\nset -x -o pipefail\\n\\nTASK_TOKEN=\\\"{}\\\"\\nlogGroupName=\\\"{}\\\"\\nrunnerNamePath=\\\"{}\\\"\\ngithubDomainPath=\\\"{}\\\"\\nownerPath=\\\"{}\\\"\\nrepoPath=\\\"{}\\\"\\nrunnerTokenPath=\\\"{}\\\"\\nlabels=\\\"{}\\\"\\nregistrationURL=\\\"{}\\\"\\nrunnerGroup1=\\\"{}\\\"\\nrunnerGroup2=\\\"{}\\\"\\ndefaultLabels=\\\"{}\\\"\\n\\nexport AWS_RETRY_MODE=standard # better retry\\ntouch /var/log/runner.log\\n\\nheartbeat () \\\\{\\n  while true; do\\n    SPOT_ACTION=$(curl -s -f -H \\\"X-aws-ec2-metadata-token: $(curl -s -f -X PUT \\\"http://169.254.169.254/latest/api/token\\\" -H \\\"X-aws-ec2-metadata-token-ttl-seconds: 1\\\" 2>/dev/null)\\\" \\\"http://169.254.169.254/latest/meta-data/spot/instance-action\\\" 2>/dev/null) || true\\n    if [ -n \\\"$SPOT_ACTION\\\" ]; then\\n      aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\" --error SpotInterrupted --cause \\\"EC2 Spot instance interruption: $SPOT_ACTION\\\" || true\\n      exit 0\\n    fi\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  # Determine the value of RUNNER_FLAGS\\n  if [ \\\"$(< /home/runner/RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then\\n    RUNNER_FLAGS=\\\"\\\"\\n  else\\n    RUNNER_FLAGS=\\\"--disableupdate\\\"\\n  fi\\n\\n  labelsTemplate=\\\"$labels,cdkghr:started:$(date +%s)\\\"\\n  \\n  # Report workflow id for stolen runner detection\\n  /home/runner/job-reporter.sh \\\"$runnerNamePath\\\"\\n\\n  # Execute the configuration command for runner registration\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"$registrationURL\\\" --token \\\"$runnerTokenPath\\\" --ephemeral --work _work --labels \\\"$labelsTemplate\\\" $RUNNER_FLAGS --name \\\"$runnerNamePath\\\" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1\\n\\n  # Execute the run command\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  \\n  # Stop the stolen reporter to avoid it keeping the instance alive\\n  /home/runner/job-reporter.sh --stop\\n\\n  # Retrieve the status\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f-]+ with result: .*\\\" /home/runner/_diag/ | tail -n1 | awk '\\\\{print $NF\\\\}')\\n\\n  # Check and print the job status\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$labels\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action |& tee /var/log/runner.log; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}' |& tee -a /var/log/runner.log\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\" --error Runner.Error.$? --cause \\\"Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $(tail -n 1 /var/log/runner.log)\\\" |& tee -a /var/log/runner.log\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\",\"ec2UserDataWindows\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\n$logGroupName=\\\"{}\\\"\\n$runnerNamePath=\\\"{}\\\"\\n$githubDomainPath=\\\"{}\\\"\\n$ownerPath=\\\"{}\\\"\\n$repoPath=\\\"{}\\\"\\n$runnerTokenPath=\\\"{}\\\"\\n$labels=\\\"{}\\\"\\n$registrationURL=\\\"{}\\\"\\n$runnerGroup1=\\\"{}\\\"\\n$runnerGroup2=\\\"{}\\\"\\n$defaultLabels=\\\"{}\\\"\\n\\n$Env:AWS_RETRY_MODE = \\\"standard\\\"  # better retry\\n\\n# EC2Launch only starts ssm agent after user data is done, so we need to start it ourselves (it is disabled by default)\\nSet-Service -StartupType Manual AmazonSSMAgent\\nStart-Service AmazonSSMAgent\\n\\n$HeartbeatParentPid = $PID\\nStart-Job -ScriptBlock \\\\{\\n  while ($true) \\\\{\\n    try \\\\{\\n      $spot = Invoke-RestMethod -Uri \\\"http://169.254.169.254/latest/meta-data/spot/instance-action\\\" -Headers @\\\\{\\\"X-aws-ec2-metadata-token\\\"=(Invoke-RestMethod -Method PUT -Uri \\\"http://169.254.169.254/latest/api/token\\\" -Headers @\\\\{\\\"X-aws-ec2-metadata-token-ttl-seconds\\\"=\\\"1\\\"\\\\} -TimeoutSec 2)\\\\} -TimeoutSec 2\\n      $spotJson = if ($spot -is [string]) \\\\{ $spot \\\\} else \\\\{ $spot | ConvertTo-Json -Compress \\\\}\\n      aws stepfunctions send-task-failure --task-token \\\"$using:TASK_TOKEN\\\" --error SpotInterrupted --cause \\\"EC2 Spot instance interruption: $spotJson\\\"\\n      break\\n    \\\\} catch \\\\{\\n    \\\\}\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    Start-Sleep -Seconds 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  echo \\\"\\\\{\\n    `\\\"logs`\\\": \\\\{\\n      `\\\"log_stream_name`\\\": `\\\"unknown`\\\",\\n      `\\\"logs_collected`\\\": \\\\{\\n        `\\\"files`\\\": \\\\{\\n         `\\\"collect_list`\\\": [\\n            \\\\{\\n              `\\\"file_path`\\\": `\\\"/actions/runner.log`\\\",\\n              `\\\"log_group_name`\\\": `\\\"$logGroupName`\\\",\\n              `\\\"log_stream_name`\\\": `\\\"$runnerNamePath`\\\",\\n              `\\\"timezone`\\\": `\\\"UTC`\\\"\\n            \\\\},\\n            \\\\{\\n              `\\\"file_path`\\\": `\\\"/actions/workflow.log`\\\",\\n              `\\\"log_group_name`\\\": `\\\"$logGroupName`\\\",\\n              `\\\"log_stream_name`\\\": `\\\"$runnerNamePath-workflow`\\\",\\n              `\\\"timezone`\\\": `\\\"UTC`\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\\" | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  \\n  & ./job-reporter.ps1 \\\"$\\\\{runnerNamePath\\\\}\\\" /actions/workflow.log 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  \\n  $RunnerVersion = Get-Content /actions/RUNNER_VERSION -Raw\\n  if ($RunnerVersion -eq \\\"latest\\\") \\\\{ $RunnerFlags = \\\"\\\" \\\\} else \\\\{ $RunnerFlags = \\\"--disableupdate\\\" \\\\}\\n  ./config.cmd --unattended --url \\\"$\\\\{registrationUrl\\\\}\\\" --token \\\"$\\\\{runnerTokenPath\\\\}\\\" --ephemeral --work _work --labels \\\"$\\\\{labels\\\\},cdkghr:started:$(Get-Date -UFormat +%s)\\\" $RunnerFlags --name \\\"$\\\\{runnerNamePath\\\\}\\\" $\\\\{runnerGroup1\\\\} $\\\\{runnerGroup2\\\\} $\\\\{defaultLabels\\\\} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n\\n  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %\\\\{$_.Matches.Groups[1].Value\\\\} | Select-Object -Last 1\\n\\n  if ($STATUS) \\\\{\\n      echo \\\"CDKGHA JOB DONE $\\\\{labels\\\\} $STATUS\\\" | Out-File -Encoding ASCII -Append /actions/runner.log\\n  \\\\}\\n\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}' 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n\\\\} else \\\\{\\n  $lastLine = Get-Content -Path C:/actions/runner.log -Tail 1 -ErrorAction SilentlyContinue\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\" --error Runner.Error.$r --cause \\\"Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $lastLine\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n\\\\}\\nStart-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"Choose provider\"},\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildx64\"}],\"Next\":\"CodeBuildx64\",\"Comment\":\"Labels: codebuild-x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildUbuntu2404x64\"}],\"Next\":\"CodeBuildUbuntu2404x64\",\"Comment\":\"Labels: codebuild-ubuntu-2404-x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildARM\"}],\"Next\":\"CodeBuildARM\",\"Comment\":\"Labels: codebuild, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildWindows\"}],\"Next\":\"CodeBuildWindows\",\"Comment\":\"Labels: codebuild, windows, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS Fallback\"}],\"Next\":\"ECS Spot\",\"Comment\":\"Labels: ecs, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS Ubuntu 2404\"}],\"Next\":\"ECS Ubuntu 2404\",\"Comment\":\"Labels: ecs-ubuntu-2404, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS ARM64\"}],\"Next\":\"ECS ARM64\",\"Comment\":\"Labels: ecs, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS Windows\"}],\"Next\":\"ECS Windows\",\"Comment\":\"Labels: ecs, windows, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Lambda\"}],\"Next\":\"Lambda\",\"Comment\":\"Labels: lambda, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/LambdaARM\"}],\"Next\":\"LambdaARM\",\"Comment\":\"Labels: lambda, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate\"}],\"Next\":\"Fargate\",\"Comment\":\"Labels: fargate, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-x64-spot distribute\"}],\"Next\":\"Fargate-x64-spot distribute rand\",\"Comment\":\"Labels: fargate-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-arm64\"}],\"Next\":\"Fargate-arm64\",\"Comment\":\"Labels: fargate, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-arm64-spot\"}],\"Next\":\"Fargate-arm64-spot\",\"Comment\":\"Labels: fargate-spot, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-Windows\"}],\"Next\":\"Fargate-Windows\",\"Comment\":\"Labels: fargate, windows, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/EC2 Fallback\"}],\"Next\":\"EC2 Linux ",
+       "\"},\"Provider Constants\":{\"Type\":\"Pass\",\"ResultPath\":\"$.consts\",\"Parameters\":{\"ec2UserDataLinux\":\"#!/bin/bash\\nset -x -o pipefail\\n\\nTASK_TOKEN=\\\"{}\\\"\\nlogGroupName=\\\"{}\\\"\\nrunnerNamePath=\\\"{}\\\"\\ngithubDomainPath=\\\"{}\\\"\\nownerPath=\\\"{}\\\"\\nrepoPath=\\\"{}\\\"\\nrunnerTokenPath=\\\"{}\\\"\\nlabels=\\\"{}\\\"\\nregistrationURL=\\\"{}\\\"\\nrunnerGroup1=\\\"{}\\\"\\nrunnerGroup2=\\\"{}\\\"\\ndefaultLabels=\\\"{}\\\"\\n\\nexport AWS_RETRY_MODE=standard # better retry\\ntouch /var/log/runner.log\\n\\nheartbeat () \\\\{\\n  while true; do\\n    SPOT_ACTION=$(curl -s -f -H \\\"X-aws-ec2-metadata-token: $(curl -s -f -X PUT \\\"http://169.254.169.254/latest/api/token\\\" -H \\\"X-aws-ec2-metadata-token-ttl-seconds: 1\\\" 2>/dev/null)\\\" \\\"http://169.254.169.254/latest/meta-data/spot/instance-action\\\" 2>/dev/null) || true\\n    if [ -n \\\"$SPOT_ACTION\\\" ]; then\\n      aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\" --error SpotInterrupted --cause \\\"EC2 Spot instance interruption: $SPOT_ACTION\\\" || true\\n      exit 0\\n    fi\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$TASK_TOKEN\\\"\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || exit 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2\\n\\\\}\\naction () \\\\{\\n  # Determine the value of RUNNER_FLAGS\\n  if [ \\\"$(< /home/runner/RUNNER_VERSION)\\\" = \\\"latest\\\" ]; then\\n    RUNNER_FLAGS=\\\"\\\"\\n  else\\n    RUNNER_FLAGS=\\\"--disableupdate\\\"\\n  fi\\n\\n  labelsTemplate=\\\"$labels,cdkghr:started:$(date +%s)\\\"\\n  \\n  # Report workflow id for stolen runner detection\\n  /home/runner/job-reporter.sh \\\"$runnerNamePath\\\"\\n\\n  # Execute the configuration command for runner registration\\n  sudo -Hu runner /home/runner/config.sh --unattended --url \\\"$registrationURL\\\" --token \\\"$runnerTokenPath\\\" --ephemeral --work _work --labels \\\"$labelsTemplate\\\" $RUNNER_FLAGS --name \\\"$runnerNamePath\\\" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1\\n\\n  # Execute the run command\\n  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n  \\n  # Stop the stolen reporter to avoid it keeping the instance alive\\n  /home/runner/job-reporter.sh --stop\\n\\n  # Retrieve the status\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f-]+ with result: .*\\\" /home/runner/_diag/ | tail -n1 | awk '\\\\{print $NF\\\\}')\\n\\n  # Check and print the job status\\n  [ -n \\\"$STATUS\\\" ] && echo CDKGHA JOB DONE \\\"$labels\\\" \\\"$STATUS\\\"\\n\\\\}\\nheartbeat &\\nif setup_logs && action |& tee /var/log/runner.log; then\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{\\\"ok\\\": true\\\\}' |& tee -a /var/log/runner.log\\nelse\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\" --error Runner.Error.$? --cause \\\"Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $(tail -n 1 /var/log/runner.log)\\\" |& tee -a /var/log/runner.log\\nfi\\nsleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\npoweroff\\n\",\"ec2UserDataWindows\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\n$logGroupName=\\\"{}\\\"\\n$runnerNamePath=\\\"{}\\\"\\n$githubDomainPath=\\\"{}\\\"\\n$ownerPath=\\\"{}\\\"\\n$repoPath=\\\"{}\\\"\\n$runnerTokenPath=\\\"{}\\\"\\n$labels=\\\"{}\\\"\\n$registrationURL=\\\"{}\\\"\\n$runnerGroup1=\\\"{}\\\"\\n$runnerGroup2=\\\"{}\\\"\\n$defaultLabels=\\\"{}\\\"\\n\\n$Env:AWS_RETRY_MODE = \\\"standard\\\"  # better retry\\n\\n# EC2Launch only starts ssm agent after user data is done, so we need to start it ourselves (it is disabled by default)\\nSet-Service -StartupType Manual AmazonSSMAgent\\nStart-Service AmazonSSMAgent\\n\\n$HeartbeatParentPid = $PID\\nStart-Job -ScriptBlock \\\\{\\n  while ($true) \\\\{\\n    try \\\\{\\n      $spot = Invoke-RestMethod -Uri \\\"http://169.254.169.254/latest/meta-data/spot/instance-action\\\" -Headers @\\\\{\\\"X-aws-ec2-metadata-token\\\"=(Invoke-RestMethod -Method PUT -Uri \\\"http://169.254.169.254/latest/api/token\\\" -Headers @\\\\{\\\"X-aws-ec2-metadata-token-ttl-seconds\\\"=\\\"1\\\"\\\\} -TimeoutSec 2)\\\\} -TimeoutSec 2\\n      $spotJson = if ($spot -is [string]) \\\\{ $spot \\\\} else \\\\{ $spot | ConvertTo-Json -Compress \\\\}\\n      aws stepfunctions send-task-failure --task-token \\\"$using:TASK_TOKEN\\\" --error SpotInterrupted --cause \\\"EC2 Spot instance interruption: $spotJson\\\"\\n      break\\n    \\\\} catch \\\\{\\n    \\\\}\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    Start-Sleep -Seconds 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  # the runner report can't go in runner.log: run.cmd's Out-File holds that file open for as long as the runner is\\n  # running, which is exactly when the report is written. one file per stream, so it gets its own stream. the\\n  # subscription filter is on the log group, so the detector doesn't care.\\n  echo \\\"\\\\{\\n    `\\\"logs`\\\": \\\\{\\n      `\\\"log_stream_name`\\\": `\\\"unknown`\\\",\\n      `\\\"logs_collected`\\\": \\\\{\\n        `\\\"files`\\\": \\\\{\\n         `\\\"collect_list`\\\": [\\n            \\\\{\\n              `\\\"file_path`\\\": `\\\"/actions/runner.log`\\\",\\n              `\\\"log_group_name`\\\": `\\\"$logGroupName`\\\",\\n              `\\\"log_stream_name`\\\": `\\\"$runnerNamePath`\\\",\\n              `\\\"timezone`\\\": `\\\"UTC`\\\"\\n            \\\\},\\n            \\\\{\\n              `\\\"file_path`\\\": `\\\"/actions/workflow.log`\\\",\\n              `\\\"log_group_name`\\\": `\\\"$logGroupName`\\\",\\n              `\\\"log_stream_name`\\\": `\\\"$runnerNamePath-workflow`\\\",\\n              `\\\"timezone`\\\": `\\\"UTC`\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\\" | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n  \\n  & ./job-reporter.ps1 \\\"$\\\\{runnerNamePath\\\\}\\\" /actions/workflow.log 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  \\n  $RunnerVersion = Get-Content /actions/RUNNER_VERSION -Raw\\n  if ($RunnerVersion -eq \\\"latest\\\") \\\\{ $RunnerFlags = \\\"\\\" \\\\} else \\\\{ $RunnerFlags = \\\"--disableupdate\\\" \\\\}\\n  ./config.cmd --unattended --url \\\"$\\\\{registrationUrl\\\\}\\\" --token \\\"$\\\\{runnerTokenPath\\\\}\\\" --ephemeral --work _work --labels \\\"$\\\\{labels\\\\},cdkghr:started:$(Get-Date -UFormat +%s)\\\" $RunnerFlags --name \\\"$\\\\{runnerNamePath\\\\}\\\" $\\\\{runnerGroup1\\\\} $\\\\{runnerGroup2\\\\} $\\\\{defaultLabels\\\\} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 1 \\\\}\\n  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n\\n  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %\\\\{$_.Matches.Groups[1].Value\\\\} | Select-Object -Last 1\\n\\n  if ($STATUS) \\\\{\\n      echo \\\"CDKGHA JOB DONE $\\\\{labels\\\\} $STATUS\\\" | Out-File -Encoding ASCII -Append /actions/runner.log\\n  \\\\}\\n\\n  return 0\\n\\\\}\\nsetup_logs\\n$r = action\\nif ($r -eq 0) \\\\{\\n  aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}' 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n\\\\} else \\\\{\\n  $lastLine = Get-Content -Path C:/actions/runner.log -Tail 1 -ErrorAction SilentlyContinue\\n  aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\" --error Runner.Error.$r --cause \\\"Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $lastLine\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n\\\\}\\nStart-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\nStop-Computer -ComputerName localhost -Force\\n</powershell>\\n\"},\"Next\":\"Choose provider\"},\"Choose provider\":{\"Type\":\"Choice\",\"Choices\":[{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildx64\"}],\"Next\":\"CodeBuildx64\",\"Comment\":\"Labels: codebuild-x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildUbuntu2404x64\"}],\"Next\":\"CodeBuildUbuntu2404x64\",\"Comment\":\"Labels: codebuild-ubuntu-2404-x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildARM\"}],\"Next\":\"CodeBuildARM\",\"Comment\":\"Labels: codebuild, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/CodeBuildWindows\"}],\"Next\":\"CodeBuildWindows\",\"Comment\":\"Labels: codebuild, windows, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS Fallback\"}],\"Next\":\"ECS Spot\",\"Comment\":\"Labels: ecs, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS Ubuntu 2404\"}],\"Next\":\"ECS Ubuntu 2404\",\"Comment\":\"Labels: ecs-ubuntu-2404, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS ARM64\"}],\"Next\":\"ECS ARM64\",\"Comment\":\"Labels: ecs, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/ECS Windows\"}],\"Next\":\"ECS Windows\",\"Comment\":\"Labels: ecs, windows, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Lambda\"}],\"Next\":\"Lambda\",\"Comment\":\"Labels: lambda, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/LambdaARM\"}],\"Next\":\"LambdaARM\",\"Comment\":\"Labels: lambda, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate\"}],\"Next\":\"Fargate\",\"Comment\":\"Labels: fargate, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-x64-spot distribute\"}],\"Next\":\"Fargate-x64-spot distribute rand\",\"Comment\":\"Labels: fargate-spot, linux, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-arm64\"}],\"Next\":\"Fargate-arm64\",\"Comment\":\"Labels: fargate, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-arm64-spot\"}],\"Next\":\"Fargate-arm64-spot\",\"Comment\":\"Labels: fargate-spot, linux, arm64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/Fargate-Windows\"}],\"Next\":\"Fargate-Windows\",\"Comment\":\"Labels: fargate, windows, x64\"},{\"And\":[{\"Variable\":\"$.provider\",\"StringEquals\":\"github-runners-test/EC2 Fallback\"}],\"Next\":\"EC2 Linux ",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -18413,6 +18413,7 @@
    "Type": "AWS::SQS::Queue",
    "Properties": {
     "DelaySeconds": 60,
+    "MessageRetentionPeriod": 3600,
     "VisibilityTimeout": 180
    },
    "UpdateReplacePolicy": "Delete",
@@ -18601,7 +18602,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "33e7ab34567e3a032f142719df3560469797112464fd96df0ae8d45646d237fc.zip"
+     "S3Key": "a03f69ce1b5c16aea73c1e66115d4595654fa2625f0f316d96aa44a018dcf540.zip"
     },
     "Description": "Detect GitHub Actions runners stolen by other jobs and start a new runner for the abandoned job",
     "Environment": {
@@ -18710,7 +18711,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "CodeBuildx64LogsA21ECD59"
     }
@@ -18728,7 +18729,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "CodeBuildUbuntu2404x64Logs27D26829"
     }
@@ -18746,7 +18747,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "CodeBuildARMLogs7C7FC5A7"
     }
@@ -18764,7 +18765,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "CodeBuildWindowsLogsF4DD93A5"
     }
@@ -18782,7 +18783,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "ECSSpotlogs75CE3929"
     }
@@ -18800,7 +18801,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "ECSNonSpotlogsA90C16E5"
     }
@@ -18818,7 +18819,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "ECSUbuntu2404logsFB15C25B"
     }
@@ -18836,7 +18837,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "ECSARM64logs1A2F1E00"
     }
@@ -18854,7 +18855,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "ECSWindowslogs83D9D352"
     }
@@ -18872,7 +18873,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "LambdaLog2764B04F"
     }
@@ -18890,7 +18891,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "LambdaARMLogAA2DA09F"
     }
@@ -18908,7 +18909,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "FargatelogsCB753638"
     }
@@ -18926,7 +18927,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "Fargatex64spotsubnet1logs7081E8E6"
     }
@@ -18944,7 +18945,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "Fargatex64spotsubnet2logs305194C7"
     }
@@ -18962,7 +18963,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "Fargatearm64logs00171A52"
     }
@@ -18980,7 +18981,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "Fargatearm64spotlogsEFCCEC59"
     }
@@ -18998,7 +18999,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "FargateWindowslogs52881DBF"
     }
@@ -19016,7 +19017,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "EC2LinuxLogsC4CD8F14"
     }
@@ -19034,7 +19035,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "EC2Linux2Logs666ED658"
     }
@@ -19052,7 +19053,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "EC2SpotLinuxLogsF78D5F0E"
     }
@@ -19070,7 +19071,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "EC2Linuxarm64Logs577E371E"
     }
@@ -19088,7 +19089,7 @@
       "Arn"
      ]
     },
-    "FilterPattern": "CDKGHR JOB",
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
     "LogGroupName": {
      "Ref": "EC2WindowsLogsDC1F2ABF"
     }
@@ -19230,7 +19231,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "4517c5881fcfd6a3458b34f74bb07a33fb823e1cf0d17c1284e277ba9881387d.zip"
+     "S3Key": "39aaf7b005cf9e9f2fe09f1ffdc5831223e96d75236d3ed92326df8ff59ff706.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -22024,7 +22025,7 @@
      }
     ],
     "Name": "GitHub Runners/Stolen runners",
-    "QueryString": "fields @timestamp, message.notice, message.runnerName, message.stolenBy, message.stolenByJobUrl, message.jobUrl, message.restart\n| filter isPresent(message.metric) and strcontains(message.metric, \"Stolen\")\n| sort @timestamp desc\n| limit 100"
+    "QueryString": "fields @timestamp, message.notice, message.stolenRunnerName, message.runnerName, message.stolenByJobId, message.jobUrl, message.owner, message.repo, message.provider\n| filter isPresent(message.metric) and strcontains(message.metric, \"Stolen\")\n| sort @timestamp desc\n| limit 100"
    }
   },
   "runnersWarmrunnerstatusB9D1210D": {

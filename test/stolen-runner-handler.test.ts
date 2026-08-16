@@ -23,22 +23,36 @@ jest.mock('@aws-sdk/client-sfn', () => {
 });
 
 const mockPaginate = jest.fn();
+const mockGetOctokit = jest.fn();
+const mockResolveInstallationId = jest.fn();
 
 jest.mock('../src/lambda-github', () => ({
-  getOctokit: async () => ({
-    octokit: {
-      paginate: (...args: unknown[]) => mockPaginate(...args),
-      rest: { actions: { listJobsForWorkflowRun: 'listJobsForWorkflowRun' } },
-    },
-    githubSecrets: {},
-  }),
+  getOctokit: (...args: unknown[]) => {
+    mockGetOctokit(...args);
+    return Promise.resolve({
+      octokit: {
+        paginate: (...pargs: unknown[]) => mockPaginate(...pargs),
+        rest: { actions: { listJobsForWorkflowRun: 'listJobsForWorkflowRun' } },
+      },
+      githubSecrets: {},
+    });
+  },
+  resolveInstallationId: (...args: unknown[]) => mockResolveInstallationId(...args),
+  isNotFound: (e: unknown) => (e as { status?: number })?.status === 404,
 }));
 
 const mockIsControlledJob = jest.fn();
+const mockClaimReport = jest.fn();
 
 jest.mock('../src/lambda-tracker', () => ({
   isControlledJob: (...args: unknown[]) => mockIsControlledJob(...args),
+  claimReport: (...args: unknown[]) => mockClaimReport(...args),
+  WARM_RUNNER_JOB_ID: -1,
 }));
+
+function notFound() {
+  return Object.assign(new Error('Not Found'), { status: 404 });
+}
 
 // Import handler after mocks are set up
 import { handler, parseRunnerReport, replacementRunnerName } from '../src/stolen-runner-handler.lambda';
@@ -120,6 +134,8 @@ beforeEach(() => {
   process.env.STEP_FUNCTION_ARN = STEP_FUNCTION_ARN;
   process.env.JOB_ASSIGNMENT_QUEUE_URL = QUEUE_URL;
   mockIsControlledJob.mockResolvedValue(false);
+  mockClaimReport.mockResolvedValue(true);
+  mockResolveInstallationId.mockResolvedValue(undefined);
   runnerWasStartedFor(createInput());
   githubJobs([{ id: OUR_JOB_ID, runner_name: RUNNER_NAME }]);
 });
@@ -177,13 +193,50 @@ describe('runner reports', () => {
     expect(startedExecutions()).toHaveLength(1);
   });
 
-  test('a repository we cannot see is a repository we do not serve', async () => {
-    // no installation on the thief's repo, so GitHub tells us nothing -- which is itself the answer
+  test('a report GitHub does not confirm is never acted on', async () => {
+    // the repo and run in a report come from the runner, and a job can print whatever it likes. only GitHub saying
+    // "this runner ran this job" is evidence, so no match means no replacement -- otherwise any job on any of our
+    // runners could print a made up repo and buy itself a free extra runner.
     mockPaginate.mockResolvedValue([]);
 
     await handler(sqsEvent([report({ repo: 'stranger/repo', workflowId: 999 })]));
 
+    expect(startedExecutions()).toHaveLength(0);
+  });
+
+  test('a repository outside our installation is looked up before giving up', async () => {
+    // the thief can be in a repo, or even an org, the installation that asked for this runner cannot see
+    mockPaginate
+      .mockRejectedValueOnce(notFound())
+      .mockResolvedValueOnce([{ id: THIEF_JOB_ID, runner_name: RUNNER_NAME }]);
+    mockResolveInstallationId.mockResolvedValue(99);
+
+    await handler(sqsEvent([report({ repo: 'other-org/other-repo', workflowId: 999 })]));
+
+    expect(mockResolveInstallationId).toHaveBeenCalledWith('other-org', 'other-repo');
+    expect(mockGetOctokit).toHaveBeenLastCalledWith(99);
     expect(startedExecutions()).toHaveLength(1);
+  });
+
+  test('a repository our app is not installed on is reported, not replaced', async () => {
+    // we genuinely cannot tell theft from a shuffle here, and guessing would be forgeable
+    mockPaginate.mockRejectedValue(notFound());
+    mockResolveInstallationId.mockResolvedValue(undefined);
+
+    const result = await handler(sqsEvent([report({ repo: 'stranger/repo', workflowId: 999 })]));
+
+    expect(startedExecutions()).toHaveLength(0);
+    // and it is not retried: a 404 will still be a 404 in three minutes, and the rate limit it burns is the same
+    // one that mints runner registration tokens
+    expect((result as AWSLambda.SQSBatchResponse).batchItemFailures).toHaveLength(0);
+  });
+
+  test('a runner stolen over and over is eventually left alone', async () => {
+    githubJobs([{ id: THIEF_JOB_ID, runner_name: `${RUNNER_NAME}-r3` }]);
+
+    await handler(sqsEvent([report({ runnerName: `${RUNNER_NAME}-r3` })]));
+
+    expect(startedExecutions()).toHaveLength(0);
   });
 
   test('runners we did not start are ignored', async () => {
@@ -283,6 +336,45 @@ describe('runner log delivery', () => {
     });
     // nothing is decided on the delivery itself, it all goes through the queue
     expect(startedExecutions()).toHaveLength(0);
+  });
+
+  test('only the first report from a runner is queued', async () => {
+    // a runner runs one job, so it has one thing to say. a job printing the marker itself, or a duplicated
+    // delivery, must not cost a step function call and a GitHub call each.
+    const line = `CDKGHR JOB RUNNER=${RUNNER_NAME} REPO=thief-org/thief-repo WORKFLOW_ID=987654321`;
+
+    await handler(logsEvent(Array(50).fill(line)));
+
+    expect(mockSqsSend).toHaveBeenCalledTimes(1);
+    expect(mockSqsSend.mock.calls[0][0].input.Entries).toHaveLength(1);
+  });
+
+  test('a repeat cannot hide behind a different repo or run', async () => {
+    // only the runner name is deduplicated, because that is the only part a forged line cannot make up
+    await handler(logsEvent([
+      `CDKGHR JOB RUNNER=${RUNNER_NAME} REPO=thief-org/thief-repo WORKFLOW_ID=987654321`,
+      `CDKGHR JOB RUNNER=${RUNNER_NAME} REPO=made-up/repo WORKFLOW_ID=1`,
+      `CDKGHR JOB RUNNER=${RUNNER_NAME} REPO=another/repo WORKFLOW_ID=2`,
+    ]));
+
+    const entries = mockSqsSend.mock.calls[0][0].input.Entries;
+    expect(entries).toHaveLength(1);
+    expect(JSON.parse(entries[0].MessageBody).repo).toEqual('thief-org/thief-repo');
+  });
+
+  test('runners sharing a log stream all get through', async () => {
+    // the Lambda provider reuses a log stream across invocations, so one stream carries several runners
+    await handler(logsEvent([
+      `CDKGHR JOB RUNNER=${RUNNER_NAME} REPO=org/repo WORKFLOW_ID=1`,
+      `CDKGHR JOB RUNNER=${RUNNER_NAME} REPO=org/repo WORKFLOW_ID=1`,
+      'CDKGHR JOB RUNNER=another-runner REPO=org/repo WORKFLOW_ID=2',
+      'CDKGHR JOB RUNNER=a-third-runner REPO=org/repo WORKFLOW_ID=3',
+    ]));
+
+    const entries = mockSqsSend.mock.calls[0][0].input.Entries;
+    expect(entries).toHaveLength(3);
+    expect(entries.map((e: any) => JSON.parse(e.MessageBody).runnerName))
+      .toEqual([RUNNER_NAME, 'another-runner', 'a-third-runner']);
   });
 
   test('unparsable lines are dropped', async () => {

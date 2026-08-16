@@ -92,6 +92,10 @@ export class StolenRunnerDetector extends Construct {
       // delay testing runner reports by a minute to give workflow_job.queued webhook a chance to arrive
       deliveryDelay: cdk.Duration.minutes(1),
       visibilityTimeout: cdk.Duration.minutes(3),
+      // a report is only worth acting on while the abandoned job is still waiting for a runner, so there is no
+      // point keeping one for days. this also bounds anything that fails forever without needing a dead letter
+      // queue full of reports nobody will ever look at.
+      retentionPeriod: cdk.Duration.hours(1),
     });
 
     this.handler = new StolenRunnerHandlerFunction(this, 'Lambda', {
@@ -147,7 +151,7 @@ export class StolenRunnerDetector extends Construct {
       const sub = new logs.SubscriptionFilter(this, `Runner Reports ${logGroup.node.addr.slice(0, 8)}`, {
         logGroup,
         destination,
-        filterPattern: logs.FilterPattern.literal('CDKGHR JOB'),
+        filterPattern: logs.FilterPattern.literal('"CDKGHR JOB RUNNER="'),
       });
       sub.node.addDependency(permNode);
     }

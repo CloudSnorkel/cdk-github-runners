@@ -3885,6 +3885,7 @@ new GitHubRunners(scope: Construct, id: string, props?: GitHubRunnersProps)
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic">failedImageBuildsTopic</a></code> | Creates a topic for notifications when a runner image build fails. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed">metricFailed</a></code> | Metric for failed runner executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted">metricJobCompleted</a></code> | Metric for the number of GitHub Actions jobs completed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners">metricStolenRunners</a></code> | Metric for the number of runners that were taken by a job we didn't start them for. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricSucceeded">metricSucceeded</a></code> | Metric for successful executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricTime">metricTime</a></code> | Metric for the interval, in milliseconds, between the time the execution starts and the time it closes. |
 
@@ -3996,6 +3997,28 @@ It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succe
 **WARNING:** this method creates a metric filter for each provider. Each metric has a status dimension with six possible values. These resources may incur cost.
 
 ###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted.parameter.props"></a>
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
+
+---
+
+##### `metricStolenRunners` <a name="metricStolenRunners" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners"></a>
+
+```typescript
+public metricStolenRunners(props?: MetricOptions): Metric
+```
+
+Metric for the number of runners that were taken by a job we didn't start them for.
+
+See {@link GitHubRunnersProps.stolenRunnerDetection }.
+
+A high number here means your runners are shared with jobs you didn't mean to serve. Use the "Stolen runners"
+CloudWatch Logs Insights query created by {@link createLogsInsightsQueries} to see which repositories and jobs
+are taking them.
+
+**WARNING:** this method creates a metric filter. This resource may incur cost.
+
+###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners.parameter.props"></a>
 
 - *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
 

@@ -66,7 +66,7 @@ describe('Stolen runner detection', () => {
     // one filter per provider log group, but only one permission for all of them
     template.resourceCountIs('AWS::Logs::SubscriptionFilter', 2);
     template.hasResourceProperties('AWS::Logs::SubscriptionFilter', Match.objectLike({
-      FilterPattern: 'CDKGHR JOB',
+      FilterPattern: '"CDKGHR JOB RUNNER="',
     }));
     const logsPermissions = template.findResources('AWS::Lambda::Permission', {
       Properties: Match.objectLike({ Principal: 'logs.amazonaws.com' }),

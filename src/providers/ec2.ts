@@ -165,6 +165,9 @@ Start-Job -ScriptBlock {
   }
 }
 function setup_logs () {
+  # the runner report can't go in runner.log: run.cmd's Out-File holds that file open for as long as the runner is
+  # running, which is exactly when the report is written. one file per stream, so it gets its own stream. the
+  # subscription filter is on the log group, so the detector doesn't care.
   echo "{
     \`"logs\`": {
       \`"log_stream_name\`": \`"unknown\`",
