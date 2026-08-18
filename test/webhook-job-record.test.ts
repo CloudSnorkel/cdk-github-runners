@@ -1,6 +1,15 @@
 import * as crypto from 'crypto';
 
 const mockSfnSend = jest.fn();
+const mockSqsSend = jest.fn();
+
+jest.mock('@aws-sdk/client-sqs', () => {
+  const actual = jest.requireActual('@aws-sdk/client-sqs');
+  return {
+    ...actual,
+    SQSClient: jest.fn().mockImplementation(() => ({ send: mockSqsSend })),
+  };
+});
 
 jest.mock('@aws-sdk/client-sfn', () => {
   const actual = jest.requireActual('@aws-sdk/client-sfn');
@@ -48,8 +57,9 @@ beforeEach(() => {
   process.env.REQUIRE_SELF_HOSTED_LABEL = '1';
   process.env.PROVIDER_SELECTOR_ARN = '';
   process.env.RUNNER_TRACKER_TABLE = 'tracker';
-  process.env.JOB_ASSIGNMENT_QUEUE_URL = 'hello';
+  process.env.JOB_ASSIGNMENT_QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/123456789012/reports';
   mockSfnSend.mockResolvedValue({ executionArn: 'arn:execution' });
+  mockSqsSend.mockResolvedValue({});
 });
 
 test('queued job is recorded before the runner is started', async () => {
@@ -99,6 +109,38 @@ test('redelivered queued events do not start a second runner', async () => {
 
   expect(result.statusCode).toBe(200);
   expect(result.body).toMatch('already started');
+});
+
+test('in_progress on one of our runners is reported to the stolen runner detector', async () => {
+  // GitHub signs this one, so it is the trustworthy half of the reporting, and it carries the job id already
+  const result: any = await handler(webhookEvent({
+    action: 'in_progress',
+    repository: { name: 'other-repo', owner: { login: 'other-org' } },
+    workflow_job: { id: 5678, run_id: 999, runner_name: 'my-repo-1234', runner_group_name: 'Default', labels: ['linux'] },
+  }));
+
+  expect(result.statusCode).toBe(200);
+  expect(mockSfnSend).not.toHaveBeenCalled();
+  expect(mockRecordControlledJob).not.toHaveBeenCalled();
+  expect(mockSqsSend).toHaveBeenCalledTimes(1);
+  expect(JSON.parse(mockSqsSend.mock.calls[0][0].input.MessageBody)).toEqual({
+    kind: 'report',
+    runnerName: 'my-repo-1234',
+    repo: 'other-org/other-repo',
+    workflowId: 999,
+    jobId: 5678,
+  });
+});
+
+test('in_progress on a GitHub hosted runner is not reported', async () => {
+  // none of our runners were involved, so there is nothing to check
+  await handler(webhookEvent({
+    action: 'in_progress',
+    repository: { name: 'other-repo', owner: { login: 'other-org' } },
+    workflow_job: { id: 5678, run_id: 999, runner_name: 'GitHub Actions 5', runner_group_name: 'GitHub Actions', labels: ['ubuntu-latest'] },
+  }));
+
+  expect(mockSqsSend).not.toHaveBeenCalled();
 });
 
 test.each(['completed', 'waiting'])('%s events are ignored', async (action) => {
