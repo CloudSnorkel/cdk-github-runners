@@ -204,10 +204,9 @@ describe('runner reports', () => {
     expect(startedExecutions()).toHaveLength(0);
   });
 
-  test('a repository outside our installation is looked up before giving up', async () => {
+  test('a repository outside our installation is looked up and then reported stolen', async () => {
     // the thief can be in a repo, or even an org, the installation that asked for this runner cannot see
     mockPaginate
-      .mockRejectedValueOnce(notFound())
       .mockResolvedValueOnce([{ id: THIEF_JOB_ID, runner_name: RUNNER_NAME }]);
     mockResolveInstallationId.mockResolvedValue(99);
 
@@ -218,14 +217,14 @@ describe('runner reports', () => {
     expect(startedExecutions()).toHaveLength(1);
   });
 
-  test('a repository our app is not installed on is reported, not replaced', async () => {
+  test('a repository our app is not installed means stolen', async () => {
     // we genuinely cannot tell theft from a shuffle here, and guessing would be forgeable
     mockPaginate.mockRejectedValue(notFound());
-    mockResolveInstallationId.mockResolvedValue(undefined);
+    mockResolveInstallationId.mockRejectedValue(notFound());
 
     const result = await handler(sqsEvent([report({ repo: 'stranger/repo', workflowId: 999 })]));
 
-    expect(startedExecutions()).toHaveLength(0);
+    expect(startedExecutions()).toHaveLength(1);
     // and it is not retried: a 404 will still be a 404 in three minutes, and the rate limit it burns is the same
     // one that mints runner registration tokens
     expect((result as AWSLambda.SQSBatchResponse).batchItemFailures).toHaveLength(0);

@@ -48,6 +48,7 @@ beforeEach(() => {
   process.env.REQUIRE_SELF_HOSTED_LABEL = '1';
   process.env.PROVIDER_SELECTOR_ARN = '';
   process.env.RUNNER_TRACKER_TABLE = 'tracker';
+  process.env.JOB_ASSIGNMENT_QUEUE_URL = 'hello';
   mockSfnSend.mockResolvedValue({ executionArn: 'arn:execution' });
 });
 
@@ -100,7 +101,7 @@ test('redelivered queued events do not start a second runner', async () => {
   expect(result.body).toMatch('already started');
 });
 
-test.each(['in_progress', 'completed', 'waiting'])('%s events are ignored', async (action) => {
+test.each(['completed', 'waiting'])('%s events are ignored', async (action) => {
   // runners tell us what they picked up, so the webhook only cares about queued jobs
   const result: any = await handler(webhookEvent({
     action,
