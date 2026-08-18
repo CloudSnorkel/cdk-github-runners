@@ -198,7 +198,11 @@ export function generateExecutionName(event: any, payload: any): string {
 }
 
 export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
-  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.PROVIDERS || !process.env.REQUIRE_SELF_HOSTED_LABEL || !process.env.JOB_ASSIGNMENT_QUEUE_URL) {
+  if (!process.env.WEBHOOK_SECRET_ARN ||
+    !process.env.STEP_FUNCTION_ARN ||
+    !process.env.PROVIDERS ||
+    !process.env.REQUIRE_SELF_HOSTED_LABEL ||
+    !process.env.JOB_ASSIGNMENT_QUEUE_URL) {
     throw new Error('Missing environment variables');
   }
 
