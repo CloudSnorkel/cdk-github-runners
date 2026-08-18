@@ -18602,7 +18602,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "2bd1ce21675a7b7da53afd5491a0395a3416fef328b27506aaffec76c7f9a269.zip"
+     "S3Key": "561e607656b5cc9eea453e0b72cd4cbe3dea9ea755b05110ed69dbc09f170616.zip"
     },
     "Description": "Detect GitHub Actions runners stolen by other jobs and start a new runner for the abandoned job",
     "Environment": {
@@ -19199,6 +19199,20 @@
       },
       {
        "Action": [
+        "sqs:SendMessage",
+        "sqs:GetQueueAttributes",
+        "sqs:GetQueueUrl"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersStolenRunnersQueue65F1E43C",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
         "dynamodb:BatchWriteItem",
         "dynamodb:PutItem",
         "dynamodb:UpdateItem",
@@ -19231,7 +19245,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "39aaf7b005cf9e9f2fe09f1ffdc5831223e96d75236d3ed92326df8ff59ff706.zip"
+     "S3Key": "ed3bada86064f7bb8b02ac2b4c38bad5f6dd53a5314489a730d5905c15ebcb87.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -19257,6 +19271,9 @@
        ]
       },
       "IDLE_TIMEOUT_SECONDS": "300",
+      "JOB_ASSIGNMENT_QUEUE_URL": {
+       "Ref": "runnersStolenRunnersQueue65F1E43C"
+      },
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
       "RUNNER_TRACKER_TABLE": {
        "Ref": "runnersStolenRunnersJobsDFC963A5"

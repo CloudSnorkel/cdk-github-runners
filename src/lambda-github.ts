@@ -225,6 +225,9 @@ export function isNotFound(e: unknown): boolean {
 
 /**
  * Find installation id for our app. Normal code path gets this from the webhook payload, but we schedule these ourselves.
+ *
+ * If the repository cannot be found (e.g. the app was uninstalled), this will throw a 404 error. Use `isNotFound` to check for that case.
+ *
  * @internal
  */
 export async function resolveInstallationId(owner: string, repo: string) {

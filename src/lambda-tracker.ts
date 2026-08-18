@@ -27,6 +27,8 @@ export const DEFAULT_TRACKER_TTL_SECONDS = 3 * 24 * 60 * 60;
  * Input for the runner orchestrator step function. Read back from the step function itself when a runner needs
  * replacing, so it never has to be stored anywhere else.
  *
+ * TODO MOVE definitely doesn't belong here
+ *
  * @internal
  */
 export interface OrchestratorInput {
@@ -55,6 +57,7 @@ export interface RunnerReportMessage {
   readonly runnerName: string;
   readonly repo: string;
   readonly workflowId: number;
+  readonly jobId?: number; // comes from workflow_job.in_progress webhook
 }
 
 function tableName(): string {

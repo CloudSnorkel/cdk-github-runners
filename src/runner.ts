@@ -368,6 +368,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       }, {}),
       requireSelfHostedLabel: this.props?.requireSelfHostedLabel ?? true,
       providerSelector: this.props?.providerSelector,
+      stolenRunnerQueue: this.stolenRunnerDetector.queue,
       extraLambdaProps: this.extraLambdaProps,
       extraLambdaEnv: this.extraLambdaEnv,
       idleTimeoutSeconds: this.props?.idleTimeout?.toSeconds(),

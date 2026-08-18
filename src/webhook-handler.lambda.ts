@@ -1,15 +1,17 @@
 import * as crypto from 'crypto';
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { ExecutionAlreadyExists, SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import * as AWSLambda from 'aws-lambda';
 import { MAX_RUNNER_NAME_LENGTH } from './lambda-consts';
 import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
-import { OrchestratorInput, recordControlledJob, trackerEnabled } from './lambda-tracker';
+import { OrchestratorInput, recordControlledJob, RunnerReportMessage, trackerEnabled } from './lambda-tracker';
 import { ProviderSelectorInput, ProviderSelectorResult } from './webhook';
 
-const sf = new SFNClient();
 const lambdaClient = new LambdaClient();
+const sf = new SFNClient();
+const sqs = new SQSClient();
 
 // TODO use @octokit/webhooks?
 
@@ -196,7 +198,7 @@ export function generateExecutionName(event: any, payload: any): string {
 }
 
 export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
-  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.PROVIDERS || !process.env.REQUIRE_SELF_HOSTED_LABEL) {
+  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.PROVIDERS || !process.env.REQUIRE_SELF_HOSTED_LABEL || !process.env.JOB_ASSIGNMENT_QUEUE_URL) {
     throw new Error('Missing environment variables');
   }
 
@@ -249,14 +251,36 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
 
   const payload = JSON.parse(body);
 
-  if (payload.action !== 'queued') {
+  if (payload.action !== 'queued' && payload.action != 'in_progress') {
     console.log({
-      notice: `Ignoring action "${payload.action}", expecting "queued"`,
+      notice: `Ignoring action "${payload.action}", expecting "queued" or "in_progress"`,
       job: payload.workflow_job,
     });
     return {
       statusCode: 200,
       body: 'OK. No runner started (action is not "queued").',
+    };
+  }
+
+  if (payload.action === 'in_progress') {
+    if (payload.workflow_job.runner_group_name !== 'GitHub Actions') { // non self-hosted
+      // report a job being assigned to a runner to the stolen runner detector
+      // this is a much more trustworthy and reliable source than our runner log shtick
+      // sadly it's not enough for cases like repos where the app is not intsalled stealing our jobs
+      await sqs.send(new SendMessageCommand({
+        QueueUrl: process.env.JOB_ASSIGNMENT_QUEUE_URL,
+        MessageBody: JSON.stringify(<RunnerReportMessage>{
+          kind: 'report',
+          runnerName: payload.workflow_job.runner_name,
+          repo: `${payload.repository.owner.login}/${payload.repository.name}`,
+          workflowId: payload.workflow_job.run_id,
+          jobId: payload.workflow_job.id,
+        }),
+      }));
+    }
+    return {
+      statusCode: 200,
+      body: 'OK. No runner started (action is "in_progress").',
     };
   }
 

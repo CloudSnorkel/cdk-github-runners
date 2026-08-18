@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_lambda as lambda, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
+import { aws_lambda as lambda, aws_stepfunctions as stepfunctions, aws_sqs as sqs } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
 import { Secrets } from './secrets';
@@ -102,6 +102,11 @@ export interface GithubWebhookHandlerProps {
   readonly idleTimeoutSeconds?: number;
 
   /**
+   * Stolen runner detector queue.
+   */
+  readonly stolenRunnerQueue: sqs.IQueue;
+
+  /**
    * Additional Lambda function options (VPC, security groups, layers, etc.).
    */
   readonly extraLambdaProps?: lambda.FunctionOptions;
@@ -146,6 +151,7 @@ export class GithubWebhookHandler extends Construct {
           REQUIRE_SELF_HOSTED_LABEL: props.requireSelfHostedLabel ? '1' : '0',
           PROVIDER_SELECTOR_ARN: props.providerSelector?.functionArn ?? '',
           IDLE_TIMEOUT_SECONDS: props.idleTimeoutSeconds?.toString() ?? '300', // default 5 minutes
+          JOB_ASSIGNMENT_QUEUE_URL: props.stolenRunnerQueue.queueUrl,
           ...props.extraLambdaEnv,
         },
         timeout: cdk.Duration.seconds(31),
@@ -163,5 +169,6 @@ export class GithubWebhookHandler extends Construct {
     props.secrets.githubPrivateKey.grantRead(this.handler);
     props.orchestrator.grantStartExecution(this.handler);
     props.providerSelector?.grantInvoke(this.handler);
+    props.stolenRunnerQueue.grantSendMessages(this.handler);
   }
 }

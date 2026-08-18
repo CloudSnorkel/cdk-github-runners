@@ -74,68 +74,54 @@ async function listJobs(owner: string, repo: string, workflowId: number, install
   });
 }
 
-async function jobIdFromRunner(report: RunnerReportMessage, installationId: number): Promise<number | undefined> {
+type JobFromReport =
+  | { result: 'job'; jobId: number }
+  | { result: 'unknown' }
+  | { result: 'invisible-repo' };
+
+async function findJobFromReport(report: RunnerReportMessage): Promise<JobFromReport> {
   const [owner, repo] = report.repo.split('/');
   if (!owner || !repo) {
     console.warn({ notice: 'Runner reported a repository we cannot parse', report });
-    return undefined;
+    return { result: 'unknown' };
   }
 
-  let jobs;
+  let installationId: number | undefined;
   try {
-    jobs = await listJobs(owner, repo, report.workflowId, installationId > 0 ? installationId : undefined);
+    installationId = await resolveInstallationId(owner, repo);
   } catch (e) {
     if (!isNotFound(e)) {
       throw e;
     }
+    // our app isn't installed there, so we never started a runner for anything in that repo
+    return { result: 'invisible-repo' };
+  }
 
-    // the thief can be in a repository -- even an organization -- outside the installation that asked for this
-    // runner, and that installation's token can't see its jobs. ask the app which installation can.
-    let thiefInstallationId: number | undefined;
-    try {
-      thiefInstallationId = await resolveInstallationId(owner, repo);
-    } catch (e2) {
-      if (!isNotFound(e2)) { throw e2; }
+  let jobs;
+  try {
+    jobs = await listJobs(owner, repo, report.workflowId, installationId);
+  } catch (e) {
+    if (!isNotFound(e)) {
+      throw e;
     }
-    if (thiefInstallationId === undefined) {
-      // our app isn't installed there, so we have no way to see what that repository ran. we cannot call this
-      // theft either: the repository name comes from the runner, and a job can print any name it likes.
-      console.warn({
-        notice: 'Cannot see the repository this runner reported, so cannot tell whether it was stolen. Install the GitHub app on every repository in the organization to detect runners taken by them.',
-        report,
-      });
-      return undefined;
-    }
-
-    try {
-      jobs = await listJobs(owner, repo, report.workflowId, thiefInstallationId);
-    } catch (e2) {
-      if (isNotFound(e2)) {
-        // no such run. the report was made up, or the run is already gone.
-        console.warn({ notice: 'GitHub knows nothing about the run this runner reported', report });
-        return undefined;
-      }
-      throw e2;
-    }
+    // we can see this repo and there is no such run, so the runner made it up
+    console.warn({ notice: 'GitHub knows nothing about the run this runner reported', report });
+    return { result: 'unknown' };
   }
 
   const job = jobs.find(j => j.runner_name === report.runnerName);
   if (!job) {
-    console.warn({
-      notice: 'No job in this run ran on this runner',
-      report,
-      jobs: jobs.length,
-    });
-    return undefined;
+    console.warn({ notice: 'No job in this run ran on this runner', report, jobs: jobs.length });
+    return { result: 'unknown' };
   }
 
-  return job.id;
+  return { result: 'job', jobId: job.id };
 }
 
 /**
  * Start another runner just like the one that was taken.
  */
-async function replaceRunner(stolenRunnerName: string, input: OrchestratorInput, thiefJobId: number) {
+async function replaceRunner(stolenRunnerName: string, input: OrchestratorInput, thiefJobId?: number) {
   const runnerName = replacementRunnerName(stolenRunnerName);
 
   const attempt = parseInt(runnerName.match(/-r(\d+)$/)?.[1] ?? '1', 10);
@@ -190,8 +176,8 @@ async function handleRunnerReport(report: RunnerReportMessage) {
   }
 
   if (input.jobId == WARM_RUNNER_JOB_ID) {
-    // warm runners aren't started for any job in particular, so nothing they run is stolen
-    // warm runner keeper starts a replacement on its own as soon as it sees one go busy
+    // warm runners aren't started for any job in particular, so nothing they run is technically stolen
+    // warm runner keeper starts a replacement on its own as soon as it sees a warm runner go busy
     console.log({
       notice: 'Warm runner taken',
       metric: 'WarmRunnerTaken',
@@ -202,18 +188,36 @@ async function handleRunnerReport(report: RunnerReportMessage) {
     return;
   }
 
-  const jobId = await jobIdFromRunner(report, input.installationId);
-
+  let jobId = report.jobId; // can be reported from workflow_job.in_progress directly
   if (jobId === undefined) {
-    // GitHub didn't confirm this runner ran anything we can see, and only GitHub gets to decide that. the report
-    // itself proves nothing -- it comes from the runner, and a job can print whatever it likes. acting here would
-    // let any job on any of our runners buy itself a free extra runner.
-    console.warn({ notice: 'Could not tell which job this runner ran, so not replacing it', report });
-    return;
+    const job = await findJobFromReport(report);
+
+    if (job.result === 'invisible-repo') {
+      // nothing we start could be running there, so this one was stolen
+      console.warn({
+        notice: 'Runner ran a job in a repository our app cannot see',
+        report,
+      });
+      await replaceRunner(report.runnerName, input);
+      return;
+    }
+
+    if (job.result === 'unknown') {
+      // we couldn't find the job, even though we should have
+      // bad input... don't act on it
+      console.warn({
+        notice: 'Could not tell which job this runner ran',
+        report,
+      });
+      return;
+    }
+
+    jobId = job.jobId;
   }
 
   if (jobId === input.jobId) {
     // ran the job it was started for, which is the whole point
+    // no need to do anything or even check the jobs table...
     return;
   }
 
