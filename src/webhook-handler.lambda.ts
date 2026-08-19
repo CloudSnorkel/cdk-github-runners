@@ -3,10 +3,10 @@ import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { ExecutionAlreadyExists, SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import * as AWSLambda from 'aws-lambda';
-import { MAX_RUNNER_NAME_LENGTH } from './lambda-consts';
+import { MAX_RUNNER_NAME_LENGTH, OrchestratorInput } from './lambda-common';
 import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
-import { OrchestratorInput, recordControlledJob, RunnerReportMessage, trackerEnabled } from './lambda-tracker';
+import { recordControlledJob, RunnerReportMessage, trackerEnabled } from './lambda-tracker';
 import { ProviderSelectorInput, ProviderSelectorResult } from './webhook';
 
 const lambdaClient = new LambdaClient();

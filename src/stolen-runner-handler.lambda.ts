@@ -8,9 +8,9 @@ import {
 } from '@aws-sdk/client-sfn';
 import { SendMessageBatchCommand, SQSClient } from '@aws-sdk/client-sqs';
 import * as AWSLambda from 'aws-lambda';
-import { MAX_RUNNER_NAME_LENGTH, WARM_RUNNER_JOB_ID } from './lambda-consts';
+import { MAX_RUNNER_NAME_LENGTH, OrchestratorInput, WARM_RUNNER_JOB_ID } from './lambda-common';
 import { getOctokit, isNotFound, resolveInstallationId } from './lambda-github';
-import { isControlledJob, OrchestratorInput, RunnerReportMessage } from './lambda-tracker';
+import { isControlledJob, RunnerReportMessage } from './lambda-tracker';
 
 const sfn = new SFNClient();
 const sqs = new SQSClient();
@@ -93,7 +93,18 @@ async function findJobFromReport(report: RunnerReportMessage): Promise<JobFromRe
     if (!isNotFound(e)) {
       throw e;
     }
-    // our app isn't installed there, so we never started a runner for anything in that repo
+    // our app isn't installed there, so we never started a runner for anything in that repo.
+    // the job that ran there was stolen the runner from someone else.
+    //
+    // this assumption only works for app authentication where the webhook notifies us of jobs on the repos the app is installed on. and in turn the
+    // app only has access to, and can can only start runners for, the repos it is installed on.
+    // the guard in token-retriever.lambda.ts makes sure we only respond to webhooks events from repos the app is installed on by checking for the
+    // installation id. "repositories we get webhooks from" and "repositories we can read" are the same set, and GitHub is the one enforcing it.
+    //
+    // PAT have no such promise: they ignore installation ids entirely, so a hand configured webhook works and the two sets can drift apart.
+    // that is why this branch is unreachable for them. we can't gurantee (yet) that we will fail to list jobs because the repo truly doesn't exist.
+    // a 404 below on listJobs() can mean the job truly doesn't exist or it can mean the repo exists but the PAT doesn't have access to it while the
+    // webhook does report on it.
     return { result: 'invisible-repo' };
   }
 
@@ -126,13 +137,21 @@ async function replaceRunner(stolenRunnerName: string, input: OrchestratorInput,
 
   const attempt = parseInt(runnerName.match(/-r(\d+)$/)?.[1] ?? '1', 10);
   if (attempt > MAX_REPLACEMENTS) {
-    // whoever keeps taking these runners is going to take the next one too
+    // avoid infinite loops if a runner is stolen repeatedly
+    // it might be a bug in our detection...
     console.warn({
-      notice: 'Runner was stolen, but it has already been replaced too many times',
-      metric: 'StolenRunnerGaveUp',
+      notice: 'Runner was stolen, not replaced because it has already been replaced too many times',
+      metric: 'StolenRunnerDetected',
+      replaced: 'false', // metric filter drops ALL dimensions for if this is a real boolean
       stolenRunnerName,
+      runnerName,
       attempt,
+      stolenByJobId: thiefJobId,
+      jobId: input.jobId,
       jobUrl: input.jobUrl,
+      owner: input.owner,
+      repo: input.repo,
+      provider: input.provider,
     });
     return;
   }
@@ -155,8 +174,10 @@ async function replaceRunner(stolenRunnerName: string, input: OrchestratorInput,
   console.warn({
     notice: 'Runner was stolen, started another one',
     metric: 'StolenRunnerDetected',
+    replaced: 'true', // metric filter drops ALL dimensions for if this is a real boolean
     stolenRunnerName,
     runnerName,
+    attempt,
     stolenByJobId: thiefJobId,
     jobId: input.jobId,
     jobUrl: input.jobUrl,

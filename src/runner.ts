@@ -304,7 +304,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private readonly webhook: GithubWebhookHandler;
   private readonly redeliverer: GithubWebhookRedelivery;
   private readonly orchestrator: stepfunctions.StateMachine;
-  private readonly stolenRunnerDetector?: StolenRunnerDetector;
+  private readonly stolenRunnerDetector: StolenRunnerDetector;
   private readonly setupUrl: string;
   private readonly extraLambdaEnv: { [p: string]: string } = {};
   private readonly extraLambdaProps: lambda.FunctionOptions;
@@ -353,7 +353,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     this.stolenRunnerDetector = new StolenRunnerDetector(this, 'Stolen Runners', {
       secrets: this.secrets,
       orchestrator: this.orchestrator,
-      //options: this.props?.stolenRunnerDetection,
       runnerLogGroups: [...this.extractUniqueSubProviders()].map(p => p.logGroup),
       extraLambdaProps: this.extraLambdaProps,
       extraLambdaEnv: this.extraLambdaEnv,
@@ -373,7 +372,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       extraLambdaEnv: this.extraLambdaEnv,
       idleTimeoutSeconds: this.props?.idleTimeout?.toSeconds(),
     });
-    this.stolenRunnerDetector?.grantRecordRunners(this.webhook.handler);
+    this.stolenRunnerDetector.grantRecordRunners(this.webhook.handler);
     this.redeliverer = new GithubWebhookRedelivery(this, 'Webhook Redelivery', {
       secrets: this.secrets,
       extraLambdaProps: this.extraLambdaProps,
@@ -919,26 +918,32 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   /**
-   * Metric for the number of runners that were taken by a job we didn't start them for. See {@link GitHubRunnersProps.stolenRunnerDetection}.
+   * Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them.
    *
    * A high number here means your runners are shared with jobs you didn't mean to serve. Use the "Stolen runners"
    * CloudWatch Logs Insights query created by {@link createLogsInsightsQueries} to see which repositories and jobs
    * are taking them.
    *
+   * This metric has two dimensions:
+   *  1. `Replaced` which is a boolean indicating weather the stolen runner was replaced. A runner may not be replaced if it was stolen too many
+   *     times in a row. The current limit is 3. When this is false, there is probably a bug in our detection or something misconfigured.
+   *  2. `Provider` is the provider construct path of the runner that was stolen. You can check your code to see which labels it has that may cause
+   *     it to be stolen. The logs insights queries can provide even more information about the stolen runners.
+   *
    * **WARNING:** this method creates a metric filter. This resource may incur cost.
    */
   public metricStolenRunners(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
-    if (!this.stolenRunnerDetector) {
-      Annotations.of(this).addError('Stolen runner detection is disabled, so metricStolenRunners() will always be empty');
-    }
-
     if (!this.stolenRunnersMetricFilterInitialized) {
       singletonLogGroup(this, SingletonLogType.ORCHESTRATOR).addMetricFilter('Stolen Runners filter', {
         metricNamespace: 'GitHubRunners',
         metricName: 'StolenRunners',
-        filterPattern: logs.FilterPattern.literal('{ $.message.metric = "StolenRunnerDetected" }'),
+        filterPattern: logs.FilterPattern.stringValue('$.message.metric', '=', 'StolenRunnerDetected'),
         metricValue: '1',
-        defaultValue: 0,
+        // can't with dimensions -- defaultValue: 0,
+        dimensions: {
+          Replaced: '$.message.replaced',
+          Provider: '$.message.provider',
+        },
       });
       this.stolenRunnersMetricFilterInitialized = true;
     }

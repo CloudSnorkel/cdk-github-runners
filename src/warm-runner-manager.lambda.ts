@@ -78,7 +78,7 @@ import {
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import type { Octokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
 import * as AWSLambda from 'aws-lambda';
-import { WARM_RUNNER_JOB_ID } from './lambda-consts';
+import { WARM_RUNNER_JOB_ID } from './lambda-common';
 import { deleteRunner, getOctokit, getRunner, GitHubSecrets, resolveInstallationId } from './lambda-github';
 import { customResourceRespond } from './lambda-helpers';
 

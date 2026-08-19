@@ -18602,7 +18602,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "561e607656b5cc9eea453e0b72cd4cbe3dea9ea755b05110ed69dbc09f170616.zip"
+     "S3Key": "05440f1bb470abc712b03eaa5b06eb17fc9f91794eb05a65218221a765e8dafd.zip"
     },
     "Description": "Detect GitHub Actions runners stolen by other jobs and start a new runner for the abandoned job",
     "Environment": {
@@ -19245,7 +19245,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "ed3bada86064f7bb8b02ac2b4c38bad5f6dd53a5314489a730d5905c15ebcb87.zip"
+     "S3Key": "570ec710511fe0812b4bd8f3a6bf7c92743a95a0a9bc2583074ee12040a89974.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -22086,7 +22086,16 @@
     },
     "MetricTransformations": [
      {
-      "DefaultValue": 0,
+      "Dimensions": [
+       {
+        "Key": "Replaced",
+        "Value": "$.message.replaced"
+       },
+       {
+        "Key": "Provider",
+        "Value": "$.message.provider"
+       }
+      ],
       "MetricName": "StolenRunners",
       "MetricNamespace": "GitHubRunners",
       "MetricValue": "1"

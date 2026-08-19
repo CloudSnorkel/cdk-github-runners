@@ -1,4 +1,5 @@
 import { DynamoDBClient, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { OrchestratorInput } from './lambda-common';
 
 /**
  * The set of jobs we started a runner for.
@@ -22,26 +23,6 @@ const ddb = new DynamoDBClient();
  * @internal
  */
 export const DEFAULT_TRACKER_TTL_SECONDS = 3 * 24 * 60 * 60;
-
-/**
- * Input for the runner orchestrator step function. Read back from the step function itself when a runner needs
- * replacing, so it never has to be stored anywhere else.
- *
- * TODO MOVE definitely doesn't belong here
- *
- * @internal
- */
-export interface OrchestratorInput {
-  readonly owner: string;
-  readonly repo: string;
-  readonly jobId: number;
-  readonly jobUrl: string;
-  readonly installationId: number;
-  readonly jobLabels: string;
-  readonly provider: string;
-  readonly labels: string;
-  readonly maxIdleSeconds: number;
-}
 
 /**
  * A runner told us it picked up a job. Sent by the runners themselves, from a job started hook, and read out of
