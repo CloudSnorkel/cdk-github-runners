@@ -19072,7 +19072,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "db77ca68696d20b77aee7bf6569994a5ba9fff9bc33d7027f1b4aee4262d91c1.zip"
+     "S3Key": "64f68a35d321b2c89538eb445c3da7daf2ae16e49f363dfaba35229dac1f80cc.zip"
     },
     "Description": "Setup GitHub Actions integration with self-hosted runners",
     "Environment": {
@@ -19406,7 +19406,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "b71d20ee25113b6b7ffade2683dbfa9998462059c840d2c93301dda6b9c5ffa5.zip"
+     "S3Key": "bd86e02f687e8f98e4d21acab3c7b4a0187d1bb6c3ff2c184b1b77be0b126512.zip"
     },
     "Description": "Provide user with status about self-hosted GitHub Actions runners",
     "Environment": {
