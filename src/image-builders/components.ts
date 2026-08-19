@@ -491,6 +491,7 @@ export abstract class RunnerImageComponent {
             // setup hooks
             "Add-Content -Path C:\\actions\\.env -Value 'ACTIONS_RUNNER_HOOK_JOB_STARTED=C:\\actions\\job-started-hook.ps1'",
             "Add-Content -Path C:\\actions\\.env -Value 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED=C:\\actions\\job-completed-hook.ps1'",
+            "Set-Content -Path C:\\actions\\.workflowid -Value '' -NoNewline",
           ]);
 
           return runnerCommands.concat([

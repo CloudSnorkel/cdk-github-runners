@@ -255,7 +255,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
 
   const payload = JSON.parse(body);
 
-  if (payload.action !== 'queued' && payload.action != 'in_progress') {
+  if (payload.action !== 'queued' && payload.action !== 'in_progress') {
     console.log({
       notice: `Ignoring action "${payload.action}", expecting "queued" or "in_progress"`,
       job: payload.workflow_job,
@@ -267,20 +267,22 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
   }
 
   if (payload.action === 'in_progress') {
-    if (payload.workflow_job.runner_group_name !== 'GitHub Actions') { // non self-hosted
+    if (payload.workflow_job.runner_group_name !== 'GitHub Actions') { // ignore non self-hosted runners
       // report a job being assigned to a runner to the stolen runner detector
       // this is a much more trustworthy and reliable source than our runner log shtick
-      // sadly it's not enough for cases like repos where the app is not intsalled stealing our jobs
-      await sqs.send(new SendMessageCommand({
-        QueueUrl: process.env.JOB_ASSIGNMENT_QUEUE_URL,
-        MessageBody: JSON.stringify(<RunnerReportMessage>{
-          kind: 'report',
-          runnerName: payload.workflow_job.runner_name,
-          repo: `${payload.repository.owner.login}/${payload.repository.name}`,
-          workflowId: payload.workflow_job.run_id,
-          jobId: payload.workflow_job.id,
-        }),
-      }));
+      // sadly it's not enough for cases like repos where the app is not installed stealing our jobs
+      if (payload.workflow_job.runner_name && payload.workflow_job.run_id && payload.workf_job.id) {
+        await sqs.send(new SendMessageCommand({
+          QueueUrl: process.env.JOB_ASSIGNMENT_QUEUE_URL,
+          MessageBody: JSON.stringify(<RunnerReportMessage>{
+            kind: 'report',
+            runnerName: payload.workflow_job.runner_name,
+            repo: `${payload.repository.owner.login}/${payload.repository.name}`,
+            workflowId: payload.workflow_job.run_id,
+            jobId: payload.workflow_job.id,
+          }),
+        }));
+      }
     }
     return {
       statusCode: 200,

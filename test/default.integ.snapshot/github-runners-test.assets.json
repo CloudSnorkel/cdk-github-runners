@@ -72,7 +72,7 @@
       }
     },
     "c0e9b4fa0c49440b572a839a018f3dab40c4c7c1d0b5a03054fa69680f996068": {
-      "displayName": "GHRInternal--GHRInternal--Component-GithubRunner-Windows-X86-64-59aad391fe--Asset0",
+      "displayName": "GHRInternal--GHRInternal--Component-GithubRunner-Windows-X86-64-573c2ecc00--Asset0",
       "source": {
         "path": "asset.c0e9b4fa0c49440b572a839a018f3dab40c4c7c1d0b5a03054fa69680f996068.ps1",
         "packaging": "file"
@@ -86,7 +86,7 @@
       }
     },
     "344ae98c7b64c87e38a3687467dd67b459eada75f75cc1a8f84d35fff01c6dcd": {
-      "displayName": "GHRInternal--GHRInternal--Component-GithubRunner-Windows-X86-64-59aad391fe--Asset1",
+      "displayName": "GHRInternal--GHRInternal--Component-GithubRunner-Windows-X86-64-573c2ecc00--Asset1",
       "source": {
         "path": "asset.344ae98c7b64c87e38a3687467dd67b459eada75f75cc1a8f84d35fff01c6dcd.ps1",
         "packaging": "file"
@@ -100,7 +100,7 @@
       }
     },
     "756af8f882f4e4ce982dc48e0b6fd0c5d07e446c5384cf6552e56a50ec4dc06e": {
-      "displayName": "GHRInternal--GHRInternal--Component-GithubRunner-Windows-X86-64-59aad391fe--Asset2",
+      "displayName": "GHRInternal--GHRInternal--Component-GithubRunner-Windows-X86-64-573c2ecc00--Asset2",
       "source": {
         "path": "asset.756af8f882f4e4ce982dc48e0b6fd0c5d07e446c5384cf6552e56a50ec4dc06e.ps1",
         "packaging": "file"
@@ -253,16 +253,16 @@
         }
       }
     },
-    "570ec710511fe0812b4bd8f3a6bf7c92743a95a0a9bc2583074ee12040a89974": {
+    "28f82dc205a2e57b228e10945d004178379744543f9ab4b099f5b6bef11e139f": {
       "displayName": "runners/Webhook Handler/webhook-handler/Code",
       "source": {
-        "path": "asset.570ec710511fe0812b4bd8f3a6bf7c92743a95a0a9bc2583074ee12040a89974.lambda",
+        "path": "asset.28f82dc205a2e57b228e10945d004178379744543f9ab4b099f5b6bef11e139f.lambda",
         "packaging": "zip"
       },
       "destinations": {
-        "current_account-current_region-a306ae47": {
+        "current_account-current_region-b08d3ef6": {
           "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
-          "objectKey": "570ec710511fe0812b4bd8f3a6bf7c92743a95a0a9bc2583074ee12040a89974.zip",
+          "objectKey": "28f82dc205a2e57b228e10945d004178379744543f9ab4b099f5b6bef11e139f.zip",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
         }
       }
@@ -323,16 +323,16 @@
         }
       }
     },
-    "19ce1b34b74dbb8f4ed092914ac0d5f47958ce2baf6a141113f10aaa85810819": {
+    "741eed220de7c22363afcee9256d88d2669c4894f2fa39211b5c3782d7b27cf1": {
       "displayName": "github-runners-test Template",
       "source": {
         "path": "github-runners-test.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "current_account-current_region-a310ce8c": {
+        "current_account-current_region-07955ce0": {
           "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
-          "objectKey": "19ce1b34b74dbb8f4ed092914ac0d5f47958ce2baf6a141113f10aaa85810819.json",
+          "objectKey": "741eed220de7c22363afcee9256d88d2669c4894f2fa39211b5c3782d7b27cf1.json",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
         }
       }

@@ -2093,7 +2093,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerWindowsX866459aad391feComponentD83A341B",
+        "GHRInternalComponentGithubRunnerWindowsX8664573c2ecc00Component1797CF44",
         "Arn"
        ]
       }
@@ -5973,7 +5973,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerWindowsX866459aad391feComponentD83A341B",
+        "GHRInternalComponentGithubRunnerWindowsX8664573c2ecc00Component1797CF44",
         "Arn"
        ]
       }
@@ -8129,7 +8129,7 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubRunnerWindowsX866459aad391feComponentD83A341B": {
+  "GHRInternalComponentGithubRunnerWindowsX8664573c2ecc00Component1797CF44": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
     "Data": {
@@ -8148,12 +8148,12 @@
        {
         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/756af8f882f4e4ce982dc48e0b6fd0c5d07e446c5384cf6552e56a50ec4dc06e.ps1"
        },
-       "\",\"destination\":\"/actions/job-completed-hook.ps1\"}]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl --retry 5 --retry-delay 30 -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"mkdir C:\\\\hostedtoolcache\\\\windows\",\"mkdir C:\\\\tools\",\"cmd /c curl --retry 5 --retry-delay 30 -w \\\"%{redirect_url}\\\" -fsS https://github.com/facebook/zstd/releases/latest > $Env:TEMP\\\\latest-zstd\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-zstd\",\"$ZSTD_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/facebook/zstd/releases/download/v$ZSTD_VERSION/zstd-v$ZSTD_VERSION-win64.zip\\\" -OutFile zstd.zip\",\"Expand-Archive zstd.zip -DestinationPath C:\\\\tools\",\"Move-Item -Path C:\\\\tools\\\\zstd-v$ZSTD_VERSION-win64\\\\zstd.exe C:\\\\tools\",\"Remove-Item -LiteralPath \\\"C:\\\\tools\\\\zstd-v$ZSTD_VERSION-win64\\\" -Force -Recurse\",\"del zstd.zip\",\"$persistedPaths = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)\",\"[Environment]::SetEnvironmentVariable(\\\"PATH\\\", $persistedPaths + \\\";C:\\\\tools\\\", [EnvironmentVariableTarget]::Machine)\",\"Add-Content -Path C:\\\\actions\\\\.env -Value 'ACTIONS_RUNNER_HOOK_JOB_STARTED=C:\\\\actions\\\\job-started-hook.ps1'\",\"Add-Content -Path C:\\\\actions\\\\.env -Value 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED=C:\\\\actions\\\\job-completed-hook.ps1'\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\",\"echo latest | Out-File -Encoding ASCII -NoNewline C:\\\\actions\\\\RUNNER_VERSION\"]}}]}]}"
+       "\",\"destination\":\"/actions/job-completed-hook.ps1\"}]},{\"name\":\"Run\",\"action\":\"ExecutePowerShell\",\"inputs\":{\"commands\":[\"$ErrorActionPreference = 'Stop'\",\"$ProgressPreference = 'SilentlyContinue'\",\"Set-PSDebug -Trace 1\",\"cmd /c curl --retry 5 --retry-delay 30 -w \\\"%{redirect_url}\\\" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\\\latest-gha\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-gha\",\"$RUNNER_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"mkdir C:\\\\hostedtoolcache\\\\windows\",\"mkdir C:\\\\tools\",\"cmd /c curl --retry 5 --retry-delay 30 -w \\\"%{redirect_url}\\\" -fsS https://github.com/facebook/zstd/releases/latest > $Env:TEMP\\\\latest-zstd\",\"$LatestUrl = Get-Content $Env:TEMP\\\\latest-zstd\",\"$ZSTD_VERSION = ($LatestUrl -Split '/')[-1].substring(1)\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/facebook/zstd/releases/download/v$ZSTD_VERSION/zstd-v$ZSTD_VERSION-win64.zip\\\" -OutFile zstd.zip\",\"Expand-Archive zstd.zip -DestinationPath C:\\\\tools\",\"Move-Item -Path C:\\\\tools\\\\zstd-v$ZSTD_VERSION-win64\\\\zstd.exe C:\\\\tools\",\"Remove-Item -LiteralPath \\\"C:\\\\tools\\\\zstd-v$ZSTD_VERSION-win64\\\" -Force -Recurse\",\"del zstd.zip\",\"$persistedPaths = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)\",\"[Environment]::SetEnvironmentVariable(\\\"PATH\\\", $persistedPaths + \\\";C:\\\\tools\\\", [EnvironmentVariableTarget]::Machine)\",\"Add-Content -Path C:\\\\actions\\\\.env -Value 'ACTIONS_RUNNER_HOOK_JOB_STARTED=C:\\\\actions\\\\job-started-hook.ps1'\",\"Add-Content -Path C:\\\\actions\\\\.env -Value 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED=C:\\\\actions\\\\job-completed-hook.ps1'\",\"Set-Content -Path C:\\\\actions\\\\.workflowid -Value '' -NoNewline\",\"Invoke-WebRequest -UseBasicParsing -Uri \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip\\\" -OutFile actions.zip\",\"Expand-Archive actions.zip -DestinationPath C:\\\\actions\",\"del actions.zip\",\"echo latest | Out-File -Encoding ASCII -NoNewline C:\\\\actions\\\\RUNNER_VERSION\"]}}]}]}"
       ]
      ]
     },
     "Description": "GithubRunner component for Windows/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Windows-X86-64-59aad391fe-B27B0A09",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Windows-X86-64-573c2ecc00-33CDE056",
     "Platform": "Windows",
     "Version": "1.0.0"
    }
@@ -19245,7 +19245,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "570ec710511fe0812b4bd8f3a6bf7c92743a95a0a9bc2583074ee12040a89974.zip"
+     "S3Key": "28f82dc205a2e57b228e10945d004178379744543f9ab4b099f5b6bef11e139f.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
