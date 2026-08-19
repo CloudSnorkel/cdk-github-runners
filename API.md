@@ -3885,7 +3885,7 @@ new GitHubRunners(scope: Construct, id: string, props?: GitHubRunnersProps)
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic">failedImageBuildsTopic</a></code> | Creates a topic for notifications when a runner image build fails. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed">metricFailed</a></code> | Metric for failed runner executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted">metricJobCompleted</a></code> | Metric for the number of GitHub Actions jobs completed. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners">metricStolenRunners</a></code> | Metric for the number of runners that were taken by a job we didn't start them for. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners">metricStolenRunners</a></code> | Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricSucceeded">metricSucceeded</a></code> | Metric for successful executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricTime">metricTime</a></code> | Metric for the interval, in milliseconds, between the time the execution starts and the time it closes. |
 
@@ -4008,13 +4008,17 @@ It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succe
 public metricStolenRunners(props?: MetricOptions): Metric
 ```
 
-Metric for the number of runners that were taken by a job we didn't start them for.
-
-See {@link GitHubRunnersProps.stolenRunnerDetection }.
+Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them.
 
 A high number here means your runners are shared with jobs you didn't mean to serve. Use the "Stolen runners"
 CloudWatch Logs Insights query created by {@link createLogsInsightsQueries} to see which repositories and jobs
 are taking them.
+
+This metric has two dimensions:
+ 1. `Replaced` which is a boolean indicating weather the stolen runner was replaced. A runner may not be replaced if it was stolen too many
+    times in a row. The current limit is 3. When this is false, there is probably a bug in our detection or something misconfigured.
+ 2. `Provider` is the provider construct path of the runner that was stolen. You can check your code to see which labels it has that may cause
+    it to be stolen. The logs insights queries can provide even more information about the stolen runners.
 
 **WARNING:** this method creates a metric filter. This resource may incur cost.
 
