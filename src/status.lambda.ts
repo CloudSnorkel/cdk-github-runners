@@ -264,7 +264,7 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
     } else {
       status.github.auth.personalAuthTokenScopes = scopes.join(', ');
 
-      const runnerLevel = githubSecrets.runnerLevel ?? 'repo';
+      const runnerLevel = githubSecrets.runnerLevel === 'org' ? 'org' : 'repo';
       const requiredScopes = runnerLevel === 'repo' ? ['repo'] : ['admin:org', 'manage_runners:org'];
       if (!requiredScopes.some(s => scopes.includes(s))) {
         status.github.auth.status = `OK, but token has none of the scopes required to register runners on ${runnerLevel} level: ${requiredScopes.join(' or ')}`;
