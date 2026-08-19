@@ -183,8 +183,8 @@ tokens and fine-grained tokens are supported. The permissions the token needs de
 ### Create Token
 
 1. Decide whether you want a classic token or a fine-grained token
-    a. For a classic token go to https://github.com/settings/tokens/new
-    b. For a fine-grained token go to https://github.com/settings/personal-access-tokens/new, set the resource owner to your user for repository-level registration or to the organization for organization-level registration, and select the repositories that will use the runners
+    1. For a classic token go to https://github.com/settings/tokens/new
+    2. For a fine-grained token go to https://github.com/settings/personal-access-tokens/new, set the resource owner to your user for repository-level registration or to the organization for organization-level registration, and select the repositories that will use the runners
 2. Choose your expiration date (you will need to replace the token if it expires)
 3. Select the scopes or permissions listed in [Required Token Permissions](#required-token-permissions) above
 4. Copy the generated token

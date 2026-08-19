@@ -13,6 +13,9 @@
   let success: boolean;
   let result: string | undefined;
 
+  // reset registration level whenever the flow that asks for it changes
+  $: auth, appScope, runnerLevel = 'repo';
+
   interface Permissions {
     actions: 'write' | 'read';
     administration?: 'write' | 'read';
@@ -113,6 +116,9 @@
         case 'newApp':
           return postJson('domain', { domain: rightDomain, runnerLevel })
             .then(_ => {
+              (document.getElementById('appform') as HTMLFormElement).submit();
+              return Promise.resolve('Redirecting to GitHub...');
+            }).catch(_ => {
               (document.getElementById('appform') as HTMLFormElement).submit();
               return Promise.resolve('Redirecting to GitHub...');
             });

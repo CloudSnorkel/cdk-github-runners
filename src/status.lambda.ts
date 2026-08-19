@@ -258,10 +258,11 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
 
     // classic tokens report their scopes in a header, so we can check them against the configured runner level
     // fine-grained tokens don't report their permissions, so there is nothing to check for them
-    const scopes = String(user.headers['x-oauth-scopes'] ?? '').split(',').map(s => s.trim()).filter(s => s);
-    if (scopes.length == 0) {
+    const scopesHeader = user.headers['x-oauth-scopes'];
+    if (scopesHeader === undefined) {
       status.github.auth.personalAuthTokenScopes = 'Unable to check (expected for fine-grained tokens)';
     } else {
+      const scopes = String(scopesHeader).split(',').map(s => s.trim()).filter(s => s);
       status.github.auth.personalAuthTokenScopes = scopes.join(', ');
 
       const runnerLevel = githubSecrets.runnerLevel === 'org' ? 'org' : 'repo';
