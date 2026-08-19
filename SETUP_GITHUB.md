@@ -7,12 +7,12 @@ You will need to make several decisions during setup. Here's a quick guide to he
 ### 1. Authentication Method
 
 **Choose between:**
-- **GitHub App** (recommended) - More fine-grained permissions, easier setup with wizard, better security
-- **Personal Access Token (PAT)** - Simpler but less flexible, requires manual webhook setup
+- **GitHub App** (recommended) - Easier setup with wizard, not tied to a user account, better security
+- **Personal Access Token (PAT)** - Simpler, but tied to a user account, may expire, and requires manual webhook setup
 
 **When to use App:** Almost always. Use PAT only if you have specific constraints that prevent using an app.
 
-**When to use PAT:** If you need a quick setup and don't need fine-grained permissions, or if your organization has policies preventing app creation.
+**When to use PAT:** If you need a quick setup, or if your organization has policies preventing app creation.
 
 > **⚠️ IT/DevOps Help May Be Required:** Installing a GitHub app on repositories or organizations may require repository administrator or organization owner permissions. You may need to coordinate with your IT/devops team to install the app on the desired repositories.
 
@@ -49,13 +49,14 @@ You will need to make several decisions during setup. Here's a quick guide to he
 **When to use Repository-level:**
 - You want better isolation between repositories
 - You want to reduce the risk of jobs being accidentally assigned to the wrong runners
-- You're okay with requiring the `administration` permission
+- You're okay with requiring the `administration` permission (or the `repo` scope for classic tokens)
 
 **When to use Organization-level:**
-- You need to minimize permissions (only requires `organization_self_hosted_runners`)
+- You need to minimize permissions (only requires `organization_self_hosted_runners`, or the `admin:org` scope for classic tokens)
 - You want to use runner groups
 - You fully trust all repositories in your organization
 - You want all repositories to share the same pool of runners
+- Note that organization-level registration is not available for repositories owned by a user account
 
 > **⚠️ IT/DevOps Approval May Be Required:** Organization-level registration affects all repositories in the organization. Your organization may have policies requiring approval before enabling organization-wide runner registration.
 
@@ -147,11 +148,45 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 
 ## Personal Access Token Authentication
 
+Personal access tokens work with both repository-level and organization-level runner registration. Both classic
+tokens and fine-grained tokens are supported. The permissions the token needs depend on the token type and on the
+[registration level](#4-runner-registration-level) you choose.
+
+> **⚠️ Note:** A personal access token is tied to the user that created it. Runners will stop working if the token
+> expires, if it is revoked, or if the user loses access to the repositories or the organization.
+
+### Required Token Permissions
+
+#### Classic Token
+
+| Registration level | Required scopes                                            |
+|--------------------|------------------------------------------------------------|
+| Repository         | `repo`                                                     |
+| Organization       | `admin:org` (or just `manage_runners:org` where available) |
+
+* `repo` is what allows registering and deleting runners on repository level.
+* For organization level, the token owner must be allowed to manage self-hosted runners in the organization (usually an organization owner).
+* Add `repo` on top of `admin:org` if you use [environment protection rules](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) and want runners to wait for deployment approvals instead of starting immediately.
+
+#### Fine-grained Token
+
+| Registration level | Required permissions                                                                          |
+|--------------------|-----------------------------------------------------------------------------------------------|
+| Repository         | Repository &rarr; Actions: Read and write<br>Repository &rarr; Administration: Read and write |
+| Organization       | Organization &rarr; Self-hosted runners: Read and write                                       |
+
+* Repository &rarr; Deployments: Read-only is optional for both levels. It is only needed if you use [environment protection rules](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) and want runners to wait for deployment approvals instead of starting immediately.
+* For repository-level registration, the token must have access to **every repository** that will use the runners.
+* For organization-level registration, the token's resource owner must be the organization itself, not your user.
+* Fine-grained tokens must be enabled by the organization, and may require approval by an organization owner.
+
 ### Create Token
 
-1. Go to https://github.com/settings/tokens/new
+1. Decide whether you want a classic token or a fine-grained token
+    a. For a classic token go to https://github.com/settings/tokens/new
+    b. For a fine-grained token go to https://github.com/settings/personal-access-tokens/new, set the resource owner to your user for repository-level registration or to the organization for organization-level registration, and select the repositories that will use the runners
 2. Choose your expiration date (you will need to replace the token if it expires)
-3. Under scopes select `repo`
+3. Select the scopes or permissions listed in [Required Token Permissions](#required-token-permissions) above
 4. Copy the generated token
 
 ### Set Token
@@ -162,14 +197,16 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 2. Choose whether you're integrating with GitHub.com or GitHub Enterprise Server
 3. Next choose Personal Access Token
 4. Enter your personal access token
-5. Click the Setup button
+5. Choose registration level for the runners
+6. Click the Setup button
 
 #### Manually
 
 1. Open the URL in `github.auth.secretUrl` from `status.json` and edit the secret value
 2. If you're using a self-hosted GitHub instance, put its domain in `domain` (e.g. `github.mycompany.com`)
 3. Put the generated token in `personalAuthToken` (**not** `personalAccessToken`)
-4. Ignore all other values
+4. If using organization level registration, add `runnerLevel` with `org` as the value (it defaults to `repo`)
+5. Ignore all other values
 
 ### Setup Webhook
 

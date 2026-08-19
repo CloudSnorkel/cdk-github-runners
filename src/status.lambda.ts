@@ -156,6 +156,7 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
           installations: [] as AppInstallation[],
         },
         personalAuthToken: '',
+        personalAuthTokenScopes: '',
       },
     },
     providers: await generateProvidersStatus(process.env.STACK_NAME, process.env.LOGICAL_ID),
@@ -244,8 +245,9 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
       return safeReturnValue(event, status);
     }
 
+    let user;
     try {
-      const user = await octokit.request('GET /user');
+      user = await octokit.request('GET /user');
       status.github.auth.personalAuthToken = `username: ${user.data.login}`;
     } catch (e) {
       status.github.auth.status = `Unable to call /user with personal auth token: ${e}`;
@@ -253,6 +255,22 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
     }
 
     status.github.auth.status = 'OK';
+
+    // classic tokens report their scopes in a header, so we can check them against the configured runner level
+    // fine-grained tokens don't report their permissions, so there is nothing to check for them
+    const scopes = String(user.headers['x-oauth-scopes'] ?? '').split(',').map(s => s.trim()).filter(s => s);
+    if (scopes.length == 0) {
+      status.github.auth.personalAuthTokenScopes = 'Unable to check (expected for fine-grained tokens)';
+    } else {
+      status.github.auth.personalAuthTokenScopes = scopes.join(', ');
+
+      const runnerLevel = githubSecrets.runnerLevel ?? 'repo';
+      const requiredScopes = runnerLevel === 'repo' ? ['repo'] : ['admin:org', 'manage_runners:org'];
+      if (!requiredScopes.some(s => scopes.includes(s))) {
+        status.github.auth.status = `OK, but token has none of the scopes required to register runners on ${runnerLevel} level: ${requiredScopes.join(' or ')}`;
+      }
+    }
+
     status.github.webhook.status = 'Unable to verify automatically';
   } else {
     // try authenticating with GitHub app

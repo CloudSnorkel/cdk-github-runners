@@ -127,6 +127,7 @@
           return postJson('pat', {
             pat: pat,
             domain: rightDomain,
+            runnerLevel,
           });
       }
     }
@@ -304,12 +305,99 @@
         {:else if auth === 'pat'}
           <h2>Personal Access Token</h2>
           <div class="px-3 py-3">
-            <p>The <a href="https://{domain}/settings/tokens">personal access token</a> must have the <code>repo</code>
-              scope enabled. Don't forget to also create a webhook as described in <a
+            <p>Both <a href="https://{domain}/settings/tokens">classic tokens</a> and
+              <a href="https://{domain}/settings/personal-access-tokens">fine-grained tokens</a> are supported. The
+              permissions your token needs depend on the registration level you choose below. Don't forget to also
+              create a webhook as described in <a
                 href="https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md">SETUP_GITHUB.md</a>.
             </p>
             <input class="form-control" bind:value={pat}
                    placeholder="Token e.g. ghp_abcdefghijklmnopqrstuvwxyz1234567890">
+          </div>
+          <h2>Registration Level</h2>
+          <div class="px-3 py-3">
+            <p>
+              Would you like runners to be registered on repository level, or on organization level?
+            </p>
+            <p>
+              <em>This determines where runners will be registered dynamically each time they are provisioned.</em>
+            </p>
+            <ul>
+              <li>
+                <strong>Repository level is recommended</strong> because runners are registered to the specific repository
+                where the job started, preventing jobs from being assigned to runners intended for other repositories.
+              </li>
+              <li>
+                Registering runners on organization level means runners are registered to the entire organization, making
+                them available to <strong>ALL repositories in the organization</strong>. This can lead to jobs being routed
+                to runners that weren't intended for them.
+              </li>
+              <li>
+                Organization level requires the token to have access to an organization. It can't be used for repositories
+                owned by a user account.
+              </li>
+              <li>
+                Organization level is <b>required</b> for <a href="https://docs.github.com/en/actions/concepts/runners/runner-groups">runner groups</a>.
+              </li>
+              <li>
+                Do not use organization level registration if you don't fully trust all repositories in your organization.
+              </li>
+              <li>
+                <strong>When in doubt, use the default repository level registration.</strong>
+              </li>
+            </ul>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                bind:group={runnerLevel}
+                value="repo"
+                id="patRepo"
+              />
+              <label class="form-check-label" for="patRepo">Repository</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                bind:group={runnerLevel}
+                value="org"
+                id="patOrg"
+              />
+              <label class="form-check-label" for="patOrg">Organization</label>
+            </div>
+          </div>
+
+          <h2>Required Token Permissions</h2>
+          <div class="px-3 py-3">
+            {#if runnerLevel === 'repo'}
+              <p>Classic token scopes:</p>
+              <ul>
+                <li><code>repo</code> (needed to register and delete runners on repository level)</li>
+              </ul>
+              <p>Fine-grained token permissions (the token must have access to every repository that will use the
+                runners):</p>
+              <ul>
+                <li>Repository &rarr; Actions: Read and write</li>
+                <li>Repository &rarr; Administration: Read and write</li>
+                <li>Repository &rarr; Deployments: Read-only (optional, only needed for environment protection rules)</li>
+              </ul>
+            {:else}
+              <p>Classic token scopes:</p>
+              <ul>
+                <li><code>admin:org</code> (or just <code>manage_runners:org</code> where available) to register and
+                  delete runners on organization level
+                </li>
+                <li><code>repo</code> (optional, only needed for environment protection rules)</li>
+              </ul>
+              <p>Fine-grained token permissions (the token's resource owner must be the organization):</p>
+              <ul>
+                <li>Organization &rarr; Self-hosted runners: Read and write</li>
+                <li>Repository &rarr; Deployments: Read-only (optional, only needed for environment protection rules)</li>
+              </ul>
+              <p>Fine-grained tokens must be allowed by the organization, and may require approval by an organization
+                owner.</p>
+            {/if}
           </div>
         {/if}
 
