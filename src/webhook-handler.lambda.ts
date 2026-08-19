@@ -271,7 +271,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
       // report a job being assigned to a runner to the stolen runner detector
       // this is a much more trustworthy and reliable source than our runner log shtick
       // sadly it's not enough for cases like repos where the app is not installed stealing our jobs
-      if (payload.workflow_job.runner_name && payload.workflow_job.run_id && payload.workf_job.id) {
+      if (payload.workflow_job.runner_name && payload.workflow_job.run_id && payload.workflow_job.id) {
         await sqs.send(new SendMessageCommand({
           QueueUrl: process.env.JOB_ASSIGNMENT_QUEUE_URL,
           MessageBody: JSON.stringify(<RunnerReportMessage>{
