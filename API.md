@@ -4015,7 +4015,7 @@ CloudWatch Logs Insights query created by {@link createLogsInsightsQueries} to s
 are taking them.
 
 This metric has two dimensions:
- 1. `Replaced` which is a boolean indicating weather the stolen runner was replaced. A runner may not be replaced if it was stolen too many
+ 1. `Replaced` which is a boolean indicating whether the stolen runner was replaced. A runner may not be replaced if it was stolen too many
     times in a row. The current limit is 3. When this is false, there is probably a bug in our detection or something misconfigured.
  2. `Provider` is the provider construct path of the runner that was stolen. You can check your code to see which labels it has that may cause
     it to be stolen. The logs insights queries can provide even more information about the stolen runners.
