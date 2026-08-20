@@ -123,6 +123,9 @@ test('in_progress on one of our runners is reported to the stolen runner detecto
   expect(mockSfnSend).not.toHaveBeenCalled();
   expect(mockRecordControlledJob).not.toHaveBeenCalled();
   expect(mockSqsSend).toHaveBeenCalledTimes(1);
+  // same key the log path uses, so the queue keeps whichever of the two lands first
+  expect(mockSqsSend.mock.calls[0][0].input.MessageDeduplicationId).toEqual('my-repo-1234');
+  expect(mockSqsSend.mock.calls[0][0].input.MessageGroupId).toEqual('my-repo-1234');
   expect(JSON.parse(mockSqsSend.mock.calls[0][0].input.MessageBody)).toEqual({
     kind: 'report',
     runnerName: 'my-repo-1234',

@@ -404,15 +404,18 @@ describe('runner log delivery', () => {
       .toEqual(['shared-one', 'shared-two', 'shared-three']);
   });
 
-  test('a runner that already reported is not queued again by a later delivery', async () => {
-    // a warm container remembers, so a repeat spread across deliveries costs nothing either
-    const line = 'CDKGHR JOB RUNNER=across-deliveries REPO=org/repo WORKFLOW_ID=9';
+  test('every report is keyed on the runner name so the queue can drop repeats', async () => {
+    // the webhook reports the same assignment, and a repeat can arrive in a later delivery. neither is worth a
+    // trip to GitHub, and a FIFO queue drops both for us -- but only if every send carries the same key.
+    await handler(logsEvent([
+      'CDKGHR JOB RUNNER=keyed-one REPO=org/repo WORKFLOW_ID=1',
+      'CDKGHR JOB RUNNER=keyed-two REPO=org/repo WORKFLOW_ID=2',
+    ]));
 
-    await handler(logsEvent([line]));
-    expect(mockSqsSend).toHaveBeenCalledTimes(1);
-
-    await handler(logsEvent([line]));
-    expect(mockSqsSend).toHaveBeenCalledTimes(1);
+    const entries = mockSqsSend.mock.calls[0][0].input.Entries;
+    expect(entries.map((e: any) => e.MessageDeduplicationId)).toEqual(['keyed-one', 'keyed-two']);
+    // a group per runner, so one runner's report never waits behind another's
+    expect(entries.map((e: any) => e.MessageGroupId)).toEqual(['keyed-one', 'keyed-two']);
   });
 
   test('unparsable lines are dropped', async () => {

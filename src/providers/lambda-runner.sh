@@ -29,7 +29,6 @@ export HOME=/tmp/home
 
 # check for stolen runners
 ./job-reporter.sh "${RUNNER_NAME}"
-trap './job-reporter.sh --stop' EXIT
 
 # start runner
 if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi

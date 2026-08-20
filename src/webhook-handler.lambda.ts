@@ -274,6 +274,12 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
       if (payload.workflow_job.runner_name && payload.workflow_job.run_id && payload.workflow_job.id) {
         await sqs.send(new SendMessageCommand({
           QueueUrl: process.env.JOB_ASSIGNMENT_QUEUE_URL,
+          // deduplicate on the runner name because the job reporter also sends the same message
+          // this message also has job id so it's better, and it will usually arrive first
+          // it may not arrive first when the webhook fails or gets delayed for some GH reason
+          // it may also not arrive at all if the job that steals the runner is from a non monitored repo
+          MessageGroupId: payload.workflow_job.runner_name,
+          MessageDeduplicationId: payload.workflow_job.runner_name,
           MessageBody: JSON.stringify(<RunnerReportMessage>{
             kind: 'report',
             runnerName: payload.workflow_job.runner_name,

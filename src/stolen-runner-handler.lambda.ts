@@ -98,8 +98,6 @@ async function findJobFromReport(report: RunnerReportMessage): Promise<JobFromRe
     //
     // this assumption only works for app authentication where the webhook notifies us of jobs on the repos the app is installed on. and in turn the
     // app only has access to, and can only start runners for, the repos it is installed on.
-    // the guard in token-retriever.lambda.ts makes sure we only respond to webhooks events from repos the app is installed on by checking for the
-    // installation id. "repositories we get webhooks from" and "repositories we can read" are the same set, and GitHub is the one enforcing it.
     //
     // PAT have no such promise: they ignore installation ids entirely, so a hand configured webhook works and the two sets can drift apart.
     // that is why this branch is unreachable for them. we can't guarantee (yet) that we will fail to list jobs because the repo truly doesn't exist.
@@ -259,8 +257,6 @@ async function handleRunnerReport(report: RunnerReportMessage) {
   await replaceRunner(report.runnerName, input, jobId);
 }
 
-const reportedRunners = new Set<string>();
-
 /**
  * Send log messages to SQS so we can delay and batch them. This helps make sure we process them *after* the webhook arrives and writes to DDB.
  */
@@ -280,7 +276,7 @@ async function handleRunnerLogs(event: AWSLambda.CloudWatchLogsEvent) {
       // don't let misconfigured/malicious jobs make us start or even query too many runners.
       // there should only ever be one report per runner and any malicious code shouldn't be able to guess our runner names.
       // runner names are based on github webhook execution ids, which are random uuids.
-      if (reportedRunners.has(message.runnerName) || reportedRunnersInThisDelivery.has(message.runnerName)) {
+      if (reportedRunnersInThisDelivery.has(message.runnerName)) {
         console.log({ notice: 'Already handled a report from this runner', runnerName: message.runnerName });
         continue;
       }
@@ -305,11 +301,12 @@ async function handleRunnerLogs(event: AWSLambda.CloudWatchLogsEvent) {
       Entries: batch.map((message, index) => ({
         Id: `${i + index}`,
         MessageBody: JSON.stringify(message),
+        // one report per runner. the webhook sends the same pair, so whichever arrives first wins and the other is
+        // dropped by the queue. a group per runner means runners never queue behind each other.
+        MessageGroupId: message.runnerName,
+        MessageDeduplicationId: message.runnerName,
       })),
     }));
-    for (const report of batch) {
-      reportedRunners.add(report.runnerName);
-    }
   }
 
   console.log({
@@ -325,7 +322,7 @@ async function handleRunnerLogs(event: AWSLambda.CloudWatchLogsEvent) {
 export function parseRunnerReport(line: string): RunnerReportMessage | undefined {
   // this data can't be fully trusted as the jobs themselves can run untrusted code... but:
   //   1. the untrusted code has access to just one runner name
-  //   2. we only ever act on the first report for a runner (see reportedRunners set above)
+  //   2. we only ever act on the first report for a runner (the queue deduplicates on the runner name)
   //   3. the new runner we will start will have a specific name and step functions will reject duplicate names
   // so malicious code shouldn't be able to trick us into starting too many runners, or into making us call GitHub
   // over and over until we run out of rate limit for starting runners

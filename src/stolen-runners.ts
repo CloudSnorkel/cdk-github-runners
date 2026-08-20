@@ -89,6 +89,12 @@ export class StolenRunnerDetector extends Construct {
     });
 
     this.queue = new sqs.Queue(this, 'Queue', {
+      // FIFO for the deduplication, not the ordering. a runner runs one job, so it has exactly one thing to tell
+      // us, but we hear it twice: once from the workflow_job.in_progress webhook and once from the runner's log.
+      // sending both with MessageDeduplicationId set to the runner name will only allow the first message.
+      // this saves us on extra work and protects from buggy or malicious runners reporting too much.
+      // deduplication is a fixed five minute window.
+      fifo: true,
       // delay testing runner reports by a minute to give workflow_job.queued webhook a chance to arrive
       deliveryDelay: cdk.Duration.minutes(1),
       visibilityTimeout: cdk.Duration.minutes(3),
@@ -117,7 +123,6 @@ export class StolenRunnerDetector extends Construct {
 
     this.handler.addEventSource(new lambda_event_sources.SqsEventSource(this.queue, {
       reportBatchItemFailures: true,
-      maxBatchingWindow: cdk.Duration.seconds(30),
       batchSize: 10,
     }));
 

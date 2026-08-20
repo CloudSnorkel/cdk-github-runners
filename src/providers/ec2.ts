@@ -81,6 +81,12 @@ setup_logs () {
               "log_group_name": "$logGroupName",
               "log_stream_name": "$runnerNamePath",
               "timezone": "UTC"
+            },
+            {
+              "file_path": "/var/log/workflow.log",
+              "log_group_name": "$logGroupName",
+              "log_stream_name": "$runnerNamePath-workflow",
+              "timezone": "UTC"
             }
           ]
         }
@@ -100,8 +106,8 @@ action () {
 
   labelsTemplate="$labels,cdkghr:started:$(date +%s)"
   
-  # Report workflow id for stolen runner detection
-  /home/runner/job-reporter.sh "$runnerNamePath"
+  # Report workflow id for stolen runner detection (to separate log so it doesn't hang this bash function)
+  /home/runner/job-reporter.sh "$runnerNamePath" /var/log/workflow.log
 
   # Execute the configuration command for runner registration
   sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1
@@ -109,9 +115,6 @@ action () {
   # Execute the run command
   sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
   
-  # Stop the stolen reporter to avoid it keeping the instance alive
-  /home/runner/job-reporter.sh --stop
-
   # Retrieve the status
   STATUS=$(grep -Phors "finish job request for job [0-9a-f-]+ with result: .*" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')
 
