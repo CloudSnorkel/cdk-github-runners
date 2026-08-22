@@ -15,7 +15,6 @@ if ($reportFile) {
     $command = @"
 while (`$true) {
     `$workflowId = Get-Content -LiteralPath '$workflowFile' -TotalCount 1
-    if (`$workflowId -eq 'NONE') { break }
     if (`$workflowId) {
         `$message = 'CDKGHR JOB RUNNER=$runner ' + `$workflowId
         Add-Content -LiteralPath '$reportFile' -Value `$message
@@ -29,7 +28,6 @@ while (`$true) {
     $command = @"
 while (`$true) {
     `$workflowId = Get-Content -LiteralPath '$workflowFile' -TotalCount 1
-    if (`$workflowId -eq 'NONE') { break }
     if (`$workflowId) {
         `$message = 'CDKGHR JOB RUNNER=$runner ' + `$workflowId
         [Console]::Out.WriteLine(`$message)

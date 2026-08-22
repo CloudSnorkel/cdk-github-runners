@@ -8,20 +8,12 @@ cd "$(dirname "$0")"
 RUNNER=$1
 LOG=$2
 
-if [ -z "$LOG" ]; then
-  (
-    while [ ! -s .workflowid ]; do sleep 1; done
+(
+  # . -ef "$PWD" is a hack to detect if the current directory has been deleted by Lambda cleanup
+  # if the directory is deleted, the script will exit to avoid contaminating future executions
+  while [ ! -s .workflowid ] && [ . -ef "$PWD" ]; do sleep 1; done
+  if [ -s .workflowid ]; then
     WORKFLOW=`head -n 1 .workflowid`
-    # NONE means --stop woke us up because no job ever arrived. there is nothing to report and printing it anyway
-    # would send an unparsable line to the detector for every runner that idles out.
-    [ "$WORKFLOW" != NONE ] && echo CDKGHR JOB RUNNER=$RUNNER $WORKFLOW
-  ) &
-else
-  (
-    while [ ! -s .workflowid ]; do sleep 1; done
-    WORKFLOW=`head -n 1 .workflowid`
-    # NONE means --stop woke us up because no job ever arrived. there is nothing to report and printing it anyway
-    # would send an unparsable line to the detector for every runner that idles out.
-    [ "$WORKFLOW" != NONE ] && echo CDKGHR JOB RUNNER=$RUNNER $WORKFLOW
-  ) &> $LOG &
-fi
+    echo CDKGHR JOB RUNNER=$RUNNER $WORKFLOW
+  fi
+) >> "${LOG:-/dev/stdout}" 2>&1 &
