@@ -26,4 +26,6 @@ echo Run done
 
 # print status for metrics
 STATUS=$(grep -Phors "finish job request for job [0-9a-f\-]+ with result: \K.*" _diag/ | tail -n1)
-[ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"
+if [ -n "$STATUS" ]; then
+  echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"
+fi
