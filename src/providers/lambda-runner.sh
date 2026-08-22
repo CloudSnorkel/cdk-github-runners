@@ -35,7 +35,6 @@ echo Config done
 echo Run done
 
 # print status for metrics
-# a missing status is not an error -- the runner can exit cleanly without ever running a job (e.g. when it's deleted on GitHub side)
 STATUS=$(grep -Phors "finish job request for job [0-9a-f\-]+ with result: \K.*" _diag/ | tail -n1)
 if [ -n "$STATUS" ]; then
   echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"
