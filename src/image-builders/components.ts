@@ -771,7 +771,7 @@ export abstract class RunnerImageComponent {
    * A component that runs a script before every job the runner executes.
    *
    * Point this at a local script file. It is copied into the image, made executable, and the runner is
-   * configured to run it before each job using the
+   * configured to run it before each job through the
    * [`ACTIONS_RUNNER_HOOK_JOB_STARTED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
    * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
    *
@@ -787,7 +787,7 @@ export abstract class RunnerImageComponent {
    * A component that runs a script after every job the runner executes.
    *
    * Point this at a local script file. It is copied into the image, made executable, and the runner is
-   * configured to run it after each job using the
+   * configured to run it after each job through the
    * [`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
    * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
    *
@@ -799,12 +799,12 @@ export abstract class RunnerImageComponent {
     return RunnerImageComponent.jobHook('Job-Completed-Hook', 'job-completed-hook-user', sourcePath);
   }
 
-  private static jobHook(name: string, envVar: string, sourcePath: string): RunnerImageComponent {
+  private static jobHook(name: string, scriptName: string, sourcePath: string): RunnerImageComponent {
     const scriptPath = (os: Os): string => {
       if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
-        return `/home/runner/${envVar}.sh`;
+        return `/home/runner/${scriptName}.sh`;
       } else if (os.is(Os.WINDOWS)) {
-        return `C:\\actions\\${envVar}.ps1`;
+        return `C:\\actions\\${scriptName}.ps1`;
       }
       throw new Error(`Unsupported OS for job hook component: ${os.name}`);
     };

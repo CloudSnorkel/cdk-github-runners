@@ -128,7 +128,6 @@ export class StolenRunnerDetector extends Construct {
 
     this.table.grantReadWriteData(this.handler);
     this.queue.grantSendMessages(this.handler);
-    this.handler.addEnvironment('JOB_ASSIGNMENT_QUEUE_URL', this.queue.queueUrl);
     props.secrets.github.grantRead(this.handler);
     props.secrets.githubPrivateKey.grantRead(this.handler);
     props.orchestrator.grantStartExecution(this.handler);

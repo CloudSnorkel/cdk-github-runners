@@ -7,9 +7,6 @@ $workflowFile = Join-Path $PSScriptRoot '.workflowid'
 $runner = $args[0]
 $reportFile = $args[1] # optional for ec2
 
-# Start with an empty file, so we only need to poll for content
-[System.IO.File]::WriteAllText($workflowFile, '')
-
 if ($reportFile) {
     # write output to specific file (ec2 log file)
     $command = @"

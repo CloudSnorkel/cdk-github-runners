@@ -49,15 +49,6 @@ function tableName(): string {
   return table;
 }
 
-/**
- * Is stolen runner detection configured for this function?
- *
- * @internal
- */
-export function trackerEnabled(): boolean {
-  return !!process.env.RUNNER_TRACKER_TABLE;
-}
-
 function expiry(): number {
   const seconds = parseInt(process.env.RUNNER_TRACKER_TTL_SECONDS ?? `${DEFAULT_TRACKER_TTL_SECONDS}`, 10);
   return Math.floor(Date.now() / 1000) + (isNaN(seconds) ? DEFAULT_TRACKER_TTL_SECONDS : seconds);

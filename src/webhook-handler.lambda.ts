@@ -6,7 +6,7 @@ import * as AWSLambda from 'aws-lambda';
 import { MAX_RUNNER_NAME_LENGTH, OrchestratorInput } from './lambda-common';
 import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
-import { recordControlledJob, RunnerReportMessage, trackerEnabled } from './lambda-tracker';
+import { recordControlledJob, RunnerReportMessage } from './lambda-tracker';
 import { ProviderSelectorInput, ProviderSelectorResult } from './webhook';
 
 const lambdaClient = new LambdaClient();
@@ -347,19 +347,17 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     maxIdleSeconds: idleTimeoutSeconds,
   };
 
-  // remember that this job is one we serve, before its runner can possibly exist. best-effort on purpose --
-  // starting the runner matters more than being able to tell later that we started it.
-  if (trackerEnabled()) {
-    try {
-      await recordControlledJob(input);
-    } catch (e) {
-      console.error({
-        notice: 'Failed to record job for stolen runner detection. The runner will still start, but a runner that takes this job may be mistaken for a stolen one.',
-        jobId: input.jobId,
-        jobUrl: input.jobUrl,
-        error: `${e}`,
-      });
-    }
+  // remember that this job is one we serve, before its runner can possibly exist.
+  // best-effort on purpose. starting the runner matters more than being able to tell later that we started it.
+  try {
+    await recordControlledJob(input);
+  } catch (e) {
+    console.error({
+      notice: 'Failed to record job for stolen runner detection. The runner will still start, but a runner that takes this job may be mistaken for a stolen one.',
+      jobId: input.jobId,
+      jobUrl: input.jobUrl,
+      error: `${e}`,
+    });
   }
 
   let executionArn: string | undefined;

@@ -26,7 +26,6 @@ jest.mock('../src/lambda-helpers', () => ({
 const mockRecordControlledJob = jest.fn();
 
 jest.mock('../src/lambda-tracker', () => ({
-  trackerEnabled: () => !!process.env.RUNNER_TRACKER_TABLE,
   recordControlledJob: (...args: unknown[]) => mockRecordControlledJob(...args),
 }));
 
