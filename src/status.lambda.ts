@@ -139,6 +139,7 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
       runnerLevel: 'Unknown',
       webhook: {
         url: process.env.WEBHOOK_URL,
+        configuredUrl: 'Unknown',
         status: 'Unable to check',
         secretArn: process.env.WEBHOOK_SECRET_ARN,
         secretUrl: secretArnToUrl(process.env.WEBHOOK_SECRET_ARN),
@@ -361,8 +362,12 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
     try {
       const response = await appOctokit.request('GET /app/hook/config', {});
 
+      status.github.webhook.configuredUrl = response.data.url || '(none)';
+
       if (response.data.url !== process.env.WEBHOOK_URL) {
-        status.github.webhook.status = 'GitHub has wrong webhook URL configured';
+        status.github.webhook.status = 'GitHub has wrong webhook URL configured. Runners will fail to start with a '
+          + 'token error. Use the webhook created by the app itself. A webhook configured by hand in repository '
+          + 'or organization settings cannot carry the required app installation id.';
       } else {
         // TODO check secret by doing a dummy delivery? force apply secret?
         status.github.webhook.status = 'OK (note that secret cannot be checked automatically)';
