@@ -373,7 +373,8 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
         status.github.webhook.status = 'OK (note that secret cannot be checked automatically)';
       }
     } catch (e) {
-      status.github.webhook.status = `Unable to check app configuration: ${e}`;
+      status.github.webhook.status = `Unable to check app configuration. This probably means the app webhook is not turned on or has been replaced '
+        + 'by a manually configured webhook. Runners will fail to start with a token error. [${e}]`;
       return safeReturnValue(event, status);
     }
   }
