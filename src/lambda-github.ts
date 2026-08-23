@@ -87,6 +87,11 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Re
   if (githubSecrets.personalAuthToken) {
     token = githubSecrets.personalAuthToken;
   } else {
+    if (installationId === undefined || installationId <= 0) {
+      throw new Error('Installation ID is required for app authentication. ' +
+        'This error can happen if you create the webhook yourself for GitHub app authentication instead of using the app webhook.');
+    }
+
     const privateKey = await getSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN);
 
     const appOctokit = new Octokit({
