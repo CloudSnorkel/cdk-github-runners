@@ -11788,7 +11788,7 @@ RunnerImageComponent.jobCompletedHook(sourcePath: string)
 A component that runs a script after every job the runner executes.
 
 Point this at a local script file. It is copied into the image, made executable, and the runner is
-configured to run it after each job using the
+configured to run it after each job through the
 [`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
 environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
 
@@ -11813,7 +11813,7 @@ RunnerImageComponent.jobStartedHook(sourcePath: string)
 A component that runs a script before every job the runner executes.
 
 Point this at a local script file. It is copied into the image, made executable, and the runner is
-configured to run it before each job using the
+configured to run it before each job through the
 [`ACTIONS_RUNNER_HOOK_JOB_STARTED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
 environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
 
