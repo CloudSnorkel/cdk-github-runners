@@ -119,7 +119,9 @@ action () {
   STATUS=$(grep -Phors "finish job request for job [0-9a-f-]+ with result: .*" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')
 
   # Check and print the job status
-  [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$labels" "$STATUS"
+  if [ -n "$STATUS" ]; then
+    echo CDKGHA JOB DONE "$labels" "$STATUS"
+  fi
 }
 heartbeat &
 if setup_logs && action |& tee /var/log/runner.log; then
