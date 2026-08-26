@@ -25,13 +25,13 @@ export const MAX_REPLACEMENTS = 3;
 /**
  * @internal
  */
-export function replacementRunnerName(stolenRunnerName: string): string {
+export function replacementRunnerName(stolenRunnerName: string): [string, number] {
   const match = stolenRunnerName.match(/^(.*)-r(\d+)$/);
   const base = match ? match[1] : stolenRunnerName;
   const attempt = match ? parseInt(match[2], 10) + 1 : 1;
   const suffix = `-r${attempt}`;
 
-  return `${base.slice(0, MAX_RUNNER_NAME_LENGTH - suffix.length)}${suffix}`;
+  return [`${base.slice(0, MAX_RUNNER_NAME_LENGTH - suffix.length)}${suffix}`, attempt];
 }
 
 function executionArn(runnerName: string): string {
@@ -93,13 +93,13 @@ async function findJobFromReport(report: RunnerReportMessage): Promise<JobFromRe
     if (!isNotFound(e)) {
       throw e;
     }
-    // our app isn't installed there, so we never started a runner for anything in that repo.
-    // the job that ran there was stolen the runner from someone else.
+    // our app isn't installed there, so we never started a runner for anything in that repo. the job that ran there stole the runner from a repo we
+    // actually manage. we should replace that runner so the original job can run.
     //
     // this assumption only works for app authentication where the webhook notifies us of jobs on the repos the app is installed on. and in turn the
     // app only has access to, and can only start runners for, the repos it is installed on.
     //
-    // PAT have no such promise: they ignore installation ids entirely, so a hand configured webhook works and the two sets can drift apart.
+    // PATs have no such promise: they ignore installation ids entirely, so a hand configured webhook works and the two sets can drift apart.
     // that is why this branch is unreachable for them. we can't guarantee (yet) that we will fail to list jobs because the repo truly doesn't exist.
     // a 404 below on listJobs() can mean the job truly doesn't exist, or it can mean the repo exists but the PAT doesn't have access to it while the
     // webhook does report on it.
@@ -113,14 +113,15 @@ async function findJobFromReport(report: RunnerReportMessage): Promise<JobFromRe
     if (!isNotFound(e)) {
       throw e;
     }
-    // we can see this repo and there is no such run, so the runner made it up
+    // we can see this repo and there is no such run, so the runner made it up. ignore.
     console.warn({ notice: 'GitHub knows nothing about the run this runner reported', report });
     return { result: 'unknown' };
   }
 
   const job = jobs.find(j => j.runner_name === report.runnerName);
   if (!job) {
-    console.warn({ notice: 'No job in this run ran on this runner', report, jobs: jobs.length });
+    // can't find the job based on workflow id + runner name. the runner made the job up. ignore.
+    console.warn({ notice: 'No job in this workflow run ran on this runner', report, jobs: jobs.length });
     return { result: 'unknown' };
   }
 
@@ -128,12 +129,10 @@ async function findJobFromReport(report: RunnerReportMessage): Promise<JobFromRe
 }
 
 /**
- * Start another runner just like the one that was taken.
+ * Start another runner just like the one that was stolen.
  */
 async function replaceRunner(stolenRunnerName: string, input: OrchestratorInput, thiefJobId?: number) {
-  const runnerName = replacementRunnerName(stolenRunnerName);
-
-  const attempt = parseInt(runnerName.match(/-r(\d+)$/)?.[1] ?? '1', 10);
+  const [runnerName, attempt] = replacementRunnerName(stolenRunnerName);
   if (attempt > MAX_REPLACEMENTS) {
     // avoid infinite loops if a runner is stolen repeatedly
     // it might be a bug in our detection...
@@ -277,7 +276,7 @@ async function handleRunnerLogs(event: AWSLambda.CloudWatchLogsEvent) {
       // there should only ever be one report per runner and any malicious code shouldn't be able to guess our runner names.
       // runner names are based on github webhook execution ids, which are random uuids.
       if (reportedRunnersInThisDelivery.has(message.runnerName)) {
-        console.log({ notice: 'Already handled a report from this runner', runnerName: message.runnerName });
+        console.warn({ notice: 'Already handled a report from this runner', runnerName: message.runnerName });
         continue;
       }
       reportedRunnersInThisDelivery.add(message.runnerName);
@@ -323,7 +322,7 @@ export function parseRunnerReport(line: string): RunnerReportMessage | undefined
   // this data can't be fully trusted as the jobs themselves can run untrusted code... but:
   //   1. the untrusted code has access to just one runner name
   //   2. we only ever act on the first report for a runner (the queue deduplicates on the runner name)
-  //   3. the new runner we will start will have a specific name and step functions will reject duplicate names
+  //   3. the new runner we start will have a specific name and step functions will reject duplicate names (idempotent)
   // so malicious code shouldn't be able to trick us into starting too many runners, or into making us call GitHub
   // over and over until we run out of rate limit for starting runners
   const match = line.match(/CDKGHR JOB RUNNER=(\S+) REPO=(\S+) WORKFLOW_ID=(\d+)/);

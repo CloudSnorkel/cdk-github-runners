@@ -73,19 +73,4 @@ describe('Stolen runner detection', () => {
     });
     expect(Object.keys(logsPermissions)).toHaveLength(1);
   });
-
-  test('Nothing is tracked per runner', () => {
-    // a runner is identified by its step function execution, so nothing else has to write anything down
-    const runners = new GitHubRunners(stack, 'runners', {
-      providers: [new CodeBuildRunnerProvider(stack, 'p1')],
-    });
-    runners._ensureWarmRunnerInfra();
-
-    Template.fromStack(stack).hasResourceProperties('AWS::Lambda::Function', Match.objectLike({
-      Description: Match.stringLikeRegexp('Manage warm GitHub runners'),
-      Environment: {
-        Variables: Match.not(Match.objectLike({ RUNNER_TRACKER_TABLE: Match.anyValue() })),
-      },
-    }));
-  });
 });

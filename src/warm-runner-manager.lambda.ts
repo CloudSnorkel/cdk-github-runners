@@ -78,7 +78,7 @@ import {
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import type { Octokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
 import * as AWSLambda from 'aws-lambda';
-import { WARM_RUNNER_JOB_ID } from './lambda-common';
+import { OrchestratorInput, WARM_RUNNER_JOB_ID } from './lambda-common';
 import { deleteRunner, getOctokit, getRunner, GitHubSecrets, resolveInstallationId } from './lambda-github';
 import { customResourceRespond } from './lambda-helpers';
 
@@ -186,7 +186,7 @@ async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
     const result = await sfn.send(new StartExecutionCommand({
       stateMachineArn: stepFunctionArn,
       name: input.executionName,
-      input: JSON.stringify({
+      input: JSON.stringify(<OrchestratorInput>{
         owner: input.owner,
         repo: input.repo || '',
         jobId: WARM_RUNNER_JOB_ID,

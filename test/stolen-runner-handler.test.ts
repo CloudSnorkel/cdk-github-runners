@@ -1,6 +1,7 @@
 import * as zlib from 'zlib';
 import * as AWSLambda from 'aws-lambda';
-import type { OrchestratorInput, RunnerReportMessage } from '../src/lambda-tracker';
+import type { OrchestratorInput } from '../src/lambda-common';
+import type { RunnerReportMessage } from '../src/lambda-tracker';
 
 // Mock AWS SDK clients before importing the handler
 const mockSfnSend = jest.fn();
@@ -427,18 +428,19 @@ describe('runner log delivery', () => {
 
 describe('replacementRunnerName', () => {
   test('is derived from the stolen runner', () => {
-    expect(replacementRunnerName('my-repo-1234')).toEqual('my-repo-1234-r1');
+    expect(replacementRunnerName('my-repo-1234')).toEqual(['my-repo-1234-r1', 1]);
   });
 
   test('counts up instead of stacking suffixes', () => {
-    expect(replacementRunnerName('my-repo-1234-r1')).toEqual('my-repo-1234-r2');
-    expect(replacementRunnerName('my-repo-1234-r9')).toEqual('my-repo-1234-r10');
+    expect(replacementRunnerName('my-repo-1234-r1')).toEqual(['my-repo-1234-r2', 2]);
+    expect(replacementRunnerName('my-repo-1234-r9')).toEqual(['my-repo-1234-r10', 10]);
   });
 
   test('stays within the runner name limit', () => {
-    const name = replacementRunnerName(`${'a'.repeat(50)}-123456789012`);
+    const [name, attempt] = replacementRunnerName(`${'a'.repeat(50)}-123456789012`);
     expect(name).toHaveLength(64);
     expect(name.endsWith('-r1')).toBeTruthy();
+    expect(attempt).toEqual(1);
   });
 });
 

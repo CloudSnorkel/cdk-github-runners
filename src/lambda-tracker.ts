@@ -26,7 +26,7 @@ export const DEFAULT_TRACKER_TTL_SECONDS = 3 * 24 * 60 * 60;
 
 /**
  * A runner told us it picked up a job. Sent by the runners themselves, from a job started hook, and read out of
- * their logs.
+ * their logs. Also sent by the webhook handler for workflow_job.in_progress events.
  *
  * GitHub never tells a runner which job it's running, so this carries the workflow run instead. Combined with the
  * runner name it's enough to ask GitHub for the job id.
@@ -38,7 +38,7 @@ export interface RunnerReportMessage {
   readonly runnerName: string;
   readonly repo: string;
   readonly workflowId: number;
-  readonly jobId?: number; // comes from workflow_job.in_progress webhook
+  readonly jobId?: number; // comes ONLY from workflow_job.in_progress webhook
 }
 
 function tableName(): string {
@@ -58,7 +58,7 @@ function expiry(): number {
  * Remember that we started a runner for this job. Written before the step function starts, so it's always there by
  * the time GitHub could possibly hand the runner a job.
  *
- * The extra fields are for whoever is reading the table during an incident. Only the key is ever used.
+ * The extra fields are for whoever is reading the table during an incident. Only the key is ever used. TTL is used for cleanup.
  *
  * @internal
  */

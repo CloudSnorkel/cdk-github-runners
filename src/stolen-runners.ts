@@ -59,7 +59,7 @@ export interface StolenRunnerDetectorProps {
  */
 export class StolenRunnerDetector extends Construct {
   /**
-   * The jobs we started runners for.
+   * DynamoDB table holding the jobs we started runners for. Has TTL so data doesn't live here forever.
    */
   readonly table: dynamodb.Table;
 
@@ -95,7 +95,7 @@ export class StolenRunnerDetector extends Construct {
       // this saves us on extra work and protects from buggy or malicious runners reporting too much.
       // deduplication is a fixed five minute window.
       fifo: true,
-      // delay testing runner reports by a minute to give workflow_job.queued webhook a chance to arrive
+      // delay testing runner reports by a minute to give workflow_job.queued webhook a chance to arrive and be recorded
       deliveryDelay: cdk.Duration.minutes(1),
       visibilityTimeout: cdk.Duration.minutes(3),
       // a report is only worth acting on while the abandoned job is still waiting for a runner, so there is no
@@ -104,7 +104,7 @@ export class StolenRunnerDetector extends Construct {
       retentionPeriod: cdk.Duration.hours(1),
     });
 
-    this.handler = new StolenRunnerHandlerFunction(this, 'Lambda', {
+    this.handler = new StolenRunnerHandlerFunction(this, 'Handler', {
       description: 'Detect GitHub Actions runners stolen by other jobs and start a new runner for the abandoned job',
       environment: {
         GITHUB_SECRET_ARN: props.secrets.github.secretArn,
@@ -131,8 +131,6 @@ export class StolenRunnerDetector extends Construct {
     props.secrets.github.grantRead(this.handler);
     props.secrets.githubPrivateKey.grantRead(this.handler);
     props.orchestrator.grantStartExecution(this.handler);
-    // the runner name is the execution name, so the step function still holds everything needed to start another
-    // runner just like the one that was taken
     props.orchestrator.grantExecution(this.handler, 'states:DescribeExecution');
 
     // runners report which job they were handed the moment it's assigned, by printing a line to their own log.

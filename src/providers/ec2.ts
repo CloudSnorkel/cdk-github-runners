@@ -105,7 +105,7 @@ action () {
   fi
 
   labelsTemplate="$labels,cdkghr:started:$(date +%s)"
-  
+
   # Report workflow id for stolen runner detection (to separate log so it doesn't hang this bash function)
   /home/runner/job-reporter.sh "$runnerNamePath" /var/log/workflow.log
 
@@ -200,9 +200,9 @@ function setup_logs () {
 }
 function action () {
   cd /actions
-  
+
   & ./job-reporter.ps1 "\${runnerNamePath}" /actions/workflow.log 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
-  
+
   $RunnerVersion = Get-Content /actions/RUNNER_VERSION -Raw
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
   ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" \${runnerGroup1} \${runnerGroup2} \${defaultLabels} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
