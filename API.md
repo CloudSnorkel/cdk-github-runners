@@ -6342,9 +6342,29 @@ const awsImageBuilderRunnerImageBuilderProps: AwsImageBuilderRunnerImageBuilderP
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.amiTags">amiTags</a></code> | <code>{[ key: string ]: string}</code> | Additional tags to apply to the AMI built by this builder. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.fastLaunchOptions">fastLaunchOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.FastLaunchOptions">FastLaunchOptions</a></code> | Options for fast launch. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.instanceType">instanceType</a></code> | <code>aws-cdk-lib.aws_ec2.InstanceType</code> | The instance type used to build the image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for builder instances. This modifies the boot volume size and doesn't add any additional volumes. |
+
+---
+
+##### `amiTags`<sup>Optional</sup> <a name="amiTags" id="@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.amiTags"></a>
+
+```typescript
+public readonly amiTags: {[ key: string ]: string};
+```
+
+- *Type:* {[ key: string ]: string}
+- *Default:* no additional tags
+
+Additional tags to apply to the AMI built by this builder.
+
+The AMI is created by the EC2 Image Builder service and not by CloudFormation, so `cdk.Tags.of()` never reaches it.
+These tags are passed to the distribution configuration instead, which is how Image Builder tags its output AMI.
+
+These additional tags are set on top of `Name`, `GitHubRunners:Stack`, and `GitHubRunners:Builder`.
+You may override the built-in tags.
 
 ---
 
