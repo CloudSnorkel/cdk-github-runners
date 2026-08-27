@@ -189,7 +189,22 @@
    "Properties": {
     "CapacityProviders": [
      "FARGATE",
-     "FARGATE_SPOT"
+     "FARGATE_SPOT",
+     {
+      "Ref": "ECSSpotCapacityProvider93132CFA"
+     },
+     {
+      "Ref": "ECSNonSpotCapacityProviderB509DEC8"
+     },
+     {
+      "Ref": "ECSUbuntu2404CapacityProviderFAE73340"
+     },
+     {
+      "Ref": "ECSARM64CapacityProvider8627FEF9"
+     },
+     {
+      "Ref": "ECSWindowsCapacityProvider8F8896A5"
+     }
     ],
     "Cluster": {
      "Ref": "cluster611F8AFF"
@@ -556,49 +571,6 @@
     "TimeoutInMinutes": 60
    }
   },
-  "FargatebuilderCodeBuildEventsRole92F2259E": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "events.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    }
-   }
-  },
-  "FargatebuilderCodeBuildEventsRoleDefaultPolicyD2B048CD": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "FargatebuilderCodeBuild4F182743",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "FargatebuilderCodeBuildEventsRoleDefaultPolicyD2B048CD",
-    "Roles": [
-     {
-      "Ref": "FargatebuilderCodeBuildEventsRole92F2259E"
-     }
-    ]
-   }
-  },
   "FargatebuilderCodeBuildBuildFailed1D2D3785": {
    "Type": "AWS::CodeStarNotifications::NotificationRule",
    "Properties": {
@@ -619,32 +591,6 @@
        "Ref": "runnersFailedRunnerImageBuilds233D2237"
       },
       "TargetType": "SNS"
-     }
-    ]
-   }
-  },
-  "FargatebuilderCRPolicy22FB4B05": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "FargatebuilderCodeBuild4F182743",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "FargatebuilderCRPolicy22FB4B05",
-    "Roles": [
-     {
-      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
      }
     ]
    }
@@ -686,10 +632,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "FargatebuilderCodeBuildBuildFailed1D2D3785",
-    "FargatebuilderCodeBuildEventsRoleDefaultPolicyD2B048CD",
-    "FargatebuilderCodeBuildEventsRole92F2259E",
     "FargatebuilderCodeBuild4F182743",
-    "FargatebuilderCRPolicy22FB4B05",
     "FargatebuilderRoleDefaultPolicyE56CF8DA",
     "FargatebuilderRoleDA300BCD"
    ],
@@ -723,7 +666,7 @@
       "Id": "Target0",
       "RoleArn": {
        "Fn::GetAtt": [
-        "FargatebuilderCodeBuildEventsRole92F2259E",
+        "BuildScheduleRoledcc036c8876b451ea2c1552f9e06e9e10132DFDF",
         "Arn"
        ]
       }
@@ -1074,49 +1017,6 @@
     "TimeoutInMinutes": 60
    }
   },
-  "FargatebuilderarmCodeBuildEventsRole20E8CE66": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "events.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    }
-   }
-  },
-  "FargatebuilderarmCodeBuildEventsRoleDefaultPolicy39CAA8CB": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "FargatebuilderarmCodeBuild0D30679A",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "FargatebuilderarmCodeBuildEventsRoleDefaultPolicy39CAA8CB",
-    "Roles": [
-     {
-      "Ref": "FargatebuilderarmCodeBuildEventsRole20E8CE66"
-     }
-    ]
-   }
-  },
   "FargatebuilderarmCodeBuildBuildFailed264992E6": {
    "Type": "AWS::CodeStarNotifications::NotificationRule",
    "Properties": {
@@ -1137,32 +1037,6 @@
        "Ref": "runnersFailedRunnerImageBuilds233D2237"
       },
       "TargetType": "SNS"
-     }
-    ]
-   }
-  },
-  "FargatebuilderarmCRPolicyD241BB66": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "FargatebuilderarmCodeBuild0D30679A",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "FargatebuilderarmCRPolicyD241BB66",
-    "Roles": [
-     {
-      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
      }
     ]
    }
@@ -1204,10 +1078,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "FargatebuilderarmCodeBuildBuildFailed264992E6",
-    "FargatebuilderarmCodeBuildEventsRoleDefaultPolicy39CAA8CB",
-    "FargatebuilderarmCodeBuildEventsRole20E8CE66",
     "FargatebuilderarmCodeBuild0D30679A",
-    "FargatebuilderarmCRPolicyD241BB66",
     "FargatebuilderarmRoleDefaultPolicy89F1BA94",
     "FargatebuilderarmRoleB6343E8F"
    ],
@@ -1241,7 +1112,7 @@
       "Id": "Target0",
       "RoleArn": {
        "Fn::GetAtt": [
-        "FargatebuilderarmCodeBuildEventsRole20E8CE66",
+        "BuildScheduleRoledcc036c8876b451ea2c1552f9e06e9e10132DFDF",
         "Arn"
        ]
       }
@@ -1731,49 +1602,6 @@
     "TimeoutInMinutes": 60
    }
   },
-  "LambdaImageBuilderx64CodeBuildEventsRoleF8B03C21": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "events.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    }
-   }
-  },
-  "LambdaImageBuilderx64CodeBuildEventsRoleDefaultPolicy2B894997": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderx64CodeBuild67DE14C8",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "LambdaImageBuilderx64CodeBuildEventsRoleDefaultPolicy2B894997",
-    "Roles": [
-     {
-      "Ref": "LambdaImageBuilderx64CodeBuildEventsRoleF8B03C21"
-     }
-    ]
-   }
-  },
   "LambdaImageBuilderx64CodeBuildBuildFailed7E839416": {
    "Type": "AWS::CodeStarNotifications::NotificationRule",
    "Properties": {
@@ -1794,32 +1622,6 @@
        "Ref": "runnersFailedRunnerImageBuilds233D2237"
       },
       "TargetType": "SNS"
-     }
-    ]
-   }
-  },
-  "LambdaImageBuilderx64CRPolicy6DBE0D1F": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderx64CodeBuild67DE14C8",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "LambdaImageBuilderx64CRPolicy6DBE0D1F",
-    "Roles": [
-     {
-      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
      }
     ]
    }
@@ -1861,10 +1663,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "LambdaImageBuilderx64CodeBuildBuildFailed7E839416",
-    "LambdaImageBuilderx64CodeBuildEventsRoleDefaultPolicy2B894997",
-    "LambdaImageBuilderx64CodeBuildEventsRoleF8B03C21",
     "LambdaImageBuilderx64CodeBuild67DE14C8",
-    "LambdaImageBuilderx64CRPolicy6DBE0D1F",
     "LambdaImageBuilderx64RoleDefaultPolicyC6AE2BE4",
     "LambdaImageBuilderx64RoleEE3EE1CB"
    ],
@@ -1898,7 +1697,7 @@
       "Id": "Target0",
       "RoleArn": {
        "Fn::GetAtt": [
-        "LambdaImageBuilderx64CodeBuildEventsRoleF8B03C21",
+        "BuildScheduleRoledcc036c8876b451ea2c1552f9e06e9e10132DFDF",
         "Arn"
        ]
       }
@@ -3319,49 +3118,6 @@
     "TimeoutInMinutes": 60
    }
   },
-  "CodeBuildImageBuilderCodeBuildEventsRole4277A55E": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "events.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    }
-   }
-  },
-  "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "CodeBuildImageBuilderCodeBuild38ECAA44",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D",
-    "Roles": [
-     {
-      "Ref": "CodeBuildImageBuilderCodeBuildEventsRole4277A55E"
-     }
-    ]
-   }
-  },
   "CodeBuildImageBuilderCodeBuildBuildFailed9B205D70": {
    "Type": "AWS::CodeStarNotifications::NotificationRule",
    "Properties": {
@@ -3382,32 +3138,6 @@
        "Ref": "runnersFailedRunnerImageBuilds233D2237"
       },
       "TargetType": "SNS"
-     }
-    ]
-   }
-  },
-  "CodeBuildImageBuilderCRPolicyAFC63F28": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "CodeBuildImageBuilderCodeBuild38ECAA44",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "CodeBuildImageBuilderCRPolicyAFC63F28",
-    "Roles": [
-     {
-      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
      }
     ]
    }
@@ -3449,10 +3179,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "CodeBuildImageBuilderCodeBuildBuildFailed9B205D70",
-    "CodeBuildImageBuilderCodeBuildEventsRoleDefaultPolicyF7AE539D",
-    "CodeBuildImageBuilderCodeBuildEventsRole4277A55E",
     "CodeBuildImageBuilderCodeBuild38ECAA44",
-    "CodeBuildImageBuilderCRPolicyAFC63F28",
     "CodeBuildImageBuilderRoleDefaultPolicy6982821E",
     "CodeBuildImageBuilderRoleF1F34984"
    ],
@@ -3486,7 +3213,7 @@
       "Id": "Target0",
       "RoleArn": {
        "Fn::GetAtt": [
-        "CodeBuildImageBuilderCodeBuildEventsRole4277A55E",
+        "BuildScheduleRoledcc036c8876b451ea2c1552f9e06e9e10132DFDF",
         "Arn"
        ]
       }
@@ -3837,49 +3564,6 @@
     "TimeoutInMinutes": 60
    }
   },
-  "CodeBuildUbuntu2404ImageBuilderCodeBuildEventsRoleA2F6A981": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "events.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    }
-   }
-  },
-  "CodeBuildUbuntu2404ImageBuilderCodeBuildEventsRoleDefaultPolicyF2D4B4E8": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "CodeBuildUbuntu2404ImageBuilderCodeBuild30AF5C46",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "CodeBuildUbuntu2404ImageBuilderCodeBuildEventsRoleDefaultPolicyF2D4B4E8",
-    "Roles": [
-     {
-      "Ref": "CodeBuildUbuntu2404ImageBuilderCodeBuildEventsRoleA2F6A981"
-     }
-    ]
-   }
-  },
   "CodeBuildUbuntu2404ImageBuilderCodeBuildBuildFailed90989099": {
    "Type": "AWS::CodeStarNotifications::NotificationRule",
    "Properties": {
@@ -3900,32 +3584,6 @@
        "Ref": "runnersFailedRunnerImageBuilds233D2237"
       },
       "TargetType": "SNS"
-     }
-    ]
-   }
-  },
-  "CodeBuildUbuntu2404ImageBuilderCRPolicyFC9AACCB": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "CodeBuildUbuntu2404ImageBuilderCodeBuild30AF5C46",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "CodeBuildUbuntu2404ImageBuilderCRPolicyFC9AACCB",
-    "Roles": [
-     {
-      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
      }
     ]
    }
@@ -3967,10 +3625,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "CodeBuildUbuntu2404ImageBuilderCodeBuildBuildFailed90989099",
-    "CodeBuildUbuntu2404ImageBuilderCodeBuildEventsRoleDefaultPolicyF2D4B4E8",
-    "CodeBuildUbuntu2404ImageBuilderCodeBuildEventsRoleA2F6A981",
     "CodeBuildUbuntu2404ImageBuilderCodeBuild30AF5C46",
-    "CodeBuildUbuntu2404ImageBuilderCRPolicyFC9AACCB",
     "CodeBuildUbuntu2404ImageBuilderRoleDefaultPolicyB8C45F13",
     "CodeBuildUbuntu2404ImageBuilderRole4D16C9EB"
    ],
@@ -4004,7 +3659,7 @@
       "Id": "Target0",
       "RoleArn": {
        "Fn::GetAtt": [
-        "CodeBuildUbuntu2404ImageBuilderCodeBuildEventsRoleA2F6A981",
+        "BuildScheduleRoledcc036c8876b451ea2c1552f9e06e9e10132DFDF",
         "Arn"
        ]
       }
@@ -4355,49 +4010,6 @@
     "TimeoutInMinutes": 60
    }
   },
-  "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "events.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    }
-   }
-  },
-  "CodeBuildImageBuilderarmCodeBuildEventsRoleDefaultPolicyEA24770D": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "CodeBuildImageBuilderarmCodeBuildBFF1CF57",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "CodeBuildImageBuilderarmCodeBuildEventsRoleDefaultPolicyEA24770D",
-    "Roles": [
-     {
-      "Ref": "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89"
-     }
-    ]
-   }
-  },
   "CodeBuildImageBuilderarmCodeBuildBuildFailed7605ECB2": {
    "Type": "AWS::CodeStarNotifications::NotificationRule",
    "Properties": {
@@ -4418,32 +4030,6 @@
        "Ref": "runnersFailedRunnerImageBuilds233D2237"
       },
       "TargetType": "SNS"
-     }
-    ]
-   }
-  },
-  "CodeBuildImageBuilderarmCRPolicy75CB8D91": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "CodeBuildImageBuilderarmCodeBuildBFF1CF57",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "CodeBuildImageBuilderarmCRPolicy75CB8D91",
-    "Roles": [
-     {
-      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
      }
     ]
    }
@@ -4485,10 +4071,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "CodeBuildImageBuilderarmCodeBuildBuildFailed7605ECB2",
-    "CodeBuildImageBuilderarmCodeBuildEventsRoleDefaultPolicyEA24770D",
-    "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89",
     "CodeBuildImageBuilderarmCodeBuildBFF1CF57",
-    "CodeBuildImageBuilderarmCRPolicy75CB8D91",
     "CodeBuildImageBuilderarmRoleDefaultPolicy540A8CDE",
     "CodeBuildImageBuilderarmRole96BC26FB"
    ],
@@ -4522,7 +4105,7 @@
       "Id": "Target0",
       "RoleArn": {
        "Fn::GetAtt": [
-        "CodeBuildImageBuilderarmCodeBuildEventsRole5ADCAD89",
+        "BuildScheduleRoledcc036c8876b451ea2c1552f9e06e9e10132DFDF",
         "Arn"
        ]
       }
@@ -5012,49 +4595,6 @@
     "TimeoutInMinutes": 60
    }
   },
-  "LambdaImageBuilderzCodeBuildEventsRoleE9E50664": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "events.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    }
-   }
-  },
-  "LambdaImageBuilderzCodeBuildEventsRoleDefaultPolicyE0DB8E23": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderzCodeBuild73AB6718",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "LambdaImageBuilderzCodeBuildEventsRoleDefaultPolicyE0DB8E23",
-    "Roles": [
-     {
-      "Ref": "LambdaImageBuilderzCodeBuildEventsRoleE9E50664"
-     }
-    ]
-   }
-  },
   "LambdaImageBuilderzCodeBuildBuildFailedFBCC1CE8": {
    "Type": "AWS::CodeStarNotifications::NotificationRule",
    "Properties": {
@@ -5075,32 +4615,6 @@
        "Ref": "runnersFailedRunnerImageBuilds233D2237"
       },
       "TargetType": "SNS"
-     }
-    ]
-   }
-  },
-  "LambdaImageBuilderzCRPolicyC9B09855": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderzCodeBuild73AB6718",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "LambdaImageBuilderzCRPolicyC9B09855",
-    "Roles": [
-     {
-      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
      }
     ]
    }
@@ -5142,10 +4656,7 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
     "LambdaImageBuilderzCodeBuildBuildFailedFBCC1CE8",
-    "LambdaImageBuilderzCodeBuildEventsRoleDefaultPolicyE0DB8E23",
-    "LambdaImageBuilderzCodeBuildEventsRoleE9E50664",
     "LambdaImageBuilderzCodeBuild73AB6718",
-    "LambdaImageBuilderzCRPolicyC9B09855",
     "LambdaImageBuilderzRoleDefaultPolicy06ABB0C7",
     "LambdaImageBuilderzRole6F1A63E5"
    ],
@@ -5179,7 +4690,7 @@
       "Id": "Target0",
       "RoleArn": {
        "Fn::GetAtt": [
-        "LambdaImageBuilderzCodeBuildEventsRoleE9E50664",
+        "BuildScheduleRoledcc036c8876b451ea2c1552f9e06e9e10132DFDF",
         "Arn"
        ]
       }
@@ -6624,49 +6135,6 @@
     "TimeoutInMinutes": 60
    }
   },
-  "AL2builderCodeBuildEventsRole08B9D4A3": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "events.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    }
-   }
-  },
-  "AL2builderCodeBuildEventsRoleDefaultPolicy2C7004DB": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "AL2builderCodeBuild55A26C62",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "AL2builderCodeBuildEventsRoleDefaultPolicy2C7004DB",
-    "Roles": [
-     {
-      "Ref": "AL2builderCodeBuildEventsRole08B9D4A3"
-     }
-    ]
-   }
-  },
   "AL2builderCodeBuildBuildFailed88A3F6A0": {
    "Type": "AWS::CodeStarNotifications::NotificationRule",
    "Properties": {
@@ -6687,32 +6155,6 @@
        "Ref": "runnersFailedRunnerImageBuilds233D2237"
       },
       "TargetType": "SNS"
-     }
-    ]
-   }
-  },
-  "AL2builderCRPolicy5C2984DF": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "codebuild:StartBuild",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "AL2builderCodeBuild55A26C62",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "AL2builderCRPolicy5C2984DF",
-    "Roles": [
-     {
-      "Ref": "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
      }
     ]
    }
@@ -6751,10 +6193,7 @@
    },
    "DependsOn": [
     "AL2builderCodeBuildBuildFailed88A3F6A0",
-    "AL2builderCodeBuildEventsRoleDefaultPolicy2C7004DB",
-    "AL2builderCodeBuildEventsRole08B9D4A3",
     "AL2builderCodeBuild55A26C62",
-    "AL2builderCRPolicy5C2984DF",
     "AL2builderRoleDefaultPolicy6D6B4C08",
     "AL2builderRole6A57C48A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
@@ -6791,7 +6230,7 @@
       "Id": "Target0",
       "RoleArn": {
        "Fn::GetAtt": [
-        "AL2builderCodeBuildEventsRole08B9D4A3",
+        "BuildScheduleRoledcc036c8876b451ea2c1552f9e06e9e10132DFDF",
         "Arn"
        ]
       }
@@ -6844,9 +6283,89 @@
     "PolicyDocument": {
      "Statement": [
       {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "AL2builderCodeBuild55A26C62",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderCodeBuild38ECAA44",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildUbuntu2404ImageBuilderCodeBuild30AF5C46",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderarmCodeBuildBFF1CF57",
+         "Arn"
+        ]
+       }
+      },
+      {
        "Action": "imagebuilder:DeleteImage",
        "Effect": "Deny",
        "Resource": "*"
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64CodeBuild67DE14C8",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzCodeBuild73AB6718",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderCodeBuild4F182743",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderarmCodeBuild0D30679A",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -6894,6 +6413,119 @@
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837"
    ]
+  },
+  "BuildScheduleRoledcc036c8876b451ea2c1552f9e06e9e10132DFDF": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "events.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "BuildScheduleRoledcc036c8876b451ea2c1552f9e06e9e1DefaultPolicy10377A9A": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "AL2builderCodeBuild55A26C62",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderCodeBuild38ECAA44",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildUbuntu2404ImageBuilderCodeBuild30AF5C46",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderarmCodeBuildBFF1CF57",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderx64CodeBuild67DE14C8",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "LambdaImageBuilderzCodeBuild73AB6718",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderCodeBuild4F182743",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "codebuild:StartBuild",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FargatebuilderarmCodeBuild0D30679A",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "BuildScheduleRoledcc036c8876b451ea2c1552f9e06e9e1DefaultPolicy10377A9A",
+    "Roles": [
+     {
+      "Ref": "BuildScheduleRoledcc036c8876b451ea2c1552f9e06e9e10132DFDF"
+     }
+    ]
+   }
   },
   "CodeBuildx64LogsA21ECD59": {
    "Type": "AWS::Logs::LogGroup",
@@ -8303,31 +7935,6 @@
     "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleB6525E5C"
    ]
   },
-  "ECSSpotclusterE23D90F0": {
-   "Type": "AWS::ECS::Cluster",
-   "Properties": {
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/ECS Spot"
-     }
-    ]
-   }
-  },
-  "ECSSpotclusterC33A4CA5": {
-   "Type": "AWS::ECS::ClusterCapacityProviderAssociations",
-   "Properties": {
-    "CapacityProviders": [
-     {
-      "Ref": "ECSSpotCapacityProvider93132CFA"
-     }
-    ],
-    "Cluster": {
-     "Ref": "ECSSpotclusterE23D90F0"
-    },
-    "DefaultCapacityProviderStrategy": []
-   }
-  },
   "ECSSpotAMIRootDevice02A8F22D": {
    "Type": "Custom::AmiRootDevice",
    "Properties": {
@@ -8410,7 +8017,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "ECSSpotclusterE23D90F0",
+         "cluster611F8AFF",
          "Arn"
         ]
        }
@@ -8424,7 +8031,7 @@
         "ArnEquals": {
          "ecs:cluster": {
           "Fn::GetAtt": [
-           "ECSSpotclusterE23D90F0",
+           "cluster611F8AFF",
            "Arn"
           ]
          }
@@ -8598,7 +8205,7 @@
          },
          ":latest &\necho ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION=5s >> /etc/ecs/ecs.config\necho ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER=5s >> /etc/ecs/ecs.config\necho ECS_CLUSTER=",
          {
-          "Ref": "ECSSpotclusterE23D90F0"
+          "Ref": "cluster611F8AFF"
          },
          " >> /etc/ecs/ecs.config"
         ]
@@ -9046,31 +8653,6 @@
     "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36"
    ]
   },
-  "ECSNonSpotclusterD12EB68A": {
-   "Type": "AWS::ECS::Cluster",
-   "Properties": {
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/ECS Non-Spot"
-     }
-    ]
-   }
-  },
-  "ECSNonSpotclusterDCDBF733": {
-   "Type": "AWS::ECS::ClusterCapacityProviderAssociations",
-   "Properties": {
-    "CapacityProviders": [
-     {
-      "Ref": "ECSNonSpotCapacityProviderB509DEC8"
-     }
-    ],
-    "Cluster": {
-     "Ref": "ECSNonSpotclusterD12EB68A"
-    },
-    "DefaultCapacityProviderStrategy": []
-   }
-  },
   "ECSNonSpotAMIRootDevice286E20D5": {
    "Type": "Custom::AmiRootDevice",
    "Properties": {
@@ -9153,7 +8735,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "ECSNonSpotclusterD12EB68A",
+         "cluster611F8AFF",
          "Arn"
         ]
        }
@@ -9167,7 +8749,7 @@
         "ArnEquals": {
          "ecs:cluster": {
           "Fn::GetAtt": [
-           "ECSNonSpotclusterD12EB68A",
+           "cluster611F8AFF",
            "Arn"
           ]
          }
@@ -9335,7 +8917,7 @@
          },
          ":latest &\necho ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION=5s >> /etc/ecs/ecs.config\necho ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER=5s >> /etc/ecs/ecs.config\necho ECS_CLUSTER=",
          {
-          "Ref": "ECSNonSpotclusterD12EB68A"
+          "Ref": "cluster611F8AFF"
          },
          " >> /etc/ecs/ecs.config"
         ]
@@ -9690,31 +9272,6 @@
     ]
    }
   },
-  "ECSUbuntu2404cluster21C05FA1": {
-   "Type": "AWS::ECS::Cluster",
-   "Properties": {
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/ECS Ubuntu 2404"
-     }
-    ]
-   }
-  },
-  "ECSUbuntu2404cluster0A1E8926": {
-   "Type": "AWS::ECS::ClusterCapacityProviderAssociations",
-   "Properties": {
-    "CapacityProviders": [
-     {
-      "Ref": "ECSUbuntu2404CapacityProviderFAE73340"
-     }
-    ],
-    "Cluster": {
-     "Ref": "ECSUbuntu2404cluster21C05FA1"
-    },
-    "DefaultCapacityProviderStrategy": []
-   }
-  },
   "ECSUbuntu2404AMIRootDevice9455BDF7": {
    "Type": "Custom::AmiRootDevice",
    "Properties": {
@@ -9797,7 +9354,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "ECSUbuntu2404cluster21C05FA1",
+         "cluster611F8AFF",
          "Arn"
         ]
        }
@@ -9811,7 +9368,7 @@
         "ArnEquals": {
          "ecs:cluster": {
           "Fn::GetAtt": [
-           "ECSUbuntu2404cluster21C05FA1",
+           "cluster611F8AFF",
            "Arn"
           ]
          }
@@ -9985,7 +9542,7 @@
          },
          ":latest &\necho ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION=5s >> /etc/ecs/ecs.config\necho ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER=5s >> /etc/ecs/ecs.config\necho ECS_CLUSTER=",
          {
-          "Ref": "ECSUbuntu2404cluster21C05FA1"
+          "Ref": "cluster611F8AFF"
          },
          " >> /etc/ecs/ecs.config"
         ]
@@ -10340,31 +9897,6 @@
     ]
    }
   },
-  "ECSARM64cluster4ECAA083": {
-   "Type": "AWS::ECS::Cluster",
-   "Properties": {
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/ECS ARM64"
-     }
-    ]
-   }
-  },
-  "ECSARM64cluster43E75409": {
-   "Type": "AWS::ECS::ClusterCapacityProviderAssociations",
-   "Properties": {
-    "CapacityProviders": [
-     {
-      "Ref": "ECSARM64CapacityProvider8627FEF9"
-     }
-    ],
-    "Cluster": {
-     "Ref": "ECSARM64cluster4ECAA083"
-    },
-    "DefaultCapacityProviderStrategy": []
-   }
-  },
   "ECSARM64LaunchTemplateRole9D1574E2": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -10433,7 +9965,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "ECSARM64cluster4ECAA083",
+         "cluster611F8AFF",
          "Arn"
         ]
        }
@@ -10447,7 +9979,7 @@
         "ArnEquals": {
          "ecs:cluster": {
           "Fn::GetAtt": [
-           "ECSARM64cluster4ECAA083",
+           "cluster611F8AFF",
            "Arn"
           ]
          }
@@ -10601,7 +10133,7 @@
          },
          ":latest &\necho ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION=5s >> /etc/ecs/ecs.config\necho ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER=5s >> /etc/ecs/ecs.config\necho ECS_CLUSTER=",
          {
-          "Ref": "ECSARM64cluster4ECAA083"
+          "Ref": "cluster611F8AFF"
          },
          " >> /etc/ecs/ecs.config"
         ]
@@ -10956,31 +10488,6 @@
     ]
    }
   },
-  "ECSWindowscluster14061F74": {
-   "Type": "AWS::ECS::Cluster",
-   "Properties": {
-    "Tags": [
-     {
-      "Key": "GitHubRunners:Provider",
-      "Value": "github-runners-test/ECS Windows"
-     }
-    ]
-   }
-  },
-  "ECSWindowscluster49B54894": {
-   "Type": "AWS::ECS::ClusterCapacityProviderAssociations",
-   "Properties": {
-    "CapacityProviders": [
-     {
-      "Ref": "ECSWindowsCapacityProvider8F8896A5"
-     }
-    ],
-    "Cluster": {
-     "Ref": "ECSWindowscluster14061F74"
-    },
-    "DefaultCapacityProviderStrategy": []
-   }
-  },
   "ECSWindowsLaunchTemplateRole610E9A88": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -11049,7 +10556,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "ECSWindowscluster14061F74",
+         "cluster611F8AFF",
          "Arn"
         ]
        }
@@ -11063,7 +10570,7 @@
         "ArnEquals": {
          "ecs:cluster": {
           "Fn::GetAtt": [
-           "ECSWindowscluster14061F74",
+           "cluster611F8AFF",
            "Arn"
           ]
          }
@@ -11213,11 +10720,11 @@
          },
          ":latest }\n[Environment]::SetEnvironmentVariable(\"ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION\", \"5s\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER\", \"5s\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_TASK_IAM_ROLE\", \"true\", \"Machine\")\n(Get-Content \"C:\\Program Files\\WindowsPowerShell\\Modules\\ECSTools\\ECSTools.psm1\").Replace('if ($EnableTaskIAMRole) {', '$EnableTaskIAMRole = $true; if ($EnableTaskIAMRole) {') | Set-Content \"C:\\Program Files\\WindowsPowerShell\\Modules\\ECSTools\\ECSTools.psm1\" -Force\nRemove-Item -Recurse C:\\ProgramData\\Amazon\\ECS\\Cache\nImport-Module ECSTools\n[Environment]::SetEnvironmentVariable(\"ECS_CLUSTER\", \"",
          {
-          "Ref": "ECSWindowscluster14061F74"
+          "Ref": "cluster611F8AFF"
          },
          "\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_ENABLE_AWSLOGS_EXECUTIONROLE_OVERRIDE\", \"true\", \"Machine\")\n[Environment]::SetEnvironmentVariable(\"ECS_AVAILABLE_LOGGING_DRIVERS\", '[\"json-file\",\"awslogs\"]', \"Machine\")\nInitialize-ECSAgent -Cluster '",
          {
-          "Ref": "ECSWindowscluster14061F74"
+          "Ref": "cluster611F8AFF"
          },
          "'</powershell>"
         ]
@@ -17554,7 +17061,7 @@
        ":states:::ecs:runTask.sync\",\"Parameters\":{\"Cluster\":\"",
        {
         "Fn::GetAtt": [
-         "ECSSpotclusterE23D90F0",
+         "cluster611F8AFF",
          "Arn"
         ]
        },
@@ -17576,7 +17083,7 @@
        ":states:::ecs:runTask.sync\",\"Parameters\":{\"Cluster\":\"",
        {
         "Fn::GetAtt": [
-         "ECSNonSpotclusterD12EB68A",
+         "cluster611F8AFF",
          "Arn"
         ]
        },
@@ -17591,7 +17098,7 @@
        ":states:::ecs:runTask.sync\",\"Parameters\":{\"Cluster\":\"",
        {
         "Fn::GetAtt": [
-         "ECSUbuntu2404cluster21C05FA1",
+         "cluster611F8AFF",
          "Arn"
         ]
        },
@@ -17606,7 +17113,7 @@
        ":states:::ecs:runTask.sync\",\"Parameters\":{\"Cluster\":\"",
        {
         "Fn::GetAtt": [
-         "ECSARM64cluster4ECAA083",
+         "cluster611F8AFF",
          "Arn"
         ]
        },
@@ -17621,7 +17128,7 @@
        ":states:::ecs:runTask.sync\",\"Parameters\":{\"Cluster\":\"",
        {
         "Fn::GetAtt": [
-         "ECSWindowscluster14061F74",
+         "cluster611F8AFF",
          "Arn"
         ]
        },

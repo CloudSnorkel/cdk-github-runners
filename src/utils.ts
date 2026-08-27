@@ -24,6 +24,22 @@ export function singletonLambda<FunctionType extends lambda.Function>(
 }
 
 /**
+ * Initialize or return a singleton role instance.
+ *
+ * @internal
+ */
+export function singletonRole(scope: Construct, id: string, assumedBy: iam.IPrincipal): iam.IRole {
+  const constructName = `${id}-dcc036c8-876b-451e-a2c1-552f9e06e9e1`;
+  const existing = cdk.Stack.of(scope).node.tryFindChild(constructName);
+  if (existing) {
+    // Just assume this is true
+    return existing as iam.Role;
+  }
+
+  return new iam.Role(cdk.Stack.of(scope), constructName, { assumedBy });
+}
+
+/**
  * Central log group type.
  *
  * @internal

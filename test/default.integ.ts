@@ -187,6 +187,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       new EcsRunnerProvider(stack, 'ECS Spot', {
         labels: ['ecs', 'linux', 'x64'],
         imageBuilder: codeBuildImageBuilder, // codebuild has dind
+        cluster,
         vpc,
         securityGroups: [sg],
         maxInstances: 1,
@@ -201,6 +202,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       new EcsRunnerProvider(stack, 'ECS Non-Spot', {
         labels: ['ecs', 'linux', 'x64'],
         imageBuilder: codeBuildImageBuilder, // codebuild has dind
+        cluster,
         vpc,
         securityGroups: [sg],
         maxInstances: 1,
@@ -216,6 +218,7 @@ const runners = new GitHubRunners(stack, 'runners', {
     new EcsRunnerProvider(stack, 'ECS Ubuntu 2404', {
       labels: ['ecs-ubuntu-2404', 'x64'],
       imageBuilder: codeBuildUbuntu2404ImageBuilder, // codebuild has dind
+      cluster,
       vpc,
       securityGroups: [sg],
       maxInstances: 1,
@@ -230,6 +233,7 @@ const runners = new GitHubRunners(stack, 'runners', {
     new EcsRunnerProvider(stack, 'ECS ARM64', {
       labels: ['ecs', 'linux', 'arm64'],
       imageBuilder: codeBuildArm64ImageBuilder, // codebuild has dind
+      cluster,
       vpc,
       securityGroups: [sg],
       maxInstances: 1,
@@ -237,6 +241,7 @@ const runners = new GitHubRunners(stack, 'runners', {
     new EcsRunnerProvider(stack, 'ECS Windows', {
       labels: ['ecs', 'windows', 'x64'],
       imageBuilder: windowsImageBuilder,
+      cluster,
       vpc,
       securityGroups: [sg],
       maxInstances: 1,
