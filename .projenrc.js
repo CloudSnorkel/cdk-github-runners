@@ -127,6 +127,10 @@ const project = new awscdk.AwsCdkConstructLibrary({
       isolatedModules: true,
     },
   },
+  jestOptions: {
+    // too many console.log() lines in EVERY build
+    extraCliOptions: ['--silent'],
+  },
 });
 
 // disable automatic releases, but keep workflow that can be triggered manually
