@@ -70,7 +70,7 @@ async function isDeploymentPending(payload: any) {
   } catch (e) {
     console.error({
       notice: 'Unable to check deployment. Try adding deployment read permission.',
-      error: `${e}`,
+      error: e,
     });
     return false;
   }
@@ -206,7 +206,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
   } catch (e) {
     console.error({
       notice: 'Bad signature',
-      error: `${e}`,
+      error: e,
     });
     return {
       statusCode: 403,
@@ -296,6 +296,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
 
   // start execution
   const executionName = generateExecutionName(event, payload);
+  const idleTimeoutSeconds = process.env.IDLE_TIMEOUT_SECONDS ? parseInt(process.env.IDLE_TIMEOUT_SECONDS, 10) : 300; // default 5 minutes
   const input = {
     owner: payload.repository.owner.login,
     repo: payload.repository.name,
@@ -305,6 +306,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     jobLabels: payload.workflow_job.labels.join(','), // original labels requested by the job
     provider: selection.provider,
     labels: selection.labels.join(','), // labels to use when registering runner
+    maxIdleSeconds: idleTimeoutSeconds,
   };
   const execution = await sf.send(new StartExecutionCommand({
     stateMachineArn: process.env.STEP_FUNCTION_ARN,

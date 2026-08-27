@@ -97,6 +97,11 @@ export interface GithubWebhookHandlerProps {
   readonly requireSelfHostedLabel: boolean;
 
   /**
+   * Idle timeout for runners in seconds.
+   */
+  readonly idleTimeoutSeconds?: number;
+
+  /**
    * Additional Lambda function options (VPC, security groups, layers, etc.).
    */
   readonly extraLambdaProps?: lambda.FunctionOptions;
@@ -140,6 +145,7 @@ export class GithubWebhookHandler extends Construct {
           PROVIDERS: JSON.stringify(props.providers),
           REQUIRE_SELF_HOSTED_LABEL: props.requireSelfHostedLabel ? '1' : '0',
           PROVIDER_SELECTOR_ARN: props.providerSelector?.functionArn ?? '',
+          IDLE_TIMEOUT_SECONDS: props.idleTimeoutSeconds?.toString() ?? '300', // default 5 minutes
           ...props.extraLambdaEnv,
         },
         timeout: cdk.Duration.seconds(31),

@@ -25,9 +25,9 @@ When building AMIs with large components, you may need to increase the storage s
 ```python
 ami_builder=Ec2RunnerProvider.image_builder(
     self, "Ami Builder",
-    aws_image_builder_options={
-        "storage_size": Size.gibibytes(50),  # Increase from default 30GB
-    }
+    aws_image_builder_options=AwsImageBuilderRunnerImageBuilderProps(
+        storage_size=Size.gibibytes(50),  # Increase from default 30GB
+    )
 )
 ```
 

@@ -1,4 +1,4 @@
-import type { RequestError } from '@octokit/request-error';
+import type { RequestError } from '@octokit/request-error' with { 'resolution-mode': 'import' };
 import { deleteRunner, getOctokit, getRunner } from './lambda-github';
 import { StepFunctionLambdaInput } from './lambda-helpers';
 
@@ -60,7 +60,7 @@ export async function handler(event: StepFunctionLambdaInput) {
         repo: event.repo,
         runnerId: runner.id,
         runnerName: event.runnerName,
-        error: `${e}`,
+        error: e,
       });
     }
   }

@@ -212,11 +212,13 @@ export class ImageBuilderComponent extends cdk.Resource {
         }
       }
 
-      steps.push({
-        name: 'Download',
-        action: 'S3Download',
-        inputs,
-      });
+      if (inputs.length > 0) {
+        steps.push({
+          name: 'Download',
+          action: 'S3Download',
+          inputs,
+        });
+      }
 
       if (extractCommands.length > 0) {
         steps.push({
@@ -551,7 +553,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
         recipes: [
           {
             name: recipe.name,
-            semanticVersion: recipe.version,
+            semanticVersion: '1.x.x',
           },
         ],
       },
@@ -600,7 +602,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return this.infrastructure;
   }
 
-  private workflowConfig(containerRecipeArn?: string): Partial<imagebuilder.CfnImageProps> | Partial<imagebuilder.CfnImagePipelineProps> | undefined {
+  private workflowConfig(containerRecipeArn?: string) {
     if (this.containerWorkflow && this.containerWorkflowExecutionRole && containerRecipeArn) {
       return {
         workflows: [{
@@ -821,6 +823,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       os: this.os,
       logGroup: log,
       runnerVersion: RunnerVersion.specific('unknown'),
+      cacheKey: recipe.version, // re-evaluate AMI whenever the recipe changes
     };
 
     this.amiCleaner(recipe, stackName, builderName);
@@ -910,7 +913,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
         recipes: [
           {
             name: recipe.name,
-            semanticVersion: recipe.version, // docs say it's optional, but it's not
+            semanticVersion: '1.x.x',
           },
         ],
       },

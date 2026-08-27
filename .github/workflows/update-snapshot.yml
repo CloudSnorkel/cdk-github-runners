@@ -16,16 +16,19 @@ jobs:
       CI: "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: lts/*
+          cache: pnpm
       - name: Install dependencies
-        run: yarn install --check-files --frozen-lockfile
+        run: pnpm install
       - name: Snapshot main
         run: |
           npm run integ:default:snapshot
@@ -34,7 +37,7 @@ jobs:
           BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: git checkout "$BRANCH"
       - name: Install dependencies
-        run: yarn install --check-files --frozen-lockfile
+        run: pnpm install
       - name: Snapshot branch
         run: |
           npm run integ:default:snapshot
@@ -52,17 +55,18 @@ jobs:
           git diff --staged -U0 | grep '"path":' | cut -d '"' -f 4 | xargs -rL 2 diff -ruN > /tmp/assets.diff
       - name: List diff files
         if: steps.create_patch.outputs.patch_created
+        continue-on-error: true
         run: |-
           grep ^diff /tmp/assets.diff
       - name: Upload assets.diff
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: assets.diff
           path: /tmp/assets.diff
       - name: Upload snapshot
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: snapshot
           path: test/default.integ.snapshot
@@ -74,7 +78,7 @@ jobs:
       # create a PR against the dependencies update PR for a proper snapshot
       - name: Create Pull Request
         if: steps.create_patch.outputs.patch_created
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.PROJEN_GITHUB_TOKEN }}
           commit-message: |-

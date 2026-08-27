@@ -34,6 +34,7 @@ Ephemeral (or on-demand) runners are the [recommended way by GitHub][14] for aut
 - [Customizing](#customizing)
   - [Composite Providers](#composite-providers)
   - [Custom Provider Selection](#custom-provider-selection)
+  - [Warm Runners](#warm-runners)
 - [Examples](#examples)
 - [Architecture](#architecture)
 - [Troubleshooting](#troubleshooting)
@@ -53,11 +54,12 @@ A runner provider creates compute resources on-demand and uses [actions/runner][
 
 |                  | EC2               | CodeBuild                  | Fargate        | ECS            | Lambda        |
 |------------------|-------------------|----------------------------|----------------|----------------|---------------|
-| **Time limit**   | Unlimited         | 8 hours                    | Unlimited      | Unlimited      | 15 minutes    |
+| **Time limit**   | Unlimited         | 36 hours (default 1 hour)  | Unlimited      | Unlimited      | 15 minutes    |
 | **vCPUs**        | Unlimited         | 2, 4, 8, or 72             | 0.25 to 4      | Unlimited      | 1 to 6        |
 | **RAM**          | Unlimited         | 3gb, 7gb, 15gb, or 145gb   | 512mb to 30gb  | Unlimited      | 128mb to 10gb |
 | **Storage**      | Unlimited         | 50gb to 824gb              | 20gb to 200gb  | Unlimited      | Up to 10gb    |
 | **Architecture** | x86_64, ARM64     | x86_64, ARM64              | x86_64, ARM64  | x86_64, ARM64  | x86_64, ARM64 |
+| **GPU**          | ✔                 | ✔                         | ❌              | ✔              | ❌           |
 | **sudo**         | ✔                 | ✔                         | ✔              | ✔              | ❌           |
 | **Docker**       | ✔                 | ✔ (Linux only)            | ❌              | ✔              | ❌           |
 | **Spot pricing** | ✔                 | ❌                         | ✔              | ✔              | ❌           |
@@ -463,12 +465,62 @@ const providerSelector = new Function(this, 'provider-selector', {
 * ⚠️ **No guarantee of assignment**: Provider selection only determines which provider will provision a runner. GitHub Actions may still route the job to any available runner with matching labels. For reliable provider assignment, consider repo-level runner registration (the default).
 * ⚡ **Performance**: The selector runs synchronously during webhook processing. Keep it fast and efficient—the webhook has a 30-second timeout total.
 
+### Warm Runners
+
+Warm runners are pre-provisioned and stay idle until a job arrives, reducing startup latency. Use `AlwaysOnWarmRunner` for 24/7 pools or `ScheduledWarmRunner` for time-windowed pools. You specify the provider directly.
+
+```typescript
+import { AlwaysOnWarmRunner, CodeBuildRunnerProvider, GitHubRunners } from '@cloudsnorkel/cdk-github-runners';
+
+const provider = new CodeBuildRunnerProvider(this, 'provider', { labels: ['codebuild', 'linux'] });
+const runners = new GitHubRunners(this, 'runners', { providers: [provider] });
+
+new AlwaysOnWarmRunner(this, 'warm', {
+  runners,
+  provider,
+  count: 2,
+  owner: 'my-org',
+  repo: 'my-repo',
+});
+```
+
+Warm runner pools can be stacked. If you want 2 warm runners always available but 3 during peak work hours, you can create one pool with 2 runners always on and another pool with 1 runner during work hours.
+
+```typescript
+import { aws_events as events, Duration } from 'aws-cdk-lib';
+import { AlwaysOnWarmRunner, ScheduledWarmRunner, CodeBuildRunnerProvider, GitHubRunners } from '@cloudsnorkel/cdk-github-runners';
+
+const provider = new CodeBuildRunnerProvider(this, 'provider', { labels: ['codebuild', 'linux'] });
+const runners = new GitHubRunners(this, 'runners', { providers: [provider] });
+
+new AlwaysOnWarmRunner(this, 'warm', {
+  runners,
+  provider,
+  count: 2,
+  owner: 'my-org',
+  repo: 'my-repo',
+});
+
+new ScheduledWarmRunner(this, 'work hours warm', {
+  runners,
+  provider,
+  count: 1,
+  owner: 'my-org',
+  repo: 'my-repo',
+  schedule: events.Schedule.cron({ hour: '13', minute: '0', weekDay: 'MON-FRI' }),
+  duration: Duration.hours(2),
+});
+```
+
+See the [warm-runners example](examples/typescript/warm-runners/) for a complete setup.
+
 ## Examples
 
 We provide comprehensive examples in the [`examples/`](examples/) folder to help you get started quickly:
 
 ### Getting Started
 - **[Simple CodeBuild](examples/typescript/simple-codebuild/)** - Basic setup with just a CodeBuild provider (also available in [Python](examples/python/simple-codebuild/))
+- **[Warm Runners](examples/typescript/warm-runners/)** - Pre-provisioned runners for low-latency job starts (also available in [Python](examples/python/warm-runners/))
 
 ### Provider Configuration
 - **[Composite Provider](examples/typescript/composite-provider/)** - Fallback and weighted distribution strategies (also available in [Python](examples/python/composite-provider/))
@@ -489,6 +541,8 @@ We provide comprehensive examples in the [`examples/`](examples/) folder to help
 
 ### Customization
 - **[Add Software](examples/typescript/add-software/)** - Add custom software to runner images (also available in [Python](examples/python/add-software/))
+- **[Job Hooks](examples/typescript/job-hooks/)** - Run a script before every job using GitHub Actions runner hooks (also available in [Python](examples/python/job-hooks/))
+- **[GPU](examples/typescript/gpu/)** - GPU support with NVIDIA drivers across EC2, CodeBuild, and ECS (also available in [Python](examples/python/gpu/))
 
 ### Enterprise & Monitoring
 - **[GHES](examples/typescript/ghes/)** - Configure runners for GitHub Enterprise Server (also available in [Python](examples/python/ghes/))
@@ -541,6 +595,10 @@ Other useful metrics to track:
 1. Use `GitHubRunners.metricJobCompleted()` to get a metric for the number of completed jobs broken down by labels and job success.
 2. Use `GitHubRunners.metricTime()` to get a metric for the total time a runner is running. This includes the overhead of starting the runner.
 
+## Known Issues
+
+1. Docker images built with AWS Image Builder (by default only Windows Docker images) might not be fully rolled back on deployment failure. If your stack fails to deploy after an image was already built, the new image will stay around. It will be automatically replaced on the next build interval but that might take up to 7 days with default settings (`rebuildInterval`). It's recommended to not leave stacks in `UPDATE_ROLLBACK_COMPLETE` state if you're using Windows Docker images.
+
 ## Getting Help
 
 Need help? We're here for you!
@@ -586,6 +644,13 @@ Thanks to our generous sponsors who helped make this project possible!
         <img src="https://github.com/fragment-dev.png?size=100" width="100" height="100" alt="Fragment" />
         <br />
         <sub><b>Fragment</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/qnicondavid">
+        <img src="https://github.com/qnicondavid.png?size=100" width="100" height="100" alt="Nicon-David Milandru" />
+        <br />
+        <sub><b>Nicon-David Milandru</b></sub>
       </a>
     </td>
     <td align="center">

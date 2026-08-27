@@ -9,18 +9,25 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+        uses: actions/checkout@v7
+      - name: Read pnpm version
+        id: pnpm-version
+        run: echo "version=$(node -p "require('./package.json').packageManager.split('@')[1]")" >> "$GITHUB_OUTPUT"
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: ${{ steps.pnpm-version.outputs.version }}
+      - uses: actions/setup-node@v6
         with:
           node-version: lts/*
-          cache: yarn
+          cache: pnpm
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
           cache: pip
       - name: Install dependencies
-        run: yarn install --check-files --frozen-lockfile
+        run: pnpm install
       - name: Install CDK
         run: npm install -g aws-cdk
       - name: Run test-examples script
-        run: python examples/test-examples.py --skip-deploy
+        run: PYTHONUNBUFFERED=1 python examples/test-examples.py --skip-deploy

@@ -7,12 +7,13 @@ const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Amir Szekely',
   authorAddress: 'amir@cloudsnorkel.com',
   stability: Stability.EXPERIMENTAL,
-  cdkVersion: '2.155.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode, 2.77.0 for node 16, 2.110.0 for ib lifecycle, 2.123.0 for lambda logs, 2.155.0 for launch template throughput
+  cdkVersion: '2.239.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode, 2.77.0 for node 16, 2.110.0 for ib lifecycle, 2.123.0 for lambda logs, 2.155.0 for launch template throughput, 2.239.0 for https://github.com/aws/aws-cdk/issues/37041
   defaultReleaseBranch: 'main',
   name: '@cloudsnorkel/cdk-github-runners',
   repositoryUrl: 'https://github.com/CloudSnorkel/cdk-github-runners.git',
   license: 'Apache-2.0',
   description: 'CDK construct to create GitHub Actions self-hosted runners. Creates ephemeral runners on demand. Easy to deploy and highly customizable.',
+  packageManager: 'pnpm',
   devDeps: [
     'esbuild', // for faster NodejsFunction bundling
     '@octokit/core',
@@ -27,6 +28,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@aws-sdk/client-lambda',
     '@aws-sdk/client-secrets-manager',
     '@aws-sdk/client-sns',
+    '@aws-sdk/client-sqs',
     '@aws-sdk/client-ssm',
     '@aws-sdk/client-sfn',
     '@types/aws-lambda',
@@ -41,8 +43,13 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'vite@^7',
     'vite-plugin-singlefile@^2',
     'eslint-plugin-svelte@^2.29.0',
+    // https://github.com/projen/projen/issues/4368
+    'shx',
   ],
   deps: [
+  ],
+  bundledDeps: [
+    'cron-parser',
   ],
   releaseToNpm: true,
   npmAccess: NpmAccess.PUBLIC,
@@ -96,6 +103,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
         cron: ['0 0 1 * *'],
       },
     },
+    cooldown: 5, // don't include updates from the last five days to try and dodge supply chain attacks
   },
   githubOptions: {
     pullRequestLintOptions: {
@@ -111,8 +119,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
   },
   workflowPackageCache: true,
   pullRequestTemplate: false,
-  tsJestOptions: {
-    transformOptions: {
+  tsconfigDev: {
+    compilerOptions: {
       // massively increased unit tests speed
       // side-effect: disable type checking in unit test code
       isolatedModules: true,
@@ -123,6 +131,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
 // disable automatic releases, but keep workflow that can be triggered manually
 const releaseWorkflow = project.github.tryFindWorkflow('release');
 releaseWorkflow.file.addDeletionOverride('on.push');
+
+// more consistent snapshots across systems
+project.npmrc.addConfig('node-linker', 'hoisted');
 
 // bundle docker images
 project.bundler.bundleTask.exec('cp -r src/providers/docker-images assets');
@@ -164,6 +175,9 @@ project.eslint.allowDevDeps('src/lambda-helpers.ts');
 project.eslint.allowDevDeps('src/lambda-github.ts');
 project.eslint.allowDevDeps('setup/src/main.ts');
 
+// not part of the project and can use defaults
+project.eslint.allowDefaultProjectFiles('.projenrc.js');
+
 // vscode auto formatting
 project.vscode.settings.addSettings({
   'editor.formatOnSave': true,
@@ -175,6 +189,11 @@ project.vscode.settings.addSettings({
   'svelte.plugin.svelte.format.enable': false,
   'svelte.plugin.svelte.enable': false,
 });
+
+// patch existing mergify rule to require test-examples
+const mergifyFile = project.tryFindObjectFile('.mergify.yml');
+mergifyFile.addToArray('queue_rules.0.queue_conditions', 'status-success=test-examples');
+mergifyFile.addToArray('pull_request_rules.0.conditions', 'status-success=test-examples');
 
 // funding
 project.package.addField('funding', 'https://github.com/sponsors/CloudSnorkel');

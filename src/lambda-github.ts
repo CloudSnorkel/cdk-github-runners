@@ -1,13 +1,13 @@
 import { createHash } from 'crypto';
-import type { Octokit as RestOctokit } from '@octokit/rest';
+import type { Octokit as RestOctokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
 import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
 
 // ---- Octokit ESM loader helpers (inlined) ----
 // Octokit packages are ESM, but our Lambda assets are bundled into CJS.
 // Using dynamic `import()` here lets esbuild include Octokit in the bundle.
-type OctokitRestModule = typeof import('@octokit/rest');
-type OctokitCoreModule = typeof import('@octokit/core');
-type OctokitAuthAppModule = typeof import('@octokit/auth-app');
+type OctokitRestModule = typeof import('@octokit/rest', { with: { 'resolution-mode': 'import' } });
+type OctokitCoreModule = typeof import('@octokit/core', { with: { 'resolution-mode': 'import' } });
+type OctokitAuthAppModule = typeof import('@octokit/auth-app', { with: { 'resolution-mode': 'import' } });
 
 let restModulePromise: Promise<OctokitRestModule> | undefined;
 let coreModulePromise: Promise<OctokitCoreModule> | undefined;
@@ -87,6 +87,11 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Re
   if (githubSecrets.personalAuthToken) {
     token = githubSecrets.personalAuthToken;
   } else {
+    if (installationId === undefined || installationId <= 0) {
+      throw new Error('Installation ID is required for app authentication. ' +
+        'This error can happen if you create the webhook yourself for GitHub app authentication instead of using the app webhook.');
+    }
+
     const privateKey = await getSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN);
 
     const appOctokit = new Octokit({
@@ -120,7 +125,7 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Re
 
 // This function is used to get the Octokit instance for the app itself, not for a specific installation.
 // With PAT authentication, it returns undefined.
-export async function getAppOctokit() {
+export async function getAppOctokit(): Promise<RestOctokit | undefined> {
   if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
     throw new Error('Missing environment variables');
   }
@@ -200,9 +205,10 @@ export async function deleteRunner(octokit: RestOctokit, runnerLevel: RunnerLeve
   }
 }
 
-export async function redeliver(octokit: RestOctokit, deliveryId: number) {
+export async function redeliver(octokit: RestOctokit, deliveryId: bigint) {
   const response = await octokit.rest.apps.redeliverWebhookDelivery({
-    delivery_id: deliveryId,
+    // waiting for new octokit -- https://github.com/octokit/request.js/issues/797#issuecomment-3953274583
+    delivery_id: deliveryId as unknown as number,
   });
 
   if (response.status !== 202) {
@@ -210,6 +216,6 @@ export async function redeliver(octokit: RestOctokit, deliveryId: number) {
   }
   console.log({
     notice: 'Successfully redelivered webhook delivery',
-    deliveryId,
+    deliveryId: String(deliveryId),
   });
 }

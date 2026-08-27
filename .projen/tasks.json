@@ -1,4 +1,8 @@
 {
+  "manifestVersion": 3,
+  "env": {
+    "PATH": "$(pnpm -c exec \"node --print process.env.PATH\")"
+  },
   "tasks": {
     "build": {
       "name": "build",
@@ -37,10 +41,32 @@
       },
       "steps": [
         {
-          "builtin": "release/bump-version"
+          "builtin": "release/resolve-latest-tag",
+          "outputEnv": "LATEST_TAG"
+        },
+        {
+          "spawn": "bump:releasable-commits",
+          "outputEnv": "RELEASABLE_COMMITS",
+          "condition": "git rev-parse --verify --quiet \"refs/tags/$LATEST_TAG\""
+        },
+        {
+          "builtin": "release/suggest-version-bump",
+          "outputEnv": "SUGGESTED_BUMP"
+        },
+        {
+          "builtin": "release/apply-version-bump"
         }
       ],
-      "condition": "git log --oneline -1 | grep -qv \"chore(release):\""
+      "condition": "git log --oneline -1 | grep -v \"chore(release):\" > /dev/null"
+    },
+    "bump:releasable-commits": {
+      "name": "bump:releasable-commits",
+      "description": "Print the releasable commits since the latest release",
+      "steps": [
+        {
+          "exec": "git log --oneline $LATEST_TAG..HEAD"
+        }
+      ]
     },
     "bundle": {
       "name": "bundle",
@@ -60,6 +86,9 @@
         },
         {
           "spawn": "bundle:token-retriever.lambda"
+        },
+        {
+          "spawn": "bundle:warm-runner-manager.lambda"
         },
         {
           "spawn": "bundle:webhook-handler.lambda"
@@ -101,7 +130,7 @@
       "description": "Create a JavaScript bundle from src/delete-failed-runner.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/delete-failed-runner.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/delete-failed-runner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/delete-failed-runner.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/delete-failed-runner.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -110,7 +139,7 @@
       "description": "Continuously update the JavaScript bundle from src/delete-failed-runner.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/delete-failed-runner.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/delete-failed-runner.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/delete-failed-runner.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/delete-failed-runner.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -119,7 +148,7 @@
       "description": "Create a JavaScript bundle from src/idle-runner-repear.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/idle-runner-repear.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/idle-runner-repear.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/idle-runner-repear.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/idle-runner-repear.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -128,7 +157,7 @@
       "description": "Continuously update the JavaScript bundle from src/idle-runner-repear.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/idle-runner-repear.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/idle-runner-repear.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/idle-runner-repear.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/idle-runner-repear.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -137,7 +166,7 @@
       "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/delete-resources.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-resources.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-resources.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-resources.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-resources.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -146,7 +175,7 @@
       "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/delete-resources.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-resources.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-resources.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-resources.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-resources.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -155,7 +184,7 @@
       "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -164,7 +193,7 @@
       "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -173,7 +202,7 @@
       "description": "Create a JavaScript bundle from src/image-builders/build-image.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/build-image.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/build-image.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/image-builders/build-image.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/build-image.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -182,7 +211,7 @@
       "description": "Continuously update the JavaScript bundle from src/image-builders/build-image.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/build-image.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/build-image.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/image-builders/build-image.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/build-image.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -191,7 +220,7 @@
       "description": "Create a JavaScript bundle from src/providers/ami-root-device.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/providers/ami-root-device.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/ami-root-device.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/providers/ami-root-device.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/ami-root-device.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -200,7 +229,7 @@
       "description": "Continuously update the JavaScript bundle from src/providers/ami-root-device.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/providers/ami-root-device.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/ami-root-device.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/providers/ami-root-device.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/ami-root-device.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -209,7 +238,7 @@
       "description": "Create a JavaScript bundle from src/providers/update-lambda.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/providers/update-lambda.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/update-lambda.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/providers/update-lambda.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/update-lambda.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -218,7 +247,7 @@
       "description": "Continuously update the JavaScript bundle from src/providers/update-lambda.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/providers/update-lambda.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/update-lambda.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/providers/update-lambda.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/update-lambda.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -227,7 +256,7 @@
       "description": "Create a JavaScript bundle from src/setup.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/setup.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/setup.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/setup.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/setup.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -236,7 +265,7 @@
       "description": "Continuously update the JavaScript bundle from src/setup.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/setup.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/setup.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/setup.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/setup.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -245,7 +274,7 @@
       "description": "Create a JavaScript bundle from src/status.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/status.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/status.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/status.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/status.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -254,7 +283,7 @@
       "description": "Continuously update the JavaScript bundle from src/status.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/status.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/status.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/status.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/status.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -263,7 +292,7 @@
       "description": "Create a JavaScript bundle from src/token-retriever.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/token-retriever.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/token-retriever.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/token-retriever.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/token-retriever.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -272,7 +301,25 @@
       "description": "Continuously update the JavaScript bundle from src/token-retriever.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/token-retriever.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/token-retriever.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/token-retriever.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/token-retriever.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+        }
+      ]
+    },
+    "bundle:warm-runner-manager.lambda": {
+      "name": "bundle:warm-runner-manager.lambda",
+      "description": "Create a JavaScript bundle from src/warm-runner-manager.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/warm-runner-manager.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/warm-runner-manager.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+        }
+      ]
+    },
+    "bundle:warm-runner-manager.lambda:watch": {
+      "name": "bundle:warm-runner-manager.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/warm-runner-manager.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/warm-runner-manager.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/warm-runner-manager.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -281,7 +328,7 @@
       "description": "Create a JavaScript bundle from src/webhook-handler.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/webhook-handler.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-handler.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/webhook-handler.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-handler.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -290,7 +337,7 @@
       "description": "Continuously update the JavaScript bundle from src/webhook-handler.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/webhook-handler.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-handler.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/webhook-handler.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-handler.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -299,7 +346,7 @@
       "description": "Create a JavaScript bundle from src/webhook-redelivery.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/webhook-redelivery.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-redelivery.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/webhook-redelivery.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-redelivery.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
         }
       ]
     },
@@ -308,7 +355,7 @@
       "description": "Continuously update the JavaScript bundle from src/webhook-redelivery.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/webhook-redelivery.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-redelivery.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/webhook-redelivery.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-redelivery.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -359,6 +406,9 @@
       "steps": [
         {
           "exec": "jsii --silence-warnings=reserved-word"
+        },
+        {
+          "spawn": "compat"
         }
       ]
     },
@@ -367,7 +417,10 @@
       "description": "Synthesize project files",
       "steps": [
         {
-          "exec": "node .projenrc.js"
+          "execArgs": [
+            "node",
+            ".projenrc.js"
+          ]
         }
       ]
     },
@@ -376,7 +429,11 @@
       "description": "Generate API.md from .jsii manifest",
       "steps": [
         {
-          "exec": "jsii-docgen -o API.md"
+          "execArgs": [
+            "jsii-docgen",
+            "-o",
+            "API.md"
+          ]
         }
       ]
     },
@@ -411,7 +468,7 @@
       "description": "Install project dependencies and update lockfile (non-frozen)",
       "steps": [
         {
-          "exec": "yarn install --check-files"
+          "exec": "pnpm i --no-frozen-lockfile"
         }
       ]
     },
@@ -420,7 +477,7 @@
       "description": "Install project dependencies using frozen lockfile",
       "steps": [
         {
-          "exec": "yarn install --check-files --frozen-lockfile"
+          "exec": "pnpm i --frozen-lockfile"
         }
       ]
     },
@@ -432,10 +489,23 @@
           "exec": "[ -d \"test/default.integ.snapshot\" ] || (echo \"No snapshot available for integration test 'default'. Run 'projen integ:default:deploy' to capture.\" && exit 1)"
         },
         {
-          "exec": "cdk synth --app \"ts-node -P tsconfig.dev.json test/default.integ.ts\" --no-notices --no-version-reporting --no-asset-metadata --no-path-metadata -o test/.tmp/default.integ/assert.cdk.out > /dev/null"
+          "exec": "cdk synth --app \"ts-node -P test/tsconfig.json test/default.integ.ts\" --no-notices --no-version-reporting --no-asset-metadata --no-path-metadata -o test/.tmp/default.integ/assert.cdk.out > /dev/null"
         },
         {
-          "exec": "diff -r -x asset.* -x cdk.out -x manifest.json -x tree.json test/default.integ.snapshot/ test/.tmp/default.integ/assert.cdk.out/"
+          "execArgs": [
+            "diff",
+            "-r",
+            "-x",
+            "asset.*",
+            "-x",
+            "cdk.out",
+            "-x",
+            "manifest.json",
+            "-x",
+            "tree.json",
+            "test/default.integ.snapshot/",
+            "test/.tmp/default.integ/assert.cdk.out/"
+          ]
         }
       ]
     },
@@ -444,16 +514,28 @@
       "description": "deploy integration test 'default' and capture snapshot",
       "steps": [
         {
-          "exec": "rm -fr test/.tmp/default.integ/deploy.cdk.out"
+          "execArgs": [
+            "rm",
+            "-fr",
+            "test/.tmp/default.integ/deploy.cdk.out"
+          ]
         },
         {
-          "exec": "cdk deploy --app \"ts-node -P tsconfig.dev.json test/default.integ.ts\" --no-notices --no-version-reporting --no-asset-metadata --no-path-metadata '**' --require-approval=never -o test/.tmp/default.integ/deploy.cdk.out"
+          "exec": "cdk deploy --app \"ts-node -P test/tsconfig.json test/default.integ.ts\" --no-notices --no-version-reporting --no-asset-metadata --no-path-metadata '**' --require-approval=never -o test/.tmp/default.integ/deploy.cdk.out"
         },
         {
-          "exec": "rm -fr test/default.integ.snapshot"
+          "execArgs": [
+            "rm",
+            "-fr",
+            "test/default.integ.snapshot"
+          ]
         },
         {
-          "exec": "mv test/.tmp/default.integ/deploy.cdk.out test/default.integ.snapshot"
+          "execArgs": [
+            "mv",
+            "test/.tmp/default.integ/deploy.cdk.out",
+            "test/default.integ.snapshot"
+          ]
         },
         {
           "spawn": "integ:default:destroy"
@@ -474,7 +556,7 @@
       "description": "update snapshot for integration test \"default\"",
       "steps": [
         {
-          "exec": "cdk synth --app \"ts-node -P tsconfig.dev.json test/default.integ.ts\" --no-notices --no-version-reporting --no-asset-metadata --no-path-metadata -o test/default.integ.snapshot > /dev/null"
+          "exec": "cdk synth --app \"ts-node -P test/tsconfig.json test/default.integ.ts\" --no-notices --no-version-reporting --no-asset-metadata --no-path-metadata -o test/default.integ.snapshot > /dev/null"
         }
       ]
     },
@@ -483,7 +565,7 @@
       "description": "watch integration test 'default' (without updating snapshots)",
       "steps": [
         {
-          "exec": "cdk watch --app \"ts-node -P tsconfig.dev.json test/default.integ.ts\" --no-notices --no-version-reporting --no-asset-metadata --no-path-metadata '**' -o test/.tmp/default.integ/deploy.cdk.out"
+          "exec": "cdk watch --app \"ts-node -P test/tsconfig.json test/default.integ.ts\" --no-notices --no-version-reporting --no-asset-metadata --no-path-metadata '**' -o test/.tmp/default.integ/deploy.cdk.out"
         }
       ]
     },
@@ -536,7 +618,14 @@
       "description": "Create dotnet language bindings",
       "steps": [
         {
-          "exec": "jsii-pacmak -v --target dotnet"
+          "execArgs": [
+            "jsii-pacmak",
+            "-v",
+            "--pack-command",
+            "pnpm pack",
+            "--target",
+            "dotnet"
+          ]
         }
       ]
     },
@@ -545,7 +634,14 @@
       "description": "Create go language bindings",
       "steps": [
         {
-          "exec": "jsii-pacmak -v --target go"
+          "execArgs": [
+            "jsii-pacmak",
+            "-v",
+            "--pack-command",
+            "pnpm pack",
+            "--target",
+            "go"
+          ]
         }
       ]
     },
@@ -554,7 +650,14 @@
       "description": "Create java language bindings",
       "steps": [
         {
-          "exec": "jsii-pacmak -v --target java"
+          "execArgs": [
+            "jsii-pacmak",
+            "-v",
+            "--pack-command",
+            "pnpm pack",
+            "--target",
+            "java"
+          ]
         }
       ]
     },
@@ -563,7 +666,14 @@
       "description": "Create js language bindings",
       "steps": [
         {
-          "exec": "jsii-pacmak -v --target js"
+          "execArgs": [
+            "jsii-pacmak",
+            "-v",
+            "--pack-command",
+            "pnpm pack",
+            "--target",
+            "js"
+          ]
         }
       ]
     },
@@ -572,7 +682,14 @@
       "description": "Create python language bindings",
       "steps": [
         {
-          "exec": "jsii-pacmak -v --target python"
+          "execArgs": [
+            "jsii-pacmak",
+            "-v",
+            "--pack-command",
+            "pnpm pack",
+            "--target",
+            "python"
+          ]
         }
       ]
     },
@@ -672,16 +789,83 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@18 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-cloudformation,@aws-sdk/client-codebuild,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@types/aws-lambda,@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,projen,ts-jest,ts-node,typescript"
+          "execArgs": [
+            "pnpm",
+            "dlx",
+            "npm-check-updates@20",
+            "--upgrade",
+            "--target=minor",
+            "--cooldown=5",
+            "--peer",
+            "--no-deprecated",
+            "--dep=dev,prod,peer,optional",
+            "--filter=@aws-sdk/client-cloudformation,@aws-sdk/client-codebuild,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-sqs,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@types/aws-lambda,@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,projen,shx,ts-jest,ts-node,typescript,cron-parser"
+          ]
         },
         {
-          "exec": "yarn install --check-files"
+          "exec": "pnpm i --no-frozen-lockfile"
         },
         {
-          "exec": "yarn upgrade @aws-sdk/client-cloudformation @aws-sdk/client-codebuild @aws-sdk/client-ec2 @aws-sdk/client-ecr @aws-sdk/client-imagebuilder @aws-sdk/client-lambda @aws-sdk/client-secrets-manager @aws-sdk/client-sfn @aws-sdk/client-sns @aws-sdk/client-ssm @octokit/auth-app @octokit/core @octokit/request-error @octokit/rest @stylistic/eslint-plugin @sveltejs/vite-plugin-svelte @tsconfig/svelte @types/aws-lambda @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk bootstrap commit-and-tag-version esbuild eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-svelte eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii projen sass svelte-check svelte-preprocess svelte ts-jest ts-node typescript vite-plugin-singlefile vite aws-cdk-lib constructs"
+          "execArgs": [
+            "pnpm",
+            "update",
+            "@aws-sdk/client-cloudformation",
+            "@aws-sdk/client-codebuild",
+            "@aws-sdk/client-ec2",
+            "@aws-sdk/client-ecr",
+            "@aws-sdk/client-imagebuilder",
+            "@aws-sdk/client-lambda",
+            "@aws-sdk/client-secrets-manager",
+            "@aws-sdk/client-sfn",
+            "@aws-sdk/client-sns",
+            "@aws-sdk/client-sqs",
+            "@aws-sdk/client-ssm",
+            "@octokit/auth-app",
+            "@octokit/core",
+            "@octokit/request-error",
+            "@octokit/rest",
+            "@stylistic/eslint-plugin",
+            "@sveltejs/vite-plugin-svelte",
+            "@tsconfig/svelte",
+            "@types/aws-lambda",
+            "@types/jest",
+            "@types/node",
+            "@typescript-eslint/eslint-plugin",
+            "@typescript-eslint/parser",
+            "aws-cdk",
+            "bootstrap",
+            "commit-and-tag-version",
+            "esbuild",
+            "eslint-import-resolver-typescript",
+            "eslint-plugin-import",
+            "eslint-plugin-svelte",
+            "eslint",
+            "jest",
+            "jest-junit",
+            "jsii-diff",
+            "jsii-docgen",
+            "jsii-pacmak",
+            "jsii-rosetta",
+            "jsii",
+            "projen",
+            "sass",
+            "shx",
+            "svelte-check",
+            "svelte-preprocess",
+            "svelte",
+            "ts-jest",
+            "ts-node",
+            "typescript",
+            "vite-plugin-singlefile",
+            "vite",
+            "cron-parser",
+            "aws-cdk-lib",
+            "constructs",
+            "--config.minimum-release-age=7200"
+          ]
         },
         {
-          "exec": "npx projen"
+          "exec": "pnpm exec projen"
         },
         {
           "spawn": "post-upgrade"
@@ -698,8 +882,5 @@
       ]
     }
   },
-  "env": {
-    "PATH": "$(npx -c \"node --print process.env.PATH\")"
-  },
-  "//": "~~ Generated by projen. To modify, edit .projenrc.js and run \"npx projen\"."
+  "//": "~~ Generated by projen. To modify, edit .projenrc.js and run \"pnpm exec projen\"."
 }

@@ -18,10 +18,10 @@ import {
   BaseProvider,
   IRunnerProvider,
   IRunnerProviderStatus,
+  IRunnerRuntimeParameters,
   Os,
   RunnerImage,
   RunnerProviderProps,
-  RunnerRuntimeParameters,
   RunnerVersion,
   generateStateName,
 } from './common';
@@ -64,7 +64,7 @@ export interface LambdaRunnerProviderProps extends RunnerProviderProps {
    * GitHub Actions runner group name.
    *
    * If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
-   * requires a paid GitHub account.
+   * requires a paid GitHub account and organization level runner registration.
    *
    * The group must exist or the runner will not start.
    *
@@ -332,7 +332,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    *
    * @param parameters workflow job details
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
+  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
     return new stepfunctions_tasks.LambdaInvoke(
       this,
       'State',
