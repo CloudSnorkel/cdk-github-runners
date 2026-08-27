@@ -60,9 +60,6 @@ export interface AwsImageBuilderRunnerImageBuilderProps {
   /**
    * Additional tags to apply to the AMI built by this builder.
    *
-   * The AMI is created by the EC2 Image Builder service and not by CloudFormation, so `cdk.Tags.of()` never reaches it.
-   * These tags are passed to the distribution configuration instead, which is how Image Builder tags its output AMI.
-   *
    * These additional tags are set on top of `Name`, `GitHubRunners:Stack`, and `GitHubRunners:Builder`.
    * You may override the built-in tags.
    *
