@@ -85,6 +85,9 @@
           "spawn": "bundle:status.lambda"
         },
         {
+          "spawn": "bundle:stolen-runner-handler.lambda"
+        },
+        {
           "spawn": "bundle:token-retriever.lambda"
         },
         {
@@ -115,7 +118,10 @@
           "exec": "cp -r src/providers/docker-images assets"
         },
         {
-          "exec": "cp -r src/providers/lambda-*.sh assets/providers"
+          "exec": "cp -r src/providers/*.sh assets/providers"
+        },
+        {
+          "exec": "cp -r src/providers/*.ps1 assets/providers"
         },
         {
           "exec": "vite build setup"
@@ -284,6 +290,24 @@
       "steps": [
         {
           "exec": "esbuild --bundle src/status.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/status.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+        }
+      ]
+    },
+    "bundle:stolen-runner-handler.lambda": {
+      "name": "bundle:stolen-runner-handler.lambda",
+      "description": "Create a JavaScript bundle from src/stolen-runner-handler.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/stolen-runner-handler.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/stolen-runner-handler.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+        }
+      ]
+    },
+    "bundle:stolen-runner-handler.lambda:watch": {
+      "name": "bundle:stolen-runner-handler.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/stolen-runner-handler.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/stolen-runner-handler.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/stolen-runner-handler.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -744,7 +768,7 @@
       "description": "Run tests",
       "steps": [
         {
-          "exec": "jest --passWithNoTests --updateSnapshot",
+          "exec": "jest --silent --passWithNoTests --updateSnapshot",
           "receiveArgs": true
         },
         {
@@ -799,7 +823,7 @@
             "--peer",
             "--no-deprecated",
             "--dep=dev,prod,peer,optional",
-            "--filter=@aws-sdk/client-cloudformation,@aws-sdk/client-codebuild,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-sqs,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@types/aws-lambda,@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,projen,shx,ts-jest,ts-node,typescript,cron-parser"
+            "--filter=@aws-sdk/client-cloudformation,@aws-sdk/client-codebuild,@aws-sdk/client-dynamodb,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-sqs,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@types/aws-lambda,@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,projen,shx,ts-jest,ts-node,typescript,cron-parser"
           ]
         },
         {
@@ -811,6 +835,7 @@
             "update",
             "@aws-sdk/client-cloudformation",
             "@aws-sdk/client-codebuild",
+            "@aws-sdk/client-dynamodb",
             "@aws-sdk/client-ec2",
             "@aws-sdk/client-ecr",
             "@aws-sdk/client-imagebuilder",

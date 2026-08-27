@@ -1,13 +1,17 @@
 import * as crypto from 'crypto';
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
-import { SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
+import { ExecutionAlreadyExists, SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import * as AWSLambda from 'aws-lambda';
+import { MAX_RUNNER_NAME_LENGTH, OrchestratorInput } from './lambda-common';
 import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
+import { recordControlledJob, RunnerReportMessage } from './lambda-tracker';
 import { ProviderSelectorInput, ProviderSelectorResult } from './webhook';
 
-const sf = new SFNClient();
 const lambdaClient = new LambdaClient();
+const sf = new SFNClient();
+const sqs = new SQSClient();
 
 // TODO use @octokit/webhooks?
 
@@ -189,12 +193,16 @@ export async function selectProvider(payload: any, jobLabels: string[], hook = c
  */
 export function generateExecutionName(event: any, payload: any): string {
   const deliveryId = getHeader(event, 'x-github-delivery') ?? `${Math.random()}`;
-  const repoNameTruncated = payload.repository.name.slice(0, 64 - deliveryId.length - 1);
+  const repoNameTruncated = payload.repository.name.slice(0, MAX_RUNNER_NAME_LENGTH - deliveryId.length - 1);
   return `${repoNameTruncated}-${deliveryId}`;
 }
 
 export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
-  if (!process.env.WEBHOOK_SECRET_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.PROVIDERS || !process.env.REQUIRE_SELF_HOSTED_LABEL) {
+  if (!process.env.WEBHOOK_SECRET_ARN ||
+    !process.env.STEP_FUNCTION_ARN ||
+    !process.env.PROVIDERS ||
+    !process.env.REQUIRE_SELF_HOSTED_LABEL ||
+    !process.env.JOB_ASSIGNMENT_QUEUE_URL) {
     throw new Error('Missing environment variables');
   }
 
@@ -247,14 +255,44 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
 
   const payload = JSON.parse(body);
 
-  if (payload.action !== 'queued') {
+  if (payload.action !== 'queued' && payload.action !== 'in_progress') {
     console.log({
-      notice: `Ignoring action "${payload.action}", expecting "queued"`,
+      notice: `Ignoring action "${payload.action}", expecting "queued" or "in_progress"`,
       job: payload.workflow_job,
     });
     return {
       statusCode: 200,
       body: 'OK. No runner started (action is not "queued").',
+    };
+  }
+
+  if (payload.action === 'in_progress') {
+    if (payload.workflow_job.runner_group_name !== 'GitHub Actions') { // ignore non self-hosted runners
+      // report a job being assigned to a runner to the stolen runner detector
+      // this is a much more trustworthy and reliable source than our runner log shtick
+      // sadly it's not enough for cases like repos where the app is not installed stealing our jobs
+      if (payload.workflow_job.runner_name && payload.workflow_job.run_id && payload.workflow_job.id) {
+        await sqs.send(new SendMessageCommand({
+          QueueUrl: process.env.JOB_ASSIGNMENT_QUEUE_URL,
+          // deduplicate on the runner name because the job reporter also sends the same message
+          // this message also has job id so it's better, and it will usually arrive first
+          // it may not arrive first when the webhook fails or gets delayed for some GH reason
+          // it may also not arrive at all if the job that steals the runner is from a non monitored repo
+          MessageGroupId: payload.workflow_job.runner_name,
+          MessageDeduplicationId: payload.workflow_job.runner_name,
+          MessageBody: JSON.stringify(<RunnerReportMessage>{
+            kind: 'report',
+            runnerName: payload.workflow_job.runner_name,
+            repo: `${payload.repository.owner.login}/${payload.repository.name}`,
+            workflowId: payload.workflow_job.run_id,
+            jobId: payload.workflow_job.id,
+          }),
+        }));
+      }
+    }
+    return {
+      statusCode: 200,
+      body: 'OK. No runner started (action is "in_progress").',
     };
   }
 
@@ -297,7 +335,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
   // start execution
   const executionName = generateExecutionName(event, payload);
   const idleTimeoutSeconds = process.env.IDLE_TIMEOUT_SECONDS ? parseInt(process.env.IDLE_TIMEOUT_SECONDS, 10) : 300; // default 5 minutes
-  const input = {
+  const input: OrchestratorInput = {
     owner: payload.repository.owner.login,
     repo: payload.repository.name,
     jobId: payload.workflow_job.id,
@@ -308,16 +346,49 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     labels: selection.labels.join(','), // labels to use when registering runner
     maxIdleSeconds: idleTimeoutSeconds,
   };
-  const execution = await sf.send(new StartExecutionCommand({
-    stateMachineArn: process.env.STEP_FUNCTION_ARN,
-    input: JSON.stringify(input),
-    // name is not random so multiple execution of this webhook won't cause multiple builders to start
-    name: executionName,
-  }));
+
+  // remember that this job is one we serve, before its runner can possibly exist.
+  // best-effort on purpose. starting the runner matters more than being able to tell later that we started it.
+  try {
+    await recordControlledJob(input);
+  } catch (e) {
+    console.error({
+      notice: 'Failed to record job for stolen runner detection. The runner will still start, but a runner that takes this job may be mistaken for a stolen one.',
+      jobId: input.jobId,
+      jobUrl: input.jobUrl,
+      error: `${e}`,
+    });
+  }
+
+  let executionArn: string | undefined;
+  try {
+    const execution = await sf.send(new StartExecutionCommand({
+      stateMachineArn: process.env.STEP_FUNCTION_ARN,
+      input: JSON.stringify(input),
+      // name is not random so multiple execution of this webhook won't cause multiple builders to start
+      name: executionName,
+    }));
+    executionArn = execution.executionArn;
+  } catch (e) {
+    if (e instanceof ExecutionAlreadyExists) {
+      // this delivery already started a runner. happens when GitHub or our own redelivery function redelivers an
+      // event we already handled. without this, every redelivery fails and gets redelivered again for hours.
+      console.log({
+        notice: 'Runner already started for this delivery',
+        runnerName: executionName,
+        job: payload.workflow_job,
+      });
+      return {
+        statusCode: 200,
+        body: 'OK. Runner already started for this delivery.',
+      };
+    }
+    throw e;
+  }
 
   console.log({
     notice: 'Started orchestrator',
-    execution: execution.executionArn,
+    execution: executionArn,
     sfnInput: input,
     job: payload.workflow_job,
   });

@@ -22,6 +22,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@octokit/rest',
     '@aws-sdk/client-cloudformation',
     '@aws-sdk/client-codebuild',
+    '@aws-sdk/client-dynamodb',
     '@aws-sdk/client-ec2',
     '@aws-sdk/client-ecr',
     '@aws-sdk/client-imagebuilder',
@@ -126,6 +127,10 @@ const project = new awscdk.AwsCdkConstructLibrary({
       isolatedModules: true,
     },
   },
+  jestOptions: {
+    // too many console.log() lines in EVERY build
+    extraCliOptions: ['--silent'],
+  },
 });
 
 // disable automatic releases, but keep workflow that can be triggered manually
@@ -137,7 +142,8 @@ project.npmrc.addConfig('node-linker', 'hoisted');
 
 // bundle docker images
 project.bundler.bundleTask.exec('cp -r src/providers/docker-images assets');
-project.bundler.bundleTask.exec('cp -r src/providers/lambda-*.sh assets/providers');
+project.bundler.bundleTask.exec('cp -r src/providers/*.sh assets/providers');
+project.bundler.bundleTask.exec('cp -r src/providers/*.ps1 assets/providers');
 
 // set proper line endings
 project.gitattributes.addAttributes('*.js', 'eol=lf');
@@ -173,6 +179,7 @@ cdkConfig.json.addDeletionOverride('output');
 // allow lambda utility files to import dev dependencies
 project.eslint.allowDevDeps('src/lambda-helpers.ts');
 project.eslint.allowDevDeps('src/lambda-github.ts');
+project.eslint.allowDevDeps('src/lambda-tracker.ts');
 project.eslint.allowDevDeps('setup/src/main.ts');
 
 // not part of the project and can use defaults

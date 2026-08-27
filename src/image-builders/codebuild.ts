@@ -27,7 +27,7 @@ import { BuildImageFunction } from './build-image-function';
 import { BuildImageFunctionProperties } from './build-image.lambda';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
-import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
+import { singletonLambda, singletonLogGroup, SingletonLogType, singletonRole } from '../utils';
 
 
 export interface CodeBuildRunnerImageBuilderProps {
@@ -385,15 +385,10 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       loggingFormat: lambda.LoggingFormat.JSON,
     });
 
-    const policy = new iam.Policy(this, 'CR Policy', {
-      statements: [
-        new iam.PolicyStatement({
-          actions: ['codebuild:StartBuild'],
-          resources: [project.projectArn],
-        }),
-      ],
-    });
-    crHandler.role!.attachInlinePolicy(policy);
+    const startBuildPolicy = crHandler.role!.addToPrincipalPolicy(new iam.PolicyStatement({
+      actions: ['codebuild:StartBuild'],
+      resources: [project.projectArn],
+    }));
 
     let waitHandleRef = 'unspecified';
     let waitDependable = '';
@@ -426,7 +421,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     // add dependencies to make sure resources are there when we need them
     cr.node.addDependency(project);
     cr.node.addDependency(this.role);
-    cr.node.addDependency(policy);
+    cr.node.addDependency(startBuildPolicy.policyDependable!);
     cr.node.addDependency(crHandler.role!);
     cr.node.addDependency(crHandler);
 
@@ -440,7 +435,10 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         description: `Rebuild runner image for ${this.repository.repositoryName}`,
         schedule: events.Schedule.rate(rebuildInterval),
       });
-      scheduleRule.addTarget(new events_targets.CodeBuildProject(project));
+      scheduleRule.addTarget(new events_targets.CodeBuildProject(project, {
+        // all image builders in the stack share one role, so we don't create a role and a policy per builder
+        eventRole: singletonRole(this, 'Build Schedule Role', new iam.ServicePrincipal('events.amazonaws.com')),
+      }));
     }
   }
 

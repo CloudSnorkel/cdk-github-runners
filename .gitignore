@@ -59,6 +59,7 @@ junit.xml
 !/src/idle-runner-repear-function.ts
 !/src/setup-function.ts
 !/src/status-function.ts
+!/src/stolen-runner-handler-function.ts
 !/src/token-retriever-function.ts
 !/src/warm-runner-manager-function.ts
 !/src/webhook-handler-function.ts

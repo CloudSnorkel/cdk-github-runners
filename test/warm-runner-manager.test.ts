@@ -28,13 +28,13 @@ jest.mock('@aws-sdk/client-sqs', () => {
 const mockGetOctokit = jest.fn();
 const mockGetRunner = jest.fn();
 const mockDeleteRunner = jest.fn();
-const mockGetAppOctokit = jest.fn();
+const mockResolveInstallationId = jest.fn();
 
 jest.mock('../src/lambda-github', () => ({
   getOctokit: (...args: unknown[]) => mockGetOctokit(...args),
   getRunner: (...args: unknown[]) => mockGetRunner(...args),
   deleteRunner: (...args: unknown[]) => mockDeleteRunner(...args),
-  getAppOctokit: (...args: unknown[]) => mockGetAppOctokit(...args),
+  resolveInstallationId: (...args: unknown[]) => mockResolveInstallationId(...args),
 }));
 
 const mockCustomResourceRespond = jest.fn();
@@ -101,7 +101,7 @@ beforeEach(() => {
   process.env.WARM_CONFIG_HASHES = VALID_CONFIG_HASH;
   process.env.STEP_FUNCTION_ARN = 'arn:aws:states:us-east-1:123456789012:stateMachine:test';
   process.env.WARM_RUNNER_QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/123456789012/warm-runner-queue';
-  mockGetAppOctokit.mockResolvedValue(null);
+  mockResolveInstallationId.mockResolvedValue(undefined); // PAT auth has no installation to resolve
   mockGetOctokit.mockResolvedValue({ octokit: mockOctokit, githubSecrets: mockSecrets });
 });
 
@@ -269,7 +269,7 @@ describe('warm-runner-manager.lambda handler', () => {
       expect(result.batchItemFailures).toEqual([]);
       expect(mockSfnSend).toHaveBeenCalledTimes(2);
       expect(mockSqsSend).toHaveBeenCalledTimes(2);
-      expect(mockGetAppOctokit).toHaveBeenCalled();
+      expect(mockResolveInstallationId).toHaveBeenCalled();
     });
   });
 

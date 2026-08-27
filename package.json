@@ -28,6 +28,8 @@
     "bundle:setup.lambda:watch": "projen bundle:setup.lambda:watch",
     "bundle:status.lambda": "projen bundle:status.lambda",
     "bundle:status.lambda:watch": "projen bundle:status.lambda:watch",
+    "bundle:stolen-runner-handler.lambda": "projen bundle:stolen-runner-handler.lambda",
+    "bundle:stolen-runner-handler.lambda:watch": "projen bundle:stolen-runner-handler.lambda:watch",
     "bundle:token-retriever.lambda": "projen bundle:token-retriever.lambda",
     "bundle:token-retriever.lambda:watch": "projen bundle:token-retriever.lambda:watch",
     "bundle:warm-runner-manager.lambda": "projen bundle:warm-runner-manager.lambda",
@@ -75,6 +77,7 @@
   "devDependencies": {
     "@aws-sdk/client-cloudformation": "^3.1095.0",
     "@aws-sdk/client-codebuild": "^3.1095.0",
+    "@aws-sdk/client-dynamodb": "^3.1110.0",
     "@aws-sdk/client-ec2": "^3.1095.0",
     "@aws-sdk/client-ecr": "^3.1095.0",
     "@aws-sdk/client-imagebuilder": "^3.1095.0",
