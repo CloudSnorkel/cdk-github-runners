@@ -594,6 +594,7 @@ Other useful metrics to track:
 
 1. Use `GitHubRunners.metricJobCompleted()` to get a metric for the number of completed jobs broken down by labels and job success.
 2. Use `GitHubRunners.metricTime()` to get a metric for the total time a runner is running. This includes the overhead of starting the runner.
+3. Use `GitHubRunners.metricStolenRunners()` to get a metric for number of runners detected as stolen by another job. Anything over zero can indicate a misconfiguration or GitHub webhook issues.
 
 ## Known Issues
 

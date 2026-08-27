@@ -78,7 +78,8 @@ import {
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import type { Octokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
 import * as AWSLambda from 'aws-lambda';
-import { deleteRunner, getAppOctokit, getOctokit, getRunner, GitHubSecrets } from './lambda-github';
+import { OrchestratorInput, WARM_RUNNER_JOB_ID } from './lambda-common';
+import { deleteRunner, getOctokit, getRunner, GitHubSecrets, resolveInstallationId } from './lambda-github';
 import { customResourceRespond } from './lambda-helpers';
 
 const sfn = new SFNClient();
@@ -164,22 +165,6 @@ function getNextMidnightUtcMs(): number {
   return nextMidnight.getTime();
 }
 
-/** Find installation id for our app. Normal code path gets this from the webhook payload, but we schedule these ourselves. */
-async function resolveInstallationId(owner: string, repo: string) {
-  const appOctokit = await getAppOctokit();
-  if (!appOctokit) {
-    return undefined; // PAT authentication
-  }
-
-  if (repo) {
-    const { data } = await appOctokit.rest.apps.getRepoInstallation({ owner, repo });
-    return data.id;
-  } else {
-    const { data } = await appOctokit.rest.apps.getOrgInstallation({ org: owner });
-    return data.id;
-  }
-}
-
 /** Start a warm runner and enqueue a keeper message using SQS. */
 async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
   const stepFunctionArn = requireEnv('STEP_FUNCTION_ARN');
@@ -201,10 +186,10 @@ async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
     const result = await sfn.send(new StartExecutionCommand({
       stateMachineArn: stepFunctionArn,
       name: input.executionName,
-      input: JSON.stringify({
+      input: JSON.stringify(<OrchestratorInput>{
         owner: input.owner,
         repo: input.repo || '',
-        jobId: -1,
+        jobId: WARM_RUNNER_JOB_ID,
         jobUrl: '',
         installationId: input.installationId ?? -1,
         jobLabels: input.providerLabels.join(','),

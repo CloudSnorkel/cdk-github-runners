@@ -191,6 +191,7 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
       'sh', '-c',
       `${dindCommand}
         cd /home/runner &&
+        ./job-reporter.sh "$RUNNER_NAME" &&
         if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
         ./config.sh --unattended --url "$REGISTRATION_URL" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&
         ./run.sh &&
@@ -201,6 +202,7 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
     return [
       'powershell', '-Command',
       `cd \\actions ;
+        & ./job-reporter.ps1 "\${Env:RUNNER_NAME}" ;
         if ($Env:RUNNER_VERSION -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ;
         ./config.cmd --unattended --url "\${Env:REGISTRATION_URL}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL},cdkghr:started:\$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${Env:RUNNER_NAME}" \${Env:RUNNER_GROUP1} \${Env:RUNNER_GROUP2} \${Env:DEFAULT_LABELS} ;
         ./run.cmd ;

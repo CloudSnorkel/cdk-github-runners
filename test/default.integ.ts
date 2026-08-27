@@ -40,6 +40,11 @@ const cluster = new ecs.Cluster(
   },
 );
 
+// one security group to save on resources
+const sg = new ec2.SecurityGroup(stack, 'SG', {
+  vpc,
+});
+
 const extraFilesComponentLinux = RunnerImageComponent.custom({
   commands: [
     'touch /custom-file',
@@ -93,12 +98,14 @@ const windowsImageBuilder = FargateRunnerProvider.imageBuilder(stack, 'Windows I
   os: Os.WINDOWS,
   vpc,
   subnetSelection: { subnetType: ec2.SubnetType.PUBLIC },
+  securityGroups: [sg],
 });
 windowsImageBuilder.addComponent(extraFilesComponentWindows);
 windowsImageBuilder.addComponent(envComponent);
 
 const amiX64Builder = Ec2RunnerProvider.imageBuilder(stack, 'AMI Linux Builder', {
   vpc,
+  securityGroups: [sg],
   awsImageBuilderOptions: {
     storageSize: cdk.Size.gibibytes(33),
   },
@@ -134,6 +141,7 @@ const ec2ImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'AMI Linux arm64 B
     instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
   },
   vpc,
+  securityGroups: [sg],
 });
 ec2ImageBuilder.addComponent(extraFilesComponentLinux);
 ec2ImageBuilder.addComponent(envComponent);
@@ -141,6 +149,7 @@ ec2ImageBuilder.addComponent(envComponent);
 const ec2WindowsImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'Windows EC2 Builder', {
   os: Os.WINDOWS,
   vpc,
+  securityGroups: [sg],
 });
 ec2WindowsImageBuilder.addComponent(extraFilesComponentWindows);
 ec2WindowsImageBuilder.addComponent(envComponent);
@@ -179,6 +188,7 @@ const runners = new GitHubRunners(stack, 'runners', {
         labels: ['ecs', 'linux', 'x64'],
         imageBuilder: codeBuildImageBuilder, // codebuild has dind
         vpc,
+        securityGroups: [sg],
         maxInstances: 1,
         spot: true,
         storageSize: cdk.Size.gibibytes(40),
@@ -192,6 +202,7 @@ const runners = new GitHubRunners(stack, 'runners', {
         labels: ['ecs', 'linux', 'x64'],
         imageBuilder: codeBuildImageBuilder, // codebuild has dind
         vpc,
+        securityGroups: [sg],
         maxInstances: 1,
         spot: false, // only use spot if the first provider fails
         storageSize: cdk.Size.gibibytes(40),
@@ -206,6 +217,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       labels: ['ecs-ubuntu-2404', 'x64'],
       imageBuilder: codeBuildUbuntu2404ImageBuilder, // codebuild has dind
       vpc,
+      securityGroups: [sg],
       maxInstances: 1,
       spot: true,
       storageSize: cdk.Size.gibibytes(40),
@@ -219,12 +231,14 @@ const runners = new GitHubRunners(stack, 'runners', {
       labels: ['ecs', 'linux', 'arm64'],
       imageBuilder: codeBuildArm64ImageBuilder, // codebuild has dind
       vpc,
+      securityGroups: [sg],
       maxInstances: 1,
     }),
     new EcsRunnerProvider(stack, 'ECS Windows', {
       labels: ['ecs', 'windows', 'x64'],
       imageBuilder: windowsImageBuilder,
       vpc,
+      securityGroups: [sg],
       maxInstances: 1,
     }),
     new LambdaRunnerProvider(stack, 'Lambda', {
@@ -242,6 +256,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       imageBuilder: fargateX64Builder,
       cluster,
       vpc: cluster.vpc,
+      securityGroups: [sg],
       assignPublicIp: true,
     }),
     CompositeProvider.distribute(stack, 'Fargate-x64-spot distribute', [
@@ -255,6 +270,7 @@ const runners = new GitHubRunners(stack, 'runners', {
           imageBuilder: fargateX64Builder,
           cluster,
           vpc: cluster.vpc,
+          securityGroups: [sg],
           assignPublicIp: true,
           subnetSelection: vpc.selectSubnets({
             subnetType: ec2.SubnetType.PUBLIC,
@@ -272,6 +288,7 @@ const runners = new GitHubRunners(stack, 'runners', {
           imageBuilder: fargateX64Builder,
           cluster,
           vpc: cluster.vpc,
+          securityGroups: [sg],
           assignPublicIp: true,
           subnetSelection: vpc.selectSubnets({
             subnetType: ec2.SubnetType.PUBLIC,
@@ -287,6 +304,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       imageBuilder: fargateArm64Builder,
       cluster,
       vpc: cluster.vpc,
+      securityGroups: [sg],
       assignPublicIp: true,
     }),
     new FargateRunnerProvider(stack, 'Fargate-arm64-spot', {
@@ -297,6 +315,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       imageBuilder: fargateArm64Builder,
       cluster,
       vpc: cluster.vpc,
+      securityGroups: [sg],
       assignPublicIp: true,
     }),
     new FargateRunnerProvider(stack, 'Fargate-Windows', {
@@ -306,6 +325,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       imageBuilder: windowsImageBuilder,
       cluster,
       vpc: cluster.vpc,
+      securityGroups: [sg],
       assignPublicIp: true,
     }),
     CompositeProvider.fallback(stack, 'EC2 Fallback', [
@@ -314,6 +334,7 @@ const runners = new GitHubRunners(stack, 'runners', {
         labels: ['ec2', 'linux', 'x64'],
         imageBuilder: amiX64Builder,
         vpc,
+        securityGroups: [sg],
         storageSize: cdk.Size.gibibytes(40),
         storageOptions: {
           volumeType: ec2.EbsDeviceVolumeType.GP3,
@@ -325,6 +346,7 @@ const runners = new GitHubRunners(stack, 'runners', {
         labels: ['ec2', 'linux', 'x64'],
         imageBuilder: amiX64Builder,
         vpc,
+        securityGroups: [sg],
         storageSize: cdk.Size.gibibytes(40),
         storageOptions: {
           volumeType: ec2.EbsDeviceVolumeType.GP3,
@@ -338,6 +360,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       imageBuilder: amiX64Builder,
       spot: true,
       vpc,
+      securityGroups: [sg],
       storageSize: cdk.Size.gibibytes(40),
     }),
     new Ec2RunnerProvider(stack, 'EC2 Linux arm64', {
@@ -345,11 +368,13 @@ const runners = new GitHubRunners(stack, 'runners', {
       imageBuilder: ec2ImageBuilder,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
       vpc,
+      securityGroups: [sg],
     }),
     new Ec2RunnerProvider(stack, 'EC2 Windows', {
       labels: ['ec2', 'windows', 'x64'],
       imageBuilder: ec2WindowsImageBuilder,
       vpc,
+      securityGroups: [sg],
     }),
   ],
   providerSelector: new lambda.Function(stack, 'Provider Selector', {
@@ -373,6 +398,7 @@ const runners = new GitHubRunners(stack, 'runners', {
 
 runners.metricJobCompleted();
 runners.failedImageBuildsTopic();
+runners.metricStolenRunners();
 runners.createLogsInsightsQueries();
 
 app.synth();

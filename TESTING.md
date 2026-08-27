@@ -50,8 +50,10 @@ Integration tests check the happy paths. We should also test the unhappy paths m
 * Retries
   * Confirm runner errors are retried
   * Confirm failed runner doesn't stay registered in GitHub
+* Stolen runner detection
+  * Confirm a new runner is created when an unknown job is assigned to one of our runners
 
-The last two scenarios can be tested with the following test cases: 
+The two retries scenarios can be tested with the following test cases: 
 
 * Start step function without a job actually pending (e.g. by duplicating input from a previous job, or cancelling a job before a runner picks it up)
    * The step function should be aborted as an idle runner
@@ -59,3 +61,12 @@ The last two scenarios can be tested with the following test cases:
 * Let Lambda runner timeout by starting a job that lasts longer than 15 minutes
    * The runner should be retried and eventually the step function should be aborted as an idle runner
    * No runner should be registered on GitHub at the end
+
+Stolen runners can be tested with the following steps:
+
+1. Disable the webhook temporarily
+2. Run the integration test
+3. Confirm no runners were provisioned
+4. Enable the webhook
+5. Run integration tests again
+6. Confirm that all jobs from both workflow runs succeeded 

@@ -219,3 +219,33 @@ export async function redeliver(octokit: RestOctokit, deliveryId: bigint) {
     deliveryId: String(deliveryId),
   });
 }
+
+/**
+ * Did GitHub tell us it can't see this? Used to tell "we have no access" apart from a real failure, because the
+ * first is permanent and retrying it forever costs rate limit we need for starting runners.
+ */
+export function isNotFound(e: unknown): boolean {
+  return (e as { status?: number })?.status === 404;
+}
+
+/**
+ * Find installation id for our app. Normal code path gets this from the webhook payload, but we schedule these ourselves.
+ *
+ * If the repository cannot be found (e.g. the app was uninstalled), this will throw a 404 error. Use `isNotFound` to check for that case.
+ *
+ * @internal
+ */
+export async function resolveInstallationId(owner: string, repo: string) {
+  const appOctokit = await getAppOctokit();
+  if (!appOctokit) {
+    return undefined; // PAT authentication
+  }
+
+  if (repo) {
+    const { data } = await appOctokit.rest.apps.getRepoInstallation({ owner, repo });
+    return data.id;
+  } else {
+    const { data } = await appOctokit.rest.apps.getOrgInstallation({ org: owner });
+    return data.id;
+  }
+}

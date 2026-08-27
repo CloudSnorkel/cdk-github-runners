@@ -81,6 +81,12 @@ setup_logs () {
               "log_group_name": "$logGroupName",
               "log_stream_name": "$runnerNamePath",
               "timezone": "UTC"
+            },
+            {
+              "file_path": "/var/log/workflow.log",
+              "log_group_name": "$logGroupName",
+              "log_stream_name": "$runnerNamePath-workflow",
+              "timezone": "UTC"
             }
           ]
         }
@@ -99,6 +105,9 @@ action () {
   fi
 
   labelsTemplate="$labels,cdkghr:started:$(date +%s)"
+
+  # Report workflow id for stolen runner detection (to separate log so it doesn't hang this bash function)
+  /home/runner/job-reporter.sh "$runnerNamePath" /var/log/workflow.log
 
   # Execute the configuration command for runner registration
   sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1
@@ -161,6 +170,9 @@ Start-Job -ScriptBlock {
   }
 }
 function setup_logs () {
+  # the runner report can't go in runner.log: run.cmd's Out-File holds that file open for as long as the runner is
+  # running, which is exactly when the report is written. one file per stream, so it gets its own stream. the
+  # subscription filter is on the log group, so the detector doesn't care.
   echo "{
     \`"logs\`": {
       \`"log_stream_name\`": \`"unknown\`",
@@ -172,6 +184,12 @@ function setup_logs () {
               \`"log_group_name\`": \`"$logGroupName\`",
               \`"log_stream_name\`": \`"$runnerNamePath\`",
               \`"timezone\`": \`"UTC\`"
+            },
+            {
+              \`"file_path\`": \`"/actions/workflow.log\`",
+              \`"log_group_name\`": \`"$logGroupName\`",
+              \`"log_stream_name\`": \`"$runnerNamePath-workflow\`",
+              \`"timezone\`": \`"UTC\`"
             }
           ]
         }
@@ -182,6 +200,9 @@ function setup_logs () {
 }
 function action () {
   cd /actions
+
+  & ./job-reporter.ps1 "\${runnerNamePath}" /actions/workflow.log 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+
   $RunnerVersion = Get-Content /actions/RUNNER_VERSION -Raw
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
   ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" \${runnerGroup1} \${runnerGroup2} \${defaultLabels} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log

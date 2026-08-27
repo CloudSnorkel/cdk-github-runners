@@ -27,6 +27,9 @@ cd /tmp/runner
 mkdir /tmp/home
 export HOME=/tmp/home
 
+# check for stolen runners
+./job-reporter.sh "${RUNNER_NAME}"
+
 # start runner
 if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
 ./config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" --name "${RUNNER_NAME}" ${RUNNER_FLAGS} ${RUNNER_GROUP} ${DEFAULT_LABELS}

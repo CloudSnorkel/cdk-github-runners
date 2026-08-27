@@ -381,6 +381,41 @@ export abstract class RunnerImageComponent {
     return new class extends RunnerImageComponent {
       name = 'GithubRunner';
 
+      getAssets(os: Os, _architecture: Architecture): RunnerImageAsset[] {
+        if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
+          return [
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-reporter.sh'),
+              target: '/home/runner/job-reporter.sh',
+            },
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-started-hook.sh'),
+              target: '/home/runner/job-started-hook.sh',
+            },
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-completed-hook.sh'),
+              target: '/home/runner/job-completed-hook.sh',
+            },
+          ];
+        } else if (os.is(Os.WINDOWS)) {
+          return [
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-reporter.ps1'),
+              target: '/actions/job-reporter.ps1',
+            },
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-started-hook.ps1'),
+              target: '/actions/job-started-hook.ps1',
+            },
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-completed-hook.ps1'),
+              target: '/actions/job-completed-hook.ps1',
+            },
+          ];
+        }
+        return [];
+      }
+
       getCommands(os: Os, architecture: Architecture) {
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS) || os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
           let versionCommand: string;
@@ -405,6 +440,13 @@ export abstract class RunnerImageComponent {
             `tar -C /home/runner -xzf "actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
             `rm actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz`,
             `echo -n ${runnerVersion.version} > /home/runner/RUNNER_VERSION`,
+            'chmod +x /home/runner/job-reporter.sh',
+            'chmod +x /home/runner/job-started-hook.sh',
+            'chmod +x /home/runner/job-completed-hook.sh',
+            'echo ACTIONS_RUNNER_HOOK_JOB_STARTED=/home/runner/job-started-hook.sh >> /home/runner/.env',
+            'echo ACTIONS_RUNNER_HOOK_JOB_COMPLETED=/home/runner/job-completed-hook.sh >> /home/runner/.env',
+            'chown runner /home/runner/.env', // env.sh modifies .env
+            'touch /home/runner/.workflowid && chown runner /home/runner/.workflowid',
           ];
 
           if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
@@ -446,6 +488,10 @@ export abstract class RunnerImageComponent {
             // add C:\tools to PATH
             '$persistedPaths = [Environment]::GetEnvironmentVariable(\'Path\', [EnvironmentVariableTarget]::Machine)',
             '[Environment]::SetEnvironmentVariable("PATH", $persistedPaths + ";C:\\tools", [EnvironmentVariableTarget]::Machine)',
+            // setup hooks
+            "Add-Content -Path C:\\actions\\.env -Value 'ACTIONS_RUNNER_HOOK_JOB_STARTED=C:\\actions\\job-started-hook.ps1'",
+            "Add-Content -Path C:\\actions\\.env -Value 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED=C:\\actions\\job-completed-hook.ps1'",
+            "Set-Content -Path C:\\actions\\.workflowid -Value '' -NoNewline",
           ]);
 
           return runnerCommands.concat([
@@ -691,9 +737,12 @@ export abstract class RunnerImageComponent {
    * Must be used after the {@link githubRunner} component.
    */
   static environmentVariables(vars: Record<string, string>): RunnerImageComponent {
-    Object.entries(vars).forEach(e => {
-      if (e[0].includes('\n') || e[1].includes('\n')) {
-        throw new Error(`Environment variable cannot contain newlines: ${e}`);
+    Object.entries(vars).forEach(([key, value]) => {
+      if (key.includes('\n') || value.includes('\n')) {
+        throw new Error(`Environment variable cannot contain newlines: ${key}=${value}`);
+      }
+      if (key == 'ACTIONS_RUNNER_HOOK_JOB_STARTED' || key == 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED') {
+        throw new Error('Cannot override ACTIONS_RUNNER_HOOK_JOB_STARTED or ACTIONS_RUNNER_HOOK_JOB_COMPLETED. Use RunnerImageComponent.jobStartedHook() or RunnerImageComponent.jobCompletedHook() instead.');
       }
     });
 
@@ -722,7 +771,7 @@ export abstract class RunnerImageComponent {
    * A component that runs a script before every job the runner executes.
    *
    * Point this at a local script file. It is copied into the image, made executable, and the runner is
-   * configured to run it before each job using the
+   * configured to run it before each job through the
    * [`ACTIONS_RUNNER_HOOK_JOB_STARTED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
    * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
    *
@@ -731,14 +780,14 @@ export abstract class RunnerImageComponent {
    * @param sourcePath path to a local script file to run before every job
    */
   static jobStartedHook(sourcePath: string): RunnerImageComponent {
-    return RunnerImageComponent.jobHook('Job-Started-Hook', 'ACTIONS_RUNNER_HOOK_JOB_STARTED', sourcePath);
+    return RunnerImageComponent.jobHook('Job-Started-Hook', 'job-started-hook-user', sourcePath);
   }
 
   /**
    * A component that runs a script after every job the runner executes.
    *
    * Point this at a local script file. It is copied into the image, made executable, and the runner is
-   * configured to run it after each job using the
+   * configured to run it after each job through the
    * [`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
    * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
    *
@@ -747,15 +796,15 @@ export abstract class RunnerImageComponent {
    * @param sourcePath path to a local script file to run after every job
    */
   static jobCompletedHook(sourcePath: string): RunnerImageComponent {
-    return RunnerImageComponent.jobHook('Job-Completed-Hook', 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED', sourcePath);
+    return RunnerImageComponent.jobHook('Job-Completed-Hook', 'job-completed-hook-user', sourcePath);
   }
 
-  private static jobHook(name: string, envVar: string, sourcePath: string): RunnerImageComponent {
+  private static jobHook(name: string, scriptName: string, sourcePath: string): RunnerImageComponent {
     const scriptPath = (os: Os): string => {
       if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
-        return `/home/runner/${envVar}.sh`;
+        return `/home/runner/${scriptName}.sh`;
       } else if (os.is(Os.WINDOWS)) {
-        return `C:\\actions\\${envVar}.ps1`;
+        return `C:\\actions\\${scriptName}.ps1`;
       }
       throw new Error(`Unsupported OS for job hook component: ${os.name}`);
     };
@@ -775,13 +824,9 @@ export abstract class RunnerImageComponent {
         if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
           return [
             `chmod +x '${target}'`,
-            `echo '${envVar}=${target}' >> /home/runner/.env`,
-            'chown runner /home/runner/.env', // env.sh modifies .env
           ];
         } else if (os.is(Os.WINDOWS)) {
-          return [
-            `Add-Content -Path C:\\actions\\.env -Value '${envVar}=${target}'`,
-          ];
+          return [];
         }
         throw new Error(`Unsupported OS for job hook component: ${os.name}`);
       }
