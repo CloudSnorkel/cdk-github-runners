@@ -130,6 +130,67 @@ describe('Image Builder', () => {
     );
   });
 
+  test('AMI tags are merged into the distribution configuration', () => {
+
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    const builder = Ec2RunnerProvider.imageBuilder(stack, 'builder', {
+      vpc,
+      awsImageBuilderOptions: {
+        amiTags: {
+          'CostCenter': 'engineering',
+          'GitHubRunners:Stack': 'overridden',
+        },
+      },
+    });
+
+    builder.bindAmi();
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties('AWS::ImageBuilder::DistributionConfiguration', Match.objectLike({
+      Distributions: Match.arrayWith([
+        Match.objectLike({
+          AmiDistributionConfiguration: Match.objectLike({
+            AmiTags: {
+              'Name': 'builder',
+              'GitHubRunners:Stack': 'overridden',
+              'GitHubRunners:Builder': 'test/builder',
+              'CostCenter': 'engineering',
+            },
+          }),
+        }),
+      ]),
+    }));
+  });
+
+  test('AMI tags are not required', () => {
+
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    const builder = Ec2RunnerProvider.imageBuilder(stack, 'builder', {
+      vpc,
+    });
+
+    builder.bindAmi();
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties('AWS::ImageBuilder::DistributionConfiguration', Match.objectLike({
+      Distributions: Match.arrayWith([
+        Match.objectLike({
+          AmiDistributionConfiguration: Match.objectLike({
+            AmiTags: {
+              'Name': 'builder',
+              'GitHubRunners:Stack': 'test',
+              'GitHubRunners:Builder': 'test/builder',
+            },
+          }),
+        }),
+      ]),
+    }));
+  });
+
   test('Container image builder supported OS', () => {
 
     const vpc = new ec2.Vpc(stack, 'vpc');
