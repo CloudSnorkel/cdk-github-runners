@@ -5,7 +5,15 @@
  */
 
 import * as cdk from 'aws-cdk-lib';
-import { aws_codebuild as codebuild, aws_ec2 as ec2, aws_ecs as ecs, aws_lambda as lambda, aws_logs as logs } from 'aws-cdk-lib';
+import {
+  aws_cloudformation as cloudformation,
+  aws_codebuild as codebuild,
+  aws_ec2 as ec2,
+  aws_ecs as ecs,
+  aws_lambda as lambda,
+  aws_logs as logs,
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import {
   Architecture,
   CodeBuildRunnerProvider,
@@ -18,6 +26,11 @@ import {
   Os,
   RunnerImageComponent,
 } from '../src';
+
+// turn this on to test what happens if a stack fails deploying after an image was already built.
+// we have an open issue where the new version of the image remains until the next scheduled build.
+// after failing to deploy, run the integration tests. any provider that fails is using the new image which doesn't match the rolled back stack.
+const testDeploymentFailureAfterImageBuilt = false;
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
@@ -47,7 +60,7 @@ const sg = new ec2.SecurityGroup(stack, 'SG', {
 
 const extraFilesComponentLinux = RunnerImageComponent.custom({
   commands: [
-    'touch /custom-file',
+    testDeploymentFailureAfterImageBuilt ? 'echo skipping custom-file' : 'touch /custom-file',
     'mkdir /custom-dir',
     'mv FUNDING.yml /custom-dir',
   ],
@@ -60,7 +73,7 @@ const extraFilesComponentLinux = RunnerImageComponent.custom({
 });
 const extraFilesComponentWindows = RunnerImageComponent.custom({
   commands: [
-    'New-Item -ItemType file -Path / -Name custom-file',
+    testDeploymentFailureAfterImageBuilt ? 'echo skipping custom-file' : 'New-Item -ItemType file -Path / -Name custom-file',
     'New-Item -ItemType directory -Path / -Name custom-dir',
     'Move-Item FUNDING.yml /custom-dir',
   ],
@@ -405,5 +418,32 @@ runners.metricJobCompleted();
 runners.failedImageBuildsTopic();
 runners.metricStolenRunners();
 runners.createLogsInsightsQueries();
+
+if (testDeploymentFailureAfterImageBuilt) {
+  const rollbackTestHandle = new cloudformation.CfnWaitConditionHandle(stack, 'Rollback Test Handle');
+  const rollbackTestFailure = new cloudformation.CfnWaitCondition(stack, 'Rollback Test Failure', {
+    handle: rollbackTestHandle.ref,
+    timeout: '60', // nobody ever signals this, so it times out and fails the update
+    count: 1,
+  });
+  for (const dependency of [
+    fargateX64Builder,
+    fargateArm64Builder,
+    lambdaImageBuilder,
+    windowsImageBuilder,
+    amiX64Builder,
+    codeBuildImageBuilder,
+    codeBuildUbuntu2404ImageBuilder,
+    codeBuildArm64ImageBuilder,
+    lambdaArm64ImageBuilder,
+    ec2ImageBuilder,
+    ec2WindowsImageBuilder,
+    runners,
+  ]) {
+    if (Construct.isConstruct(dependency)) {
+      rollbackTestFailure.node.addDependency(dependency);
+    }
+  }
+}
 
 app.synth();
