@@ -142,7 +142,7 @@
       }
     },
     "2fc3b84da69dcc5adb6dc4721b50c1166474fa7e5fd5f242e833d12ac28e09d9": {
-      "displayName": "Lambda Image Builder x64/Component 6 Lambda-Entrypoint Asset 0",
+      "displayName": "Lambda Image Builder x64 2/Component 6 Lambda-Entrypoint Asset 0",
       "source": {
         "path": "asset.2fc3b84da69dcc5adb6dc4721b50c1166474fa7e5fd5f242e833d12ac28e09d9.sh",
         "packaging": "file"
@@ -156,7 +156,7 @@
       }
     },
     "1834362d737d6d6f067b29a9a72db5dc262eec261656e06916fe6e0905b9ddf4": {
-      "displayName": "Lambda Image Builder x64/Component 6 Lambda-Entrypoint Asset 1",
+      "displayName": "Lambda Image Builder x64 2/Component 6 Lambda-Entrypoint Asset 1",
       "source": {
         "path": "asset.1834362d737d6d6f067b29a9a72db5dc262eec261656e06916fe6e0905b9ddf4.sh",
         "packaging": "file"
@@ -323,16 +323,16 @@
         }
       }
     },
-    "db4fcca773c104b1be6c9ea8aeaeb477f02c564b3154c8567cea47530968bd99": {
+    "d5995e029bc8e665d705c2743ade6bffa0be1feff648fa0932617189f38c2358": {
       "displayName": "github-runners-test Template",
       "source": {
         "path": "github-runners-test.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "current_account-current_region-dbbe14fe": {
+        "current_account-current_region-f3540c15": {
           "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
-          "objectKey": "db4fcca773c104b1be6c9ea8aeaeb477f02c564b3154c8567cea47530968bd99.json",
+          "objectKey": "d5995e029bc8e665d705c2743ade6bffa0be1feff648fa0932617189f38c2358.json",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
         }
       }

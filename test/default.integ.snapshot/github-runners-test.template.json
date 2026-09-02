@@ -1120,7 +1120,7 @@
     ]
    }
   },
-  "LambdaImageBuilderx64RoleEE3EE1CB": {
+  "LambdaImageBuilderx642RoleCDA1E0B3": {
    "Type": "AWS::IAM::Role",
    "Properties": {
     "AssumeRolePolicyDocument": {
@@ -1137,7 +1137,7 @@
     }
    }
   },
-  "LambdaImageBuilderx64RoleDefaultPolicyC6AE2BE4": {
+  "LambdaImageBuilderx642RoleDefaultPolicyFD464750": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
     "PolicyDocument": {
@@ -1191,7 +1191,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "LambdaImageBuilderx64Logs1C003BB4",
+         "LambdaImageBuilderx642Logs39CD14F1",
          "Arn"
         ]
        }
@@ -1222,7 +1222,7 @@
            },
            ":log-group:/aws/codebuild/",
            {
-            "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
+            "Ref": "LambdaImageBuilderx642CodeBuildB128BBB9"
            }
           ]
          ]
@@ -1245,7 +1245,7 @@
            },
            ":log-group:/aws/codebuild/",
            {
-            "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
+            "Ref": "LambdaImageBuilderx642CodeBuildB128BBB9"
            },
            ":*"
           ]
@@ -1280,7 +1280,7 @@
           },
           ":report-group/",
           {
-           "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
+           "Ref": "LambdaImageBuilderx642CodeBuildB128BBB9"
           },
           "-*"
          ]
@@ -1300,7 +1300,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "LambdaImageBuilderx64Repository57F632F1",
+         "LambdaImageBuilderx642Repository8E56542E",
          "Arn"
         ]
        }
@@ -1313,15 +1313,15 @@
      ],
      "Version": "2012-10-17"
     },
-    "PolicyName": "LambdaImageBuilderx64RoleDefaultPolicyC6AE2BE4",
+    "PolicyName": "LambdaImageBuilderx642RoleDefaultPolicyFD464750",
     "Roles": [
      {
-      "Ref": "LambdaImageBuilderx64RoleEE3EE1CB"
+      "Ref": "LambdaImageBuilderx642RoleCDA1E0B3"
      }
     ]
    }
   },
-  "LambdaImageBuilderx64Repository57F632F1": {
+  "LambdaImageBuilderx642Repository8E56542E": {
    "Type": "AWS::ECR::Repository",
    "Properties": {
     "EmptyOnDelete": true,
@@ -1352,7 +1352,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "LambdaImageBuilderx64RepositoryPushrule1C711F47": {
+  "LambdaImageBuilderx642RepositoryPushruleE03E1DF5": {
    "Type": "AWS::Events::Rule",
    "Properties": {
     "Description": "Update GitHub Actions runner Lambda on ECR image push",
@@ -1366,7 +1366,7 @@
       ],
       "repository-name": [
        {
-        "Ref": "LambdaImageBuilderx64Repository57F632F1"
+        "Ref": "LambdaImageBuilderx642Repository8E56542E"
        }
       ],
       "image-tag": [
@@ -1407,7 +1407,7 @@
              ":",
              {
               "Fn::GetAtt": [
-               "LambdaImageBuilderx64Repository57F632F1",
+               "LambdaImageBuilderx642Repository8E56542E",
                "Arn"
               ]
              }
@@ -1424,7 +1424,7 @@
              ":",
              {
               "Fn::GetAtt": [
-               "LambdaImageBuilderx64Repository57F632F1",
+               "LambdaImageBuilderx642Repository8E56542E",
                "Arn"
               ]
              }
@@ -1438,7 +1438,7 @@
          },
          "/",
          {
-          "Ref": "LambdaImageBuilderx64Repository57F632F1"
+          "Ref": "LambdaImageBuilderx642Repository8E56542E"
          },
          "\",\"repositoryTag\":\"latest\"}"
         ]
@@ -1448,7 +1448,7 @@
     ]
    }
   },
-  "LambdaImageBuilderx64RepositoryPushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98EAF8930B2": {
+  "LambdaImageBuilderx642RepositoryPushruleAllowEventRulegithubrunnerstestupdatelambdadcc036c8876b451ea2c1552f9e06e9e17433A98EEA6EA541": {
    "Type": "AWS::Lambda::Permission",
    "Properties": {
     "Action": "lambda:InvokeFunction",
@@ -1461,13 +1461,13 @@
     "Principal": "events.amazonaws.com",
     "SourceArn": {
      "Fn::GetAtt": [
-      "LambdaImageBuilderx64RepositoryPushrule1C711F47",
+      "LambdaImageBuilderx642RepositoryPushruleE03E1DF5",
       "Arn"
      ]
     }
    }
   },
-  "LambdaImageBuilderx64Logs1C003BB4": {
+  "LambdaImageBuilderx642Logs39CD14F1": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
     "RetentionInDays": 30
@@ -1475,7 +1475,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "LambdaImageBuilderx64CodeBuild67DE14C8": {
+  "LambdaImageBuilderx642CodeBuildB128BBB9": {
    "Type": "AWS::CodeBuild::Project",
    "Properties": {
     "Artifacts": {
@@ -1484,7 +1484,7 @@
     "Cache": {
      "Type": "NO_CACHE"
     },
-    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/Lambda Image Builder x64 (Amazon Linux 2023/X86_64)",
+    "Description": "Build docker image for self-hosted GitHub runner github-runners-test/Lambda Image Builder x64 2 (Amazon Linux 2023/X86_64)",
     "EncryptionKey": "alias/aws/s3",
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_SMALL",
@@ -1496,14 +1496,14 @@
     "LogsConfig": {
      "CloudWatchLogs": {
       "GroupName": {
-       "Ref": "LambdaImageBuilderx64Logs1C003BB4"
+       "Ref": "LambdaImageBuilderx642Logs39CD14F1"
       },
       "Status": "ENABLED"
      }
     },
     "ServiceRole": {
      "Fn::GetAtt": [
-      "LambdaImageBuilderx64RoleEE3EE1CB",
+      "LambdaImageBuilderx642RoleCDA1E0B3",
       "Arn"
      ]
     },
@@ -1515,7 +1515,7 @@
         "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"REPO_ARN\": \"",
         {
          "Fn::GetAtt": [
-          "LambdaImageBuilderx64Repository57F632F1",
+          "LambdaImageBuilderx642Repository8E56542E",
           "Arn"
          ]
         },
@@ -1528,7 +1528,7 @@
             ":",
             {
              "Fn::GetAtt": [
-              "LambdaImageBuilderx64Repository57F632F1",
+              "LambdaImageBuilderx642Repository8E56542E",
               "Arn"
              ]
             }
@@ -1545,7 +1545,7 @@
             ":",
             {
              "Fn::GetAtt": [
-              "LambdaImageBuilderx64Repository57F632F1",
+              "LambdaImageBuilderx642Repository8E56542E",
               "Arn"
              ]
             }
@@ -1559,7 +1559,7 @@
         },
         "/",
         {
-         "Ref": "LambdaImageBuilderx64Repository57F632F1"
+         "Ref": "LambdaImageBuilderx642Repository8E56542E"
         },
         "\",\n      \"WAIT_HANDLE\": \"unspecified\",\n      \"BASH_ENV\": \"codebuild-log.sh\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"build\": {\n      \"commands\": [\n        \"echo \\\"exec > >(tee -a /tmp/codebuild.log) 2>&1\\\" > codebuild-log.sh\",\n        \"aws ecr get-login-password --region \\\"$AWS_DEFAULT_REGION\\\" | docker login --username AWS --password-stdin ",
         {
@@ -1602,17 +1602,17 @@
     "TimeoutInMinutes": 60
    }
   },
-  "LambdaImageBuilderx64CodeBuildBuildFailed7E839416": {
+  "LambdaImageBuilderx642CodeBuildBuildFailedE5BCB628": {
    "Type": "AWS::CodeStarNotifications::NotificationRule",
    "Properties": {
     "DetailType": "FULL",
     "EventTypeIds": [
      "codebuild-project-build-state-failed"
     ],
-    "Name": "thubrunnerstestLambdaImageBuilderx64CodeBuildBuildFailedE326D971",
+    "Name": "hubrunnerstestLambdaImageBuilderx642CodeBuildBuildFailed8239DF02",
     "Resource": {
      "Fn::GetAtt": [
-      "LambdaImageBuilderx64CodeBuild67DE14C8",
+      "LambdaImageBuilderx642CodeBuildB128BBB9",
       "Arn"
      ]
     },
@@ -1626,20 +1626,20 @@
     ]
    }
   },
-  "LambdaImageBuilderx64BuildWaitHandle195db8dedf059C592A": {
+  "LambdaImageBuilderx642BuildWaitHandle195db8dedfBF83F797": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderx64BuildWait195db8dedf29464C8D": {
+  "LambdaImageBuilderx642BuildWait195db8dedfD919957D": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle195db8dedf059C592A"
+     "Ref": "LambdaImageBuilderx642BuildWaitHandle195db8dedfBF83F797"
     },
     "Timeout": "3600"
    }
   },
-  "LambdaImageBuilderx64Builder42F384AF": {
+  "LambdaImageBuilderx642Builder88A067ED": {
    "Type": "Custom::ImageBuilder",
    "Properties": {
     "ServiceToken": {
@@ -1649,28 +1649,28 @@
      ]
     },
     "RepoName": {
-     "Ref": "LambdaImageBuilderx64Repository57F632F1"
+     "Ref": "LambdaImageBuilderx642Repository8E56542E"
     },
     "ProjectName": {
-     "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
+     "Ref": "LambdaImageBuilderx642CodeBuildB128BBB9"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle195db8dedf059C592A"
+     "Ref": "LambdaImageBuilderx642BuildWaitHandle195db8dedfBF83F797"
     }
    },
    "DependsOn": [
     "buildimagedcc036c8876b451ea2c1552f9e06e9e173B4162A",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleDefaultPolicy0553A55C",
     "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
-    "LambdaImageBuilderx64CodeBuildBuildFailed7E839416",
-    "LambdaImageBuilderx64CodeBuild67DE14C8",
-    "LambdaImageBuilderx64RoleDefaultPolicyC6AE2BE4",
-    "LambdaImageBuilderx64RoleEE3EE1CB"
+    "LambdaImageBuilderx642CodeBuildBuildFailedE5BCB628",
+    "LambdaImageBuilderx642CodeBuildB128BBB9",
+    "LambdaImageBuilderx642RoleDefaultPolicyFD464750",
+    "LambdaImageBuilderx642RoleCDA1E0B3"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "LambdaImageBuilderx64BuildScheduleFA3DBF6A": {
+  "LambdaImageBuilderx642BuildSchedule598B9537": {
    "Type": "AWS::Events::Rule",
    "Properties": {
     "Description": {
@@ -1679,7 +1679,7 @@
       [
        "Rebuild runner image for ",
        {
-        "Ref": "LambdaImageBuilderx64Repository57F632F1"
+        "Ref": "LambdaImageBuilderx642Repository8E56542E"
        }
       ]
      ]
@@ -1690,7 +1690,7 @@
      {
       "Arn": {
        "Fn::GetAtt": [
-        "LambdaImageBuilderx64CodeBuild67DE14C8",
+        "LambdaImageBuilderx642CodeBuildB128BBB9",
         "Arn"
        ]
       },
@@ -6332,7 +6332,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "LambdaImageBuilderx64CodeBuild67DE14C8",
+         "LambdaImageBuilderx642CodeBuildB128BBB9",
          "Arn"
         ]
        }
@@ -6481,7 +6481,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "LambdaImageBuilderx64CodeBuild67DE14C8",
+         "LambdaImageBuilderx642CodeBuildB128BBB9",
          "Arn"
         ]
        }
@@ -11093,7 +11093,7 @@
       [
        "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
        {
-        "Ref": "LambdaImageBuilderx64Repository57F632F1"
+        "Ref": "LambdaImageBuilderx642Repository8E56542E"
        },
        "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
       ]
@@ -11105,7 +11105,7 @@
       [
        "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
        {
-        "Ref": "LambdaImageBuilderx64Repository57F632F1"
+        "Ref": "LambdaImageBuilderx642Repository8E56542E"
        },
        "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
       ]
@@ -11117,7 +11117,7 @@
       [
        "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\",\"dependable\":\"",
        {
-        "Ref": "LambdaImageBuilderx64BuildWait195db8dedf29464C8D"
+        "Ref": "LambdaImageBuilderx642BuildWait195db8dedfD919957D"
        },
        "\"}}"
       ]
@@ -11141,7 +11141,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "LambdaImageBuilderx64Repository57F632F1",
+         "LambdaImageBuilderx642Repository8E56542E",
          "Arn"
         ]
        }
@@ -11151,7 +11151,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "LambdaImageBuilderx64Repository57F632F1",
+         "LambdaImageBuilderx642Repository8E56542E",
          "Arn"
         ]
        }
@@ -11264,7 +11264,7 @@
             ":",
             {
              "Fn::GetAtt": [
-              "LambdaImageBuilderx64Repository57F632F1",
+              "LambdaImageBuilderx642Repository8E56542E",
               "Arn"
              ]
             }
@@ -11281,7 +11281,7 @@
             ":",
             {
              "Fn::GetAtt": [
-              "LambdaImageBuilderx64Repository57F632F1",
+              "LambdaImageBuilderx642Repository8E56542E",
               "Arn"
              ]
             }
@@ -11295,7 +11295,7 @@
         },
         "/",
         {
-         "Ref": "LambdaImageBuilderx64Repository57F632F1"
+         "Ref": "LambdaImageBuilderx642Repository8E56542E"
         },
         "@sha256:",
         {
@@ -19286,7 +19286,7 @@
        "Effect": "Allow",
        "Resource": {
         "Fn::GetAtt": [
-         "LambdaImageBuilderx64Repository57F632F1",
+         "LambdaImageBuilderx642Repository8E56542E",
          "Arn"
         ]
        }
@@ -20353,7 +20353,7 @@
               ":",
               {
                "Fn::GetAtt": [
-                "LambdaImageBuilderx64Repository57F632F1",
+                "LambdaImageBuilderx642Repository8E56542E",
                 "Arn"
                ]
               }
@@ -20370,7 +20370,7 @@
               ":",
               {
                "Fn::GetAtt": [
-                "LambdaImageBuilderx64Repository57F632F1",
+                "LambdaImageBuilderx642Repository8E56542E",
                 "Arn"
                ]
               }
@@ -20384,14 +20384,14 @@
           },
           "/",
           {
-           "Ref": "LambdaImageBuilderx64Repository57F632F1"
+           "Ref": "LambdaImageBuilderx642Repository8E56542E"
           }
          ]
         ]
        },
        "imageTag": "latest",
        "imageBuilderLogGroup": {
-        "Ref": "LambdaImageBuilderx64Logs1C003BB4"
+        "Ref": "LambdaImageBuilderx642Logs39CD14F1"
        }
       }
      },
