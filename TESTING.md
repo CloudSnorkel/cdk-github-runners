@@ -53,7 +53,7 @@ Integration tests check the happy paths. We should also test the unhappy paths m
 * Stolen runner detection
   * Confirm a new runner is created when an unknown job is assigned to one of our runners
 * Other tests to be automated in the future
-  * Go to `default.integ.ts` and enable the test flags at the top
+  * Go to [`default.integ.ts`](test/default.integ.ts) and enable the test flags at the top
 
 The two retries scenarios can be tested with the following test cases: 
 

@@ -28,7 +28,7 @@ import {
 } from '../src';
 
 // turn this on to test what happens if a stack fails deploying after an image was already built.
-// we have an open issue where the new version of the image remains until the next automatic build.
+// we have an open issue where the new version of the image remains until the next scheduled build.
 // after failing to deploy, run the integration tests. any provider that fails is using the new image which doesn't match the rolled back stack.
 const testDeploymentFailureAfterImageBuilt = false;
 

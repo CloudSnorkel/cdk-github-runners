@@ -689,4 +689,3 @@ Thanks to our generous sponsors who helped make this project possible!
 [17]: https://github.com/CloudSnorkel/cdk-github-runners/pulls
 [18]: https://github.com/CloudSnorkel/cdk-github-runners/discussions
 [20]: https://discord.gg/vdrTUTqQKv
-[21]: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-continueupdaterollback.html
