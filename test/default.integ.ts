@@ -101,7 +101,7 @@ const fargateArm64Builder = FargateRunnerProvider.imageBuilder(stack, 'Fargate b
 fargateArm64Builder.addComponent(extraFilesComponentLinux);
 fargateArm64Builder.addComponent(envComponent);
 
-const lambdaImageBuilder = LambdaRunnerProvider.imageBuilder(stack, 'Lambda Image Builder x64 2', {
+const lambdaImageBuilder = LambdaRunnerProvider.imageBuilder(stack, 'Lambda Image Builder x64', {
   architecture: Architecture.X86_64,
 });
 lambdaImageBuilder.addComponent(extraFilesComponentLinux);
