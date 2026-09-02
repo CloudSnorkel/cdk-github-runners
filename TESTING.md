@@ -50,6 +50,10 @@ Integration tests check the happy paths. We should also test the unhappy paths m
 * Retries
   * Confirm runner errors are retried
   * Confirm failed runner doesn't stay registered in GitHub
+* Failed runner clean-up
+  * Confirm `Delete Failed Runner` succeeds and `Rethrow Error` is the state that fails
+  * Confirm the execution fails with the error that stopped the runner, and not a generic one
+  * Confirm runner doesn't stay registered in GitHub
 * Stolen runner detection
   * Confirm a new runner is created when an unknown job is assigned to one of our runners
 * Other tests to be automated in the future
@@ -63,6 +67,31 @@ The two retries scenarios can be tested with the following test cases:
 * Let Lambda runner timeout by starting a job that lasts longer than 15 minutes
    * The runner should be retried and eventually the step function should be aborted as an idle runner
    * No runner should be registered on GitHub at the end
+
+### Failed runner clean-up
+
+Failed runner clean-up only happens when a runner provider actually fails. The quickest real failure is a Lambda runner
+that times out before the idle reaper gets to it. The reaper's queue has a 10 minute delivery delay, so its first check
+is at about 10 minutes no matter what `idleTimeout` says. Any runner timeout below that works:
+
+```typescript
+new GitHubRunners(this, 'runners', {
+  providers: [
+    new LambdaRunnerProvider(this, 'Lambda', {
+      timeout: cdk.Duration.minutes(2), // dies well before the reaper's first check
+    }),
+  ],
+  retryOptions: { retry: false }, // one clean pass instead of a day of retries
+});
+```
+
+Start a step function without a job actually pending (e.g. by duplicating input from a previous job). After about two minutes:
+
+* `Delete Failed Runner` should be green, with `runnerFound` and `runnerDeleted` both true in `$.delete`
+* `Rethrow Error` should be the red state, and the execution should fail with the runner timeout and not with a clean-up error
+* No runner should be registered on GitHub at the end
+
+### Stolen runners
 
 Stolen runners can be tested with the following steps:
 

@@ -6,10 +6,6 @@ export interface StepFunctionLambdaInput {
   readonly runnerName: string;
   readonly installationId?: number;
   readonly labels: string[];
-  readonly error?: {
-    readonly Error: string;
-    readonly Cause: string;
-  };
 }
 
 const sm = new SecretsManagerClient();
