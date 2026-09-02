@@ -316,6 +316,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private warmConfigHashes: string[] = [];
   private deleteFailedRunnerIndex = 0;
   private deleteFailedRunnerFunction?: lambda.IFunction;
+  private rethrowErrorState?: stepfunctions.Fail;
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
@@ -573,7 +574,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         owner: stepfunctions.JsonPath.stringAt('$.owner'),
         repo: stepfunctions.JsonPath.stringAt('$.repo'),
         installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
-        error: stepfunctions.JsonPath.objectAt('$.error'),
       }),
     });
     task.addRetry({
@@ -589,6 +589,13 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         errors: [stepfunctions.Errors.ALL],
         resultPath: stepfunctions.JsonPath.DISCARD,
       });
+    } else {
+      this.rethrowErrorState ??= new stepfunctions.Fail(this, 'Rethrow Error', {
+        comment: 'Fail the execution with the original error that stopped the runner',
+        errorPath: stepfunctions.JsonPath.stringAt('$.error.Error'),
+        causePath: stepfunctions.JsonPath.stringAt('$.error.Cause'),
+      });
+      task.next(this.rethrowErrorState);
     }
     state.addCatch(task, {
       errors: [stepfunctions.Errors.ALL],

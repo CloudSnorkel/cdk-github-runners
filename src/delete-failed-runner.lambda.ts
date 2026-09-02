@@ -10,28 +10,37 @@ class RunnerBusy extends Error {
   }
 }
 
-class ReraisedError extends Error {
-  constructor(event: StepFunctionLambdaInput) {
-    super(event.error!.Cause);
-    this.name = event.error!.Error;
-    this.message = event.error!.Cause;
-    Object.setPrototypeOf(this, ReraisedError.prototype);
-  }
+/**
+ * Outcome of the clean-up, stored in `$.delete` by the step function so the execution history says what happened.
+ *
+ * We don't fail the execution ourselves. The original error that got us here is re-raised by a separate `Rethrow Error`
+ * state, so a red `Delete Failed Runner` state always means the clean-up itself had a problem.
+ */
+interface DeleteFailedRunnerResult {
+  /**
+   * Was a runner still registered on GitHub Actions when we looked for it?
+   */
+  readonly runnerFound: boolean;
+
+  /**
+   * Did we delete the runner? Always false when no runner was found, as there is nothing to delete.
+   */
+  readonly runnerDeleted: boolean;
 }
 
-export async function handler(event: StepFunctionLambdaInput) {
+export async function handler(event: StepFunctionLambdaInput): Promise<DeleteFailedRunnerResult> {
   const { octokit, githubSecrets } = await getOctokit(event.installationId);
 
   // find runner id
   const runner = await getRunner(octokit, githubSecrets.runnerLevel, event.owner, event.repo, event.runnerName);
   if (!runner) {
-    console.error({
-      notice: 'Unable to find runner id',
+    console.warn({
+      notice: 'Unable to find runner id (usually fine, as the runner may have never registered or already removed itself)',
       owner: event.owner,
       repo: event.repo,
       runnerName: event.runnerName,
     });
-    throw new ReraisedError(event);
+    return { runnerFound: false, runnerDeleted: false };
   }
 
   console.log({
@@ -62,8 +71,9 @@ export async function handler(event: StepFunctionLambdaInput) {
         runnerName: event.runnerName,
         error: e,
       });
+      return { runnerFound: true, runnerDeleted: false };
     }
   }
 
-  throw new ReraisedError(event);
+  return { runnerFound: true, runnerDeleted: true };
 }

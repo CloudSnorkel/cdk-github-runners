@@ -14812,7 +14812,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "bdc642e1a0563fa2b1eea04c70f26d3c1be56f4c14a59974ba88f81d95995d2e.zip"
+     "S3Key": "8203163cce02a39b2fb7bd9957b4b339b3aa3c831000932c9f252c90416a7a92.zip"
     },
     "Description": "Delete failed GitHub Actions runner on error",
     "Environment": {
@@ -16815,7 +16815,7 @@
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"error.$\":\"$.error\"}},\"ECS Non-Spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\"}},\"ECS Non-Spot\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -17107,7 +17107,7 @@
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"error.$\":\"$.error\"}},\"EC2 Linux ",
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\"}},\"EC2 Linux ",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
@@ -17169,7 +17169,7 @@
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"error.$\":\"$.error\"}},\"EC2 Linux 2 ",
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\"}},\"EC2 Linux 2 ",
        {
         "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
        },
@@ -17231,7 +17231,7 @@
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"error.$\":\"$.error\"}},\"EC2 Linux 2 ",
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\"}},\"EC2 Linux 2 ",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
@@ -17340,7 +17340,7 @@
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"error.$\":\"$.error\"}},\"EC2 Spot Linux ",
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\"}},\"EC2 Spot Linux ",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
@@ -17449,7 +17449,7 @@
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"error.$\":\"$.error\"}},\"EC2 Linux arm64 ",
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\"}},\"EC2 Linux arm64 ",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
@@ -17558,7 +17558,7 @@
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"error.$\":\"$.error\"}},\"EC2 Windows ",
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\"}},\"EC2 Windows ",
        {
         "Ref": "VpcPublicSubnet2Subnet691E08A3"
        },
@@ -17605,14 +17605,14 @@
        {
         "Ref": "EC2WindowsAMIRootDevice9FFC971A"
        },
-       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"Name\",\"Value.$\":\"$$.Execution.Name\"},{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows\"},{\"Key\":\"GitHubRunners:Repo\",\"Value.$\":\"States.Format('{}/{}', $.owner, $.repo)\"},{\"Key\":\"GitHubRunners:Labels\",\"Value.$\":\"$.labels\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"Name\",\"Value.$\":\"$$.Execution.Name\"},{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows\"},{\"Key\":\"GitHubRunners:Repo\",\"Value.$\":\"States.Format('{}/{}', $.owner, $.repo)\"},{\"Key\":\"GitHubRunners:Labels\",\"Value.$\":\"$.labels\"}]}]}}}}]},\"Delete Failed Runner 8\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"Comment\":\"Clean-up failed runner from GitHub Actions (if present)\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
+       "\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"TagSpecifications\":[{\"ResourceType\":\"instance\",\"Tags\":[{\"Key\":\"Name\",\"Value.$\":\"$$.Execution.Name\"},{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows\"},{\"Key\":\"GitHubRunners:Repo\",\"Value.$\":\"States.Format('{}/{}', $.owner, $.repo)\"},{\"Key\":\"GitHubRunners:Labels\",\"Value.$\":\"$.labels\"}]},{\"ResourceType\":\"volume\",\"Tags\":[{\"Key\":\"Name\",\"Value.$\":\"$$.Execution.Name\"},{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/EC2 Windows\"},{\"Key\":\"GitHubRunners:Repo\",\"Value.$\":\"States.Format('{}/{}', $.owner, $.repo)\"},{\"Key\":\"GitHubRunners:Labels\",\"Value.$\":\"$.labels\"}]}]}}}}]},\"Delete Failed Runner 8\":{\"Next\":\"Rethrow Error\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"RunnerBusy\"],\"IntervalSeconds\":60,\"MaxAttempts\":60,\"BackoffRate\":1}],\"Type\":\"Task\",\"Comment\":\"Clean-up failed runner from GitHub Actions (if present)\",\"ResultPath\":\"$.delete\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnersdeleterunner7F8D5293",
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"error.$\":\"$.error\"}}}}]}}}"
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\"}},\"Rethrow Error\":{\"Type\":\"Fail\",\"Comment\":\"Fail the execution with the original error that stopped the runner\",\"ErrorPath\":\"$.error.Error\",\"CausePath\":\"$.error.Cause\"}}}]}}}"
       ]
      ]
     },
