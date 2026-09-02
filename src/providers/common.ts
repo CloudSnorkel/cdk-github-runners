@@ -11,7 +11,7 @@ import {
   Duration,
 } from 'aws-cdk-lib';
 import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
-import { Construct, IConstruct } from 'constructs';
+import { Construct, IConstruct, IDependable } from 'constructs';
 import { AmiRootDeviceFunction } from './ami-root-device-function';
 import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
 
@@ -235,11 +235,11 @@ export interface RunnerImage {
   readonly runnerVersion: RunnerVersion;
 
   /**
-   * A dependable string that can be waited on to ensure the image is ready.
+   * A dependable that can be waited on to ensure the image is ready.
    *
    * @internal
    */
-  readonly _dependable?: string;
+  readonly _dependable?: IDependable;
 }
 
 /**

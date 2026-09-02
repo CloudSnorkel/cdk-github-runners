@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import {
+  aws_cloudformation as cloudformation,
   aws_ec2 as ec2,
   aws_events as events,
   aws_events_targets as events_targets,
@@ -9,13 +10,13 @@ import {
   aws_logs as logs,
   aws_stepfunctions as stepfunctions,
   aws_stepfunctions_tasks as stepfunctions_tasks,
-  custom_resources as cr,
 } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import {
   Architecture,
   BaseProvider,
+  generateStateName,
   IRunnerProvider,
   IRunnerProviderStatus,
   IRunnerRuntimeParameters,
@@ -23,7 +24,6 @@ import {
   RunnerImage,
   RunnerProviderProps,
   RunnerVersion,
-  generateStateName,
 } from './common';
 import { UpdateLambdaFunction } from './update-lambda-function';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
@@ -270,26 +270,6 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       cdk.Annotations.of(this).addError('Lambda provider can only work with images built by CodeBuild and not AWS Image Builder. `waitOnDeploy: false` is also not supported.');
     }
 
-    // get image digest and make sure to get it every time the lambda function might be updated
-    // pass all variables that may change and cause a function update
-    // if we don't get the latest digest, the update may fail as a new image was already built outside the stack on a schedule
-    // we automatically delete old images, so we must always get the latest digest
-    const imageDigest = this.imageDigest(image, {
-      version: 1, // bump this for any non-user changes like description or defaults
-      labels: this.labels,
-      architecture: architecture.name,
-      vpc: this.vpc?.vpcId,
-      securityGroups: this.securityGroups?.map(sg => sg.securityGroupId),
-      vpcSubnets: props?.subnetSelection?.subnets?.map(s => s.subnetId),
-      timeout: props?.timeout?.toSeconds(),
-      memorySize: props?.memorySize,
-      ephemeralStorageSize: props?.ephemeralStorageSize?.toKibibytes(),
-      logRetention: props?.logRetention?.toFixed(),
-      // update on image build too to avoid conflict of the scheduled updater and any other CDK updates like VPC
-      // this also helps with rollbacks as it will always get the right digest and prevent rollbacks using deleted images from failing
-      dependable: image._dependable,
-    });
-
     this.logGroup = new logs.LogGroup(this, 'Log', {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       retention: props?.logRetention ?? RetentionDays.ONE_MONTH,
@@ -300,8 +280,10 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       'Function',
       {
         description: `GitHub Actions runner for labels ${this.labels}`,
-        // CDK requires "sha256:" literal prefix -- https://github.com/aws/aws-cdk/blob/ba91ca45ad759ab5db6da17a62333e2bc11e1075/packages/%40aws-cdk/aws-ecr/lib/repository.ts#L184
-        code: lambda.DockerImageCode.fromEcr(image.imageRepository, { tagOrDigest: `sha256:${imageDigest}` }),
+        // we point to `latest` (or the tag the user chose) which is always the right image tag for the latest build
+        // but lambda "locks in" the image digest when the function is created
+        // we have this.imageUpdater() to update the function with the latest image digest whenever the image is rebuilt
+        code: lambda.DockerImageCode.fromEcr(image.imageRepository, { tagOrDigest: image.imageTag }),
         architecture,
         vpc: this.vpc,
         securityGroups: this.securityGroups,
@@ -312,6 +294,23 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
         logGroup: this.logGroup,
       },
     );
+
+    // the image must exist before the function is created, or Lambda won't be able to resolve the tag
+    if (image._dependable) {
+      this.function.node.addDependency(image._dependable);
+
+      // we used to pass the wait condition ref around as a string, which created a cross-stack export when the image
+      // builder and the provider were in separate stacks. we now depend on the wait condition itself, so nothing
+      // references the ref anymore. keep exporting it, so upgrades don't fail with "export cannot be deleted as it is
+      // in use". TODO deprecated hack - remove in a future version once everyone has upgraded.
+      if (Construct.isConstruct(image._dependable) && cloudformation.CfnWaitCondition.isCfnWaitCondition(image._dependable)) {
+        if (cdk.Stack.of(image._dependable) !== cdk.Stack.of(this)) { // cross-stack
+          if (!cdk.Stack.of(image._dependable).nestedStackParent) { // not a nested stack
+            cdk.Stack.of(image._dependable).exportValue(image._dependable.ref);
+          }
+        }
+      }
+    }
 
     this.grantPrincipal = this.function.grantPrincipal;
 
@@ -355,8 +354,15 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
   }
 
   private addImageUpdater(image: RunnerImage) {
-    // Lambda needs to be pointing to a specific image digest and not just a tag.
-    // Whenever we update the tag to a new digest, we need to update the lambda.
+    // Lambda resolves the image tag when the function is created or updated, and then sticks to that image.
+    // Lambda doesn't automatically follow the tag on image push.
+    // whenever a new image is pushed, we have to explicitly tell the function to use it.
+
+    // corner case issue: if the user updates the function and its code on the same deploy, both CloudFormation and our rule here will try to update
+    // the function at the same time. both retry. our updater retries for 15 minutes times 3 Lambda retries. if for whatever reason CloudFormation
+    // takes longer than that, the updater will fail and the function will be left with the old image. the image should be automatically updated on
+    // the next scheduled image update and the function will be updated with the latest image. this is a rare case and should not happen often, but it
+    // is possible.
 
     const updater = singletonLambda(UpdateLambdaFunction, this, 'update-lambda', {
       description: 'Function that updates a GitHub Actions runner function with the latest image digest after the image has been rebuilt',
@@ -417,64 +423,6 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
         imageBuilderLogGroup: this.image.logGroup?.logGroupName,
       },
     };
-  }
-
-  private imageDigest(image: RunnerImage, variableSettings: any): string {
-    // describe ECR image to get its digest
-    // the physical id is random so the resource always runs and always gets the latest digest, even if a scheduled build replaced the stack image
-    const reader = new cr.AwsCustomResource(this, 'Image Digest Reader', {
-      onCreate: {
-        service: 'ECR',
-        action: 'describeImages',
-        parameters: {
-          repositoryName: image.imageRepository.repositoryName,
-          imageIds: [
-            {
-              imageTag: image.imageTag,
-            },
-          ],
-        },
-        physicalResourceId: cr.PhysicalResourceId.of('ImageDigest'),
-      },
-      onUpdate: {
-        service: 'ECR',
-        action: 'describeImages',
-        parameters: {
-          repositoryName: image.imageRepository.repositoryName,
-          imageIds: [
-            {
-              imageTag: image.imageTag,
-            },
-          ],
-        },
-        physicalResourceId: cr.PhysicalResourceId.of('ImageDigest'),
-      },
-      onDelete: {
-        // this will NOT be called thanks to RemovalPolicy.RETAIN below
-        // we only use this to force the custom resource to be called again and get a new digest
-        service: 'fake',
-        action: 'fake',
-        parameters: variableSettings,
-      },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [image.imageRepository.repositoryArn],
-      }),
-      resourceType: 'Custom::EcrImageDigest',
-      installLatestAwsSdk: false, // no need and it takes 60 seconds
-      logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
-    });
-
-    // mark this resource as retainable, as there is nothing to do on delete
-    const res = reader.node.tryFindChild('Resource') as cdk.CustomResource | undefined;
-    if (res) {
-      // don't actually call the fake onDelete above
-      res.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
-    } else {
-      throw new Error('Resource not found in AwsCustomResource. Report this bug at https://github.com/CloudSnorkel/cdk-github-runners/issues.');
-    }
-
-    // return only the digest because CDK expects 'sha256:' literal above
-    return cdk.Fn.split(':', reader.getResponseField('imageDetails.0.imageDigest'), 2)[1];
   }
 }
 

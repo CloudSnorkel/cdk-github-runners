@@ -11078,95 +11078,6 @@
     ]
    }
   },
-  "LambdaImageDigestReaderE0842577": {
-   "Type": "Custom::EcrImageDigest",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
-      "Arn"
-     ]
-    },
-    "Create": {
-     "Fn::Join": [
-      "",
-      [
-       "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
-       {
-        "Ref": "LambdaImageBuilderx64Repository57F632F1"
-       },
-       "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
-      ]
-     ]
-    },
-    "Update": {
-     "Fn::Join": [
-      "",
-      [
-       "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
-       {
-        "Ref": "LambdaImageBuilderx64Repository57F632F1"
-       },
-       "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
-      ]
-     ]
-    },
-    "Delete": {
-     "Fn::Join": [
-      "",
-      [
-       "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"x64\"],\"architecture\":\"x86_64\",\"dependable\":\"",
-       {
-        "Ref": "LambdaImageBuilderx64BuildWait195db8dedf29464C8D"
-       },
-       "\"}}"
-      ]
-     ]
-    },
-    "InstallLatestAwsSdk": false
-   },
-   "DependsOn": [
-    "LambdaImageDigestReaderCustomResourcePolicyE8E146E6"
-   ],
-   "UpdateReplacePolicy": "Retain",
-   "DeletionPolicy": "Retain"
-  },
-  "LambdaImageDigestReaderCustomResourcePolicyE8E146E6": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "ecr:DescribeImages",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderx64Repository57F632F1",
-         "Arn"
-        ]
-       }
-      },
-      {
-       "Action": "fake:Fake",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderx64Repository57F632F1",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "LambdaImageDigestReaderCustomResourcePolicyE8E146E6",
-    "Roles": [
-     {
-      "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
-     }
-    ]
-   }
-  },
   "LambdaLog2764B04F": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
@@ -11243,7 +11154,10 @@
       "Value": "github-runners-test/Lambda"
      }
     ]
-   }
+   },
+   "DependsOn": [
+    "LambdaImageBuilderx64BuildWait195db8dedf29464C8D"
+   ]
   },
   "LambdaFunction9233991D": {
    "Type": "AWS::Lambda::Function",
@@ -11297,23 +11211,7 @@
         {
          "Ref": "LambdaImageBuilderx64Repository57F632F1"
         },
-        "@sha256:",
-        {
-         "Fn::Select": [
-          1,
-          {
-           "Fn::Split": [
-            ":",
-            {
-             "Fn::GetAtt": [
-              "LambdaImageDigestReaderE0842577",
-              "imageDetails.0.imageDigest"
-             ]
-            }
-           ]
-          }
-         ]
-        }
+        ":latest"
        ]
       ]
      }
@@ -11344,66 +11242,8 @@
     "Timeout": 900
    },
    "DependsOn": [
+    "LambdaImageBuilderx64BuildWait195db8dedf29464C8D",
     "LambdaFunctionServiceRoleB1826A50"
-   ]
-  },
-  "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "lambda.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-       ]
-      ]
-     }
-    ]
-   }
-  },
-  "AWS679f53fac002430cb0da5b7982bd22872D164C4C": {
-   "Type": "AWS::Lambda::Function",
-   "Properties": {
-    "Code": {
-     "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-     },
-     "S3Key": "56f7467bbde8a5efebcf57ae9e460027607099bab9f844669dcf5d800172ee5a.zip"
-    },
-    "Handler": "index.handler",
-    "LoggingConfig": {
-     "LogGroup": {
-      "Ref": "RunnerImageBuildHelpersLog13186633"
-     }
-    },
-    "Role": {
-     "Fn::GetAtt": [
-      "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
-      "Arn"
-     ]
-    },
-    "Runtime": "nodejs22.x",
-    "Timeout": 120
-   },
-   "DependsOn": [
-    "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
    ]
   },
   "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE163ADCA": {
@@ -11509,95 +11349,6 @@
     "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE163ADCA"
    ]
   },
-  "LambdaARMImageDigestReaderF3DD55C4": {
-   "Type": "Custom::EcrImageDigest",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
-      "Arn"
-     ]
-    },
-    "Create": {
-     "Fn::Join": [
-      "",
-      [
-       "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
-       {
-        "Ref": "LambdaImageBuilderzRepository7C7AD146"
-       },
-       "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
-      ]
-     ]
-    },
-    "Update": {
-     "Fn::Join": [
-      "",
-      [
-       "{\"service\":\"ECR\",\"action\":\"describeImages\",\"parameters\":{\"repositoryName\":\"",
-       {
-        "Ref": "LambdaImageBuilderzRepository7C7AD146"
-       },
-       "\",\"imageIds\":[{\"imageTag\":\"latest\"}]},\"physicalResourceId\":{\"id\":\"ImageDigest\"}}"
-      ]
-     ]
-    },
-    "Delete": {
-     "Fn::Join": [
-      "",
-      [
-       "{\"service\":\"fake\",\"action\":\"fake\",\"parameters\":{\"version\":1,\"labels\":[\"lambda\",\"arm64\"],\"architecture\":\"arm64\",\"dependable\":\"",
-       {
-        "Ref": "LambdaImageBuilderzBuildWaitf11bb16a9bF6B7C2B1"
-       },
-       "\"}}"
-      ]
-     ]
-    },
-    "InstallLatestAwsSdk": false
-   },
-   "DependsOn": [
-    "LambdaARMImageDigestReaderCustomResourcePolicy2980B36A"
-   ],
-   "UpdateReplacePolicy": "Retain",
-   "DeletionPolicy": "Retain"
-  },
-  "LambdaARMImageDigestReaderCustomResourcePolicy2980B36A": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "ecr:DescribeImages",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderzRepository7C7AD146",
-         "Arn"
-        ]
-       }
-      },
-      {
-       "Action": "fake:Fake",
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "LambdaImageBuilderzRepository7C7AD146",
-         "Arn"
-        ]
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "LambdaARMImageDigestReaderCustomResourcePolicy2980B36A",
-    "Roles": [
-     {
-      "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
-     }
-    ]
-   }
-  },
   "LambdaARMLogAA2DA09F": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
@@ -11674,7 +11425,10 @@
       "Value": "github-runners-test/LambdaARM"
      }
     ]
-   }
+   },
+   "DependsOn": [
+    "LambdaImageBuilderzBuildWaitf11bb16a9bF6B7C2B1"
+   ]
   },
   "LambdaARMFunctionDD4B5FF7": {
    "Type": "AWS::Lambda::Function",
@@ -11728,23 +11482,7 @@
         {
          "Ref": "LambdaImageBuilderzRepository7C7AD146"
         },
-        "@sha256:",
-        {
-         "Fn::Select": [
-          1,
-          {
-           "Fn::Split": [
-            ":",
-            {
-             "Fn::GetAtt": [
-              "LambdaARMImageDigestReaderF3DD55C4",
-              "imageDetails.0.imageDigest"
-             ]
-            }
-           ]
-          }
-         ]
-        }
+        ":latest"
        ]
       ]
      }
@@ -11775,6 +11513,7 @@
     "Timeout": 900
    },
    "DependsOn": [
+    "LambdaImageBuilderzBuildWaitf11bb16a9bF6B7C2B1",
     "LambdaARMFunctionServiceRole136069A0"
    ]
   },
