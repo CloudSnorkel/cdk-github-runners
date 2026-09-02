@@ -304,8 +304,10 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       // references the ref anymore. keep exporting it, so upgrades don't fail with "export cannot be deleted as it is
       // in use". TODO deprecated hack - remove in a future version once everyone has upgraded.
       if (Construct.isConstruct(image._dependable) && cloudformation.CfnWaitCondition.isCfnWaitCondition(image._dependable)) {
-        if (cdk.Stack.of(image._dependable) !== cdk.Stack.of(this)) {
-          cdk.Stack.of(image._dependable).exportValue(image._dependable.ref);
+        if (cdk.Stack.of(image._dependable) !== cdk.Stack.of(this)) { // cross-stack
+          if (!cdk.Stack.of(image._dependable).nestedStackParent) { // not a nested stack
+            cdk.Stack.of(image._dependable).exportValue(image._dependable.ref);
+          }
         }
       }
     }

@@ -1,5 +1,5 @@
 import { aws_ecr as ecr } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
+import { Construct, DependencyGroup } from 'constructs';
 import { BaseContainerImage } from './aws-image-builder/base-image';
 import { CodeBuildRunnerImageBuilder } from './codebuild';
 import { IRunnerImageBuilder } from './common';
@@ -26,7 +26,9 @@ export class StaticRunnerImage {
           architecture,
           os,
           runnerVersion: RunnerVersion.latest(),
-          _dependable: repository,
+          // the image already exists, so there is nothing to wait for. we still need a dependable, or
+          // providers that require one (like Lambda) will refuse to use this image.
+          _dependable: new DependencyGroup(),
         };
       },
 
