@@ -598,7 +598,7 @@ Other useful metrics to track:
 
 ## Known Issues
 
-1. Docker images built with AWS Image Builder (by default only Windows Docker images) might not be fully rolled back on deployment failure. If your stack fails to deploy after an image was already built, the new image will stay around. It will be automatically replaced on the next build interval but that might take up to 7 days with default settings (`rebuildInterval`). It's recommended to not leave stacks in `UPDATE_ROLLBACK_COMPLETE` state if you're using Windows Docker images.
+1. Runner images built during a failed deployment are not rolled back. If your stack fails to deploy after an image was already built, the new image will stay in use. The image will be automatically replaced on the next build interval, but that might take up to 7 days with default settings (`rebuildInterval`). It's recommended to not leave stacks in `UPDATE_ROLLBACK_COMPLETE` state. Deploying again with the configuration you want will rebuild the images and get everything back in sync.
 
 ## Getting Help
 
@@ -689,3 +689,4 @@ Thanks to our generous sponsors who helped make this project possible!
 [17]: https://github.com/CloudSnorkel/cdk-github-runners/pulls
 [18]: https://github.com/CloudSnorkel/cdk-github-runners/discussions
 [20]: https://discord.gg/vdrTUTqQKv
+[21]: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-continueupdaterollback.html
