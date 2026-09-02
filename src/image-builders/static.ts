@@ -26,7 +26,7 @@ export class StaticRunnerImage {
           architecture,
           os,
           runnerVersion: RunnerVersion.latest(),
-          _dependable: repository.repositoryArn,
+          _dependable: repository,
         };
       },
 

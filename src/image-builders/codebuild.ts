@@ -391,7 +391,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     }));
 
     let waitHandleRef = 'unspecified';
-    let waitDependable = '';
+    let waitDependable: cloudformation.CfnWaitCondition | undefined;
 
     if (this.waitOnDeploy) {
       // Wait handle lets us wait for longer than an hour for the image build to complete.
@@ -405,7 +405,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         count: 1,
       });
       waitHandleRef = handle.ref;
-      waitDependable = wait.ref;
+      waitDependable = wait;
     }
 
     const cr = new CustomResource(this, 'Builder', {
@@ -425,7 +425,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     cr.node.addDependency(crHandler.role!);
     cr.node.addDependency(crHandler);
 
-    return waitDependable; // user needs to wait on wait handle which is triggered when the image is built
+    return waitDependable; // user needs to wait on the wait condition which is signaled when the image is built
   }
 
   private rebuildImageOnSchedule(project: codebuild.Project, rebuildInterval?: Duration) {

@@ -363,7 +363,7 @@ export class CodeBuildImageBuilder extends Construct implements IRunnerImageBuil
       os: this.os,
       logGroup,
       runnerVersion: this.props.runnerVersion ?? RunnerVersion.latest(),
-      _dependable: cr.ref,
+      _dependable: cr,
     };
     return this.boundImage;
   }
