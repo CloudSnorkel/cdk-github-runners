@@ -16,7 +16,6 @@ const EVENT = {
   repo: 'my-repo',
   runnerName: 'runner-1',
   installationId: 123,
-  labels: ['linux'],
 };
 
 const RUNNER = { id: 42, name: 'runner-1' };
