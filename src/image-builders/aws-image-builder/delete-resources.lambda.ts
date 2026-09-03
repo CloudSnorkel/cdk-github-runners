@@ -92,12 +92,22 @@ async function isStackTearingDown(stackId: string) {
   }
 }
 
+// the launch template is gone for good, so there is no AMI left for us to protect
+const MISSING_LAUNCH_TEMPLATE_ERRORS = [
+  'InvalidLaunchTemplateId.NotFound',
+  'InvalidLaunchTemplateId.Malformed',
+  'InvalidLaunchTemplateId.VersionNotFound',
+];
+
 /**
  * Get AMI from launch template so we know to not delete an AMI that's still being used.
  *
- * If the launch template is missing, or we can't read it, we return undefined and will delete all images. This can happen when the stack is being
- * torn down and the launch template is already gone. Another use case is when the stack is rolling back the initial creation of the image before the
- * launch template had a chance to be created.
+ * We return undefined when the launch template is gone, or when its default version has no AMI yet, as neither leaves an AMI in use. That happens
+ * when the stack is being torn down and the launch template is already deleted, and when the stack is rolling back the initial creation of the image
+ * before the launch template had a chance to get an AMI.
+ *
+ * Any other error means we simply don't know which AMI is in use, which is not the same as knowing none is. We throw so the caller can leave
+ * everything alone instead of deleting an AMI that runners may still be starting from.
  */
 async function launchTemplateAmi(launchTemplateId: string) {
   try {
@@ -108,12 +118,16 @@ async function launchTemplateAmi(launchTemplateId: string) {
 
     return versions.LaunchTemplateVersions?.[0]?.LaunchTemplateData?.ImageId;
   } catch (e) {
-    console.warn({
-      notice: 'Unable to read launch template, no AMI will be protected',
-      launchTemplate: launchTemplateId,
-      error: e,
-    });
-    return undefined;
+    if (MISSING_LAUNCH_TEMPLATE_ERRORS.includes((e as Error).name)) {
+      console.log({
+        notice: 'Launch template is gone, so no AMI needs to be protected',
+        launchTemplate: launchTemplateId,
+        error: (e as Error).name,
+      });
+      return undefined;
+    }
+
+    throw e;
   }
 }
 
@@ -284,7 +298,21 @@ async function deleteResources(props: DeleteResourcesProps, teardown: boolean) {
     return;
   }
 
-  const protectedAmi = props.LaunchTemplateId && !teardown ? await launchTemplateAmi(props.LaunchTemplateId) : undefined;
+  let protectedAmi: string | undefined;
+  if (props.LaunchTemplateId && !teardown) {
+    try {
+      protectedAmi = await launchTemplateAmi(props.LaunchTemplateId);
+    } catch (e) {
+      // we can't tell which AMI is in use, so we leave everything alone. the next deployment will clean up instead.
+      console.warn({
+        notice: 'Unable to read launch template, skipping cleanup so an AMI in use is not deleted',
+        launchTemplate: props.LaunchTemplateId,
+        error: e,
+      });
+      return;
+    }
+  }
+
   const builds = (await recipeBuilds(props.RecipeName)).filter(build => !keepBuild(build, protectedAmi, teardown));
 
   for (const build of builds) {
