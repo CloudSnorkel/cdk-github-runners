@@ -520,8 +520,8 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       resources: ['*'],
     }));
 
-    // delete old version on update and on stack deletion
-    this.imageCleaner('Container', recipe.name.toLowerCase(), recipe.version);
+    // delete old versions on update, and everything on stack deletion
+    this.imageCleaner('Container', recipe.name, recipe.version);
 
     // delete old docker images + IB resources daily
     new imagebuilder.CfnLifecyclePolicy(this, 'Lifecycle Policy Docker', {
@@ -839,12 +839,12 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       cacheKey: recipe.version, // re-evaluate AMI whenever the recipe changes
     };
 
-    this.amiCleaner(recipe, stackName, builderName);
+    this.amiCleaner(recipe, stackName, builderName, launchTemplate);
 
     return this.boundAmi;
   }
 
-  private amiCleaner(recipe: AmiRecipe, stackName: string, builderName: string) {
+  private amiCleaner(recipe: AmiRecipe, stackName: string, builderName: string, launchTemplate: ec2.LaunchTemplate) {
     // this is here to provide safe upgrade from old cdk-github-runners versions
     // this lambda was used by a custom resource to delete all amis when the builder was removed
     // if we remove the custom resource, role and lambda, all amis will be deleted on update
@@ -870,8 +870,8 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       l1role.overrideLogicalId('deleteamidcc036c8876b451ea2c1552f9e06e9e1ServiceRole1CC58A6F');
     }
 
-    // delete old version on update and on stack deletion
-    this.imageCleaner('Image', recipe.name.toLowerCase(), recipe.version);
+    // delete old versions on update, and everything on stack deletion
+    this.imageCleaner('Image', recipe.name, recipe.version, launchTemplate);
 
     // delete old AMIs + IB resources daily
     new imagebuilder.CfnLifecyclePolicy(this, 'Lifecycle Policy AMI', {
@@ -941,19 +941,20 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     return this.boundComponents;
   }
 
-  private imageCleaner(type: 'Container' | 'Image', recipeName: string, version: string) {
+  private imageCleaner(type: 'Container' | 'Image', recipeName: string, version: string, launchTemplate?: ec2.LaunchTemplate) {
     const cleanerFunction = singletonLambda(DeleteResourcesFunction, this, 'aws-image-builder-delete-resources', {
       description: 'Custom resource handler that deletes resources of old versions of EC2 Image Builder images',
       initialPolicy: [
         new iam.PolicyStatement({
           actions: [
+            'imagebuilder:ListImages',
             'imagebuilder:ListImageBuildVersions',
             'imagebuilder:DeleteImage',
           ],
           resources: ['*'],
         }),
         new iam.PolicyStatement({
-          actions: ['ec2:DescribeImages'],
+          actions: ['ec2:DescribeImages', 'ec2:DescribeLaunchTemplateVersions'],
           resources: ['*'],
         }),
         new iam.PolicyStatement({
@@ -969,6 +970,11 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
           actions: ['ecr:BatchDeleteImage'],
           resources: ['*'],
         }),
+        new iam.PolicyStatement({
+          // used to tell whether the whole stack is going away, and with it the launch template we protect images by
+          actions: ['cloudformation:DescribeStacks'],
+          resources: [cdk.Stack.of(this).stackId],
+        }),
       ],
       logGroup: singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD),
       loggingFormat: lambda.LoggingFormat.JSON,
@@ -979,12 +985,9 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       serviceToken: cleanerFunction.functionArn,
       resourceType: 'Custom::ImageBuilder-Delete-Resources',
       properties: <DeleteResourcesProps>{
-        ImageVersionArn: cdk.Stack.of(this).formatArn({
-          service: 'imagebuilder',
-          resource: 'image',
-          resourceName: `${recipeName}/${version}`,
-          arnFormat: cdk.ArnFormat.SLASH_RESOURCE_NAME,
-        }),
+        RecipeName: recipeName,
+        RecipeVersion: version,
+        LaunchTemplateId: launchTemplate?.launchTemplateId,
       },
     });
   }
