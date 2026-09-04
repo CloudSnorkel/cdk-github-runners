@@ -298,6 +298,8 @@ async function deleteResources(props: DeleteResourcesProps, teardown: boolean) {
     return;
   }
 
+  const builds = await recipeBuilds(props.RecipeName);
+
   let protectedAmi: string | undefined;
   if (props.LaunchTemplateId && !teardown) {
     try {
@@ -313,9 +315,9 @@ async function deleteResources(props: DeleteResourcesProps, teardown: boolean) {
     }
   }
 
-  const builds = (await recipeBuilds(props.RecipeName)).filter(build => !keepBuild(build, protectedAmi, teardown));
+  const filteredBuilds = builds.filter(build => !keepBuild(build, protectedAmi, teardown));
 
-  for (const build of builds) {
+  for (const build of filteredBuilds) {
     for (const output of build.outputResources?.amis ?? []) {
       if (output.image) {
         await deleteAmi(output.image);
