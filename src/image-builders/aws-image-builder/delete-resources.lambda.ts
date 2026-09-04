@@ -334,7 +334,7 @@ async function deleteResources(props: DeleteResourcesProps, teardown: boolean) {
   }
 
   // delete builds last so retries would still work
-  for (const build of builds) {
+  for (const build of filteredBuilds) {
     if (build.arn) {
       await deleteBuild(build.arn);
     }
