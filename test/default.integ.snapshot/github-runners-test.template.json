@@ -2025,30 +2025,11 @@
       "Arn"
      ]
     },
-    "ImageVersionArn": {
-     "Fn::Join": [
-      "",
-      [
-       "arn:",
-       {
-        "Ref": "AWS::Partition"
-       },
-       ":imagebuilder:",
-       {
-        "Ref": "AWS::Region"
-       },
-       ":",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ":image/github-runners-test-windowsimagebuilder-containerrecipe-c577a80b/",
-       {
-        "Fn::GetAtt": [
-         "WindowsImageBuilderContainerRecipeB2A421D7",
-         "Version"
-        ]
-       }
-      ]
+    "RecipeName": "github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
+    "RecipeVersion": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderContainerRecipeB2A421D7",
+      "Version"
      ]
     }
    },
@@ -2643,31 +2624,15 @@
       "Arn"
      ]
     },
-    "ImageVersionArn": {
-     "Fn::Join": [
-      "",
-      [
-       "arn:",
-       {
-        "Ref": "AWS::Partition"
-       },
-       ":imagebuilder:",
-       {
-        "Ref": "AWS::Region"
-       },
-       ":",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ":image/github-runners-test-amilinuxbuilder-amirecipe-2b5c5a8b/",
-       {
-        "Fn::GetAtt": [
-         "AMILinuxBuilderAmiRecipe7C7ED6C7",
-         "Version"
-        ]
-       }
-      ]
+    "RecipeName": "github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
+    "RecipeVersion": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderAmiRecipe7C7ED6C7",
+      "Version"
      ]
+    },
+    "LaunchTemplateId": {
+     "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
     }
    },
    "UpdateReplacePolicy": "Delete",
@@ -5115,31 +5080,15 @@
       "Arn"
      ]
     },
-    "ImageVersionArn": {
-     "Fn::Join": [
-      "",
-      [
-       "arn:",
-       {
-        "Ref": "AWS::Partition"
-       },
-       ":imagebuilder:",
-       {
-        "Ref": "AWS::Region"
-       },
-       ":",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ":image/github-runners-test-amilinuxarm64builder-amirecipe-9167b5ef/",
-       {
-        "Fn::GetAtt": [
-         "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
-         "Version"
-        ]
-       }
-      ]
+    "RecipeName": "github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
+    "RecipeVersion": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
+      "Version"
      ]
+    },
+    "LaunchTemplateId": {
+     "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
     }
    },
    "UpdateReplacePolicy": "Delete",
@@ -5664,31 +5613,15 @@
       "Arn"
      ]
     },
-    "ImageVersionArn": {
-     "Fn::Join": [
-      "",
-      [
-       "arn:",
-       {
-        "Ref": "AWS::Partition"
-       },
-       ":imagebuilder:",
-       {
-        "Ref": "AWS::Region"
-       },
-       ":",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ":image/github-runners-test-windowsec2builder-amirecipe-beda5750/",
-       {
-        "Fn::GetAtt": [
-         "WindowsEC2BuilderAmiRecipe41A137FF",
-         "Version"
-        ]
-       }
-      ]
+    "RecipeName": "github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
+    "RecipeVersion": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderAmiRecipe41A137FF",
+      "Version"
      ]
+    },
+    "LaunchTemplateId": {
+     "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
     }
    },
    "UpdateReplacePolicy": "Delete",
@@ -7859,6 +7792,7 @@
      "Statement": [
       {
        "Action": [
+        "imagebuilder:ListImages",
         "imagebuilder:ListImageBuildVersions",
         "imagebuilder:DeleteImage"
        ],
@@ -7866,7 +7800,10 @@
        "Resource": "*"
       },
       {
-       "Action": "ec2:DescribeImages",
+       "Action": [
+        "ec2:DescribeImages",
+        "ec2:DescribeLaunchTemplateVersions"
+       ],
        "Effect": "Allow",
        "Resource": "*"
       },
@@ -7887,6 +7824,13 @@
        "Action": "ecr:BatchDeleteImage",
        "Effect": "Allow",
        "Resource": "*"
+      },
+      {
+       "Action": "cloudformation:DescribeStacks",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "AWS::StackId"
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -7906,7 +7850,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "c8204ff40a1a2de9aebe5c4383623c9db9683a11ff3ba0fcfffa6e3aa388a359.zip"
+     "S3Key": "d2c5c3085feada3d9e4da7223ac774f941e040d97f67209721f4abb3604fda43.zip"
     },
     "Description": "Custom resource handler that deletes resources of old versions of EC2 Image Builder images",
     "Environment": {
