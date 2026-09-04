@@ -24,6 +24,7 @@ const DELETABLE_IMAGE_STATUSES = [
   'DEPRECATED',
   'FAILED',
   'CANCELLED',
+  'DISABLED',
 ];
 
 // delete all images when the stack is being torn down, as there is nothing left to protect and this is our last chance to clean up
@@ -144,6 +145,7 @@ async function recipeBuilds(recipeName: string) {
     versions = await ib.send(new ListImagesCommand({
       owner: 'Self',
       filters: [{ name: 'name', values: [recipeName] }],
+      includeDeprecated: true,
       nextToken: versions.nextToken,
     }));
 
