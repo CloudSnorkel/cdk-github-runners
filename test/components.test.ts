@@ -130,7 +130,7 @@ describe('Component version options', () => {
   test('docker uses latest on Ubuntu when version not specified', () => {
     const latest = RunnerImageComponent.docker();
     const ubuntu = latest.getCommands(Os.LINUX_UBUNTU_2204, Architecture.X86_64);
-    expect(ubuntu.some(c => c.includes('apt-get install') && c.includes('docker-ce '))).toBe(true);
+    expect(ubuntu.some(c => c.includes('apt-get') && c.includes('install') && c.includes('docker-ce '))).toBe(true);
   });
 
   test('dockerInDocker forwards version to docker (Windows)', () => {
@@ -185,12 +185,52 @@ test('Environment variable escaping', () => {
   expect(linuxCommands).toStrictEqual([
     'echo \'test=$h$e>>llo\'"\'"\'""\'"\'"\'\'"\'"\'"\' >> /home/runner/.env',
     'echo \'normal=bar\' >> /home/runner/.env',
+    'chown runner /home/runner/.env',
   ]);
 
   expect(winCommands).toStrictEqual([
     'Add-Content -Path C:\\actions\\.env -Value \'test=$h$e>>llo\'\'""\'\'\'\'"\'',
     'Add-Content -Path C:\\actions\\.env -Value \'normal=bar\'',
   ]);
+});
+
+describe('Job hooks', () => {
+  test('jobStartedHook copies script and sets env var on Linux', () => {
+    const comp = RunnerImageComponent.jobStartedHook('/local/path/job-started.sh');
+
+    const assets = comp.getAssets(Os.LINUX_UBUNTU_2204, Architecture.X86_64);
+    expect(assets).toStrictEqual([{
+      source: '/local/path/job-started.sh',
+      target: '/home/runner/job-started-hook-user.sh',
+    }]);
+
+    const commands = comp.getCommands(Os.LINUX_UBUNTU_2204, Architecture.X86_64);
+    expect(commands).toStrictEqual([
+      'chmod +x \'/home/runner/job-started-hook-user.sh\'',
+    ]);
+  });
+
+  test('jobCompletedHook uses the completed env var', () => {
+    const comp = RunnerImageComponent.jobCompletedHook('/local/path/job-completed.sh');
+
+    const commands = comp.getCommands(Os.LINUX_AMAZON_2, Architecture.X86_64);
+    expect(commands).toStrictEqual([
+      'chmod +x \'/home/runner/job-completed-hook-user.sh\'',
+    ]);
+  });
+
+  test('job hook works on Windows', () => {
+    const comp = RunnerImageComponent.jobStartedHook('/local/path/job-started.ps1');
+
+    const assets = comp.getAssets(Os.WINDOWS, Architecture.X86_64);
+    expect(assets).toStrictEqual([{
+      source: '/local/path/job-started.ps1',
+      target: 'C:\\actions\\job-started-hook-user.ps1',
+    }]);
+
+    const commands = comp.getCommands(Os.WINDOWS, Architecture.X86_64);
+    expect(commands).toStrictEqual([]);
+  });
 });
 
 test('Environment variable should not contain newlines', () => {

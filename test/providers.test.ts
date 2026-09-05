@@ -1,9 +1,19 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2, aws_ecs as ecs, aws_stepfunctions as sfn } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
-import { CodeBuildRunnerProvider, Ec2RunnerProvider, EcsRunnerProvider, FargateRunnerProvider, LambdaRunnerProvider } from '../src';
+import {
+  Architecture,
+  CodeBuildRunnerProvider,
+  Ec2RunnerProvider,
+  EcsRunnerProvider,
+  FargateRunnerProvider,
+  IRunnerImageBuilder,
+  LambdaRunnerProvider,
+  Os,
+  RunnerVersion,
+} from '../src';
 
 describe('Providers', () => {
   let app: cdk.App;
@@ -342,5 +352,102 @@ describe('Providers', () => {
         InstanceTypes: ['m6g.large'],
       }));
     });
+
+    test('tags are passed to the orchestrator for merging into RunInstances TagSpecifications', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      const provider = new Ec2RunnerProvider(stack, 'provider tags', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ec2-tags'],
+        tags: {
+          SecurityMonitoring: 'enabled',
+          Name: 'test',
+        },
+      });
+
+      // the standard tags have runtime values, so the orchestrator merges them onto these at execution time
+      expect((provider as any)._runnerConfig().tags).toEqual([
+        { Key: 'SecurityMonitoring', Value: 'enabled' },
+        { Key: 'Name', Value: 'test' },
+      ]);
+    });
+
+    test('no tags prop still opts the config into the standard runner tags', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      const provider = new Ec2RunnerProvider(stack, 'provider no tags', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ec2-no-tags'],
+      });
+
+      // an empty array, not a missing field: RunInstances reads $.providerParams.tags unconditionally, and a
+      // missing reference path fails the state at runtime
+      expect((provider as any)._runnerConfig().tags).toEqual([]);
+    });
+  });
+
+  test('root device resolution re-runs when the AMI recipe changes (issue #962)', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+    const provider = new Ec2RunnerProvider(stack, 'provider', {
+      vpc,
+      securityGroups: [sg],
+    });
+
+    // amiRootDevice() is created inside _runnerConfig(), not the constructor, so we have to build it.
+    (provider as any)._runnerConfig();
+
+    const template = Template.fromStack(stack);
+
+    // The provider sizes the root volume by device name, so it must re-resolve the AMI's root device
+    // whenever a new AMI is built. CacheKey is wired to the recipe version so the custom resource re-runs
+    // on a recipe change (e.g. a base OS switch that moves the root device) instead of freezing at the
+    // first deploy — the #962 bug.
+    template.hasResourceProperties('Custom::AmiRootDevice', Match.objectLike({
+      CacheKey: {
+        'Fn::GetAtt': [Match.stringLikeRegexp('AmiRecipe'), 'Version'],
+      },
+    }));
+  });
+
+  test('externally-provided AMI resolves root device once (no cacheKey, no build dependency)', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+    // object-literal builder pointing at an existing AMI — the interface explicitly allows this
+    const byoBuilder: IRunnerImageBuilder = {
+      bindDockerImage() { throw new Error('not used'); },
+      bindAmi() {
+        return {
+          launchTemplate: ec2.LaunchTemplate.fromLaunchTemplateAttributes(stack, 'byo-lt', { launchTemplateId: 'lt-01234567' }),
+          architecture: Architecture.X86_64,
+          os: Os.LINUX_UBUNTU_2404,
+          runnerVersion: RunnerVersion.latest(),
+          // no cacheKey
+        };
+      },
+    };
+
+    const provider = new Ec2RunnerProvider(stack, 'byo', {
+      vpc,
+      securityGroups: [sg],
+      imageBuilder: byoBuilder,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE),
+    });
+
+    // must not throw: the object-literal builder isn't a construct, so addDependency is skipped
+    (provider as any)._runnerConfig();
+
+    const template = Template.fromStack(stack);
+
+    // no version to key on → resolve once, exactly like before the fix
+    template.hasResourceProperties('Custom::AmiRootDevice', Match.objectLike({
+      CacheKey: Match.absent(),
+    }));
   });
 });

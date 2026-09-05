@@ -56,6 +56,16 @@ export interface AwsImageBuilderRunnerImageBuilderProps {
    * @default disabled
    */
   readonly fastLaunchOptions?: FastLaunchOptions;
+
+  /**
+   * Additional tags to apply to the AMI built by this builder.
+   *
+   * These additional tags are set on top of `Name`, `GitHubRunners:Stack`, and `GitHubRunners:Builder`.
+   * You may override the built-in tags.
+   *
+   * @default no additional tags
+   */
+  readonly amiTags?: { [key: string]: string };
 }
 
 /**
@@ -212,11 +222,13 @@ export class ImageBuilderComponent extends cdk.Resource {
         }
       }
 
-      steps.push({
-        name: 'Download',
-        action: 'S3Download',
-        inputs,
-      });
+      if (inputs.length > 0) {
+        steps.push({
+          name: 'Download',
+          action: 'S3Download',
+          inputs,
+        });
+      }
 
       if (extractCommands.length > 0) {
         steps.push({
@@ -321,6 +333,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
   private readonly waitOnDeploy: boolean;
   private readonly dockerSetupCommands: string[];
   private readonly tags: { [key: string]: string };
+  private readonly amiTags: { [key: string]: string };
   private readonly containerWorkflow?: Workflow;
   private readonly containerWorkflowExecutionRole?: iam.IRole;
 
@@ -342,6 +355,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.instanceType = props?.awsImageBuilderOptions?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
     this.fastLaunchOptions = props?.awsImageBuilderOptions?.fastLaunchOptions;
     this.storageSize = props?.awsImageBuilderOptions?.storageSize;
+    this.amiTags = props?.awsImageBuilderOptions?.amiTags ?? {};
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
     this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
 
@@ -787,6 +801,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
               'Name': this.node.id,
               'GitHubRunners:Stack': stackName,
               'GitHubRunners:Builder': builderName,
+              ...this.amiTags,
             },
           },
           launchTemplateConfigurations: launchTemplateConfigs,
@@ -821,6 +836,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       os: this.os,
       logGroup: log,
       runnerVersion: RunnerVersion.specific('unknown'),
+      cacheKey: recipe.version, // re-evaluate AMI whenever the recipe changes
     };
 
     this.amiCleaner(recipe, stackName, builderName);

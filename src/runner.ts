@@ -36,6 +36,7 @@ import {
 import { Secrets } from './secrets';
 import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
+import { StolenRunnerDetector } from './stolen-runners';
 import { TokenRetrieverFunction } from './token-retriever-function';
 import { addFunctionMetadata, dedupeStateMachineTokens, discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
 import { WarmRunnerManagerFunction } from './warm-runner-manager-function';
@@ -54,6 +55,33 @@ const FAMILY_FRAGMENTS: Record<string, (scope: Construct) => FamilyFragmentBranc
   fargate: FargateRunnerProvider._stateMachineFragments,
   lambda: LambdaRunnerProvider._stateMachineFragments,
 };
+
+/**
+ * JSONata expression that points `$.providerParams` at `configExpr`, with the standard runner tags merged into the
+ * config's `tags` field.
+ *
+ * The four standard tags only have values at runtime (runner name, repo, labels), so a provider can't bake them
+ * into its config at synth time, and the shared fragments are JSONPath (for `States.Format`) which has no way to
+ * concatenate two arrays. Doing the merge in the states that swap `$.providerParams` anyway means the fragments can
+ * use `$.providerParams.tags` as-is, without a state of their own.
+ *
+ * Providers opt in by putting a `tags` array in their config (empty when the user asked for no extra tags); configs
+ * without one are passed through untouched. Provider tags override standard tags of the same key. Merging twice is
+ * a no-op, since the standard tags are then already in `tags` and override themselves.
+ */
+function selectProviderParams(configExpr: string): string {
+  return `$merge([$states.input, {'providerParams': (
+    $config := ${configExpr};
+    $exists($config.tags) ? $merge([$config, {'tags': $append(
+      [
+        {'Key': 'Name', 'Value': $states.context.Execution.Name},
+        {'Key': 'GitHubRunners:Provider', 'Value': $states.input.provider},
+        {'Key': 'GitHubRunners:Repo', 'Value': $states.input.owner & '/' & $states.input.repo},
+        {'Key': 'GitHubRunners:Labels', 'Value': $states.input.labels}
+      ][$not(Key in $config.tags.Key)],
+      $config.tags)}]) : $config
+  )}])`;
+}
 
 /**
  * Static strings the family fragments need at `$.consts`, like the EC2 userdata templates. Kept out of the
@@ -327,12 +355,14 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private readonly webhook: GithubWebhookHandler;
   private readonly redeliverer: GithubWebhookRedelivery;
   private readonly orchestrator: stepfunctions.StateMachine;
+  private readonly stolenRunnerDetector: StolenRunnerDetector;
   private readonly setupUrl: string;
   private readonly extraLambdaEnv: { [p: string]: string } = {};
   private readonly extraLambdaProps: lambda.FunctionOptions;
   private stateMachineLogGroup?: logs.LogGroup;
   private readonly parameterizedProviders: IParameterizedProvider[] = [];
   private jobsCompletedMetricFiltersInitialized = false;
+  private stolenRunnersMetricFilterInitialized = false;
   private warmRunnerManager?: lambda.Function;
   private warmRunnerQueue?: sqs.Queue;
   private warmConfigHashes: string[] = [];
@@ -390,6 +420,13 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     }
 
     this.orchestrator = this.stateMachine(props);
+    this.stolenRunnerDetector = new StolenRunnerDetector(this, 'Stolen Runners', {
+      secrets: this.secrets,
+      orchestrator: this.orchestrator,
+      runnerLogGroups: [...this.extractUniqueSubProviders()].map(p => p.logGroup),
+      extraLambdaProps: this.extraLambdaProps,
+      extraLambdaEnv: this.extraLambdaEnv,
+    });
     this.webhook = new GithubWebhookHandler(this, 'Webhook Handler', {
       orchestrator: this.orchestrator,
       secrets: this.secrets,
@@ -400,10 +437,12 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       }, {}),
       requireSelfHostedLabel: this.props?.requireSelfHostedLabel ?? true,
       providerSelector: this.props?.providerSelector,
+      stolenRunnerQueue: this.stolenRunnerDetector.queue,
       extraLambdaProps: this.extraLambdaProps,
       extraLambdaEnv: this.extraLambdaEnv,
       idleTimeoutSeconds: this.props?.idleTimeout?.toSeconds(),
     });
+    this.stolenRunnerDetector.grantRecordRunners(this.webhook.handler);
     this.redeliverer = new GithubWebhookRedelivery(this, 'Webhook Redelivery', {
       secrets: this.secrets,
       extraLambdaProps: this.extraLambdaProps,
@@ -467,7 +506,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     const selectConfig = new stepfunctions.Pass(this, 'Select Provider Config', {
       queryLanguage: stepfunctions.QueryLanguage.JSONATA,
-      outputs: '{% $merge([$states.input, {\'providerParams\': $lookup($states.input.consts.providerConfigs, $states.input.provider)}]) %}',
+      outputs: `{% ${selectProviderParams('$lookup($states.input.consts.providerConfigs, $states.input.provider)')} %}`,
     });
 
     const providerChooser = new stepfunctions.Choice(this, 'Choose provider');
@@ -484,7 +523,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
             $acc.sum + $option.weight >= $r ? {'picked': $option.config} : {'sum': $acc.sum + $option.weight}
           )
         }, {'sum': 0});
-        $merge([$states.input, {'providerParams': $picked.picked}])
+        ${selectProviderParams('$picked.picked')}
       ) %}`,
     });
     providerChooser.when(stepfunctions.Condition.isPresent('$.providerParams.distribute'), pickWeighted);
@@ -520,7 +559,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         owner: stepfunctions.JsonPath.stringAt('$.owner'),
         repo: stepfunctions.JsonPath.stringAt('$.repo'),
         installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
-        error: stepfunctions.JsonPath.objectAt('$.error'),
       }),
     });
     fallbackCleanup.addRetry({
@@ -533,16 +571,20 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     const fallbackChoice = new stepfunctions.Choice(this, 'Fallback Configured?');
     const useFallback = new stepfunctions.Pass(this, 'Use Fallback Config', {
       queryLanguage: stepfunctions.QueryLanguage.JSONATA,
-      outputs: '{% $merge([$states.input, {\'providerParams\': $states.input.providerParams.fallback}]) %}',
+      outputs: `{% ${selectProviderParams('$states.input.providerParams.fallback')} %}`,
     });
     const allFailed = new stepfunctions.Fail(this, 'All Attempts Failed', {
-      // re-raise the last attempt's error so the orchestrator's outer catch and retry see the original failure
+      // re-raise the last attempt's error so the orchestrator's outer catch and retry see the original failure.
+      // it's a separate state from 'Clean Up Failed Runner' so a red clean-up always means the clean-up itself had
+      // a problem, and never just that we re-raised the error that got us here (#989)
+      comment: 'Fail the execution with the original error that stopped the runner',
       errorPath: stepfunctions.JsonPath.stringAt('$.error.Error'),
       causePath: stepfunctions.JsonPath.stringAt('$.error.Cause'),
     });
 
     tryProvider.addCatch(fallbackCleanup, { errors: [stepfunctions.Errors.ALL], resultPath: '$.error' });
-    // the clean-up lambda always re-raises the original error, so the catch is what actually advances the loop
+    // the clean-up lambda reports what it did in `$.delete` instead of failing, so a red 'Clean Up Failed Runner'
+    // means the clean-up itself had a problem; either way we move on to the next fallback config
     fallbackCleanup.next(fallbackChoice);
     fallbackCleanup.addCatch(fallbackChoice, { errors: [stepfunctions.Errors.ALL], resultPath: stepfunctions.JsonPath.DISCARD });
     fallbackChoice.when(stepfunctions.Condition.isPresent('$.providerParams.fallback'), useFallback);
@@ -980,6 +1022,46 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   /**
+   * Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them.
+   *
+   * A high number here means your runners are shared with jobs you didn't mean to serve. Use the "Stolen runners"
+   * CloudWatch Logs Insights query created by {@link createLogsInsightsQueries} to see which repositories and jobs
+   * are taking them.
+   *
+   * This metric has two dimensions:
+   *  1. `Replaced` which is "true" or "false" indicating whether the stolen runner was replaced. A runner may not be replaced if it was stolen too
+   *     many times in a row. The current limit is 3. When this is false, there is probably a bug in our detection or something misconfigured.
+   *  2. `Provider` is the provider construct path of the runner that was stolen. You can check your code to see which labels it has that may cause
+   *     it to be stolen. The logs insights queries can provide even more information about the stolen runners.
+   *
+   * **WARNING:** this method creates a metric filter. This resource may incur cost.
+   */
+  public metricStolenRunners(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
+    if (!this.stolenRunnersMetricFilterInitialized) {
+      singletonLogGroup(this, SingletonLogType.ORCHESTRATOR).addMetricFilter('Stolen Runners filter', {
+        metricNamespace: 'GitHubRunners',
+        metricName: 'StolenRunners',
+        filterPattern: logs.FilterPattern.stringValue('$.message.metric', '=', 'StolenRunnerDetected'),
+        metricValue: '1',
+        // can't with dimensions -- defaultValue: 0,
+        dimensions: {
+          Replaced: '$.message.replaced',
+          Provider: '$.message.provider',
+        },
+      });
+      this.stolenRunnersMetricFilterInitialized = true;
+    }
+
+    return new cloudwatch.Metric({
+      namespace: 'GitHubRunners',
+      metricName: 'StolenRunners',
+      unit: cloudwatch.Unit.COUNT,
+      statistic: cloudwatch.Stats.SUM,
+      ...props,
+    }).attachTo(this);
+  }
+
+  /**
    * Creates a topic for notifications when a runner image build fails.
    *
    * Runner images are rebuilt every week by default. This provides the latest GitHub Runner version and software updates.
@@ -1103,6 +1185,22 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         fields: ['@timestamp', 'message.notice', 'message.deliveryId', 'message.guid'],
         filterStatements: [
           'isPresent(message.deliveryId)',
+        ],
+        sort: '@timestamp desc',
+        limit: 100,
+      }),
+    });
+
+    new logs.QueryDefinition(this, 'Stolen runners', {
+      queryDefinitionName: `${prefix}/Stolen runners`,
+      logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
+      queryString: new logs.QueryString({
+        fields: [
+          '@timestamp', 'message.notice', 'message.stolenRunnerName', 'message.runnerName', 'message.stolenByJobId',
+          'message.jobUrl', 'message.owner', 'message.repo', 'message.provider',
+        ],
+        filterStatements: [
+          'isPresent(message.metric) and strcontains(message.metric, "Stolen")',
         ],
         sort: '@timestamp desc',
         limit: 100,

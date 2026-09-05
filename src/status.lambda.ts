@@ -137,6 +137,7 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
       runnerLevel: 'Unknown',
       webhook: {
         url: process.env.WEBHOOK_URL,
+        configuredUrl: 'Unknown',
         status: 'Unable to check',
         secretArn: process.env.WEBHOOK_SECRET_ARN,
         secretUrl: secretArnToUrl(process.env.WEBHOOK_SECRET_ARN),
@@ -154,6 +155,7 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
           installations: [] as AppInstallation[],
         },
         personalAuthToken: '',
+        personalAuthTokenScopes: '',
       },
     },
     providers: await generateProvidersStatus(),
@@ -242,8 +244,9 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
       return safeReturnValue(event, status);
     }
 
+    let user;
     try {
-      const user = await octokit.request('GET /user');
+      user = await octokit.request('GET /user');
       status.github.auth.personalAuthToken = `username: ${user.data.login}`;
     } catch (e) {
       status.github.auth.status = `Unable to call /user with personal auth token: ${e}`;
@@ -251,6 +254,23 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
     }
 
     status.github.auth.status = 'OK';
+
+    // classic tokens report their scopes in a header, so we can check them against the configured runner level
+    // fine-grained tokens don't report their permissions, so there is nothing to check for them
+    const scopesHeader = user.headers['x-oauth-scopes'];
+    if (scopesHeader === undefined) {
+      status.github.auth.personalAuthTokenScopes = 'Unable to check (expected for fine-grained tokens)';
+    } else {
+      const scopes = String(scopesHeader).split(',').map(s => s.trim()).filter(s => s);
+      status.github.auth.personalAuthTokenScopes = scopes.join(', ');
+
+      const runnerLevel = githubSecrets.runnerLevel === 'org' ? 'org' : 'repo';
+      const requiredScopes = runnerLevel === 'repo' ? ['repo'] : ['admin:org', 'manage_runners:org'];
+      if (!requiredScopes.some(s => scopes.includes(s))) {
+        status.github.auth.status = `OK, but token has none of the scopes required to register runners on ${runnerLevel} level: ${requiredScopes.join(' or ')}`;
+      }
+    }
+
     status.github.webhook.status = 'Unable to verify automatically';
   } else {
     // try authenticating with GitHub app
@@ -340,14 +360,19 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
     try {
       const response = await appOctokit.request('GET /app/hook/config', {});
 
+      status.github.webhook.configuredUrl = response.data.url || '(none)';
+
       if (response.data.url !== process.env.WEBHOOK_URL) {
-        status.github.webhook.status = 'GitHub has wrong webhook URL configured';
+        status.github.webhook.status = 'GitHub has wrong webhook URL configured. Runners will fail to start with a '
+          + 'token error. Use the webhook created by the app itself. A webhook configured by hand in repository '
+          + 'or organization settings cannot carry the required app installation id.';
       } else {
         // TODO check secret by doing a dummy delivery? force apply secret?
         status.github.webhook.status = 'OK (note that secret cannot be checked automatically)';
       }
     } catch (e) {
-      status.github.webhook.status = `Unable to check app configuration: ${e}`;
+      status.github.webhook.status = `Unable to check app configuration. This probably means the app webhook is not turned on or has been replaced '
+        + 'by a manually configured webhook. Runners will fail to start with a token error. [${e}]`;
       return safeReturnValue(event, status);
     }
   }

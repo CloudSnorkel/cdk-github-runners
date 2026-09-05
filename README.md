@@ -541,6 +541,7 @@ We provide comprehensive examples in the [`examples/`](examples/) folder to help
 
 ### Customization
 - **[Add Software](examples/typescript/add-software/)** - Add custom software to runner images (also available in [Python](examples/python/add-software/))
+- **[Job Hooks](examples/typescript/job-hooks/)** - Run a script before every job using GitHub Actions runner hooks (also available in [Python](examples/python/job-hooks/))
 - **[GPU](examples/typescript/gpu/)** - GPU support with NVIDIA drivers across EC2, CodeBuild, and ECS (also available in [Python](examples/python/gpu/))
 
 ### Enterprise & Monitoring
@@ -593,6 +594,11 @@ Other useful metrics to track:
 
 1. Use `GitHubRunners.metricJobCompleted()` to get a metric for the number of completed jobs broken down by labels and job success.
 2. Use `GitHubRunners.metricTime()` to get a metric for the total time a runner is running. This includes the overhead of starting the runner.
+3. Use `GitHubRunners.metricStolenRunners()` to get a metric for number of runners detected as stolen by another job. Anything over zero can indicate a misconfiguration or GitHub webhook issues.
+
+## Known Issues
+
+1. Runner images built during a failed deployment are not rolled back. If your stack fails to deploy after an image was already built, the new image will stay in use. The image will be automatically replaced on the next build interval, but that might take up to 7 days with default settings (`rebuildInterval`). It's recommended to not leave stacks in `UPDATE_ROLLBACK_COMPLETE` state. Deploying again with the configuration you want will rebuild the images and get everything back in sync.
 
 ## Getting Help
 

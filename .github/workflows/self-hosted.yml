@@ -116,7 +116,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - run: export
+      - run: export | grep -v KEY | grep -v TOKEN
       - name: Check arch
         run: |
           if [ "${{ matrix.arch }}" != "${RUNNER_ARCH}" ]; then
@@ -219,7 +219,7 @@ jobs:
       contents: read
     steps:
       - run: |
-          Get-ChildItem env:
+          Get-ChildItem Env: | Where-Object { $_.Name -notmatch 'KEY|TOKEN' }
       - name: Check arch
         run: |
           if (Compare-Object "${{ matrix.arch }}" $Env:RUNNER_ARCH) {

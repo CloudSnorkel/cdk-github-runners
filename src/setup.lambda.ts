@@ -71,11 +71,17 @@ async function handlePat(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayPr
     return response(400, 'Invalid personal access token');
   }
 
+  // default to 'repo' for backwards compatibility with older setup pages that didn't ask for a registration level
+  const runnerLevel = body.runnerLevel ?? 'repo';
+  if (runnerLevel !== 'repo' && runnerLevel !== 'org') {
+    return response(400, 'Invalid runner registration level');
+  }
+
   await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(<GitHubSecrets>{
     domain: body.domain,
     appId: -1,
     personalAuthToken: body.pat,
-    runnerLevel: 'repo',
+    runnerLevel,
   }));
   await updateSecretValue(process.env.SETUP_SECRET_ARN, JSON.stringify({ token: '' }));
 

@@ -1,8 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_iam as iam, aws_logs as logs, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { AwsImageBuilderRunnerImageBuilderProps } from './aws-image-builder';
-import { BaseContainerImageInput, BaseImageInput } from './aws-image-builder/base-image';
+import { AwsImageBuilderRunnerImageBuilderProps, BaseContainerImageInput, BaseImageInput } from './aws-image-builder';
 import { CodeBuildRunnerImageBuilderProps } from './codebuild';
 import { RunnerImageComponent } from './components';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';

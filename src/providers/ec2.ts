@@ -78,6 +78,12 @@ setup_logs () {
               "log_group_name": "$logGroupName",
               "log_stream_name": "$runnerNamePath",
               "timezone": "UTC"
+            },
+            {
+              "file_path": "/var/log/workflow.log",
+              "log_group_name": "$logGroupName",
+              "log_stream_name": "$runnerNamePath-workflow",
+              "timezone": "UTC"
             }
           ]
         }
@@ -97,6 +103,9 @@ action () {
 
   labelsTemplate="$labels,cdkghr:started:$(date +%s)"
 
+  # Report workflow id for stolen runner detection (to separate log so it doesn't hang this bash function)
+  /home/runner/job-reporter.sh "$runnerNamePath" /var/log/workflow.log
+
   # Execute the configuration command for runner registration
   sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1
 
@@ -107,7 +116,9 @@ action () {
   STATUS=$(grep -Phors "finish job request for job [0-9a-f-]+ with result: .*" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')
 
   # Check and print the job status
-  [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$labels" "$STATUS"
+  if [ -n "$STATUS" ]; then
+    echo CDKGHA JOB DONE "$labels" "$STATUS"
+  fi
 }
 heartbeat &
 if setup_logs && action |& tee /var/log/runner.log; then
@@ -156,6 +167,9 @@ Start-Job -ScriptBlock {
   }
 }
 function setup_logs () {
+  # the runner report can't go in runner.log: run.cmd's Out-File holds that file open for as long as the runner is
+  # running, which is exactly when the report is written. one file per stream, so it gets its own stream. the
+  # subscription filter is on the log group, so the detector doesn't care.
   echo "{
     \`"logs\`": {
       \`"log_stream_name\`": \`"unknown\`",
@@ -167,6 +181,12 @@ function setup_logs () {
               \`"log_group_name\`": \`"$logGroupName\`",
               \`"log_stream_name\`": \`"$runnerNamePath\`",
               \`"timezone\`": \`"UTC\`"
+            },
+            {
+              \`"file_path\`": \`"/actions/workflow.log\`",
+              \`"log_group_name\`": \`"$logGroupName\`",
+              \`"log_stream_name\`": \`"$runnerNamePath-workflow\`",
+              \`"timezone\`": \`"UTC\`"
             }
           ]
         }
@@ -177,6 +197,9 @@ function setup_logs () {
 }
 function action () {
   cd /actions
+
+  & ./job-reporter.ps1 "\${runnerNamePath}" /actions/workflow.log 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+
   $RunnerVersion = Get-Content /actions/RUNNER_VERSION -Raw
   if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
   ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" \${runnerGroup1} \${runnerGroup2} \${defaultLabels} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
@@ -240,7 +263,7 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
    * GitHub Actions runner group name.
    *
    * If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
-   * requires a paid GitHub account.
+   * requires a paid GitHub account and organization level runner registration.
    *
    * The group must exist or the runner will not start.
    *
@@ -326,6 +349,16 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
    * @default no max price (you will pay current spot price)
    */
   readonly spotMaxPrice?: string;
+
+  /**
+   * Additional tags to apply to launched runner instances and their volumes.
+   *
+   * These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
+   * You may override the built-in tags.
+   *
+   * @default no additional tags
+   */
+  readonly tags?: { [key: string]: string };
 }
 
 /**
@@ -340,13 +373,6 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
  * InstanceMarketOptions field.
  */
 function ec2RunInstancesState(spot: boolean): any {
-  const tags = [
-    { 'Key': 'Name', 'Value.$': '$$.Execution.Name' },
-    { 'Key': 'GitHubRunners:Provider', 'Value.$': '$.provider' },
-    { 'Key': 'GitHubRunners:Repo', 'Value.$': "States.Format('{}/{}', $.owner, $.repo)" },
-    { 'Key': 'GitHubRunners:Labels', 'Value.$': '$.labels' },
-  ];
-
   return {
     Type: 'Task',
     Resource: `arn:${cdk.Aws.PARTITION}:states:::aws-sdk:ec2:runInstances.waitForTaskToken`,
@@ -376,9 +402,10 @@ function ec2RunInstancesState(spot: boolean): any {
       'SubnetId.$': '$.providerParams.subnet',
       'BlockDeviceMappings.$': '$.providerParams.blockDeviceMappings',
       ...spot ? { 'InstanceMarketOptions.$': '$.providerParams.instanceMarketOptions' } : {},
+      // the provider's `tags` prop, already merged with the standard runner tags by the orchestrator
       'TagSpecifications': [
-        { ResourceType: 'instance', Tags: tags },
-        { ResourceType: 'volume', Tags: tags },
+        { 'ResourceType': 'instance', 'Tags.$': '$.providerParams.tags' },
+        { 'ResourceType': 'volume', 'Tags.$': '$.providerParams.tags' },
       ],
     },
   };
@@ -508,6 +535,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   private readonly subnets: ec2.ISubnet[];
   private readonly securityGroups: ec2.ISecurityGroup[];
   private readonly defaultLabels: boolean;
+  private readonly tags: { [key: string]: string };
 
   constructor(scope: Construct, id: string, props?: Ec2RunnerProviderProps) {
     super(scope, id, props);
@@ -523,6 +551,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     this.spot = props?.spot ?? false;
     this.spotMaxPrice = props?.spotMaxPrice;
     this.defaultLabels = props?.defaultLabels ?? true;
+    this.tags = props?.tags ?? {};
 
     if (this.subnets.length === 0) {
       cdk.Annotations.of(this).addError('At least one subnet is required');
@@ -581,8 +610,11 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
 
   private amiRootDeviceResource() {
     if (!this.rootDeviceResource) {
-      this.rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId);
-      this.rootDeviceResource.node.addDependency(this.amiBuilder);
+      this.rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId, this.ami.cacheKey);
+      if (Construct.isConstruct(this.amiBuilder)) {
+        // if the user didn't create a static image builder and it's a real construct, we need to wait for it
+        this.rootDeviceResource.node.addDependency(this.amiBuilder);
+      }
     }
     return this.rootDeviceResource;
   }
@@ -665,6 +697,9 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       } : undefined,
       // index into States.Array($.consts.ec2UserDataLinux, $.consts.ec2UserDataWindows)
       userDataTemplateIdx: this.ami.os.is(Os.WINDOWS) ? 1 : 0,
+      // always present, even when empty: it's what opts this config into the standard runner tags the orchestrator
+      // merges in at runtime (see selectProviderParams() in runner.ts), which the state below reads as-is
+      tags: Object.entries(this.tags).map(([Key, Value]) => ({ Key, Value })),
       group1: this.group ? '--runnergroup' : '',
       group2: this.group ? this.group : '',
       defaultLabels: this.defaultLabels ? '' : '--no-default-labels',

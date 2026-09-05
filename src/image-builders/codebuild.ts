@@ -27,7 +27,7 @@ import { BuildImageFunction } from './build-image-function';
 import { BuildImageFunctionProperties } from './build-image.lambda';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
-import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
+import { singletonLambda, singletonLogGroup, SingletonLogType, singletonRole } from '../utils';
 
 
 export interface CodeBuildRunnerImageBuilderProps {
@@ -360,13 +360,13 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
             '  "Data": "$RANDOM"\n' +
             '}\n' +
             'EOF',
-            'if [ "$WAIT_HANDLE" != "unspecified" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$WAIT_HANDLE"; fi',
+            'if [ "$WAIT_HANDLE" != "unspecified" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$WAIT_HANDLE"; fi',
             // generate and push soci index
             // we do this after finishing the build, so we don't have to wait. it's also not required, so it's ok if it fails
             'if [ `docker inspect --format=\'{{json .Config.Labels.DISABLE_SOCI}}\' "$REPO_URI"` = "null" ]; then\n' +
             'docker rmi "$REPO_URI"\n' + // it downloads the image again to /tmp, so save on space
-            'LATEST_SOCI_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
-            `curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
+            'LATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
+            `curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
             './standalone-soci-indexer "$REPO_URI"\n' +
             'fi',
           ],
@@ -385,18 +385,13 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       loggingFormat: lambda.LoggingFormat.JSON,
     });
 
-    const policy = new iam.Policy(this, 'CR Policy', {
-      statements: [
-        new iam.PolicyStatement({
-          actions: ['codebuild:StartBuild'],
-          resources: [project.projectArn],
-        }),
-      ],
-    });
-    crHandler.role!.attachInlinePolicy(policy);
+    const startBuildPolicy = crHandler.role!.addToPrincipalPolicy(new iam.PolicyStatement({
+      actions: ['codebuild:StartBuild'],
+      resources: [project.projectArn],
+    }));
 
     let waitHandleRef = 'unspecified';
-    let waitDependable = '';
+    let waitDependable: cloudformation.CfnWaitCondition | undefined;
 
     if (this.waitOnDeploy) {
       // Wait handle lets us wait for longer than an hour for the image build to complete.
@@ -410,7 +405,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         count: 1,
       });
       waitHandleRef = handle.ref;
-      waitDependable = wait.ref;
+      waitDependable = wait;
     }
 
     const cr = new CustomResource(this, 'Builder', {
@@ -426,11 +421,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     // add dependencies to make sure resources are there when we need them
     cr.node.addDependency(project);
     cr.node.addDependency(this.role);
-    cr.node.addDependency(policy);
+    cr.node.addDependency(startBuildPolicy.policyDependable!);
     cr.node.addDependency(crHandler.role!);
     cr.node.addDependency(crHandler);
 
-    return waitDependable; // user needs to wait on wait handle which is triggered when the image is built
+    return waitDependable; // user needs to wait on the wait condition which is signaled when the image is built
   }
 
   private rebuildImageOnSchedule(project: codebuild.Project, rebuildInterval?: Duration) {
@@ -440,7 +435,10 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         description: `Rebuild runner image for ${this.repository.repositoryName}`,
         schedule: events.Schedule.rate(rebuildInterval),
       });
-      scheduleRule.addTarget(new events_targets.CodeBuildProject(project));
+      scheduleRule.addTarget(new events_targets.CodeBuildProject(project, {
+        // all image builders in the stack share one role, so we don't create a role and a policy per builder
+        eventRole: singletonRole(this, 'Build Schedule Role', new iam.ServicePrincipal('events.amazonaws.com')),
+      }));
     }
   }
 

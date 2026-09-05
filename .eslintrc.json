@@ -161,6 +161,7 @@
           "src/idle-runner-repear.lambda.ts",
           "src/setup.lambda.ts",
           "src/status.lambda.ts",
+          "src/stolen-runner-handler.lambda.ts",
           "src/token-retriever.lambda.ts",
           "src/warm-runner-manager.lambda.ts",
           "src/webhook-handler.lambda.ts",
@@ -173,6 +174,7 @@
           "src/lambda-helpers.ts",
           "src/lambda-github.ts",
           "src/lambda-stack-metadata.ts",
+          "src/lambda-tracker.ts",
           "setup/src/main.ts"
         ],
         "optionalDependencies": false,

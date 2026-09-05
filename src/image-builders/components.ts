@@ -112,9 +112,9 @@ export abstract class RunnerImageComponent {
       getCommands(os: Os, _architecture: Architecture): string[] {
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
           return [
-            'apt-get update',
-            'DEBIAN_FRONTEND=noninteractive apt-get upgrade -y',
-            'DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates',
+            'apt-get -o Acquire::Retries=5 update',
+            'DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y',
+            'DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [
@@ -154,7 +154,7 @@ export abstract class RunnerImageComponent {
           }
 
           return [
-            `curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/${archUrl}/latest/amazon-cloudwatch-agent.deb`,
+            `curl --retry 5 --retry-delay 30 --retry-all-errors -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/${archUrl}/latest/amazon-cloudwatch-agent.deb`,
             'dpkg -i -E /tmp/amazon-cloudwatch-agent.deb',
             'rm /tmp/amazon-cloudwatch-agent.deb',
           ];
@@ -234,7 +234,7 @@ export abstract class RunnerImageComponent {
             ? `awscli-exe-linux-${archUrl}-${useVersion}.zip`
             : `awscli-exe-linux-${archUrl}.zip`;
           return [
-            `curl -fsSL "https://awscli.amazonaws.com/${zipName}" -o awscliv2.zip`,
+            `curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL "https://awscli.amazonaws.com/${zipName}" -o awscliv2.zip`,
             'unzip -q awscliv2.zip',
             './aws/install --update',
             'rm -rf awscliv2.zip aws',
@@ -272,20 +272,20 @@ export abstract class RunnerImageComponent {
         }
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
           return [
-            'curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg',
+            'curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg',
             'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] ' +
             '  https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null',
-            'apt-get update',
-            'DEBIAN_FRONTEND=noninteractive apt-get install -y gh',
+            'apt-get -o Acquire::Retries=5 update',
+            'DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [
-            'curl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo',
+            'curl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo',
             'yum install -y gh',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2023)) {
           return [
-            'curl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo',
+            'curl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo',
             'dnf install -y gh',
           ];
         } else if (os.is(Os.WINDOWS)) {
@@ -298,7 +298,7 @@ export abstract class RunnerImageComponent {
             ];
           }
           return [
-            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh',
+            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-gh',
             '$GH_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi" -OutFile gh.msi',
@@ -332,8 +332,8 @@ export abstract class RunnerImageComponent {
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
           return [
             'add-apt-repository ppa:git-core/ppa',
-            'apt-get update',
-            'DEBIAN_FRONTEND=noninteractive apt-get install -y git',
+            'apt-get -o Acquire::Retries=5 update',
+            'DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [
@@ -354,7 +354,7 @@ export abstract class RunnerImageComponent {
             ];
           }
           return [
-            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\latest-git',
+            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\latest-git',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-git',
             '$GIT_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             '$GIT_VERSION_SHORT = ($GIT_VERSION -Split \'.windows.\')[0]',
@@ -381,11 +381,46 @@ export abstract class RunnerImageComponent {
     return new class extends RunnerImageComponent {
       name = 'GithubRunner';
 
+      getAssets(os: Os, _architecture: Architecture): RunnerImageAsset[] {
+        if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
+          return [
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-reporter.sh'),
+              target: '/home/runner/job-reporter.sh',
+            },
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-started-hook.sh'),
+              target: '/home/runner/job-started-hook.sh',
+            },
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-completed-hook.sh'),
+              target: '/home/runner/job-completed-hook.sh',
+            },
+          ];
+        } else if (os.is(Os.WINDOWS)) {
+          return [
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-reporter.ps1'),
+              target: '/actions/job-reporter.ps1',
+            },
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-started-hook.ps1'),
+              target: '/actions/job-started-hook.ps1',
+            },
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-completed-hook.ps1'),
+              target: '/actions/job-completed-hook.ps1',
+            },
+          ];
+        }
+        return [];
+      }
+
       getCommands(os: Os, architecture: Architecture) {
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS) || os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
           let versionCommand: string;
           if (runnerVersion.is(RunnerVersion.latest())) {
-            versionCommand = 'RUNNER_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest | grep -oE "[^/v]+$"`';
+            versionCommand = 'RUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest | grep -oE "[^/v]+$"`';
           } else {
             versionCommand = `RUNNER_VERSION='${runnerVersion.version}'`;
           }
@@ -401,10 +436,17 @@ export abstract class RunnerImageComponent {
 
           let commands = [
             versionCommand,
-            `curl -fsSLO "https://github.com/actions/runner/releases/download/v\${RUNNER_VERSION}/actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
+            `curl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO "https://github.com/actions/runner/releases/download/v\${RUNNER_VERSION}/actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
             `tar -C /home/runner -xzf "actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
             `rm actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz`,
             `echo -n ${runnerVersion.version} > /home/runner/RUNNER_VERSION`,
+            'chmod +x /home/runner/job-reporter.sh',
+            'chmod +x /home/runner/job-started-hook.sh',
+            'chmod +x /home/runner/job-completed-hook.sh',
+            'echo ACTIONS_RUNNER_HOOK_JOB_STARTED=/home/runner/job-started-hook.sh >> /home/runner/.env',
+            'echo ACTIONS_RUNNER_HOOK_JOB_COMPLETED=/home/runner/job-completed-hook.sh >> /home/runner/.env',
+            'chown runner /home/runner/.env', // env.sh modifies .env
+            'touch /home/runner/.workflowid && chown runner /home/runner/.workflowid',
           ];
 
           if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
@@ -422,7 +464,7 @@ export abstract class RunnerImageComponent {
           let runnerCommands: string[];
           if (runnerVersion.is(RunnerVersion.latest())) {
             runnerCommands = [
-              'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\latest-gha',
+              'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\latest-gha',
               '$LatestUrl = Get-Content $Env:TEMP\\latest-gha',
               '$RUNNER_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             ];
@@ -435,7 +477,7 @@ export abstract class RunnerImageComponent {
             'mkdir C:\\hostedtoolcache\\windows',
             'mkdir C:\\tools',
             // download zstd and extract to C:\tools
-            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/facebook/zstd/releases/latest > $Env:TEMP\\latest-zstd',
+            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/facebook/zstd/releases/latest > $Env:TEMP\\latest-zstd',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-zstd',
             '$ZSTD_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/facebook/zstd/releases/download/v$ZSTD_VERSION/zstd-v$ZSTD_VERSION-win64.zip" -OutFile zstd.zip',
@@ -446,6 +488,10 @@ export abstract class RunnerImageComponent {
             // add C:\tools to PATH
             '$persistedPaths = [Environment]::GetEnvironmentVariable(\'Path\', [EnvironmentVariableTarget]::Machine)',
             '[Environment]::SetEnvironmentVariable("PATH", $persistedPaths + ";C:\\tools", [EnvironmentVariableTarget]::Machine)',
+            // setup hooks
+            "Add-Content -Path C:\\actions\\.env -Value 'ACTIONS_RUNNER_HOOK_JOB_STARTED=C:\\actions\\job-started-hook.ps1'",
+            "Add-Content -Path C:\\actions\\.env -Value 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED=C:\\actions\\job-completed-hook.ps1'",
+            "Set-Content -Path C:\\actions\\.workflowid -Value '' -NoNewline",
           ]);
 
           return runnerCommands.concat([
@@ -487,12 +533,12 @@ export abstract class RunnerImageComponent {
             );
           }
           return [
-            'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg',
+            'curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg',
             'echo ' +
             '  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ' +
             '  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null',
-            'apt-get update',
-            'DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin',
+            'apt-get -o Acquire::Retries=5 update',
+            'DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin',
             'usermod -aG docker runner',
             'ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose',
           ];
@@ -505,7 +551,7 @@ export abstract class RunnerImageComponent {
           return [
             'amazon-linux-extras install docker',
             'usermod -a -G docker runner',
-            'curl -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr \'[:upper:]\' \'[:lower:]\')-$(uname -m)',
+            'curl --retry 5 --retry-delay 30 --retry-all-errors -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr \'[:upper:]\' \'[:lower:]\')-$(uname -m)',
             'chmod +x /usr/bin/docker-compose',
             'ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose',
           ];
@@ -518,7 +564,7 @@ export abstract class RunnerImageComponent {
           return [
             'dnf install -y docker',
             'usermod -a -G docker runner',
-            'curl -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr \'[:upper:]\' \'[:lower:]\')-$(uname -m)',
+            'curl --retry 5 --retry-delay 30 --retry-all-errors -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr \'[:upper:]\' \'[:lower:]\')-$(uname -m)',
             'chmod +x /usr/bin/docker-compose',
             'ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose',
           ];
@@ -549,7 +595,7 @@ export abstract class RunnerImageComponent {
             // enable containers feature
             'Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart',
             // install docker-compose
-            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\latest-docker-compose',
+            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\latest-docker-compose',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-docker-compose',
             '$LatestDockerCompose = ($LatestUrl -Split \'/\')[-1]',
             'Invoke-WebRequest -UseBasicParsing -Uri  "https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe" -OutFile $Env:ProgramFiles\\Docker\\docker-compose.exe',
@@ -691,9 +737,12 @@ export abstract class RunnerImageComponent {
    * Must be used after the {@link githubRunner} component.
    */
   static environmentVariables(vars: Record<string, string>): RunnerImageComponent {
-    Object.entries(vars).forEach(e => {
-      if (e[0].includes('\n') || e[1].includes('\n')) {
-        throw new Error(`Environment variable cannot contain newlines: ${e}`);
+    Object.entries(vars).forEach(([key, value]) => {
+      if (key.includes('\n') || value.includes('\n')) {
+        throw new Error(`Environment variable cannot contain newlines: ${key}=${value}`);
+      }
+      if (key == 'ACTIONS_RUNNER_HOOK_JOB_STARTED' || key == 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED') {
+        throw new Error('Cannot override ACTIONS_RUNNER_HOOK_JOB_STARTED or ACTIONS_RUNNER_HOOK_JOB_COMPLETED. Use RunnerImageComponent.jobStartedHook() or RunnerImageComponent.jobCompletedHook() instead.');
       }
     });
 
@@ -702,7 +751,13 @@ export abstract class RunnerImageComponent {
 
       getCommands(os: Os, _architecture: Architecture) {
         if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
-          return Object.entries(vars).map(e => `echo '${e[0]}=${e[1].replace(/'/g, "'\"'\"'")}' >> /home/runner/.env`);
+          if (Object.keys(vars).length === 0) {
+            return [];
+          }
+          return [
+            ...Object.entries(vars).map(e => `echo '${e[0]}=${e[1].replace(/'/g, "'\"'\"'")}' >> /home/runner/.env`),
+            'chown runner /home/runner/.env', // env.sh modifies .env
+          ];
         } else if (os.is(Os.WINDOWS)) {
           return Object.entries(vars).map(e => `Add-Content -Path C:\\actions\\.env -Value '${e[0]}=${e[1].replace(/'/g, "''")}'`);
         } else {
@@ -710,6 +765,72 @@ export abstract class RunnerImageComponent {
         }
       }
     };
+  }
+
+  /**
+   * A component that runs a script before every job the runner executes.
+   *
+   * Point this at a local script file. It is copied into the image, made executable, and the runner is
+   * configured to run it before each job through the
+   * [`ACTIONS_RUNNER_HOOK_JOB_STARTED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
+   * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
+   *
+   * Must be used after the {@link githubRunner} component.
+   *
+   * @param sourcePath path to a local script file to run before every job
+   */
+  static jobStartedHook(sourcePath: string): RunnerImageComponent {
+    return RunnerImageComponent.jobHook('Job-Started-Hook', 'job-started-hook-user', sourcePath);
+  }
+
+  /**
+   * A component that runs a script after every job the runner executes.
+   *
+   * Point this at a local script file. It is copied into the image, made executable, and the runner is
+   * configured to run it after each job through the
+   * [`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
+   * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
+   *
+   * Must be used after the {@link githubRunner} component.
+   *
+   * @param sourcePath path to a local script file to run after every job
+   */
+  static jobCompletedHook(sourcePath: string): RunnerImageComponent {
+    return RunnerImageComponent.jobHook('Job-Completed-Hook', 'job-completed-hook-user', sourcePath);
+  }
+
+  private static jobHook(name: string, scriptName: string, sourcePath: string): RunnerImageComponent {
+    const scriptPath = (os: Os): string => {
+      if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
+        return `/home/runner/${scriptName}.sh`;
+      } else if (os.is(Os.WINDOWS)) {
+        return `C:\\actions\\${scriptName}.ps1`;
+      }
+      throw new Error(`Unsupported OS for job hook component: ${os.name}`);
+    };
+
+    return new class extends RunnerImageComponent {
+      name = name;
+
+      getAssets(os: Os, _architecture: Architecture): RunnerImageAsset[] {
+        return [{
+          source: sourcePath,
+          target: scriptPath(os),
+        }];
+      }
+
+      getCommands(os: Os, _architecture: Architecture): string[] {
+        const target = scriptPath(os);
+        if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
+          return [
+            `chmod +x '${target}'`,
+          ];
+        } else if (os.is(Os.WINDOWS)) {
+          return [];
+        }
+        throw new Error(`Unsupported OS for job hook component: ${os.name}`);
+      }
+    }();
   }
 
   /**
@@ -772,7 +893,7 @@ export abstract class RunnerImageComponent {
 
     // Create a cache key based on component identity and properties
     const stack = cdk.Stack.of(scope);
-    const cacheKey = this._getCacheKey(os, architecture, commands, assets, reboot);
+    const cacheKey = this._getCacheKey(stack, os, architecture, commands, assets, reboot);
 
     // Create a consistent ID based on the cache key to ensure the same component
     // always gets the same ID, regardless of the passed-in id parameter
@@ -810,13 +931,22 @@ export abstract class RunnerImageComponent {
    * Components with the same name, OS, architecture, commands, assets, and reboot flag will share the same key.
    * Returns a hash of all component properties to ensure uniqueness.
    *
+   * The key is built from a *canonical* representation of the inputs so it stays stable across synths
+   * and machines:
+   *  - Commands are resolved through the stack so CDK tokens (e.g. `Ref`/`Fn::GetAtt`) are hashed by
+   *    their stable intrinsic form, not by the `${Token[TOKEN.NN]}` placeholder whose counter changes
+   *    between synths.
+   *  - Assets are hashed by file content (path-independent) rather than by their local source path, so
+   *    the same file produces the same key regardless of where it lives on disk.
+   *
    * @internal
    */
-  private _getCacheKey(os: Os, architecture: Architecture, commands: string[], assets: RunnerImageAsset[], reboot: boolean): string {
-    // Create a hash of the component properties
-    const assetKeys = assets.map(a => `${a.source}:${a.target}`).sort().join('|');
-    const keyData = `${this.name}:${os.name}:${architecture.name}:${commands.join('\n')}:${assetKeys}:${reboot}`;
+  private _getCacheKey(stack: cdk.Stack, os: Os, architecture: Architecture, commands: string[], assets: RunnerImageAsset[], reboot: boolean) {
+    // Create a hash of the component properties. Only tokenized commands are resolved (plain commands
+    // are left as-is so their key is unchanged), and assets are keyed by content instead of path.
+    const commandKeys = commands.map(c => cdk.Token.isUnresolved(c) ? JSON.stringify(stack.resolve(c)) : c).join('\n');
+    const assetKeys = assets.map(a => `${cdk.FileSystem.fingerprint(a.source)}:${a.target}`).sort().join('|');
+    const keyData = `${this.name}:${os.name}:${architecture.name}:${commandKeys}:${assetKeys}:${reboot}`;
     return crypto.createHash('md5').update(keyData).digest('hex');
   }
 }
-

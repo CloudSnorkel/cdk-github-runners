@@ -177,13 +177,15 @@ describe('Parameterized providers', () => {
     expect(definition).toContain('"Try Provider":{"Type":"Parallel"');
     expect(definition).toContain('{"ErrorEquals":["States.ALL"],"ResultPath":"$.error","Next":"Clean Up Failed Runner"}');
 
-    // cleanup re-raises and the catch advances to the fallback choice
+    // cleanup reports what it did and advances to the fallback choice on its normal path, so it never goes red
+    // just for re-raising the error that got us here (#989); the catch is only for a cleanup that really failed
+    expect(definition).toContain('"Clean Up Failed Runner":{"Next":"Fallback Configured?"');
     expect(definition).toContain('{"ErrorEquals":["States.ALL"],"ResultPath":null,"Next":"Fallback Configured?"}');
     expect(definition).toContain('"Fallback Configured?":{"Type":"Choice","Choices":[{"Variable":"$.providerParams.fallback","IsPresent":true,"Next":"Use Fallback Config"}],"Default":"All Attempts Failed"}');
-    expect(definition).toContain("{'providerParams': $states.input.providerParams.fallback}");
+    expect(definition).toContain('$config := $states.input.providerParams.fallback;');
 
-    // out of fallbacks, the original error is re-raised for the outer catch and retry
-    expect(definition).toContain('"All Attempts Failed":{"Type":"Fail","ErrorPath":"$.error.Error","CausePath":"$.error.Cause"}');
+    // out of fallbacks, a state of its own re-raises the original error for the outer catch and retry
+    expect(definition).toContain('"All Attempts Failed":{"Type":"Fail","Comment":"Fail the execution with the original error that stopped the runner","ErrorPath":"$.error.Error","CausePath":"$.error.Cause"}');
   });
 
   test('ec2 providers run one subnet at a time using fallback configs', () => {

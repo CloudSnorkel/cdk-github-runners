@@ -12,7 +12,7 @@ Registration level must match the one selected during setup.
 
 > [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
 
-## Limitations
+**Limitations**
 
 - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
 - You may briefly see more than `count` runners when changing config or at rotation.
@@ -32,7 +32,7 @@ repo: 'my-repo',
 });
 ```](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
 
-## Limitations
+**Limitations**
 
 - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
 - You may briefly see more than `count` runners when changing config or at rotation.
@@ -3347,6 +3347,7 @@ new GitHubRunners(scope: Construct, id: string, props?: GitHubRunnersProps)
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic">failedImageBuildsTopic</a></code> | Creates a topic for notifications when a runner image build fails. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed">metricFailed</a></code> | Metric for failed runner executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted">metricJobCompleted</a></code> | Metric for the number of GitHub Actions jobs completed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners">metricStolenRunners</a></code> | Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricSucceeded">metricSucceeded</a></code> | Metric for successful executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricTime">metricTime</a></code> | Metric for the interval, in milliseconds, between the time the execution starts and the time it closes. |
 
@@ -3458,6 +3459,32 @@ It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succe
 **WARNING:** this method creates a metric filter for each provider. Each metric has a status dimension with six possible values. These resources may incur cost.
 
 ###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted.parameter.props"></a>
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
+
+---
+
+##### `metricStolenRunners` <a name="metricStolenRunners" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners"></a>
+
+```typescript
+public metricStolenRunners(props?: MetricOptions): Metric
+```
+
+Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them.
+
+A high number here means your runners are shared with jobs you didn't mean to serve. Use the "Stolen runners"
+CloudWatch Logs Insights query created by {@link createLogsInsightsQueries} to see which repositories and jobs
+are taking them.
+
+This metric has two dimensions:
+ 1. `Replaced` which is "true" or "false" indicating whether the stolen runner was replaced. A runner may not be replaced if it was stolen too
+    many times in a row. The current limit is 3. When this is false, there is probably a bug in our detection or something misconfigured.
+ 2. `Provider` is the provider construct path of the runner that was stolen. You can check your code to see which labels it has that may cause
+    it to be stolen. The logs insights queries can provide even more information about the stolen runners.
+
+**WARNING:** this method creates a metric filter. This resource may incur cost.
+
+###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners.parameter.props"></a>
 
 - *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
 
@@ -4840,7 +4867,7 @@ Registration level must match the one selected during setup.
 
 > [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
 
-## Limitations
+**Limitations**
 
 - **No deployment-fill**: Unlike `AlwaysOnWarmRunner`, scheduled warm runners do not get an initial
 fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
@@ -4879,7 +4906,7 @@ duration: cdk.Duration.hours(12),
 });
 ```](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
 
-## Limitations
+**Limitations**
 
 - **No deployment-fill**: Unlike `AlwaysOnWarmRunner`, scheduled warm runners do not get an initial
 fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
@@ -5650,9 +5677,26 @@ const awsImageBuilderRunnerImageBuilderProps: AwsImageBuilderRunnerImageBuilderP
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.amiTags">amiTags</a></code> | <code>{[ key: string ]: string}</code> | Additional tags to apply to the AMI built by this builder. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.fastLaunchOptions">fastLaunchOptions</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.FastLaunchOptions">FastLaunchOptions</a></code> | Options for fast launch. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.instanceType">instanceType</a></code> | <code>aws-cdk-lib.aws_ec2.InstanceType</code> | The instance type used to build the image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for builder instances. This modifies the boot volume size and doesn't add any additional volumes. |
+
+---
+
+##### `amiTags`<sup>Optional</sup> <a name="amiTags" id="@cloudsnorkel/cdk-github-runners.AwsImageBuilderRunnerImageBuilderProps.property.amiTags"></a>
+
+```typescript
+public readonly amiTags: {[ key: string ]: string};
+```
+
+- *Type:* {[ key: string ]: string}
+- *Default:* no additional tags
+
+Additional tags to apply to the AMI built by this builder.
+
+These additional tags are set on top of `Name`, `GitHubRunners:Stack`, and `GitHubRunners:Builder`.
+You may override the built-in tags.
 
 ---
 
@@ -6150,7 +6194,7 @@ public readonly group: string;
 GitHub Actions runner group name.
 
 If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
-requires a paid GitHub account.
+requires a paid GitHub account and organization level runner registration.
 
 The group must exist or the runner will not start.
 
@@ -6512,6 +6556,7 @@ const ec2RunnerProviderProps: Ec2RunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.storageSize">storageSize</a></code> | <code>aws-cdk-lib.Size</code> | Size of volume available for launched runner instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnet">subnet</a></code> | <code>aws-cdk-lib.aws_ec2.ISubnet</code> | Subnet where the runner instances will be launched. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.tags">tags</a></code> | <code>{[ key: string ]: string}</code> | Additional tags to apply to launched runner instances and their volumes. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC where runner instances will be launched. |
 
 ---
@@ -6584,7 +6629,7 @@ public readonly group: string;
 GitHub Actions runner group name.
 
 If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
-requires a paid GitHub account.
+requires a paid GitHub account and organization level runner registration.
 
 The group must exist or the runner will not start.
 
@@ -6752,6 +6797,22 @@ public readonly subnetSelection: SubnetSelection;
 Where to place the network interfaces within the VPC.
 
 Only the first matched subnet will be used.
+
+---
+
+##### `tags`<sup>Optional</sup> <a name="tags" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProviderProps.property.tags"></a>
+
+```typescript
+public readonly tags: {[ key: string ]: string};
+```
+
+- *Type:* {[ key: string ]: string}
+- *Default:* no additional tags
+
+Additional tags to apply to launched runner instances and their volumes.
+
+These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
+You may override the built-in tags.
 
 ---
 
@@ -6963,7 +7024,7 @@ public readonly group: string;
 GitHub Actions runner group name.
 
 If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
-requires a paid GitHub account.
+requires a paid GitHub account and organization level runner registration.
 
 The group must exist or the runner will not start.
 
@@ -7361,7 +7422,7 @@ public readonly group: string;
 GitHub Actions runner group name.
 
 If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
-requires a paid GitHub account.
+requires a paid GitHub account and organization level runner registration.
 
 The group must exist or the runner will not start.
 
@@ -8138,7 +8199,7 @@ public readonly group: string;
 GitHub Actions runner group name.
 
 If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
-requires a paid GitHub account.
+requires a paid GitHub account and organization level runner registration.
 
 The group must exist or the runner will not start.
 
@@ -8593,6 +8654,7 @@ const runnerAmi: RunnerAmi = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerAmi.property.launchTemplate">launchTemplate</a></code> | <code>aws-cdk-lib.aws_ec2.ILaunchTemplate</code> | Launch template pointing to the latest AMI. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerAmi.property.os">os</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.Os">Os</a></code> | OS type of the image. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerAmi.property.runnerVersion">runnerVersion</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion">RunnerVersion</a></code> | Installed runner version. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerAmi.property.cacheKey">cacheKey</a></code> | <code>string</code> | Set this to a value that changes whenever the AMI changes (the AMI id or any version string works). |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerAmi.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.LogGroup</code> | Log group where image builds are logged. |
 
 ---
@@ -8644,6 +8706,23 @@ public readonly runnerVersion: RunnerVersion;
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerVersion">RunnerVersion</a>
 
 Installed runner version.
+
+---
+
+##### `cacheKey`<sup>Optional</sup> <a name="cacheKey" id="@cloudsnorkel/cdk-github-runners.RunnerAmi.property.cacheKey"></a>
+
+```typescript
+public readonly cacheKey: string;
+```
+
+- *Type:* string
+
+Set this to a value that changes whenever the AMI changes (the AMI id or any version string works).
+
+It's used to know when the AMI's root device name needs to be looked up again. If left empty, the root
+device name is looked up once and reused. That's fine as long as the AMI's root device never changes.
+
+This value may be used for other things in the future that require knowing when the AMI changed.
 
 ---
 
@@ -10819,6 +10898,8 @@ Returns true if the image builder should be rebooted after this component is ins
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.git">git</a></code> | A component to install Git. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubCli">githubCli</a></code> | A component to install the GitHub CLI. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.githubRunner">githubRunner</a></code> | A component to install the GitHub Actions Runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobCompletedHook">jobCompletedHook</a></code> | A component that runs a script after every job the runner executes. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobStartedHook">jobStartedHook</a></code> | A component that runs a script before every job the runner executes. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.lambdaEntrypoint">lambdaEntrypoint</a></code> | A component to set up the required Lambda entrypoint for Lambda runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.requiredPackages">requiredPackages</a></code> | A component to install the required packages for the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.runnerUser">runnerUser</a></code> | A component to prepare the required runner user. |
@@ -11018,6 +11099,56 @@ This is the actual executable that connects to GitHub to ask for jobs and then e
 The version of the runner to install.
 
 Usually you would set this to latest.
+
+---
+
+##### `jobCompletedHook` <a name="jobCompletedHook" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobCompletedHook"></a>
+
+```typescript
+import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
+
+RunnerImageComponent.jobCompletedHook(sourcePath: string)
+```
+
+A component that runs a script after every job the runner executes.
+
+Point this at a local script file. It is copied into the image, made executable, and the runner is
+configured to run it after each job through the
+[`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
+environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
+
+Must be used after the {@link githubRunner} component.
+
+###### `sourcePath`<sup>Required</sup> <a name="sourcePath" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobCompletedHook.parameter.sourcePath"></a>
+
+- *Type:* string
+
+path to a local script file to run after every job.
+
+---
+
+##### `jobStartedHook` <a name="jobStartedHook" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobStartedHook"></a>
+
+```typescript
+import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
+
+RunnerImageComponent.jobStartedHook(sourcePath: string)
+```
+
+A component that runs a script before every job the runner executes.
+
+Point this at a local script file. It is copied into the image, made executable, and the runner is
+configured to run it before each job through the
+[`ACTIONS_RUNNER_HOOK_JOB_STARTED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
+environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
+
+Must be used after the {@link githubRunner} component.
+
+###### `sourcePath`<sup>Required</sup> <a name="sourcePath" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobStartedHook.parameter.sourcePath"></a>
+
+- *Type:* string
+
+path to a local script file to run before every job.
 
 ---
 
