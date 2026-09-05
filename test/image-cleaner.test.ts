@@ -201,7 +201,7 @@ describe('Image cleaner custom resource', () => {
     expect(mockRespond).toHaveBeenCalledWith(expect.anything(), 'SUCCESS', 'OK', LEGACY_PHYSICAL_ID, {});
   });
 
-  test('delete removes everything, including the AMI in use and the latest tag', async () => {
+  test('delete removes everything, including the AMI in use', async () => {
     setupBuilds([
       build('newest', 0, { ami: 'ami-in-use', tags: ['latest', '1.0.2-1'] }),
       build('older', 10, { ami: 'ami-old' }),
@@ -210,7 +210,7 @@ describe('Image cleaner custom resource', () => {
     await handler(customResourceEvent('Delete', CLEANER_PHYSICAL_RESOURCE_ID), context);
 
     expect(deletedAmis()).toEqual(['ami-in-use', 'ami-old']);
-    expect(deletedTags()).toEqual(['latest', '1.0.2-1']);
+    expect(deletedTags()).toEqual(['1.0.2-1']);
     expect(deletedBuilds()).toHaveLength(2);
     expect(mockRespond).toHaveBeenCalledWith(expect.anything(), 'SUCCESS', 'OK', CLEANER_PHYSICAL_RESOURCE_ID, {});
   });
@@ -229,7 +229,7 @@ describe('Image cleaner custom resource', () => {
     expect(listImages.input.filters).toEqual([{ name: 'name', values: [RECIPE] }]);
 
     expect(deletedAmis()).toEqual(['ami-in-use', 'ami-old']);
-    expect(deletedTags()).toEqual(['latest']);
+    expect(deletedTags()).toEqual([]);
     expect(mockRespond).toHaveBeenCalledWith(expect.anything(), 'SUCCESS', 'OK', LEGACY_PHYSICAL_ID, {});
   });
 
