@@ -187,6 +187,10 @@ function buildDate(build: ImageSummary) {
   return (build.dateCreated ? Date.parse(build.dateCreated) : 0) || 0;
 }
 
+/**
+ * Returns false if the AMI is still out there, so the caller knows to keep the build that points at it. An AMI we can no longer find is not a
+ * failure, as there is nothing left to lose track of.
+ */
 async function deleteAmi(imageId: string) {
   try {
     console.log({
@@ -204,22 +208,29 @@ async function deleteAmi(imageId: string) {
         notice: 'Unable to find AMI',
         image: imageId,
       });
-      return;
+      return true;
     }
 
     await ec2.send(new DeregisterImageCommand({
       ImageId: imageId,
       DeleteAssociatedSnapshots: true,
     }));
+
+    return true;
   } catch (e) {
     console.warn({
       notice: 'Failed to delete AMI',
       image: imageId,
       error: e,
     });
+    return false;
   }
 }
 
+/**
+ * Returns false if the tag is still out there, so the caller knows to keep the build that points at it. Skipping 'latest' is not a failure, as it is
+ * never ours to delete and every Docker build carries it.
+ */
 async function deleteDockerImage(image: string) {
   try {
     console.log({
@@ -235,13 +246,14 @@ async function deleteDockerImage(image: string) {
     // skip 'latest' as it's a shared tag across recipe versions.
     // without this skip, simple recipe upgrades will end up with latest being gone and runners not starting.
     // old image versions will still point to 'latest' even when a new one replaced it.
-    // on complete stack destruction, ecr.Repository(... emptyOnDelete: true ...) will take care of it.
+    // the repository is a child of the builder, so removing the builder or destroying the stack takes it with them and
+    // ecr.Repository(... emptyOnDelete: true ...) takes care of the tag.
     if (tag === 'latest') {
       console.log({
         notice: 'Skipping latest tag as it is shared and still in use',
         image,
       });
-      return;
+      return true;
     }
 
     await ecr.send(new BatchDeleteImageCommand({
@@ -252,15 +264,21 @@ async function deleteDockerImage(image: string) {
         },
       ],
     }));
+
+    return true;
   } catch (e) {
     console.warn({
       notice: 'Failed to delete docker image',
       image,
       error: e,
     });
+    return false;
   }
 }
 
+/**
+ * Returns false if the build is still there, so the caller knows something was left behind.
+ */
 async function deleteBuild(build: string) {
   try {
     console.log({
@@ -271,38 +289,69 @@ async function deleteBuild(build: string) {
     await ib.send(new DeleteImageCommand({
       imageBuildVersionArn: build,
     }));
+
+    return true;
   } catch (e) {
     console.warn({
       notice: 'Failed to delete image version build',
       build,
       error: e,
     });
+    return false;
   }
 }
 
 /**
- * Delete the given builds along with everything they produced. EC2 Image Builder resources go last, so a failure in the middle still leaves us able
- * to find the AMIs and Docker images on the next run.
+ * Delete the given builds along with everything they produced. The EC2 Image Builder resource is the only way back to an AMI or a Docker image, so a
+ * build is deleted last and only once everything it points at is gone. Leave one behind and whatever it produced leaks with no way to find it again.
+ *
+ * Deletes everything it can first, and only then reports what was left behind. A scheduled run is retried by Lambda and then again the next day. A
+ * custom resource responds FAILED, which CloudFormation retries every few minutes before it gives up and skips the resource, and which the user sees
+ * either way instead of quietly paying for AMIs nothing will ever come back for.
+ *
+ * Every one of those retries relists the recipe, so it picks up exactly what the last attempt could not delete. That only works because the builds
+ * pointing at those leftovers were kept: delete a build and its AMI is unreachable, so the retry would find nothing left to do.
  */
 async function deleteBuilds(builds: ImageSummary[]) {
+  const leftBehind = new Set<ImageSummary>();
+
   for (const build of builds) {
     for (const output of build.outputResources?.amis ?? []) {
-      if (output.image) {
-        await deleteAmi(output.image);
+      if (output.image && !await deleteAmi(output.image)) {
+        leftBehind.add(build);
       }
     }
 
     for (const output of build.outputResources?.containers ?? []) {
       for (const image of output.imageUris ?? []) {
-        await deleteDockerImage(image);
+        if (!await deleteDockerImage(image)) {
+          leftBehind.add(build);
+        }
       }
     }
   }
 
   for (const build of builds) {
-    if (build.arn) {
-      await deleteBuild(build.arn);
+    if (!build.arn) {
+      continue;
     }
+
+    if (leftBehind.has(build)) {
+      // keep it, so the next run can still find what we could not delete
+      console.warn({
+        notice: 'Keeping image build as not everything it produced could be deleted',
+        build: build.arn,
+      });
+      continue;
+    }
+
+    if (!await deleteBuild(build.arn)) {
+      leftBehind.add(build);
+    }
+  }
+
+  if (leftBehind.size > 0) {
+    throw new Error(`Failed to delete ${leftBehind.size} of ${builds.length} runner image builds. See the log for the error of each one.`);
   }
 }
 

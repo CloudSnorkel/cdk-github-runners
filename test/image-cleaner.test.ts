@@ -93,6 +93,19 @@ function setupBuilds(builds: ImageSummary[], defaultAmi?: string) {
   mockEcrSend.mockImplementation(async () => ({}));
 }
 
+/**
+ * Have every DeregisterImage fail the way a throttled one would, leaving the AMI behind.
+ */
+function failDeregisterImage() {
+  const ec2Mock = mockEc2Send.getMockImplementation()!;
+  mockEc2Send.mockImplementation(async (command: any) => {
+    if (command instanceof DeregisterImageCommand) {
+      throw Object.assign(new Error('Rate exceeded'), { name: 'RequestLimitExceeded' });
+    }
+    return ec2Mock(command);
+  });
+}
+
 function deletedAmis() {
   return mockEc2Send.mock.calls
     .map(c => c[0])
@@ -210,6 +223,7 @@ describe('Image cleaner custom resource', () => {
     await handler(customResourceEvent('Delete', CLEANER_PHYSICAL_RESOURCE_ID), context);
 
     expect(deletedAmis()).toEqual(['ami-in-use', 'ami-old']);
+    // 'latest' is never ours to delete. the repository goes away with the builder, and emptyOnDelete takes the tag with it
     expect(deletedTags()).toEqual(['1.0.2-1']);
     expect(deletedBuilds()).toHaveLength(2);
     expect(mockRespond).toHaveBeenCalledWith(expect.anything(), 'SUCCESS', 'OK', CLEANER_PHYSICAL_RESOURCE_ID, {});
@@ -231,6 +245,38 @@ describe('Image cleaner custom resource', () => {
     expect(deletedAmis()).toEqual(['ami-in-use', 'ami-old']);
     expect(deletedTags()).toEqual([]);
     expect(mockRespond).toHaveBeenCalledWith(expect.anything(), 'SUCCESS', 'OK', LEGACY_PHYSICAL_ID, {});
+  });
+
+  test('delete fails the custom resource when an AMI could not be deleted', async () => {
+    setupBuilds([build('newest', 0, { ami: 'ami-in-use' })], 'ami-in-use');
+    failDeregisterImage();
+
+    await handler(customResourceEvent('Delete', CLEANER_PHYSICAL_RESOURCE_ID), context);
+
+    // reporting success here would leave an AMI nothing will ever come back for, as the schedule goes away with the builder
+    expect(mockRespond).toHaveBeenCalledWith(expect.anything(), 'FAILED', expect.stringMatching(/Failed to delete 1 of 1/), CLEANER_PHYSICAL_RESOURCE_ID, {});
+    expect(deletedBuilds()).toEqual([]);
+  });
+
+  test('the retry CloudFormation sends after a failed delete finishes the job', async () => {
+    setupBuilds([build('newest', 0, { ami: 'ami-in-use' })], 'ami-in-use');
+    failDeregisterImage();
+
+    await handler(customResourceEvent('Delete', CLEANER_PHYSICAL_RESOURCE_ID), context);
+
+    expect(mockRespond).toHaveBeenCalledWith(expect.anything(), 'FAILED', expect.anything(), CLEANER_PHYSICAL_RESOURCE_ID, {});
+    expect(deletedBuilds()).toEqual([]);
+
+    // a few minutes later CloudFormation sends the same Delete again, and this time EC2 plays along. the build we kept is what makes the AMI
+    // findable on this second pass, so the retry has something to finish rather than a leftover nothing can reach.
+    jest.clearAllMocks();
+    setupBuilds([build('newest', 0, { ami: 'ami-in-use' })], 'ami-in-use');
+
+    await handler(customResourceEvent('Delete', CLEANER_PHYSICAL_RESOURCE_ID), context);
+
+    expect(deletedAmis()).toEqual(['ami-in-use']);
+    expect(deletedBuilds()).toHaveLength(1);
+    expect(mockRespond).toHaveBeenCalledWith(expect.anything(), 'SUCCESS', 'OK', CLEANER_PHYSICAL_RESOURCE_ID, {});
   });
 
   test('delete of a builder whose image version has no builds left deletes nothing', async () => {
@@ -407,6 +453,22 @@ describe('Image cleaner schedule', () => {
     await handler(scheduledEvent('lt-1234'), context);
 
     expect(deletedAmis()).toEqual(['ami-oldest']);
+  });
+
+  test('keeps the image build when its AMI could not be deleted, and fails so it is retried', async () => {
+    setupBuilds([
+      build('newest', 1, { ami: 'ami-newest' }),
+      build('second', 2, { ami: 'ami-second' }),
+      build('oldest', 3, { ami: 'ami-oldest' }),
+    ]);
+
+    failDeregisterImage();
+
+    // only the one build past retention was up for deletion
+    await expect(handler(scheduledEvent(), context)).rejects.toThrow(/Failed to delete 1 of 1/);
+
+    // deleting the build is what makes the AMI unreachable, and it is the only thing that can still lead us back to it
+    expect(deletedBuilds()).toEqual([]);
   });
 
   test('deletes Image Builder resources after the images they point at', async () => {

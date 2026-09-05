@@ -7717,7 +7717,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "0e132b725e8285b93452c1c291622b7619228d7ff44387df9637d07dcf4cf8e7.zip"
+     "S3Key": "4fa02673a430673898b8874377dabcfa7a2364b7fa832e8b947761e6941d26c2.zip"
     },
     "Description": "Deletes old EC2 Image Builder runner images, and all of them when their builder is removed",
     "Environment": {
