@@ -471,6 +471,44 @@ describe('Image cleaner schedule', () => {
     expect(deletedBuilds()).toEqual([]);
   });
 
+  test('cleans up a build whose AMI someone else already deleted', async () => {
+    setupBuilds([
+      build('newest', 1, { ami: 'ami-newest' }),
+      build('second', 2, { ami: 'ami-second' }),
+      build('oldest', 3, { ami: 'ami-gone-already' }),
+    ]);
+
+    // DescribeImages raises this rather than returning nothing when it is given an image id that no longer exists
+    const ec2Mock = mockEc2Send.getMockImplementation()!;
+    mockEc2Send.mockImplementation(async (command: any) => {
+      if (command instanceof DescribeImagesCommand) {
+        throw Object.assign(new Error('does not exist'), { name: 'InvalidAMIID.NotFound' });
+      }
+      return ec2Mock(command);
+    });
+
+    // nothing is left to lose track of, so the build goes too rather than being kept and retried forever
+    await handler(scheduledEvent(), context);
+
+    expect(deletedBuilds()).toEqual([expect.stringContaining('/oldest')]);
+  });
+
+  test('cleans up a build whose Docker repository someone else already deleted', async () => {
+    setupBuilds([
+      build('newest', 1, { tags: ['1.0.4-1'] }),
+      build('second', 2, { tags: ['1.0.3-1'] }),
+      build('oldest', 3, { tags: ['1.0.2-1'] }),
+    ]);
+
+    mockEcrSend.mockImplementation(async () => {
+      throw Object.assign(new Error('repository does not exist'), { name: 'RepositoryNotFoundException' });
+    });
+
+    await handler(scheduledEvent(), context);
+
+    expect(deletedBuilds()).toEqual([expect.stringContaining('/oldest')]);
+  });
+
   test('deletes Image Builder resources after the images they point at', async () => {
     setupBuilds([
       build('newest', 1, { ami: 'ami-newest' }),

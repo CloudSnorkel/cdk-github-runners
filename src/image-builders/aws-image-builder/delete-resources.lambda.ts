@@ -57,6 +57,33 @@ const MISSING_LAUNCH_TEMPLATE_ERRORS = [
 ];
 
 /**
+ * Someone already deregistered the AMI, or Image Builder recorded an id we can never act on. Either way there is nothing left of it to lose track of,
+ * so the build that points at it can go. DescribeImages raises these rather than returning an empty list when it is given an explicit image id.
+ *
+ * Treating them as anything else would leave the build behind forever, failing every scheduled run and every delete for an AMI that is already gone.
+ */
+const MISSING_AMI_ERRORS = [
+  'InvalidAMIID.NotFound',
+  'InvalidAMIID.Unavailable',
+  'InvalidAMIID.Malformed',
+];
+
+/**
+ * The repository, or the image in it, is already gone. Same reasoning as `MISSING_AMI_ERRORS`.
+ */
+const MISSING_DOCKER_IMAGE_ERRORS = [
+  'RepositoryNotFoundException',
+  'ImageNotFoundException',
+];
+
+/**
+ * The image build is already gone, so there is nothing left to delete. Same reasoning as `MISSING_AMI_ERRORS`.
+ */
+const MISSING_BUILD_ERRORS = [
+  'ResourceNotFoundException',
+];
+
+/**
  * Everything we need to find the images of one builder, and the one image of those that's still in use.
  *
  * @internal
@@ -218,6 +245,15 @@ async function deleteAmi(imageId: string) {
 
     return true;
   } catch (e) {
+    if (MISSING_AMI_ERRORS.includes((e as Error).name)) {
+      console.log({
+        notice: 'AMI is already gone',
+        image: imageId,
+        error: (e as Error).name,
+      });
+      return true;
+    }
+
     console.warn({
       notice: 'Failed to delete AMI',
       image: imageId,
@@ -267,6 +303,15 @@ async function deleteDockerImage(image: string) {
 
     return true;
   } catch (e) {
+    if (MISSING_DOCKER_IMAGE_ERRORS.includes((e as Error).name)) {
+      console.log({
+        notice: 'Docker image is already gone',
+        image,
+        error: (e as Error).name,
+      });
+      return true;
+    }
+
     console.warn({
       notice: 'Failed to delete docker image',
       image,
@@ -292,6 +337,15 @@ async function deleteBuild(build: string) {
 
     return true;
   } catch (e) {
+    if (MISSING_BUILD_ERRORS.includes((e as Error).name)) {
+      console.log({
+        notice: 'Image build is already gone',
+        build,
+        error: (e as Error).name,
+      });
+      return true;
+    }
+
     console.warn({
       notice: 'Failed to delete image version build',
       build,
