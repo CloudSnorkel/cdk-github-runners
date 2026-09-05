@@ -1812,7 +1812,10 @@
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
-    "ImageTagMutability": "MUTABLE"
+    "ImageTagMutability": "MUTABLE",
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images left behind by interrupted pushes\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countNumber\":1,\"countUnit\":\"days\"},\"action\":{\"type\":\"expire\"}}]}"
+    }
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -2025,6 +2028,7 @@
       "Arn"
      ]
     },
+    "RecipeName": "github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
     "ImageVersionArn": {
      "Fn::Join": [
       "",
@@ -2055,96 +2059,43 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "WindowsImageBuilderLifecyclePolicyDockerRole13C6E553": {
-   "Type": "AWS::IAM::Role",
+  "WindowsImageBuilderContainerCleanerSchedule3E51CC1C": {
+   "Type": "AWS::Events::Rule",
    "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "imagebuilder.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "Policies": [
+    "Description": "Delete old GitHub Runner images for github-runners-test/Windows Image Builder",
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
      {
-      "PolicyDocument": {
-       "Statement": [
-        {
-         "Action": [
-          "tag:GetResources",
-          "imagebuilder:DeleteImage"
-         ],
-         "Effect": "Allow",
-         "Resource": "*"
-        }
-       ],
-       "Version": "2012-10-17"
+      "Arn": {
+       "Fn::GetAtt": [
+        "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e18E1C8382",
+        "Arn"
+       ]
       },
-      "PolicyName": "ib"
-     },
-     {
-      "PolicyDocument": {
-       "Statement": [
-        {
-         "Action": [
-          "ecr:BatchGetImage",
-          "ecr:BatchDeleteImage"
-         ],
-         "Effect": "Allow",
-         "Resource": {
-          "Fn::GetAtt": [
-           "WindowsImageBuilderRepositoryA4CBB6D8",
-           "Arn"
-          ]
-         }
-        }
-       ],
-       "Version": "2012-10-17"
-      },
-      "PolicyName": "ecr"
+      "Id": "Target0",
+      "Input": "{\"RequestType\":\"Scheduled\",\"RecipeName\":\"github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B\"}"
      }
     ]
    }
   },
-  "WindowsImageBuilderLifecyclePolicyDockerB9CE4B0A": {
-   "Type": "AWS::ImageBuilder::LifecyclePolicy",
+  "WindowsImageBuilderContainerCleanerScheduleAllowEventRulegithubrunnerstestawsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e110E163149AC24482": {
+   "Type": "AWS::Lambda::Permission",
    "Properties": {
-    "Description": "Delete old GitHub Runner Docker images for github-runners-test/Windows Image Builder",
-    "ExecutionRole": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
      "Fn::GetAtt": [
-      "WindowsImageBuilderLifecyclePolicyDockerRole13C6E553",
+      "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e18E1C8382",
       "Arn"
      ]
     },
-    "Name": "github-runners-test-WindowsImageBuilder-18C0E1B2",
-    "PolicyDetails": [
-     {
-      "Action": {
-       "IncludeResources": {
-        "Containers": true
-       },
-       "Type": "DELETE"
-      },
-      "Filter": {
-       "Type": "COUNT",
-       "Value": 2
-      }
-     }
-    ],
-    "ResourceSelection": {
-     "Recipes": [
-      {
-       "Name": "github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
-       "SemanticVersion": "1.x.x"
-      }
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "WindowsImageBuilderContainerCleanerSchedule3E51CC1C",
+      "Arn"
      ]
-    },
-    "ResourceType": "CONTAINER_IMAGE"
+    }
    }
   },
   "WindowsImageBuilderDockerPipeline3613721A": {
@@ -2643,6 +2594,10 @@
       "Arn"
      ]
     },
+    "RecipeName": "github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
+    "LaunchTemplateId": {
+     "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
+    },
     "ImageVersionArn": {
      "Fn::Join": [
       "",
@@ -2673,106 +2628,54 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "AMILinuxBuilderLifecyclePolicyAMIRole7BBFF711": {
-   "Type": "AWS::IAM::Role",
+  "AMILinuxBuilderImageCleanerSchedule99C1B08D": {
+   "Type": "AWS::Events::Rule",
    "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "imagebuilder.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "Policies": [
+    "Description": "Delete old GitHub Runner images for github-runners-test/AMI Linux Builder",
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
      {
-      "PolicyDocument": {
-       "Statement": [
-        {
-         "Action": [
-          "tag:GetResources",
-          "imagebuilder:DeleteImage"
-         ],
-         "Effect": "Allow",
-         "Resource": "*"
-        }
-       ],
-       "Version": "2012-10-17"
+      "Arn": {
+       "Fn::GetAtt": [
+        "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e18E1C8382",
+        "Arn"
+       ]
       },
-      "PolicyName": "ib"
-     },
-     {
-      "PolicyDocument": {
-       "Statement": [
-        {
-         "Action": [
-          "ec2:DescribeImages",
-          "ec2:DescribeImageAttribute"
-         ],
-         "Effect": "Allow",
-         "Resource": "*"
-        },
-        {
-         "Action": [
-          "ec2:DeregisterImage",
-          "ec2:DeleteSnapshot"
-         ],
-         "Condition": {
-          "StringEquals": {
-           "aws:ResourceTag/GitHubRunners:Stack": "github-runners-test",
-           "aws:ResourceTag/GitHubRunners:Builder": "github-runners-test/AMI Linux Builder"
-          }
+      "Id": "Target0",
+      "Input": {
+       "Fn::Join": [
+        "",
+        [
+         "{\"RequestType\":\"Scheduled\",\"RecipeName\":\"github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B\",\"LaunchTemplateId\":\"",
+         {
+          "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
          },
-         "Effect": "Allow",
-         "Resource": "*"
-        }
-       ],
-       "Version": "2012-10-17"
-      },
-      "PolicyName": "ami"
+         "\"}"
+        ]
+       ]
+      }
      }
     ]
    }
   },
-  "AMILinuxBuilderLifecyclePolicyAMIFB556CB2": {
-   "Type": "AWS::ImageBuilder::LifecyclePolicy",
+  "AMILinuxBuilderImageCleanerScheduleAllowEventRulegithubrunnerstestawsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e110E163141CA0514B": {
+   "Type": "AWS::Lambda::Permission",
    "Properties": {
-    "Description": "Delete old GitHub Runner AMIs for github-runners-test/AMI Linux Builder",
-    "ExecutionRole": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
      "Fn::GetAtt": [
-      "AMILinuxBuilderLifecyclePolicyAMIRole7BBFF711",
+      "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e18E1C8382",
       "Arn"
      ]
     },
-    "Name": "github-runners-test-AMILinuxBuilder-67243E6D",
-    "PolicyDetails": [
-     {
-      "Action": {
-       "IncludeResources": {
-        "Amis": true,
-        "Snapshots": true
-       },
-       "Type": "DELETE"
-      },
-      "Filter": {
-       "Type": "COUNT",
-       "Value": 2
-      }
-     }
-    ],
-    "ResourceSelection": {
-     "Recipes": [
-      {
-       "Name": "github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
-       "SemanticVersion": "1.x.x"
-      }
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "AMILinuxBuilderImageCleanerSchedule99C1B08D",
+      "Arn"
      ]
-    },
-    "ResourceType": "AMI_IMAGE"
+    }
    }
   },
   "CodeBuildImageBuilderRoleF1F34984": {
@@ -5115,6 +5018,10 @@
       "Arn"
      ]
     },
+    "RecipeName": "github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
+    "LaunchTemplateId": {
+     "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
+    },
     "ImageVersionArn": {
      "Fn::Join": [
       "",
@@ -5145,106 +5052,54 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "AMILinuxarm64BuilderLifecyclePolicyAMIRole1D81BF43": {
-   "Type": "AWS::IAM::Role",
+  "AMILinuxarm64BuilderImageCleanerScheduleA0B2C476": {
+   "Type": "AWS::Events::Rule",
    "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "imagebuilder.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "Policies": [
+    "Description": "Delete old GitHub Runner images for github-runners-test/AMI Linux arm64 Builder",
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
      {
-      "PolicyDocument": {
-       "Statement": [
-        {
-         "Action": [
-          "tag:GetResources",
-          "imagebuilder:DeleteImage"
-         ],
-         "Effect": "Allow",
-         "Resource": "*"
-        }
-       ],
-       "Version": "2012-10-17"
+      "Arn": {
+       "Fn::GetAtt": [
+        "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e18E1C8382",
+        "Arn"
+       ]
       },
-      "PolicyName": "ib"
-     },
-     {
-      "PolicyDocument": {
-       "Statement": [
-        {
-         "Action": [
-          "ec2:DescribeImages",
-          "ec2:DescribeImageAttribute"
-         ],
-         "Effect": "Allow",
-         "Resource": "*"
-        },
-        {
-         "Action": [
-          "ec2:DeregisterImage",
-          "ec2:DeleteSnapshot"
-         ],
-         "Condition": {
-          "StringEquals": {
-           "aws:ResourceTag/GitHubRunners:Stack": "github-runners-test",
-           "aws:ResourceTag/GitHubRunners:Builder": "github-runners-test/AMI Linux arm64 Builder"
-          }
+      "Id": "Target0",
+      "Input": {
+       "Fn::Join": [
+        "",
+        [
+         "{\"RequestType\":\"Scheduled\",\"RecipeName\":\"github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF\",\"LaunchTemplateId\":\"",
+         {
+          "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
          },
-         "Effect": "Allow",
-         "Resource": "*"
-        }
-       ],
-       "Version": "2012-10-17"
-      },
-      "PolicyName": "ami"
+         "\"}"
+        ]
+       ]
+      }
      }
     ]
    }
   },
-  "AMILinuxarm64BuilderLifecyclePolicyAMI44B6EABD": {
-   "Type": "AWS::ImageBuilder::LifecyclePolicy",
+  "AMILinuxarm64BuilderImageCleanerScheduleAllowEventRulegithubrunnerstestawsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e110E16314D9F8DE87": {
+   "Type": "AWS::Lambda::Permission",
    "Properties": {
-    "Description": "Delete old GitHub Runner AMIs for github-runners-test/AMI Linux arm64 Builder",
-    "ExecutionRole": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
      "Fn::GetAtt": [
-      "AMILinuxarm64BuilderLifecyclePolicyAMIRole1D81BF43",
+      "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e18E1C8382",
       "Arn"
      ]
     },
-    "Name": "github-runners-test-AMILinuxarm64Builder-3F449283",
-    "PolicyDetails": [
-     {
-      "Action": {
-       "IncludeResources": {
-        "Amis": true,
-        "Snapshots": true
-       },
-       "Type": "DELETE"
-      },
-      "Filter": {
-       "Type": "COUNT",
-       "Value": 2
-      }
-     }
-    ],
-    "ResourceSelection": {
-     "Recipes": [
-      {
-       "Name": "github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
-       "SemanticVersion": "1.x.x"
-      }
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "AMILinuxarm64BuilderImageCleanerScheduleA0B2C476",
+      "Arn"
      ]
-    },
-    "ResourceType": "AMI_IMAGE"
+    }
    }
   },
   "WindowsEC2BuilderRole1BA7D3E7": {
@@ -5664,6 +5519,10 @@
       "Arn"
      ]
     },
+    "RecipeName": "github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
+    "LaunchTemplateId": {
+     "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
+    },
     "ImageVersionArn": {
      "Fn::Join": [
       "",
@@ -5694,106 +5553,54 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "WindowsEC2BuilderLifecyclePolicyAMIRoleE85A7F2C": {
-   "Type": "AWS::IAM::Role",
+  "WindowsEC2BuilderImageCleanerScheduleE8DEB84B": {
+   "Type": "AWS::Events::Rule",
    "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "imagebuilder.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "Policies": [
+    "Description": "Delete old GitHub Runner images for github-runners-test/Windows EC2 Builder",
+    "ScheduleExpression": "rate(1 day)",
+    "State": "ENABLED",
+    "Targets": [
      {
-      "PolicyDocument": {
-       "Statement": [
-        {
-         "Action": [
-          "tag:GetResources",
-          "imagebuilder:DeleteImage"
-         ],
-         "Effect": "Allow",
-         "Resource": "*"
-        }
-       ],
-       "Version": "2012-10-17"
+      "Arn": {
+       "Fn::GetAtt": [
+        "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e18E1C8382",
+        "Arn"
+       ]
       },
-      "PolicyName": "ib"
-     },
-     {
-      "PolicyDocument": {
-       "Statement": [
-        {
-         "Action": [
-          "ec2:DescribeImages",
-          "ec2:DescribeImageAttribute"
-         ],
-         "Effect": "Allow",
-         "Resource": "*"
-        },
-        {
-         "Action": [
-          "ec2:DeregisterImage",
-          "ec2:DeleteSnapshot"
-         ],
-         "Condition": {
-          "StringEquals": {
-           "aws:ResourceTag/GitHubRunners:Stack": "github-runners-test",
-           "aws:ResourceTag/GitHubRunners:Builder": "github-runners-test/Windows EC2 Builder"
-          }
+      "Id": "Target0",
+      "Input": {
+       "Fn::Join": [
+        "",
+        [
+         "{\"RequestType\":\"Scheduled\",\"RecipeName\":\"github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750\",\"LaunchTemplateId\":\"",
+         {
+          "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
          },
-         "Effect": "Allow",
-         "Resource": "*"
-        }
-       ],
-       "Version": "2012-10-17"
-      },
-      "PolicyName": "ami"
+         "\"}"
+        ]
+       ]
+      }
      }
     ]
    }
   },
-  "WindowsEC2BuilderLifecyclePolicyAMIF732B3A7": {
-   "Type": "AWS::ImageBuilder::LifecyclePolicy",
+  "WindowsEC2BuilderImageCleanerScheduleAllowEventRulegithubrunnerstestawsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e110E16314ED4BC60B": {
+   "Type": "AWS::Lambda::Permission",
    "Properties": {
-    "Description": "Delete old GitHub Runner AMIs for github-runners-test/Windows EC2 Builder",
-    "ExecutionRole": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
      "Fn::GetAtt": [
-      "WindowsEC2BuilderLifecyclePolicyAMIRoleE85A7F2C",
+      "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e18E1C8382",
       "Arn"
      ]
     },
-    "Name": "github-runners-test-WindowsEC2Builder-5FAF8285",
-    "PolicyDetails": [
-     {
-      "Action": {
-       "IncludeResources": {
-        "Amis": true,
-        "Snapshots": true
-       },
-       "Type": "DELETE"
-      },
-      "Filter": {
-       "Type": "COUNT",
-       "Value": 2
-      }
-     }
-    ],
-    "ResourceSelection": {
-     "Recipes": [
-      {
-       "Name": "github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
-       "SemanticVersion": "1.x.x"
-      }
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "WindowsEC2BuilderImageCleanerScheduleE8DEB84B",
+      "Arn"
      ]
-    },
-    "ResourceType": "AMI_IMAGE"
+    }
    }
   },
   "AL2builderRole6A57C48A": {
@@ -7859,6 +7666,7 @@
      "Statement": [
       {
        "Action": [
+        "imagebuilder:ListImages",
         "imagebuilder:ListImageBuildVersions",
         "imagebuilder:DeleteImage"
        ],
@@ -7866,7 +7674,10 @@
        "Resource": "*"
       },
       {
-       "Action": "ec2:DescribeImages",
+       "Action": [
+        "ec2:DescribeImages",
+        "ec2:DescribeLaunchTemplateVersions"
+       ],
        "Effect": "Allow",
        "Resource": "*"
       },
@@ -7906,9 +7717,9 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "c8204ff40a1a2de9aebe5c4383623c9db9683a11ff3ba0fcfffa6e3aa388a359.zip"
+     "S3Key": "0e132b725e8285b93452c1c291622b7619228d7ff44387df9637d07dcf4cf8e7.zip"
     },
-    "Description": "Custom resource handler that deletes resources of old versions of EC2 Image Builder images",
+    "Description": "Deletes old EC2 Image Builder runner images, and all of them when their builder is removed",
     "Environment": {
      "Variables": {
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
@@ -13289,12 +13100,12 @@
     "AMILinuxBuilderAMIPipelineEC5051DF",
     "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374",
     "AMILinuxBuilderAmiRecipe7C7ED6C7",
+    "AMILinuxBuilderImageCleanerScheduleAllowEventRulegithubrunnerstestawsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e110E163141CA0514B",
+    "AMILinuxBuilderImageCleanerSchedule99C1B08D",
     "AMILinuxBuilderImageCleanerF1745EF6",
     "AMILinuxBuilderInfrastructure6FCD154A",
     "AMILinuxBuilderInstanceProfile3CA638BE",
     "AMILinuxBuilderLaunchtemplateA29452C4",
-    "AMILinuxBuilderLifecyclePolicyAMIFB556CB2",
-    "AMILinuxBuilderLifecyclePolicyAMIRole7BBFF711",
     "AMILinuxBuilderRoleDefaultPolicy69ED051F",
     "AMILinuxBuilderRole0C42378A"
    ],
@@ -13617,12 +13428,12 @@
     "AMILinuxBuilderAMIPipelineEC5051DF",
     "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374",
     "AMILinuxBuilderAmiRecipe7C7ED6C7",
+    "AMILinuxBuilderImageCleanerScheduleAllowEventRulegithubrunnerstestawsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e110E163141CA0514B",
+    "AMILinuxBuilderImageCleanerSchedule99C1B08D",
     "AMILinuxBuilderImageCleanerF1745EF6",
     "AMILinuxBuilderInfrastructure6FCD154A",
     "AMILinuxBuilderInstanceProfile3CA638BE",
     "AMILinuxBuilderLaunchtemplateA29452C4",
-    "AMILinuxBuilderLifecyclePolicyAMIFB556CB2",
-    "AMILinuxBuilderLifecyclePolicyAMIRole7BBFF711",
     "AMILinuxBuilderRoleDefaultPolicy69ED051F",
     "AMILinuxBuilderRole0C42378A"
    ],
@@ -13779,12 +13590,12 @@
     "AMILinuxBuilderAMIPipelineEC5051DF",
     "AMILinuxBuilderAmiRecipeAMIRootDevice7FF39374",
     "AMILinuxBuilderAmiRecipe7C7ED6C7",
+    "AMILinuxBuilderImageCleanerScheduleAllowEventRulegithubrunnerstestawsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e110E163141CA0514B",
+    "AMILinuxBuilderImageCleanerSchedule99C1B08D",
     "AMILinuxBuilderImageCleanerF1745EF6",
     "AMILinuxBuilderInfrastructure6FCD154A",
     "AMILinuxBuilderInstanceProfile3CA638BE",
     "AMILinuxBuilderLaunchtemplateA29452C4",
-    "AMILinuxBuilderLifecyclePolicyAMIFB556CB2",
-    "AMILinuxBuilderLifecyclePolicyAMIRole7BBFF711",
     "AMILinuxBuilderRoleDefaultPolicy69ED051F",
     "AMILinuxBuilderRole0C42378A"
    ],
@@ -13940,12 +13751,12 @@
     "AMILinuxarm64BuilderAmiLog84A9D94A",
     "AMILinuxarm64BuilderAMIPipeline9CC1354C",
     "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
+    "AMILinuxarm64BuilderImageCleanerScheduleAllowEventRulegithubrunnerstestawsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e110E16314D9F8DE87",
+    "AMILinuxarm64BuilderImageCleanerScheduleA0B2C476",
     "AMILinuxarm64BuilderImageCleanerA5DDFE7A",
     "AMILinuxarm64BuilderInfrastructure80FA16D6",
     "AMILinuxarm64BuilderInstanceProfileCE3B6B09",
     "AMILinuxarm64BuilderLaunchtemplate8F5EFF44",
-    "AMILinuxarm64BuilderLifecyclePolicyAMI44B6EABD",
-    "AMILinuxarm64BuilderLifecyclePolicyAMIRole1D81BF43",
     "AMILinuxarm64BuilderRoleDefaultPolicy113305EE",
     "AMILinuxarm64BuilderRole40D54E29"
    ],
@@ -14231,12 +14042,12 @@
     "WindowsEC2BuilderAmiLog126E54B2",
     "WindowsEC2BuilderAMIPipelineE3836949",
     "WindowsEC2BuilderAmiRecipe41A137FF",
+    "WindowsEC2BuilderImageCleanerScheduleAllowEventRulegithubrunnerstestawsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e110E16314ED4BC60B",
+    "WindowsEC2BuilderImageCleanerScheduleE8DEB84B",
     "WindowsEC2BuilderImageCleanerEF537850",
     "WindowsEC2BuilderInfrastructure757D4FD7",
     "WindowsEC2BuilderInstanceProfileA8DBA763",
     "WindowsEC2BuilderLaunchtemplate0A66E9C2",
-    "WindowsEC2BuilderLifecyclePolicyAMIF732B3A7",
-    "WindowsEC2BuilderLifecyclePolicyAMIRoleE85A7F2C",
     "WindowsEC2BuilderRoleDefaultPolicy8A5B4E85",
     "WindowsEC2BuilderRole1BA7D3E7"
    ],

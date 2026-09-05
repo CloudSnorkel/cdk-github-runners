@@ -3,7 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_ecr as ecr, aws_ssm as ssm } from 'aws-cdk-lib';
-import { Match, Template } from 'aws-cdk-lib/assertions';
+import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import {
   AmiBuilder,
@@ -892,5 +892,146 @@ describe('CodeBuildRunnerImageBuilder ECR permissions', () => {
     // The actual verification happens in the permission tests above
     // This test ensures the code path is exercised
     expect(baseImageRepo).toBeDefined();
+  });
+});
+
+describe('Image cleanup', () => {
+  let app: cdk.App;
+  let stack: cdk.Stack;
+
+  beforeEach(() => {
+    app = new cdk.App();
+    stack = new cdk.Stack(app, 'test');
+  });
+
+  afterAll(CloudAssembly.cleanupTemporaryDirectories);
+
+  test('AMI builder schedules cleanup and protects the launch template AMI', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    Ec2RunnerProvider.imageBuilder(stack, 'builder', { vpc }).bindAmi();
+
+    const template = Template.fromStack(stack);
+
+    // lifecycle policies can't tell which image is in use, so they are gone
+    template.resourceCountIs('AWS::ImageBuilder::LifecyclePolicy', 0);
+
+    // the custom resource only ever deletes on removal of the builder, so it must know the recipe.
+    // ImageVersionArn is what 0.16.0 and below wrote and read, and it is kept so their code stays harmless if it ever runs against these properties
+    template.hasResourceProperties('Custom::ImageBuilder-Delete-Resources', Match.objectLike({
+      RecipeName: Match.anyValue(),
+      LaunchTemplateId: Match.anyValue(),
+      ImageVersionArn: Match.anyValue(),
+    }));
+
+    // and the same lambda cleans up old images daily, telling it which launch template AMI to keep
+    template.hasResourceProperties('AWS::Events::Rule', Match.objectLike({
+      ScheduleExpression: 'rate(1 day)',
+      Targets: Match.arrayWith([
+        Match.objectLike({
+          Input: {
+            'Fn::Join': [
+              '',
+              Match.arrayWith([
+                Match.stringLikeRegexp('"RequestType":"Scheduled".*"LaunchTemplateId":"'),
+                { Ref: Match.stringLikeRegexp('builderLaunchtemplate') },
+              ]),
+            ],
+          },
+        }),
+      ]),
+    }));
+  });
+
+  test('ECR repository expires untagged images the cleaner can no longer see', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    RunnerImageBuilder.new(stack, 'builder', {
+      vpc,
+      builderType: RunnerImageBuilderType.AWS_IMAGE_BUILDER,
+    }).bindDockerImage();
+
+    const template = Template.fromStack(stack);
+
+    // only untagged images, so latest and the version tags are never at risk
+    template.hasResourceProperties('AWS::ECR::Repository', Match.objectLike({
+      LifecyclePolicy: {
+        LifecyclePolicyText: Match.serializedJson(Match.objectLike({
+          rules: [
+            Match.objectLike({
+              selection: Match.objectLike({
+                tagStatus: 'untagged',
+                countType: 'sinceImagePushed',
+                countUnit: 'days',
+                countNumber: 1,
+              }),
+              action: { type: 'expire' },
+            }),
+          ],
+        })),
+      },
+    }));
+  });
+
+  test('Docker image builder schedules cleanup without a launch template', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    RunnerImageBuilder.new(stack, 'builder', {
+      vpc,
+      builderType: RunnerImageBuilderType.AWS_IMAGE_BUILDER,
+    }).bindDockerImage();
+
+    const template = Template.fromStack(stack);
+
+    template.resourceCountIs('AWS::ImageBuilder::LifecyclePolicy', 0);
+
+    template.hasResourceProperties('AWS::Events::Rule', Match.objectLike({
+      ScheduleExpression: 'rate(1 day)',
+      Targets: Match.arrayWith([
+        Match.objectLike({
+          Input: Match.serializedJson(Match.objectLike({
+            RequestType: 'Scheduled',
+            RecipeName: Match.anyValue(),
+          })),
+        }),
+      ]),
+    }));
+  });
+
+  test('cleaner can read launch templates and list all image versions', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    Ec2RunnerProvider.imageBuilder(stack, 'builder', { vpc }).bindAmi();
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties('AWS::IAM::Policy', Match.objectLike({
+      PolicyDocument: Match.objectLike({
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Action: Match.arrayWith(['imagebuilder:ListImages']),
+          }),
+          Match.objectLike({
+            Action: Match.arrayWith(['ec2:DescribeLaunchTemplateVersions']),
+          }),
+        ]),
+      }),
+    }));
+  });
+
+  test('overriding the stack AMI tag warns about cleanup', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+
+    const builder = Ec2RunnerProvider.imageBuilder(stack, 'builder', {
+      vpc,
+      awsImageBuilderOptions: {
+        amiTags: {
+          'GitHubRunners:Stack': 'overridden',
+        },
+      },
+    });
+    builder.bindAmi();
+
+    Annotations.fromStack(stack).hasWarning('/test/builder', Match.stringLikeRegexp('can prevent old AMIs from being deleted'));
   });
 });
