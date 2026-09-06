@@ -599,6 +599,7 @@ Other useful metrics to track:
 ## Known Issues
 
 1. Runner images built during a failed deployment are not rolled back. If your stack fails to deploy after an image was already built, the new image will stay in use. The image will be automatically replaced on the next build interval, but that might take up to 7 days with default settings (`rebuildInterval`). It's recommended to not leave stacks in `UPDATE_ROLLBACK_COMPLETE` state. Deploying again with the configuration you want will rebuild the images and get everything back in sync.
+2. Library downgrades are not well tested. We work hard to keep backwards compatibility, but downgrading to an older version of the library may lead to unexpected issues. For example, downgrading from 0.16.1 may result in runner images being deleted. They will be rebuilt on the next build interval, but that might take up to 7 days with default settings (`rebuildInterval`). It's recommended to not downgrade the library unless you know what you're doing.
 
 ## Getting Help
 
