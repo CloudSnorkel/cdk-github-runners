@@ -180,15 +180,15 @@ export function discoverCertificateFiles(sourcePath: string): string[] {
 }
 
 /**
- * De-duplicate repeated CloudFormation tokens (shared subnet ids, cluster ARNs, cross-stack `Fn::ImportValue`s,
- * ...) found in a Step Functions definition fragment into a `definitionSubstitutions` map. Each distinct token
- * gets a single `${__sfnsub_N}` placeholder, so its intrinsic renders once in the template instead of once per
- * occurrence (e.g. once per provider sharing a VPC). `obj` is mutated in place, replacing every token leaf with
- * its placeholder; the returned map is meant to be passed straight to `StateMachine`'s `definitionSubstitutions`.
+ * De-duplicate repeated CloudFormation tokens (shared subnet ids, cluster ARNs, cross-stack `Fn::ImportValue`s, ...) found in a Step Functions
+ * definition fragment into a `definitionSubstitutions` map. Each distinct token gets a single `${__sfnsub_N}` placeholder, so its intrinsic renders
+ * once in the template instead of once per occurrence (e.g. once per provider sharing a VPC). `obj` is mutated in place, replacing every token leaf
+ * with its placeholder; the returned map is meant to be passed straight to `StateMachine`'s `definitionSubstitutions`.
  *
- * This is safe only because the orchestrator definition contains no other `${...}` sequences: JSONata uses
- * `{% %}`, and the EC2 user data escapes its braces (rendered as `$\{...\}`), so CloudFormation's Fn::Sub-style
- * substitution leaves everything but our synthetic placeholders untouched.
+ * This is safe only because the definition fragment contains no other `${...}` sequences: JSONata uses `{% %}`, and the EC2 user data escapes its
+ * braces (rendered as `$\{...\}`), so Step Functions' substitution leaves everything but our synthetic placeholders untouched. A literal `${`
+ * reaching this function can only come from user input (a tag value, a construct id, ...), so it's reported as an error instead of silently producing
+ * a definition that Step Functions rejects with an unhelpful message at deploy time.
  *
  * @internal
  */
@@ -212,7 +212,17 @@ export function dedupeStateMachineTokens(scope: Construct, obj: any): Record<str
 
   const walk = (node: any): any => {
     if (typeof node === 'string') {
-      return cdk.Token.isUnresolved(node) ? placeholder(node) : node;
+      if (cdk.Token.isUnresolved(node)) {
+        return placeholder(node);
+      }
+      // configs share nested objects (an EC2 provider's subnet configs all spread the same base), so the same
+      // leaf can be visited more than once -- ignore placeholders we already wrote on an earlier visit
+      if (node.replace(/\$\{__sfnsub_\d+\}/g, '').includes('${')) {
+        cdk.Annotations.of(scope).addError(
+          `A runner provider value contains "\${", which collides with the state machine definition substitutions: ${JSON.stringify(node.slice(0, 100))}`,
+        );
+      }
+      return node;
     }
     if (Array.isArray(node)) {
       return node.map(walk);

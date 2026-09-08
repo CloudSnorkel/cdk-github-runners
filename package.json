@@ -8,6 +8,7 @@
   "scripts": {
     "build": "projen build",
     "bump": "projen bump",
+    "bump:releasable-commits": "projen bump:releasable-commits",
     "bundle": "projen bundle",
     "bundle:delete-failed-runner.lambda": "projen bundle:delete-failed-runner.lambda",
     "bundle:delete-failed-runner.lambda:watch": "projen bundle:delete-failed-runner.lambda:watch",

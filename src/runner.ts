@@ -24,7 +24,6 @@ import {
   CodeBuildRunnerProvider,
   Ec2RunnerProvider,
   EcsRunnerProvider,
-  FamilyFragmentBranch,
   FargateRunnerProvider,
   ICompositeProvider,
   IParameterizedProvider,
@@ -48,13 +47,14 @@ import { GithubWebhookRedelivery } from './webhook-redelivery';
  * provider's config from the execution state, so the state machine stays the same size no matter how many
  * providers are configured.
  */
-const FAMILY_FRAGMENTS: Record<string, (scope: Construct) => FamilyFragmentBranch[]> = {
-  codebuild: CodeBuildRunnerProvider._stateMachineFragments,
-  ec2: Ec2RunnerProvider._stateMachineFragments,
-  ecs: EcsRunnerProvider._stateMachineFragments,
-  fargate: FargateRunnerProvider._stateMachineFragments,
-  lambda: LambdaRunnerProvider._stateMachineFragments,
-};
+const FAMILY_FRAGMENTS = new Map<string, (scope: Construct) => stepfunctions.IChainable>([
+  [CodeBuildRunnerProvider._FAMILY, CodeBuildRunnerProvider._stateMachineFragment],
+  [Ec2RunnerProvider._FAMILY, Ec2RunnerProvider._stateMachineFragment],
+  [EcsRunnerProvider._FAMILY, EcsRunnerProvider._stateMachineFragment],
+  [FargateRunnerProvider._FAMILY, FargateRunnerProvider._stateMachineFragment],
+  [LambdaRunnerProvider._FAMILY, LambdaRunnerProvider._stateMachineFragment],
+]);
+
 
 /**
  * JSONata expression that points `$.providerParams` at `configExpr`, with the standard runner tags merged into the
@@ -68,23 +68,37 @@ const FAMILY_FRAGMENTS: Record<string, (scope: Construct) => FamilyFragmentBranc
  * Providers opt in by putting a `tags` array in their config (empty when the user asked for no extra tags); configs
  * without one are passed through untouched. Provider tags override standard tags of the same key. Merging twice is
  * a no-op, since the standard tags are then already in `tags` and override themselves.
+ *
+ * `GitHubRunners:Provider` names the provider that actually runs the job. That is `$.provider` for a plain
+ * provider, but not for a config reached through a composite, where `$.provider` is the composite's path -- so the
+ * config's own `provider` field wins when it has one.
+ *
+ * `$.config.providerConfigs` is dropped here. It is only needed by the state that does the lookup, so removing it
+ * keeps every state after this one carrying just the selected config instead of every provider's. The
+ * `$merge([{}, ...])` around `$sift` matters: `$sift` returns undefined when nothing survives the filter, which
+ * happens whenever `consts` holds only the lookup table (any stack with no EC2 provider), and an undefined value
+ * would drop the key from the object and leave the original `consts` in place.
  */
 function selectProviderParams(configExpr: string): string {
-  return `$merge([$states.input, {'providerParams': (
-    $config := ${configExpr};
-    $exists($config.tags) ? $merge([$config, {'tags': $append(
-      [
-        {'Key': 'Name', 'Value': $states.context.Execution.Name},
-        {'Key': 'GitHubRunners:Provider', 'Value': $states.input.provider},
-        {'Key': 'GitHubRunners:Repo', 'Value': $states.input.owner & '/' & $states.input.repo},
-        {'Key': 'GitHubRunners:Labels', 'Value': $states.input.labels}
-      ][$not(Key in $config.tags.Key)],
-      $config.tags)}]) : $config
-  )}])`;
+  return `$merge([
+    $states.input,
+    {'consts': $merge([{}, $sift($states.input.config, function($v, $k) { $k != 'providerConfigs' })])},
+    {'providerParams': (
+      $config := ${configExpr};
+      $exists($config.tags) ? $merge([$config, {'tags': $append(
+        [
+          {'Key': 'Name', 'Value': $states.context.Execution.Name},
+          {'Key': 'GitHubRunners:Provider', 'Value': $exists($config.provider) ? $config.provider : $states.input.provider},
+          {'Key': 'GitHubRunners:Repo', 'Value': $states.input.owner & '/' & $states.input.repo},
+          {'Key': 'GitHubRunners:Labels', 'Value': $states.input.labels}
+        ][$not(Key in $config.tags.Key)],
+        $config.tags)}]) : $config
+    )}
+  ])`;
 }
 
 /**
- * Static strings the family fragments need at `$.consts`, like the EC2 userdata templates. Kept out of the
+ * Static strings the family fragments need at `$.config`, like the EC2 userdata templates. Kept out of the
  * per-provider configs because they're big and shared by all providers of the family.
  */
 const FAMILY_CONSTANTS: Record<string, () => Record<string, string>> = {
@@ -410,9 +424,9 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         continue;
       }
       for (const family of provider._runnerFamilies) {
-        if (!(family in FAMILY_FRAGMENTS)) {
+        if (!FAMILY_FRAGMENTS.has(family)) {
           Annotations.of(provider).addError(
-            `Unknown runner family "${family}". Available families are: ${Object.keys(FAMILY_FRAGMENTS).sort().join(', ')}.`,
+            `Unknown runner family "${family}". Available families are: ${Array.of(FAMILY_FRAGMENTS.keys()).sort().join(', ')}.`,
           );
         }
       }
@@ -483,7 +497,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     const families = [...new Set(this.parameterizedProviders.flatMap(p => p._runnerFamilies))].sort();
 
-    // every provider's runtime configuration is embedded in the definition at $.consts.providerConfigs and
+    // every provider's runtime configuration is embedded in the definition at $.config.providerConfigs and
     // selected by the provider path the webhook passes in the execution input; the family fragments then read it
     // from $.providerParams, so one fragment per family can run any number of providers
     const providerConsts: Record<string, string> = {};
@@ -494,25 +508,28 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     for (const provider of this.parameterizedProviders) {
       providerConfigs[provider.node.path] = provider._runnerConfig();
     }
-    const consts = {
+    const config = {
       ...providerConsts,
       providerConfigs,
     };
 
-    const constsPass = new stepfunctions.Pass(this, 'Provider Constants', {
-      parameters: consts,
-      resultPath: '$.consts',
+    const constsPass = new stepfunctions.Pass(this, 'Load Config', {
+      parameters: config,
+      resultPath: '$.config',
     });
 
     const selectConfig = new stepfunctions.Pass(this, 'Select Provider Config', {
       queryLanguage: stepfunctions.QueryLanguage.JSONATA,
-      outputs: `{% ${selectProviderParams('$lookup($states.input.consts.providerConfigs, $states.input.provider)')} %}`,
+      outputs: `{% ${selectProviderParams('$lookup($states.input.config.providerConfigs, $states.input.provider)')} %}`,
     });
 
-    const providerChooser = new stepfunctions.Choice(this, 'Choose provider');
+    const providerFamilyChooser = new stepfunctions.Choice(this, 'Choose Provider Family');
 
-    // weighted distribution configs (CompositeProvider.distribute) pick one weighted config and go back to the
-    // chooser with it
+    // weighted distribution configs (CompositeProvider.distribute) resolve to one of their weighted configs
+    // before the runner is attempted. this happens *outside* 'Try Provider' on purpose: a Parallel hands its own
+    // input to its Catch, so picking inside it would throw the picked config away on failure and lose the
+    // fallback chain it carries (e.g. an EC2 provider's per-subnet chain)
+    const resolveConfig = new stepfunctions.Choice(this, 'Distributed Config?');
     const pickWeighted = new stepfunctions.Pass(this, 'Pick Weighted Config', {
       queryLanguage: stepfunctions.QueryLanguage.JSONATA,
       outputs: `{% (
@@ -526,27 +543,28 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         ${selectProviderParams('$picked.picked')}
       ) %}`,
     });
-    providerChooser.when(stepfunctions.Condition.isPresent('$.providerParams.distribute'), pickWeighted);
-    pickWeighted.next(providerChooser);
+    resolveConfig.when(stepfunctions.Condition.isPresent('$.providerParams.distribute'), pickWeighted);
+    pickWeighted.next(resolveConfig);
 
-    // one fragment per family in use, with stable construct IDs so adding or removing providers doesn't change
-    // the state machine
+    // one fragment per family in use, with stable construct IDs so adding or removing providers doesn't change the state machine
     for (const family of families) {
-      const builder = FAMILY_FRAGMENTS[family];
+      const builder = FAMILY_FRAGMENTS.get(family);
       if (!builder) {
         continue; // already reported as an error in the constructor
       }
-      for (const branch of builder(this)) {
-        providerChooser.when(branch.condition, branch.chainable);
-      }
+      providerFamilyChooser.when(
+        stepfunctions.Condition.stringEquals('$.providerParams.family', family),
+        builder(this),
+      );
     }
 
-    providerChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown label'));
+    providerFamilyChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown provider'));
 
     // configs can chain a fallback config to try when they fail (CompositeProvider.fallback, EC2 subnets); the
     // parallel state catches any provider failure, cleans up the failed runner, and loops back with the fallback
     // config until none is left
-    const tryProvider = new stepfunctions.Parallel(this, 'Try Provider').branch(providerChooser);
+    const tryProvider = new stepfunctions.Parallel(this, 'Try Provider').branch(providerFamilyChooser);
+    resolveConfig.otherwise(tryProvider);
 
     this.deleteFailedRunnerFunction ??= this.deleteFailedRunner();
     const fallbackCleanup = new stepfunctions_tasks.LambdaInvoke(this, 'Clean Up Failed Runner', {
@@ -589,7 +607,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     fallbackCleanup.addCatch(fallbackChoice, { errors: [stepfunctions.Errors.ALL], resultPath: stepfunctions.JsonPath.DISCARD });
     fallbackChoice.when(stepfunctions.Condition.isPresent('$.providerParams.fallback'), useFallback);
     fallbackChoice.otherwise(allFailed);
-    useFallback.next(tryProvider);
+    useFallback.next(resolveConfig);
 
     // The fallback loop above already deletes the failed runner after every attempt (via 'Clean Up Failed
     // Runner') before giving up, so there's no need for a separate catch-and-clean-up around the whole branch
@@ -602,7 +620,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     // fallback loop cleans up before re-raising, we can collapse the two into one Parallel.
     const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
       // we get a token for every retry because the token can expire faster than the job can timeout
-      tokenRetrieverTask.next(constsPass).next(selectConfig).next(tryProvider),
+      tokenRetrieverTask.next(constsPass).next(selectConfig).next(resolveConfig),
     );
 
     if (props?.retryOptions?.retry ?? true) {
@@ -646,7 +664,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       'Runner Orchestrator',
       {
         definitionBody: stepfunctions.DefinitionBody.fromChainable(queueIdleReaperTask.next(runProviders)),
-        definitionSubstitutions: dedupeStateMachineTokens(this, consts),
+        definitionSubstitutions: dedupeStateMachineTokens(this, config),
         logs: logOptions,
       },
     );

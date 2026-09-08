@@ -6921,18 +6921,20 @@ public readonly retryOptions: ProviderRetryOptions;
 
 ---
 
-##### `assignPublicIp`<sup>Optional</sup> <a name="assignPublicIp" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.assignPublicIp"></a>
+##### ~~`assignPublicIp`~~<sup>Optional</sup> <a name="assignPublicIp" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.assignPublicIp"></a>
+
+- *Deprecated:* ECS runner tasks use bridge networking, so they share the host instance's network interface and
+cannot get a public IP of their own. This property is ignored. Give the cluster instances internet access
+instead (a public subnet or a NAT gateway), and open an issue if you need `awsvpc` networking for ECS.
 
 ```typescript
 public readonly assignPublicIp: boolean;
 ```
 
 - *Type:* boolean
-- *Default:* true
+- *Default:* ignored
 
 Assign public IP to the runner task.
-
-Make sure the task will have access to GitHub. A public IP might be required unless you have NAT gateway.
 
 ---
 
@@ -11783,158 +11785,6 @@ The principal to grant permissions to.
 
 ---
 
-### IParameterizedRunnerProvider <a name="IParameterizedRunnerProvider" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider"></a>
-
-- *Extends:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
-
-- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider">IParameterizedRunnerProvider</a>
-
-Interface for runner providers that can share a single parameterized state-machine fragment per provider family.
-
-Instead of a dedicated state-machine branch per provider, all providers of the same family (e.g. all
-CodeBuild providers) share one branch. Per-provider runtime parameters are published to an SSM parameter and
-passed into the state machine through the execution input. This keeps the state machine definition and IAM
-policies small even with hundreds of providers.
-
-All built-in providers implement this interface. The set of supported families is internal to
-{@link GitHubRunners } and is not extensible yet. Custom providers should implement only {@link IRunnerProvider}
-and will get a dedicated state-machine branch like before.
-
-#### Methods <a name="Methods" id="Methods"></a>
-
-| **Name** | **Description** |
-| --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.grantParameterizedStateMachine">grantParameterizedStateMachine</a></code> | Grant the state machine role all permissions required by the shared family fragment to run THIS provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.runnerConfig">runnerConfig</a></code> | JSON-serializable runtime parameters for this specific provider, fed into the shared family fragment through the state machine execution input. |
-
----
-
-##### `grantParameterizedStateMachine` <a name="grantParameterizedStateMachine" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.grantParameterizedStateMachine"></a>
-
-```typescript
-public grantParameterizedStateMachine(stateMachineRole: IGrantable): void
-```
-
-Grant the state machine role all permissions required by the shared family fragment to run THIS provider.
-
-This replaces both the automatic task-construct policies and {@link IRunnerProvider.grantStateMachine } for
-parameterized providers.
-
-###### `stateMachineRole`<sup>Required</sup> <a name="stateMachineRole" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.grantParameterizedStateMachine.parameter.stateMachineRole"></a>
-
-- *Type:* aws-cdk-lib.aws_iam.IGrantable
-
-role for the state machine that executes the shared family fragment.
-
----
-
-##### `runnerConfig` <a name="runnerConfig" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.runnerConfig"></a>
-
-```typescript
-public runnerConfig(): any
-```
-
-JSON-serializable runtime parameters for this specific provider, fed into the shared family fragment through the state machine execution input.
-
-Values may contain CloudFormation tokens.
-
-Called by GithubRunners and shouldn't be called manually.
-
-#### Properties <a name="Properties" id="Properties"></a>
-
-| **Name** | **Type** | **Description** |
-| --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | The principal to grant permissions to. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.runnerFamily">runnerFamily</a></code> | <code>string</code> | Provider family key. |
-
----
-
-##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.connections"></a>
-
-```typescript
-public readonly connections: Connections;
-```
-
-- *Type:* aws-cdk-lib.aws_ec2.Connections
-
-The network connections associated with this resource.
-
----
-
-##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.grantPrincipal"></a>
-
-```typescript
-public readonly grantPrincipal: IPrincipal;
-```
-
-- *Type:* aws-cdk-lib.aws_iam.IPrincipal
-
-The principal to grant permissions to.
-
----
-
-##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.node"></a>
-
-```typescript
-public readonly node: Node;
-```
-
-- *Type:* constructs.Node
-
-The tree node.
-
----
-
-##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.labels"></a>
-
-```typescript
-public readonly labels: string[];
-```
-
-- *Type:* string[]
-
-GitHub Actions labels used for this provider.
-
-These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
-based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
-job's labels, this provider will be chosen and spawn a new runner.
-
----
-
-##### `logGroup`<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.logGroup"></a>
-
-```typescript
-public readonly logGroup: ILogGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_logs.ILogGroup
-
-Log group where provided runners will save their logs.
-
-Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
-
----
-
-##### `runnerFamily`<sup>Required</sup> <a name="runnerFamily" id="@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider.property.runnerFamily"></a>
-
-```typescript
-public readonly runnerFamily: string;
-```
-
-- *Type:* string
-
-Provider family key.
-
-One of 'codebuild', 'fargate', 'ecs', 'lambda' or 'ec2'. All providers of the same
-family share a single state-machine fragment that is parameterized with {@link runnerConfig} values at
-runtime.
-
----
-
 ### IRunnerAmiStatus <a name="IRunnerAmiStatus" id="@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus"></a>
 
 - *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerAmiStatus">IRunnerAmiStatus</a>
@@ -12076,7 +11926,7 @@ Log group name for the image builder where history of image builds can be analyz
 
 - *Extends:* aws-cdk-lib.aws_ec2.IConnectable, aws-cdk-lib.aws_iam.IGrantable, constructs.IConstruct
 
-- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner">CodeBuildRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider">CodeBuildRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner">Ec2Runner</a>, <a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider">Ec2RunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider">EcsRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunner">FargateRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider">FargateRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner">LambdaRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider">LambdaRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.IParameterizedRunnerProvider">IParameterizedRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
+- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunner">CodeBuildRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider">CodeBuildRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.Ec2Runner">Ec2Runner</a>, <a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider">Ec2RunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider">EcsRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunner">FargateRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider">FargateRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunner">LambdaRunner</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider">LambdaRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
 
 Interface for all runner providers.
 

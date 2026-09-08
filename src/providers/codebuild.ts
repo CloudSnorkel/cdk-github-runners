@@ -18,13 +18,13 @@ import { Construct } from 'constructs';
 import {
   Architecture,
   BaseProvider,
-  FamilyFragmentBranch,
+  IParameterizedProvider,
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
+  runnerEnvironment,
   RunnerImage,
   RunnerProviderProps,
-  runnerEnvironment,
   RunnerVersion,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
@@ -165,7 +165,9 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
-export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProvider {
+export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProvider, IParameterizedProvider {
+  public static readonly _FAMILY = 'codebuild';
+
   /**
    * Path to Dockerfile for Linux x64 with all the requirements for CodeBuild runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
@@ -203,24 +205,18 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
    *
    * @internal
    */
-  public static _stateMachineFragments(scope: Construct): FamilyFragmentBranch[] {
-    return [{
-      condition: stepfunctions.Condition.and(
-        stepfunctions.Condition.isPresent('$.providerParams.family'),
-        stepfunctions.Condition.stringEquals('$.providerParams.family', 'codebuild'),
-      ),
-      chainable: new stepfunctions.CustomState(scope, 'CodeBuild Runner', {
-        stateJson: {
-          Type: 'Task',
-          QueryLanguage: 'JSONata',
-          Resource: `arn:${Aws.PARTITION}:states:::codebuild:startBuild.sync`,
-          Arguments: {
-            ProjectName: '{% $states.input.providerParams.projectName %}',
-            EnvironmentVariablesOverride: runnerEnvironment((name, value) => ({ Name: name, Type: 'PLAINTEXT', Value: value })),
-          },
+  public static _stateMachineFragment(scope: Construct): stepfunctions.IChainable {
+    return new stepfunctions.CustomState(scope, 'CodeBuild Runner', {
+      stateJson: {
+        Type: 'Task',
+        QueryLanguage: 'JSONata',
+        Resource: `arn:${Aws.PARTITION}:states:::codebuild:startBuild.sync`,
+        Arguments: {
+          ProjectName: '{% $states.input.providerParams.projectName %}',
+          EnvironmentVariablesOverride: runnerEnvironment((name, value) => ({ Name: name, Type: 'PLAINTEXT', Value: value })),
         },
-      }),
-    }];
+      },
+    });
   }
 
   /**

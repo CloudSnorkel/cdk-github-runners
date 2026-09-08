@@ -74,8 +74,8 @@ describe('Parameterized providers', () => {
     expect(countOccurrences(definition, ':states:::lambda:invoke')).toBe(1);
 
     // family branches route by the selected config, not by provider path
-    expect(definition).toContain('{"Variable":"$.providerParams.family","StringEquals":"codebuild"}');
-    expect(definition).toContain('{"Variable":"$.providerParams.family","StringEquals":"lambda"}');
+    expect(definition).toContain('{"Variable":"$.providerParams.family","StringEquals":"codebuild"');
+    expect(definition).toContain('{"Variable":"$.providerParams.family","StringEquals":"lambda"');
     expect(definition).not.toContain('"StringEquals":"test/p1"');
   });
 
@@ -121,7 +121,7 @@ describe('Parameterized providers', () => {
     // the config map and runtime lookup by $.provider; dynamic tokens (the project name) are de-duplicated into
     // definitionSubstitutions, so the config embeds a ${...} placeholder rather than the token itself
     expect(definition).toContain('"providerConfigs":{"test/p1":{"family":"codebuild","projectName":"${__sfnsub_0}","group1":"--runnergroup","group2":"my-group","defaultLabels":"--no-default-labels"}}');
-    expect(definition).toContain('$lookup($states.input.consts.providerConfigs, $states.input.provider)');
+    expect(definition).toContain('$lookup($states.input.config.providerConfigs, $states.input.provider)');
     expect(definitionSubstitutions(template).__sfnsub_0).toBeDefined();
   });
 
@@ -196,16 +196,16 @@ describe('Parameterized providers', () => {
 
     const definition = definitionString(Template.fromStack(stack));
 
-    // one state for spot and one for on-demand, regardless of provider or subnet count
-    expect(countOccurrences(definition, 'ec2:runInstances.waitForTaskToken')).toBe(2);
+    // one state, regardless of provider count, subnet count or spot
+    expect(countOccurrences(definition, 'ec2:runInstances.waitForTaskToken')).toBe(1);
     expect(definition).toContain('"SubnetId.$":"$.providerParams.subnet"');
     expect(countOccurrences(definition, '"InstanceMarketOptions.$"')).toBe(1);
 
-    // spot configs are routed to the spot state
-    expect(definition).toContain('{"Variable":"$.providerParams.instanceMarketOptions","IsPresent":true}');
+    // spot options come from the config, so spot and on-demand providers share the state
+    expect((provider as any)._runnerConfig().instanceMarketOptions).toEqual({ MarketType: 'spot', SpotOptions: { SpotInstanceType: 'one-time' } });
 
     // user data template selected at runtime and substituted with States.Format like before
-    expect(definition).toContain('States.ArrayGetItem(States.Array($.consts.ec2UserDataLinux, $.consts.ec2UserDataWindows), $.providerParams.userDataTemplateIdx)');
+    expect(definition).toContain('States.ArrayGetItem(States.Array($.config.ec2UserDataLinux, $.config.ec2UserDataWindows), $.providerParams.userDataTemplateIdx)');
     expect(definition).toContain('"ec2UserDataLinux"');
     expect(definition).toContain('"ec2UserDataWindows"');
 
@@ -216,6 +216,11 @@ describe('Parameterized providers', () => {
     expect(config.fallback.family).toBe('ec2');
     expect(config.fallback.subnet).toBeDefined();
     expect(config.fallback.fallback).toBeUndefined();
+
+    // an empty struct, not a missing field: the shared state reads this path unconditionally, and a missing
+    // reference path fails the state at runtime
+    const onDemand = new Ec2RunnerProvider(stack, 'p2', { imageBuilder, vpc, labels: ['od'] });
+    expect((onDemand as any)._runnerConfig().instanceMarketOptions).toEqual({});
   });
 
   test('composite fallback chains sub-provider configs', () => {
@@ -235,7 +240,7 @@ describe('Parameterized providers', () => {
 
     // both families got their fragments
     const definition = definitionString(Template.fromStack(stack));
-    expect(countOccurrences(definition, 'ec2:runInstances.waitForTaskToken')).toBe(2);
+    expect(countOccurrences(definition, 'ec2:runInstances.waitForTaskToken')).toBe(1);
     expect(countOccurrences(definition, 'codebuild:startBuild.sync')).toBe(1);
   });
 
@@ -257,6 +262,34 @@ describe('Parameterized providers', () => {
     expect(definition).toContain('{"Variable":"$.providerParams.distribute","IsPresent":true,"Next":"Pick Weighted Config"}');
     expect(definition).toContain('$random()');
     expect(countOccurrences(definition, 'ecs:runTask.sync')).toBe(1);
+
+    // the pick happens before 'Try Provider', never inside it: a Parallel hands its own input to its Catch, so
+    // picking inside would throw away the picked config (and its fallback chain) on failure
+    const parsed = JSON.parse(definition.replace(/<TOKEN>/g, 'token'));
+    const branch = parsed.States['Run Providers'].Branches[0].States;
+    expect(Object.keys(branch)).toContain('Pick Weighted Config');
+    expect(branch['Pick Weighted Config'].Next).toBe('Distributed Config?');
+    expect(branch['Distributed Config?'].Default).toBe('Try Provider');
+    expect(Object.keys(branch['Try Provider'].Branches[0].States)).not.toContain('Pick Weighted Config');
+    expect(branch['Use Fallback Config'].Next).toBe('Distributed Config?');
+  });
+
+  test('a distributed config keeps the picked provider fallback chain', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc', { maxAzs: 2 });
+    const imageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'ib', { vpc });
+    const composite = CompositeProvider.distribute(stack, 'composite', [
+      { weight: 1, provider: new Ec2RunnerProvider(stack, 'e1', { imageBuilder, vpc, labels: ['x'] }) },
+      { weight: 1, provider: new CodeBuildRunnerProvider(stack, 'c1', { imageBuilder: staticImage(stack, 'i1'), labels: ['x'] }) },
+    ]);
+    new GitHubRunners(stack, 'runners', { providers: [composite] });
+
+    // the EC2 provider's per-subnet chain survives inside the weighted config, so a failed subnet still falls
+    // back to the next one
+    const config = (composite as any)._runnerConfig();
+    expect(config.distribute[0].config.family).toBe('ec2');
+    expect(config.distribute[0].config.fallback.family).toBe('ec2');
+    expect(config.distribute[0].config.fallback.subnet).not.toBe(config.distribute[0].config.subnet);
+    expect(config.distribute[1].config.fallback).toBeUndefined();
   });
 
   test('every provider grants the orchestrator what its family fragment needs', () => {
@@ -360,6 +393,17 @@ describe('Parameterized providers', () => {
     });
 
     Annotations.fromStack(stack).hasError('/test/custom', Match.stringLikeRegexp('Custom runner providers are not supported'));
+  });
+
+  test('a value colliding with the definition substitutions is an error', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const imageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'ib', { vpc });
+    new GitHubRunners(stack, 'runners', {
+      providers: [new Ec2RunnerProvider(stack, 'p1', { imageBuilder, vpc, tags: { Team: '${Team}' } })],
+    });
+
+    // Step Functions would otherwise reject the deployment with an unhelpful message about a missing substitution
+    Annotations.fromStack(stack).hasError('/test/runners', Match.stringLikeRegexp('collides with the state machine definition substitutions'));
   });
 
   test('unknown runner family is an error', () => {

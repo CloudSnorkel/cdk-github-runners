@@ -12,17 +12,7 @@ import {
 } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
-import {
-  Architecture,
-  BaseProvider,
-  FamilyFragmentBranch,
-  IRunnerProvider,
-  IRunnerProviderStatus,
-  Os,
-  RunnerImage,
-  RunnerProviderProps,
-  RunnerVersion,
-} from './common';
+import { Architecture, BaseProvider, IRunnerProvider, IRunnerProviderStatus, Os, RunnerImage, RunnerProviderProps, RunnerVersion } from './common';
 import { UpdateLambdaFunction } from './update-lambda-function';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
@@ -137,6 +127,8 @@ export interface LambdaRunnerProviderProps extends RunnerProviderProps {
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvider {
+  public static readonly _FAMILY = 'lambda';
+
   /**
    * Path to Dockerfile for Linux x64 with all the requirement for Lambda runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
@@ -166,46 +158,40 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    *
    * @internal
    */
-  public static _stateMachineFragments(scope: Construct): FamilyFragmentBranch[] {
-    return [{
-      condition: stepfunctions.Condition.and(
-        stepfunctions.Condition.isPresent('$.providerParams.family'),
-        stepfunctions.Condition.stringEquals('$.providerParams.family', 'lambda'),
-      ),
-      chainable: new stepfunctions.CustomState(scope, 'Lambda Runner', {
-        stateJson: {
-          Type: 'Task',
-          QueryLanguage: 'JSONata',
-          Resource: `arn:${cdk.Aws.PARTITION}:states:::lambda:invoke`,
-          Arguments: {
-            FunctionName: '{% $states.input.providerParams.functionArn %}',
-            Payload: {
-              token: '{% $states.input.runner.token %}',
-              runnerName: '{% $states.context.Execution.Name %}',
-              label: '{% $states.input.labels %}',
-              githubDomain: '{% $states.input.runner.domain %}',
-              owner: '{% $states.input.owner %}',
-              repo: '{% $states.input.repo %}',
-              registrationUrl: '{% $states.input.runner.registrationUrl %}',
-              group: '{% $states.input.providerParams.group %}',
-              defaultLabels: '{% $states.input.providerParams.defaultLabels %}',
-            },
+  public static _stateMachineFragment(scope: Construct): stepfunctions.IChainable {
+    return new stepfunctions.CustomState(scope, 'Lambda Runner', {
+      stateJson: {
+        Type: 'Task',
+        QueryLanguage: 'JSONata',
+        Resource: `arn:${cdk.Aws.PARTITION}:states:::lambda:invoke`,
+        Arguments: {
+          FunctionName: '{% $states.input.providerParams.functionArn %}',
+          Payload: {
+            token: '{% $states.input.runner.token %}',
+            runnerName: '{% $states.context.Execution.Name %}',
+            label: '{% $states.input.labels %}',
+            githubDomain: '{% $states.input.runner.domain %}',
+            owner: '{% $states.input.owner %}',
+            repo: '{% $states.input.repo %}',
+            registrationUrl: '{% $states.input.runner.registrationUrl %}',
+            group: '{% $states.input.providerParams.group %}',
+            defaultLabels: '{% $states.input.providerParams.defaultLabels %}',
           },
-          // same transient service errors LambdaInvoke retries by default
-          Retry: [{
-            ErrorEquals: [
-              'Lambda.ClientExecutionTimeoutException',
-              'Lambda.ServiceException',
-              'Lambda.AWSLambdaException',
-              'Lambda.SdkClientException',
-            ],
-            IntervalSeconds: 2,
-            MaxAttempts: 6,
-            BackoffRate: 2,
-          }],
         },
-      }),
-    }];
+        // same transient service errors LambdaInvoke retries by default
+        Retry: [{
+          ErrorEquals: [
+            'Lambda.ClientExecutionTimeoutException',
+            'Lambda.ServiceException',
+            'Lambda.AWSLambdaException',
+            'Lambda.SdkClientException',
+          ],
+          IntervalSeconds: 2,
+          MaxAttempts: 6,
+          BackoffRate: 2,
+        }],
+      },
+    });
   }
 
   /**

@@ -1,25 +1,17 @@
 import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
-import {
-  aws_ec2 as ec2,
-  aws_ecs as ecs,
-  aws_iam as iam,
-  aws_logs as logs,
-  aws_stepfunctions as stepfunctions,
-  RemovalPolicy,
-} from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_ecs as ecs, aws_iam as iam, aws_logs as logs, aws_stepfunctions as stepfunctions, RemovalPolicy } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import {
   Architecture,
   BaseProvider,
-  FamilyFragmentBranch,
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
+  runnerEnvironment,
   RunnerImage,
   RunnerProviderProps,
-  runnerEnvironment,
   RunnerVersion,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
@@ -275,6 +267,8 @@ export function grantEcsRunTask(scope: Construct, stateMachineRole: iam.IGrantab
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class FargateRunnerProvider extends BaseProvider implements IRunnerProvider {
+  public static readonly _FAMILY = 'fargate';
+
   /**
    * Path to Dockerfile for Linux x64 with all the requirement for Fargate runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
@@ -304,43 +298,37 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
    *
    * @internal
    */
-  public static _stateMachineFragments(scope: Construct): FamilyFragmentBranch[] {
-    return [{
-      condition: stepfunctions.Condition.and(
-        stepfunctions.Condition.isPresent('$.providerParams.family'),
-        stepfunctions.Condition.stringEquals('$.providerParams.family', 'fargate'),
-      ),
-      chainable: new stepfunctions.CustomState(scope, 'Fargate Runner', {
-        stateJson: {
-          Type: 'Task',
-          QueryLanguage: 'JSONata',
-          Resource: `arn:${cdk.Aws.PARTITION}:states:::ecs:runTask.sync`,
-          Arguments: {
-            Cluster: '{% $states.input.providerParams.clusterArn %}',
-            TaskDefinition: '{% $states.input.providerParams.taskDefinitionFamily %}',
-            NetworkConfiguration: {
-              AwsvpcConfiguration: {
-                AssignPublicIp: '{% $states.input.providerParams.assignPublicIp %}',
-                Subnets: '{% $states.input.providerParams.subnets %}',
-                SecurityGroups: '{% $states.input.providerParams.securityGroups %}',
-              },
+  public static _stateMachineFragment(scope: Construct): stepfunctions.IChainable {
+    return new stepfunctions.CustomState(scope, 'Fargate Runner', {
+      stateJson: {
+        Type: 'Task',
+        QueryLanguage: 'JSONata',
+        Resource: `arn:${cdk.Aws.PARTITION}:states:::ecs:runTask.sync`,
+        Arguments: {
+          Cluster: '{% $states.input.providerParams.clusterArn %}',
+          TaskDefinition: '{% $states.input.providerParams.taskDefinitionFamily %}',
+          NetworkConfiguration: {
+            AwsvpcConfiguration: {
+              AssignPublicIp: '{% $states.input.providerParams.assignPublicIp %}',
+              Subnets: '{% $states.input.providerParams.subnets %}',
+              SecurityGroups: '{% $states.input.providerParams.securityGroups %}',
             },
-            Overrides: {
-              ContainerOverrides: [{
-                Name: '{% $states.input.providerParams.containerName %}',
-                Environment: runnerEnvironment((name, value) => ({ Name: name, Value: value })),
-              }],
-            },
-            PropagateTags: 'TASK_DEFINITION',
-            CapacityProviderStrategy: [{
-              CapacityProvider: '{% $states.input.providerParams.capacityProvider %}',
-            }],
-            PlatformVersion: 'LATEST',
-            EnableExecuteCommand: '{% $states.input.providerParams.enableExecuteCommand %}',
           },
+          Overrides: {
+            ContainerOverrides: [{
+              Name: '{% $states.input.providerParams.containerName %}',
+              Environment: runnerEnvironment((name, value) => ({ Name: name, Value: value })),
+            }],
+          },
+          PropagateTags: 'TASK_DEFINITION',
+          CapacityProviderStrategy: [{
+            CapacityProvider: '{% $states.input.providerParams.capacityProvider %}',
+          }],
+          PlatformVersion: 'LATEST',
+          EnableExecuteCommand: '{% $states.input.providerParams.enableExecuteCommand %}',
         },
-      }),
-    }];
+      },
+    });
   }
 
   /**

@@ -95,6 +95,32 @@ describe('availableProviders', () => {
     await expect(availableProviders()).rejects.toThrow('Providers metadata is missing');
   });
 
+  test('serves the cached map when CloudFormation fails', async () => {
+    mockCfnSend.mockResolvedValueOnce({
+      StackResourceDetail: {
+        Metadata: JSON.stringify({ providers: { 'Stack/P1': ['codebuild'] } }),
+      },
+    });
+    mockCfnSend.mockRejectedValue(new Error('Rate exceeded'));
+
+    const realNow = Date.now;
+    try {
+      Date.now = jest.fn().mockReturnValue(1000000);
+      await availableProviders();
+      // TTL expired and CloudFormation is now throttling us; the webhook must not fail over it
+      Date.now = jest.fn().mockReturnValue(1000000 + 61 * 1000);
+      expect(await availableProviders()).toEqual({ 'Stack/P1': ['codebuild'] });
+    } finally {
+      Date.now = realNow;
+    }
+  });
+
+  test('throws when CloudFormation fails and nothing is cached', async () => {
+    mockCfnSend.mockRejectedValue(new Error('Rate exceeded'));
+
+    await expect(availableProviders()).rejects.toThrow('Rate exceeded');
+  });
+
   test('PROVIDERS environment variable overrides metadata for unit tests', async () => {
     process.env.PROVIDERS = JSON.stringify({ 'Stack/Test': ['test'] });
 

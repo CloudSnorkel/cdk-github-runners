@@ -71,8 +71,6 @@ The best provider to use mostly depends on your current infrastructure. When in 
 * ECS is useful when you want to control the infrastructure, like leaving the runner host running for faster startups
 * Lambda is useful for short jobs that can work within time, size and readonly system constraints
 
-You can also create your own provider by implementing `IRunnerProvider`.
-
 ## Installation
 
 1. Install and use the appropriate package

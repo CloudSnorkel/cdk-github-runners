@@ -1,5 +1,5 @@
 {
-  "manifestVersion": 2,
+  "manifestVersion": 3,
   "env": {
     "PATH": "$(pnpm -c exec \"node --print process.env.PATH\")"
   },
@@ -41,10 +41,32 @@
       },
       "steps": [
         {
-          "builtin": "release/bump-version"
+          "builtin": "release/resolve-latest-tag",
+          "outputEnv": "LATEST_TAG"
+        },
+        {
+          "spawn": "bump:releasable-commits",
+          "outputEnv": "RELEASABLE_COMMITS",
+          "condition": "git rev-parse --verify --quiet \"refs/tags/$LATEST_TAG\""
+        },
+        {
+          "builtin": "release/suggest-version-bump",
+          "outputEnv": "SUGGESTED_BUMP"
+        },
+        {
+          "builtin": "release/apply-version-bump"
         }
       ],
-      "condition": "git log --oneline -1 | grep -qv \"chore(release):\""
+      "condition": "git log --oneline -1 | grep -v \"chore(release):\" > /dev/null"
+    },
+    "bump:releasable-commits": {
+      "name": "bump:releasable-commits",
+      "description": "Print the releasable commits since the latest release",
+      "steps": [
+        {
+          "exec": "git log --oneline $LATEST_TAG..HEAD"
+        }
+      ]
     },
     "bundle": {
       "name": "bundle",
@@ -791,13 +813,81 @@
       },
       "steps": [
         {
-          "exec": "pnpm dlx npm-check-updates@20 --upgrade --target=minor --cooldown=5 --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-cloudformation,@aws-sdk/client-codebuild,@aws-sdk/client-dynamodb,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-sqs,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@types/aws-lambda,@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,projen,shx,ts-jest,ts-node,typescript,cron-parser"
+          "execArgs": [
+            "pnpm",
+            "dlx",
+            "npm-check-updates@20",
+            "--upgrade",
+            "--target=minor",
+            "--cooldown=5",
+            "--peer",
+            "--no-deprecated",
+            "--dep=dev,prod,peer,optional",
+            "--filter=@aws-sdk/client-cloudformation,@aws-sdk/client-codebuild,@aws-sdk/client-dynamodb,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-sqs,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@types/aws-lambda,@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,projen,shx,ts-jest,ts-node,typescript,cron-parser"
+          ]
         },
         {
           "exec": "pnpm i --no-frozen-lockfile"
         },
         {
-          "exec": "pnpm update @aws-sdk/client-cloudformation @aws-sdk/client-codebuild @aws-sdk/client-dynamodb @aws-sdk/client-ec2 @aws-sdk/client-ecr @aws-sdk/client-imagebuilder @aws-sdk/client-lambda @aws-sdk/client-secrets-manager @aws-sdk/client-sfn @aws-sdk/client-sns @aws-sdk/client-sqs @aws-sdk/client-ssm @octokit/auth-app @octokit/core @octokit/request-error @octokit/rest @stylistic/eslint-plugin @sveltejs/vite-plugin-svelte @tsconfig/svelte @types/aws-lambda @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk bootstrap commit-and-tag-version esbuild eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-svelte eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii projen sass shx svelte-check svelte-preprocess svelte ts-jest ts-node typescript vite-plugin-singlefile vite cron-parser aws-cdk-lib constructs --config.minimum-release-age=7200"
+          "execArgs": [
+            "pnpm",
+            "update",
+            "@aws-sdk/client-cloudformation",
+            "@aws-sdk/client-codebuild",
+            "@aws-sdk/client-dynamodb",
+            "@aws-sdk/client-ec2",
+            "@aws-sdk/client-ecr",
+            "@aws-sdk/client-imagebuilder",
+            "@aws-sdk/client-lambda",
+            "@aws-sdk/client-secrets-manager",
+            "@aws-sdk/client-sfn",
+            "@aws-sdk/client-sns",
+            "@aws-sdk/client-sqs",
+            "@aws-sdk/client-ssm",
+            "@octokit/auth-app",
+            "@octokit/core",
+            "@octokit/request-error",
+            "@octokit/rest",
+            "@stylistic/eslint-plugin",
+            "@sveltejs/vite-plugin-svelte",
+            "@tsconfig/svelte",
+            "@types/aws-lambda",
+            "@types/jest",
+            "@types/node",
+            "@typescript-eslint/eslint-plugin",
+            "@typescript-eslint/parser",
+            "aws-cdk",
+            "bootstrap",
+            "commit-and-tag-version",
+            "esbuild",
+            "eslint-import-resolver-typescript",
+            "eslint-plugin-import",
+            "eslint-plugin-svelte",
+            "eslint",
+            "jest",
+            "jest-junit",
+            "jsii-diff",
+            "jsii-docgen",
+            "jsii-pacmak",
+            "jsii-rosetta",
+            "jsii",
+            "projen",
+            "sass",
+            "shx",
+            "svelte-check",
+            "svelte-preprocess",
+            "svelte",
+            "ts-jest",
+            "ts-node",
+            "typescript",
+            "vite-plugin-singlefile",
+            "vite",
+            "cron-parser",
+            "aws-cdk-lib",
+            "constructs",
+            "--config.minimum-release-age=7200"
+          ]
         },
         {
           "exec": "pnpm exec projen"

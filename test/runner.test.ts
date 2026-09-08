@@ -316,7 +316,7 @@ describe('GitHubRunners', () => {
     });
   });
 
-  test('Webhook PROVIDERS env var includes only top-level providers (not subproviders) with composites', () => {
+  test('Webhook providers metadata includes only top-level providers (not subproviders) with composites', () => {
     const p1 = new LambdaRunnerProvider(stack, 'p1', { labels: ['linux'] });
     const p2 = new LambdaRunnerProvider(stack, 'p2', { labels: ['linux'] });
     const composite = CompositeProvider.fallback(stack, 'composite', [p1, p2]);

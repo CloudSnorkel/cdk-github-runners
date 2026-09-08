@@ -170,17 +170,29 @@ export async function availableProviders(): Promise<Record<string, string[]>> {
     return providersCache.providers;
   }
 
-  const providers = await getOwnResourceMetadata<Record<string, string[]>>('providers');
-  if (!providers) {
-    throw new Error('Providers metadata is missing from webhook handler resource');
+  try {
+    const providers = await getOwnResourceMetadata<Record<string, string[]>>('providers');
+    if (!providers) {
+      throw new Error('Providers metadata is missing from webhook handler resource');
+    }
+
+    providersCache = {
+      providers,
+      expiration: Date.now() + PROVIDERS_CACHE_TTL_MS,
+    };
+
+    return providers;
+  } catch (e) {
+    // CloudFormation throttles DescribeStackResource fairly aggressively, and this is the webhook hot path.
+    // rather than failing the webhook (which loses the job), keep serving the last known map -- it only changes
+    // on deployment, so a stale one is almost always still correct
+    if (providersCache) {
+      console.warn('Unable to refresh providers metadata, using cached value', e);
+      providersCache.expiration = Date.now() + PROVIDERS_CACHE_TTL_MS;
+      return providersCache.providers;
+    }
+    throw e;
   }
-
-  providersCache = {
-    providers,
-    expiration: Date.now() + PROVIDERS_CACHE_TTL_MS,
-  };
-
-  return providers;
 }
 
 /**

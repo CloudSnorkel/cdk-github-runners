@@ -5,6 +5,7 @@
 !/.projen/files.json
 !/.github/workflows/pull-request-lint.yml
 !/.github/workflows/auto-approve.yml
+!/pnpm-workspace.yaml
 !/package.json
 !/LICENSE
 !/.npmignore
