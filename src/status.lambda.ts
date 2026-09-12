@@ -1,11 +1,12 @@
+import { CloudFormationClient, DescribeStackResourceCommand } from '@aws-sdk/client-cloudformation';
 import { DescribeLaunchTemplateVersionsCommand, EC2Client } from '@aws-sdk/client-ec2';
 import { ECRClient, DescribeImagesCommand } from '@aws-sdk/client-ecr';
 import { DescribeExecutionCommand, ListExecutionsCommand, SFNClient } from '@aws-sdk/client-sfn';
 import * as AWSLambda from 'aws-lambda';
 import { baseUrlFromDomain, GitHubSecrets, loadOctokitAuthApp, loadOctokitCore } from './lambda-github';
 import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
-import { getOwnResourceMetadata } from './lambda-stack-metadata';
 
+const cfn = new CloudFormationClient();
 const ec2 = new EC2Client();
 const ecr = new ECRClient();
 const sf = new SFNClient();
@@ -41,8 +42,9 @@ function stepFunctionArnToUrl(arn: string) {
   return `https://${region}.console.aws.amazon.com/states/home?region=${region}#/statemachines/view/${arn}`;
 }
 
-async function generateProvidersStatus() {
-  const providers = await getOwnResourceMetadata<any[]>('providers');
+async function generateProvidersStatus(stack: string, logicalId: string) {
+  const resource = await cfn.send(new DescribeStackResourceCommand({ StackName: stack, LogicalResourceId: logicalId }));
+  const providers = JSON.parse(resource.StackResourceDetail?.Metadata ?? '{}').providers as any[] | undefined;
 
   if (!providers) {
     return {};
@@ -112,8 +114,8 @@ function safeReturnValue(event: Partial<AWSLambda.APIGatewayProxyEvent>, status:
 export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
   // confirm required environment variables
   if (!process.env.WEBHOOK_SECRET_ARN || !process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN || !process.env.LOGICAL_ID ||
-      !process.env.WEBHOOK_HANDLER_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SETUP_SECRET_ARN ||
-      !process.env.STACK_NAME) {
+    !process.env.WEBHOOK_HANDLER_ARN || !process.env.STEP_FUNCTION_ARN || !process.env.SETUP_SECRET_ARN ||
+    !process.env.STACK_NAME) {
     throw new Error('Missing environment variables');
   }
 
@@ -158,7 +160,7 @@ export async function handler(event: Partial<AWSLambda.APIGatewayProxyEvent>) {
         personalAuthTokenScopes: '',
       },
     },
-    providers: await generateProvidersStatus(),
+    providers: await generateProvidersStatus(process.env.STACK_NAME, process.env.LOGICAL_ID),
     troubleshooting: {
       webhookHandlerArn: process.env.WEBHOOK_HANDLER_ARN,
       webhookHandlerUrl: lambdaArnToUrl(process.env.WEBHOOK_HANDLER_ARN),
