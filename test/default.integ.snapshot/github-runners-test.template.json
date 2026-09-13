@@ -17480,13 +17480,6 @@
     "PolicyDocument": {
      "Statement": [
       {
-       "Action": "cloudformation:DescribeStackResource",
-       "Effect": "Allow",
-       "Resource": {
-        "Ref": "AWS::StackId"
-       }
-      },
-      {
        "Action": [
         "secretsmanager:GetSecretValue",
         "secretsmanager:DescribeSecret"
@@ -17614,6 +17607,7 @@
       "GITHUB_PRIVATE_KEY_SECRET_ARN": {
        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
       },
+      "PROVIDERS": "{\"github-runners-test/CodeBuildx64\":[\"codebuild-x64\"],\"github-runners-test/CodeBuildUbuntu2404x64\":[\"codebuild-ubuntu-2404-x64\"],\"github-runners-test/CodeBuildARM\":[\"codebuild\",\"linux\",\"arm64\"],\"github-runners-test/CodeBuildWindows\":[\"codebuild\",\"windows\",\"x64\"],\"github-runners-test/ECS Fallback\":[\"ecs\",\"linux\",\"x64\"],\"github-runners-test/ECS Ubuntu 2404\":[\"ecs-ubuntu-2404\",\"x64\"],\"github-runners-test/ECS ARM64\":[\"ecs\",\"linux\",\"arm64\"],\"github-runners-test/ECS Windows\":[\"ecs\",\"windows\",\"x64\"],\"github-runners-test/Lambda\":[\"lambda\",\"x64\"],\"github-runners-test/LambdaARM\":[\"lambda\",\"arm64\"],\"github-runners-test/Fargate\":[\"fargate\",\"linux\",\"x64\"],\"github-runners-test/Fargate-x64-spot distribute\":[\"fargate-spot\",\"linux\",\"x64\"],\"github-runners-test/Fargate-arm64\":[\"fargate\",\"linux\",\"arm64\"],\"github-runners-test/Fargate-arm64-spot\":[\"fargate-spot\",\"linux\",\"arm64\"],\"github-runners-test/Fargate-Windows\":[\"fargate\",\"windows\",\"x64\"],\"github-runners-test/EC2 Fallback\":[\"ec2\",\"linux\",\"x64\"],\"github-runners-test/EC2 Spot Linux\":[\"ec2-spot\",\"linux\",\"x64\"],\"github-runners-test/EC2 Linux arm64\":[\"ec2\",\"linux\",\"arm64\"],\"github-runners-test/EC2 Windows\":[\"ec2\",\"windows\",\"x64\"]}",
       "REQUIRE_SELF_HOSTED_LABEL": "1",
       "PROVIDER_SELECTOR_ARN": {
        "Fn::GetAtt": [
@@ -17629,9 +17623,7 @@
       "RUNNER_TRACKER_TABLE": {
        "Ref": "runnersStolenRunnersJobsDFC963A5"
       },
-      "RUNNER_TRACKER_TTL_SECONDS": "259200",
-      "LOGICAL_ID": "runnersWebhookHandlerwebhookhandler22779A81",
-      "STACK_NAME": "github-runners-test"
+      "RUNNER_TRACKER_TTL_SECONDS": "259200"
      }
     },
     "Handler": "index.handler",
@@ -17653,99 +17645,7 @@
    "DependsOn": [
     "runnersWebhookHandlerwebhookhandlerServiceRoleDefaultPolicy1600452C",
     "runnersWebhookHandlerwebhookhandlerServiceRole03DB58D2"
-   ],
-   "Metadata": {
-    "providers": {
-     "github-runners-test/CodeBuildx64": [
-      "codebuild-x64"
-     ],
-     "github-runners-test/CodeBuildUbuntu2404x64": [
-      "codebuild-ubuntu-2404-x64"
-     ],
-     "github-runners-test/CodeBuildARM": [
-      "codebuild",
-      "linux",
-      "arm64"
-     ],
-     "github-runners-test/CodeBuildWindows": [
-      "codebuild",
-      "windows",
-      "x64"
-     ],
-     "github-runners-test/ECS Fallback": [
-      "ecs",
-      "linux",
-      "x64"
-     ],
-     "github-runners-test/ECS Ubuntu 2404": [
-      "ecs-ubuntu-2404",
-      "x64"
-     ],
-     "github-runners-test/ECS ARM64": [
-      "ecs",
-      "linux",
-      "arm64"
-     ],
-     "github-runners-test/ECS Windows": [
-      "ecs",
-      "windows",
-      "x64"
-     ],
-     "github-runners-test/Lambda": [
-      "lambda",
-      "x64"
-     ],
-     "github-runners-test/LambdaARM": [
-      "lambda",
-      "arm64"
-     ],
-     "github-runners-test/Fargate": [
-      "fargate",
-      "linux",
-      "x64"
-     ],
-     "github-runners-test/Fargate-x64-spot distribute": [
-      "fargate-spot",
-      "linux",
-      "x64"
-     ],
-     "github-runners-test/Fargate-arm64": [
-      "fargate",
-      "linux",
-      "arm64"
-     ],
-     "github-runners-test/Fargate-arm64-spot": [
-      "fargate-spot",
-      "linux",
-      "arm64"
-     ],
-     "github-runners-test/Fargate-Windows": [
-      "fargate",
-      "windows",
-      "x64"
-     ],
-     "github-runners-test/EC2 Fallback": [
-      "ec2",
-      "linux",
-      "x64"
-     ],
-     "github-runners-test/EC2 Spot Linux": [
-      "ec2-spot",
-      "linux",
-      "x64"
-     ],
-     "github-runners-test/EC2 Linux arm64": [
-      "ec2",
-      "linux",
-      "arm64"
-     ],
-     "github-runners-test/EC2 Windows": [
-      "ec2",
-      "windows",
-      "x64"
-     ]
-    }
-   }
+   ]
   },
   "runnersWebhookHandlerwebhookhandlerFunctionUrlC8FB3D17": {
    "Type": "AWS::Lambda::Url",

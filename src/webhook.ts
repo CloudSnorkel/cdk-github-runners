@@ -3,7 +3,7 @@ import { aws_lambda as lambda, aws_stepfunctions as stepfunctions, aws_sqs as sq
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
 import { Secrets } from './secrets';
-import { addFunctionMetadata, singletonLogGroup, SingletonLogType } from './utils';
+import { singletonLogGroup, SingletonLogType } from './utils';
 import { WebhookHandlerFunction } from './webhook-handler-function';
 
 /**
@@ -82,8 +82,7 @@ export interface GithubWebhookHandlerProps {
   readonly access?: LambdaAccess;
 
   /**
-   * Mapping of provider node paths to their supported labels, in label matching order. Passed to the Lambda
-   * function as CloudFormation resource metadata because it can grow past the 4KB Lambda environment limit.
+   * Mapping of provider node paths to their supported labels.
    */
   readonly providers: Record<string, string[]>;
 
@@ -148,6 +147,7 @@ export class GithubWebhookHandler extends Construct {
           WEBHOOK_SECRET_ARN: props.secrets.webhook.secretArn,
           GITHUB_SECRET_ARN: props.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: props.secrets.githubPrivateKey.secretArn,
+          PROVIDERS: JSON.stringify(props.providers),
           REQUIRE_SELF_HOSTED_LABEL: props.requireSelfHostedLabel ? '1' : '0',
           PROVIDER_SELECTOR_ARN: props.providerSelector?.functionArn ?? '',
           IDLE_TIMEOUT_SECONDS: props.idleTimeoutSeconds?.toString() ?? '300', // default 5 minutes
@@ -160,9 +160,6 @@ export class GithubWebhookHandler extends Construct {
         ...props.extraLambdaProps,
       },
     );
-
-    // the providers map can grow past the 4KB Lambda environment limit
-    addFunctionMetadata(this.handler, 'providers', props.providers);
 
     const access = props?.access ?? LambdaAccess.lambdaUrl();
     this.url = access.bind(this, 'access', this.handler);

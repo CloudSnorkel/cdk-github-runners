@@ -343,43 +343,6 @@ describe('Parameterized providers', () => {
     }));
   });
 
-  test('webhook handler reads the providers map from stack metadata', () => {
-    new GitHubRunners(stack, 'runners', {
-      providers: [
-        new CodeBuildRunnerProvider(stack, 'p1', { imageBuilder: staticImage(stack, 'i1') }),
-        new LambdaRunnerProvider(stack, 'p2', { imageBuilder: staticImage(stack, 'i2') }),
-      ],
-    });
-
-    const template = Template.fromStack(stack);
-    template.hasResource('AWS::Lambda::Function', {
-      Properties: Match.objectLike({
-        Description: 'Handle GitHub webhook and start runner orchestrator',
-        Environment: {
-          Variables: Match.objectLike({
-            LOGICAL_ID: Match.stringLikeRegexp('runnersWebhookHandlerwebhookhandler'),
-            STACK_NAME: 'test',
-          }),
-        },
-      }),
-      Metadata: {
-        providers: {
-          'test/p1': ['codebuild'],
-          'test/p2': ['lambda'],
-        },
-      },
-    });
-
-    template.hasResourceProperties('AWS::IAM::Policy', Match.objectLike({
-      PolicyDocument: Match.objectLike({
-        Statement: Match.arrayWith([
-          Match.objectLike({ Action: 'cloudformation:DescribeStackResource' }),
-        ]),
-      }),
-      Roles: [Match.objectLike({ Ref: Match.stringLikeRegexp('runnersWebhookHandlerwebhookhandlerServiceRole') })],
-    }));
-  });
-
   test('custom providers are not supported', () => {
     class CustomProvider extends Construct implements IRunnerProvider {
       readonly labels = ['custom'];

@@ -9,6 +9,7 @@ import {
   aws_lambda as lambda,
   aws_lambda_event_sources as lambda_event_sources,
   aws_logs as logs,
+  aws_iam as iam,
   aws_sns as sns,
   aws_sqs as sqs,
   aws_stepfunctions as stepfunctions,
@@ -37,7 +38,7 @@ import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
 import { StolenRunnerDetector } from './stolen-runners';
 import { TokenRetrieverFunction } from './token-retriever-function';
-import { addFunctionMetadata, dedupeStateMachineTokens, discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
+import { dedupeStateMachineTokens, discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
 import { WarmRunnerManagerFunction } from './warm-runner-manager-function';
 import { GithubWebhookHandler } from './webhook';
 import { GithubWebhookRedelivery } from './webhook-redelivery';
@@ -759,7 +760,14 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     // expose providers as stack metadata as it's too big for Lambda environment variables
     // specifically integration testing got an error because lambda update request was >5kb
     const stack = cdk.Stack.of(this);
-    addFunctionMetadata(statusFunction, 'providers', providers);
+    const f = (statusFunction.node.defaultChild as lambda.CfnFunction);
+    f.addPropertyOverride('Environment.Variables.LOGICAL_ID', f.logicalId);
+    f.addPropertyOverride('Environment.Variables.STACK_NAME', stack.stackName);
+    f.addMetadata('providers', providers);
+    statusFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['cloudformation:DescribeStackResource'],
+      resources: [stack.stackId],
+    }));
 
     this.secrets.webhook.grantRead(statusFunction);
     this.secrets.github.grantRead(statusFunction);

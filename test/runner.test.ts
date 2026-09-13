@@ -316,32 +316,6 @@ describe('GitHubRunners', () => {
     });
   });
 
-  test('Webhook providers metadata includes only top-level providers (not subproviders) with composites', () => {
-    const p1 = new LambdaRunnerProvider(stack, 'p1', { labels: ['linux'] });
-    const p2 = new LambdaRunnerProvider(stack, 'p2', { labels: ['linux'] });
-    const composite = CompositeProvider.fallback(stack, 'composite', [p1, p2]);
-    const p3 = new LambdaRunnerProvider(stack, 'p3', { labels: ['macos'] });
-
-    new GitHubRunners(stack, 'runners', {
-      providers: [composite, p3],
-    });
-
-    const template = Template.fromStack(stack);
-
-    // the providers map lives in stack metadata because it can grow past the 4KB Lambda environment limit
-    template.hasResource('AWS::Lambda::Function', {
-      Properties: {
-        Description: 'Handle GitHub webhook and start runner orchestrator',
-      },
-      Metadata: {
-        providers: {
-          'test/composite': ['linux'],
-          'test/p3': ['macos'],
-        },
-      },
-    });
-  });
-
   test('All management Lambda functions are in VPC when VPC is specified', () => {
     const vpc = new ec2.Vpc(stack, 'vpc');
 
