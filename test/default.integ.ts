@@ -262,7 +262,6 @@ const runners = new GitHubRunners(stack, 'runners', {
     new LambdaRunnerProvider(stack, 'Lambda', {
       labels: ['lambda', 'x64'],
       imageBuilder: lambdaImageBuilder,
-      timeout: cdk.Duration.minutes(2),
     }),
     new LambdaRunnerProvider(stack, 'LambdaARM', {
       labels: ['lambda', 'arm64'],

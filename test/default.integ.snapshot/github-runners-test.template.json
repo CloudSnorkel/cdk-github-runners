@@ -11050,7 +11050,7 @@
       "Value": "github-runners-test/Lambda"
      }
     ],
-    "Timeout": 120
+    "Timeout": 900
    },
    "DependsOn": [
     "LambdaImageBuilderx64BuildWait21eac634101DAAFA12",
