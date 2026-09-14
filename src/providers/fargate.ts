@@ -1,28 +1,20 @@
 import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
-import {
-  aws_ec2 as ec2,
-  aws_ecs as ecs,
-  aws_iam as iam,
-  aws_logs as logs,
-  aws_stepfunctions as stepfunctions,
-  aws_stepfunctions_tasks as stepfunctions_tasks,
-  RemovalPolicy,
-} from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_ecs as ecs, aws_iam as iam, aws_logs as logs, aws_stepfunctions as stepfunctions, RemovalPolicy } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
   Architecture,
   BaseProvider,
   IRunnerProvider,
   IRunnerProviderStatus,
-  IRunnerRuntimeParameters,
   Os,
+  runnerEnvironment,
   RunnerImage,
   RunnerProviderProps,
   RunnerVersion,
-  generateStateName,
+  providerParam,
+  RunnerEnvConfig,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 import { MINIMAL_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
@@ -215,6 +207,77 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
 }
 
 /**
+ * Grant the state machine role whatever ecs:runTask.sync needs to run and track a task definition. Same
+ * statements stepfunctions_tasks.EcsRunTask would have generated for us.
+ *
+ * @internal
+ */
+export function grantEcsRunTask(scope: Construct, stateMachineRole: iam.IGrantable, task: ecs.TaskDefinition) {
+  const stack = cdk.Stack.of(scope);
+
+  // grant on the unversioned task definition arn so we can always run the latest revision
+  const arnComponents = stack.splitArn(task.taskDefinitionArn, cdk.ArnFormat.SLASH_RESOURCE_NAME);
+  let resourceName = arnComponents.resourceName;
+  if (resourceName) {
+    resourceName = resourceName.split(':')[0];
+  }
+  const familyArn = stack.formatArn({
+    partition: arnComponents.partition,
+    service: arnComponents.service,
+    account: arnComponents.account,
+    region: arnComponents.region,
+    resource: arnComponents.resource,
+    arnFormat: arnComponents.arnFormat,
+    resourceName,
+  });
+  stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+    actions: ['ecs:RunTask'],
+    resources: [`${familyArn}:*`],
+  }));
+
+  stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+    actions: ['ecs:StopTask', 'ecs:DescribeTasks'],
+    resources: ['*'],
+  }));
+
+  const passedRoles = [task.taskRole.roleArn];
+  if (task.executionRole) {
+    passedRoles.push(task.executionRole.roleArn);
+  }
+  stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+    actions: ['iam:PassRole'],
+    resources: passedRoles,
+  }));
+
+  // managed rule for the runTask.sync integration
+  // every ECS and Fargate provider emits the same statement so policy minimization keeps just one
+  stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+    actions: ['events:PutTargets', 'events:PutRule', 'events:DescribeRule'],
+    resources: [stack.formatArn({
+      service: 'events',
+      resource: 'rule',
+      resourceName: 'StepFunctionsGetEventsForECSTaskRule',
+    })],
+  }));
+}
+
+/**
+ * Runner config for the Fargate family fragment.
+ *
+ * @internal
+ */
+interface FargateRunnerConfig extends RunnerEnvConfig {
+  readonly clusterArn: string;
+  readonly taskDefinitionFamily: string;
+  readonly containerName: string;
+  readonly capacityProvider: string;
+  readonly enableExecuteCommand: boolean;
+  readonly subnets: string[];
+  readonly securityGroups: string[];
+  readonly assignPublicIp: string;
+}
+
+/**
  * GitHub Actions runner provider using Fargate to execute jobs.
  *
  * Creates a task definition with a single container that gets started for each job.
@@ -222,6 +285,9 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class FargateRunnerProvider extends BaseProvider implements IRunnerProvider {
+  /** @internal */
+  public static readonly _FAMILY = 'fargate';
+
   /**
    * Path to Dockerfile for Linux x64 with all the requirement for Fargate runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
@@ -243,6 +309,45 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
    * @deprecated Use `imageBuilder()` instead.
    */
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-arm64');
+
+  /**
+   * The fragment that runs any Fargate provider. Reads the config {@link _runnerConfig} generated for it from
+   * `$.providerParams`. Renders what EcsRunTask used to render per provider.
+   *
+   * @internal
+   */
+  public static _stateMachineFragment(scope: Construct): stepfunctions.IChainable {
+    const p = providerParam<FargateRunnerConfig>;
+    return new stepfunctions.CustomState(scope, 'Fargate Runner', {
+      stateJson: {
+        Type: 'Task',
+        Resource: `arn:${cdk.Aws.PARTITION}:states:::ecs:runTask.sync`,
+        Parameters: {
+          'Cluster.$': p('clusterArn'),
+          'TaskDefinition.$': p('taskDefinitionFamily'),
+          'NetworkConfiguration': {
+            AwsvpcConfiguration: {
+              'AssignPublicIp.$': p('assignPublicIp'),
+              'Subnets.$': p('subnets'),
+              'SecurityGroups.$': p('securityGroups'),
+            },
+          },
+          'Overrides': {
+            ContainerOverrides: [{
+              'Name.$': p('containerName'),
+              'Environment': runnerEnvironment((name, value) => ({ 'Name': name, 'Value.$': value })),
+            }],
+          },
+          'PropagateTags': 'TASK_DEFINITION',
+          'CapacityProviderStrategy': [{
+            'CapacityProvider.$': p('capacityProvider'),
+          }],
+          'PlatformVersion': 'LATEST',
+          'EnableExecuteCommand.$': p('enableExecuteCommand'),
+        },
+      },
+    });
+  }
 
   /**
    * Create new image builder that builds Fargate specific runner images.
@@ -353,11 +458,6 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
    */
   readonly logGroup: logs.ILogGroup;
 
-  readonly retryableErrors = [
-    'Ecs.EcsException',
-    'Ecs.LimitExceededException',
-    'Ecs.UpdateInProgressException',
-  ];
 
   private readonly group?: string;
   private readonly defaultLabels: boolean;
@@ -450,87 +550,43 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   }
 
   /**
-   * Generate step function task(s) to start a new runner.
+   * Config for the shared Fargate fragment.
    *
-   * Called by GithubRunners and shouldn't be called manually.
-   *
-   * @param parameters workflow job details
+   * @internal
    */
-  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
-    return new stepfunctions_tasks.EcsRunTask(
-      this,
-      'State',
-      {
-        stateName: generateStateName(this),
-        integrationPattern: IntegrationPattern.RUN_JOB, // sync
-        taskDefinition: this.task,
-        cluster: this.cluster,
-        launchTarget: new stepfunctions_tasks.EcsFargateLaunchTarget({
-          platformVersion: ecs.FargatePlatformVersion.LATEST,
-          capacityProviderOptions: stepfunctions_tasks.CapacityProviderOptions.custom([{
-            capacityProvider: this.spot ? 'FARGATE_SPOT' : 'FARGATE',
-          }]),
-        }),
-        enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
-        propagatedTagSource: ecs.PropagatedTagSource.TASK_DEFINITION,
-        subnets: this.subnetSelection,
-        assignPublicIp: this.assignPublicIp,
-        securityGroups: this.securityGroups,
-        containerOverrides: [
-          {
-            containerDefinition: this.container,
-            environment: [
-              {
-                name: 'RUNNER_TOKEN',
-                value: parameters.runnerTokenPath,
-              },
-              {
-                name: 'RUNNER_NAME',
-                value: parameters.runnerNamePath,
-              },
-              {
-                name: 'RUNNER_LABEL',
-                value: parameters.labelsPath,
-              },
-              {
-                name: 'RUNNER_GROUP1',
-                value: this.group ? '--runnergroup' : '',
-              },
-              {
-                name: 'RUNNER_GROUP2',
-                value: this.group ? this.group : '',
-              },
-              {
-                name: 'DEFAULT_LABELS',
-                value: this.defaultLabels ? '' : '--no-default-labels',
-              },
-              {
-                name: 'GITHUB_DOMAIN',
-                value: parameters.githubDomainPath,
-              },
-              {
-                name: 'OWNER',
-                value: parameters.ownerPath,
-              },
-              {
-                name: 'REPO',
-                value: parameters.repoPath,
-              },
-              {
-                name: 'REGISTRATION_URL',
-                value: parameters.registrationUrl,
-              },
-            ],
-          },
-        ],
-      },
-    );
+  _runnerConfig(): FargateRunnerConfig {
+    // same subnet selection EcsRunTask defaults to: whatever was asked for, or public/private per assignPublicIp
+    const subnetSelection = this.subnetSelection ??
+      { subnetType: this.assignPublicIp ? ec2.SubnetType.PUBLIC : ec2.SubnetType.PRIVATE_WITH_EGRESS };
+
+    return {
+      family: FargateRunnerProvider._FAMILY,
+      provider: this.node.path,
+      clusterArn: this.cluster.clusterArn,
+      taskDefinitionFamily: this.task.family,
+      containerName: this.container.containerName,
+      capacityProvider: this.spot ? 'FARGATE_SPOT' : 'FARGATE',
+      enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
+      subnets: this.cluster.vpc.selectSubnets(subnetSelection).subnetIds,
+      securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
+      assignPublicIp: this.assignPublicIp ? 'ENABLED' : 'DISABLED',
+      group1: this.group ? '--runnergroup' : '',
+      group2: this.group ? this.group : '',
+      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+    };
   }
 
-  grantStateMachine(_: iam.IGrantable) {
+  /**
+   * @internal
+   */
+  _grantStateMachine(stateMachineRole: iam.IGrantable) {
+    grantEcsRunTask(this, stateMachineRole, this.task);
   }
 
-  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
+  /**
+   * @internal
+   */
+  _status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
     this.image.imageRepository.grant(statusFunctionRole, 'ecr:DescribeImages');
 
     return {

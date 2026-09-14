@@ -5,30 +5,29 @@ import {
   aws_iam as iam,
   aws_logs as logs,
   aws_stepfunctions as stepfunctions,
-  aws_stepfunctions_tasks as stepfunctions_tasks,
   RemovalPolicy,
   Stack,
 } from 'aws-cdk-lib';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import { MachineImageType } from 'aws-cdk-lib/aws-ecs';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
   amiRootDevice,
   Architecture,
   BaseProvider,
-  generateStateName,
   IRunnerProvider,
   IRunnerProviderStatus,
-  IRunnerRuntimeParameters,
   Os,
+  runnerEnvironment,
   RunnerImage,
   RunnerProviderProps,
   RunnerVersion,
   StorageOptions,
+  providerParam,
+  RunnerEnvConfig,
 } from './common';
-import { ecsRunCommand } from './fargate';
+import { ecsRunCommand, grantEcsRunTask } from './fargate';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT, MINIMAL_ECS_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
@@ -110,9 +109,11 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
   /**
    * Assign public IP to the runner task.
    *
-   * Make sure the task will have access to GitHub. A public IP might be required unless you have NAT gateway.
+   * @deprecated ECS runner tasks use bridge networking, so they share the host instance's network interface and
+   * cannot get a public IP of their own. This property is ignored. Give the cluster instances internet access
+   * instead (a public subnet or a NAT gateway), and open an issue if you need `awsvpc` networking for ECS.
    *
-   * @default true
+   * @default - ignored
    */
   readonly assignPublicIp?: boolean;
 
@@ -226,6 +227,21 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
 }
 
 /**
+ * Runner config for the Ecs family fragment.
+ *
+ * @internal
+ */
+interface EcsRunnerConfig extends RunnerEnvConfig {
+  readonly clusterArn: string;
+  readonly taskDefinitionFamily: string;
+  readonly containerName: string;
+  readonly capacityProviderName: string;
+  readonly enableExecuteCommand: boolean;
+  readonly placementStrategies: any[];
+  readonly placementConstraints: any[];
+}
+
+/**
  * GitHub Actions runner provider using ECS on EC2 to execute jobs.
  *
  * ECS can be useful when you want more control of the infrastructure running the GitHub Actions Docker containers. You can control the autoscaling
@@ -235,6 +251,44 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
+  /** @internal */
+  public static readonly _FAMILY = 'ecs';
+
+  /**
+   * The fragment that runs any ECS provider. Reads the config {@link _runnerConfig} generated for it from
+   * `$.providerParams`. Renders what EcsRunTask used to render per provider, minus NetworkConfiguration because
+   * ECS task definitions use bridge networking.
+   *
+   * @internal
+   */
+  public static _stateMachineFragment(scope: Construct): stepfunctions.IChainable {
+    const p = providerParam<EcsRunnerConfig>;
+    return new stepfunctions.CustomState(scope, 'ECS Runner', {
+      stateJson: {
+        Type: 'Task',
+        Resource: `arn:${cdk.Aws.PARTITION}:states:::ecs:runTask.sync`,
+        Parameters: {
+          'Cluster.$': p('clusterArn'),
+          'TaskDefinition.$': p('taskDefinitionFamily'),
+          'Overrides': {
+            ContainerOverrides: [{
+              'Name.$': p('containerName'),
+              'Environment': runnerEnvironment((name, value) => ({ 'Name': name, 'Value.$': value })),
+            }],
+          },
+          'PropagateTags': 'TASK_DEFINITION',
+          'CapacityProviderStrategy': [{
+            'CapacityProvider.$': p('capacityProviderName'),
+          }],
+          // ready-made arrays in the shape ecs:runTask wants, empty when nothing is configured
+          'PlacementConstraints.$': p('placementConstraints'),
+          'PlacementStrategy.$': p('placementStrategies'),
+          'EnableExecuteCommand.$': p('enableExecuteCommand'),
+        },
+      },
+    });
+  }
+
   /**
    * Create new image builder that builds ECS specific runner images.
    *
@@ -308,11 +362,6 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   private readonly subnetSelection?: ec2.SubnetSelection;
 
   /**
-   * Whether runner task will have a public IP.
-   */
-  private readonly assignPublicIp: boolean;
-
-  /**
    * Grant principal used to add permissions to the runner role.
    */
   readonly grantPrincipal: iam.IPrincipal;
@@ -369,12 +418,6 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    */
   private readonly gpuCount: number;
 
-  readonly retryableErrors = [
-    'Ecs.EcsException',
-    'ECS.AmazonECSException',
-    'Ecs.LimitExceededException',
-    'Ecs.UpdateInProgressException',
-  ];
 
   constructor(scope: Construct, id: string, props?: EcsRunnerProviderProps) {
     super(scope, id, props);
@@ -386,7 +429,6 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     this.subnetSelection = props?.subnetSelection;
     this.securityGroups = props?.securityGroups ?? [new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc })];
     this.connections = new ec2.Connections({ securityGroups: this.securityGroups });
-    this.assignPublicIp = props?.assignPublicIp ?? true;
     this.placementStrategies = props?.placementStrategies;
     this.placementConstraints = props?.placementConstraints;
     this.gpuCount = props?.gpu ?? 0;
@@ -513,6 +555,13 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
 
     // permissions for SSM Session Manager
     this.task.taskRole.addToPrincipalPolicy(MINIMAL_ECS_SSM_SESSION_MANAGER_POLICY_STATEMENT);
+
+    if (props?.assignPublicIp) {
+      cdk.Annotations.of(this).addWarning('assignPublicIp is set to `true`, but ECS tasks on EC2 run using bridge mode. In bridge mode, the task ' +
+        'uses the host instance\'s network interface and IP address. The task will not have its own public IP address. Ensure that the host ' +
+        'instances have internet access (e.g., through a NAT gateway) if the tasks need to access external resources. Please open a GitHub issue ' +
+        'if you need VPC networking mode for ECS.');
+    }
   }
 
   private defaultClusterInstanceType() {
@@ -623,86 +672,52 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   }
 
   /**
-   * Generate step function task(s) to start a new runner.
+   * Config for the shared ECS fragment.
    *
-   * Called by GithubRunners and shouldn't be called manually.
-   *
-   * @param parameters workflow job details
+   * @internal
    */
-  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
-    return new stepfunctions_tasks.EcsRunTask(
-      this,
-      'State',
-      {
-        stateName: generateStateName(this),
-        integrationPattern: IntegrationPattern.RUN_JOB, // sync
-        taskDefinition: this.task,
-        cluster: this.cluster,
-        launchTarget: new stepfunctions_tasks.EcsEc2LaunchTarget({
-          capacityProviderOptions: stepfunctions_tasks.CapacityProviderOptions.custom([{
-            capacityProvider: this.capacityProvider.capacityProviderName,
-          }]),
-          placementStrategies: this.placementStrategies,
-          placementConstraints: this.placementConstraints,
-        }),
-        enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
-        propagatedTagSource: ecs.PropagatedTagSource.TASK_DEFINITION,
-        assignPublicIp: this.assignPublicIp,
-        containerOverrides: [
-          {
-            containerDefinition: this.container,
-            environment: [
-              {
-                name: 'RUNNER_TOKEN',
-                value: parameters.runnerTokenPath,
-              },
-              {
-                name: 'RUNNER_NAME',
-                value: parameters.runnerNamePath,
-              },
-              {
-                name: 'RUNNER_LABEL',
-                value: parameters.labelsPath,
-              },
-              {
-                name: 'RUNNER_GROUP1',
-                value: this.group ? '--runnergroup' : '',
-              },
-              {
-                name: 'RUNNER_GROUP2',
-                value: this.group ? this.group : '',
-              },
-              {
-                name: 'DEFAULT_LABELS',
-                value: this.defaultLabels ? '' : '--no-default-labels',
-              },
-              {
-                name: 'GITHUB_DOMAIN',
-                value: parameters.githubDomainPath,
-              },
-              {
-                name: 'OWNER',
-                value: parameters.ownerPath,
-              },
-              {
-                name: 'REPO',
-                value: parameters.repoPath,
-              },
-              {
-                name: 'REGISTRATION_URL',
-                value: parameters.registrationUrl,
-              },
-            ],
-          },
-        ],
-      },
-    );
+  _runnerConfig(): EcsRunnerConfig {
+    // these are static per provider, so we render them the way ecs:runTask wants them right here
+    // that means uppercasing the first letter of every key, exactly like EcsEc2LaunchTarget does
+    const uppercaseKeys = (obj: Record<string, any>) => {
+      const ret: Record<string, any> = {};
+      for (const key of Object.keys(obj)) {
+        ret[key.slice(0, 1).toUpperCase() + key.slice(1)] = obj[key];
+      }
+      return ret;
+    };
+    const placementStrategies = (this.placementStrategies ?? []).flatMap(s => s.toJson().map(uppercaseKeys));
+    const placementConstraints = (this.placementConstraints ?? []).flatMap(c => c.toJson().map(uppercaseKeys));
+
+    return {
+      family: EcsRunnerProvider._FAMILY,
+      provider: this.node.path,
+      clusterArn: this.cluster.clusterArn,
+      taskDefinitionFamily: this.task.family,
+      containerName: this.container.containerName,
+      capacityProviderName: this.capacityProvider.capacityProviderName,
+      enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
+      // always an array, even an empty one
+      // a missing key makes the JSONata resolve to nothing and the state fails with States.QueryEvaluationError
+      placementStrategies,
+      placementConstraints,
+      group1: this.group ? '--runnergroup' : '',
+      group2: this.group ? this.group : '',
+      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+    };
   }
 
-  grantStateMachine(_: iam.IGrantable) {
+  /**
+   * @internal
+   */
+  _grantStateMachine(stateMachineRole: iam.IGrantable) {
+    grantEcsRunTask(this, stateMachineRole, this.task);
   }
 
-  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
+  /**
+   * @internal
+   */
+  _status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
     this.image.imageRepository.grant(statusFunctionRole, 'ecr:DescribeImages');
 
     return {

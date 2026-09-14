@@ -6,10 +6,10 @@ import {
   Annotations,
   aws_cloudwatch as cloudwatch,
   aws_ec2 as ec2,
-  aws_iam as iam,
   aws_lambda as lambda,
   aws_lambda_event_sources as lambda_event_sources,
   aws_logs as logs,
+  aws_iam as iam,
   aws_sns as sns,
   aws_sqs as sqs,
   aws_stepfunctions as stepfunctions,
@@ -20,14 +20,18 @@ import { LambdaAccess } from './access';
 import { DeleteFailedRunnerFunction } from './delete-failed-runner-function';
 import { IdleRunnerRepearFunction } from './idle-runner-repear-function';
 import {
+  AnyRunnerConfig,
   AwsImageBuilderFailedBuildNotifier,
   CodeBuildImageBuilderFailedBuildNotifier,
   CodeBuildRunnerProvider,
+  Ec2RunnerProvider,
+  EcsRunnerProvider,
   FargateRunnerProvider,
   ICompositeProvider,
+  IParameterizedRunnerProvider,
   IRunnerProvider,
+  isParameterizedRunnerProvider,
   LambdaRunnerProvider,
-  mergeConstMaps,
   ProviderRetryOptions,
 } from './providers';
 import { Secrets } from './secrets';
@@ -35,10 +39,74 @@ import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
 import { StolenRunnerDetector } from './stolen-runners';
 import { TokenRetrieverFunction } from './token-retriever-function';
-import { discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
+import { dedupeStateMachineTokens, discoverCertificateFiles, JsonNode, singletonLogGroup, SingletonLogType } from './utils';
 import { WarmRunnerManagerFunction } from './warm-runner-manager-function';
 import { GithubWebhookHandler } from './webhook';
 import { GithubWebhookRedelivery } from './webhook-redelivery';
+
+/**
+ * One state machine fragment per runner family. Each fragment reads the provider config out of the execution state,
+ * so the state machine doesn't grow with the number of providers.
+ */
+const FAMILY_FRAGMENTS = new Map<string, (scope: Construct) => stepfunctions.IChainable>([
+  [CodeBuildRunnerProvider._FAMILY, CodeBuildRunnerProvider._stateMachineFragment],
+  [Ec2RunnerProvider._FAMILY, Ec2RunnerProvider._stateMachineFragment],
+  [EcsRunnerProvider._FAMILY, EcsRunnerProvider._stateMachineFragment],
+  [FargateRunnerProvider._FAMILY, FargateRunnerProvider._stateMachineFragment],
+  [LambdaRunnerProvider._FAMILY, LambdaRunnerProvider._stateMachineFragment],
+]);
+
+
+/**
+ * JSONata expression that points `$.providerParams` at `configExpr` and merges the standard runner tags into its `tags` field. Also handles
+ * distribution in one simple step.
+ *
+ * Tags are included even for provider that may not use them for debugging purposes. They are visible in the step function state.
+ *
+ * The standard tags only have values at runtime, so providers can't bake them in at synth time. Provider tags can override our tags.
+ *
+ * `GitHubRunners:Provider` should name the provider that actually runs the job, which is not `$.provider` when we got here through a composite, so
+ * the config's own `provider` field wins when it has one.
+ */
+function selectProviderParams(configExpr: string): string {
+  return `$merge([
+    $states.input,
+    {'providerParams': (
+      $selected := ${configExpr};
+      $r := $random() * $selected.totalWeight;
+      $config := $exists($selected.distribute) ? $selected.distribute[threshold > $r][0].config : $selected;
+      $merge([$config, {'tags': $append(
+        [
+          {'Key': 'Name', 'Value': $states.context.Execution.Name},
+          {'Key': 'GitHubRunners:Provider', 'Value': $exists($config.provider) ? $config.provider : $states.input.provider},
+          {'Key': 'GitHubRunners:Repo', 'Value': $states.input.owner & '/' & $states.input.repo},
+          {'Key': 'GitHubRunners:Labels', 'Value': $states.input.labels}
+        ][$not(Key in $config.tags.Key)],
+        $config.tags)}])
+    )}
+  ])`;
+}
+
+/**
+ * Every family a provider config can reach, walking fallback chains and distribution lists.
+ */
+function configFamilies(config?: AnyRunnerConfig): string[] {
+  if (!config) {
+    return [];
+  }
+  if ('distribute' in config) {
+    return config.distribute.flatMap(option => configFamilies(option.config));
+  }
+  return [config.family, ...configFamilies(config.fallback)];
+}
+
+/**
+ * Big static strings the fragments read from `$.config`, like the EC2 userdata templates. They stay out of the
+ * per-provider configs because every provider of the family shares them.
+ */
+const FAMILY_CONSTANTS = new Map<string, () => Record<string, string>>([
+  [Ec2RunnerProvider._FAMILY, Ec2RunnerProvider._stateMachineConstants],
+]);
 
 /**
  * Properties for GitHubRunners
@@ -309,14 +377,13 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private readonly extraLambdaEnv: { [p: string]: string } = {};
   private readonly extraLambdaProps: lambda.FunctionOptions;
   private stateMachineLogGroup?: logs.LogGroup;
+  private readonly parameterizedProviders: IParameterizedRunnerProvider[] = [];
   private jobsCompletedMetricFiltersInitialized = false;
   private stolenRunnersMetricFilterInitialized = false;
   private warmRunnerManager?: lambda.Function;
   private warmRunnerQueue?: sqs.Queue;
   private warmConfigHashes: string[] = [];
-  private deleteFailedRunnerIndex = 0;
   private deleteFailedRunnerFunction?: lambda.IFunction;
-  private rethrowErrorState?: stepfunctions.Fail;
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
@@ -349,6 +416,18 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     }
 
     this.checkIntersectingLabels();
+
+    // the state machine only knows how to run the built-in providers
+    // instanceof doesn't really work in CDK so duck-type instead
+    for (const provider of this.providers) {
+      if (!isParameterizedRunnerProvider(provider)) {
+        Annotations.of(provider).addError(
+          'Custom runner providers are not supported. Use the built-in providers, or open an issue describing your use case.',
+        );
+        continue;
+      }
+      this.parameterizedProviders.push(provider);
+    }
 
     this.orchestrator = this.stateMachine(props);
     this.stolenRunnerDetector = new StolenRunnerDetector(this, 'Stolen Runners', {
@@ -412,51 +491,109 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       outputs: '{% $states.input %}', // discard
     });
 
-    const providerConsts = mergeConstMaps(...this.providers.map(p => p.stepFunctionConstants()));
-    const afterRunnerToken =
-      Object.keys(providerConsts).length > 0
-        ? tokenRetrieverTask.next(
-          new stepfunctions.Pass(this, 'Provider Constants', {
-            parameters: providerConsts,
-            resultPath: '$.consts',
-          }),
-        )
-        : tokenRetrieverTask;
+    // we embed every provider's config in the definition and look it up by the provider path the webhook sends
+    // the fragments then read it from $.providerParams, so one fragment per family runs any number of providers
+    const providerConfigs: Record<string, AnyRunnerConfig> = {};
+    const usedFamilies = new Set<string>();
+    for (const provider of this.parameterizedProviders) {
+      const providerConfig = provider._runnerConfig();
+      providerConfigs[provider.node.path] = providerConfig;
+      for (const family of configFamilies(providerConfig)) {
+        if (!FAMILY_FRAGMENTS.has(family)) {
+          Annotations.of(provider).addError(
+            `Unknown runner family "${family}". Available families are: ${[...FAMILY_FRAGMENTS.keys()].sort().join(', ')}.`,
+          );
+          continue;
+        }
+        usedFamilies.add(family);
+      }
+    }
+    const families = [...usedFamilies].sort();
+    const providerConsts: Record<string, string> = {};
+    for (const family of families) {
+      Object.assign(providerConsts, FAMILY_CONSTANTS.get(family)?.() ?? {});
+    }
+    const configPass = new stepfunctions.Pass(this, 'Load Config', {
+      // variables that don't need to be part of the state
+      // states are limited to 256kb but variables can have up to 10mb
+      // easier to debug with smaller states too
+      assign: {
+        providerConfigs,
+        ...providerConsts,
+      },
+    });
 
-    const providerChooser = new stepfunctions.Choice(this, 'Choose provider');
-    for (const provider of this.providers) {
-      const providerTask = provider.getStepFunctionTask(
-        {
-          runnerTokenPath: stepfunctions.JsonPath.stringAt('$.runner.token'),
-          runnerNamePath: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
-          githubDomainPath: stepfunctions.JsonPath.stringAt('$.runner.domain'),
-          ownerPath: stepfunctions.JsonPath.stringAt('$.owner'),
-          repoPath: stepfunctions.JsonPath.stringAt('$.repo'),
-          registrationUrl: stepfunctions.JsonPath.stringAt('$.runner.registrationUrl'),
-          labelsPath: stepfunctions.JsonPath.stringAt('$.labels'),
-          addCatchAndCleanUp: (state, next) => this.addCatchAndCleanUp(state, next),
-        },
-      );
-      providerChooser.when(
-        stepfunctions.Condition.and(
-          stepfunctions.Condition.stringEquals('$.provider', provider.node.path),
-        ),
-        providerTask,
-        {
-          comment: `Labels: ${provider.labels.join(', ')}`,
-        },
+    const selectConfig = new stepfunctions.Pass(this, 'Select Provider Config', {
+      queryLanguage: stepfunctions.QueryLanguage.JSONATA,
+      outputs: `{% ${selectProviderParams('$lookup($providerConfigs, $states.input.provider)')} %}`,
+    });
+
+    const providerFamilyChooser = new stepfunctions.Choice(this, 'Choose Provider Family');
+
+
+    // one fragment per family in use, with stable construct IDs so adding or removing providers doesn't change the state machine
+    for (const family of families) {
+      const builder = FAMILY_FRAGMENTS.get(family)!;
+      providerFamilyChooser.when(
+        stepfunctions.Condition.stringEquals('$.providerParams.family', family),
+        builder(this),
       );
     }
 
-    providerChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown label'));
+    providerFamilyChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown provider'));
 
-    const errorHandler = new stepfunctions.Parallel(this, 'Error Handler').branch(
+    // a config can chain a fallback to try when it fails (CompositeProvider.fallback, EC2 subnets)
+    // this parallel catches the failure, cleans up the runner, and loops back with the next config
+    const tryProvider = new stepfunctions.Parallel(this, 'Try Provider').branch(providerFamilyChooser);
+
+    this.deleteFailedRunnerFunction ??= this.deleteFailedRunner();
+    const fallbackCleanup = new stepfunctions_tasks.LambdaInvoke(this, 'Clean Up Failed Runner', {
+      comment: 'Clean-up failed runner from GitHub Actions (if present)',
+      lambdaFunction: this.deleteFailedRunnerFunction,
+      payloadResponseOnly: true,
+      resultPath: '$.delete',
+      payload: stepfunctions.TaskInput.fromObject({
+        runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+        owner: stepfunctions.JsonPath.stringAt('$.owner'),
+        repo: stepfunctions.JsonPath.stringAt('$.repo'),
+        installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
+      }),
+    });
+    fallbackCleanup.addRetry({
+      errors: ['RunnerBusy'],
+      interval: cdk.Duration.minutes(1),
+      backoffRate: 1,
+      maxAttempts: 60,
+    });
+
+    const fallbackChoice = new stepfunctions.Choice(this, 'Fallback Configured?');
+    const useFallback = new stepfunctions.Pass(this, 'Use Fallback Config', {
+      queryLanguage: stepfunctions.QueryLanguage.JSONATA,
+      outputs: `{% ${selectProviderParams('$states.input.providerParams.fallback')} %}`,
+    });
+    const allFailed = new stepfunctions.Fail(this, 'All Attempts Failed', {
+      // re-raise the last error so the outer catch and retry see the original failure
+      // it's a state of its own so a red clean-up always means the clean-up itself broke (#989)
+      comment: 'Fail the execution with the original error that stopped the runner',
+      errorPath: stepfunctions.JsonPath.stringAt('$.error.Error'),
+      causePath: stepfunctions.JsonPath.stringAt('$.error.Cause'),
+    });
+
+    tryProvider.addCatch(fallbackCleanup, { errors: [stepfunctions.Errors.ALL], resultPath: '$.error' });
+    // the clean-up lambda reports what it did in $.delete instead of failing
+    // either way we move on to the next fallback config
+    fallbackCleanup.next(fallbackChoice);
+    fallbackCleanup.addCatch(fallbackChoice, { errors: [stepfunctions.Errors.ALL], resultPath: stepfunctions.JsonPath.DISCARD });
+    fallbackChoice.when(stepfunctions.Condition.isPresent('$.providerParams.fallback'), useFallback);
+    fallbackChoice.otherwise(allFailed);
+    useFallback.next(tryProvider);
+
+    // one parallel is enough now: the fallback loop above already cleaned up the runner before it gave up
+    // we used to need two nested ones just to clean up before the retry, because Retry runs before Catch
+    const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
       // we get a token for every retry because the token can expire faster than the job can timeout
-      afterRunnerToken.next(providerChooser),
+      tokenRetrieverTask.next(selectConfig).next(tryProvider),
     );
-    this.addCatchAndCleanUp(errorHandler);
-
-    const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(errorHandler);
 
     if (props?.retryOptions?.retry ?? true) {
       const interval = props?.retryOptions?.interval ?? cdk.Duration.minutes(1);
@@ -498,15 +635,16 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       this,
       'Runner Orchestrator',
       {
-        definitionBody: stepfunctions.DefinitionBody.fromChainable(queueIdleReaperTask.next(runProviders)),
+        definitionBody: stepfunctions.DefinitionBody.fromChainable(queueIdleReaperTask.next(configPass).next(runProviders)),
+        definitionSubstitutions: dedupeStateMachineTokens(this, { providerConfigs, providerConsts } as unknown as JsonNode),
         logs: logOptions,
       },
     );
 
     stateMachine.grantRead(idleReaper);
     stateMachine.grantExecution(idleReaper, 'states:StopExecution');
-    for (const provider of this.providers) {
-      provider.grantStateMachine(stateMachine);
+    for (const provider of this.parameterizedProviders) {
+      provider._grantStateMachine(stateMachine);
     }
 
     return stateMachine;
@@ -560,49 +698,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     return func;
   }
 
-  private addCatchAndCleanUp(state: stepfunctions.TaskStateBase | stepfunctions.Parallel | stepfunctions.Map, next?: stepfunctions.IChainable) {
-    this.deleteFailedRunnerFunction ??= this.deleteFailedRunner();
-    this.deleteFailedRunnerIndex++;
-    const task = new stepfunctions_tasks.LambdaInvoke(this, `Delete Failed Runner ${this.deleteFailedRunnerIndex}`, {
-      stateName: `Delete Failed Runner ${this.deleteFailedRunnerIndex}`,
-      comment: 'Clean-up failed runner from GitHub Actions (if present)',
-      lambdaFunction: this.deleteFailedRunnerFunction,
-      payloadResponseOnly: true,
-      resultPath: '$.delete',
-      payload: stepfunctions.TaskInput.fromObject({
-        runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
-        owner: stepfunctions.JsonPath.stringAt('$.owner'),
-        repo: stepfunctions.JsonPath.stringAt('$.repo'),
-        installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
-      }),
-    });
-    task.addRetry({
-      errors: ['RunnerBusy'],
-      interval: cdk.Duration.minutes(1),
-      backoffRate: 1,
-      maxAttempts: 60,
-    });
-    if (next) {
-      const nextStart = next.startState;
-      task.next(nextStart);
-      task.addCatch(nextStart, {
-        errors: [stepfunctions.Errors.ALL],
-        resultPath: stepfunctions.JsonPath.DISCARD,
-      });
-    } else {
-      this.rethrowErrorState ??= new stepfunctions.Fail(this, 'Rethrow Error', {
-        comment: 'Fail the execution with the original error that stopped the runner',
-        errorPath: stepfunctions.JsonPath.stringAt('$.error.Error'),
-        causePath: stepfunctions.JsonPath.stringAt('$.error.Cause'),
-      });
-      task.next(this.rethrowErrorState);
-    }
-    state.addCatch(task, {
-      errors: [stepfunctions.Errors.ALL],
-      resultPath: '$.error',
-    });
-  }
-
   private statusFunction() {
     const statusFunction = new StatusFunction(
       this,
@@ -628,11 +723,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       },
     );
 
-    const providers = this.providers.flatMap(provider => {
-      const status = provider.status(statusFunction);
-      // Composite providers return an array, regular providers return a single status
-      return Array.isArray(status) ? status : [status];
-    });
+    // composite providers return an array of statuses, regular providers return a single status
+    const providers = this.parameterizedProviders.flatMap(provider => provider._status(statusFunction));
 
     // expose providers as stack metadata as it's too big for Lambda environment variables
     // specifically integration testing got an error because lambda update request was >5kb

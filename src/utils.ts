@@ -4,6 +4,7 @@ import { aws_ec2 as ec2, aws_iam as iam, aws_lambda as lambda, aws_logs as logs 
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
+
 /**
  * Initialize or return a singleton Lambda function instance.
  *
@@ -158,6 +159,72 @@ export function discoverCertificateFiles(sourcePath: string): string[] {
   }
 
   return certificateFiles;
+}
+
+/**
+ * De-duplicate repeated CloudFormation tokens (shared subnet ids, cluster ARNs, cross-stack `Fn::ImportValue`s, ...) found in a Step Functions
+ * definition fragment into a `definitionSubstitutions` map. Each distinct token gets a single `${__sfnsub_N}` placeholder, so its intrinsic renders
+ * once in the template instead of once per occurrence (e.g. once per provider sharing a VPC). `obj` is mutated in place, replacing every token leaf
+ * with its placeholder; the returned map is meant to be passed straight to `StateMachine`'s `definitionSubstitutions`.
+ *
+ * This is safe only because the definition fragment contains no other `${...}` sequences: JSONata uses `{% %}`, and the EC2 user data escapes its
+ * braces (rendered as `$\{...\}`), so Step Functions' substitution leaves everything but our synthetic placeholders untouched. A literal `${`
+ * reaching this function can only come from user input (a tag value, a construct id, ...), so it's reported as an error instead of silently producing
+ * a definition that Step Functions rejects with an unhelpful message at deploy time.
+ *
+ * @internal
+ */
+/**
+ * Any JSON value. State machine definition fragments are made of these, so this is what we walk.
+ *
+ * @internal
+ */
+export type JsonNode = string | number | boolean | null | JsonNode[] | { [key: string]: JsonNode };
+
+export function dedupeStateMachineTokens(scope: Construct, node: JsonNode): Record<string, string> {
+  const stack = cdk.Stack.of(scope);
+  const substitutions: Record<string, string> = {};
+  const keyByToken = new Map<string, string>();
+
+  // key the cache by the resolved intrinsic, so identical imports collapse even when their token strings differ
+  const placeholder = (value: string): string => {
+    const id = JSON.stringify(stack.resolve(value));
+    let key = keyByToken.get(id);
+    if (!key) {
+      key = `__sfnsub_${keyByToken.size}`;
+      keyByToken.set(id, key);
+      substitutions[key] = value;
+    }
+    return `\${${key}}`;
+  };
+
+  const walk = (value: JsonNode): JsonNode => {
+    if (typeof value === 'string') {
+      if (cdk.Token.isUnresolved(value)) {
+        return placeholder(value);
+      }
+      // configs share nested objects, so we can visit the same leaf twice
+      // ignore placeholders we already wrote on an earlier visit
+      if (value.replace(/\$\{__sfnsub_\d+\}/g, '').includes('${')) {
+        cdk.Annotations.of(scope).addError(
+          `A runner provider value contains "\${", which collides with the state machine definition substitutions: ${JSON.stringify(value.slice(0, 100))}`,
+        );
+      }
+      return value;
+    }
+    if (Array.isArray(value)) {
+      return value.map(walk);
+    }
+    if (value && typeof value === 'object') {
+      for (const key of Object.keys(value)) {
+        value[key] = walk(value[key]);
+      }
+    }
+    return value;
+  };
+
+  walk(node);
+  return substitutions;
 }
 
 /**
