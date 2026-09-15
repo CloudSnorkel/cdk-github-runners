@@ -92,10 +92,15 @@ export class CompositeProvider {
     this.validateParameterized(weightedProviders.map(wp => wp.provider));
 
     // Validate weights
+    let totalWeight = 0;
     for (const wp of weightedProviders) {
-      if (wp.weight <= 0) {
-        throw new Error('All weights must be positive numbers');
+      if (!Number.isFinite(wp.weight) || wp.weight <= 0) {
+        throw new Error('All weights must be positive finite numbers');
       }
+      totalWeight += wp.weight;
+    }
+    if (!Number.isFinite(totalWeight)) {
+      throw new Error('Total weight must be a finite number');
     }
 
     return new DistributedRunnerProvider(scope, id, weightedProviders);

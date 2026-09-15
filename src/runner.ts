@@ -39,7 +39,7 @@ import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
 import { StolenRunnerDetector } from './stolen-runners';
 import { TokenRetrieverFunction } from './token-retriever-function';
-import { dedupeStateMachineTokens, discoverCertificateFiles, JsonNode, singletonLogGroup, SingletonLogType } from './utils';
+import { dedupeStateMachineTokens, discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
 import { WarmRunnerManagerFunction } from './warm-runner-manager-function';
 import { GithubWebhookHandler } from './webhook';
 import { GithubWebhookRedelivery } from './webhook-redelivery';
@@ -78,7 +78,7 @@ function selectProviderParams(configExpr: string): string {
       $merge([$config, {'tags': $append(
         [
           {'Key': 'Name', 'Value': $states.context.Execution.Name},
-          {'Key': 'GitHubRunners:Provider', 'Value': $exists($config.provider) ? $config.provider : $states.input.provider},
+          {'Key': 'GitHubRunners:Provider', 'Value': $config.provider},
           {'Key': 'GitHubRunners:Repo', 'Value': $states.input.owner & '/' & $states.input.repo},
           {'Key': 'GitHubRunners:Labels', 'Value': $states.input.labels}
         ][$not(Key in $config.tags.Key)],
@@ -636,7 +636,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       'Runner Orchestrator',
       {
         definitionBody: stepfunctions.DefinitionBody.fromChainable(queueIdleReaperTask.next(configPass).next(runProviders)),
-        definitionSubstitutions: dedupeStateMachineTokens(this, { providerConfigs, providerConsts } as unknown as JsonNode),
+        definitionSubstitutions: dedupeStateMachineTokens(this, { providerConfigs, providerConsts }),
         logs: logOptions,
       },
     );

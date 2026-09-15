@@ -174,56 +174,57 @@ export function discoverCertificateFiles(sourcePath: string): string[] {
  *
  * @internal
  */
-/**
- * Any JSON value. State machine definition fragments are made of these, so this is what we walk.
- *
- * @internal
- */
-export type JsonNode = string | number | boolean | null | JsonNode[] | { [key: string]: JsonNode };
-
-export function dedupeStateMachineTokens(scope: Construct, node: JsonNode): Record<string, string> {
+export function dedupeStateMachineTokens(scope: Construct, node: any): Record<string, string> {
   const stack = cdk.Stack.of(scope);
   const substitutions: Record<string, string> = {};
   const keyByToken = new Map<string, string>();
 
-  // key the cache by the resolved intrinsic, so identical imports collapse even when their token strings differ
-  const placeholder = (value: string): string => {
-    const id = JSON.stringify(stack.resolve(value));
-    let key = keyByToken.get(id);
-    if (!key) {
-      key = `__sfnsub_${keyByToken.size}`;
-      keyByToken.set(id, key);
-      substitutions[key] = value;
-    }
-    return `\${${key}}`;
-  };
-
-  const walk = (value: JsonNode): JsonNode => {
+  // first pass. nothing has been rewritten yet, so any `${` we find came from user input. tokens are spelled
+  // `${Token[...]}` themselves, so skip those here and let the second pass give them a placeholder
+  const check = (value: any): void => {
     if (typeof value === 'string') {
-      if (cdk.Token.isUnresolved(value)) {
-        return placeholder(value);
-      }
-      // configs share nested objects, so we can visit the same leaf twice
-      // ignore placeholders we already wrote on an earlier visit
-      if (value.replace(/\$\{__sfnsub_\d+\}/g, '').includes('${')) {
+      if (!cdk.Token.isUnresolved(value) && value.includes('${')) {
         cdk.Annotations.of(scope).addError(
           `A runner provider value contains "\${", which collides with the state machine definition substitutions: ${JSON.stringify(value.slice(0, 100))}`,
         );
       }
-      return value;
+    } else if (Array.isArray(value)) {
+      value.forEach(check);
+    } else if (value && typeof value === 'object') {
+      Object.values(value).forEach(check);
+    }
+  };
+
+  // second pass. key the cache by the resolved intrinsic, so identical imports collapse even when their token
+  // strings differ
+  const substitute = (value: any): any => {
+    if (typeof value === 'string') {
+      if (!cdk.Token.isUnresolved(value)) {
+        return value;
+      }
+      const id = JSON.stringify(stack.resolve(value));
+      let key = keyByToken.get(id);
+      if (!key) {
+        key = `__sfnsub_${keyByToken.size}`;
+        keyByToken.set(id, key);
+        substitutions[key] = value;
+      }
+      return `\${${key}}`;
     }
     if (Array.isArray(value)) {
-      return value.map(walk);
+      return value.map(substitute);
     }
     if (value && typeof value === 'object') {
-      for (const key of Object.keys(value)) {
-        value[key] = walk(value[key]);
+      for (const objKey of Object.keys(value)) {
+        value[objKey] = substitute(value[objKey]);
       }
     }
     return value;
   };
 
-  walk(node);
+  check(node);
+  substitute(node);
+
   return substitutions;
 }
 
