@@ -1,7 +1,11 @@
+import * as crypto from 'crypto';
+import * as fs from 'fs';
+import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import { aws_lambda as lambda, aws_stepfunctions as stepfunctions, aws_sqs as sqs } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
+import { PROVIDERS_PATH } from './lambda-common';
 import { Secrets } from './secrets';
 import { singletonLogGroup, SingletonLogType } from './utils';
 import { WebhookHandlerFunction } from './webhook-handler-function';
@@ -137,6 +141,25 @@ export class GithubWebhookHandler extends Construct {
   constructor(scope: Construct, id: string, props: GithubWebhookHandlerProps) {
     super(scope, id);
 
+    const providers = JSON.stringify(props.providers);
+    const providersLayer = new lambda.LayerVersion(this, 'Providers', {
+      description: 'Runner providers and their labels',
+      code: lambda.Code.fromAsset('.', {
+        assetHash: crypto.createHash('sha256').update(providers).digest('hex'),
+        bundling: {
+          local: {
+            tryBundle(outputDir: string): boolean {
+              fs.writeFileSync(path.join(outputDir, path.posix.basename(PROVIDERS_PATH)), providers);
+              return true;
+            },
+          },
+          // never used as the local bundler always succeeds
+          image: cdk.DockerImage.fromRegistry('public.ecr.aws/docker/library/busybox:stable'),
+          command: ['exit 1'],
+        },
+      }),
+    });
+
     this.handler = new WebhookHandlerFunction(
       this,
       'webhook-handler',
@@ -147,7 +170,6 @@ export class GithubWebhookHandler extends Construct {
           WEBHOOK_SECRET_ARN: props.secrets.webhook.secretArn,
           GITHUB_SECRET_ARN: props.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: props.secrets.githubPrivateKey.secretArn,
-          PROVIDERS: JSON.stringify(props.providers),
           REQUIRE_SELF_HOSTED_LABEL: props.requireSelfHostedLabel ? '1' : '0',
           PROVIDER_SELECTOR_ARN: props.providerSelector?.functionArn ?? '',
           IDLE_TIMEOUT_SECONDS: props.idleTimeoutSeconds?.toString() ?? '300', // default 5 minutes
@@ -158,6 +180,7 @@ export class GithubWebhookHandler extends Construct {
         logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
         loggingFormat: lambda.LoggingFormat.JSON,
         ...props.extraLambdaProps,
+        layers: [...props.extraLambdaProps?.layers ?? [], providersLayer],
       },
     );
 

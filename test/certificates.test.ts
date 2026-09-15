@@ -165,11 +165,10 @@ describe('Certificate handling', () => {
 
       const template = Template.fromStack(stack);
 
-      // Should have a Lambda layer
-      template.resourceCountIs('AWS::Lambda::LayerVersion', 1);
-      template.hasResourceProperties('AWS::Lambda::LayerVersion', {
+      // Should have a certificate layer (on top of the providers layer that's always there)
+      template.resourcePropertiesCountIs('AWS::Lambda::LayerVersion', {
         Description: 'Layer containing GitHub Enterprise Server certificate(s) for cdk-github-runners',
-      });
+      }, 1);
     });
 
     test('should create Lambda layer with directory of certificates', () => {
@@ -182,11 +181,10 @@ describe('Certificate handling', () => {
 
       const template = Template.fromStack(stack);
 
-      // Should have a Lambda layer
-      template.resourceCountIs('AWS::Lambda::LayerVersion', 1);
-      template.hasResourceProperties('AWS::Lambda::LayerVersion', {
+      // Should have a certificate layer (on top of the providers layer that's always there)
+      template.resourcePropertiesCountIs('AWS::Lambda::LayerVersion', {
         Description: 'Layer containing GitHub Enterprise Server certificate(s) for cdk-github-runners',
-      });
+      }, 1);
     });
 
     test('should set NODE_EXTRA_CA_CERTS environment variable on Lambda functions', () => {
@@ -217,7 +215,9 @@ describe('Certificate handling', () => {
       const template = Template.fromStack(stack);
 
       // Should not have a certificate layer
-      template.resourceCountIs('AWS::Lambda::LayerVersion', 0);
+      template.resourcePropertiesCountIs('AWS::Lambda::LayerVersion', {
+        Description: 'Layer containing GitHub Enterprise Server certificate(s) for cdk-github-runners',
+      }, 0);
     });
 
     test('should throw error if certificate path does not exist', () => {

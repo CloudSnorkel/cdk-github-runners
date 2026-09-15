@@ -1,9 +1,10 @@
 import * as crypto from 'crypto';
+import * as fs from 'fs';
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { ExecutionAlreadyExists, SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import * as AWSLambda from 'aws-lambda';
-import { MAX_RUNNER_NAME_LENGTH, OrchestratorInput } from './lambda-common';
+import { MAX_RUNNER_NAME_LENGTH, OrchestratorInput, PROVIDERS_PATH } from './lambda-common';
 import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
 import { recordControlledJob, RunnerReportMessage } from './lambda-tracker';
@@ -81,6 +82,13 @@ async function isDeploymentPending(payload: any) {
 }
 
 /**
+ * Read the runner providers and their labels from the Lambda layer they are packed in.
+ */
+function loadProviders(): Record<string, string[]> {
+  return JSON.parse(fs.readFileSync(PROVIDERS_PATH, 'utf-8'));
+}
+
+/**
  * Match job labels to a provider using default label matching logic.
  */
 function matchLabelsToProvider(jobLabels: string[], providers: Record<string, string[]>): string | undefined {
@@ -145,7 +153,7 @@ export async function callProviderSelector(
  * @internal
  */
 export async function selectProvider(payload: any, jobLabels: string[], hook = callProviderSelector): Promise<ProviderSelectorResult> {
-  const providers = JSON.parse(process.env.PROVIDERS!);
+  const providers = loadProviders();
   const defaultProvider = matchLabelsToProvider(jobLabels, providers);
   const defaultLabels = defaultProvider ? providers[defaultProvider] : undefined;
   const defaultSelection = { provider: defaultProvider, labels: defaultLabels };
@@ -200,7 +208,6 @@ export function generateExecutionName(event: any, payload: any): string {
 export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<AWSLambda.APIGatewayProxyResultV2> {
   if (!process.env.WEBHOOK_SECRET_ARN ||
     !process.env.STEP_FUNCTION_ARN ||
-    !process.env.PROVIDERS ||
     !process.env.REQUIRE_SELF_HOSTED_LABEL ||
     !process.env.JOB_ASSIGNMENT_QUEUE_URL) {
     throw new Error('Missing environment variables');
