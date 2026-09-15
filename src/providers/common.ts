@@ -275,7 +275,11 @@ export interface RunnerAmi {
 }
 
 /**
- * Retry options for providers. The default is to retry 23 times for about 24 hours with increasing interval.
+ * Retry options for providers. The default is to retry 210 times for a bit over 24 hours with increasing interval.
+ *
+ * Retries use full jitter, so every wait is a random time between zero and the calculated interval. This spreads out
+ * runners that all failed at the same time, so they don't hit the same missing capacity or API quota together again.
+ * It also means the average wait is half the calculated interval, and that's what the 24 hours are calculated from.
  */
 export interface ProviderRetryOptions {
   /**
@@ -286,23 +290,34 @@ export interface ProviderRetryOptions {
   readonly retry?: boolean;
 
   /**
-   * How much time to wait after first retryable failure. This interval will be multiplied by {@link backoffRate} each retry.
+   * How much time to wait after first retryable failure. This interval will be multiplied by {@link backoffRate} each retry, up to {@link maxDelay}.
    *
    * @default 1 minute
    */
   readonly interval?: Duration;
 
   /**
+   * Maximum wait between retries. Without it, exponential backoff quickly grows to hours between attempts, so a job
+   * can end up waiting hours for a runner even though capacity came back minutes after it failed.
+   *
+   * Don't go too low either. A lower maximum needs more attempts to cover the same 24 hours, and every attempt adds
+   * to the execution history that Step Functions caps at 25,000 events.
+   *
+   * @default 15 minutes
+   */
+  readonly maxDelay?: Duration;
+
+  /**
    * How many times to retry.
    *
-   * @default 23
+   * @default 210
    */
   readonly maxAttempts?: number;
 
   /**
    * Multiplication for how much longer the wait interval gets on every retry.
    *
-   * @default 1.3
+   * @default 2
    */
   readonly backoffRate?: number;
 }
