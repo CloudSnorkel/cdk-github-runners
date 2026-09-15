@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2, aws_ecs as ecs, aws_stepfunctions as sfn } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
@@ -14,7 +14,6 @@ import {
   Os,
   RunnerVersion,
 } from '../src';
-import { stateMachineDefinition } from './sfn-helpers';
 
 describe('Providers', () => {
   let app: cdk.App;
@@ -278,35 +277,8 @@ describe('Providers', () => {
         placementStrategies: [ecs.PlacementStrategy.packedByCpu()],
       });
 
-      const runtimeParamsPlacement = {
-        runnerTokenPath: '$.runner.token',
-        runnerNamePath: '$$.Execution.Name',
-        ownerPath: '$.owner',
-        repoPath: '$.repo',
-        registrationUrl: 'https://github.com',
-        githubDomainPath: 'github.com',
-        labelsPath: '$.labels',
-        addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
-          (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'CleanupStubPlacement'), {
-            errors: [sfn.Errors.ALL],
-            resultPath: '$.error',
-          });
-        },
-      };
-      const task = provider.getStepFunctionTask(runtimeParamsPlacement);
-
-      new sfn.StateMachine(stack, 'sm', {
-        definitionBody: sfn.DefinitionBody.fromChainable(task),
-      });
-
-      const template = Template.fromStack(stack);
-
-      const def = stateMachineDefinition(template);
-      const ecsPlacement = def?.States?.providerPlacement;
-      expect(ecsPlacement?.Type).toBe('Task');
-      const ps = ecsPlacement?.Parameters?.PlacementStrategy;
-      expect(Array.isArray(ps)).toBe(true);
-      expect(ps).toEqual([{ Field: 'CPU', Type: 'binpack' }]);
+      // the runner config feeds PlacementStrategy of ecs:runTask as-is
+      expect((provider as any)._runnerConfig().placementStrategies).toEqual([{ Field: 'CPU', Type: 'binpack' }]);
     });
 
     test('passes PlacementConstraints to RunTask', () => {
@@ -320,35 +292,8 @@ describe('Providers', () => {
         placementConstraints: [ecs.PlacementConstraint.distinctInstances()],
       });
 
-      const runtimeParams = {
-        runnerTokenPath: '$.runner.token',
-        runnerNamePath: '$$.Execution.Name',
-        ownerPath: '$.owner',
-        repoPath: '$.repo',
-        registrationUrl: 'https://github.com',
-        githubDomainPath: 'github.com',
-        labelsPath: '$.labels',
-        addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
-          (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'CleanupStubConstraints'), {
-            errors: [sfn.Errors.ALL],
-            resultPath: '$.error',
-          });
-        },
-      };
-      const task = provider.getStepFunctionTask(runtimeParams);
-
-      new sfn.StateMachine(stack, 'sm-constraints', {
-        definitionBody: sfn.DefinitionBody.fromChainable(task),
-      });
-
-      const template = Template.fromStack(stack);
-
-      const def = stateMachineDefinition(template);
-      const ecsTask = def?.States?.providerPlacementConstraints;
-      expect(ecsTask?.Type).toBe('Task');
-      const pc = ecsTask?.Parameters?.PlacementConstraints;
-      expect(Array.isArray(pc)).toBe(true);
-      expect(pc).toEqual([{ Type: 'distinctInstance' }]);
+      // the runner config feeds PlacementConstraints of ecs:runTask as-is
+      expect((provider as any)._runnerConfig().placementConstraints).toEqual([{ Type: 'distinctInstance' }]);
     });
   });
 
@@ -408,7 +353,7 @@ describe('Providers', () => {
       }));
     });
 
-    test('tags are merged into RunInstances TagSpecifications', () => {
+    test('tags are passed to the orchestrator for merging into RunInstances TagSpecifications', () => {
       const vpc = new ec2.Vpc(stack, 'vpc');
       const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
 
@@ -422,42 +367,26 @@ describe('Providers', () => {
         },
       });
 
-      const runtimeParams = {
-        runnerTokenPath: '$.runner.token',
-        runnerNamePath: '$$.Execution.Name',
-        ownerPath: '$.owner',
-        repoPath: '$.repo',
-        registrationUrl: 'https://github.com',
-        githubDomainPath: 'github.com',
-        labelsPath: '$.labels',
-        addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
-          (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'CleanupStubTags'), {
-            errors: [sfn.Errors.ALL],
-            resultPath: '$.error',
-          });
-        },
-      };
-      const task = provider.getStepFunctionTask(runtimeParams);
+      // the standard tags have runtime values, so the orchestrator merges them onto these at execution time
+      expect((provider as any)._runnerConfig().tags).toEqual([
+        { Key: 'SecurityMonitoring', Value: 'enabled' },
+        { Key: 'Name', Value: 'test' },
+      ]);
+    });
 
-      new sfn.StateMachine(stack, 'sm', {
-        definitionBody: sfn.DefinitionBody.fromChainable(task),
+    test('no tags prop still opts the config into the standard runner tags', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      const provider = new Ec2RunnerProvider(stack, 'provider no tags', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ec2-no-tags'],
       });
 
-      const template = Template.fromStack(stack);
-
-      const def = stateMachineDefinition(template);
-      const runInstances = Object.values(def.States).find((state: any) =>
-        state?.Parameters?.TagSpecifications,
-      ) as any;
-      expect(runInstances).toBeDefined();
-
-      for (const spec of runInstances.Parameters.TagSpecifications) {
-        expect(['instance', 'volume']).toContain(spec.ResourceType);
-        const tags = Object.fromEntries(spec.Tags.map((t: any) => [t.Key, t.Value]));
-        expect(tags.SecurityMonitoring).toBe('enabled');
-        expect(tags.Name).toBe('test');
-        expect(tags['GitHubRunners:Provider']).toBeDefined();
-      }
+      // an empty array, not a missing field: RunInstances reads $.providerParams.tags unconditionally, and a
+      // missing reference path fails the state at runtime
+      expect((provider as any)._runnerConfig().tags).toEqual([]);
     });
   });
 
@@ -469,24 +398,6 @@ describe('Providers', () => {
       vpc,
       securityGroups: [sg],
     });
-
-    // amiRootDevice() is created inside getStepFunctionTask(), not the constructor, so we have to build it.
-    const task = provider.getStepFunctionTask({
-      runnerTokenPath: '$.runner.token',
-      runnerNamePath: '$$.Execution.Name',
-      ownerPath: '$.owner',
-      repoPath: '$.repo',
-      registrationUrl: 'https://github.com',
-      githubDomainPath: 'github.com',
-      labelsPath: '$.labels',
-      addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
-        (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'Cleanup'), {
-          errors: [sfn.Errors.ALL],
-          resultPath: '$.error',
-        });
-      },
-    });
-    new sfn.StateMachine(stack, 'sm', { definitionBody: sfn.DefinitionBody.fromChainable(task) });
 
     const template = Template.fromStack(stack);
 
@@ -527,22 +438,7 @@ describe('Providers', () => {
     });
 
     // must not throw: the object-literal builder isn't a construct, so addDependency is skipped
-    const task = provider.getStepFunctionTask({
-      runnerTokenPath: '$.runner.token',
-      runnerNamePath: '$$.Execution.Name',
-      ownerPath: '$.owner',
-      repoPath: '$.repo',
-      registrationUrl: 'https://github.com',
-      githubDomainPath: 'github.com',
-      labelsPath: '$.labels',
-      addCatchAndCleanUp: (state: sfn.State | sfn.StateMachineFragment | sfn.Parallel, next?: sfn.IChainable) => {
-        (state as sfn.TaskStateBase | sfn.Parallel).addCatch(next ?? new sfn.Pass(stack, 'CleanupByo'), {
-          errors: [sfn.Errors.ALL],
-          resultPath: '$.error',
-        });
-      },
-    });
-    new sfn.StateMachine(stack, 'sm-byo', { definitionBody: sfn.DefinitionBody.fromChainable(task) });
+    (provider as any)._runnerConfig();
 
     const template = Template.fromStack(stack);
 

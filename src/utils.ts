@@ -4,6 +4,7 @@ import { aws_ec2 as ec2, aws_iam as iam, aws_lambda as lambda, aws_logs as logs 
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
+
 /**
  * Initialize or return a singleton Lambda function instance.
  *
@@ -158,6 +159,80 @@ export function discoverCertificateFiles(sourcePath: string): string[] {
   }
 
   return certificateFiles;
+}
+
+/**
+ * De-duplicate repeated CloudFormation tokens (shared subnet ids, cluster ARNs, cross-stack `Fn::ImportValue`s, ...) found in a Step Functions
+ * definition fragment into a `definitionSubstitutions` map. Each distinct token gets a single `${__sfnsub_N}` placeholder, so its intrinsic renders
+ * once in the template instead of once per occurrence (e.g. once per provider sharing a VPC). `obj` is mutated in place, replacing every token leaf
+ * with its placeholder; the returned map is meant to be passed straight to `StateMachine`'s `definitionSubstitutions`.
+ *
+ * This is safe only because the definition fragment contains no other `${...}` sequences: JSONata uses `{% %}`, and the EC2 user data escapes its
+ * braces (rendered as `$\{...\}`), so Step Functions' substitution leaves everything but our synthetic placeholders untouched. A literal `${`
+ * reaching this function can only come from user input (a tag value, a construct id, ...), so it's reported as an error instead of silently producing
+ * a definition that Step Functions rejects with an unhelpful message at deploy time.
+ *
+ * @internal
+ */
+export function dedupeStateMachineTokens(scope: Construct, node: any): Record<string, string> {
+  const stack = cdk.Stack.of(scope);
+  const substitutions: Record<string, string> = {};
+  const keyByToken = new Map<string, string>();
+
+  // first pass. nothing has been rewritten yet, so any `${` we find came from user input. tokens are spelled
+  // `${Token[...]}` themselves, so skip those here and let the second pass give them a placeholder
+  const check = (value: any): void => {
+    if (typeof value === 'string') {
+      if (!cdk.Token.isUnresolved(value) && value.includes('${')) {
+        cdk.Annotations.of(scope).addError(
+          `A runner provider value contains "\${", which collides with the state machine definition substitutions: ${JSON.stringify(value.slice(0, 100))}`,
+        );
+      }
+    } else if (Array.isArray(value)) {
+      value.forEach(check);
+    } else if (value && typeof value === 'object') {
+      for (const [objKey, objValue] of Object.entries(value)) {
+        if (objKey.includes('${')) {
+          cdk.Annotations.of(scope).addError(
+            `A runner provider path contains "\${", which collides with the state machine definition substitutions: ${JSON.stringify(objKey.slice(0, 100))}`,
+          );
+        }
+        check(objValue);
+      }
+    }
+  };
+
+  // second pass. key the cache by the resolved intrinsic, so identical imports collapse even when their token
+  // strings differ
+  const substitute = (value: any): any => {
+    if (typeof value === 'string') {
+      if (!cdk.Token.isUnresolved(value)) {
+        return value;
+      }
+      const id = JSON.stringify(stack.resolve(value));
+      let key = keyByToken.get(id);
+      if (!key) {
+        key = `__sfnsub_${keyByToken.size}`;
+        keyByToken.set(id, key);
+        substitutions[key] = value;
+      }
+      return `\${${key}}`;
+    }
+    if (Array.isArray(value)) {
+      return value.map(substitute);
+    }
+    if (value && typeof value === 'object') {
+      for (const objKey of Object.keys(value)) {
+        value[objKey] = substitute(value[objKey]);
+      }
+    }
+    return value;
+  };
+
+  check(node);
+  substitute(node);
+
+  return substitutions;
 }
 
 /**

@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2, aws_iam as iam, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_iam as iam } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import { Construct } from 'constructs';
@@ -12,7 +12,6 @@ import {
   IRunnerProvider,
   IRunnerProviderStatus,
   LambdaRunnerProvider,
-  RunnerRuntimeParameters,
 } from '../src';
 
 /**
@@ -33,19 +32,16 @@ class MockCompositeProvider extends Construct implements ICompositeProvider {
     this.providers = [];
   }
 
-  getStepFunctionTask(_parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    return new stepfunctions.Pass(this, `${this.node.id}Task`);
+  _runnerConfig(): any {
+    return { family: 'lambda', functionArn: 'arn:aws:lambda:us-east-1:123456789012:function:mock', group: '', defaultLabels: '' };
   }
 
-  stepFunctionConstants(): Record<string, string> {
-    return {};
-  }
 
-  grantStateMachine(_stateMachineRole: iam.IGrantable): void {
+  _grantStateMachine(_stateMachineRole: iam.IGrantable): void {
     // Mock implementation - do nothing
   }
 
-  status(_statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
+  _status(_statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
     return this.subProviderStatuses;
   }
 }
@@ -458,19 +454,16 @@ describe('ICompositeProvider', () => {
         super(scope, id);
       }
 
-      getStepFunctionTask(_parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-        return new stepfunctions.Pass(this, `${this.node.id}Task`);
+      _runnerConfig(): any {
+        return { family: 'lambda', functionArn: 'arn:aws:lambda:us-east-1:123456789012:function:mock', group: '', defaultLabels: '' };
       }
 
-      stepFunctionConstants(): Record<string, string> {
-        return {};
-      }
 
-      grantStateMachine(_stateMachineRole: iam.IGrantable): void {
+      _grantStateMachine(_stateMachineRole: iam.IGrantable): void {
         // Do nothing
       }
 
-      status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
+      _status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
         receivedRole = statusFunctionRole;
         return [
           {
@@ -502,19 +495,16 @@ describe('ICompositeProvider', () => {
         super(scope, id);
       }
 
-      getStepFunctionTask(_parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-        return new stepfunctions.Pass(this, `${this.node.id}Task`);
+      _runnerConfig(): any {
+        return { family: 'lambda', functionArn: 'arn:aws:lambda:us-east-1:123456789012:function:mock', group: '', defaultLabels: '' };
       }
 
-      stepFunctionConstants(): Record<string, string> {
-        return {};
-      }
 
-      grantStateMachine(_stateMachineRole: iam.IGrantable): void {
+      _grantStateMachine(_stateMachineRole: iam.IGrantable): void {
         grantStateMachineCalled = true;
       }
 
-      status(_statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
+      _status(_statusFunctionRole: iam.IGrantable): IRunnerProviderStatus[] {
         return [
           {
             type: 'test',

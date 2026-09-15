@@ -9,21 +9,12 @@ import {
   aws_lambda as lambda,
   aws_logs as logs,
   aws_stepfunctions as stepfunctions,
-  aws_stepfunctions_tasks as stepfunctions_tasks,
 } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import {
-  Architecture,
-  BaseProvider,
-  generateStateName,
-  IRunnerProvider,
-  IRunnerProviderStatus,
-  IRunnerRuntimeParameters,
-  Os,
-  RunnerImage,
-  RunnerProviderProps,
-  RunnerVersion,
+  Architecture, BaseProvider, IRunnerProvider, IRunnerProviderStatus, Os, providerParam, RUNNER_INPUT,
+  RunnerConfig, RunnerImage, RunnerProviderProps, RunnerVersion,
 } from './common';
 import { UpdateLambdaFunction } from './update-lambda-function';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
@@ -132,6 +123,17 @@ export interface LambdaRunnerProviderProps extends RunnerProviderProps {
 }
 
 /**
+ * Runner config for the Lambda family fragment.
+ *
+ * @internal
+ */
+export interface LambdaRunnerConfig extends RunnerConfig {
+  readonly functionArn: string;
+  readonly group: string;
+  readonly defaultLabels: string;
+}
+
+/**
  * GitHub Actions runner provider using Lambda to execute jobs.
  *
  * Creates a Docker-based function that gets executed for each job.
@@ -139,6 +141,9 @@ export interface LambdaRunnerProviderProps extends RunnerProviderProps {
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvider {
+  /** @internal */
+  public static readonly _FAMILY = 'lambda';
+
   /**
    * Path to Dockerfile for Linux x64 with all the requirement for Lambda runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
@@ -160,6 +165,48 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    * @deprecated Use `imageBuilder()` instead.
    */
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-arm64');
+
+  /**
+   * The fragment that runs any Lambda provider. Reads the config {@link _runnerConfig} generated for it from
+   * `$.providerParams`. Renders what LambdaInvoke used to render per provider.
+   *
+   * @internal
+   */
+  public static _stateMachineFragment(scope: Construct): stepfunctions.IChainable {
+    const p = providerParam<LambdaRunnerConfig>;
+    return new stepfunctions.CustomState(scope, 'Lambda Runner', {
+      stateJson: {
+        Type: 'Task',
+        Resource: `arn:${cdk.Aws.PARTITION}:states:::lambda:invoke`,
+        Parameters: {
+          'FunctionName.$': p('functionArn'),
+          'Payload': {
+            'token.$': RUNNER_INPUT.token,
+            'runnerName.$': RUNNER_INPUT.name,
+            'label.$': RUNNER_INPUT.labels,
+            'githubDomain.$': RUNNER_INPUT.domain,
+            'owner.$': RUNNER_INPUT.owner,
+            'repo.$': RUNNER_INPUT.repo,
+            'registrationUrl.$': RUNNER_INPUT.registrationUrl,
+            'group.$': p('group'),
+            'defaultLabels.$': p('defaultLabels'),
+          },
+        },
+        // the transient errors LambdaInvoke retries for us by default
+        Retry: [{
+          ErrorEquals: [
+            'Lambda.ClientExecutionTimeoutException',
+            'Lambda.ServiceException',
+            'Lambda.AWSLambdaException',
+            'Lambda.SdkClientException',
+          ],
+          IntervalSeconds: 2,
+          MaxAttempts: 6,
+          BackoffRate: 2,
+        }],
+      },
+    });
+  }
 
   /**
    * Create new image builder that builds Lambda specific runner images.
@@ -225,13 +272,6 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    */
   readonly logGroup: logs.ILogGroup;
 
-  readonly retryableErrors = [
-    'Lambda.LambdaException',
-    'Lambda.Ec2ThrottledException',
-    'Lambda.Ec2UnexpectedException',
-    'Lambda.EniLimitReachedException',
-    'Lambda.TooManyRequestsException',
-  ];
 
   private readonly group?: string;
   private readonly defaultLabels: boolean;
@@ -324,35 +364,6 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     return this.function.connections;
   }
 
-  /**
-   * Generate step function task(s) to start a new runner.
-   *
-   * Called by GithubRunners and shouldn't be called manually.
-   *
-   * @param parameters workflow job details
-   */
-  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
-    return new stepfunctions_tasks.LambdaInvoke(
-      this,
-      'State',
-      {
-        stateName: generateStateName(this),
-        lambdaFunction: this.function,
-        payload: stepfunctions.TaskInput.fromObject({
-          token: parameters.runnerTokenPath,
-          runnerName: parameters.runnerNamePath,
-          label: parameters.labelsPath,
-          githubDomain: parameters.githubDomainPath,
-          owner: parameters.ownerPath,
-          repo: parameters.repoPath,
-          registrationUrl: parameters.registrationUrl,
-          group: this.group ? `--runnergroup ${this.group}` : '',
-          defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
-        }),
-      },
-    );
-  }
-
   private addImageUpdater(image: RunnerImage) {
     // Lambda resolves the image tag when the function is created or updated, and then sticks to that image.
     // Lambda doesn't automatically follow the tag on image push.
@@ -403,10 +414,32 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     (rule.node.defaultChild as events.CfnRule).addDeletionOverride('Properties.EventPattern.resources');
   }
 
-  grantStateMachine(_: iam.IGrantable) {
+  /**
+   * Config for the shared Lambda fragment.
+   *
+   * @internal
+   */
+  _runnerConfig(): LambdaRunnerConfig {
+    return {
+      family: LambdaRunnerProvider._FAMILY,
+      provider: this.node.path,
+      functionArn: this.function.functionArn,
+      group: this.group ? `--runnergroup ${this.group}` : '',
+      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+    };
   }
 
-  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
+  /**
+   * @internal
+   */
+  _grantStateMachine(stateMachineRole: iam.IGrantable) {
+    this.function.grantInvoke(stateMachineRole);
+  }
+
+  /**
+   * @internal
+   */
+  _status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
     this.image.imageRepository.grant(statusFunctionRole, 'ecr:DescribeImages');
 
     return {

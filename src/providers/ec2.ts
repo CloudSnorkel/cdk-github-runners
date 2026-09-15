@@ -1,26 +1,19 @@
 import * as cdk from 'aws-cdk-lib';
-import {
-  aws_ec2 as ec2,
-  aws_iam as iam,
-  aws_logs as logs,
-  aws_stepfunctions as stepfunctions,
-  aws_stepfunctions_tasks as stepfunctions_tasks,
-  Duration,
-  RemovalPolicy,
-  Stack,
-} from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_iam as iam, aws_logs as logs, aws_stepfunctions as stepfunctions, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import {
   amiRootDevice,
   Architecture,
   BaseProvider,
-  generateStateName,
+  IParameterizedRunnerProvider,
   IRunnerProvider,
   IRunnerProviderStatus,
-  IRunnerRuntimeParameters,
   Os,
+  providerParam,
+  RUNNER_INPUT,
   RunnerAmi,
+  RunnerEnvConfig,
   RunnerProviderProps,
   RunnerVersion,
   StorageOptions,
@@ -365,11 +358,93 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
 }
 
 /**
+ * Runner config for the Ec2 family fragment.
+ *
+ * @internal
+ */
+interface Ec2RunnerConfig extends RunnerEnvConfig {
+  readonly launchTemplateId: string;
+  readonly instanceType: string;
+  readonly securityGroupIds: string[];
+  readonly instanceProfileArn: string;
+  readonly logGroupName: string;
+  readonly blockDeviceMappings: any[];
+  readonly instanceMarketOptions: any;
+  readonly userDataTemplateIdx: number;
+  readonly subnet: string;
+}
+
+/**
  * GitHub Actions runner provider using EC2 to execute jobs.
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
-export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
+export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider, IParameterizedRunnerProvider {
+  /** @internal */
+  public static readonly _FAMILY = 'ec2';
+
+  /**
+   * Big static strings the EC2 fragment reads from `$.config`. We always include both userdata templates because
+   * the fragment puts both in a States.Array() and picks one by index at runtime.
+   *
+   * @internal
+   */
+  public static _stateMachineConstants(): Record<string, string> {
+    return {
+      ec2UserDataLinux: linuxUserDataTemplate,
+      ec2UserDataWindows: windowsUserDataTemplate,
+    };
+  }
+
+  /**
+   * The fragment that runs any EC2 provider. Reads the config {@link _runnerConfig} generated for it from
+   * `$.providerParams`, and launches into whatever subnet is at `$.providerParams.subnet`.
+   *
+   * Multiple subnets are a chain of fallback configs instead of the chain of states we used to render, see
+   * {@link Ec2RunnerProvider._runnerConfig}.
+   *
+   * @internal
+   */
+  public static _stateMachineFragment(scope: Construct): stepfunctions.IChainable {
+    const p = providerParam<Ec2RunnerConfig>;
+    return new stepfunctions.CustomState(scope, 'EC2 Runner', {
+      stateJson: {
+        Type: 'Task',
+        Resource: `arn:${cdk.Aws.PARTITION}:states:::aws-sdk:ec2:runInstances.waitForTaskToken`,
+        HeartbeatSeconds: cdk.Duration.minutes(10).toSeconds(),
+        Parameters: {
+          'LaunchTemplate': {
+            'LaunchTemplateId.$': p('launchTemplateId'),
+          },
+          'MinCount': 1,
+          'MaxCount': 1,
+          'InstanceType.$': p('instanceType'),
+          'UserData.$': 'States.Base64Encode(States.Format(' +
+            `States.ArrayGetItem(States.Array($ec2UserDataLinux, $ec2UserDataWindows), ${p('userDataTemplateIdx')}), ` +
+            `$$.Task.Token, ${p('logGroupName')}, ${RUNNER_INPUT.name}, ${RUNNER_INPUT.domain}, ${RUNNER_INPUT.owner}, ${RUNNER_INPUT.repo}, ` +
+            `${RUNNER_INPUT.token}, ${RUNNER_INPUT.labels}, ${RUNNER_INPUT.registrationUrl}, ` +
+            `${p('group1')}, ${p('group2')}, ${p('defaultLabels')}))`,
+          'InstanceInitiatedShutdownBehavior': 'terminate',
+          'IamInstanceProfile': {
+            'Arn.$': p('instanceProfileArn'),
+          },
+          'MetadataOptions': {
+            HttpTokens: 'required',
+          },
+          'SecurityGroupIds.$': p('securityGroupIds'),
+          'SubnetId.$': p('subnet'),
+          'BlockDeviceMappings.$': p('blockDeviceMappings'),
+          'InstanceMarketOptions.$': p('instanceMarketOptions'),
+          // the provider's tags, already merged with the standard runner tags by the orchestrator
+          'TagSpecifications': [
+            { 'ResourceType': 'instance', 'Tags.$': p('tags') },
+            { 'ResourceType': 'volume', 'Tags.$': p('tags') },
+          ],
+        },
+      },
+    });
+  }
+
   /**
    * Create new image builder that builds EC2 specific runner images.
    *
@@ -425,11 +500,6 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
    */
   readonly logGroup: logs.ILogGroup;
 
-  readonly retryableErrors = [
-    'Ec2.Ec2Exception',
-    'States.Timeout',
-  ];
-
   private readonly group?: string;
   private readonly amiBuilder: IRunnerImageBuilder;
   private readonly ami: RunnerAmi;
@@ -444,6 +514,8 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
   private readonly securityGroups: ec2.ISecurityGroup[];
   private readonly defaultLabels: boolean;
   private readonly tags: { [key: string]: string };
+  private readonly instanceProfile: iam.CfnInstanceProfile;
+  private readonly rootDeviceResource: cdk.CustomResource;
 
   constructor(scope: Construct, id: string, props?: Ec2RunnerProviderProps) {
     super(scope, id, props);
@@ -507,145 +579,31 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
       },
     );
     this.logGroup.grantWrite(this);
-  }
 
-  private userDataConst() {
-    return this.ami.os.is(Os.WINDOWS) ? 'ec2UserDataWindows' : 'ec2UserDataLinux';
-  }
+    this.instanceProfile = new iam.CfnInstanceProfile(this, 'Instance Profile', {
+      roles: [this.role.roleName],
+    });
 
-  public stepFunctionConstants(): Record<string, string> {
-    const userdataTemplate = this.ami.os.is(Os.WINDOWS) ? windowsUserDataTemplate : linuxUserDataTemplate;
-    return { [this.userDataConst()]: userdataTemplate };
+    this.rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId, this.ami.cacheKey);
+    if (Construct.isConstruct(this.amiBuilder)) {
+      // if the user didn't create a static image builder and it's a real construct, we need to wait for it
+      this.rootDeviceResource.node.addDependency(this.amiBuilder);
+    }
   }
 
   /**
-   * Generate step function task(s) to start a new runner.
-   *
-   * Called by GithubRunners and shouldn't be called manually.
-   *
-   * @param parameters workflow job details
+   * @internal
    */
-  getStepFunctionTask(parameters: IRunnerRuntimeParameters): stepfunctions.IChainable {
-    // we need to build user data in two steps because passing the template as the first parameter to stepfunctions.JsonPath.format fails on syntax
-
-    const params = [
-      stepfunctions.JsonPath.taskToken,
-      this.logGroup.logGroupName,
-      parameters.runnerNamePath,
-      parameters.githubDomainPath,
-      parameters.ownerPath,
-      parameters.repoPath,
-      parameters.runnerTokenPath,
-      parameters.labelsPath,
-      parameters.registrationUrl,
-      this.group ? '--runnergroup' : '',
-      // this is split into 2 for powershell otherwise it will pass "--runnergroup name" as a single argument and config.sh will fail
-      this.group ? this.group : '',
-      this.defaultLabels ? '' : '--no-default-labels',
-    ];
-
+  _grantStateMachine(stateMachineRole: iam.IGrantable) {
     // we use ec2:RunInstances because we must
     // we can't use fleets because they don't let us override user data, security groups or even disk size
     // we can't use requestSpotInstances because it doesn't support launch templates, and it's deprecated
     // ec2:RunInstances also seemed like the only one to immediately return an error when spot capacity is not available
+    stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+      actions: ['ec2:runInstances'],
+      resources: ['*'],
+    }));
 
-    // we build a complicated chain of states here because ec2:RunInstances can only try one subnet at a time
-    // if someone can figure out a good way to use Map for this, please open a PR
-
-    // calculate tags
-    const tags = {
-      'Name': parameters.runnerNamePath,
-      'GitHubRunners:Provider': this.node.path,
-      'GitHubRunners:Repo': stepfunctions.JsonPath.format('{}/{}', parameters.ownerPath, parameters.repoPath),
-      'GitHubRunners:Labels': parameters.labelsPath,
-      ...this.tags,
-    };
-
-    // build a state for each subnet we want to try
-    const instanceProfile = new iam.CfnInstanceProfile(this, 'Instance Profile', {
-      roles: [this.role.roleName],
-    });
-    const rootDeviceResource = amiRootDevice(this, this.ami.launchTemplate.launchTemplateId, this.ami.cacheKey);
-    if (Construct.isConstruct(this.amiBuilder)) {
-      // if the user didn't create a static image builder and it's a real construct, we need to wait for it
-      rootDeviceResource.node.addDependency(this.amiBuilder);
-    }
-    const subnetRunners = this.subnets.map(subnet => {
-      return new stepfunctions_tasks.CallAwsService(this, subnet.subnetId, {
-        stateName: generateStateName(this, subnet.subnetId),
-        comment: subnet.availabilityZone,
-        integrationPattern: stepfunctions.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-        service: 'ec2',
-        action: 'runInstances',
-        heartbeatTimeout: stepfunctions.Timeout.duration(Duration.minutes(10)),
-        parameters: {
-          LaunchTemplate: {
-            LaunchTemplateId: this.ami.launchTemplate.launchTemplateId,
-          },
-          MinCount: 1,
-          MaxCount: 1,
-          InstanceType: this.instanceType.toString(),
-          UserData: stepfunctions.JsonPath.base64Encode(
-            stepfunctions.JsonPath.format(
-              // see stepFunctionConstants()
-              stepfunctions.JsonPath.stringAt(`$.consts.${this.userDataConst()}`),
-              ...params,
-            ),
-          ),
-          InstanceInitiatedShutdownBehavior: ec2.InstanceInitiatedShutdownBehavior.TERMINATE,
-          IamInstanceProfile: {
-            Arn: instanceProfile.attrArn,
-          },
-          MetadataOptions: {
-            HttpTokens: 'required',
-          },
-          SecurityGroupIds: this.securityGroups.map(sg => sg.securityGroupId),
-          SubnetId: subnet.subnetId,
-          BlockDeviceMappings: [{
-            DeviceName: rootDeviceResource.ref,
-            Ebs: {
-              DeleteOnTermination: true,
-              VolumeSize: this.storageSize.toGibibytes(),
-              VolumeType: this.storageOptions?.volumeType,
-              Iops: this.storageOptions?.iops,
-              Throughput: this.storageOptions?.throughput,
-            },
-          }],
-          InstanceMarketOptions: this.spot ? {
-            MarketType: 'spot',
-            SpotOptions: {
-              MaxPrice: this.spotMaxPrice,
-              SpotInstanceType: 'one-time',
-            },
-          } : undefined,
-          TagSpecifications: ['instance', 'volume'].map(resType => { // manually propagate tags
-            return {
-              ResourceType: resType,
-              Tags: Object.entries(tags).map(([Key, Value]) => ({ Key, Value })),
-            };
-          }),
-        },
-        iamResources: ['*'],
-      });
-    });
-
-    const head = subnetRunners[0];
-    let current = subnetRunners[0];
-    for (let i = 1; i < subnetRunners.length; i++) {
-      const next = subnetRunners[i];
-      parameters.addCatchAndCleanUp(current, next);
-      current = next;
-    }
-
-    return new SimpleFragment(
-      this,
-      'Fragment',
-      head,
-      current,
-    );
-  }
-
-  grantStateMachine(stateMachineRole: iam.IGrantable) {
     stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
       actions: ['iam:PassRole'],
       resources: [this.role.roleArn],
@@ -675,7 +633,68 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
     }));
   }
 
-  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
+  /**
+   * Config for the shared EC2 fragment.
+   *
+   * ec2:RunInstances can only try one subnet at a time, so every subnet gets a config that falls back to the next
+   * one. Same chain we used to render as states.
+   *
+   * @internal
+   */
+  _runnerConfig(): Ec2RunnerConfig {
+    const base = {
+      family: Ec2RunnerProvider._FAMILY,
+      provider: this.node.path,
+      launchTemplateId: this.ami.launchTemplate.launchTemplateId,
+      instanceType: this.instanceType.toString(),
+      securityGroupIds: this.securityGroups.map(sg => sg.securityGroupId),
+      instanceProfileArn: this.instanceProfile.attrArn,
+      logGroupName: this.logGroup.logGroupName,
+      // already in the shape ec2:runInstances wants, so the fragment can splice it in as-is
+      blockDeviceMappings: [{
+        DeviceName: this.rootDeviceResource.ref,
+        Ebs: {
+          DeleteOnTermination: true,
+          VolumeSize: this.storageSize.toGibibytes(),
+          VolumeType: this.storageOptions?.volumeType,
+          Iops: this.storageOptions?.iops,
+          Throughput: this.storageOptions?.throughput,
+        },
+      }],
+      // empty and not missing for on-demand
+      // the state reads this path no matter what, and a missing reference path fails at runtime
+      instanceMarketOptions: this.spot ? {
+        MarketType: 'spot',
+        SpotOptions: {
+          MaxPrice: this.spotMaxPrice,
+          SpotInstanceType: 'one-time',
+        },
+      } : {},
+      // index into States.Array($ec2UserDataLinux, $ec2UserDataWindows)
+      userDataTemplateIdx: this.ami.os.is(Os.WINDOWS) ? 1 : 0,
+      // always here, even when empty, because that's what opts us into the standard runner tags
+      // see selectProviderParams() in runner.ts, which merges them in at runtime
+      tags: Object.entries(this.tags).map(([Key, Value]) => ({ Key, Value })),
+      group1: this.group ? '--runnergroup' : '',
+      group2: this.group ? this.group : '',
+      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+    };
+
+    let config: any = undefined;
+    for (let i = this.subnets.length - 1; i >= 0; i--) {
+      config = {
+        ...base,
+        subnet: this.subnets[i].subnetId,
+        ...config ? { fallback: config } : {},
+      };
+    }
+    return config;
+  }
+
+  /**
+   * @internal
+   */
+  _status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
     statusFunctionRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
       actions: ['ec2:DescribeLaunchTemplateVersions'],
       resources: ['*'],
@@ -707,19 +726,5 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider {
  * @deprecated use {@link Ec2RunnerProvider}
  */
 export class Ec2Runner extends Ec2RunnerProvider {
-}
-
-/**
- * @internal
- */
-class SimpleFragment extends stepfunctions.StateMachineFragment {
-  readonly startState: stepfunctions.State;
-  readonly endStates: stepfunctions.INextable[];
-
-  constructor(scope: Construct, id: string, start: stepfunctions.State, end: stepfunctions.INextable) {
-    super(scope, id);
-    this.startState = start;
-    this.endStates = [end];
-  }
 }
 
