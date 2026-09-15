@@ -1,3 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+jest.mock('fs', () => require('./providers-file').fsWithProvidersFile());
+
+import { providersFile } from './providers-file';
 import { ProviderSelectorResult } from '../src/webhook';
 import * as webhook from '../src/webhook-handler.lambda';
 
@@ -107,15 +111,15 @@ describe('selectProvider', () => {
   };
 
   beforeEach(() => {
-    process.env.PROVIDERS = JSON.stringify({
+    providersFile.providers = {
       'Stack/Provider1': ['linux'],
       'Stack/Provider2': ['windows'],
-    });
+    };
     delete process.env.PROVIDER_SELECTOR_ARN;
   });
 
   afterEach(() => {
-    delete process.env.PROVIDERS;
+    providersFile.providers = {};
     delete process.env.PROVIDER_SELECTOR_ARN;
   });
 

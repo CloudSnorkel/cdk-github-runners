@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_ecr as ecr } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
@@ -316,7 +318,7 @@ describe('GitHubRunners', () => {
     });
   });
 
-  test('Webhook PROVIDERS env var includes only top-level providers (not subproviders) with composites', () => {
+  test('Webhook providers layer includes only top-level providers (not subproviders) with composites', () => {
     const p1 = new LambdaRunnerProvider(stack, 'p1', { labels: ['linux'] });
     const p2 = new LambdaRunnerProvider(stack, 'p2', { labels: ['linux'] });
     const composite = CompositeProvider.fallback(stack, 'composite', [p1, p2]);
@@ -328,20 +330,25 @@ describe('GitHubRunners', () => {
 
     const template = Template.fromStack(stack);
 
+    const layers = template.findResources('AWS::Lambda::LayerVersion');
+    expect(Object.keys(layers)).toHaveLength(1);
+    const [layerId, layer] = Object.entries(layers)[0];
+
     template.hasResource('AWS::Lambda::Function', {
       Properties: {
         Description: 'Handle GitHub webhook and start runner orchestrator',
         Environment: {
-          Variables: {
-            // The PROVIDERS env var should include only 'test/composite' and 'test/p3'
-            PROVIDERS: JSON.stringify({
-              'test/composite': ['linux'],
-              'test/p3': ['macos'],
-            }),
-          },
+          Variables: { PROVIDERS: Match.absent() },
         },
+        Layers: [{ Ref: layerId }],
       },
     });
+
+    const assetDir = path.basename(layer.Properties.Content.S3Key, '.zip');
+    expect(fs.readFileSync(path.join(app.outdir, `asset.${assetDir}`, 'providers.json'), 'utf-8')).toEqual(JSON.stringify({
+      'test/composite': ['linux'],
+      'test/p3': ['macos'],
+    }));
   });
 
   test('All management Lambda functions are in VPC when VPC is specified', () => {

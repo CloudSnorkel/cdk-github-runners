@@ -29,6 +29,10 @@ jest.mock('../src/lambda-tracker', () => ({
   recordControlledJob: (...args: unknown[]) => mockRecordControlledJob(...args),
 }));
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+jest.mock('fs', () => require('./providers-file').fsWithProvidersFile());
+
+import { providersFile } from './providers-file';
 import { handler } from '../src/webhook-handler.lambda';
 
 
@@ -52,7 +56,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   process.env.WEBHOOK_SECRET_ARN = 'arn:secret';
   process.env.STEP_FUNCTION_ARN = 'arn:aws:states:us-east-1:123456789012:stateMachine:runners';
-  process.env.PROVIDERS = JSON.stringify({ 'Stack/Provider': ['self-hosted', 'linux'] });
+  providersFile.providers = { 'Stack/Provider': ['self-hosted', 'linux'] };
   process.env.REQUIRE_SELF_HOSTED_LABEL = '1';
   process.env.PROVIDER_SELECTOR_ARN = '';
   process.env.RUNNER_TRACKER_TABLE = 'tracker';

@@ -17443,6 +17443,18 @@
     "runnersStolenRunnersHandlerRunnerReports7D72FE8C"
    ]
   },
+  "runnersWebhookHandlerProvidersD22CF35F": {
+   "Type": "AWS::Lambda::LayerVersion",
+   "Properties": {
+    "Content": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "0e5fc8eeca87a5752334d5eb55981ebaba62d3201a8f32cd9d98ead047d76163.zip"
+    },
+    "Description": "Runner providers and their labels"
+   }
+  },
   "runnersWebhookHandlerwebhookhandlerServiceRole03DB58D2": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -17590,7 +17602,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "b842a58b109a7cc71eaaa23a9235cb0718edffb8985a96b46ceedf7b8259f51b.zip"
+     "S3Key": "2b8c63ea76356ffbac6997284a62d72fa6764cfd08261db471e4ae83e535c40b.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -17607,7 +17619,6 @@
       "GITHUB_PRIVATE_KEY_SECRET_ARN": {
        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
       },
-      "PROVIDERS": "{\"github-runners-test/CodeBuildx64\":[\"codebuild-x64\"],\"github-runners-test/CodeBuildUbuntu2404x64\":[\"codebuild-ubuntu-2404-x64\"],\"github-runners-test/CodeBuildARM\":[\"codebuild\",\"linux\",\"arm64\"],\"github-runners-test/CodeBuildWindows\":[\"codebuild\",\"windows\",\"x64\"],\"github-runners-test/ECS Fallback\":[\"ecs\",\"linux\",\"x64\"],\"github-runners-test/ECS Ubuntu 2404\":[\"ecs-ubuntu-2404\",\"x64\"],\"github-runners-test/ECS ARM64\":[\"ecs\",\"linux\",\"arm64\"],\"github-runners-test/ECS Windows\":[\"ecs\",\"windows\",\"x64\"],\"github-runners-test/Lambda\":[\"lambda\",\"x64\"],\"github-runners-test/LambdaARM\":[\"lambda\",\"arm64\"],\"github-runners-test/Fargate\":[\"fargate\",\"linux\",\"x64\"],\"github-runners-test/Fargate-x64-spot distribute\":[\"fargate-spot\",\"linux\",\"x64\"],\"github-runners-test/Fargate-arm64\":[\"fargate\",\"linux\",\"arm64\"],\"github-runners-test/Fargate-arm64-spot\":[\"fargate-spot\",\"linux\",\"arm64\"],\"github-runners-test/Fargate-Windows\":[\"fargate\",\"windows\",\"x64\"],\"github-runners-test/EC2 Fallback\":[\"ec2\",\"linux\",\"x64\"],\"github-runners-test/EC2 Spot Linux\":[\"ec2-spot\",\"linux\",\"x64\"],\"github-runners-test/EC2 Linux arm64\":[\"ec2\",\"linux\",\"arm64\"],\"github-runners-test/EC2 Windows\":[\"ec2\",\"windows\",\"x64\"]}",
       "REQUIRE_SELF_HOSTED_LABEL": "1",
       "PROVIDER_SELECTOR_ARN": {
        "Fn::GetAtt": [
@@ -17627,6 +17638,11 @@
      }
     },
     "Handler": "index.handler",
+    "Layers": [
+     {
+      "Ref": "runnersWebhookHandlerProvidersD22CF35F"
+     }
+    ],
     "LoggingConfig": {
      "LogFormat": "JSON",
      "LogGroup": {

@@ -14,6 +14,14 @@ export const MAX_RUNNER_NAME_LENGTH = 64;
 export const WARM_RUNNER_JOB_ID = -1;
 
 /**
+ * Path of the providers file in the webhook handler layer. It's a layer and not an environment variable because all
+ * environment variables of a function are limited to 4kb together, and users with many providers go over that.
+ *
+ * @internal
+ */
+export const PROVIDERS_PATH = '/opt/providers.json';
+
+/**
  * Input for the runner orchestrator step function. Read back from the step function itself when a runner needs
  * replacing, so it never has to be stored anywhere else.
  *
