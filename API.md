@@ -1108,7 +1108,7 @@ Available build arguments that can be set in the image builder:
 
 ### CodeBuildRunnerProvider <a name="CodeBuildRunnerProvider" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider"></a>
 
-- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
+- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>, constructs.IConstruct
 
 GitHub Actions runner provider using CodeBuild to execute jobs.
 
@@ -1942,7 +1942,7 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 ### Ec2RunnerProvider <a name="Ec2RunnerProvider" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider"></a>
 
-- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
+- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>, constructs.IConstruct
 
 GitHub Actions runner provider using EC2 to execute jobs.
 
@@ -11930,9 +11930,7 @@ Log group name for the image builder where history of image builds can be analyz
 
 Interface for all runner providers.
 
-Note that this interface cannot be implemented by external code. The state machine that orchestrates the
-runners only supports the built-in providers. If the built-in providers don't cover your use case, please open
-an issue so we can discuss it.
+This interface cannot be implemented by external code. If the built-in providers don't cover your use case, open an issue so we can discuss it.
 
 
 #### Properties <a name="Properties" id="Properties"></a>
