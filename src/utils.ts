@@ -191,7 +191,14 @@ export function dedupeStateMachineTokens(scope: Construct, node: any): Record<st
     } else if (Array.isArray(value)) {
       value.forEach(check);
     } else if (value && typeof value === 'object') {
-      Object.values(value).forEach(check);
+      for (const [objKey, objValue] of Object.entries(value)) {
+        if (objKey.includes('${')) {
+          cdk.Annotations.of(scope).addError(
+            `A runner provider path contains "\${", which collides with the state machine definition substitutions: ${JSON.stringify(objKey.slice(0, 100))}`,
+          );
+        }
+        check(objValue);
+      }
     }
   };
 

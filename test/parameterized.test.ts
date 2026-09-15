@@ -463,7 +463,8 @@ describe('Parameterized providers', () => {
   });
 
   // every way a user string reaches the definition. the construct id ones are the sneaky pair: the provider's path
-  // lands in `provider` on every config, and in `taskDefinitionFamily` for ecs and fargate
+  // lands in `provider` on every config, and in `taskDefinitionFamily` for ecs and fargate. a composite's own path is
+  // sneakier still -- its config names only its sub-providers, so the path shows up nowhere but the providerConfigs key
   test.each([
     ['ec2 tag value', (s: cdk.Stack, vpc: ec2.Vpc) => new Ec2RunnerProvider(s, 'p', { imageBuilder: Ec2RunnerProvider.imageBuilder(s, 'ib', { vpc }), vpc, tags: { Team: COLLIDES } })],
     ['ec2 tag key', (s: cdk.Stack, vpc: ec2.Vpc) => new Ec2RunnerProvider(s, 'p', { imageBuilder: Ec2RunnerProvider.imageBuilder(s, 'ib', { vpc }), vpc, tags: { [COLLIDES]: 'x' } })],
@@ -471,6 +472,14 @@ describe('Parameterized providers', () => {
     ['lambda group', (s: cdk.Stack) => new LambdaRunnerProvider(s, 'p', { imageBuilder: staticImage(s, 'i'), group: COLLIDES })],
     ['construct id', (s: cdk.Stack) => new CodeBuildRunnerProvider(s, `p${COLLIDES}`, { imageBuilder: staticImage(s, 'i') })],
     ['ecs construct id', (s: cdk.Stack, vpc: ec2.Vpc) => new EcsRunnerProvider(s, `p${COLLIDES}`, { imageBuilder: staticImage(s, 'i'), vpc })],
+    ['fallback construct id', (s: cdk.Stack) => CompositeProvider.fallback(s, `fb${COLLIDES}`, [
+      new CodeBuildRunnerProvider(s, 'fb1', { imageBuilder: staticImage(s, 'i1'), labels: ['fb'] }),
+      new CodeBuildRunnerProvider(s, 'fb2', { imageBuilder: staticImage(s, 'i2'), labels: ['fb'] }),
+    ])],
+    ['distribute construct id', (s: cdk.Stack) => CompositeProvider.distribute(s, `d${COLLIDES}`, [
+      { weight: 1, provider: new CodeBuildRunnerProvider(s, 'd1', { imageBuilder: staticImage(s, 'i1'), labels: ['d'] }) },
+      { weight: 1, provider: new CodeBuildRunnerProvider(s, 'd2', { imageBuilder: staticImage(s, 'i2'), labels: ['d'] }) },
+    ])],
   ])('a value shaped like our own placeholder is an error too: %s', (_name, build) => {
     const vpc = new ec2.Vpc(stack, 'vpc');
     new GitHubRunners(stack, 'runners', { providers: [build(stack, vpc)] });
