@@ -7823,13 +7823,13 @@ public readonly retryOptions: ProviderRetryOptions;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions">ProviderRetryOptions</a>
-- *Default:* retry 23 times up to about 24 hours
+- *Default:* retry 210 times over a bit more than 24 hours
 
 Options to retry operation in case of failure like missing capacity, or API quota issues.
 
 GitHub jobs time out after not being able to get a runner for 24 hours. You should not retry for more than 24 hours.
 
-Total time spent waiting can be calculated with interval * (backoffRate ^ maxAttempts) / (backoffRate - 1).
+Retries use full jitter, so total time spent waiting is about half the sum of min(interval * backoffRate ^ attempt, maxDelay) over all attempts.
 
 ---
 
@@ -8430,7 +8430,11 @@ remove the retention policy, set the value to `INFINITE`.
 
 Retry options for providers.
 
-The default is to retry 23 times for about 24 hours with increasing interval.
+The default is to retry 210 times for a bit over 24 hours with increasing interval.
+
+Retries use full jitter, so every wait is a random time between zero and the calculated interval. This spreads out
+runners that all failed at the same time, so they don't hit the same missing capacity or API quota together again.
+It also means the average wait is half the calculated interval, and that's what the 24 hours are calculated from.
 
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.Initializer"></a>
 
@@ -8447,6 +8451,7 @@ const providerRetryOptions: ProviderRetryOptions = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.backoffRate">backoffRate</a></code> | <code>number</code> | Multiplication for how much longer the wait interval gets on every retry. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.interval">interval</a></code> | <code>aws-cdk-lib.Duration</code> | How much time to wait after first retryable failure. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.maxAttempts">maxAttempts</a></code> | <code>number</code> | How many times to retry. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.maxDelay">maxDelay</a></code> | <code>aws-cdk-lib.Duration</code> | Maximum wait between retries. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.retry">retry</a></code> | <code>boolean</code> | Set to true to retry provider on supported failures. |
 
 ---
@@ -8458,7 +8463,7 @@ public readonly backoffRate: number;
 ```
 
 - *Type:* number
-- *Default:* 1.3
+- *Default:* 2
 
 Multiplication for how much longer the wait interval gets on every retry.
 
@@ -8475,7 +8480,7 @@ public readonly interval: Duration;
 
 How much time to wait after first retryable failure.
 
-This interval will be multiplied by {@link backoffRate} each retry.
+This interval will be multiplied by {@link backoffRate} each retry, up to {@link maxDelay}.
 
 ---
 
@@ -8486,9 +8491,28 @@ public readonly maxAttempts: number;
 ```
 
 - *Type:* number
-- *Default:* 23
+- *Default:* 210
 
 How many times to retry.
+
+---
+
+##### `maxDelay`<sup>Optional</sup> <a name="maxDelay" id="@cloudsnorkel/cdk-github-runners.ProviderRetryOptions.property.maxDelay"></a>
+
+```typescript
+public readonly maxDelay: Duration;
+```
+
+- *Type:* aws-cdk-lib.Duration
+- *Default:* 15 minutes
+
+Maximum wait between retries.
+
+Without it, exponential backoff quickly grows to hours between attempts, so a job
+can end up waiting hours for a runner even though capacity came back minutes after it failed.
+
+Don't go too low either. A lower maximum needs more attempts to cover the same 24 hours, and every attempt adds
+to the execution history that Step Functions caps at 25,000 events.
 
 ---
 
