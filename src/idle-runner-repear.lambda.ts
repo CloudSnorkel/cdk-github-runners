@@ -30,8 +30,8 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
 
     // check if step function is still running
     const execution = await sfn.send(new DescribeExecutionCommand({ executionArn: input.executionArn }));
-    if (execution.status != 'RUNNING') {
-      // no need to test again as runner already finished
+    if (execution.status == 'SUCCEEDED') {
+      // no need to test again as runner already finished and removed itself
       console.log({
         notice: 'Runner already finished',
         runnerName: input.runnerName,
@@ -39,6 +39,12 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
       });
       continue;
     }
+
+    // a step function that ended any other way may not have cleaned up after itself. that happens when it's stopped
+    // from the outside, or when Step Functions kills it for reaching its 25,000 event history limit. its runner can
+    // still be registered and can still pick up a job, so we keep watching it like any other runner and let the idle
+    // timeout decide. we just have no step function left to stop when that time comes.
+    const executionStopped = execution.status != 'RUNNING';
 
     // get github access
     let octokit: Octokit;
@@ -60,6 +66,16 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
     // find runner
     const runner = await getRunner(octokit, secrets.runnerLevel, input.owner, input.repo, input.runnerName);
     if (!runner) {
+      if (executionStopped) {
+        // nothing was left behind
+        console.log({
+          notice: 'Stopped step function has no runner to clean up',
+          runnerName: input.runnerName,
+          input,
+        });
+        continue;
+      }
+
       console.log({
         notice: 'Runner not running yet',
         runnerName: input.runnerName,
@@ -73,6 +89,17 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
     // we want to try again because the runner might be retried due to e.g. lambda timeout
     // we need to keep following the retry too and make sure it doesn't go idle
     if (runner.busy) {
+      if (executionStopped) {
+        // it took a job, so it will remove itself once it's done, like every other ephemeral runner
+        console.log({
+          notice: 'Stopped step function left a busy runner behind',
+          runnerId: runner.id,
+          runnerName: input.runnerName,
+          input,
+        });
+        continue;
+      }
+
       console.log({
         notice: 'Runner is not idle',
         runnerId: runner.id,
@@ -111,32 +138,35 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
             input,
           });
 
-          try {
-            // stop step function first, so it's marked as aborted with the proper error
-            // if we delete the runner first, the step function will be marked as failed with a generic error
-            console.log({
-              notice: 'Stopping step function',
-              executionArn: input.executionArn,
-              runnerId: runner.id,
-              runnerName: input.runnerName,
-              input,
-            });
-            await sfn.send(new StopExecutionCommand({
-              executionArn: input.executionArn,
-              error: 'IdleRunner',
-              cause: `Runner ${input.runnerName} on ${input.owner}/${input.repo} is idle for too long (${diffMs / 1000} seconds and limit is ${input.maxIdleSeconds} seconds)`,
-            }));
-          } catch (e) {
-            console.error({
-              notice: 'Failed to stop step function',
-              executionArn: input.executionArn,
-              runnerId: runner.id,
-              runnerName: input.runnerName,
-              error: e,
-              input,
-            });
-            retryLater();
-            continue;
+          // nothing to stop when it already stopped on its own
+          if (!executionStopped) {
+            try {
+              // stop step function first, so it's marked as aborted with the proper error
+              // if we delete the runner first, the step function will be marked as failed with a generic error
+              console.log({
+                notice: 'Stopping step function',
+                executionArn: input.executionArn,
+                runnerId: runner.id,
+                runnerName: input.runnerName,
+                input,
+              });
+              await sfn.send(new StopExecutionCommand({
+                executionArn: input.executionArn,
+                error: 'IdleRunner',
+                cause: `Runner ${input.runnerName} on ${input.owner}/${input.repo} is idle for too long (${diffMs / 1000} seconds and limit is ${input.maxIdleSeconds} seconds)`,
+              }));
+            } catch (e) {
+              console.error({
+                notice: 'Failed to stop step function',
+                executionArn: input.executionArn,
+                runnerId: runner.id,
+                runnerName: input.runnerName,
+                error: e,
+                input,
+              });
+              retryLater();
+              continue;
+            }
           }
 
           try {

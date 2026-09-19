@@ -251,9 +251,9 @@ export interface GitHubRunnersProps {
    *
    * GitHub jobs time out after not being able to get a runner for 24 hours. You should not retry for more than 24 hours.
    *
-   * Total time spent waiting can be calculated with interval * (backoffRate ^ maxAttempts) / (backoffRate - 1).
+   * Retries use full jitter, so total time spent waiting is about half the sum of min(interval * backoffRate ^ attempt, maxDelay) over all attempts.
    *
-   * @default retry 23 times up to about 24 hours
+   * @default retry 210 times over a bit more than 24 hours
    */
   readonly retryOptions?: ProviderRetryOptions;
 
@@ -596,21 +596,53 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     );
 
     if (props?.retryOptions?.retry ?? true) {
+      // we aim to wait at most 24 hours because that's when github jobs time out
       const interval = props?.retryOptions?.interval ?? cdk.Duration.minutes(1);
-      const maxAttempts = props?.retryOptions?.maxAttempts ?? 23;
-      const backoffRate = props?.retryOptions?.backoffRate ?? 1.3;
+      // a shorter maxDelay needs more attempts to cover the same 24 hours, and every attempt costs execution history
+      // events that Step Functions caps at 25,000. measured on this state machine, a failed attempt costs 25 events
+      // for a provider with no fallback and 73 for a four config fallback chain, so 210 attempts land around 15,000
+      // while a 5 minute cap would need ~600 attempts and go right past it
+      //
+      // those are normal path numbers and not a ceiling. a longer fallback chain costs more, and an attempt whose
+      // clean-up keeps hitting RunnerBusy costs 793, which no attempt count that still covers 24 hours can fit
+      //
+      // if the execution history limit does hit, we will end give up on this runner. this would only happen when we
+      // are having lots of issues provisioning a runners. stolen runner detector may end up replacing it when the
+      // errors finally stop.
+      const maxDelay = props?.retryOptions?.maxDelay ?? cdk.Duration.minutes(15);
+      const maxAttempts = props?.retryOptions?.maxAttempts ?? 210;
+      const backoffRate = props?.retryOptions?.backoffRate ?? 2;
 
-      const totalSeconds = interval.toSeconds() * backoffRate ** maxAttempts / (backoffRate - 1);
-      if (totalSeconds >= cdk.Duration.days(1).toSeconds()) {
+      // jitter picks a random wait between zero and the interval, so we wait half of it on average
+      // we aim a bit over 24 hours so most jobs keep retrying for the whole day they can wait
+      // if we do stop early, the job will steal another runner and the stolen runner detector will replace it
+      //
+      // the wait grows geometrically until it hits maxDelay and stays there, so the total is a geometric
+      // series plus a flat tail. maxAttempts is a public option, so we don't want to loop over it
+      const growingAttempts = backoffRate > 1
+        ? Math.min(maxAttempts, Math.max(0, Math.ceil(Math.log(maxDelay.toSeconds() / interval.toSeconds()) / Math.log(backoffRate))))
+        : (interval.toSeconds() < maxDelay.toSeconds() ? maxAttempts : 0);
+      const growingSeconds = backoffRate === 1
+        ? interval.toSeconds() * growingAttempts
+        : interval.toSeconds() * (backoffRate ** growingAttempts - 1) / (backoffRate - 1);
+      const totalSeconds = (growingSeconds + (maxAttempts - growingAttempts) * maxDelay.toSeconds()) / 2;
+
+      // the default overshoots 24 hours on purpose, so only complain when it's clearly more than a job can use
+      if (totalSeconds >= cdk.Duration.hours(30).toSeconds()) {
         // https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners#usage-limits
-        // "Job queue time - Each job for self-hosted runners can be queued for a maximum of 24 hours. If a self-hosted runner does not start executing the job within this limit, the job is terminated and fails to complete."
-        Annotations.of(this).addWarning(`Total retry time is greater than 24 hours (${Math.floor(totalSeconds / 60 / 60)} hours). Jobs expire after 24 hours so it would be a waste of resources to retry further.`);
+        // "Job queue time - Each job for self-hosted runners can be queued for a maximum of 24 hours. If a self-hosted runner does not start
+        // executing the job within this limit, the job is terminated and fails to complete."
+        Annotations.of(this).addWarning(`Average total retry time is ${Math.floor(totalSeconds / 60 / 60)} hours. Jobs expire after 24`
+          + ' hours so it would be a waste of resources to retry further.');
       }
 
       runProviders.addRetry({
         interval,
+        maxDelay,
         maxAttempts,
         backoffRate,
+        // without jitter every runner that failed on the same missing capacity or API quota comes back at the exact same time
+        jitterStrategy: stepfunctions.JitterType.FULL,
         // we retry on everything
         // deleted idle runners will also fail, but the reaper will stop this step function to avoid endless retries
       });

@@ -276,14 +276,26 @@ describe('GitHubRunners', () => {
     new GitHubRunners(stack, 'yes', {
       providers: [new CodeBuildRunnerProvider(stack, 'p2')],
       retryOptions: {
-        maxAttempts: 30,
+        maxAttempts: 500,
+      },
+    });
+
+    // a silly number of attempts should still synth instantly
+    new GitHubRunners(stack, 'silly', {
+      providers: [new CodeBuildRunnerProvider(stack, 'p3')],
+      retryOptions: {
+        maxAttempts: 1_000_000,
       },
     });
 
     Annotations.fromStack(stack).hasNoWarning('/test/no', Match.anyValue());
     Annotations.fromStack(stack).hasWarning(
       '/test/yes',
-      Match.stringLikeRegexp('Total retry time is greater than 24 hours \\(145 hours\\)\\. Jobs expire after 24 hours so it would be a waste of resources to retry further\\.'),
+      Match.stringLikeRegexp('Average total retry time is 62 hours\\. Jobs expire after 24 hours so it would be a waste of resources to retry further\\.'),
+    );
+    Annotations.fromStack(stack).hasWarning(
+      '/test/silly',
+      Match.stringLikeRegexp('Average total retry time is 124999 hours\\..*'),
     );
   });
 
