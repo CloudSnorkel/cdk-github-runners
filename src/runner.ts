@@ -609,10 +609,16 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       // jitter picks a random wait between zero and the interval, so we wait half of it on average
       // we aim a bit over 24 hours so most jobs keep retrying for the whole day they can wait
       // if we do stop early, the job will steal another runner and the stolen runner detector will replace it
-      let totalSeconds = 0;
-      for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        totalSeconds += Math.min(interval.toSeconds() * backoffRate ** attempt, maxDelay.toSeconds()) / 2;
-      }
+      //
+      // the wait grows geometrically until it hits maxDelay and stays there, so the total is a geometric
+      // series plus a flat tail. maxAttempts is a public option, so we don't want to loop over it
+      const growingAttempts = backoffRate > 1
+        ? Math.min(maxAttempts, Math.max(0, Math.ceil(Math.log(maxDelay.toSeconds() / interval.toSeconds()) / Math.log(backoffRate))))
+        : (interval.toSeconds() < maxDelay.toSeconds() ? maxAttempts : 0);
+      const growingSeconds = backoffRate === 1
+        ? interval.toSeconds() * growingAttempts
+        : interval.toSeconds() * (backoffRate ** growingAttempts - 1) / (backoffRate - 1);
+      const totalSeconds = (growingSeconds + (maxAttempts - growingAttempts) * maxDelay.toSeconds()) / 2;
 
       // the default overshoots 24 hours on purpose, so only complain when it's clearly more than a job can use
       if (totalSeconds >= cdk.Duration.hours(30).toSeconds()) {
