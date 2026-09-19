@@ -598,10 +598,17 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     if (props?.retryOptions?.retry ?? true) {
       // we aim to wait at most 24 hours because that's when github jobs time out
       const interval = props?.retryOptions?.interval ?? cdk.Duration.minutes(1);
-      // a shorter maxDelay needs more attempts to still cover 24 hours, and every attempt costs execution history
-      // events. measured on this state machine: 25 events for a provider with no fallback, 73 for a four config
-      // fallback chain. Step Functions kills an execution at 25,000 events, so 15 minutes keeps even the worst
-      // case (210 * 73) at about 15,000, while 5 minutes would need ~600 attempts and blow right past the limit
+      // a shorter maxDelay needs more attempts to cover the same 24 hours, and every attempt costs execution history
+      // events that Step Functions caps at 25,000. measured on this state machine, a failed attempt costs 25 events
+      // for a provider with no fallback and 73 for a four config fallback chain, so 210 attempts land around 15,000
+      // while a 5 minute cap would need ~600 attempts and go right past it
+      //
+      // those are normal path numbers and not a ceiling. a longer fallback chain costs more, and an attempt whose
+      // clean-up keeps hitting RunnerBusy costs 793, which no attempt count that still covers 24 hours can fit
+      //
+      // if the execution history limit does hit, we will end give up on this runner. this would only happen when we
+      // are having lots of issues provisioning a runners. stolen runner detector may end up replacing it when the
+      // errors finally stop.
       const maxDelay = props?.retryOptions?.maxDelay ?? cdk.Duration.minutes(15);
       const maxAttempts = props?.retryOptions?.maxAttempts ?? 210;
       const backoffRate = props?.retryOptions?.backoffRate ?? 2;
