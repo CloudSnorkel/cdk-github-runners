@@ -139,9 +139,10 @@ describe('Parameterized providers', () => {
 
     const definition = definitionString(Template.fromStack(stack));
     const branch = JSON.parse(definition.replace(/<TOKEN>/g, 'token')).States['Run Providers'].Branches[0].States;
+    const tokenRetriever = branch['Try Provider'].Branches[0].States['Get Runner Token'];
 
     // the group of whichever config was selected, so a composite reports the sub-provider that actually runs
-    expect(branch['Get Runner Token'].Parameters['group.$']).toBe('$.providerParams.runnerGroup');
+    expect(tokenRetriever.Parameters['group.$']).toBe('$.providerParams.runnerGroup');
     // an unknown provider selects no config at all, so the group needs a default to read
     expect(definition).toContain("$merge([{'runnerGroup': ''}, $config");
     // providers without a group report an empty one and are never checked
@@ -330,13 +331,15 @@ describe('Parameterized providers', () => {
     const parsed = JSON.parse(definition.replace(/<TOKEN>/g, 'token'));
     const branch = parsed.States['Run Providers'].Branches[0].States;
     expect(Object.keys(branch)).toEqual([
-      'Select Provider Config', 'Get Runner Token', 'Try Provider',
+      'Select Provider Config', 'Try Provider',
       'Use Fallback Config', 'Fallback Configured?', 'Clean Up Failed Runner', 'All Attempts Failed',
     ]);
-    // the token is fetched after the config is selected, so the token retriever can check the selected config
-    expect(branch['Select Provider Config'].Next).toBe('Get Runner Token');
-    expect(branch['Get Runner Token'].Next).toBe('Try Provider');
+    expect(branch['Select Provider Config'].Next).toBe('Try Provider');
     expect(branch['Use Fallback Config'].Next).toBe('Try Provider');
+    // the token is fetched inside 'Try Provider', after the config is selected, so the token retriever checks the
+    // config that is about to run and its failure falls back like any other
+    expect(Object.keys(branch['Try Provider'].Branches[0].States)).toContain('Get Runner Token');
+    expect(branch['Try Provider'].Branches[0].StartAt).toBe('Get Runner Token');
   });
 
   test('a distributed config keeps the picked provider fallback chain', () => {

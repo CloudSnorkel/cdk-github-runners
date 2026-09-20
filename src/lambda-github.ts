@@ -174,6 +174,7 @@ export async function getAppOctokit(): Promise<RestOctokit | undefined> {
   }
 
   const privateKey = await getSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN);
+  checkPrivateKey(privateKey);
 
   return new Octokit({
     baseUrl,

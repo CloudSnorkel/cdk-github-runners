@@ -18,10 +18,16 @@ function createEvent(overrides: Record<string, unknown> = {}) {
   } as any;
 }
 
-function createOctokit(runnerLevel: string | undefined, tokenErrorStatus?: number) {
-  const registrationToken = (token: string) => tokenErrorStatus === undefined
+type TokenError = { status: number; message?: string; headers?: Record<string, string> };
+
+function createOctokit(runnerLevel: string | undefined, tokenError?: number | TokenError) {
+  const spec = typeof tokenError === 'number' ? { status: tokenError } : tokenError;
+  const registrationToken = (token: string) => spec === undefined
     ? jest.fn().mockResolvedValue({ data: { token } })
-    : jest.fn().mockRejectedValue(Object.assign(new Error('GitHub says no'), { status: tokenErrorStatus }));
+    : jest.fn().mockRejectedValue(Object.assign(new Error(spec.message ?? 'GitHub says no'), {
+      status: spec.status,
+      response: { headers: spec.headers ?? {} },
+    }));
 
   return {
     octokit: {
@@ -135,6 +141,39 @@ describe('Runner token retriever', () => {
     await expect(handler(createEvent())).rejects.toMatchObject({
       name: 'RunnerConfigurationError',
       message: expect.stringContaining('organization level'),
+    });
+  });
+
+  test('configuration errors keep what GitHub said', async () => {
+    mockGetOctokit.mockResolvedValue(createOctokit('repo', { status: 403, message: 'Resource not accessible by integration' }));
+
+    await expect(handler(createEvent())).rejects.toMatchObject({
+      name: 'RunnerConfigurationError',
+      message: expect.stringContaining('Resource not accessible by integration'),
+    });
+  });
+
+  test('a rate limited 403 is a token error, not a configuration error', async () => {
+    mockGetOctokit.mockResolvedValue(createOctokit('repo', {
+      status: 403,
+      message: 'API rate limit exceeded',
+      headers: { 'x-ratelimit-remaining': '0' },
+    }));
+
+    await expect(handler(createEvent())).rejects.toMatchObject({
+      name: 'RunnerTokenError',
+      message: 'API rate limit exceeded',
+    });
+  });
+
+  test('a secondary rate limit without headers is still a token error', async () => {
+    mockGetOctokit.mockResolvedValue(createOctokit('org', {
+      status: 403,
+      message: 'You have exceeded a secondary rate limit',
+    }));
+
+    await expect(handler(createEvent())).rejects.toMatchObject({
+      name: 'RunnerTokenError',
     });
   });
 
