@@ -166,6 +166,16 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    * @default false
    */
   readonly spot?: boolean;
+
+  /**
+   * Additional tags to apply to launched runner tasks.
+   *
+   * These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
+   * You may override the built-in tags.
+   *
+   * @default no additional tags
+   */
+  readonly tags?: { [key: string]: string };
 }
 
 /**
@@ -240,6 +250,17 @@ export function grantEcsRunTask(scope: Construct, stateMachineRole: iam.IGrantab
     resources: ['*'],
   }));
 
+  // tagging the task on creation needs its own permission
+  stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+    actions: ['ecs:TagResource'],
+    resources: ['*'],
+    conditions: {
+      StringEquals: {
+        'ecs:CreateAction': 'RunTask',
+      },
+    },
+  }));
+
   const passedRoles = [task.taskRole.roleArn];
   if (task.executionRole) {
     passedRoles.push(task.executionRole.roleArn);
@@ -259,6 +280,60 @@ export function grantEcsRunTask(scope: Construct, stateMachineRole: iam.IGrantab
       resourceName: 'StepFunctionsGetEventsForECSTaskRule',
     })],
   }));
+}
+
+/**
+ * Tags for a runner task, on top of the standard runner tags the orchestrator merges in at runtime.
+ *
+ * ECS is a lot pickier about tags than EC2. It doesn't allow commas which we use in labels, no parenthesis, no brackets, and others. For data that
+ * used to allow those characters, we clean up the tag and warn the user. For tags manually set on the provider (new feature), we instead error out.
+ *
+ * Unlike EC2 tags, labels will be separated with spaces instead of commas. Which honestly is quite annoying.
+ *
+ * `Name` and `GitHubRunners:Repo` are left to the orchestrator because they are built out of the repository name and the webhook delivery id, and
+ * GitHub doesn't allow anything ECS would reject.
+ *
+ * @internal
+ */
+export function ecsTags(scope: Construct, labels: string[], tags: { [key: string]: string }): { [key: string]: string } {
+  // https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_Tag.html
+  const allowed = /^[\p{L}\p{Z}\p{N}_.:/=+\-@]*$/u;
+
+  const clean = (description: string, value: string) => {
+    const cleaned = value.replace(/[^\p{L}\p{Z}\p{N}_.:/=+\-@]/gu, '_').slice(0, 256);
+    if (cleaned !== value) {
+      cdk.Annotations.of(scope).addWarning(
+        `ECS tags can only contain up to 256 letters, numbers, spaces, and _ . : / = + - @, so the ${description} will be tagged as ` +
+        `${JSON.stringify(cleaned.slice(0, 100))}`,
+      );
+    }
+    return cleaned;
+  };
+
+  const check = (description: string, value: string, maxLength: number) => {
+    if (!allowed.test(value)) {
+      cdk.Annotations.of(scope).addError(
+        `Bad character in ${description}. ECS tags can only contain letters, numbers, spaces, and _ . : / = + - @: ${JSON.stringify(value.slice(0, 100))}`,
+      );
+    }
+    if (value.length > maxLength) {
+      cdk.Annotations.of(scope).addError(
+        `Too many characters in ${description}. ECS tags are limited to ${maxLength} characters: ${JSON.stringify(value.slice(0, 100))}`,
+      );
+    }
+  };
+
+  for (const [key, value] of Object.entries(tags)) {
+    check('tag name', key, 128);
+    check('tag value', value, 256);
+  }
+
+  // the user's tags come last so they can override ours, just like they override the orchestrator's standard tags
+  return {
+    'GitHubRunners:Provider': clean('provider construct path', scope.node.path),
+    'GitHubRunners:Labels': clean('runner labels', labels.join(' ')),
+    ...tags,
+  };
 }
 
 /**
@@ -338,7 +413,8 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
               'Environment': runnerEnvironment((name, value) => ({ 'Name': name, 'Value.$': value })),
             }],
           },
-          'PropagateTags': 'TASK_DEFINITION',
+          // the provider's tags, already merged with the standard runner tags by the orchestrator
+          'Tags.$': p('tags'),
           'CapacityProviderStrategy': [{
             'CapacityProvider.$': p('capacityProvider'),
           }],
@@ -462,6 +538,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   private readonly group?: string;
   private readonly defaultLabels: boolean;
   private readonly securityGroups: ec2.ISecurityGroup[];
+  private readonly tags: { [key: string]: string };
 
   constructor(scope: Construct, id: string, props?: FargateRunnerProviderProps) {
     super(scope, id, props);
@@ -483,6 +560,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       },
     );
     this.spot = props?.spot ?? false;
+    this.tags = ecsTags(this, this.labels, props?.tags ?? {});
 
     const imageBuilder = props?.imageBuilder ?? FargateRunnerProvider.imageBuilder(this, 'Image Builder');
     const image = this.image = imageBuilder.bindDockerImage();
@@ -570,6 +648,9 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       subnets: this.cluster.vpc.selectSubnets(subnetSelection).subnetIds,
       securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
       assignPublicIp: this.assignPublicIp ? 'ENABLED' : 'DISABLED',
+      // the cleaned up provider path and labels, plus whatever the user asked for
+      // see selectProviderParams() in runner.ts, which merges the rest of the standard runner tags in at runtime
+      tags: Object.entries(this.tags).map(([Key, Value]) => ({ Key, Value })),
       runnerGroup: this.group ?? '',
       group1: this.group ? '--runnergroup' : '',
       group2: this.group ? this.group : '',

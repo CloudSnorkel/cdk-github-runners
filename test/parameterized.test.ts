@@ -193,7 +193,7 @@ describe('Parameterized providers', () => {
     expect(definition).toContain('{"Name":"RUNNER_TOKEN","Value.$":"$.runner.token"}');
     expect(definition).toContain('{"Name":"RUNNER_GROUP1","Value.$":"$.providerParams.group1"}');
     expect(definition).toContain('"PlatformVersion":"LATEST"');
-    expect(definition).toContain('"PropagateTags":"TASK_DEFINITION"');
+    expect(definition).toContain('"Tags.$":"$.providerParams.tags"');
   });
 
   test('ecs placement strategies and constraints reach ecs:runTask', () => {

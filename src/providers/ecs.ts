@@ -27,7 +27,7 @@ import {
   providerParam,
   RunnerEnvConfig,
 } from './common';
-import { ecsRunCommand, grantEcsRunTask } from './fargate';
+import { ecsRunCommand, ecsTags, grantEcsRunTask } from './fargate';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT, MINIMAL_ECS_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
@@ -224,6 +224,16 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
    * @default undefined (no GPU)
    */
   readonly gpu?: number;
+
+  /**
+   * Additional tags to apply to launched runner tasks.
+   *
+   * These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
+   * You may override the built-in tags.
+   *
+   * @default no additional tags
+   */
+  readonly tags?: { [key: string]: string };
 }
 
 /**
@@ -276,7 +286,8 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
               'Environment': runnerEnvironment((name, value) => ({ 'Name': name, 'Value.$': value })),
             }],
           },
-          'PropagateTags': 'TASK_DEFINITION',
+          // the provider's tags, already merged with the standard runner tags by the orchestrator
+          'Tags.$': p('tags'),
           'CapacityProviderStrategy': [{
             'CapacityProvider.$': p('capacityProviderName'),
           }],
@@ -418,6 +429,11 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    */
   private readonly gpuCount: number;
 
+  /**
+   * Tags set on launched runner tasks.
+   */
+  private readonly tags: { [key: string]: string };
+
 
   constructor(scope: Construct, id: string, props?: EcsRunnerProviderProps) {
     super(scope, id, props);
@@ -432,6 +448,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     this.placementStrategies = props?.placementStrategies;
     this.placementConstraints = props?.placementConstraints;
     this.gpuCount = props?.gpu ?? 0;
+    this.tags = ecsTags(this, this.labels, props?.tags ?? {});
     this.cluster = props?.cluster ? props.cluster : new ecs.Cluster(
       this,
       'cluster',
@@ -701,6 +718,9 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       // a missing key makes the JSONata resolve to nothing and the state fails with States.QueryEvaluationError
       placementStrategies,
       placementConstraints,
+      // the cleaned up provider path and labels, plus whatever the user asked for
+      // see selectProviderParams() in runner.ts, which merges the rest of the standard runner tags in at runtime
+      tags: Object.entries(this.tags).map(([Key, Value]) => ({ Key, Value })),
       runnerGroup: this.group ?? '',
       group1: this.group ? '--runnergroup' : '',
       group2: this.group ? this.group : '',
