@@ -39,6 +39,7 @@ import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
 import { StolenRunnerDetector } from './stolen-runners';
 import { TokenRetrieverFunction } from './token-retriever-function';
+import { TokenRetrieverInput } from './token-retriever.lambda';
 import { dedupeStateMachineTokens, discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
 import { WarmRunnerManagerFunction } from './warm-runner-manager-function';
 import { GithubWebhookHandler } from './webhook';
@@ -67,6 +68,9 @@ const FAMILY_FRAGMENTS = new Map<string, (scope: Construct) => stepfunctions.ICh
  *
  * `GitHubRunners:Provider` should name the provider that actually runs the job, which is not `$.provider` when we got here through a composite, so
  * the config's own `provider` field wins when it has one.
+ *
+ * `runnerGroup` gets a default so an unknown provider, whose lookup finds nothing, still produces params the next states can read. Without it the
+ * token retriever fails on a missing reference path instead of reaching `Unknown provider`.
  */
 function selectProviderParams(configExpr: string): string {
   return `$merge([
@@ -75,7 +79,7 @@ function selectProviderParams(configExpr: string): string {
       $selected := ${configExpr};
       $r := $random() * $selected.totalWeight;
       $config := $exists($selected.distribute) ? $selected.distribute[threshold > $r][0].config : $selected;
-      $merge([$config, {'tags': $append(
+      $merge([{'runnerGroup': ''}, $config, {'tags': $append(
         [
           {'Key': 'Name', 'Value': $states.context.Execution.Name},
           {'Key': 'GitHubRunners:Provider', 'Value': $config.provider},
@@ -464,6 +468,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   private stateMachine(props?: GitHubRunnersProps) {
+    // runs after the config is selected so it can check the selected config against the GitHub setup, and fail before any provider starts an
+    // instance, a build, or a task
     const tokenRetrieverTask = new stepfunctions_tasks.LambdaInvoke(
       this,
       'Get Runner Token',
@@ -471,6 +477,13 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         lambdaFunction: this.tokenRetriever(),
         payloadResponseOnly: true,
         resultPath: '$.runner',
+        payload: stepfunctions.TaskInput.fromObject(<TokenRetrieverInput>{
+          owner: stepfunctions.JsonPath.stringAt('$.owner'),
+          repo: stepfunctions.JsonPath.stringAt('$.repo'),
+          runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+          installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
+          group: stepfunctions.JsonPath.stringAt('$.providerParams.runnerGroup'),
+        }),
       },
     );
 
@@ -592,7 +605,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     // we used to need two nested ones just to clean up before the retry, because Retry runs before Catch
     const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
       // we get a token for every retry because the token can expire faster than the job can timeout
-      tokenRetrieverTask.next(selectConfig).next(tryProvider),
+      selectConfig.next(tokenRetrieverTask).next(tryProvider),
     );
 
     if (props?.retryOptions?.retry ?? true) {

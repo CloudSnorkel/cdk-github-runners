@@ -675,6 +675,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider, 
       // always here, even when empty, because that's what opts us into the standard runner tags
       // see selectProviderParams() in runner.ts, which merges them in at runtime
       tags: Object.entries(this.tags).map(([Key, Value]) => ({ Key, Value })),
+      runnerGroup: this.group ?? '',
       group1: this.group ? '--runnergroup' : '',
       group2: this.group ? this.group : '',
       defaultLabels: this.defaultLabels ? '' : '--no-default-labels',

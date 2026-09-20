@@ -7,6 +7,21 @@ export interface StepFunctionLambdaInput {
   readonly installationId?: number;
 }
 
+/**
+ * Error for problems that can only be fixed by changing the configuration, either in CDK or on GitHub. They all share
+ * one error name so the step function immediately shows this isn't capacity or a flaky API, and the message says what
+ * to fix. We still retry them, so a configuration fixed within the 24 hours GitHub queues a job still gets a runner.
+ *
+ * @internal
+ */
+export class RunnerConfigurationError extends Error {
+  constructor(msg: string) {
+    super(msg);
+    this.name = 'RunnerConfigurationError';
+    Object.setPrototypeOf(this, RunnerConfigurationError.prototype);
+  }
+}
+
 const sm = new SecretsManagerClient();
 
 export async function getSecretValue(arn: string | undefined) {

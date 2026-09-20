@@ -570,6 +570,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       subnets: this.cluster.vpc.selectSubnets(subnetSelection).subnetIds,
       securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
       assignPublicIp: this.assignPublicIp ? 'ENABLED' : 'DISABLED',
+      runnerGroup: this.group ?? '',
       group1: this.group ? '--runnergroup' : '',
       group2: this.group ? this.group : '',
       defaultLabels: this.defaultLabels ? '' : '--no-default-labels',

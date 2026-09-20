@@ -701,6 +701,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       // a missing key makes the JSONata resolve to nothing and the state fails with States.QueryEvaluationError
       placementStrategies,
       placementConstraints,
+      runnerGroup: this.group ?? '',
       group1: this.group ? '--runnergroup' : '',
       group2: this.group ? this.group : '',
       defaultLabels: this.defaultLabels ? '' : '--no-default-labels',

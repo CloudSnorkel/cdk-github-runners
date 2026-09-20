@@ -1,6 +1,7 @@
 import { aws_secretsmanager as secretsmanager } from 'aws-cdk-lib';
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { GITHUB_PRIVATE_KEY_PLACEHOLDER } from './lambda-common';
 
 /**
  * Secrets required for GitHub runners operation.
@@ -74,7 +75,7 @@ export class Secrets extends Construct {
       'GitHub Private Key',
       {
         description: 'GitHub app private key (RSA private key in PEM format). This secret is only needed when using GitHub App authentication. Not required when using personal access tokens. For setup instructions, see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md',
-        secretStringValue: cdk.SecretValue.unsafePlainText('-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----'),
+        secretStringValue: cdk.SecretValue.unsafePlainText(GITHUB_PRIVATE_KEY_PLACEHOLDER),
       },
     );
 

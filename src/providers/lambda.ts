@@ -424,6 +424,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       family: LambdaRunnerProvider._FAMILY,
       provider: this.node.path,
       functionArn: this.function.functionArn,
+      runnerGroup: this.group ?? '',
       group: this.group ? `--runnergroup ${this.group}` : '',
       defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
     };

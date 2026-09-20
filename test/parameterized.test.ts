@@ -124,9 +124,28 @@ describe('Parameterized providers', () => {
     // the configs go in a workflow variable, not the execution state, and the lookup reads it by $.provider.
     // dynamic tokens (the project name) are de-duplicated into definitionSubstitutions, so the config carries a
     // ${...} placeholder rather than the token
-    expect(definition).toContain('"Assign":{"providerConfigs":{"test/p1":{"family":"codebuild","provider":"test/p1","projectName":"${__sfnsub_0}","group1":"--runnergroup","group2":"my-group","defaultLabels":"--no-default-labels"}}}');
+    expect(definition).toContain('"Assign":{"providerConfigs":{"test/p1":{"family":"codebuild","provider":"test/p1","projectName":"${__sfnsub_0}","runnerGroup":"my-group","group1":"--runnergroup","group2":"my-group","defaultLabels":"--no-default-labels"}}}');
     expect(definition).toContain('$lookup($providerConfigs, $states.input.provider)');
     expect(definitionSubstitutions(template).__sfnsub_0).toBeDefined();
+  });
+
+  test('the selected config runner group is passed to the token retriever', () => {
+    new GitHubRunners(stack, 'runners', {
+      providers: [
+        new CodeBuildRunnerProvider(stack, 'p1', { imageBuilder: staticImage(stack, 'i1'), group: 'my-group' }),
+        new LambdaRunnerProvider(stack, 'p2', { imageBuilder: staticImage(stack, 'i2'), labels: ['two'] }),
+      ],
+    });
+
+    const definition = definitionString(Template.fromStack(stack));
+    const branch = JSON.parse(definition.replace(/<TOKEN>/g, 'token')).States['Run Providers'].Branches[0].States;
+
+    // the group of whichever config was selected, so a composite reports the sub-provider that actually runs
+    expect(branch['Get Runner Token'].Parameters['group.$']).toBe('$.providerParams.runnerGroup');
+    // an unknown provider selects no config at all, so the group needs a default to read
+    expect(definition).toContain("$merge([{'runnerGroup': ''}, $config");
+    // providers without a group report an empty one and are never checked
+    expect(definition).toContain('"test/p2":{"family":"lambda","provider":"test/p2","functionArn":"${__sfnsub_1}","runnerGroup":"","group":""');
   });
 
   test('tokens shared across providers are de-duplicated into one substitution', () => {
@@ -311,10 +330,12 @@ describe('Parameterized providers', () => {
     const parsed = JSON.parse(definition.replace(/<TOKEN>/g, 'token'));
     const branch = parsed.States['Run Providers'].Branches[0].States;
     expect(Object.keys(branch)).toEqual([
-      'Get Runner Token', 'Select Provider Config', 'Try Provider',
+      'Select Provider Config', 'Get Runner Token', 'Try Provider',
       'Use Fallback Config', 'Fallback Configured?', 'Clean Up Failed Runner', 'All Attempts Failed',
     ]);
-    expect(branch['Select Provider Config'].Next).toBe('Try Provider');
+    // the token is fetched after the config is selected, so the token retriever can check the selected config
+    expect(branch['Select Provider Config'].Next).toBe('Get Runner Token');
+    expect(branch['Get Runner Token'].Next).toBe('Try Provider');
     expect(branch['Use Fallback Config'].Next).toBe('Try Provider');
   });
 
