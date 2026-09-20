@@ -14,6 +14,14 @@ export const MAX_RUNNER_NAME_LENGTH = 64;
 export const WARM_RUNNER_JOB_ID = -1;
 
 /**
+ * Private key secret value we deploy with. The user is meant to replace it with a real key, and a runner that gets
+ * this far with the placeholder still in place was never set up.
+ *
+ * @internal
+ */
+export const GITHUB_PRIVATE_KEY_PLACEHOLDER = '-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----';
+
+/**
  * Path of the providers file in the webhook handler layer. It's a layer and not an environment variable because all
  * environment variables of a function are limited to 4kb together, and users with many providers go over that.
  *

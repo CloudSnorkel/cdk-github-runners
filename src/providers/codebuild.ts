@@ -471,6 +471,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       family: CodeBuildRunnerProvider._FAMILY,
       provider: this.node.path,
       projectName: this.project.projectName,
+      runnerGroup: this.group ?? '',
       group1: this.group ? '--runnergroup' : '',
       group2: this.group ? this.group : '',
       defaultLabels: this.defaultLabels ? '' : '--no-default-labels',

@@ -1,6 +1,7 @@
 import { createHash } from 'crypto';
 import type { Octokit as RestOctokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
-import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
+import { GITHUB_PRIVATE_KEY_PLACEHOLDER } from './lambda-common';
+import { getSecretJsonValue, getSecretValue, RunnerConfigurationError } from './lambda-helpers';
 
 // ---- Octokit ESM loader helpers (inlined) ----
 // Octokit packages are ESM, but our Lambda assets are bundled into CJS.
@@ -34,7 +35,7 @@ export function baseUrlFromDomain(domain: string): string {
   return `https://${domain}/api/v3`;
 }
 
-type RunnerLevel = 'repo' | 'org' | undefined; // undefined is for backwards compatibility and should be treated as 'repo'
+export type RunnerLevel = 'repo' | 'org' | undefined; // undefined is for backwards compatibility and should be treated as 'repo'
 
 export interface GitHubSecrets {
   domain: string;
@@ -44,6 +45,37 @@ export interface GitHubSecrets {
 }
 
 const octokitCache = new Map<string, RestOctokit>();
+
+const SETUP_DOCS = 'See https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md';
+
+/**
+ * Confirm we have what we need for app authentication. Called only when there is no personal access token.
+ *
+ * @internal
+ */
+export function checkAppAuth(githubSecrets: GitHubSecrets, installationId?: number) {
+  if (!githubSecrets.appId) {
+    throw new RunnerConfigurationError('GitHub authentication has not been set up. The GitHub secret has neither a personal access token ' +
+      `(personalAuthToken) nor an app id (appId). Run the setup wizard linked in the stack outputs, or set the secret manually. ${SETUP_DOCS}`);
+  }
+
+  if (installationId === undefined || installationId <= 0) {
+    throw new RunnerConfigurationError('Installation ID is required for app authentication. ' +
+      'This error can happen if you create the webhook yourself for GitHub app authentication instead of using the app webhook.');
+  }
+}
+
+/**
+ * Confirm the private key secret was actually filled in after deployment.
+ *
+ * @internal
+ */
+export function checkPrivateKey(privateKey: string) {
+  if (privateKey.trim() === GITHUB_PRIVATE_KEY_PLACEHOLDER) {
+    throw new RunnerConfigurationError('GitHub app private key has not been set. The private key secret still has the placeholder we deploy ' +
+      `with. Run the setup wizard linked in the stack outputs, or put the app private key in the secret manually. ${SETUP_DOCS}`);
+  }
+}
 
 export async function getOctokit(installationId?: number): Promise<{ octokit: RestOctokit; githubSecrets: GitHubSecrets }> {
   if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
@@ -87,12 +119,11 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Re
   if (githubSecrets.personalAuthToken) {
     token = githubSecrets.personalAuthToken;
   } else {
-    if (installationId === undefined || installationId <= 0) {
-      throw new Error('Installation ID is required for app authentication. ' +
-        'This error can happen if you create the webhook yourself for GitHub app authentication instead of using the app webhook.');
-    }
+    checkAppAuth(githubSecrets, installationId);
 
     const privateKey = await getSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN);
+
+    checkPrivateKey(privateKey);
 
     const appOctokit = new Octokit({
       baseUrl,
@@ -143,6 +174,7 @@ export async function getAppOctokit(): Promise<RestOctokit | undefined> {
   }
 
   const privateKey = await getSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN);
+  checkPrivateKey(privateKey);
 
   return new Octokit({
     baseUrl,

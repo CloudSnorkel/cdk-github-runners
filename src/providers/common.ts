@@ -539,6 +539,8 @@ export interface RunnerConfig {
   readonly fallback?: RunnerConfig;
   /** provider that actually runs the job, for tagging, when it isn't `$.provider` */
   readonly provider: string;
+  /** runner group this config registers with, or an empty string. families pass their own shape to the runner */
+  readonly runnerGroup: string;
   /** tags the provider sets on whatever it creates, before the standard runner tags get merged in */
   readonly tags?: { readonly Key: string; readonly Value: string }[];
 }
