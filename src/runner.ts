@@ -468,8 +468,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   private stateMachine(props?: GitHubRunnersProps) {
-    // runs after a config is selected, and inside the fallback loop, so it can check the config that is about to run and fail before any
-    // provider starts an instance, a build, or a task
+    // runs after the config is selected so it can check the selected config against the GitHub setup, and fail before any provider starts an
+    // instance, a build, or a task
     const tokenRetrieverTask = new stepfunctions_tasks.LambdaInvoke(
       this,
       'Get Runner Token',
@@ -555,15 +555,9 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     providerFamilyChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown provider'));
 
-    // a config can chain a fallback to try when it fails (CompositeProvider.fallback, EC2 subnets) this parallel catches the failure, cleans up the
-    // runner, and loops back with the next config
-    //
-    // the token retriever is inside the parallel so its configuration errors are caught too. a composite can fall back from a config we refuse to
-    // start to one we can, and every fallback config gets checked instead of just the first
-    const tryProvider = new stepfunctions.Parallel(this, 'Try Provider').branch(
-      // we get a token for every attempt because the token can expire faster than the job can timeout
-      tokenRetrieverTask.next(providerFamilyChooser),
-    );
+    // a config can chain a fallback to try when it fails (CompositeProvider.fallback, EC2 subnets)
+    // this parallel catches the failure, cleans up the runner, and loops back with the next config
+    const tryProvider = new stepfunctions.Parallel(this, 'Try Provider').branch(providerFamilyChooser);
 
     this.deleteFailedRunnerFunction ??= this.deleteFailedRunner();
     const fallbackCleanup = new stepfunctions_tasks.LambdaInvoke(this, 'Clean Up Failed Runner', {
@@ -610,7 +604,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     // one parallel is enough now: the fallback loop above already cleaned up the runner before it gave up
     // we used to need two nested ones just to clean up before the retry, because Retry runs before Catch
     const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
-      selectConfig.next(tryProvider),
+      // we get a token for every retry because the token can expire faster than the job can timeout
+      selectConfig.next(tokenRetrieverTask).next(tryProvider),
     );
 
     if (props?.retryOptions?.retry ?? true) {
