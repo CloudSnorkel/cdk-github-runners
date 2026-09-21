@@ -106,6 +106,28 @@ describe('Providers', () => {
     }));
   });
 
+  test('Fargate tags are passed to the orchestrator for merging into RunTask Tags', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+    const provider = new FargateRunnerProvider(stack, 'provider tags', {
+      vpc,
+      securityGroups: [sg],
+      labels: ['fargate-tags'],
+      tags: {
+        SecurityMonitoring: 'enabled',
+      },
+    });
+
+    // the provider path is tagged here because ECS won't take it as it comes in at runtime
+    // `Name`, `GitHubRunners:Repo` and `GitHubRunners:Labels` still come from the orchestrator at execution time
+    expect((provider as any)._runnerConfig().tags).toEqual([
+      { Key: 'GitHubRunners:Provider', Value: 'test/provider tags' },
+      { Key: 'SecurityMonitoring', Value: 'enabled' },
+    ]);
+    expect((provider as any)._runnerConfig().cleanLabels).toBe(true);
+  });
+
   describe('ECS provider', () => {
     test('Basic', () => {
 
@@ -295,6 +317,133 @@ describe('Providers', () => {
       // the runner config feeds PlacementConstraints of ecs:runTask as-is
       expect((provider as any)._runnerConfig().placementConstraints).toEqual([{ Type: 'distinctInstance' }]);
     });
+
+    test('tags are passed to the orchestrator for merging into RunTask Tags', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      const provider = new EcsRunnerProvider(stack, 'provider tags', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ecs-tags'],
+        tags: {
+          SecurityMonitoring: 'enabled',
+        },
+      });
+
+      // the provider path is tagged here because ECS won't take it as it comes in at runtime
+      // `Name`, `GitHubRunners:Repo` and `GitHubRunners:Labels` still come from the orchestrator at execution time
+      expect((provider as any)._runnerConfig().tags).toEqual([
+        { Key: 'GitHubRunners:Provider', Value: 'test/provider tags' },
+        { Key: 'SecurityMonitoring', Value: 'enabled' },
+      ]);
+      expect((provider as any)._runnerConfig().cleanLabels).toBe(true);
+    });
+
+    test('the labels tag is left to the orchestrator, which cleans it up for us', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      const provider = new EcsRunnerProvider(stack, 'provider many labels', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ecs-many', 'linux', 'x64'],
+      });
+
+      // the labels a runner registers with are only known when a job comes in, so they can't be tagged here
+      expect((provider as any)._runnerConfig().tags).toEqual([
+        { Key: 'GitHubRunners:Provider', Value: 'test/provider many labels' },
+      ]);
+      expect((provider as any)._runnerConfig().cleanLabels).toBe(true);
+    });
+
+    test('a construct id ECS would reject is cleaned up everywhere it gets tagged', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new EcsRunnerProvider(stack, 'provider (x64)', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ecs-parens'],
+      });
+
+      // BaseProvider tags every provider with the raw path, and ECS rejects it when the task definition is
+      // registered, so the provider tags over it with the cleaned up path
+      Template.fromStack(stack).hasResourceProperties('AWS::ECS::TaskDefinition', Match.objectLike({
+        Tags: [{ Key: 'GitHubRunners:Provider', Value: 'test/provider _x64_' }],
+      }));
+    });
+
+    test('more tags than ECS allows on a task fail the deployment', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      // 47 of ours + `GitHubRunners:Provider` + `GitHubRunners:Labels` + `Name` + `GitHubRunners:Repo` is 51
+      const tags: { [key: string]: string } = {};
+      for (let i = 0; i < 47; i++) {
+        tags[`Tag${i}`] = 'x';
+      }
+
+      new EcsRunnerProvider(stack, 'provider too many tags', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ecs-many-tags'],
+        tags,
+      });
+
+      Annotations.fromStack(stack).hasError('/test/provider too many tags', Match.stringLikeRegexp('Too many tags. ECS tags are limited to 50 tags'));
+    });
+
+    test('tags reserved by AWS fail the deployment', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new EcsRunnerProvider(stack, 'provider reserved tags', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ecs-reserved-tags'],
+        tags: { 'aws:cost-center': 'infra', 'AWS:somewhere': 'hello' },
+      });
+
+      Annotations.fromStack(stack).hasError('/test/provider reserved tags', Match.stringLikeRegexp('Tag names cannot start with "aws:": "aws:cost-center"'));
+      Annotations.fromStack(stack).hasError('/test/provider reserved tags', Match.stringLikeRegexp('Tag names cannot start with "aws:": "AWS:somewhere"'));
+    });
+
+    test('construct ids ECS would reject are cleaned up with a warning', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      // this deployed just fine before we started tagging tasks, so it can't become an error now
+      // labels ECS would reject are cleaned up by the orchestrator instead, when the job comes in
+      const provider = new EcsRunnerProvider(stack, 'provider (bad id)', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ecs%', 'gpu(a100)'],
+      });
+
+      expect((provider as any)._runnerConfig().tags).toEqual([
+        { Key: 'GitHubRunners:Provider', Value: 'test/provider _bad id_' },
+      ]);
+
+      Annotations.fromStack(stack).hasWarning('/test/provider (bad id)', Match.stringLikeRegexp('provider construct path will be tagged as'));
+    });
+
+    test('tags ECS would reject fail the deployment instead of the runner', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new EcsRunnerProvider(stack, 'provider bad tags', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ecs-bad-tags'],
+        tags: { 'Cost#Center': 'infra,team', 'Team': 'x'.repeat(257) },
+      });
+
+      // tags are new, so a bad one is worth failing over instead of quietly tagging something else
+      Annotations.fromStack(stack).hasError('/test/provider bad tags', Match.stringLikeRegexp('Bad character in tag name'));
+      Annotations.fromStack(stack).hasError('/test/provider bad tags', Match.stringLikeRegexp('Bad character in tag value'));
+      Annotations.fromStack(stack).hasError('/test/provider bad tags', Match.stringLikeRegexp('Too many characters in tag value'));
+    });
   });
 
   describe('EC2 provider', () => {
@@ -394,7 +543,7 @@ describe('Providers', () => {
     const vpc = new ec2.Vpc(stack, 'vpc');
     const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
 
-    const provider = new Ec2RunnerProvider(stack, 'provider', {
+    new Ec2RunnerProvider(stack, 'provider', {
       vpc,
       securityGroups: [sg],
     });

@@ -543,6 +543,8 @@ export interface RunnerConfig {
   readonly runnerGroup: string;
   /** tags the provider sets on whatever it creates, before the standard runner tags get merged in */
   readonly tags?: { readonly Key: string; readonly Value: string }[];
+  /** ECS won't take the labels as they come in -- no commas, no parenthesis -- so its configs ask for a cleaned up labels tag */
+  readonly cleanLabels?: boolean;
 }
 
 /**

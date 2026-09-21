@@ -193,7 +193,7 @@ describe('Parameterized providers', () => {
     expect(definition).toContain('{"Name":"RUNNER_TOKEN","Value.$":"$.runner.token"}');
     expect(definition).toContain('{"Name":"RUNNER_GROUP1","Value.$":"$.providerParams.group1"}');
     expect(definition).toContain('"PlatformVersion":"LATEST"');
-    expect(definition).toContain('"PropagateTags":"TASK_DEFINITION"');
+    expect(definition).toContain('"Tags.$":"$.providerParams.tags"');
   });
 
   test('ecs placement strategies and constraints reach ecs:runTask', () => {
@@ -216,6 +216,24 @@ describe('Parameterized providers', () => {
     expect(definition).toContain('"PlacementConstraints.$":"$.providerParams.placementConstraints"');
     expect(definition).toContain('"placementStrategies":[{"Type":"binpack","Field":"CPU"}]');
     expect(definition).toContain('"placementConstraints":[{"Type":"distinctInstance"}]');
+  });
+
+  test('only ecs and fargate ask for a cleaned up labels tag', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    new GitHubRunners(stack, 'runners', {
+      providers: [
+        new EcsRunnerProvider(stack, 'e1', { imageBuilder: staticImage(stack, 'i1'), vpc, labels: ['ecs'] }),
+        new Ec2RunnerProvider(stack, 'p1', { imageBuilder: Ec2RunnerProvider.imageBuilder(stack, 'ib', { vpc }), vpc, labels: ['ec2'] }),
+      ],
+    });
+
+    // ECS rejects the commas we join labels with, so its configs ask the orchestrator to clean the tag up. EC2 takes
+    // the labels exactly as the runner registers with them, and that's what its instances have always been tagged with
+    const definition = definitionString(Template.fromStack(stack));
+    expect(definition).toContain('"family":"ecs","provider":"test/e1"');
+    expect(definition).toContain('"cleanLabels":true');
+    expect(definition).toContain("$config.cleanLabels ? $replace($join($split($states.input.labels, ','), ' ')");
+    expect(definition.match(/"cleanLabels":true/g)).toHaveLength(1);
   });
 
   test('failed providers are cleaned up and fall back to the next config', () => {

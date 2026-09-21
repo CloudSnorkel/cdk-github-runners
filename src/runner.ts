@@ -71,6 +71,9 @@ const FAMILY_FRAGMENTS = new Map<string, (scope: Construct) => stepfunctions.ICh
  *
  * `runnerGroup` gets a default so an unknown provider, whose lookup finds nothing, still produces params the next states can read. Without it the
  * token retriever fails on a missing reference path instead of reaching `Unknown provider`.
+ *
+ * Labels are tagged as they come in, so the tag shows what the runner registers with, warm runner and provider selector labels included. Configs
+ * that ask for `cleanLabels` get the same labels with spaces instead of the commas ECS rejects, and anything else it rejects as an underscore.
  */
 function selectProviderParams(configExpr: string): string {
   return `$merge([
@@ -84,7 +87,7 @@ function selectProviderParams(configExpr: string): string {
           {'Key': 'Name', 'Value': $states.context.Execution.Name},
           {'Key': 'GitHubRunners:Provider', 'Value': $config.provider},
           {'Key': 'GitHubRunners:Repo', 'Value': $states.input.owner & '/' & $states.input.repo},
-          {'Key': 'GitHubRunners:Labels', 'Value': $states.input.labels}
+          {'Key': 'GitHubRunners:Labels', 'Value': $config.cleanLabels ? $replace($join($split($states.input.labels, ','), ' '), /[^A-Za-z0-9 _.:\\/=+@-]/, '_') : $states.input.labels}
         ][$not(Key in $config.tags.Key)],
         $config.tags)}])
     )}
