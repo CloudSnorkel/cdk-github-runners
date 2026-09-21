@@ -27,7 +27,7 @@ import {
   providerParam,
   RunnerEnvConfig,
 } from './common';
-import { ecsRunCommand, ecsTags, grantEcsRunTask } from './fargate';
+import { cleanEcsTag, ecsRunCommand, ecsTags, grantEcsRunTask } from './fargate';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT, MINIMAL_ECS_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
@@ -457,6 +457,9 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         enableFargateCapacityProviders: false,
       },
     );
+
+    // all providers add this tag, but ECS/Fargate tags need to be cleaned
+    cdk.Tags.of(this).add('GitHubRunners:Provider', cleanEcsTag(this, 'provider tag', this.node.path));
 
     if (props?.storageOptions && !props?.storageSize) {
       cdk.Annotations.of(this).addError('storageSize is required when storageOptions are specified');

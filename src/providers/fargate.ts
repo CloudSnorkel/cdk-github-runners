@@ -282,6 +282,17 @@ export function grantEcsRunTask(scope: Construct, stateMachineRole: iam.IGrantab
   }));
 }
 
+export function cleanEcsTag(scope: Construct, description: string, value: string) {
+  const cleaned = value.replace(/[^\p{L}\p{Z}\p{N}_.:/=+\-@]/gu, '_').slice(0, 256);
+  if (cleaned !== value) {
+    cdk.Annotations.of(scope).addWarning(
+      `ECS tags can only contain up to 256 letters, numbers, spaces, and _ . : / = + - @, so the ${description} will be tagged as ` +
+      `${JSON.stringify(cleaned.slice(0, 100))}`,
+    );
+  }
+  return cleaned;
+}
+
 /**
  * Tags for a runner task, on top of the standard runner tags the orchestrator merges in at runtime.
  *
@@ -299,17 +310,6 @@ export function ecsTags(scope: Construct, labels: string[], tags: { [key: string
   // https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_Tag.html
   const allowed = /^[\p{L}\p{Z}\p{N}_.:/=+\-@]*$/u;
 
-  const clean = (description: string, value: string) => {
-    const cleaned = value.replace(/[^\p{L}\p{Z}\p{N}_.:/=+\-@]/gu, '_').slice(0, 256);
-    if (cleaned !== value) {
-      cdk.Annotations.of(scope).addWarning(
-        `ECS tags can only contain up to 256 letters, numbers, spaces, and _ . : / = + - @, so the ${description} will be tagged as ` +
-        `${JSON.stringify(cleaned.slice(0, 100))}`,
-      );
-    }
-    return cleaned;
-  };
-
   const check = (description: string, value: string, maxLength: number) => {
     if (!allowed.test(value)) {
       cdk.Annotations.of(scope).addError(
@@ -323,9 +323,16 @@ export function ecsTags(scope: Construct, labels: string[], tags: { [key: string
     }
   };
 
+  if (Object.keys(tags).length > 45) {
+    cdk.Annotations.of(scope).addError('Too many tags. ECS tags are limited to 50 tags, and 5 are already used by the orchestrator.}' );
+  }
+
   for (const [key, value] of Object.entries(tags)) {
     if (!key) {
       cdk.Annotations.of(scope).addError('Tag names cannot be empty');
+    }
+    if (key.startsWith('aws:')) {
+      cdk.Annotations.of(scope).addError(`Tag names cannot start with "aws:": ${JSON.stringify(key)}`);
     }
     check('tag name', key, 128);
     check('tag value', value, 256);
@@ -333,8 +340,8 @@ export function ecsTags(scope: Construct, labels: string[], tags: { [key: string
 
   // the user's tags come last so they can override ours, just like they override the orchestrator's standard tags
   return {
-    'GitHubRunners:Provider': clean('provider construct path', scope.node.path),
-    'GitHubRunners:Labels': clean('runner labels', labels.join(' ')),
+    'GitHubRunners:Provider': cleanEcsTag(scope, 'provider construct path', scope.node.path),
+    'GitHubRunners:Labels': cleanEcsTag(scope, 'runner labels', labels.join(' ')),
     ...tags,
   };
 }
@@ -564,6 +571,9 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
     );
     this.spot = props?.spot ?? false;
     this.tags = ecsTags(this, this.labels, props?.tags ?? {});
+
+    // all providers add this tag, but ECS/Fargate tags need to be cleaned
+    cdk.Tags.of(this).add('GitHubRunners:Provider', cleanEcsTag(this, 'provider tag', this.node.path));
 
     const imageBuilder = props?.imageBuilder ?? FargateRunnerProvider.imageBuilder(this, 'Image Builder');
     const image = this.image = imageBuilder.bindDockerImage();
