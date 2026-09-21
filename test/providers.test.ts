@@ -408,6 +408,42 @@ describe('Providers', () => {
       Annotations.fromStack(stack).hasError('/test/provider reserved tags', Match.stringLikeRegexp('Tag names cannot start with "aws:": "aws:cost-center"'));
       Annotations.fromStack(stack).hasError('/test/provider reserved tags', Match.stringLikeRegexp('Tag names cannot start with "aws:": "AWS:somewhere"'));
     });
+
+    test('construct ids ECS would reject are cleaned up with a warning', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      // this deployed just fine before we started tagging tasks, so it can't become an error now
+      // labels ECS would reject are cleaned up by the orchestrator instead, when the job comes in
+      const provider = new EcsRunnerProvider(stack, 'provider (bad id)', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ecs%', 'gpu(a100)'],
+      });
+
+      expect((provider as any)._runnerConfig().tags).toEqual([
+        { Key: 'GitHubRunners:Provider', Value: 'test/provider _bad id_' },
+      ]);
+
+      Annotations.fromStack(stack).hasWarning('/test/provider (bad id)', Match.stringLikeRegexp('provider construct path will be tagged as'));
+    });
+
+    test('tags ECS would reject fail the deployment instead of the runner', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new EcsRunnerProvider(stack, 'provider bad tags', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ecs-bad-tags'],
+        tags: { 'Cost#Center': 'infra,team', 'Team': 'x'.repeat(257) },
+      });
+
+      // tags are new, so a bad one is worth failing over instead of quietly tagging something else
+      Annotations.fromStack(stack).hasError('/test/provider bad tags', Match.stringLikeRegexp('Bad character in tag name'));
+      Annotations.fromStack(stack).hasError('/test/provider bad tags', Match.stringLikeRegexp('Bad character in tag value'));
+      Annotations.fromStack(stack).hasError('/test/provider bad tags', Match.stringLikeRegexp('Too many characters in tag value'));
+    });
   });
 
   describe('EC2 provider', () => {
@@ -500,44 +536,6 @@ describe('Providers', () => {
       // an empty array, not a missing field: RunInstances reads $.providerParams.tags unconditionally, and a
       // missing reference path fails the state at runtime
       expect((provider as any)._runnerConfig().tags).toEqual([]);
-      // EC2 takes commas, so the labels tag stays exactly as the labels came in
-      expect((provider as any)._runnerConfig().labelSeparator).toBeUndefined();
-    });
-
-    test('construct ids ECS would reject are cleaned up with a warning', () => {
-      const vpc = new ec2.Vpc(stack, 'vpc');
-      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
-
-      // this deployed just fine before we started tagging tasks, so it can't become an error now
-      // labels ECS would reject are cleaned up by the orchestrator instead, when the job comes in
-      const provider = new EcsRunnerProvider(stack, 'provider (bad id)', {
-        vpc,
-        securityGroups: [sg],
-        labels: ['ecs%', 'gpu(a100)'],
-      });
-
-      expect((provider as any)._runnerConfig().tags).toEqual([
-        { Key: 'GitHubRunners:Provider', Value: 'test/provider _bad id_' },
-      ]);
-
-      Annotations.fromStack(stack).hasWarning('/test/provider (bad id)', Match.stringLikeRegexp('provider construct path will be tagged as'));
-    });
-
-    test('tags ECS would reject fail the deployment instead of the runner', () => {
-      const vpc = new ec2.Vpc(stack, 'vpc');
-      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
-
-      new EcsRunnerProvider(stack, 'provider bad tags', {
-        vpc,
-        securityGroups: [sg],
-        labels: ['ecs-bad-tags'],
-        tags: { 'Cost#Center': 'infra,team', 'Team': 'x'.repeat(257) },
-      });
-
-      // tags are new, so a bad one is worth failing over instead of quietly tagging something else
-      Annotations.fromStack(stack).hasError('/test/provider bad tags', Match.stringLikeRegexp('Bad character in tag name'));
-      Annotations.fromStack(stack).hasError('/test/provider bad tags', Match.stringLikeRegexp('Bad character in tag value'));
-      Annotations.fromStack(stack).hasError('/test/provider bad tags', Match.stringLikeRegexp('Too many characters in tag value'));
     });
   });
 

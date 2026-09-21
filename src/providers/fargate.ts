@@ -282,6 +282,9 @@ export function grantEcsRunTask(scope: Construct, stateMachineRole: iam.IGrantab
   }));
 }
 
+/**
+ * @internal
+ */
 export function cleanEcsTag(scope: Construct, description: string, value: string) {
   const cleaned = value.replace(/[^\p{L}\p{Z}\p{N}_.:/=+\-@]/gu, '_').slice(0, 256);
   if (cleaned !== value) {
@@ -323,7 +326,7 @@ export function ecsTags(scope: Construct, tags: { [key: string]: string }): { [k
   };
 
   if (Object.keys(tags).length > 45) {
-    cdk.Annotations.of(scope).addError('Too many tags. ECS tags are limited to 50 tags, and 5 are already used by the orchestrator.}' );
+    cdk.Annotations.of(scope).addError('Too many tags. ECS tags are limited to 50 tags, and 5 are already used by the orchestrator.' );
   }
 
   for (const [key, value] of Object.entries(tags)) {
