@@ -286,8 +286,8 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
               'Environment': runnerEnvironment((name, value) => ({ 'Name': name, 'Value.$': value })),
             }],
           },
-          // the provider's tags, already merged with the standard runner tags by the orchestrator
-          'Tags.$': p('tags'),
+          'PropagateTags': 'TASK_DEFINITION',
+          'Tags.$': p('tags'), // the provider's tags, already merged with the standard runner tags by the orchestrator
           'CapacityProviderStrategy': [{
             'CapacityProvider.$': p('capacityProviderName'),
           }],

@@ -324,6 +324,9 @@ export function ecsTags(scope: Construct, labels: string[], tags: { [key: string
   };
 
   for (const [key, value] of Object.entries(tags)) {
+    if (!key) {
+      cdk.Annotations.of(scope).addError('Tag names cannot be empty');
+    }
     check('tag name', key, 128);
     check('tag value', value, 256);
   }
@@ -413,8 +416,8 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
               'Environment': runnerEnvironment((name, value) => ({ 'Name': name, 'Value.$': value })),
             }],
           },
-          // the provider's tags, already merged with the standard runner tags by the orchestrator
-          'Tags.$': p('tags'),
+          'PropagateTags': 'TASK_DEFINITION',
+          'Tags.$': p('tags'), // the provider's tags, already merged with the standard runner tags by the orchestrator
           'CapacityProviderStrategy': [{
             'CapacityProvider.$': p('capacityProvider'),
           }],
