@@ -299,14 +299,13 @@ export function cleanEcsTag(scope: Construct, description: string, value: string
  * ECS is a lot pickier about tags than EC2. It doesn't allow commas which we use in labels, no parenthesis, no brackets, and others. For data that
  * used to allow those characters, we clean up the tag and warn the user. For tags manually set on the provider (new feature), we instead error out.
  *
- * Unlike EC2 tags, labels will be separated with spaces instead of commas. Which honestly is quite annoying.
- *
- * `Name` and `GitHubRunners:Repo` are left to the orchestrator because they are built out of the repository name and the webhook delivery id, and
- * GitHub doesn't allow anything ECS would reject.
+ * `Name`, `GitHubRunners:Repo` and `GitHubRunners:Labels` are left to the orchestrator. The first two are built out of the repository name and the
+ * webhook delivery id, and GitHub doesn't allow anything ECS would reject. Labels are only known when a job comes in, so the orchestrator cleans
+ * them up instead (see `cleanLabels` in selectProviderParams). Unlike EC2 tags, they end up separated with spaces. Which honestly is quite annoying.
  *
  * @internal
  */
-export function ecsTags(scope: Construct, labels: string[], tags: { [key: string]: string }): { [key: string]: string } {
+export function ecsTags(scope: Construct, tags: { [key: string]: string }): { [key: string]: string } {
   // https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_Tag.html
   const allowed = /^[\p{L}\p{Z}\p{N}_.:/=+\-@]*$/u;
 
@@ -331,7 +330,7 @@ export function ecsTags(scope: Construct, labels: string[], tags: { [key: string
     if (!key) {
       cdk.Annotations.of(scope).addError('Tag names cannot be empty');
     }
-    if (key.startsWith('aws:')) {
+    if (key.toLowerCase().startsWith('aws:')) {
       cdk.Annotations.of(scope).addError(`Tag names cannot start with "aws:": ${JSON.stringify(key)}`);
     }
     check('tag name', key, 128);
@@ -341,7 +340,6 @@ export function ecsTags(scope: Construct, labels: string[], tags: { [key: string
   // the user's tags come last so they can override ours, just like they override the orchestrator's standard tags
   return {
     'GitHubRunners:Provider': cleanEcsTag(scope, 'provider construct path', scope.node.path),
-    'GitHubRunners:Labels': cleanEcsTag(scope, 'runner labels', labels.join(' ')),
     ...tags,
   };
 }
@@ -570,7 +568,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       },
     );
     this.spot = props?.spot ?? false;
-    this.tags = ecsTags(this, this.labels, props?.tags ?? {});
+    this.tags = ecsTags(this, props?.tags ?? {});
 
     // all providers add this tag, but ECS/Fargate tags need to be cleaned
     cdk.Tags.of(this).add('GitHubRunners:Provider', cleanEcsTag(this, 'provider tag', this.node.path));
@@ -661,9 +659,10 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       subnets: this.cluster.vpc.selectSubnets(subnetSelection).subnetIds,
       securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
       assignPublicIp: this.assignPublicIp ? 'ENABLED' : 'DISABLED',
-      // the cleaned up provider path and labels, plus whatever the user asked for
+      // the cleaned up provider path plus whatever the user asked for
       // see selectProviderParams() in runner.ts, which merges the rest of the standard runner tags in at runtime
       tags: Object.entries(this.tags).map(([Key, Value]) => ({ Key, Value })),
+      cleanLabels: true,
       runnerGroup: this.group ?? '',
       group1: this.group ? '--runnergroup' : '',
       group2: this.group ? this.group : '',

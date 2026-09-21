@@ -448,7 +448,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     this.placementStrategies = props?.placementStrategies;
     this.placementConstraints = props?.placementConstraints;
     this.gpuCount = props?.gpu ?? 0;
-    this.tags = ecsTags(this, this.labels, props?.tags ?? {});
+    this.tags = ecsTags(this, props?.tags ?? {});
     this.cluster = props?.cluster ? props.cluster : new ecs.Cluster(
       this,
       'cluster',
@@ -721,9 +721,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       // a missing key makes the JSONata resolve to nothing and the state fails with States.QueryEvaluationError
       placementStrategies,
       placementConstraints,
-      // the cleaned up provider path and labels, plus whatever the user asked for
+      // the cleaned up provider path plus whatever the user asked for
       // see selectProviderParams() in runner.ts, which merges the rest of the standard runner tags in at runtime
       tags: Object.entries(this.tags).map(([Key, Value]) => ({ Key, Value })),
+      cleanLabels: true,
       runnerGroup: this.group ?? '',
       group1: this.group ? '--runnergroup' : '',
       group2: this.group ? this.group : '',
