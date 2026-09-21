@@ -82,7 +82,7 @@ function selectProviderParams(configExpr: string): string {
       $selected := ${configExpr};
       $r := $random() * $selected.totalWeight;
       $config := $exists($selected.distribute) ? $selected.distribute[threshold > $r][0].config : $selected;
-      $merge([{'runnerGroup': ''}, $config, {'tags': $append(
+      $merge([{'family': 'provider not found', 'runnerGroup': ''}, $config, {'tags': $append(
         [
           {'Key': 'Name', 'Value': $states.context.Execution.Name},
           {'Key': 'GitHubRunners:Provider', 'Value': $config.provider},
