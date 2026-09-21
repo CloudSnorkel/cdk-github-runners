@@ -143,7 +143,7 @@ describe('Parameterized providers', () => {
     // the group of whichever config was selected, so a composite reports the sub-provider that actually runs
     expect(branch['Get Runner Token'].Parameters['group.$']).toBe('$.providerParams.runnerGroup');
     // an unknown provider selects no config at all, so the group needs a default to read
-    expect(definition).toContain("$merge([{'runnerGroup': ''}, $config");
+    expect(definition).toContain("$merge([{'family': 'provider not found', 'runnerGroup': ''}, $config");
     // providers without a group report an empty one and are never checked
     expect(definition).toContain('"test/p2":{"family":"lambda","provider":"test/p2","functionArn":"${__sfnsub_1}","runnerGroup":"","group":""');
   });
