@@ -20451,19 +20451,51 @@
        {
         "Ref": "AWS::Region"
        },
-       "\",\"metrics\":[[{\"label\":\"Jobs succeeded\",\"expression\":\"SUM(SEARCH('{GitHubRunners,ProviderLabels,Status} MetricName=\\\"JobCompleted\\\" Status=\\\"Succeeded\\\"', 'Sum'))\"}],[{\"label\":\"Jobs failed\",\"expression\":\"SUM(SEARCH('{GitHubRunners,ProviderLabels,Status} MetricName=\\\"JobCompleted\\\" Status=\\\"Failed\\\"', 'Sum'))\"}],[\"AWS/States\",\"ExecutionsFailed\",\"StateMachineArn\",\"",
+       "\",\"metrics\":[[{\"label\":\"Jobs succeeded\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Succeeded\\\"', 'Sum'))\"}],[{\"label\":\"Jobs failed\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Failed\\\"', 'Sum'))\"}],[\"AWS/States\",\"ExecutionsFailed\",\"StateMachineArn\",\"",
        {
         "Ref": "runnersRunnerOrchestratorF9B66EBA"
        },
-       "\",{\"label\":\"Runners failed to start\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"StolenRunners\",{\"label\":\"Stolen runners\",\"stat\":\"Sum\"}]],\"setPeriodToTimeRange\":true}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Jobs completed by status\",\"region\":\"",
+       "\",{\"label\":\"Runners failed to start\",\"stat\":\"Sum\"}],[{\"label\":\"Stolen runners\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\"', 'Sum'))\"}],[{\"label\":\"Lambda errors\",\"expression\":\"SUM([e0,e1,e2,e3,e4,e5,e6,e7])\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnerstokenretrieverD5E8392A"
+       },
+       "\",{\"id\":\"e0\",\"visible\":false,\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersIdleReaper6FBF63A3"
+       },
+       "\",{\"id\":\"e1\",\"visible\":false,\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersdeleterunner7F8D5293"
+       },
+       "\",{\"id\":\"e2\",\"visible\":false,\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersWebhookHandlerwebhookhandler22779A81"
+       },
+       "\",{\"id\":\"e3\",\"visible\":false,\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersWebhookRedeliveryLambdaCF5EE41B"
+       },
+       "\",{\"id\":\"e4\",\"visible\":false,\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersStolenRunnersHandler70049240"
+       },
+       "\",{\"id\":\"e5\",\"visible\":false,\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnerssetup9896CB59"
+       },
+       "\",{\"id\":\"e6\",\"visible\":false,\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersstatus1A5771C0"
+       },
+       "\",{\"id\":\"e7\",\"visible\":false,\"stat\":\"Sum\"}]],\"setPeriodToTimeRange\":true}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Jobs completed by status\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
-       "\",\"stacked\":true,\"metrics\":[[{\"label\":\"Succeeded\",\"expression\":\"SUM(SEARCH('{GitHubRunners,ProviderLabels,Status} MetricName=\\\"JobCompleted\\\" Status=\\\"Succeeded\\\"', 'Sum'))\"}],[{\"label\":\"SucceededWithIssues\",\"expression\":\"SUM(SEARCH('{GitHubRunners,ProviderLabels,Status} MetricName=\\\"JobCompleted\\\" Status=\\\"SucceededWithIssues\\\"', 'Sum'))\"}],[{\"label\":\"Failed\",\"expression\":\"SUM(SEARCH('{GitHubRunners,ProviderLabels,Status} MetricName=\\\"JobCompleted\\\" Status=\\\"Failed\\\"', 'Sum'))\"}],[{\"label\":\"Canceled\",\"expression\":\"SUM(SEARCH('{GitHubRunners,ProviderLabels,Status} MetricName=\\\"JobCompleted\\\" Status=\\\"Canceled\\\"', 'Sum'))\"}],[{\"label\":\"Skipped\",\"expression\":\"SUM(SEARCH('{GitHubRunners,ProviderLabels,Status} MetricName=\\\"JobCompleted\\\" Status=\\\"Skipped\\\"', 'Sum'))\"}],[{\"label\":\"Abandoned\",\"expression\":\"SUM(SEARCH('{GitHubRunners,ProviderLabels,Status} MetricName=\\\"JobCompleted\\\" Status=\\\"Abandoned\\\"', 'Sum'))\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Failed jobs by runner label\",\"region\":\"",
+       "\",\"stacked\":true,\"metrics\":[[{\"label\":\"Succeeded\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Succeeded\\\"', 'Sum'))\"}],[{\"label\":\"SucceededWithIssues\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"SucceededWithIssues\\\"', 'Sum'))\"}],[{\"label\":\"Failed\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Failed\\\"', 'Sum'))\"}],[{\"label\":\"Canceled\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Canceled\\\"', 'Sum'))\"}],[{\"label\":\"Skipped\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Skipped\\\"', 'Sum'))\"}],[{\"label\":\"Abandoned\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Abandoned\\\"', 'Sum'))\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Failed jobs by runner label\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
-       "\",\"stacked\":true,\"metrics\":[[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-ubuntu-2404-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-ubuntu-2404-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"codebuild, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,windows,x64\",\"Status\",\"Failed\",{\"label\":\"codebuild, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs-ubuntu-2404,x64\",\"Status\",\"Failed\",{\"label\":\"ecs-ubuntu-2404, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,x64\",\"Status\",\"Failed\",{\"label\":\"lambda, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,arm64\",\"Status\",\"Failed\",{\"label\":\"lambda, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,windows,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, windows, x64\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":0,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner executions\",\"region\":\"",
+       "\",\"stacked\":true,\"metrics\":[[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-ubuntu-2404-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-ubuntu-2404-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"codebuild, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,windows,x64\",\"Status\",\"Failed\",{\"label\":\"codebuild, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs-ubuntu-2404,x64\",\"Status\",\"Failed\",{\"label\":\"ecs-ubuntu-2404, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,x64\",\"Status\",\"Failed\",{\"label\":\"lambda, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,arm64\",\"Status\",\"Failed\",{\"label\":\"lambda, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,windows,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, windows, x64\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner executions\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -20479,7 +20511,7 @@
        {
         "Ref": "runnersRunnerOrchestratorF9B66EBA"
        },
-       "\",{\"label\":\"Timed out\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":8,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner time (including start-up)\",\"region\":\"",
+       "\",{\"label\":\"Timed out\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":6,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner time (including start-up)\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -20495,7 +20527,7 @@
        {
         "Ref": "runnersRunnerOrchestratorF9B66EBA"
        },
-       "\",{\"label\":\"max\",\"stat\":\"Maximum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":16,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Webhook\",\"region\":\"",
+       "\",{\"label\":\"max\",\"stat\":\"Maximum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":12,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Webhook\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -20507,13 +20539,53 @@
        {
         "Ref": "runnersWebhookHandlerwebhookhandler22779A81"
        },
-       "\",{\"label\":\"Errors\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"log\",\"width\":24,\"height\":6,\"x\":0,\"y\":16,\"properties\":{\"view\":\"table\",\"title\":\"Recent errors\",\"region\":\"",
+       "\",{\"label\":\"Errors\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":18,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Lambda errors\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"stacked\":true,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnerstokenretrieverD5E8392A"
+       },
+       "\",{\"label\":\"token-retriever\",\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersIdleReaper6FBF63A3"
+       },
+       "\",{\"label\":\"Idle Reaper\",\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersdeleterunner7F8D5293"
+       },
+       "\",{\"label\":\"delete-runner\",\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersWebhookHandlerwebhookhandler22779A81"
+       },
+       "\",{\"label\":\"Webhook Handler/webhook-handler\",\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersWebhookRedeliveryLambdaCF5EE41B"
+       },
+       "\",{\"label\":\"Webhook Redelivery/Lambda\",\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersStolenRunnersHandler70049240"
+       },
+       "\",{\"label\":\"Stolen Runners/Handler\",\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnerssetup9896CB59"
+       },
+       "\",{\"label\":\"setup\",\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersstatus1A5771C0"
+       },
+       "\",{\"label\":\"status\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"log\",\"width\":24,\"height\":6,\"x\":0,\"y\":16,\"properties\":{\"view\":\"table\",\"title\":\"Recent errors\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
        "\",\"query\":\"SOURCE '",
        {
         "Ref": "OrchestratorLogFB9610E7"
+       },
+       "' | SOURCE '",
+       {
+        "Ref": "SetupLog8A8B0E5C"
        },
        "' | fields @timestamp, @logStream, message\\n| filter level = \\\"ERROR\\\"\\n| sort @timestamp desc\\n| limit 20\"}}]}"
       ]

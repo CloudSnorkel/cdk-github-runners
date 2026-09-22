@@ -408,4 +408,26 @@ describe('GitHubRunners', () => {
       MetricTransformations: Match.arrayWith([Match.objectLike({ MetricName: 'StolenRunners' })]),
     }));
   });
+
+  test('Lambda errors metric covers all management functions', () => {
+    const runners = new GitHubRunners(stack, 'runners', {
+      providers: [new LambdaRunnerProvider(stack, 'p1')],
+    });
+
+    runners.metricLambdaErrors().createAlarm(stack, 'alarm', { threshold: 1, evaluationPeriods: 1 });
+
+    const template = Template.fromStack(stack);
+
+    // every management function gets a metric, and none of them is the runner itself
+    const alarm = Object.values(template.findResources('AWS::CloudWatch::Alarm'))[0];
+    const functions = alarm.Properties.Metrics.filter((m: any) => m.MetricStat);
+    expect(functions).toHaveLength(8);
+    expect(alarm.Properties.Metrics.find((m: any) => m.Expression).Expression)
+      .toEqual(`SUM([${functions.map((_: any, i: number) => `e${i}`).join(',')}])`);
+    for (const m of functions) {
+      expect(m.MetricStat.Metric.Namespace).toEqual('AWS/Lambda');
+      expect(m.MetricStat.Metric.MetricName).toEqual('Errors');
+      expect(m.MetricStat.Metric.Dimensions[0].Name).toEqual('FunctionName');
+    }
+  });
 });

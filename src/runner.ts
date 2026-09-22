@@ -391,6 +391,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private warmRunnerQueue?: sqs.Queue;
   private warmConfigHashes: string[] = [];
   private deleteFailedRunnerFunction?: lambda.IFunction;
+  private readonly managementFunctions: lambda.IFunction[] = [];
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
@@ -465,6 +466,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       extraLambdaProps: this.extraLambdaProps,
       extraLambdaEnv: this.extraLambdaEnv,
     });
+
+    this.managementFunctions.push(this.webhook.handler, this.redeliverer.handler, this.stolenRunnerDetector.handler);
 
     this.setupUrl = this.setupFunction();
     this.statusFunction();
@@ -719,6 +722,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     this.secrets.github.grantRead(func);
     this.secrets.githubPrivateKey.grantRead(func);
 
+    this.managementFunctions.push(func);
+
     return func;
   }
 
@@ -742,6 +747,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     this.secrets.github.grantRead(func);
     this.secrets.githubPrivateKey.grantRead(func);
+
+    this.managementFunctions.push(func);
 
     return func;
   }
@@ -800,6 +807,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       },
     );
 
+    this.managementFunctions.push(statusFunction);
+
     const access = this.props?.statusAccess ?? LambdaAccess.noAccess();
     const url = access.bind(this, 'status access', statusFunction);
 
@@ -844,6 +853,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     this.secrets.setup.grantRead(setupFunction);
     this.secrets.setup.grantWrite(setupFunction);
 
+    this.managementFunctions.push(setupFunction);
+
     const access = this.props?.setupAccess ?? LambdaAccess.lambdaUrl();
     return access.bind(this, 'setup access', setupFunction);
   }
@@ -867,7 +878,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   private idleReaper() {
-    return new IdleRunnerRepearFunction(this, 'Idle Reaper', {
+    const func = new IdleRunnerRepearFunction(this, 'Idle Reaper', {
       description: 'Stop idle GitHub runners to avoid paying for runners when the job was already canceled',
       environment: {
         GITHUB_SECRET_ARN: this.secrets.github.secretArn,
@@ -879,6 +890,10 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       timeout: cdk.Duration.minutes(5),
       ...this.extraLambdaProps,
     });
+
+    this.managementFunctions.push(func);
+
+    return func;
   }
 
   private idleReaperQueue(reaper: lambda.Function) {
@@ -1105,6 +1120,33 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   /**
+   * Metric for the number of failed invocations of the management Lambda functions.
+   *
+   * These are the functions that handle webhooks, retrieve runner tokens, stop idle runners, replace stolen runners, etc. Anything over zero means
+   * jobs may not have gotten a runner. You should use this metric to trigger an alarm.
+   *
+   * Only unhandled errors are counted here, as reported by Lambda itself. Errors that are handled and logged, like a webhook with a bad signature,
+   * are not failed invocations. Use the "Webhook errors" and "Orchestration errors" queries created by {@link createLogsInsightsQueries} to find
+   * those.
+   *
+   * Management functions created after this method is called are not included. Call it last if you use warm runners.
+   */
+  public metricLambdaErrors(props?: cloudwatch.MathExpressionOptions): cloudwatch.MathExpression {
+    const errors: Record<string, cloudwatch.IMetric> = {};
+    this.managementFunctions.forEach((f, i) => {
+      errors[`e${i}`] = f.metricErrors();
+    });
+
+    return new cloudwatch.MathExpression({
+      // SUM() and not e0+e1+... so periods where only some of the functions ran still get a value
+      expression: `SUM([${Object.keys(errors).join(',')}])`,
+      usingMetrics: errors,
+      label: 'Errors',
+      ...props,
+    });
+  }
+
+  /**
    * Creates a topic for notifications when a runner image build fails.
    *
    * Runner images are rebuilt every week by default. This provides the latest GitHub Runner version and software updates.
@@ -1304,6 +1346,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * * Are jobs stuck because runners fail to start? See "Runner executions".
    * * How long do runners take (and therefore cost)? See "Runner time".
    * * Is GitHub reaching the webhook at all? See "Webhook".
+   * * Is any of our code failing? See "Lambda errors".
    * * What exactly went wrong? See "Recent errors".
    *
    * **WARNING:** this method calls {@link metricJobCompleted} and {@link metricStolenRunners} which create metric filters.
@@ -1316,15 +1359,19 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   public createDashboard(name = 'GitHub-Runners'): cloudwatch.Dashboard {
     // create the metric filters behind these metrics
     this.metricJobCompleted();
-    const stolenRunners = this.metricStolenRunners();
+    this.metricStolenRunners();
 
-    // job metrics have both ProviderLabels and Status dimensions, so we search for them instead of listing every
-    // provider and sub-provider here
-    const jobs = (status: string, label: string) => new cloudwatch.MathExpression({
-      expression: `SUM(SEARCH('{GitHubRunners,ProviderLabels,Status} MetricName="JobCompleted" Status="${status}"', 'Sum'))`,
-      label,
-      usingMetrics: {},
-    });
+    // our log metric filters add dimensions, and a metric with dimensions can only be read with those dimensions.
+    // search expressions let us sum them all up without listing every dimension value.
+    const search = (label: string, metricName: string, dimensions?: string) => {
+      const query = ['Namespace="GitHubRunners"', `MetricName="${metricName}"`, dimensions].filter(q => q).join(' ');
+      return new cloudwatch.MathExpression({
+        expression: `SUM(SEARCH('${query}', 'Sum'))`,
+        label,
+        usingMetrics: {},
+      });
+    };
+    const jobs = (status: string, label: string) => search(label, 'JobCompleted', `Status="${status}"`);
 
     const dashboard = new cloudwatch.Dashboard(this, 'Dashboard', {
       dashboardName: name,
@@ -1337,7 +1384,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         jobs('Succeeded', 'Jobs succeeded'),
         jobs('Failed', 'Jobs failed'),
         this.metricFailed({ label: 'Runners failed to start' }),
-        stolenRunners.with({ label: 'Stolen runners' }),
+        search('Stolen runners', 'StolenRunners'),
+        this.metricLambdaErrors({ label: 'Lambda errors' }),
       ],
       // totals for the dashboard time range instead of just the last period
       setPeriodToTimeRange: true,
@@ -1355,7 +1403,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       }),
       new cloudwatch.GraphWidget({
         title: 'Failed jobs by runner label',
-        // a search expression can't be labeled per provider, so list the providers to keep the legend readable
+        // a search expression can't be labeled per provider, so list the providers to keep the legend readable. this
+        // misses labels coming from a custom providerSelector, but "Jobs completed by status" still counts those.
         left: [...this.extractUniqueSubProviders()].map(p => new cloudwatch.Metric({
           namespace: 'GitHubRunners',
           metricName: 'JobCompleted',
@@ -1380,7 +1429,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           this.orchestrator.metricTimedOut({ label: 'Timed out' }),
         ],
         stacked: true,
-        width: 8,
+        width: 6,
       }),
       new cloudwatch.GraphWidget({
         title: 'Runner time (including start-up)',
@@ -1389,7 +1438,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           this.metricTime({ statistic: cloudwatch.Stats.p(90), label: 'p90' }),
           this.metricTime({ statistic: cloudwatch.Stats.MAXIMUM, label: 'max' }),
         ],
-        width: 8,
+        width: 6,
       }),
       new cloudwatch.GraphWidget({
         title: 'Webhook',
@@ -1397,14 +1446,26 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           this.webhook.handler.metricInvocations({ label: 'Requests' }),
           this.webhook.handler.metricErrors({ label: 'Errors' }),
         ],
-        width: 8,
+        width: 6,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Lambda errors',
+        // one series per function, so a spike points at the function that needs looking at
+        left: this.managementFunctions.map(f => f.metricErrors({
+          label: f.node.path.slice(this.node.path.length + 1),
+        })),
+        stacked: true,
+        width: 6,
       }),
     );
 
-    // all management functions and the orchestrator share this log group
+    // the orchestrator, webhook and runner management functions log here, setup and status log separately
     dashboard.addWidgets(new cloudwatch.LogQueryWidget({
       title: 'Recent errors',
-      logGroupNames: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR).logGroupName],
+      logGroupNames: [
+        singletonLogGroup(this, SingletonLogType.ORCHESTRATOR).logGroupName,
+        singletonLogGroup(this, SingletonLogType.SETUP).logGroupName,
+      ],
       view: cloudwatch.LogQueryVisualizationType.TABLE,
       queryString: new logs.QueryString({
         fields: ['@timestamp', '@logStream', 'message'],
@@ -1461,6 +1522,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       loggingFormat: lambda.LoggingFormat.JSON,
       ...this.extraLambdaProps,
     });
+
+    this.managementFunctions.push(this.warmRunnerManager);
 
     this.secrets.github.grantRead(this.warmRunnerManager);
     this.secrets.githubPrivateKey.grantRead(this.warmRunnerManager);

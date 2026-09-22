@@ -585,10 +585,11 @@ aws --region us-east-1 lambda invoke --function-name status-XYZ123 status.json
 
 ## Monitoring
 
-There are two important ways to monitor your runners:
+There are three important ways to monitor your runners:
 
 1. Make sure runners don't fail to start. When that happens, jobs may sit and wait. Use `GitHubRunners.metricFailed()` to get a metric for the number of failed runner starts. You should use this metric to trigger an alarm.
-2. Make sure runner images don't fail to build. Failed runner image builds mean you will get stuck with out-of-date software on your runners. It may lead to security vulnerabilities, or it may lead to slower runner start-ups as the runner software itself needs to be updated. Use `GitHubRunners.failedImageBuildsTopic()` to get SNS topic that gets notified of failed runner image builds. You should subscribe to this topic.
+2. Make sure our management functions don't fail. When that happens, webhooks may be dropped and jobs may never get a runner. Use `GitHubRunners.metricLambdaErrors()` to get a metric for the number of failed invocations across all management Lambda functions. You should use this metric to trigger an alarm.
+3. Make sure runner images don't fail to build. Failed runner image builds mean you will get stuck with out-of-date software on your runners. It may lead to security vulnerabilities, or it may lead to slower runner start-ups as the runner software itself needs to be updated. Use `GitHubRunners.failedImageBuildsTopic()` to get SNS topic that gets notified of failed runner image builds. You should subscribe to this topic.
 
 Other useful metrics to track:
 
