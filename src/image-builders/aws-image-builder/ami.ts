@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_imagebuilder as imagebuilder } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { BaseImage } from './base-image';
 import { ImageBuilderComponent } from './builder';
-import { ImageBuilderObjectBase } from './common';
 import { amiRootDevice, Architecture, Os } from '../../providers';
 import { uniqueImageBuilderName } from '../common';
 
@@ -25,7 +25,7 @@ interface AmiRecipeProperties {
   /**
    * Base AMI to use for the new runner AMI.
    */
-  readonly baseAmi: string;
+  readonly baseAmi: BaseImage;
 
   /**
    * Storage size for the builder.
@@ -48,7 +48,7 @@ interface AmiRecipeProperties {
  *
  * @internal
  */
-export class AmiRecipe extends ImageBuilderObjectBase {
+export class AmiRecipe extends cdk.Resource {
   public readonly arn: string;
   public readonly name: string;
   public readonly version: string;
@@ -64,7 +64,7 @@ export class AmiRecipe extends ImageBuilderObjectBase {
 
     const blockDeviceMappings = props.storageSize ? [
       {
-        deviceName: amiRootDevice(this, props.baseAmi).ref,
+        deviceName: amiRootDevice(this, props.baseAmi.image).ref,
         ebs: {
           volumeSize: props.storageSize.toGibibytes(),
           deleteOnTermination: true,
@@ -73,13 +73,6 @@ export class AmiRecipe extends ImageBuilderObjectBase {
     ] : undefined;
 
     this.name = uniqueImageBuilderName(this);
-    this.version = this.generateVersion('ImageRecipe', this.name, {
-      platform: props.platform,
-      components,
-      parentAmi: props.baseAmi,
-      tags: props.tags,
-      blockDeviceMappings,
-    });
 
     let workingDirectory;
     if (props.platform == 'Linux') {
@@ -92,8 +85,8 @@ export class AmiRecipe extends ImageBuilderObjectBase {
 
     const recipe = new imagebuilder.CfnImageRecipe(this, 'Recipe', {
       name: this.name,
-      version: this.version,
-      parentImage: props.baseAmi,
+      version: '1.0.x',
+      parentImage: props.baseAmi.image,
       components,
       workingDirectory,
       tags: props.tags,
@@ -101,6 +94,7 @@ export class AmiRecipe extends ImageBuilderObjectBase {
     });
 
     this.arn = recipe.attrArn;
+    this.version = recipe.getAtt('Version', cdk.ResolutionTypeHint.STRING).toString();
   }
 }
 
@@ -109,9 +103,7 @@ export class AmiRecipe extends ImageBuilderObjectBase {
  *
  * @internal
  */
-export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architecture) {
-  const stack = cdk.Stack.of(scope);
-
+export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architecture): BaseImage {
   let arch;
   if (architecture.is(Architecture.X86_64)) {
     arch = 'x86';
@@ -122,48 +114,23 @@ export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architect
   }
 
   if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_UBUNTU_2204) || os.is(Os.LINUX)) {
-    return stack.formatArn({
-      service: 'imagebuilder',
-      resource: 'image',
-      account: 'aws',
-      resourceName: `ubuntu-server-22-lts-${arch}/x.x.x`,
-    });
+    return BaseImage.fromImageBuilder(scope, `ubuntu-server-22-lts-${arch}`);
   }
 
   if (os.is(Os.LINUX_UBUNTU_2404)) {
-    return stack.formatArn({
-      service: 'imagebuilder',
-      resource: 'image',
-      account: 'aws',
-      resourceName: `ubuntu-server-24-lts-${arch}/x.x.x`,
-    });
+    return BaseImage.fromImageBuilder(scope, `ubuntu-server-24-lts-${arch}`);
   }
 
   if (os.is(Os.LINUX_AMAZON_2)) {
-    return stack.formatArn({
-      service: 'imagebuilder',
-      resource: 'image',
-      account: 'aws',
-      resourceName: `amazon-linux-2-${arch}/x.x.x`,
-    });
+    return BaseImage.fromImageBuilder(scope, `amazon-linux-2-${arch}`);
   }
 
   if (os.is(Os.LINUX_AMAZON_2023)) {
-    return stack.formatArn({
-      service: 'imagebuilder',
-      resource: 'image',
-      account: 'aws',
-      resourceName: `amazon-linux-2023-${arch}/x.x.x`,
-    });
+    return BaseImage.fromImageBuilder(scope, `amazon-linux-2023-${arch}`);
   }
 
   if (os.is(Os.WINDOWS)) {
-    return stack.formatArn({
-      service: 'imagebuilder',
-      resource: 'image',
-      account: 'aws',
-      resourceName: `windows-server-2022-english-full-base-${arch}/x.x.x`,
-    });
+    return BaseImage.fromImageBuilder(scope, `windows-server-2022-english-full-base-${arch}`);
   }
 
   throw new Error(`OS ${os.name} not supported for AMI runner image`);

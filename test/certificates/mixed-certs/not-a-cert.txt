@@ -1,0 +1,1 @@
+This is not a certificate file - it should be ignored by the certificate discovery logic.

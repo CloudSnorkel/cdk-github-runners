@@ -1,15 +1,7 @@
 import * as path from 'path';
-import {
-  aws_ec2 as ec2,
-  aws_ecs as ecs,
-  aws_iam as iam,
-  aws_logs as logs,
-  aws_stepfunctions as stepfunctions,
-  aws_stepfunctions_tasks as stepfunctions_tasks,
-  RemovalPolicy,
-} from 'aws-cdk-lib';
+import * as cdk from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_ecs as ecs, aws_iam as iam, aws_logs as logs, aws_stepfunctions as stepfunctions, RemovalPolicy } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
   Architecture,
@@ -17,10 +9,12 @@ import {
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
+  runnerEnvironment,
   RunnerImage,
   RunnerProviderProps,
-  RunnerRuntimeParameters,
   RunnerVersion,
+  providerParam,
+  RunnerEnvConfig,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 import { MINIMAL_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
@@ -61,7 +55,7 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    * GitHub Actions runner group name.
    *
    * If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
-   * requires a paid GitHub account.
+   * requires a paid GitHub account and organization level runner registration.
    *
    * The group must exist or the runner will not start.
    *
@@ -172,42 +166,16 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    * @default false
    */
   readonly spot?: boolean;
-}
-
-/**
- * Properties for EcsFargateLaunchTarget.
- */
-interface EcsFargateLaunchTargetProps {
-  readonly spot: boolean;
-}
-
-/**
- * Our special launch target that can use spot instances and set EnableExecuteCommand.
- */
-class EcsFargateLaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
-  constructor(readonly props: EcsFargateLaunchTargetProps) {
-  }
 
   /**
-   * Called when the Fargate launch type configured on RunTask
+   * Additional tags to apply to launched runner tasks.
+   *
+   * These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
+   * You may override the built-in tags.
+   *
+   * @default no additional tags
    */
-  public bind(_task: stepfunctions_tasks.EcsRunTask,
-    launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
-    if (!launchTargetOptions.taskDefinition.isFargateCompatible) {
-      throw new Error('Supplied TaskDefinition is not compatible with Fargate');
-    }
-
-    return {
-      parameters: {
-        PropagateTags: ecs.PropagatedTagSource.TASK_DEFINITION,
-        CapacityProviderStrategy: [
-          {
-            CapacityProvider: this.props.spot ? 'FARGATE_SPOT' : 'FARGATE',
-          },
-        ],
-      },
-    };
-  }
+  readonly tags?: { [key: string]: string };
 }
 
 /**
@@ -225,18 +193,20 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
       'sh', '-c',
       `${dindCommand}
         cd /home/runner &&
+        ./job-reporter.sh "$RUNNER_NAME" &&
         if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
-        ./config.sh --unattended --url "$REGISTRATION_URL" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" $RUNNER_GROUP &&
+        ./config.sh --unattended --url "$REGISTRATION_URL" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&
         ./run.sh &&
-        STATUS=$(grep -Phors "finish job request for job [0-9a-f\\-]+ with result: \\K.*" _diag/ | tail -n1) &&
-        [ -n "$STATUS" ] && echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"`,
+        STATUS=$(grep -Phors "finish job request for job [0-9a-f-]+ with result: .*" _diag | tail -n1 | awk '{print $NF}') &&
+        if [ -n "$STATUS" ]; then echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"; fi`,
     ];
   } else if (os.is(Os.WINDOWS)) {
     return [
       'powershell', '-Command',
       `cd \\actions ;
+        & ./job-reporter.ps1 "\${Env:RUNNER_NAME}" ;
         if ($Env:RUNNER_VERSION -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ;
-        ./config.cmd --unattended --url "\${Env:REGISTRATION_URL}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL},cdkghr:started:\$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${Env:RUNNER_NAME}" \${Env:RUNNER_GROUP} ;
+        ./config.cmd --unattended --url "\${Env:REGISTRATION_URL}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL},cdkghr:started:\$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${Env:RUNNER_NAME}" \${Env:RUNNER_GROUP1} \${Env:RUNNER_GROUP2} \${Env:DEFAULT_LABELS} ;
         ./run.cmd ;
         $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;
         if ($STATUS) { echo "CDKGHA JOB DONE $\{Env:RUNNER_LABEL\} $STATUS" }`,
@@ -247,6 +217,153 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
 }
 
 /**
+ * Grant the state machine role whatever ecs:runTask.sync needs to run and track a task definition. Same
+ * statements stepfunctions_tasks.EcsRunTask would have generated for us.
+ *
+ * @internal
+ */
+export function grantEcsRunTask(scope: Construct, stateMachineRole: iam.IGrantable, task: ecs.TaskDefinition) {
+  const stack = cdk.Stack.of(scope);
+
+  // grant on the unversioned task definition arn so we can always run the latest revision
+  const arnComponents = stack.splitArn(task.taskDefinitionArn, cdk.ArnFormat.SLASH_RESOURCE_NAME);
+  let resourceName = arnComponents.resourceName;
+  if (resourceName) {
+    resourceName = resourceName.split(':')[0];
+  }
+  const familyArn = stack.formatArn({
+    partition: arnComponents.partition,
+    service: arnComponents.service,
+    account: arnComponents.account,
+    region: arnComponents.region,
+    resource: arnComponents.resource,
+    arnFormat: arnComponents.arnFormat,
+    resourceName,
+  });
+  stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+    actions: ['ecs:RunTask'],
+    resources: [`${familyArn}:*`],
+  }));
+
+  stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+    actions: ['ecs:StopTask', 'ecs:DescribeTasks'],
+    resources: ['*'],
+  }));
+
+  // tagging the task on creation needs its own permission
+  stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+    actions: ['ecs:TagResource'],
+    resources: ['*'],
+    conditions: {
+      StringEquals: {
+        'ecs:CreateAction': 'RunTask',
+      },
+    },
+  }));
+
+  const passedRoles = [task.taskRole.roleArn];
+  if (task.executionRole) {
+    passedRoles.push(task.executionRole.roleArn);
+  }
+  stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+    actions: ['iam:PassRole'],
+    resources: passedRoles,
+  }));
+
+  // managed rule for the runTask.sync integration
+  // every ECS and Fargate provider emits the same statement so policy minimization keeps just one
+  stateMachineRole.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+    actions: ['events:PutTargets', 'events:PutRule', 'events:DescribeRule'],
+    resources: [stack.formatArn({
+      service: 'events',
+      resource: 'rule',
+      resourceName: 'StepFunctionsGetEventsForECSTaskRule',
+    })],
+  }));
+}
+
+/**
+ * @internal
+ */
+export function cleanEcsTag(scope: Construct, description: string, value: string) {
+  const cleaned = value.replace(/[^\p{L}\p{Z}\p{N}_.:/=+\-@]/gu, '_').slice(0, 256);
+  if (cleaned !== value) {
+    cdk.Annotations.of(scope).addWarning(
+      `ECS tags can only contain up to 256 letters, numbers, spaces, and _ . : / = + - @, so the ${description} will be tagged as ` +
+      `${JSON.stringify(cleaned.slice(0, 100))}`,
+    );
+  }
+  return cleaned;
+}
+
+/**
+ * Tags for a runner task, on top of the standard runner tags the orchestrator merges in at runtime.
+ *
+ * ECS is a lot pickier about tags than EC2. It doesn't allow commas which we use in labels, no parenthesis, no brackets, and others. For data that
+ * used to allow those characters, we clean up the tag and warn the user. For tags manually set on the provider (new feature), we instead error out.
+ *
+ * `Name`, `GitHubRunners:Repo` and `GitHubRunners:Labels` are left to the orchestrator. The first two are built out of the repository name and the
+ * webhook delivery id, and GitHub doesn't allow anything ECS would reject. Labels are only known when a job comes in, so the orchestrator cleans
+ * them up instead (see `cleanLabels` in selectProviderParams). Unlike EC2 tags, they end up separated with spaces. Which honestly is quite annoying.
+ *
+ * @internal
+ */
+export function ecsTags(scope: Construct, tags: { [key: string]: string }): { [key: string]: string } {
+  // https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_Tag.html
+  const allowed = /^[\p{L}\p{Z}\p{N}_.:/=+\-@]*$/u;
+
+  const check = (description: string, value: string, maxLength: number) => {
+    if (!allowed.test(value)) {
+      cdk.Annotations.of(scope).addError(
+        `Bad character in ${description}. ECS tags can only contain letters, numbers, spaces, and _ . : / = + - @: ${JSON.stringify(value.slice(0, 100))}`,
+      );
+    }
+    if (value.length > maxLength) {
+      cdk.Annotations.of(scope).addError(
+        `Too many characters in ${description}. ECS tags are limited to ${maxLength} characters: ${JSON.stringify(value.slice(0, 100))}`,
+      );
+    }
+  };
+
+  if (Object.keys(tags).length > 45) {
+    cdk.Annotations.of(scope).addError('Too many tags. ECS tags are limited to 50 tags, and 5 are already used by the orchestrator.' );
+  }
+
+  for (const [key, value] of Object.entries(tags)) {
+    if (!key) {
+      cdk.Annotations.of(scope).addError('Tag names cannot be empty');
+    }
+    if (key.toLowerCase().startsWith('aws:')) {
+      cdk.Annotations.of(scope).addError(`Tag names cannot start with "aws:": ${JSON.stringify(key)}`);
+    }
+    check('tag name', key, 128);
+    check('tag value', value, 256);
+  }
+
+  // the user's tags come last so they can override ours, just like they override the orchestrator's standard tags
+  return {
+    'GitHubRunners:Provider': cleanEcsTag(scope, 'provider construct path', scope.node.path),
+    ...tags,
+  };
+}
+
+/**
+ * Runner config for the Fargate family fragment.
+ *
+ * @internal
+ */
+interface FargateRunnerConfig extends RunnerEnvConfig {
+  readonly clusterArn: string;
+  readonly taskDefinitionFamily: string;
+  readonly containerName: string;
+  readonly capacityProvider: string;
+  readonly enableExecuteCommand: boolean;
+  readonly subnets: string[];
+  readonly securityGroups: string[];
+  readonly assignPublicIp: string;
+}
+
+/**
  * GitHub Actions runner provider using Fargate to execute jobs.
  *
  * Creates a task definition with a single container that gets started for each job.
@@ -254,6 +371,9 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class FargateRunnerProvider extends BaseProvider implements IRunnerProvider {
+  /** @internal */
+  public static readonly _FAMILY = 'fargate';
+
   /**
    * Path to Dockerfile for Linux x64 with all the requirement for Fargate runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
    *
@@ -275,6 +395,46 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
    * @deprecated Use `imageBuilder()` instead.
    */
   public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-arm64');
+
+  /**
+   * The fragment that runs any Fargate provider. Reads the config {@link _runnerConfig} generated for it from
+   * `$.providerParams`. Renders what EcsRunTask used to render per provider.
+   *
+   * @internal
+   */
+  public static _stateMachineFragment(scope: Construct): stepfunctions.IChainable {
+    const p = providerParam<FargateRunnerConfig>;
+    return new stepfunctions.CustomState(scope, 'Fargate Runner', {
+      stateJson: {
+        Type: 'Task',
+        Resource: `arn:${cdk.Aws.PARTITION}:states:::ecs:runTask.sync`,
+        Parameters: {
+          'Cluster.$': p('clusterArn'),
+          'TaskDefinition.$': p('taskDefinitionFamily'),
+          'NetworkConfiguration': {
+            AwsvpcConfiguration: {
+              'AssignPublicIp.$': p('assignPublicIp'),
+              'Subnets.$': p('subnets'),
+              'SecurityGroups.$': p('securityGroups'),
+            },
+          },
+          'Overrides': {
+            ContainerOverrides: [{
+              'Name.$': p('containerName'),
+              'Environment': runnerEnvironment((name, value) => ({ 'Name': name, 'Value.$': value })),
+            }],
+          },
+          'PropagateTags': 'TASK_DEFINITION',
+          'Tags.$': p('tags'), // the provider's tags, already merged with the standard runner tags by the orchestrator
+          'CapacityProviderStrategy': [{
+            'CapacityProvider.$': p('capacityProvider'),
+          }],
+          'PlatformVersion': 'LATEST',
+          'EnableExecuteCommand.$': p('enableExecuteCommand'),
+        },
+      },
+    });
+  }
 
   /**
    * Create new image builder that builds Fargate specific runner images.
@@ -316,11 +476,15 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
 
   /**
    * Fargate task hosting the runner.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly task: ecs.FargateTaskDefinition;
 
   /**
    * Container definition hosting the runner.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly container: ecs.ContainerDefinition;
 
@@ -331,16 +495,22 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
 
   /**
    * VPC used for hosting the runner task.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly vpc?: ec2.IVpc;
 
   /**
    * Subnets used for hosting the runner task.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly subnetSelection?: ec2.SubnetSelection;
 
   /**
    * Whether runner task will have a public IP.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly assignPublicIp: boolean;
 
@@ -356,11 +526,15 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
 
   /**
    * Use spot pricing for Fargate tasks.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly spot: boolean;
 
   /**
    * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to Fargate tasks.
+   *
+   * @deprecated This field is internal and should not be accessed directly.
    */
   readonly image: RunnerImage;
 
@@ -371,20 +545,18 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
    */
   readonly logGroup: logs.ILogGroup;
 
-  readonly retryableErrors = [
-    'Ecs.EcsException',
-    'Ecs.LimitExceededException',
-    'Ecs.UpdateInProgressException',
-  ];
 
   private readonly group?: string;
+  private readonly defaultLabels: boolean;
   private readonly securityGroups: ec2.ISecurityGroup[];
+  private readonly tags: { [key: string]: string };
 
   constructor(scope: Construct, id: string, props?: FargateRunnerProviderProps) {
     super(scope, id, props);
 
     this.labels = this.labelsFromProperties('fargate', props?.label, props?.labels);
     this.group = props?.group;
+    this.defaultLabels = props?.defaultLabels ?? true;
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
     this.subnetSelection = props?.subnetSelection;
     this.securityGroups = props?.securityGroup ? [props.securityGroup] : (props?.securityGroups ?? [new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc })]);
@@ -399,6 +571,10 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       },
     );
     this.spot = props?.spot ?? false;
+    this.tags = ecsTags(this, props?.tags ?? {});
+
+    // all providers add this tag, but ECS/Fargate tags need to be cleaned
+    cdk.Tags.of(this).add('GitHubRunners:Provider', cleanEcsTag(this, 'provider tag', this.node.path));
 
     const imageBuilder = props?.imageBuilder ?? FargateRunnerProvider.imageBuilder(this, 'Image Builder');
     const image = this.image = imageBuilder.bindDockerImage();
@@ -409,19 +585,23 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
     } else if (image.architecture.is(Architecture.X86_64)) {
       arch = ecs.CpuArchitecture.X86_64;
     } else {
-      throw new Error(`${image.architecture.name} is not supported on Fargate`);
+      cdk.Annotations.of(this).addError(`${image.architecture.name} is not supported on Fargate`);
+      arch = ecs.CpuArchitecture.X86_64; // so the code below doesn't throw an exception
     }
 
+    let fargateRunnerCommandOs = image.os;
     let os: ecs.OperatingSystemFamily;
     if (image.os.isIn(Os._ALL_LINUX_VERSIONS)) {
       os = ecs.OperatingSystemFamily.LINUX;
     } else if (image.os.is(Os.WINDOWS)) {
       os = ecs.OperatingSystemFamily.WINDOWS_SERVER_2019_CORE;
       if (props?.ephemeralStorageGiB) {
-        throw new Error('Ephemeral storage is not supported on Fargate Windows');
+        cdk.Annotations.of(this).addError('Ephemeral storage is not supported on Fargate Windows');
       }
     } else {
-      throw new Error(`${image.os.name} is not supported on Fargate`);
+      cdk.Annotations.of(this).addError(`${image.os.name} is not supported on Fargate`);
+      os = ecs.OperatingSystemFamily.LINUX;
+      fargateRunnerCommandOs = Os.LINUX_UBUNTU;
     }
 
     this.logGroup = new logs.LogGroup(this, 'logs', {
@@ -435,7 +615,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       {
         cpu: props?.cpu ?? 1024,
         memoryLimitMiB: props?.memoryLimitMiB ?? 2048,
-        ephemeralStorageGiB: props?.ephemeralStorageGiB ?? (!image.os.is(Os.WINDOWS) ? 25 : undefined),
+        ephemeralStorageGiB: image.os.is(Os.WINDOWS) ? undefined : props?.ephemeralStorageGiB ?? 25,
         runtimePlatform: {
           operatingSystemFamily: os,
           cpuArchitecture: arch,
@@ -450,7 +630,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
           logGroup: this.logGroup,
           streamPrefix: 'runner',
         }),
-        command: ecsRunCommand(this.image.os, false),
+        command: ecsRunCommand(fargateRunnerCommandOs, false),
         user: image.os.is(Os.WINDOWS) ? undefined : 'runner',
       },
     );
@@ -462,79 +642,54 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   }
 
   /**
-   * Generate step function task(s) to start a new runner.
+   * Config for the shared Fargate fragment.
    *
-   * Called by GithubRunners and shouldn't be called manually.
-   *
-   * @param parameters workflow job details
+   * @internal
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    return new stepfunctions_tasks.EcsRunTask(
-      this,
-      this.labels.join(', '),
-      {
-        integrationPattern: IntegrationPattern.RUN_JOB, // sync
-        taskDefinition: this.task,
-        cluster: this.cluster,
-        launchTarget: new EcsFargateLaunchTarget({
-          spot: this.spot,
-        }),
-        enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
-        subnets: this.subnetSelection,
-        assignPublicIp: this.assignPublicIp,
-        securityGroups: this.securityGroups,
-        containerOverrides: [
-          {
-            containerDefinition: this.container,
-            environment: [
-              {
-                name: 'RUNNER_TOKEN',
-                value: parameters.runnerTokenPath,
-              },
-              {
-                name: 'RUNNER_NAME',
-                value: parameters.runnerNamePath,
-              },
-              {
-                name: 'RUNNER_LABEL',
-                value: this.labels.join(','),
-              },
-              {
-                name: 'RUNNER_GROUP',
-                value: this.group ? `--runnergroup ${this.group}` : '',
-              },
-              {
-                name: 'GITHUB_DOMAIN',
-                value: parameters.githubDomainPath,
-              },
-              {
-                name: 'OWNER',
-                value: parameters.ownerPath,
-              },
-              {
-                name: 'REPO',
-                value: parameters.repoPath,
-              },
-              {
-                name: 'REGISTRATION_URL',
-                value: parameters.registrationUrl,
-              },
-            ],
-          },
-        ],
-      },
-    );
+  _runnerConfig(): FargateRunnerConfig {
+    // same subnet selection EcsRunTask defaults to: whatever was asked for, or public/private per assignPublicIp
+    const subnetSelection = this.subnetSelection ??
+      { subnetType: this.assignPublicIp ? ec2.SubnetType.PUBLIC : ec2.SubnetType.PRIVATE_WITH_EGRESS };
+
+    return {
+      family: FargateRunnerProvider._FAMILY,
+      provider: this.node.path,
+      clusterArn: this.cluster.clusterArn,
+      taskDefinitionFamily: this.task.family,
+      containerName: this.container.containerName,
+      capacityProvider: this.spot ? 'FARGATE_SPOT' : 'FARGATE',
+      enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
+      subnets: this.cluster.vpc.selectSubnets(subnetSelection).subnetIds,
+      securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
+      assignPublicIp: this.assignPublicIp ? 'ENABLED' : 'DISABLED',
+      // the cleaned up provider path plus whatever the user asked for
+      // see selectProviderParams() in runner.ts, which merges the rest of the standard runner tags in at runtime
+      tags: Object.entries(this.tags).map(([Key, Value]) => ({ Key, Value })),
+      cleanLabels: true,
+      runnerGroup: this.group ?? '',
+      group1: this.group ? '--runnergroup' : '',
+      group2: this.group ? this.group : '',
+      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+    };
   }
 
-  grantStateMachine(_: iam.IGrantable) {
+  /**
+   * @internal
+   */
+  _grantStateMachine(stateMachineRole: iam.IGrantable) {
+    grantEcsRunTask(this, stateMachineRole, this.task);
   }
 
-  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
+  /**
+   * @internal
+   */
+  _status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
     this.image.imageRepository.grant(statusFunctionRole, 'ecr:DescribeImages');
 
     return {
       type: this.constructor.name,
       labels: this.labels,
+      constructPath: this.node.path,
       vpcArn: this.vpc?.vpcArn,
       securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
       roleArn: this.task.taskRole.roleArn,

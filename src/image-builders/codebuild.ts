@@ -22,17 +22,28 @@ import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
 import { defaultBaseDockerImage } from './aws-image-builder';
+import { BaseContainerImage } from './aws-image-builder/base-image';
 import { BuildImageFunction } from './build-image-function';
 import { BuildImageFunctionProperties } from './build-image.lambda';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
-import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
+import { singletonLambda, singletonLogGroup, SingletonLogType, singletonRole } from '../utils';
 
 
 export interface CodeBuildRunnerImageBuilderProps {
   /**
    * The type of compute to use for this build.
    * See the {@link ComputeType} enum for the possible values.
+   *
+   * The compute type determines CPU, memory, and disk space:
+   * - SMALL: 2 vCPU, 3 GB RAM, 64 GB disk
+   * - MEDIUM: 4 vCPU, 7 GB RAM, 128 GB disk
+   * - LARGE: 8 vCPU, 15 GB RAM, 128 GB disk
+   * - X2_LARGE: 72 vCPU, 145 GB RAM, 256 GB disk (Linux) or 824 GB disk (Windows)
+   *
+   * Use a larger compute type when you need more disk space for building larger Docker images.
+   *
+   * For more details, see https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html#environment.types
    *
    * @default {@link ComputeType#SMALL}
    */
@@ -64,7 +75,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private boundDockerImage?: RunnerImage;
   private readonly os: Os;
   private readonly architecture: Architecture;
-  private readonly baseImage: string;
+  private readonly baseImage: BaseContainerImage;
   private readonly logRetention: RetentionDays;
   private readonly logRemovalPolicy: RemovalPolicy;
   private readonly vpc: ec2.IVpc | undefined;
@@ -96,10 +107,20 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.subnetSelection = props?.subnetSelection;
     this.timeout = props?.codeBuildOptions?.timeout ?? Duration.hours(1);
     this.computeType = props?.codeBuildOptions?.computeType ?? ComputeType.SMALL;
-    this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
     this.buildImage = props?.codeBuildOptions?.buildImage ?? this.getDefaultBuildImage();
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
     this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
+
+    // normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated, only at public API level)
+    const baseDockerImageInput = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
+    this.baseImage = typeof baseDockerImageInput === 'string' ? BaseContainerImage.fromString(baseDockerImageInput) : baseDockerImageInput;
+
+    // warn if using deprecated string format (only if user explicitly provided it)
+    if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {
+      Annotations.of(this).addWarning(
+        'Passing baseDockerImage as a string is deprecated. Please use BaseContainerImage static factory methods instead, e.g., BaseContainerImage.fromDockerHub("ubuntu", "22.04") or BaseContainerImage.fromString("public.ecr.aws/lts/ubuntu:22.04")',
+      );
+    }
 
     // warn against isolated networks
     if (props?.subnetSelection?.subnetType == ec2.SubnetType.PRIVATE_ISOLATED) {
@@ -191,6 +212,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     // permissions
     this.repository.grantPullPush(project);
 
+    // Grant pull permissions for base image ECR repository if applicable
+    if (this.baseImage.ecrRepository) {
+      this.baseImage.ecrRepository.grantPull(project);
+    }
+
     // call CodeBuild during deployment
     const completedImage = this.customResource(project, buildSpecHash);
 
@@ -229,10 +255,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private getDockerfileGenerationCommands(): [string[], string[]] {
     let hashedComponents: string[] = [];
     let commands = [];
-    let dockerfile = `FROM ${this.baseImage}\nVOLUME /var/lib/docker\n`;
+    let dockerfile = `FROM ${this.baseImage.image}\nVOLUME /var/lib/docker\n`;
 
     for (let i = 0; i < this.components.length; i++) {
       const componentName = this.components[i].name;
+      const safeComponentName = componentName.replace(/[^a-zA-Z0-9-]/g, '_');
       const assetDescriptors = this.components[i].getAssets(this.os, this.architecture);
 
       for (let j = 0; j < assetDescriptors.length; j++) {
@@ -245,15 +272,15 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         });
 
         if (asset.isFile) {
-          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${componentName}-${j}`);
+          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${safeComponentName}-${j}`);
         } else if (asset.isZipArchive) {
-          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${componentName}-${j}.zip`);
-          commands.push(`unzip asset${i}-${componentName}-${j}.zip -d "asset${i}-${componentName}-${j}"`);
+          commands.push(`aws s3 cp ${asset.s3ObjectUrl} asset${i}-${safeComponentName}-${j}.zip`);
+          commands.push(`unzip asset${i}-${safeComponentName}-${j}.zip -d asset${i}-${safeComponentName}-${j}`);
         } else {
           throw new Error(`Unknown asset type: ${asset}`);
         }
 
-        dockerfile += `COPY asset${i}-${componentName}-${j} ${assetDescriptors[j].target}\n`;
+        dockerfile += `COPY asset${i}-${safeComponentName}-${j} ${assetDescriptors[j].target}\n`;
         hashedComponents.push(`__ ASSET FILE ${asset.assetHash} ${i}-${componentName}-${j} ${assetDescriptors[j].target}`);
 
         asset.grantRead(this);
@@ -261,11 +288,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
       const componentCommands = this.components[i].getCommands(this.os, this.architecture);
       const script = '#!/bin/bash\nset -exuo pipefail\n' + componentCommands.join('\n');
-      commands.push(`cat > component${i}-${componentName}.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\n${script}\nEOFGITHUBRUNNERSDOCKERFILE`);
-      commands.push(`chmod +x component${i}-${componentName}.sh`);
+      commands.push(`cat > component${i}-${safeComponentName}.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\n${script}\nEOFGITHUBRUNNERSDOCKERFILE`);
+      commands.push(`chmod +x component${i}-${safeComponentName}.sh`);
       hashedComponents.push(`__ COMMAND ${i} ${componentName} ${script}`);
-      dockerfile += `COPY component${i}-${componentName}.sh /tmp\n`;
-      dockerfile += `RUN /tmp/component${i}-${componentName}.sh\n`;
+      dockerfile += `COPY component${i}-${safeComponentName}.sh /tmp\n`;
+      dockerfile += `RUN /tmp/component${i}-${safeComponentName}.sh\n`;
 
       const dockerCommands = this.components[i].getDockerCommands(this.os, this.architecture);
       dockerfile += dockerCommands.join('\n') + '\n';
@@ -291,12 +318,12 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
     const [commands, commandsHashedComponents] = this.getDockerfileGenerationCommands();
 
-    const buildSpecVersion = 'v1'; // change this every time the build spec changes
-    const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, this.baseImage, this.os.name);
+    const buildSpecVersion = 'v2'; // change this every time the build spec changes
+    const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, this.baseImage.image, this.os.name);
     const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
 
     const buildSpec = codebuild.BuildSpec.fromObject({
-      version: '0.2',
+      version: 0.2,
       env: {
         variables: {
           REPO_ARN: repository.repositoryArn,
@@ -307,40 +334,41 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         shell: 'bash',
       },
       phases: {
-        pre_build: {
+        // we can't use pre_build. the wait handle will never complete if pre_build fails as post_build won't run. this can cause timeouts during deployment.
+        build: {
           commands: [
             'echo "exec > >(tee -a /tmp/codebuild.log) 2>&1" > codebuild-log.sh',
             `aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin ${thisStack.account}.dkr.ecr.${thisStack.region}.amazonaws.com`,
-          ].concat(this.dockerSetupCommands),
-        },
-        build: {
-          commands: commands.concat(
+            ...this.dockerSetupCommands,
+            ...commands,
             'docker build --progress plain . -t "$REPO_URI"',
             'docker push "$REPO_URI"',
-          ),
+          ],
         },
         post_build: {
           commands: [
             'rm -f codebuild-log.sh && STATUS="SUCCESS"',
             'if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS="FAILURE"; fi',
             'cat <<EOF > /tmp/payload.json\n' +
-              '{\n' +
-              '  "Status": "$STATUS",\n' +
-              '  "UniqueId": "build",\n' +
-              // we remove non-printable characters from the log because CloudFormation doesn't like them
-              // https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1601
-              '  "Reason": `sed \'s/[^[:print:]]//g\' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\n' +
-              // for lambda always get a new value because there is always a new image hash
-              '  "Data": "$RANDOM"\n' +
-              '}\n' +
-              'EOF',
-            'if [ "$WAIT_HANDLE" != "unspecified" ]; then jq . /tmp/payload.json; curl -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$WAIT_HANDLE"; fi',
+            '{\n' +
+            '  "Status": "$STATUS",\n' +
+            '  "UniqueId": "build",\n' +
+            // we remove non-printable characters from the log because CloudFormation doesn't like them
+            // https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1601
+            '  "Reason": `sed \'s/[^[:print:]]//g\' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\n' +
+            // for lambda always get a new value because there is always a new image hash
+            '  "Data": "$RANDOM"\n' +
+            '}\n' +
+            'EOF',
+            'if [ "$WAIT_HANDLE" != "unspecified" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$WAIT_HANDLE"; fi',
             // generate and push soci index
             // we do this after finishing the build, so we don't have to wait. it's also not required, so it's ok if it fails
-            'docker rmi "$REPO_URI"', // it downloads the image again to /tmp, so save on space
-            'LATEST_SOCI_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`',
-            `curl -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz`,
-            './standalone-soci-indexer "$REPO_URI"',
+            'if [ `docker inspect --format=\'{{json .Config.Labels.DISABLE_SOCI}}\' "$REPO_URI"` = "null" ]; then\n' +
+            'docker rmi "$REPO_URI"\n' + // it downloads the image again to /tmp, so save on space
+            'LATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
+            `curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
+            './standalone-soci-indexer "$REPO_URI"\n' +
+            'fi',
           ],
         },
       },
@@ -357,18 +385,13 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       loggingFormat: lambda.LoggingFormat.JSON,
     });
 
-    const policy = new iam.Policy(this, 'CR Policy', {
-      statements: [
-        new iam.PolicyStatement({
-          actions: ['codebuild:StartBuild'],
-          resources: [project.projectArn],
-        }),
-      ],
-    });
-    crHandler.role!.attachInlinePolicy(policy);
+    const startBuildPolicy = crHandler.role!.addToPrincipalPolicy(new iam.PolicyStatement({
+      actions: ['codebuild:StartBuild'],
+      resources: [project.projectArn],
+    }));
 
-    let waitHandleRef= 'unspecified';
-    let waitDependable = '';
+    let waitHandleRef = 'unspecified';
+    let waitDependable: cloudformation.CfnWaitCondition | undefined;
 
     if (this.waitOnDeploy) {
       // Wait handle lets us wait for longer than an hour for the image build to complete.
@@ -382,7 +405,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         count: 1,
       });
       waitHandleRef = handle.ref;
-      waitDependable = wait.ref;
+      waitDependable = wait;
     }
 
     const cr = new CustomResource(this, 'Builder', {
@@ -398,11 +421,11 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     // add dependencies to make sure resources are there when we need them
     cr.node.addDependency(project);
     cr.node.addDependency(this.role);
-    cr.node.addDependency(policy);
+    cr.node.addDependency(startBuildPolicy.policyDependable!);
     cr.node.addDependency(crHandler.role!);
     cr.node.addDependency(crHandler);
 
-    return waitDependable; // user needs to wait on wait handle which is triggered when the image is built
+    return waitDependable; // user needs to wait on the wait condition which is signaled when the image is built
   }
 
   private rebuildImageOnSchedule(project: codebuild.Project, rebuildInterval?: Duration) {
@@ -412,7 +435,10 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
         description: `Rebuild runner image for ${this.repository.repositoryName}`,
         schedule: events.Schedule.rate(rebuildInterval),
       });
-      scheduleRule.addTarget(new events_targets.CodeBuildProject(project));
+      scheduleRule.addTarget(new events_targets.CodeBuildProject(project, {
+        // all image builders in the stack share one role, so we don't create a role and a policy per builder
+        eventRole: singletonRole(this, 'Build Schedule Role', new iam.ServicePrincipal('events.amazonaws.com')),
+      }));
     }
   }
 

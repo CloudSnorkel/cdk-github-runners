@@ -1,7 +1,32 @@
 import { createHash } from 'crypto';
-import { createAppAuth } from '@octokit/auth-app';
-import { Octokit } from '@octokit/rest';
-import { getSecretJsonValue, getSecretValue } from './lambda-helpers';
+import type { Octokit as RestOctokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
+import { GITHUB_PRIVATE_KEY_PLACEHOLDER } from './lambda-common';
+import { getSecretJsonValue, getSecretValue, RunnerConfigurationError } from './lambda-helpers';
+
+// ---- Octokit ESM loader helpers (inlined) ----
+// Octokit packages are ESM, but our Lambda assets are bundled into CJS.
+// Using dynamic `import()` here lets esbuild include Octokit in the bundle.
+type OctokitRestModule = typeof import('@octokit/rest', { with: { 'resolution-mode': 'import' } });
+type OctokitCoreModule = typeof import('@octokit/core', { with: { 'resolution-mode': 'import' } });
+type OctokitAuthAppModule = typeof import('@octokit/auth-app', { with: { 'resolution-mode': 'import' } });
+
+let restModulePromise: Promise<OctokitRestModule> | undefined;
+let coreModulePromise: Promise<OctokitCoreModule> | undefined;
+let authAppModulePromise: Promise<OctokitAuthAppModule> | undefined;
+
+export function loadOctokitRest(): Promise<OctokitRestModule> {
+  return (restModulePromise ??= import('@octokit/rest') as Promise<OctokitRestModule>);
+}
+
+export function loadOctokitCore(): Promise<OctokitCoreModule> {
+  return (coreModulePromise ??= import('@octokit/core') as Promise<OctokitCoreModule>);
+}
+
+export function loadOctokitAuthApp(): Promise<OctokitAuthAppModule> {
+  return (authAppModulePromise ??= import('@octokit/auth-app') as Promise<OctokitAuthAppModule>);
+}
+
+// ---- Other helpers ----
 
 export function baseUrlFromDomain(domain: string): string {
   if (domain == 'github.com') {
@@ -10,7 +35,7 @@ export function baseUrlFromDomain(domain: string): string {
   return `https://${domain}/api/v3`;
 }
 
-type RunnerLevel = 'repo' | 'org' | undefined; // undefined is for backwards compatibility and should be treated as 'repo'
+export type RunnerLevel = 'repo' | 'org' | undefined; // undefined is for backwards compatibility and should be treated as 'repo'
 
 export interface GitHubSecrets {
   domain: string;
@@ -19,12 +44,48 @@ export interface GitHubSecrets {
   runnerLevel: RunnerLevel;
 }
 
-const octokitCache = new Map<string, Octokit>();
+const octokitCache = new Map<string, RestOctokit>();
 
-export async function getOctokit(installationId?: number): Promise<{ octokit: Octokit; githubSecrets: GitHubSecrets }> {
+const SETUP_DOCS = 'See https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md';
+
+/**
+ * Confirm we have what we need for app authentication. Called only when there is no personal access token.
+ *
+ * @internal
+ */
+export function checkAppAuth(githubSecrets: GitHubSecrets, installationId?: number) {
+  if (!githubSecrets.appId) {
+    throw new RunnerConfigurationError('GitHub authentication has not been set up. The GitHub secret has neither a personal access token ' +
+      `(personalAuthToken) nor an app id (appId). Run the setup wizard linked in the stack outputs, or set the secret manually. ${SETUP_DOCS}`);
+  }
+
+  if (installationId === undefined || installationId <= 0) {
+    throw new RunnerConfigurationError('Installation ID is required for app authentication. ' +
+      'This error can happen if you create the webhook yourself for GitHub app authentication instead of using the app webhook.');
+  }
+}
+
+/**
+ * Confirm the private key secret was actually filled in after deployment.
+ *
+ * @internal
+ */
+export function checkPrivateKey(privateKey: string) {
+  if (privateKey.trim() === GITHUB_PRIVATE_KEY_PLACEHOLDER) {
+    throw new RunnerConfigurationError('GitHub app private key has not been set. The private key secret still has the placeholder we deploy ' +
+      `with. Run the setup wizard linked in the stack outputs, or put the app private key in the secret manually. ${SETUP_DOCS}`);
+  }
+}
+
+export async function getOctokit(installationId?: number): Promise<{ octokit: RestOctokit; githubSecrets: GitHubSecrets }> {
   if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
     throw new Error('Missing environment variables');
   }
+
+  const [{ Octokit }, { createAppAuth }] = await Promise.all([
+    loadOctokitRest(),
+    loadOctokitAuthApp(),
+  ]);
 
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
 
@@ -58,7 +119,11 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Oc
   if (githubSecrets.personalAuthToken) {
     token = githubSecrets.personalAuthToken;
   } else {
+    checkAppAuth(githubSecrets, installationId);
+
     const privateKey = await getSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN);
+
+    checkPrivateKey(privateKey);
 
     const appOctokit = new Octokit({
       baseUrl,
@@ -91,10 +156,15 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Oc
 
 // This function is used to get the Octokit instance for the app itself, not for a specific installation.
 // With PAT authentication, it returns undefined.
-export async function getAppOctokit() {
+export async function getAppOctokit(): Promise<RestOctokit | undefined> {
   if (!process.env.GITHUB_SECRET_ARN || !process.env.GITHUB_PRIVATE_KEY_SECRET_ARN) {
     throw new Error('Missing environment variables');
   }
+
+  const [{ Octokit }, { createAppAuth }] = await Promise.all([
+    loadOctokitRest(),
+    loadOctokitAuthApp(),
+  ]);
 
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   const baseUrl = baseUrlFromDomain(githubSecrets.domain);
@@ -104,6 +174,7 @@ export async function getAppOctokit() {
   }
 
   const privateKey = await getSecretValue(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN);
+  checkPrivateKey(privateKey);
 
   return new Octokit({
     baseUrl,
@@ -115,19 +186,21 @@ export async function getAppOctokit() {
   });
 }
 
-export async function getRunner(octokit: Octokit, runnerLevel: RunnerLevel, owner: string, repo: string, name: string) {
+export async function getRunner(octokit: RestOctokit, runnerLevel: RunnerLevel, owner: string, repo: string, name: string) {
   let page = 1;
   while (true) {
     let runners;
 
     if ((runnerLevel ?? 'repo') === 'repo') {
       runners = await octokit.rest.actions.listSelfHostedRunnersForRepo({
+        name: name,
         page: page,
         owner: owner,
         repo: repo,
       });
     } else {
       runners = await octokit.rest.actions.listSelfHostedRunnersForOrg({
+        name: name,
         page: page,
         org: owner,
       });
@@ -138,6 +211,8 @@ export async function getRunner(octokit: Octokit, runnerLevel: RunnerLevel, owne
     }
 
     for (const runner of runners.data.runners) {
+      // we filter by name in the API call, but still double-check here
+      // this is for backward compatibility with old GHES instances that may not support the name filter
       if (runner.name == name) {
         return runner;
       }
@@ -147,7 +222,7 @@ export async function getRunner(octokit: Octokit, runnerLevel: RunnerLevel, owne
   }
 }
 
-export async function deleteRunner(octokit: Octokit, runnerLevel: RunnerLevel, owner: string, repo: string, runnerId: number) {
+export async function deleteRunner(octokit: RestOctokit, runnerLevel: RunnerLevel, owner: string, repo: string, runnerId: number) {
   if ((runnerLevel ?? 'repo') === 'repo') {
     await octokit.rest.actions.deleteSelfHostedRunnerFromRepo({
       owner: owner,
@@ -162,9 +237,10 @@ export async function deleteRunner(octokit: Octokit, runnerLevel: RunnerLevel, o
   }
 }
 
-export async function redeliver(octokit: Octokit, deliveryId: number) {
+export async function redeliver(octokit: RestOctokit, deliveryId: bigint) {
   const response = await octokit.rest.apps.redeliverWebhookDelivery({
-    delivery_id: deliveryId,
+    // waiting for new octokit -- https://github.com/octokit/request.js/issues/797#issuecomment-3953274583
+    delivery_id: deliveryId as unknown as number,
   });
 
   if (response.status !== 202) {
@@ -172,6 +248,36 @@ export async function redeliver(octokit: Octokit, deliveryId: number) {
   }
   console.log({
     notice: 'Successfully redelivered webhook delivery',
-    deliveryId,
+    deliveryId: String(deliveryId),
   });
+}
+
+/**
+ * Did GitHub tell us it can't see this? Used to tell "we have no access" apart from a real failure, because the
+ * first is permanent and retrying it forever costs rate limit we need for starting runners.
+ */
+export function isNotFound(e: unknown): boolean {
+  return (e as { status?: number })?.status === 404;
+}
+
+/**
+ * Find installation id for our app. Normal code path gets this from the webhook payload, but we schedule these ourselves.
+ *
+ * If the repository cannot be found (e.g. the app was uninstalled), this will throw a 404 error. Use `isNotFound` to check for that case.
+ *
+ * @internal
+ */
+export async function resolveInstallationId(owner: string, repo: string) {
+  const appOctokit = await getAppOctokit();
+  if (!appOctokit) {
+    return undefined; // PAT authentication
+  }
+
+  if (repo) {
+    const { data } = await appOctokit.rest.apps.getRepoInstallation({ owner, repo });
+    return data.id;
+  } else {
+    const { data } = await appOctokit.rest.apps.getOrgInstallation({ org: owner });
+    return data.id;
+  }
 }

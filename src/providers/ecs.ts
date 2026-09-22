@@ -5,14 +5,12 @@ import {
   aws_iam as iam,
   aws_logs as logs,
   aws_stepfunctions as stepfunctions,
-  aws_stepfunctions_tasks as stepfunctions_tasks,
   RemovalPolicy,
   Stack,
 } from 'aws-cdk-lib';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import { MachineImageType } from 'aws-cdk-lib/aws-ecs';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { IntegrationPattern } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 import {
   amiRootDevice,
@@ -21,13 +19,15 @@ import {
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
+  runnerEnvironment,
   RunnerImage,
   RunnerProviderProps,
-  RunnerRuntimeParameters,
   RunnerVersion,
   StorageOptions,
+  providerParam,
+  RunnerEnvConfig,
 } from './common';
-import { ecsRunCommand } from './fargate';
+import { cleanEcsTag, ecsRunCommand, ecsTags, grantEcsRunTask } from './fargate';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 import { MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT, MINIMAL_ECS_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
@@ -59,7 +59,7 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
    * GitHub Actions runner group name.
    *
    * If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
-   * requires a paid GitHub account.
+   * requires a paid GitHub account and organization level runner registration.
    *
    * The group must exist or the runner will not start.
    *
@@ -109,9 +109,11 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
   /**
    * Assign public IP to the runner task.
    *
-   * Make sure the task will have access to GitHub. A public IP might be required unless you have NAT gateway.
+   * @deprecated ECS runner tasks use bridge networking, so they share the host instance's network interface and
+   * cannot get a public IP of their own. This property is ignored. Give the cluster instances internet access
+   * instead (a public subnet or a NAT gateway), and open an issue if you need `awsvpc` networking for ECS.
    *
-   * @default true
+   * @default - ignored
    */
   readonly assignPublicIp?: boolean;
 
@@ -190,32 +192,63 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
    * Maximum price for spot instances.
    */
   readonly spotMaxPrice?: string;
-}
-
-interface EcsEc2LaunchTargetProps {
-  readonly capacityProvider: string;
-}
-
-class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
-  constructor(readonly props: EcsEc2LaunchTargetProps) {
-  }
 
   /**
-   * Called when the ECS launch type configured on RunTask
+   * ECS placement strategies to influence task placement.
+   *
+   * Example: [ecs.PlacementStrategy.packedByCpu()]
+   *
+   * @default undefined (no placement strategies)
    */
-  public bind(_task: stepfunctions_tasks.EcsRunTask,
-    _launchTargetOptions: stepfunctions_tasks.LaunchTargetBindOptions): stepfunctions_tasks.EcsLaunchTargetConfig {
-    return {
-      parameters: {
-        PropagateTags: ecs.PropagatedTagSource.TASK_DEFINITION,
-        CapacityProviderStrategy: [
-          {
-            CapacityProvider: this.props.capacityProvider,
-          },
-        ],
-      },
-    };
-  }
+  readonly placementStrategies?: ecs.PlacementStrategy[];
+
+  /**
+   * ECS placement constraints to influence task placement.
+   *
+   * Example: [ecs.PlacementConstraint.memberOf('ecs-placement')]
+   *
+   * @default undefined (no placement constraints)
+   */
+  readonly placementConstraints?: ecs.PlacementConstraint[];
+
+  /**
+   * Number of GPUs to request for the runner task. When set, the task will be scheduled on GPU-capable instances.
+   *
+   * Requires a GPU-capable instance type (e.g., g4dn.xlarge for 1 GPU, g4dn.12xlarge for 4 GPUs) and GPU AMI.
+   * When creating a new cluster, instanceType defaults to g4dn.xlarge and the ECS Optimized GPU AMI is used.
+   *
+   * You must ensure that the task's container image includes the CUDA runtime. Provide a CUDA-enabled base image
+   * via `baseDockerImage`, use an image builder that starts from a GPU-capable image (such as nvidia/cuda), or add
+   * an image component that installs the CUDA runtime into the image.
+   *
+   * @default undefined (no GPU)
+   */
+  readonly gpu?: number;
+
+  /**
+   * Additional tags to apply to launched runner tasks.
+   *
+   * These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
+   * You may override the built-in tags.
+   *
+   * @default no additional tags
+   */
+  readonly tags?: { [key: string]: string };
+}
+
+/**
+ * Runner config for the Ecs family fragment.
+ *
+ * @internal
+ */
+interface EcsRunnerConfig extends RunnerEnvConfig {
+  readonly clusterArn: string;
+  readonly taskDefinitionFamily: string;
+  readonly containerName: string;
+  readonly capacityProviderName: string;
+  readonly enableExecuteCommand: boolean;
+  readonly placementStrategies: any[];
+  readonly placementConstraints: any[];
 }
 
 /**
@@ -228,6 +261,45 @@ class EcsEc2LaunchTarget implements stepfunctions_tasks.IEcsLaunchTarget {
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
+  /** @internal */
+  public static readonly _FAMILY = 'ecs';
+
+  /**
+   * The fragment that runs any ECS provider. Reads the config {@link _runnerConfig} generated for it from
+   * `$.providerParams`. Renders what EcsRunTask used to render per provider, minus NetworkConfiguration because
+   * ECS task definitions use bridge networking.
+   *
+   * @internal
+   */
+  public static _stateMachineFragment(scope: Construct): stepfunctions.IChainable {
+    const p = providerParam<EcsRunnerConfig>;
+    return new stepfunctions.CustomState(scope, 'ECS Runner', {
+      stateJson: {
+        Type: 'Task',
+        Resource: `arn:${cdk.Aws.PARTITION}:states:::ecs:runTask.sync`,
+        Parameters: {
+          'Cluster.$': p('clusterArn'),
+          'TaskDefinition.$': p('taskDefinitionFamily'),
+          'Overrides': {
+            ContainerOverrides: [{
+              'Name.$': p('containerName'),
+              'Environment': runnerEnvironment((name, value) => ({ 'Name': name, 'Value.$': value })),
+            }],
+          },
+          'PropagateTags': 'TASK_DEFINITION',
+          'Tags.$': p('tags'), // the provider's tags, already merged with the standard runner tags by the orchestrator
+          'CapacityProviderStrategy': [{
+            'CapacityProvider.$': p('capacityProviderName'),
+          }],
+          // ready-made arrays in the shape ecs:runTask wants, empty when nothing is configured
+          'PlacementConstraints.$': p('placementConstraints'),
+          'PlacementStrategy.$': p('placementStrategies'),
+          'EnableExecuteCommand.$': p('enableExecuteCommand'),
+        },
+      },
+    });
+  }
+
   /**
    * Create new image builder that builds ECS specific runner images.
    *
@@ -270,8 +342,10 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
 
   /**
    * Capacity provider used to scale the cluster.
+   *
+   * Use capacityProvider.autoScalingGroup to access the auto scaling group. This can help set up custom scaling policies.
    */
-  private readonly capacityProvider: ecs.AsgCapacityProvider;
+  readonly capacityProvider: ecs.AsgCapacityProvider;
 
   /**
    * ECS task hosting the runner.
@@ -297,11 +371,6 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    * Subnets used for hosting the runner task.
    */
   private readonly subnetSelection?: ec2.SubnetSelection;
-
-  /**
-   * Whether runner task will have a public IP.
-   */
-  private readonly assignPublicIp: boolean;
 
   /**
    * Grant principal used to add permissions to the runner role.
@@ -340,23 +409,46 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
    */
   private readonly group?: string;
 
-  readonly retryableErrors = [
-    'Ecs.EcsException',
-    'ECS.AmazonECSException',
-    'Ecs.LimitExceededException',
-    'Ecs.UpdateInProgressException',
-  ];
+  /**
+   * Include default labels (arch, os, self-hosted) for runner.
+   */
+  private readonly defaultLabels: boolean;
+
+  /**
+   * ECS placement strategies to influence task placement.
+   */
+  private readonly placementStrategies?: ecs.PlacementStrategy[];
+
+  /**
+   * ECS placement constraints to influence task placement.
+   */
+  private readonly placementConstraints?: ecs.PlacementConstraint[];
+
+  /**
+   * Number of GPUs requested for the runner task (0 = no GPU).
+   */
+  private readonly gpuCount: number;
+
+  /**
+   * Tags set on launched runner tasks.
+   */
+  private readonly tags: { [key: string]: string };
+
 
   constructor(scope: Construct, id: string, props?: EcsRunnerProviderProps) {
     super(scope, id, props);
 
     this.labels = props?.labels ?? ['ecs'];
     this.group = props?.group;
+    this.defaultLabels = props?.defaultLabels ?? true;
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
     this.subnetSelection = props?.subnetSelection;
     this.securityGroups = props?.securityGroups ?? [new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc })];
     this.connections = new ec2.Connections({ securityGroups: this.securityGroups });
-    this.assignPublicIp = props?.assignPublicIp ?? true;
+    this.placementStrategies = props?.placementStrategies;
+    this.placementConstraints = props?.placementConstraints;
+    this.gpuCount = props?.gpu ?? 0;
+    this.tags = ecsTags(this, props?.tags ?? {});
     this.cluster = props?.cluster ? props.cluster : new ecs.Cluster(
       this,
       'cluster',
@@ -366,11 +458,21 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       },
     );
 
+    // all providers add this tag, but ECS/Fargate tags need to be cleaned
+    cdk.Tags.of(this).add('GitHubRunners:Provider', cleanEcsTag(this, 'provider tag', this.node.path));
+
     if (props?.storageOptions && !props?.storageSize) {
-      throw new Error('storageSize is required when storageOptions are specified');
+      cdk.Annotations.of(this).addError('storageSize is required when storageOptions are specified');
     }
 
-    const imageBuilder = props?.imageBuilder ?? EcsRunnerProvider.imageBuilder(this, 'Image Builder');
+    const defaultImageBuilderArchitecture =
+      !props?.capacityProvider && props?.instanceType?.architecture === ec2.InstanceArchitecture.ARM_64
+        ? Architecture.ARM64
+        : Architecture.X86_64;
+
+    const imageBuilder = props?.imageBuilder ?? EcsRunnerProvider.imageBuilder(this, 'Image Builder', {
+      architecture: defaultImageBuilderArchitecture,
+    });
     const image = this.image = imageBuilder.bindDockerImage();
 
     if (props?.capacityProvider) {
@@ -385,16 +487,16 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       const launchTemplate = new ec2.LaunchTemplate(this, 'Launch Template', {
         machineImage: this.defaultClusterInstanceAmi(),
         instanceType: props?.instanceType ?? this.defaultClusterInstanceType(),
-        blockDevices: props?.storageSize ? [
+        blockDevices: (props?.storageSize || props?.storageOptions) ? [
           {
             deviceName: amiRootDevice(this, this.defaultClusterInstanceAmi().getImage(this).imageId).ref,
             volume: {
               ebsDevice: {
                 deleteOnTermination: true,
-                volumeSize: props.storageSize.toGibibytes(),
-                volumeType: props.storageOptions?.volumeType,
-                iops: props.storageOptions?.iops,
-                throughput: props.storageOptions?.throughput,
+                volumeSize: props?.storageSize?.toGibibytes() ?? 30,
+                volumeType: props?.storageOptions?.volumeType,
+                iops: props?.storageOptions?.iops,
+                throughput: props?.storageOptions?.throughput,
               },
             },
           },
@@ -458,6 +560,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
         cpu: props?.cpu ?? 1024,
         memoryLimitMiB: props?.memoryLimitMiB ?? (props?.memoryReservationMiB ? undefined : 3500),
         memoryReservationMiB: props?.memoryReservationMiB,
+        gpuCount: this.gpuCount > 0 ? this.gpuCount : undefined,
         logging: ecs.AwsLogDriver.awsLogs({
           logGroup: this.logGroup,
           streamPrefix: 'runner',
@@ -472,16 +575,37 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
 
     // permissions for SSM Session Manager
     this.task.taskRole.addToPrincipalPolicy(MINIMAL_ECS_SSM_SESSION_MANAGER_POLICY_STATEMENT);
+
+    if (props?.assignPublicIp) {
+      cdk.Annotations.of(this).addWarning('assignPublicIp is set to `true`, but ECS tasks on EC2 run using bridge mode. In bridge mode, the task ' +
+        'uses the host instance\'s network interface and IP address. The task will not have its own public IP address. Ensure that the host ' +
+        'instances have internet access (e.g., through a NAT gateway) if the tasks need to access external resources. Please open a GitHub issue ' +
+        'if you need VPC networking mode for ECS.');
+    }
   }
 
   private defaultClusterInstanceType() {
+    if (this.gpuCount > 0) {
+      if (!this.image.architecture.is(Architecture.X86_64)) {
+        throw new Error('ECS GPU is only supported for x64 architecture. GPU instances (g4dn, g5, p3, etc.) are x64 only.');
+      }
+      if (this.gpuCount <= 1) {
+        return ec2.InstanceType.of(ec2.InstanceClass.G4DN, ec2.InstanceSize.XLARGE);
+      }
+      if (this.gpuCount <= 4) {
+        return ec2.InstanceType.of(ec2.InstanceClass.G4DN, ec2.InstanceSize.XLARGE12);
+      }
+      if (this.gpuCount <= 8) {
+        return ec2.InstanceType.of(ec2.InstanceClass.P3, ec2.InstanceSize.XLARGE16);
+      }
+      throw new Error(`Unsupported GPU count: ${this.gpuCount}`);
+    }
     if (this.image.architecture.is(Architecture.X86_64)) {
       return ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
     }
     if (this.image.architecture.is(Architecture.ARM64)) {
       return ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE);
     }
-
     throw new Error(`Unable to find instance type for ECS instances for ${this.image.architecture.name}`);
   }
 
@@ -491,13 +615,16 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     let found = false;
 
     if (this.image.os.isIn(Os._ALL_LINUX_VERSIONS)) {
-      if (this.image.architecture.is(Architecture.X86_64)) {
-        baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.STANDARD);
+      if (this.gpuCount > 0 && this.image.architecture.is(Architecture.X86_64)) {
+        baseImage = ecs.EcsOptimizedImage.amazonLinux2023(ecs.AmiHardwareType.GPU);
+        ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/gpu/recommended/image_id';
+        found = true;
+      } else if (this.image.architecture.is(Architecture.X86_64)) {
+        baseImage = ecs.EcsOptimizedImage.amazonLinux2023(ecs.AmiHardwareType.STANDARD);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id';
         found = true;
-      }
-      if (this.image.architecture.is(Architecture.ARM64)) {
-        baseImage = ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.ARM);
+      } else if (this.image.architecture.is(Architecture.ARM64)) {
+        baseImage = ecs.EcsOptimizedImage.amazonLinux2023(ecs.AmiHardwareType.ARM);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/arm64/recommended/image_id';
         found = true;
       }
@@ -510,7 +637,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     }
 
     if (!found) {
-      throw new Error(`Unable to find AMI for ECS instances for ${this.image.os.name}/${this.image.architecture.name}`);
+      throw new Error(`Unable to find AMI for ECS instances for ${this.image.os.name}/${this.image.architecture.name} (gpuCount=${this.gpuCount})`);
     }
 
     const image: ec2.IMachineImage = {
@@ -553,6 +680,9 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       return [
         '[Environment]::SetEnvironmentVariable("ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION", "5s", "Machine")',
         '[Environment]::SetEnvironmentVariable("ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION_JITTER", "5s", "Machine")',
+        // https://github.com/aws/aws-cdk/issues/36805
+        '[Environment]::SetEnvironmentVariable("ECS_ENABLE_TASK_IAM_ROLE", "true", "Machine")',
+        '(Get-Content "C:\\Program Files\\WindowsPowerShell\\Modules\\ECSTools\\ECSTools.psm1").Replace(\'if ($EnableTaskIAMRole) {\', \'$EnableTaskIAMRole = $true; if ($EnableTaskIAMRole) {\') | Set-Content "C:\\Program Files\\WindowsPowerShell\\Modules\\ECSTools\\ECSTools.psm1" -Force',
       ];
     }
     return [
@@ -562,77 +692,63 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   }
 
   /**
-   * Generate step function task(s) to start a new runner.
+   * Config for the shared ECS fragment.
    *
-   * Called by GithubRunners and shouldn't be called manually.
-   *
-   * @param parameters workflow job details
+   * @internal
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable {
-    return new stepfunctions_tasks.EcsRunTask(
-      this,
-      this.labels.join(', '),
-      {
-        integrationPattern: IntegrationPattern.RUN_JOB, // sync
-        taskDefinition: this.task,
-        cluster: this.cluster,
-        launchTarget: new EcsEc2LaunchTarget({
-          capacityProvider: this.capacityProvider.capacityProviderName,
-        }),
-        enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
-        assignPublicIp: this.assignPublicIp,
-        containerOverrides: [
-          {
-            containerDefinition: this.container,
-            environment: [
-              {
-                name: 'RUNNER_TOKEN',
-                value: parameters.runnerTokenPath,
-              },
-              {
-                name: 'RUNNER_NAME',
-                value: parameters.runnerNamePath,
-              },
-              {
-                name: 'RUNNER_LABEL',
-                value: this.labels.join(','),
-              },
-              {
-                name: 'RUNNER_GROUP',
-                value: this.group ? `--runnergroup ${this.group}` : '',
-              },
-              {
-                name: 'GITHUB_DOMAIN',
-                value: parameters.githubDomainPath,
-              },
-              {
-                name: 'OWNER',
-                value: parameters.ownerPath,
-              },
-              {
-                name: 'REPO',
-                value: parameters.repoPath,
-              },
-              {
-                name: 'REGISTRATION_URL',
-                value: parameters.registrationUrl,
-              },
-            ],
-          },
-        ],
-      },
-    );
+  _runnerConfig(): EcsRunnerConfig {
+    // these are static per provider, so we render them the way ecs:runTask wants them right here
+    // that means uppercasing the first letter of every key, exactly like EcsEc2LaunchTarget does
+    const uppercaseKeys = (obj: Record<string, any>) => {
+      const ret: Record<string, any> = {};
+      for (const key of Object.keys(obj)) {
+        ret[key.slice(0, 1).toUpperCase() + key.slice(1)] = obj[key];
+      }
+      return ret;
+    };
+    const placementStrategies = (this.placementStrategies ?? []).flatMap(s => s.toJson().map(uppercaseKeys));
+    const placementConstraints = (this.placementConstraints ?? []).flatMap(c => c.toJson().map(uppercaseKeys));
+
+    return {
+      family: EcsRunnerProvider._FAMILY,
+      provider: this.node.path,
+      clusterArn: this.cluster.clusterArn,
+      taskDefinitionFamily: this.task.family,
+      containerName: this.container.containerName,
+      capacityProviderName: this.capacityProvider.capacityProviderName,
+      enableExecuteCommand: this.image.os.isIn(Os._ALL_LINUX_VERSIONS),
+      // always an array, even an empty one
+      // a missing key makes the JSONata resolve to nothing and the state fails with States.QueryEvaluationError
+      placementStrategies,
+      placementConstraints,
+      // the cleaned up provider path plus whatever the user asked for
+      // see selectProviderParams() in runner.ts, which merges the rest of the standard runner tags in at runtime
+      tags: Object.entries(this.tags).map(([Key, Value]) => ({ Key, Value })),
+      cleanLabels: true,
+      runnerGroup: this.group ?? '',
+      group1: this.group ? '--runnergroup' : '',
+      group2: this.group ? this.group : '',
+      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+    };
   }
 
-  grantStateMachine(_: iam.IGrantable) {
+  /**
+   * @internal
+   */
+  _grantStateMachine(stateMachineRole: iam.IGrantable) {
+    grantEcsRunTask(this, stateMachineRole, this.task);
   }
 
-  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
+  /**
+   * @internal
+   */
+  _status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus {
     this.image.imageRepository.grant(statusFunctionRole, 'ecr:DescribeImages');
 
     return {
       type: this.constructor.name,
       labels: this.labels,
+      constructPath: this.node.path,
       vpcArn: this.vpc?.vpcArn,
       securityGroups: this.securityGroups.map(sg => sg.securityGroupId),
       roleArn: this.task.taskRole.roleArn,

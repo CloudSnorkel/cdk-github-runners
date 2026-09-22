@@ -4,7 +4,10 @@ import * as AWSLambda from 'aws-lambda';
 const sns = new SNSClient();
 
 export async function handler(event: AWSLambda.SNSEvent) {
-  console.log(event);
+  console.log({
+    notice: 'Received SNS event',
+    recordCount: event.Records.length,
+  });
   for (const record of event.Records) {
     let message = JSON.parse(record.Sns.Message);
     if (message.state.status === 'FAILED') {

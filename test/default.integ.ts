@@ -5,10 +5,19 @@
  */
 
 import * as cdk from 'aws-cdk-lib';
-import { aws_codebuild as codebuild, aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
+import {
+  aws_cloudformation as cloudformation,
+  aws_codebuild as codebuild,
+  aws_ec2 as ec2,
+  aws_ecs as ecs,
+  aws_lambda as lambda,
+  aws_logs as logs,
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import {
   Architecture,
   CodeBuildRunnerProvider,
+  CompositeProvider,
   Ec2RunnerProvider,
   EcsRunnerProvider,
   FargateRunnerProvider,
@@ -17,6 +26,11 @@ import {
   Os,
   RunnerImageComponent,
 } from '../src';
+
+// turn this on to test what happens if a stack fails deploying after an image was already built.
+// we have an open issue where the new version of the image remains until the next scheduled build.
+// after failing to deploy, run the integration tests. any provider that fails is using the new image which doesn't match the rolled back stack.
+const testDeploymentFailureAfterImageBuilt = false;
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
@@ -39,9 +53,14 @@ const cluster = new ecs.Cluster(
   },
 );
 
+// one security group to save on resources
+const sg = new ec2.SecurityGroup(stack, 'SG', {
+  vpc,
+});
+
 const extraFilesComponentLinux = RunnerImageComponent.custom({
   commands: [
-    'touch /custom-file',
+    testDeploymentFailureAfterImageBuilt ? 'echo skipping custom-file' : 'touch /custom-file',
     'mkdir /custom-dir',
     'mv FUNDING.yml /custom-dir',
   ],
@@ -54,7 +73,7 @@ const extraFilesComponentLinux = RunnerImageComponent.custom({
 });
 const extraFilesComponentWindows = RunnerImageComponent.custom({
   commands: [
-    'New-Item -ItemType file -Path / -Name custom-file',
+    testDeploymentFailureAfterImageBuilt ? 'echo skipping custom-file' : 'New-Item -ItemType file -Path / -Name custom-file',
     'New-Item -ItemType directory -Path / -Name custom-dir',
     'Move-Item FUNDING.yml /custom-dir',
   ],
@@ -92,12 +111,14 @@ const windowsImageBuilder = FargateRunnerProvider.imageBuilder(stack, 'Windows I
   os: Os.WINDOWS,
   vpc,
   subnetSelection: { subnetType: ec2.SubnetType.PUBLIC },
+  securityGroups: [sg],
 });
 windowsImageBuilder.addComponent(extraFilesComponentWindows);
 windowsImageBuilder.addComponent(envComponent);
 
 const amiX64Builder = Ec2RunnerProvider.imageBuilder(stack, 'AMI Linux Builder', {
   vpc,
+  securityGroups: [sg],
   awsImageBuilderOptions: {
     storageSize: cdk.Size.gibibytes(33),
   },
@@ -133,6 +154,7 @@ const ec2ImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'AMI Linux arm64 B
     instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
   },
   vpc,
+  securityGroups: [sg],
 });
 ec2ImageBuilder.addComponent(extraFilesComponentLinux);
 ec2ImageBuilder.addComponent(envComponent);
@@ -140,9 +162,19 @@ ec2ImageBuilder.addComponent(envComponent);
 const ec2WindowsImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'Windows EC2 Builder', {
   os: Os.WINDOWS,
   vpc,
+  securityGroups: [sg],
 });
 ec2WindowsImageBuilder.addComponent(extraFilesComponentWindows);
 ec2WindowsImageBuilder.addComponent(envComponent);
+
+// build but don't use AL2 image
+// we build so we can confirm all the default components work
+// we don't use because it's EOL
+// node 24, required by all recent actions, doesn't even work there
+// .../node: /lib64/libm.so.6: version `GLIBC_2.27' not found
+FargateRunnerProvider.imageBuilder(stack, 'AL2 builder', {
+  os: Os.LINUX_AMAZON_2,
+}).bindDockerImage();
 
 const runners = new GitHubRunners(stack, 'runners', {
   providers: [
@@ -164,23 +196,44 @@ const runners = new GitHubRunners(stack, 'runners', {
       computeType: codebuild.ComputeType.MEDIUM,
       imageBuilder: windowsImageBuilder,
     }),
-    new EcsRunnerProvider(stack, 'ECS', {
-      labels: ['ecs', 'linux', 'x64'],
-      imageBuilder: codeBuildImageBuilder, // codebuild has dind
-      vpc,
-      maxInstances: 1,
-      spot: true,
-      storageSize: cdk.Size.gibibytes(40),
-      storageOptions: {
-        volumeType: ec2.EbsDeviceVolumeType.GP3,
-        iops: 1500,
-        throughput: 150,
-      },
-    }),
+    CompositeProvider.fallback(stack, 'ECS Fallback', [
+      new EcsRunnerProvider(stack, 'ECS Spot', {
+        labels: ['ecs', 'linux', 'x64'],
+        imageBuilder: codeBuildImageBuilder, // codebuild has dind
+        cluster,
+        vpc,
+        securityGroups: [sg],
+        maxInstances: 1,
+        spot: true,
+        storageSize: cdk.Size.gibibytes(40),
+        storageOptions: {
+          volumeType: ec2.EbsDeviceVolumeType.GP3,
+          iops: 1500,
+          throughput: 150,
+        },
+      }),
+      new EcsRunnerProvider(stack, 'ECS Non-Spot', {
+        labels: ['ecs', 'linux', 'x64'],
+        imageBuilder: codeBuildImageBuilder, // codebuild has dind
+        cluster,
+        vpc,
+        securityGroups: [sg],
+        maxInstances: 1,
+        spot: false, // only use spot if the first provider fails
+        storageSize: cdk.Size.gibibytes(40),
+        storageOptions: {
+          volumeType: ec2.EbsDeviceVolumeType.GP3,
+          iops: 1500,
+          throughput: 150,
+        },
+      }),
+    ]),
     new EcsRunnerProvider(stack, 'ECS Ubuntu 2404', {
-      labels: ['ecs', 'ubuntu-2404', 'x64'],
+      labels: ['ecs-ubuntu-2404', 'x64'],
       imageBuilder: codeBuildUbuntu2404ImageBuilder, // codebuild has dind
+      cluster,
       vpc,
+      securityGroups: [sg],
       maxInstances: 1,
       spot: true,
       storageSize: cdk.Size.gibibytes(40),
@@ -193,13 +246,17 @@ const runners = new GitHubRunners(stack, 'runners', {
     new EcsRunnerProvider(stack, 'ECS ARM64', {
       labels: ['ecs', 'linux', 'arm64'],
       imageBuilder: codeBuildArm64ImageBuilder, // codebuild has dind
+      cluster,
       vpc,
+      securityGroups: [sg],
       maxInstances: 1,
     }),
     new EcsRunnerProvider(stack, 'ECS Windows', {
       labels: ['ecs', 'windows', 'x64'],
       imageBuilder: windowsImageBuilder,
+      cluster,
       vpc,
+      securityGroups: [sg],
       maxInstances: 1,
     }),
     new LambdaRunnerProvider(stack, 'Lambda', {
@@ -217,18 +274,47 @@ const runners = new GitHubRunners(stack, 'runners', {
       imageBuilder: fargateX64Builder,
       cluster,
       vpc: cluster.vpc,
+      securityGroups: [sg],
       assignPublicIp: true,
     }),
-    new FargateRunnerProvider(stack, 'Fargate-x64-spot', {
-      labels: ['fargate-spot', 'linux', 'x64'],
-      spot: true,
-      cpu: 256,
-      memoryLimitMiB: 512,
-      imageBuilder: fargateX64Builder,
-      cluster,
-      vpc: cluster.vpc,
-      assignPublicIp: true,
-    }),
+    CompositeProvider.distribute(stack, 'Fargate-x64-spot distribute', [
+      {
+        weight: 3,
+        provider: new FargateRunnerProvider(stack, 'Fargate-x64-spot subnet 1', {
+          labels: ['fargate-spot', 'linux', 'x64'],
+          spot: true,
+          cpu: 256,
+          memoryLimitMiB: 512,
+          imageBuilder: fargateX64Builder,
+          cluster,
+          vpc: cluster.vpc,
+          securityGroups: [sg],
+          assignPublicIp: true,
+          subnetSelection: vpc.selectSubnets({
+            subnetType: ec2.SubnetType.PUBLIC,
+            availabilityZones: [vpc.availabilityZones[1]],
+          }),
+        }),
+      },
+      {
+        weight: 2,
+        provider: new FargateRunnerProvider(stack, 'Fargate-x64-spot subnet 2', {
+          labels: ['fargate-spot', 'linux', 'x64'],
+          spot: true,
+          cpu: 256,
+          memoryLimitMiB: 512,
+          imageBuilder: fargateX64Builder,
+          cluster,
+          vpc: cluster.vpc,
+          securityGroups: [sg],
+          assignPublicIp: true,
+          subnetSelection: vpc.selectSubnets({
+            subnetType: ec2.SubnetType.PUBLIC,
+            availabilityZones: [vpc.availabilityZones[0]],
+          }),
+        }),
+      },
+    ]),
     new FargateRunnerProvider(stack, 'Fargate-arm64', {
       labels: ['fargate', 'linux', 'arm64'],
       cpu: 256,
@@ -236,6 +322,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       imageBuilder: fargateArm64Builder,
       cluster,
       vpc: cluster.vpc,
+      securityGroups: [sg],
       assignPublicIp: true,
     }),
     new FargateRunnerProvider(stack, 'Fargate-arm64-spot', {
@@ -246,6 +333,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       imageBuilder: fargateArm64Builder,
       cluster,
       vpc: cluster.vpc,
+      securityGroups: [sg],
       assignPublicIp: true,
     }),
     new FargateRunnerProvider(stack, 'Fargate-Windows', {
@@ -255,24 +343,42 @@ const runners = new GitHubRunners(stack, 'runners', {
       imageBuilder: windowsImageBuilder,
       cluster,
       vpc: cluster.vpc,
+      securityGroups: [sg],
       assignPublicIp: true,
     }),
-    new Ec2RunnerProvider(stack, 'EC2 Linux', {
-      labels: ['ec2', 'linux', 'x64'],
-      imageBuilder: amiX64Builder,
-      vpc,
-      storageSize: cdk.Size.gibibytes(40),
-      storageOptions: {
-        volumeType: ec2.EbsDeviceVolumeType.GP3,
-        iops: 3000,
-        throughput: 200,
-      },
-    }),
+    CompositeProvider.fallback(stack, 'EC2 Fallback', [
+      // test composite of ec2 (it has multiple step function states)
+      new Ec2RunnerProvider(stack, 'EC2 Linux', {
+        labels: ['ec2', 'linux', 'x64'],
+        imageBuilder: amiX64Builder,
+        vpc,
+        securityGroups: [sg],
+        storageSize: cdk.Size.gibibytes(40),
+        storageOptions: {
+          volumeType: ec2.EbsDeviceVolumeType.GP3,
+          iops: 3000,
+          throughput: 200,
+        },
+      }),
+      new Ec2RunnerProvider(stack, 'EC2 Linux 2', {
+        labels: ['ec2', 'linux', 'x64'],
+        imageBuilder: amiX64Builder,
+        vpc,
+        securityGroups: [sg],
+        storageSize: cdk.Size.gibibytes(40),
+        storageOptions: {
+          volumeType: ec2.EbsDeviceVolumeType.GP3,
+          iops: 3000,
+          throughput: 200,
+        },
+      }),
+    ]),
     new Ec2RunnerProvider(stack, 'EC2 Spot Linux', {
       labels: ['ec2-spot', 'linux', 'x64'],
       imageBuilder: amiX64Builder,
       spot: true,
       vpc,
+      securityGroups: [sg],
       storageSize: cdk.Size.gibibytes(40),
     }),
     new Ec2RunnerProvider(stack, 'EC2 Linux arm64', {
@@ -280,18 +386,65 @@ const runners = new GitHubRunners(stack, 'runners', {
       imageBuilder: ec2ImageBuilder,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
       vpc,
+      securityGroups: [sg],
     }),
     new Ec2RunnerProvider(stack, 'EC2 Windows', {
       labels: ['ec2', 'windows', 'x64'],
       imageBuilder: ec2WindowsImageBuilder,
       vpc,
+      securityGroups: [sg],
     }),
   ],
+  providerSelector: new lambda.Function(stack, 'Provider Selector', {
+    runtime: lambda.Runtime.NODEJS_LATEST,
+    handler: 'index.handler',
+    // dummy selector that always returns the default
+    code: lambda.Code.fromInline(`
+      exports.handler = async function(event) {
+        console.log(JSON.stringify(event));
+        return {
+          provider: event.defaultProvider,
+          labels: event.defaultLabels,
+        };
+      }
+    `),
+    logGroup: new logs.LogGroup(stack, 'Provider Selector Logs', {
+      retention: logs.RetentionDays.ONE_WEEK,
+    }),
+  }),
 });
 
 runners.metricJobCompleted();
 runners.failedImageBuildsTopic();
+runners.metricStolenRunners();
 runners.createLogsInsightsQueries();
 runners.createDashboard();
+
+if (testDeploymentFailureAfterImageBuilt) {
+  const rollbackTestHandle = new cloudformation.CfnWaitConditionHandle(stack, 'Rollback Test Handle');
+  const rollbackTestFailure = new cloudformation.CfnWaitCondition(stack, 'Rollback Test Failure', {
+    handle: rollbackTestHandle.ref,
+    timeout: '60', // nobody ever signals this, so it times out and fails the update
+    count: 1,
+  });
+  for (const dependency of [
+    fargateX64Builder,
+    fargateArm64Builder,
+    lambdaImageBuilder,
+    windowsImageBuilder,
+    amiX64Builder,
+    codeBuildImageBuilder,
+    codeBuildUbuntu2404ImageBuilder,
+    codeBuildArm64ImageBuilder,
+    lambdaArm64ImageBuilder,
+    ec2ImageBuilder,
+    ec2WindowsImageBuilder,
+    runners,
+  ]) {
+    if (Construct.isConstruct(dependency)) {
+      rollbackTestFailure.node.addDependency(dependency);
+    }
+  }
+}
 
 app.synth();

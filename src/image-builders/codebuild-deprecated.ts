@@ -363,7 +363,7 @@ export class CodeBuildImageBuilder extends Construct implements IRunnerImageBuil
       os: this.os,
       logGroup,
       runnerVersion: this.props.runnerVersion ?? RunnerVersion.latest(),
-      _dependable: cr.ref,
+      _dependable: cr,
     };
     return this.boundImage;
   }
@@ -394,7 +394,7 @@ export class CodeBuildImageBuilder extends Construct implements IRunnerImageBuil
     const thisStack = cdk.Stack.of(this);
 
     return {
-      version: '0.2',
+      version: 0.2,
       env: {
         variables: {
           REPO_ARN: repository.repositoryArn,

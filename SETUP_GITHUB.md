@@ -1,6 +1,104 @@
 # Setup GitHub
 
-Integration with GitHub can be done using an [app](#app-authentication) or [personal access token](#personal-access-token). Using an app allows more fine-grained access control. Using an app is easier with the setup wizard.
+## Overview of Options
+
+You will need to make several decisions during setup. Here's a quick guide to help you choose:
+
+### 1. Authentication Method
+
+**Choose between:**
+- **GitHub App** (recommended) - Easier setup with wizard, not tied to a user account, better security
+- **Personal Access Token (PAT)** - Simpler, but tied to a user account, may expire, and requires manual webhook setup
+
+**When to use App:** Almost always. Use PAT only if you have specific constraints that prevent using an app.
+
+**When to use PAT:** If you need a quick setup, or if your organization has policies preventing app creation.
+
+> **⚠️ IT/DevOps Help May Be Required:** Installing a GitHub app on repositories or organizations may require repository administrator or organization owner permissions. You may need to coordinate with your IT/devops team to install the app on the desired repositories.
+
+### 2. GitHub Instance
+
+**Choose between:**
+- **GitHub.com** - Public GitHub
+- **GitHub Enterprise Server** - Self-hosted GitHub instance
+
+**When to use Enterprise Server:** If your organization uses a self-hosted GitHub Enterprise Server instance.
+
+> **⚠️ IT/DevOps Help Required:** Setting up with GitHub Enterprise Server requires coordination with your IT/devops team to obtain the correct domain and ensure network connectivity.
+
+### 3. App Scope (if using App)
+
+**Choose between:**
+- **User App** - For personal repositories
+- **Organization App** - For organization repositories
+
+**When to use User App:** If you only need to run workflows for your personal repositories.
+
+**When to use Organization App:** If you need to run workflows for repositories in an organization.
+
+> **⚠️ IT/DevOps Approval Required:** Creating an organization app may require organization owner or administrator permissions. You may need to request approval from your IT/devops team or organization administrators.
+
+### 4. Runner Registration Level
+
+**Choose between:**
+- **Repository-level** (recommended) - Runners registered to specific repositories
+- **Organization-level** - Runners registered to the entire organization
+
+> **Note:** This determines where on-demand runners will be registered dynamically each time they are provisioned. This is independent of where the GitHub app is installed. Organization-level registration makes runners available to **all repositories in the organization**, regardless of app installation.
+
+**When to use Repository-level:**
+- You want better isolation between repositories
+- You want to reduce the risk of jobs being accidentally assigned to the wrong runners
+- You're okay with requiring the `administration` permission (or the `repo` scope for classic tokens)
+
+**When to use Organization-level:**
+- You need to minimize permissions (only requires `organization_self_hosted_runners`, or the `admin:org` scope for classic tokens)
+- You want to use runner groups
+- You fully trust all repositories in your organization
+- You want all repositories to share the same pool of runners
+- Note that organization-level registration is not available for repositories owned by a user account
+
+> **⚠️ IT/DevOps Approval May Be Required:** Organization-level registration affects all repositories in the organization. Your organization may have policies requiring approval before enabling organization-wide runner registration.
+
+#### Registration Level Recommendation
+
+This determines where on-demand runners will be registered dynamically each time they are provisioned. This is independent of where the GitHub app is installed.
+
+Repository-level registration is recommended over organization-level registration for better control and security:
+
+* **Reduced risk of accidental job assignment**: Runners are dynamically registered to the repository matching the job that triggered them. This ensures jobs are only assigned to runners intended for that specific repository, reducing the risk of accidental assignment when using multiple runner configurations.
+* **Better isolation**: Each repository only sees runners that are explicitly registered to it, providing better isolation between different projects or teams.
+* **Trade-off**: Repository-level registration requires the `administration` permission, which is broader than the `organization_self_hosted_runners` permission required for organization-level registration. If you need to minimize permissions and fully trust all repositories in your organization, organization-level registration may be acceptable.
+
+Organization-level registration registers runners to the entire organization, making them available to **all repositories in the organization**, regardless of whether the app is installed on those repositories. This can lead to jobs being routed to runners that weren't intended for them. Runners may be assigned jobs from repositories where this app isn't even installed.
+
+### 5. Setup Method
+
+**Choose between:**
+- **Setup Wizard** (recommended) - Interactive web interface, guides you through the process
+- **Manual Setup** - Step-by-step instructions, more control over each step
+
+**When to use Setup Wizard:** If you prefer a guided, interactive experience.
+
+**When to use Manual Setup:** If you need more control, want to understand each step in detail, or the wizard isn't available.
+
+### 6. Webhook Scope (if using PAT)
+
+**Choose between:**
+- **Organization/Enterprise webhook** - Single webhook for all repositories
+- **Repository-level webhooks** - One webhook per repository
+
+**When to use Organization/Enterprise webhook:** If you want to manage a single webhook for multiple repositories.
+
+**When to use Repository-level webhooks:** If you only need runners for a few specific repositories.
+
+> **⚠️ IT/DevOps Approval Required:** Creating organization or enterprise-level webhooks requires organization owner or enterprise administrator permissions. Repository-level webhooks only require repository admin permissions.
+
+---
+
+## Setup GitHub
+
+Integration with GitHub can be done using an [app](#app-authentication) or [personal access token](#personal-access-token-authentication). Using an app allows more fine-grained access control. Using an app is easier with the setup wizard.
 
 ## App Authentication
 
@@ -30,10 +128,9 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
     2. Open the URL in `github.webhook.secretUrl` from `status.json`, retrieve the secret value, and use it for webhook secret
 4. In the permissions section enable:
    1. Repository    -> Actions: Read and write
-   2. Repository    -> Administration: Read and write
-   3. Repository    -> Deployments: Read-only
-   4. Repository    -> Administration: Read and write (only for repository level runners)
-   5. Organization  -> Self-hosted runners: Read and write (only for organization level runners)
+   2. Repository    -> Deployments: Read-only
+   3. Repository    -> Administration: Read and write (only for repository level runners)
+   4. Organization  -> Self-hosted runners: Read and write (only for organization level runners)
 5. In the event subscription section enable:
     1. Workflow job
 6. Under "Where can this GitHub App be installed?" select "Only on this account"
@@ -49,13 +146,47 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
     1. Open the downloaded private key with any text editor
     2. Copy the text from the private key as-is into the secret
 
-## Personal Access Token
+## Personal Access Token Authentication
+
+Personal access tokens work with both repository-level and organization-level runner registration. Both classic
+tokens and fine-grained tokens are supported. The permissions the token needs depend on the token type and on the
+[registration level](#4-runner-registration-level) you choose.
+
+> **⚠️ Note:** A personal access token is tied to the user that created it. Runners will stop working if the token
+> expires, if it is revoked, or if the user loses access to the repositories or the organization.
+
+### Required Token Permissions
+
+#### Classic Token
+
+| Registration level | Required scopes                                            |
+|--------------------|------------------------------------------------------------|
+| Repository         | `repo`                                                     |
+| Organization       | `admin:org` (or just `manage_runners:org` where available) |
+
+* `repo` is what allows registering and deleting runners on repository level.
+* For organization level, the token owner must be allowed to manage self-hosted runners in the organization (usually an organization owner).
+* Add `repo` on top of `admin:org` if you use [environment protection rules](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) and want runners to wait for deployment approvals instead of starting immediately.
+
+#### Fine-grained Token
+
+| Registration level | Required permissions                                                                          |
+|--------------------|-----------------------------------------------------------------------------------------------|
+| Repository         | Repository &rarr; Actions: Read and write<br>Repository &rarr; Administration: Read and write |
+| Organization       | Organization &rarr; Self-hosted runners: Read and write                                       |
+
+* Repository &rarr; Deployments: Read-only is optional for both levels. It is only needed if you use [environment protection rules](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) and want runners to wait for deployment approvals instead of starting immediately.
+* For repository-level registration, the token must have access to **every repository** that will use the runners.
+* For organization-level registration, the token's resource owner must be the organization itself, not your user.
+* Fine-grained tokens must be enabled by the organization, and may require approval by an organization owner.
 
 ### Create Token
 
-1. Go to https://github.com/settings/tokens/new
+1. Decide whether you want a classic token or a fine-grained token
+    1. For a classic token go to https://github.com/settings/tokens/new
+    2. For a fine-grained token go to https://github.com/settings/personal-access-tokens/new, set the resource owner to your user for repository-level registration or to the organization for organization-level registration, and select the repositories that will use the runners
 2. Choose your expiration date (you will need to replace the token if it expires)
-3. Under scopes select `repo`
+3. Select the scopes or permissions listed in [Required Token Permissions](#required-token-permissions) above
 4. Copy the generated token
 
 ### Set Token
@@ -66,20 +197,22 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 2. Choose whether you're integrating with GitHub.com or GitHub Enterprise Server
 3. Next choose Personal Access Token
 4. Enter your personal access token
-5. Click the Setup button
+5. Choose registration level for the runners
+6. Click the Setup button
 
 #### Manually
 
 1. Open the URL in `github.auth.secretUrl` from `status.json` and edit the secret value
 2. If you're using a self-hosted GitHub instance, put its domain in `domain` (e.g. `github.mycompany.com`)
 3. Put the generated token in `personalAuthToken` (**not** `personalAccessToken`)
-4. Ignore all other values
+4. If using organization level registration, add `runnerLevel` with `org` as the value (it defaults to `repo`)
+5. Ignore all other values
 
 ### Setup Webhook
 
 1. For organizations go to https://github.com/organizations/MY_ORG/settings/hooks after replacing `MY_ORG` with your GitHub organization name
 2. For enterprise go to https://github.com/enterprises/MY_ENTERPRISE/settings/hooks after replacing `MY_ENTERPRISE` with your GitHub enterprise name
-3. Otherwise, you can create one per repository in your repository settings under Webhooks
+3. Otherwise, you can create one webhook per repository in your repository settings under Webhooks
 4. Configure the webhook:
     1. For Webhook URL use the value of `github.webhook.url` from `status.json`
     2. Open the URL in `github.webhook.secretUrl` from `status.json`, retrieve the secret value, and use it for webhook secret

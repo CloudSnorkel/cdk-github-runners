@@ -7,12 +7,13 @@ const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Amir Szekely',
   authorAddress: 'amir@cloudsnorkel.com',
   stability: Stability.EXPERIMENTAL,
-  cdkVersion: '2.155.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode, 2.77.0 for node 16, 2.110.0 for ib lifecycle, 2.123.0 for lambda logs, 2.155.0 for launch template throughput
+  cdkVersion: '2.239.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode, 2.77.0 for node 16, 2.110.0 for ib lifecycle, 2.123.0 for lambda logs, 2.155.0 for launch template throughput, 2.239.0 for https://github.com/aws/aws-cdk/issues/37041
   defaultReleaseBranch: 'main',
   name: '@cloudsnorkel/cdk-github-runners',
   repositoryUrl: 'https://github.com/CloudSnorkel/cdk-github-runners.git',
   license: 'Apache-2.0',
   description: 'CDK construct to create GitHub Actions self-hosted runners. Creates ephemeral runners on demand. Easy to deploy and highly customizable.',
+  packageManager: 'pnpm',
   devDeps: [
     'esbuild', // for faster NodejsFunction bundling
     '@octokit/core',
@@ -21,39 +22,43 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@octokit/rest',
     '@aws-sdk/client-cloudformation',
     '@aws-sdk/client-codebuild',
+    '@aws-sdk/client-dynamodb',
     '@aws-sdk/client-ec2',
     '@aws-sdk/client-ecr',
     '@aws-sdk/client-imagebuilder',
     '@aws-sdk/client-lambda',
     '@aws-sdk/client-secrets-manager',
     '@aws-sdk/client-sns',
+    '@aws-sdk/client-sqs',
     '@aws-sdk/client-ssm',
     '@aws-sdk/client-sfn',
     '@types/aws-lambda',
-    'semver',
-    '@types/semver',
     // for setup ui
-    '@sveltejs/vite-plugin-svelte@^4',
+    '@sveltejs/vite-plugin-svelte@^6',
     '@tsconfig/svelte@^5',
     'bootstrap@^5.2.0',
     'sass@^1.54.0',
     'svelte@^5',
     'svelte-check@^4',
     'svelte-preprocess@^6',
-    'vite@^5',
+    'vite@^7',
     'vite-plugin-singlefile@^2',
     'eslint-plugin-svelte@^2.29.0',
+    // https://github.com/projen/projen/issues/4368
+    'shx',
   ],
   deps: [
   ],
-  jsiiVersion: '5.8.x',
-  typescriptVersion: '5.6.x',
-  lambdaOptions: { runtime: awscdk.LambdaRuntime.NODEJS_22_X },
+  bundledDeps: [
+    'cron-parser',
+  ],
   releaseToNpm: true,
   npmAccess: NpmAccess.PUBLIC,
+  npmTrustedPublishing: true,
   publishToPypi: {
     distName: 'cloudsnorkel.cdk-github-runners',
     module: 'cloudsnorkel.cdk_github_runners',
+    trustedPublishing: true,
   },
   publishToGo: {
     moduleName: 'github.com/CloudSnorkel/cdk-github-runners-go',
@@ -67,6 +72,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   publishToNuget: {
     dotNetNamespace: 'CloudSnorkel',
     packageId: 'CloudSnorkel.Cdk.Github.Runners',
+    trustedPublishing: true,
   },
   keywords: [
     'aws',
@@ -95,9 +101,10 @@ const project = new awscdk.AwsCdkConstructLibrary({
     workflowOptions: {
       labels: ['auto-approve'],
       schedule: {
-        cron: ['0 0 * * 1'],
+        cron: ['0 0 1 * *'],
       },
     },
+    cooldown: 5, // don't include updates from the last five days to try and dodge supply chain attacks
   },
   githubOptions: {
     pullRequestLintOptions: {
@@ -111,16 +118,32 @@ const project = new awscdk.AwsCdkConstructLibrary({
       },
     },
   },
+  workflowPackageCache: true,
   pullRequestTemplate: false,
+  tsconfigDev: {
+    compilerOptions: {
+      // massively increased unit tests speed
+      // side-effect: disable type checking in unit test code
+      isolatedModules: true,
+    },
+  },
+  jestOptions: {
+    // too many console.log() lines in EVERY build
+    extraCliOptions: ['--silent'],
+  },
 });
 
 // disable automatic releases, but keep workflow that can be triggered manually
 const releaseWorkflow = project.github.tryFindWorkflow('release');
 releaseWorkflow.file.addDeletionOverride('on.push');
 
+// more consistent snapshots across systems
+project.npmrc.addConfig('node-linker', 'hoisted');
+
 // bundle docker images
 project.bundler.bundleTask.exec('cp -r src/providers/docker-images assets');
-project.bundler.bundleTask.exec('cp -r src/providers/lambda-*.sh assets/providers');
+project.bundler.bundleTask.exec('cp -r src/providers/*.sh assets/providers');
+project.bundler.bundleTask.exec('cp -r src/providers/*.ps1 assets/providers');
 
 // set proper line endings
 project.gitattributes.addAttributes('*.js', 'eol=lf');
@@ -134,6 +157,7 @@ project.gitattributes.addAttributes('Dockerfile', 'eol=lf');
 // setup ui
 project.gitignore.addPatterns('/setup/dist');
 project.addPackageIgnore('/setup');
+project.addPackageIgnore('/examples');
 project.bundler.bundleTask.exec('vite build setup');
 project.bundler.bundleTask.exec('cp -r setup/dist/index.html assets/setup.lambda/index.html');
 project.eslint.addLintPattern('setup/src/*.ts');
@@ -155,7 +179,11 @@ cdkConfig.json.addDeletionOverride('output');
 // allow lambda utility files to import dev dependencies
 project.eslint.allowDevDeps('src/lambda-helpers.ts');
 project.eslint.allowDevDeps('src/lambda-github.ts');
+project.eslint.allowDevDeps('src/lambda-tracker.ts');
 project.eslint.allowDevDeps('setup/src/main.ts');
+
+// not part of the project and can use defaults
+project.eslint.allowDefaultProjectFiles('.projenrc.js');
 
 // vscode auto formatting
 project.vscode.settings.addSettings({
@@ -168,6 +196,11 @@ project.vscode.settings.addSettings({
   'svelte.plugin.svelte.format.enable': false,
   'svelte.plugin.svelte.enable': false,
 });
+
+// patch existing mergify rule to require test-examples
+const mergifyFile = project.tryFindObjectFile('.mergify.yml');
+mergifyFile.addToArray('queue_rules.0.queue_conditions', 'status-success=test-examples');
+mergifyFile.addToArray('pull_request_rules.0.conditions', 'status-success=test-examples');
 
 // funding
 project.package.addField('funding', 'https://github.com/sponsors/CloudSnorkel');

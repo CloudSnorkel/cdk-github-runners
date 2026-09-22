@@ -1,6 +1,9 @@
+import * as crypto from 'crypto';
 import * as path from 'path';
+import * as cdk from 'aws-cdk-lib';
 import { aws_s3_assets as s3_assets } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { discoverCertificateFiles } from '../utils';
 import { ImageBuilderComponent } from './aws-image-builder';
 import { RunnerImageAsset } from './common';
 import { Architecture, Os, RunnerVersion } from '../providers';
@@ -31,6 +34,37 @@ export interface RunnerImageComponentCustomProps {
    * These commands are ignored when building AMIs.
    */
   readonly dockerCommands?: string[];
+}
+
+/**
+ * Validates and normalizes a version string for use in download URLs.
+ * Returns undefined if version is empty or "latest" (caller should use latest).
+ * Throws if version contains any character other than alphanumeric, dots, dashes, or underscores.
+ */
+function validateVersion(version: string | undefined): string | undefined {
+  if (version === undefined || version === null) return undefined;
+  const trimmed = version.trim();
+  if (trimmed === '' || trimmed.toLowerCase() === 'latest') return undefined;
+  if (!/^[a-zA-Z0-9._-]+$/.test(trimmed)) {
+    throw new Error(
+      `Invalid version "${version}": only alphanumeric characters, dots, dashes, and underscores are allowed.`,
+    );
+  }
+  return trimmed;
+}
+
+/**
+ * Git for Windows version format: "2.43.0.windows.1" → "2.43.0" (revision 1 omitted),
+ * "2.43.0.windows.2" → "2.43.0.2" (revision 2+ appended). Versions without ".windows." are returned as-is.
+ */
+function formatGitForWindowsVersion(version: string): string {
+  if (!version.includes('.windows.')) return version;
+  const parts = version.split('.windows.');
+  if (parts.length !== 2 || !parts[1]) return version;
+  const base = parts[0];
+  const revision = parseInt(parts[1], 10);
+  if (isNaN(revision)) return version;
+  return revision > 1 ? `${base}.${revision}` : base;
 }
 
 /**
@@ -75,6 +109,39 @@ export abstract class RunnerImageComponent {
     return new class extends RunnerImageComponent {
       name = 'RequiredPackages';
 
+      getCommands(os: Os, _architecture: Architecture): string[] {
+        if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
+          return [
+            'apt-get -o Acquire::Retries=5 update',
+            'DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y',
+            'DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates',
+          ];
+        } else if (os.is(Os.LINUX_AMAZON_2)) {
+          return [
+            'yum update -y',
+            'yum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils',
+          ];
+        } else if (os.is(Os.LINUX_AMAZON_2023)) {
+          return [
+            'dnf upgrade -y',
+            'dnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils',
+          ];
+        } else if (os.is(Os.WINDOWS)) {
+          return [];
+        }
+
+        throw new Error(`Unsupported OS for required packages: ${os.name}`);
+      }
+    };
+  }
+
+  /**
+   * A component to install CloudWatch Agent for the runner so we can send logs.
+   */
+  static cloudWatchAgent(): RunnerImageComponent {
+    return new class extends RunnerImageComponent {
+      name = 'CloudWatchAgent';
+
       getCommands(os: Os, architecture: Architecture): string[] {
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
           let archUrl;
@@ -87,22 +154,17 @@ export abstract class RunnerImageComponent {
           }
 
           return [
-            'apt-get update',
-            'DEBIAN_FRONTEND=noninteractive apt-get upgrade -y',
-            'DEBIAN_FRONTEND=noninteractive apt-get install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates',
-            `curl -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/${archUrl}/latest/amazon-cloudwatch-agent.deb`,
+            `curl --retry 5 --retry-delay 30 --retry-all-errors -sfLo /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/${archUrl}/latest/amazon-cloudwatch-agent.deb`,
             'dpkg -i -E /tmp/amazon-cloudwatch-agent.deb',
             'rm /tmp/amazon-cloudwatch-agent.deb',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [
-            'yum update -y',
-            'yum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils amazon-cloudwatch-agent',
+            'yum install -y amazon-cloudwatch-agent',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2023)) {
           return [
-            'dnf upgrade -y',
-            'dnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils amazon-cloudwatch-agent',
+            'dnf install -y amazon-cloudwatch-agent',
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [
@@ -149,8 +211,11 @@ export abstract class RunnerImageComponent {
 
   /**
    * A component to install the AWS CLI.
+   *
+   * @param version Software version to install (e.g. '2.15.0'). Default: latest.
    */
-  static awsCli(): RunnerImageComponent {
+  static awsCli(version?: string): RunnerImageComponent {
+    const useVersion = validateVersion(version);
     return new class extends RunnerImageComponent {
       name = 'AwsCli';
 
@@ -165,15 +230,21 @@ export abstract class RunnerImageComponent {
             throw new Error(`Unsupported architecture for awscli: ${architecture.name}`);
           }
 
+          const zipName = useVersion
+            ? `awscli-exe-linux-${archUrl}-${useVersion}.zip`
+            : `awscli-exe-linux-${archUrl}.zip`;
           return [
-            `curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${archUrl}.zip" -o awscliv2.zip`,
+            `curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL "https://awscli.amazonaws.com/${zipName}" -o awscliv2.zip`,
             'unzip -q awscliv2.zip',
-            './aws/install',
+            './aws/install --update',
             'rm -rf awscliv2.zip aws',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          const msiUrl = useVersion
+            ? `https://awscli.amazonaws.com/AWSCLIV2-${useVersion}.msi`
+            : 'https://awscli.amazonaws.com/AWSCLIV2.msi';
           return [
-            '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i https://awscli.amazonaws.com/AWSCLIV2.msi /qn\'',
+            `$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList '/i ${msiUrl} /qn'`,
             'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
           ];
         }
@@ -185,33 +256,49 @@ export abstract class RunnerImageComponent {
 
   /**
    * A component to install the GitHub CLI.
+   *
+   * @param version Software version to install (e.g. '2.40.0'). Default: latest. Only used on Windows (x64/windows_amd64); on Linux the package manager is used.
    */
-  static githubCli(): RunnerImageComponent {
+  static githubCli(version?: string): RunnerImageComponent {
+    const useVersion = validateVersion(version);
     return new class extends RunnerImageComponent {
       name = 'GithubCli';
 
       getCommands(os: Os, architecture: Architecture) {
+        if (useVersion && !os.is(Os.WINDOWS)) {
+          throw new Error(
+            'RunnerImageComponent.githubCli(version): version is only used on Windows. On Linux the package manager (apt/yum/dnf) is used. Omit the version for Linux images.',
+          );
+        }
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
           return [
-            'curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg',
+            'curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg',
             'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] ' +
             '  https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null',
-            'apt-get update',
-            'DEBIAN_FRONTEND=noninteractive apt-get install -y gh',
+            'apt-get -o Acquire::Retries=5 update',
+            'DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [
-            'curl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo',
+            'curl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo',
             'yum install -y gh',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2023)) {
           return [
-            'curl -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo',
+            'curl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo',
             'dnf install -y gh',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          if (useVersion) {
+            return [
+              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${useVersion}/gh_${useVersion}_windows_amd64.msi" -OutFile gh.msi`,
+              '$p = Start-Process msiexec.exe -PassThru -Wait -ArgumentList \'/i gh.msi /qn\'',
+              'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
+              'del gh.msi',
+            ];
+          }
           return [
-            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh',
+            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-gh',
             '$GH_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi" -OutFile gh.msi',
@@ -227,18 +314,26 @@ export abstract class RunnerImageComponent {
   }
 
   /**
-   * A component to install the GitHub CLI.
+   * A component to install Git.
+   *
+   * @param version Software version to install (e.g. '2.43.0.windows.1'). Default: latest. Only used on Windows; on Linux the package manager is used.
    */
-  static git(): RunnerImageComponent {
+  static git(version?: string): RunnerImageComponent {
+    const useVersion = validateVersion(version);
     return new class extends RunnerImageComponent {
       name = 'Git';
 
       getCommands(os: Os, architecture: Architecture) {
+        if (useVersion && !os.is(Os.WINDOWS)) {
+          throw new Error(
+            'RunnerImageComponent.git(version): version is only used on Windows. On Linux the package manager (apt/yum/dnf) is used. Omit the version for Linux images.',
+          );
+        }
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
           return [
             'add-apt-repository ppa:git-core/ppa',
-            'apt-get update',
-            'DEBIAN_FRONTEND=noninteractive apt-get install -y git',
+            'apt-get -o Acquire::Retries=5 update',
+            'DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [
@@ -249,8 +344,17 @@ export abstract class RunnerImageComponent {
             'dnf install -y git',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          if (useVersion) {
+            const versionShort = formatGitForWindowsVersion(useVersion);
+            return [
+              `Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/git-for-windows/git/releases/download/v${useVersion}/Git-${versionShort}-64-bit.exe" -OutFile git-setup.exe`,
+              '$p = Start-Process git-setup.exe -PassThru -Wait -ArgumentList \'/VERYSILENT\'',
+              'if ($p.ExitCode -ne 0) { throw "Exit code is $p.ExitCode" }',
+              'del git-setup.exe',
+            ];
+          }
           return [
-            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\latest-git',
+            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\latest-git',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-git',
             '$GIT_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             '$GIT_VERSION_SHORT = ($GIT_VERSION -Split \'.windows.\')[0]',
@@ -277,11 +381,46 @@ export abstract class RunnerImageComponent {
     return new class extends RunnerImageComponent {
       name = 'GithubRunner';
 
+      getAssets(os: Os, _architecture: Architecture): RunnerImageAsset[] {
+        if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
+          return [
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-reporter.sh'),
+              target: '/home/runner/job-reporter.sh',
+            },
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-started-hook.sh'),
+              target: '/home/runner/job-started-hook.sh',
+            },
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-completed-hook.sh'),
+              target: '/home/runner/job-completed-hook.sh',
+            },
+          ];
+        } else if (os.is(Os.WINDOWS)) {
+          return [
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-reporter.ps1'),
+              target: '/actions/job-reporter.ps1',
+            },
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-started-hook.ps1'),
+              target: '/actions/job-started-hook.ps1',
+            },
+            {
+              source: path.join(__dirname, '..', '..', 'assets', 'providers', 'job-completed-hook.ps1'),
+              target: '/actions/job-completed-hook.ps1',
+            },
+          ];
+        }
+        return [];
+      }
+
       getCommands(os: Os, architecture: Architecture) {
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS) || os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
           let versionCommand: string;
           if (runnerVersion.is(RunnerVersion.latest())) {
-            versionCommand = 'RUNNER_VERSION=`curl -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest | grep -oE "[^/v]+$"`';
+            versionCommand = 'RUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest | grep -oE "[^/v]+$"`';
           } else {
             versionCommand = `RUNNER_VERSION='${runnerVersion.version}'`;
           }
@@ -297,10 +436,17 @@ export abstract class RunnerImageComponent {
 
           let commands = [
             versionCommand,
-            `curl -fsSLO "https://github.com/actions/runner/releases/download/v\${RUNNER_VERSION}/actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
+            `curl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO "https://github.com/actions/runner/releases/download/v\${RUNNER_VERSION}/actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
             `tar -C /home/runner -xzf "actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
             `rm actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz`,
             `echo -n ${runnerVersion.version} > /home/runner/RUNNER_VERSION`,
+            'chmod +x /home/runner/job-reporter.sh',
+            'chmod +x /home/runner/job-started-hook.sh',
+            'chmod +x /home/runner/job-completed-hook.sh',
+            'echo ACTIONS_RUNNER_HOOK_JOB_STARTED=/home/runner/job-started-hook.sh >> /home/runner/.env',
+            'echo ACTIONS_RUNNER_HOOK_JOB_COMPLETED=/home/runner/job-completed-hook.sh >> /home/runner/.env',
+            'chown runner /home/runner/.env', // env.sh modifies .env
+            'touch /home/runner/.workflowid && chown runner /home/runner/.workflowid',
           ];
 
           if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
@@ -318,7 +464,7 @@ export abstract class RunnerImageComponent {
           let runnerCommands: string[];
           if (runnerVersion.is(RunnerVersion.latest())) {
             runnerCommands = [
-              'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\latest-gha',
+              'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\latest-gha',
               '$LatestUrl = Get-Content $Env:TEMP\\latest-gha',
               '$RUNNER_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             ];
@@ -331,7 +477,7 @@ export abstract class RunnerImageComponent {
             'mkdir C:\\hostedtoolcache\\windows',
             'mkdir C:\\tools',
             // download zstd and extract to C:\tools
-            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/facebook/zstd/releases/latest > $Env:TEMP\\latest-zstd',
+            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/facebook/zstd/releases/latest > $Env:TEMP\\latest-zstd',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-zstd',
             '$ZSTD_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/facebook/zstd/releases/download/v$ZSTD_VERSION/zstd-v$ZSTD_VERSION-win64.zip" -OutFile zstd.zip',
@@ -342,6 +488,10 @@ export abstract class RunnerImageComponent {
             // add C:\tools to PATH
             '$persistedPaths = [Environment]::GetEnvironmentVariable(\'Path\', [EnvironmentVariableTarget]::Machine)',
             '[Environment]::SetEnvironmentVariable("PATH", $persistedPaths + ";C:\\tools", [EnvironmentVariableTarget]::Machine)',
+            // setup hooks
+            "Add-Content -Path C:\\actions\\.env -Value 'ACTIONS_RUNNER_HOOK_JOB_STARTED=C:\\actions\\job-started-hook.ps1'",
+            "Add-Content -Path C:\\actions\\.env -Value 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED=C:\\actions\\job-completed-hook.ps1'",
+            "Set-Content -Path C:\\actions\\.workflowid -Value '' -NoNewline",
           ]);
 
           return runnerCommands.concat([
@@ -367,47 +517,71 @@ export abstract class RunnerImageComponent {
    * A component to install Docker.
    *
    * On Windows this sets up dockerd for Windows containers without Docker Desktop. If you need Linux containers on Windows, you'll need to install Docker Desktop which doesn't seem to play well with servers (PRs welcome).
+   *
+   * @param version Software version to install (e.g. '29.1.5'). Default: latest. Only used on Windows; on Linux (Ubuntu, Amazon Linux 2 and Amazon Linux 2023) the package version format is not reliably predictable so latest is always used.
    */
-  static docker(): RunnerImageComponent {
+  static docker(version?: string): RunnerImageComponent {
+    const useVersion = validateVersion(version);
     return new class extends RunnerImageComponent {
       name = 'Docker';
 
       getCommands(os: Os, architecture: Architecture) {
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
+          if (useVersion) {
+            throw new Error(
+              'RunnerImageComponent.docker(version): version is only used on Windows. On Ubuntu the apt package version format is not reliably predictable; use latest (omit version) for Ubuntu images.',
+            );
+          }
           return [
-            'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg',
+            'curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg',
             'echo ' +
             '  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ' +
             '  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null',
-            'apt-get update',
-            'DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin',
+            'apt-get -o Acquire::Retries=5 update',
+            'DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin',
             'usermod -aG docker runner',
             'ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2)) {
+          if (useVersion) {
+            throw new Error(
+              'RunnerImageComponent.docker(version): version is only used on Windows. On Amazon Linux the package version is not predictable; use latest (omit version) for Amazon Linux images.',
+            );
+          }
           return [
             'amazon-linux-extras install docker',
             'usermod -a -G docker runner',
-            'curl -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr \'[:upper:]\' \'[:lower:]\')-$(uname -m)',
+            'curl --retry 5 --retry-delay 30 --retry-all-errors -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr \'[:upper:]\' \'[:lower:]\')-$(uname -m)',
             'chmod +x /usr/bin/docker-compose',
             'ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2023)) {
+          if (useVersion) {
+            throw new Error(
+              'RunnerImageComponent.docker(version): version is only used on Windows. On Amazon Linux the package version is not predictable; use latest (omit version) for Amazon Linux images.',
+            );
+          }
           return [
             'dnf install -y docker',
             'usermod -a -G docker runner',
-            'curl -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr \'[:upper:]\' \'[:lower:]\')-$(uname -m)',
+            'curl --retry 5 --retry-delay 30 --retry-all-errors -sfLo /usr/bin/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr \'[:upper:]\' \'[:lower:]\')-$(uname -m)',
             'chmod +x /usr/bin/docker-compose',
             'ln -s /usr/bin/docker-compose /usr/libexec/docker/cli-plugins/docker-compose',
           ];
         } else if (os.is(Os.WINDOWS)) {
+          const downloadCommands = useVersion ? [
+            `Invoke-WebRequest -UseBasicParsing -Uri "https://download.docker.com/win/static/stable/x86_64/docker-${useVersion}.zip" -OutFile docker.zip`,
+          ] : [
+            '$BaseUrl = "https://download.docker.com/win/static/stable/x86_64/"',
+            '$html = Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl',
+            '$files = $html.Links.href | Where-Object { $_ -match \'^docker-[0-9\\.]+\\.zip$\' }',
+            'if (-not $files) { Write-Error "No docker-*.zip files found." ; exit 1 }',
+            '$latest = $files | Sort-Object { try { [Version]($_ -replace \'^docker-|\\.zip$\') } catch { [Version]"0.0.0" } } -Descending | Select-Object -First 1',
+            'Invoke-WebRequest -UseBasicParsing -Uri $BaseUrl$latest -OutFile docker.zip',
+          ];
           return [
-            // figure out latest docker version
-            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/moby/moby/releases/latest > $Env:TEMP\\latest-docker',
-            '$LatestUrl = Get-Content $Env:TEMP\\latest-docker',
-            '$DOCKER_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             // download static binaries
-            'Invoke-WebRequest -UseBasicParsing -Uri "https://download.docker.com/win/static/stable/x86_64/docker-${DOCKER_VERSION}.zip" -OutFile docker.zip',
+            ...downloadCommands,
             // extract to C:\Program Files\Docker
             'Expand-Archive docker.zip -DestinationPath "$Env:ProgramFiles"',
             'del docker.zip',
@@ -421,7 +595,7 @@ export abstract class RunnerImageComponent {
             // enable containers feature
             'Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart',
             // install docker-compose
-            'cmd /c curl -w "%{redirect_url}" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\latest-docker-compose',
+            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\latest-docker-compose',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-docker-compose',
             '$LatestDockerCompose = ($LatestUrl -Split \'/\')[-1]',
             'Invoke-WebRequest -UseBasicParsing -Uri  "https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe" -OutFile $Env:ProgramFiles\\Docker\\docker-compose.exe',
@@ -443,26 +617,29 @@ export abstract class RunnerImageComponent {
    * A component to install Docker-in-Docker.
    *
    * @deprecated use `docker()`
+   * @param version Software version to install (e.g. '29.1.5'). Default: latest.
    */
-  static dockerInDocker(): RunnerImageComponent {
-    return RunnerImageComponent.docker();
+  static dockerInDocker(version?: string): RunnerImageComponent {
+    return RunnerImageComponent.docker(version);
   }
 
   /**
    * A component to add a trusted certificate authority. This can be used to support GitHub Enterprise Server with self-signed certificate.
    *
-   * @param source path to certificate file in PEM format
+   * @param source path to certificate file in PEM format, or a directory containing certificate files (.pem or .crt)
    * @param name unique certificate name to be used on runner file system
    */
   static extraCertificates(source: string, name: string): RunnerImageComponent {
+    // Sanitize the name to only contain alphanumeric characters, dashes and underscores
+    const sanitizedName = name.replace(/[^a-zA-Z0-9_-]/g, '-');
+
+    // Discover certificate files (supports both file and directory)
+    const certificateFiles = discoverCertificateFiles(source);
+
     return new class extends RunnerImageComponent {
-      name = `Extra-Certificates-${name}`;
+      name = `Extra-Certificates-${sanitizedName}`;
 
       getCommands(os: Os, architecture: Architecture) {
-        if (!name.match(/^[a-zA-Z0-9_-]+$/)) {
-          throw new Error(`Invalid certificate name: ${name}. Name must only contain alphanumeric characters, dashes and underscores.`);
-        }
-
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
           return [
             'update-ca-certificates',
@@ -472,31 +649,43 @@ export abstract class RunnerImageComponent {
             'update-ca-trust',
           ];
         } else if (os.is(Os.WINDOWS)) {
-          return [
-            `Import-Certificate -FilePath C:\\${name}.crt -CertStoreLocation Cert:\\LocalMachine\\Root`,
-            `Remove-Item C:\\${name}.crt`,
-          ];
+          const commands: string[] = [];
+          for (let i = 0; i < certificateFiles.length; i++) {
+            const certName = `${sanitizedName}-${i}`;
+            commands.push(
+              `Import-Certificate -FilePath C:\\${certName}.crt -CertStoreLocation Cert:\\LocalMachine\\Root`,
+              `Remove-Item C:\\${certName}.crt`,
+            );
+          }
+          return commands;
         }
 
         throw new Error(`Unknown os/architecture combo for extra certificates: ${os.name}/${architecture.name}`);
       }
 
       getAssets(os: Os, _architecture: Architecture): RunnerImageAsset[] {
+        const assets: RunnerImageAsset[] = [];
+
+        let targetDir: string;
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
-          return [
-            { source, target: `/usr/local/share/ca-certificates/${name}.crt` },
-          ];
+          targetDir = '/usr/local/share/ca-certificates/';
         } else if (os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
-          return [
-            { source, target: `/etc/pki/ca-trust/source/anchors/${name}.crt` },
-          ];
+          targetDir = '/etc/pki/ca-trust/source/anchors/';
         } else if (os.is(Os.WINDOWS)) {
-          return [
-            { source, target: `C:\\${name}.crt` },
-          ];
+          targetDir = 'C:\\';
+        } else {
+          throw new Error(`Unsupported OS for extra certificates: ${os.name}`);
         }
 
-        throw new Error(`Unsupported OS for extra certificates: ${os.name}`);
+        for (let i = 0; i < certificateFiles.length; i++) {
+          const certName = `${sanitizedName}-${i}`;
+          assets.push({
+            source: certificateFiles[i],
+            target: `${targetDir}${certName}.crt`,
+          });
+        }
+
+        return assets;
       }
     }();
   }
@@ -531,6 +720,7 @@ export abstract class RunnerImageComponent {
 
       getDockerCommands(_os: Os, _architecture: Architecture): string[] {
         return [
+          'LABEL DISABLE_SOCI=1', // hacky way to disable soci v2 indexing on lambda as lambda will fail to start with an index
           'ENTRYPOINT ["bash", "/bootstrap.sh"]',
         ];
       }
@@ -547,9 +737,12 @@ export abstract class RunnerImageComponent {
    * Must be used after the {@link githubRunner} component.
    */
   static environmentVariables(vars: Record<string, string>): RunnerImageComponent {
-    Object.entries(vars).forEach(e => {
-      if (e[0].includes('\n') || e[1].includes('\n')) {
-        throw new Error(`Environment variable cannot contain newlines: ${e}`);
+    Object.entries(vars).forEach(([key, value]) => {
+      if (key.includes('\n') || value.includes('\n')) {
+        throw new Error(`Environment variable cannot contain newlines: ${key}=${value}`);
+      }
+      if (key == 'ACTIONS_RUNNER_HOOK_JOB_STARTED' || key == 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED') {
+        throw new Error('Cannot override ACTIONS_RUNNER_HOOK_JOB_STARTED or ACTIONS_RUNNER_HOOK_JOB_COMPLETED. Use RunnerImageComponent.jobStartedHook() or RunnerImageComponent.jobCompletedHook() instead.');
       }
     });
 
@@ -558,7 +751,13 @@ export abstract class RunnerImageComponent {
 
       getCommands(os: Os, _architecture: Architecture) {
         if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
-          return Object.entries(vars).map(e => `echo '${e[0]}=${e[1].replace(/'/g, "'\"'\"'")}' >> /home/runner/.env`);
+          if (Object.keys(vars).length === 0) {
+            return [];
+          }
+          return [
+            ...Object.entries(vars).map(e => `echo '${e[0]}=${e[1].replace(/'/g, "'\"'\"'")}' >> /home/runner/.env`),
+            'chown runner /home/runner/.env', // env.sh modifies .env
+          ];
         } else if (os.is(Os.WINDOWS)) {
           return Object.entries(vars).map(e => `Add-Content -Path C:\\actions\\.env -Value '${e[0]}=${e[1].replace(/'/g, "''")}'`);
         } else {
@@ -566,6 +765,72 @@ export abstract class RunnerImageComponent {
         }
       }
     };
+  }
+
+  /**
+   * A component that runs a script before every job the runner executes.
+   *
+   * Point this at a local script file. It is copied into the image, made executable, and the runner is
+   * configured to run it before each job through the
+   * [`ACTIONS_RUNNER_HOOK_JOB_STARTED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
+   * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
+   *
+   * Must be used after the {@link githubRunner} component.
+   *
+   * @param sourcePath path to a local script file to run before every job
+   */
+  static jobStartedHook(sourcePath: string): RunnerImageComponent {
+    return RunnerImageComponent.jobHook('Job-Started-Hook', 'job-started-hook-user', sourcePath);
+  }
+
+  /**
+   * A component that runs a script after every job the runner executes.
+   *
+   * Point this at a local script file. It is copied into the image, made executable, and the runner is
+   * configured to run it after each job through the
+   * [`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
+   * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
+   *
+   * Must be used after the {@link githubRunner} component.
+   *
+   * @param sourcePath path to a local script file to run after every job
+   */
+  static jobCompletedHook(sourcePath: string): RunnerImageComponent {
+    return RunnerImageComponent.jobHook('Job-Completed-Hook', 'job-completed-hook-user', sourcePath);
+  }
+
+  private static jobHook(name: string, scriptName: string, sourcePath: string): RunnerImageComponent {
+    const scriptPath = (os: Os): string => {
+      if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
+        return `/home/runner/${scriptName}.sh`;
+      } else if (os.is(Os.WINDOWS)) {
+        return `C:\\actions\\${scriptName}.ps1`;
+      }
+      throw new Error(`Unsupported OS for job hook component: ${os.name}`);
+    };
+
+    return new class extends RunnerImageComponent {
+      name = name;
+
+      getAssets(os: Os, _architecture: Architecture): RunnerImageAsset[] {
+        return [{
+          source: sourcePath,
+          target: scriptPath(os),
+        }];
+      }
+
+      getCommands(os: Os, _architecture: Architecture): string[] {
+        const target = scriptPath(os);
+        if (os.isIn(Os._ALL_LINUX_VERSIONS)) {
+          return [
+            `chmod +x '${target}'`,
+          ];
+        } else if (os.is(Os.WINDOWS)) {
+          return [];
+        }
+        throw new Error(`Unsupported OS for job hook component: ${os.name}`);
+      }
+    }();
   }
 
   /**
@@ -606,9 +871,12 @@ export abstract class RunnerImageComponent {
   /**
    * Convert component to an AWS Image Builder component.
    *
+   * Components are cached and reused when the same component is requested with the same
+   * OS and architecture, reducing stack template size and number of resources.
+   *
    * @internal
    */
-  _asAwsImageBuilderComponent(scope: Construct, id: string, os: Os, architecture: Architecture) {
+  _asAwsImageBuilderComponent(scope: Construct, os: Os, architecture: Architecture) {
     let platform: 'Linux' | 'Windows';
     if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS) || os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
       platform = 'Linux';
@@ -618,19 +886,67 @@ export abstract class RunnerImageComponent {
       throw new Error(`Unknown os/architecture combo for image builder component: ${os.name}/${architecture.name}`);
     }
 
-    return new ImageBuilderComponent(scope, id, {
+    // Get component properties to create a cache key
+    const commands = this.getCommands(os, architecture);
+    const assets = this.getAssets(os, architecture);
+    const reboot = this.shouldReboot(os, architecture);
+
+    // Create a cache key based on component identity and properties
+    const stack = cdk.Stack.of(scope);
+    const cacheKey = this._getCacheKey(stack, os, architecture, commands, assets, reboot);
+
+    // Create a consistent ID based on the cache key to ensure the same component
+    // always gets the same ID, regardless of the passed-in id parameter
+    // The cache key is already a hash, so we can use it directly
+    // Prefix with GHRInternal/ to avoid conflicts with user-defined constructs
+    const consistentId = `GHRInternal/Component-${this.name}-${os.name}-${architecture.name}-${cacheKey.substring(0, 10)}`.replace(/[^a-zA-Z0-9-/]/g, '-');
+
+    // Use the construct tree as the cache - check if component already exists in the stack
+    const existing = stack.node.tryFindChild(consistentId);
+    if (existing) {
+      // Component already exists in this stack, reuse it
+      return existing as ImageBuilderComponent;
+    }
+
+    // Create new component in the stack scope so it can be shared across all scopes in the same stack
+    const component = new ImageBuilderComponent(stack, consistentId, {
       platform: platform,
-      commands: this.getCommands(os, architecture),
-      assets: this.getAssets(os, architecture).map((asset, index) => {
+      commands: commands,
+      assets: assets.map((asset, index) => {
         return {
-          asset: new s3_assets.Asset(scope, `${id} asset ${index}`, { path: asset.source }),
+          asset: new s3_assets.Asset(stack, `GHRInternal/${consistentId}/Asset${index}`, { path: asset.source }),
           path: asset.target,
         };
       }),
-      displayName: id,
-      description: id,
-      reboot: this.shouldReboot(os, architecture),
+      displayName: `${this.name} (${os.name}/${architecture.name})`,
+      description: `${this.name} component for ${os.name}/${architecture.name}`,
+      reboot: reboot,
     });
+
+    return component;
+  }
+
+  /**
+   * Generate a cache key for component reuse.
+   * Components with the same name, OS, architecture, commands, assets, and reboot flag will share the same key.
+   * Returns a hash of all component properties to ensure uniqueness.
+   *
+   * The key is built from a *canonical* representation of the inputs so it stays stable across synths
+   * and machines:
+   *  - Commands are resolved through the stack so CDK tokens (e.g. `Ref`/`Fn::GetAtt`) are hashed by
+   *    their stable intrinsic form, not by the `${Token[TOKEN.NN]}` placeholder whose counter changes
+   *    between synths.
+   *  - Assets are hashed by file content (path-independent) rather than by their local source path, so
+   *    the same file produces the same key regardless of where it lives on disk.
+   *
+   * @internal
+   */
+  private _getCacheKey(stack: cdk.Stack, os: Os, architecture: Architecture, commands: string[], assets: RunnerImageAsset[], reboot: boolean) {
+    // Create a hash of the component properties. Only tokenized commands are resolved (plain commands
+    // are left as-is so their key is unchanged), and assets are keyed by content instead of path.
+    const commandKeys = commands.map(c => cdk.Token.isUnresolved(c) ? JSON.stringify(stack.resolve(c)) : c).join('\n');
+    const assetKeys = assets.map(a => `${cdk.FileSystem.fingerprint(a.source)}:${a.target}`).sort().join('|');
+    const keyData = `${this.name}:${os.name}:${architecture.name}:${commandKeys}:${assetKeys}:${reboot}`;
+    return crypto.createHash('md5').update(keyData).digest('hex');
   }
 }
-

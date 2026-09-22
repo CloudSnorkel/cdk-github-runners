@@ -1,8 +1,7 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
-import { Octokit } from '@octokit/rest';
 import * as AWSLambda from 'aws-lambda';
-import { baseUrlFromDomain, GitHubSecrets } from './lambda-github';
+import { baseUrlFromDomain, GitHubSecrets, loadOctokitRest } from './lambda-github';
 import { getSecretJsonValue, updateSecretValue } from './lambda-helpers';
 
 type ApiGatewayEvent = AWSLambda.APIGatewayProxyEvent | AWSLambda.APIGatewayProxyEventV2;
@@ -72,11 +71,17 @@ async function handlePat(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewayPr
     return response(400, 'Invalid personal access token');
   }
 
+  // default to 'repo' for backwards compatibility with older setup pages that didn't ask for a registration level
+  const runnerLevel = body.runnerLevel ?? 'repo';
+  if (runnerLevel !== 'repo' && runnerLevel !== 'org') {
+    return response(400, 'Invalid runner registration level');
+  }
+
   await updateSecretValue(process.env.GITHUB_SECRET_ARN, JSON.stringify(<GitHubSecrets>{
     domain: body.domain,
     appId: -1,
     personalAuthToken: body.pat,
-    runnerLevel: 'repo',
+    runnerLevel,
   }));
   await updateSecretValue(process.env.SETUP_SECRET_ARN, JSON.stringify({ token: '' }));
 
@@ -96,6 +101,7 @@ async function handleNewApp(event: ApiGatewayEvent): Promise<AWSLambda.APIGatewa
 
   const githubSecrets: GitHubSecrets = await getSecretJsonValue(process.env.GITHUB_SECRET_ARN);
   const baseUrl = baseUrlFromDomain(githubSecrets.domain);
+  const { Octokit } = await loadOctokitRest();
   const newApp = await new Octokit({ baseUrl }).rest.apps.createFromManifest({ code });
 
   githubSecrets.appId = newApp.data.id;
@@ -173,7 +179,10 @@ export async function handler(event: ApiGatewayEvent): Promise<AWSLambda.APIGate
       return response(404, 'Not found');
     }
   } catch (e) {
-    console.error(e);
+    console.error({
+      notice: 'Setup handler failed',
+      error: e,
+    });
     return response(500, `<b>Error:</b> ${e}`);
   }
 }

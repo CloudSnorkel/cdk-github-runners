@@ -13,7 +13,12 @@ function sleep(ms: number) {
 }
 
 export async function handler(event: Input) {
-  console.log(event);
+  console.log({
+    notice: 'Updating Lambda function code from container image',
+    lambdaName: event.lambdaName,
+    repositoryUri: event.repositoryUri,
+    repositoryTag: event.repositoryTag,
+  });
 
   while (true) {
     try {

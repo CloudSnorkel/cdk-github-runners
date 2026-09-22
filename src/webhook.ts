@@ -1,17 +1,67 @@
+import * as crypto from 'crypto';
+import * as fs from 'fs';
+import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
-import { aws_lambda as lambda, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
+import { aws_lambda as lambda, aws_stepfunctions as stepfunctions, aws_sqs as sqs } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
+import { PROVIDERS_PATH } from './lambda-common';
 import { Secrets } from './secrets';
 import { singletonLogGroup, SingletonLogType } from './utils';
 import { WebhookHandlerFunction } from './webhook-handler-function';
 
 /**
- * @internal
+ * Input to the provider selector Lambda function.
  */
-export interface SupportedLabels {
-  readonly provider: string;
-  readonly labels: string[];
+export interface ProviderSelectorInput {
+  /**
+   * Full GitHub webhook payload (workflow_job event structure with action="queued").
+   *
+   * * Original labels requested by the workflow job can be found at `payload.workflow_job.labels`.
+   * * Repository path (e.g. CloudSnorkel/cdk-github-runners) is at `payload.repository.full_name`.
+   * * Commit hash is at `payload.workflow_job.head_sha`.
+   *
+   * @see https://docs.github.com/en/webhooks/webhook-events-and-payloads?actionType=queued#workflow_job
+   */
+  readonly payload: any;
+
+  /**
+   * Map of available provider node paths to their configured labels.
+   * Example: { "MyStack/Small": ["linux", "small"], "MyStack/Large": ["linux", "large"] }
+   */
+  readonly providers: Record<string, string[]>;
+
+  /**
+   * Provider node path that would have been selected by default label matching.
+   * Use this to easily return the default selection: `{ provider: input.defaultProvider, labels: input.defaultLabels }`
+   * May be undefined if no provider matched by default.
+   */
+  readonly defaultProvider?: string;
+
+  /**
+   * Labels that would have been used by default (the selected provider's labels).
+   * May be undefined if no provider matched by default.
+   */
+  readonly defaultLabels?: string[];
+}
+
+/**
+ * Result from the provider selector Lambda function.
+ */
+export interface ProviderSelectorResult {
+  /**
+   * Node path of the provider to use (e.g., "MyStack/MyProvider").
+   * Must match one of the configured provider node paths from the input.
+   * If not provided, the job will be skipped (no runner created).
+   */
+  readonly provider?: string;
+
+  /**
+   * Labels to use when registering the runner.
+   * Must be returned when a provider is selected.
+   * Can be used to add, remove, or modify labels.
+   */
+  readonly labels?: string[];
 }
 
 /**
@@ -36,14 +86,39 @@ export interface GithubWebhookHandlerProps {
   readonly access?: LambdaAccess;
 
   /**
-   * List of supported label combinations.
+   * Mapping of provider node paths to their supported labels.
    */
-  readonly supportedLabels: SupportedLabels[];
+  readonly providers: Record<string, string[]>;
+
+  /**
+   * Optional Lambda function to customize provider selection.
+   */
+  readonly providerSelector?: lambda.IFunction;
 
   /**
    * Whether to require the "self-hosted" label.
    */
   readonly requireSelfHostedLabel: boolean;
+
+  /**
+   * Idle timeout for runners in seconds.
+   */
+  readonly idleTimeoutSeconds?: number;
+
+  /**
+   * Stolen runner detector queue.
+   */
+  readonly stolenRunnerQueue: sqs.IQueue;
+
+  /**
+   * Additional Lambda function options (VPC, security groups, layers, etc.).
+   */
+  readonly extraLambdaProps?: lambda.FunctionOptions;
+
+  /**
+   * Additional environment variables for the Lambda function.
+   */
+  readonly extraLambdaEnv?: { [key: string]: string };
 }
 
 /**
@@ -66,6 +141,25 @@ export class GithubWebhookHandler extends Construct {
   constructor(scope: Construct, id: string, props: GithubWebhookHandlerProps) {
     super(scope, id);
 
+    const providers = JSON.stringify(props.providers);
+    const providersLayer = new lambda.LayerVersion(this, 'Providers', {
+      description: 'Runner providers and their labels',
+      code: lambda.Code.fromAsset('.', {
+        assetHash: crypto.createHash('sha256').update(providers).digest('hex'),
+        bundling: {
+          local: {
+            tryBundle(outputDir: string): boolean {
+              fs.writeFileSync(path.join(outputDir, path.posix.basename(PROVIDERS_PATH)), providers);
+              return true;
+            },
+          },
+          // never used as the local bundler always succeeds
+          image: cdk.DockerImage.fromRegistry('public.ecr.aws/docker/library/busybox:stable'),
+          command: ['exit 1'],
+        },
+      }),
+    });
+
     this.handler = new WebhookHandlerFunction(
       this,
       'webhook-handler',
@@ -76,12 +170,17 @@ export class GithubWebhookHandler extends Construct {
           WEBHOOK_SECRET_ARN: props.secrets.webhook.secretArn,
           GITHUB_SECRET_ARN: props.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: props.secrets.githubPrivateKey.secretArn,
-          SUPPORTED_LABELS: JSON.stringify(props.supportedLabels),
           REQUIRE_SELF_HOSTED_LABEL: props.requireSelfHostedLabel ? '1' : '0',
+          PROVIDER_SELECTOR_ARN: props.providerSelector?.functionArn ?? '',
+          IDLE_TIMEOUT_SECONDS: props.idleTimeoutSeconds?.toString() ?? '300', // default 5 minutes
+          JOB_ASSIGNMENT_QUEUE_URL: props.stolenRunnerQueue.queueUrl,
+          ...props.extraLambdaEnv,
         },
         timeout: cdk.Duration.seconds(31),
         logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
         loggingFormat: lambda.LoggingFormat.JSON,
+        ...props.extraLambdaProps,
+        layers: [...props.extraLambdaProps?.layers ?? [], providersLayer],
       },
     );
 
@@ -92,5 +191,7 @@ export class GithubWebhookHandler extends Construct {
     props.secrets.github.grantRead(this.handler);
     props.secrets.githubPrivateKey.grantRead(this.handler);
     props.orchestrator.grantStartExecution(this.handler);
+    props.providerSelector?.grantInvoke(this.handler);
+    props.stolenRunnerQueue.grantSendMessages(this.handler);
   }
 }

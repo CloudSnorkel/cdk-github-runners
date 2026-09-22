@@ -1,12 +1,15 @@
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import {
   Annotations,
   aws_cloudwatch as cloudwatch,
   aws_ec2 as ec2,
-  aws_iam as iam,
   aws_lambda as lambda,
   aws_lambda_event_sources as lambda_event_sources,
   aws_logs as logs,
+  aws_iam as iam,
   aws_sns as sns,
   aws_sqs as sqs,
   aws_stepfunctions as stepfunctions,
@@ -17,22 +20,100 @@ import { LambdaAccess } from './access';
 import { DeleteFailedRunnerFunction } from './delete-failed-runner-function';
 import { IdleRunnerRepearFunction } from './idle-runner-repear-function';
 import {
+  AnyRunnerConfig,
   AwsImageBuilderFailedBuildNotifier,
   CodeBuildImageBuilderFailedBuildNotifier,
   CodeBuildRunnerProvider,
+  Ec2RunnerProvider,
+  EcsRunnerProvider,
   FargateRunnerProvider,
+  ICompositeProvider,
+  IParameterizedRunnerProvider,
   IRunnerProvider,
+  isParameterizedRunnerProvider,
   LambdaRunnerProvider,
   ProviderRetryOptions,
 } from './providers';
 import { Secrets } from './secrets';
 import { SetupFunction } from './setup-function';
 import { StatusFunction } from './status-function';
+import { StolenRunnerDetector } from './stolen-runners';
 import { TokenRetrieverFunction } from './token-retriever-function';
-import { singletonLogGroup, SingletonLogType } from './utils';
+import { TokenRetrieverInput } from './token-retriever.lambda';
+import { dedupeStateMachineTokens, discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
+import { WarmRunnerManagerFunction } from './warm-runner-manager-function';
 import { GithubWebhookHandler } from './webhook';
 import { GithubWebhookRedelivery } from './webhook-redelivery';
 
+/**
+ * One state machine fragment per runner family. Each fragment reads the provider config out of the execution state,
+ * so the state machine doesn't grow with the number of providers.
+ */
+const FAMILY_FRAGMENTS = new Map<string, (scope: Construct) => stepfunctions.IChainable>([
+  [CodeBuildRunnerProvider._FAMILY, CodeBuildRunnerProvider._stateMachineFragment],
+  [Ec2RunnerProvider._FAMILY, Ec2RunnerProvider._stateMachineFragment],
+  [EcsRunnerProvider._FAMILY, EcsRunnerProvider._stateMachineFragment],
+  [FargateRunnerProvider._FAMILY, FargateRunnerProvider._stateMachineFragment],
+  [LambdaRunnerProvider._FAMILY, LambdaRunnerProvider._stateMachineFragment],
+]);
+
+
+/**
+ * JSONata expression that points `$.providerParams` at `configExpr` and merges the standard runner tags into its `tags` field. Also handles
+ * distribution in one simple step.
+ *
+ * Tags are included even for provider that may not use them for debugging purposes. They are visible in the step function state.
+ *
+ * The standard tags only have values at runtime, so providers can't bake them in at synth time. Provider tags can override our tags.
+ *
+ * `GitHubRunners:Provider` should name the provider that actually runs the job, which is not `$.provider` when we got here through a composite, so
+ * the config's own `provider` field wins when it has one.
+ *
+ * `runnerGroup` gets a default so an unknown provider, whose lookup finds nothing, still produces params the next states can read. Without it the
+ * token retriever fails on a missing reference path instead of reaching `Unknown provider`.
+ *
+ * Labels are tagged as they come in, so the tag shows what the runner registers with, warm runner and provider selector labels included. Configs
+ * that ask for `cleanLabels` get the same labels with spaces instead of the commas ECS rejects, and anything else it rejects as an underscore.
+ */
+function selectProviderParams(configExpr: string): string {
+  return `$merge([
+    $states.input,
+    {'providerParams': (
+      $selected := ${configExpr};
+      $r := $random() * $selected.totalWeight;
+      $config := $exists($selected.distribute) ? $selected.distribute[threshold > $r][0].config : $selected;
+      $merge([{'family': 'provider not found', 'runnerGroup': ''}, $config, {'tags': $append(
+        [
+          {'Key': 'Name', 'Value': $states.context.Execution.Name},
+          {'Key': 'GitHubRunners:Provider', 'Value': $config.provider},
+          {'Key': 'GitHubRunners:Repo', 'Value': $states.input.owner & '/' & $states.input.repo},
+          {'Key': 'GitHubRunners:Labels', 'Value': $config.cleanLabels ? $replace($join($split($states.input.labels, ','), ' '), /[^A-Za-z0-9 _.:\\/=+@-]/, '_') : $states.input.labels}
+        ][$not(Key in $config.tags.Key)],
+        $config.tags)}])
+    )}
+  ])`;
+}
+
+/**
+ * Every family a provider config can reach, walking fallback chains and distribution lists.
+ */
+function configFamilies(config?: AnyRunnerConfig): string[] {
+  if (!config) {
+    return [];
+  }
+  if ('distribute' in config) {
+    return config.distribute.flatMap(option => configFamilies(option.config));
+  }
+  return [config.family, ...configFamilies(config.fallback)];
+}
+
+/**
+ * Big static strings the fragments read from `$.config`, like the EC2 userdata templates. They stay out of the
+ * per-provider configs because every provider of the family shares them.
+ */
+const FAMILY_CONSTANTS = new Map<string, () => Record<string, string>>([
+  [Ec2RunnerProvider._FAMILY, Ec2RunnerProvider._stateMachineConstants],
+]);
 
 /**
  * Properties for GitHubRunners
@@ -43,7 +124,7 @@ export interface GitHubRunnersProps {
    *
    * @default CodeBuild, Lambda and Fargate runners with all the defaults (no VPC or default account VPC)
    */
-  readonly providers?: IRunnerProvider[];
+  readonly providers?: (IRunnerProvider | ICompositeProvider)[];
 
   /**
    * Whether to require the `self-hosted` label. If `true`, the runner will only start if the workflow job explicitly requests the `self-hosted` label.
@@ -56,6 +137,8 @@ export interface GitHubRunnersProps {
 
   /**
    * VPC used for all management functions. Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
+   *
+   * **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting and will run outside the VPC.
    *
    * Make sure the selected VPC and subnets have access to the following with either NAT Gateway or VPC Endpoints:
    * * GitHub Enterprise Server
@@ -70,11 +153,15 @@ export interface GitHubRunnersProps {
 
   /**
    * VPC subnets used for all management functions. Use this with GitHub Enterprise Server hosted that's inaccessible from outside the VPC.
+   *
+   * **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
    */
   readonly vpcSubnets?: ec2.SubnetSelection;
 
   /**
    * Allow management functions to run in public subnets. Lambda Functions in a public subnet can NOT access the internet.
+   *
+   * **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
    *
    * @default false
    */
@@ -83,23 +170,32 @@ export interface GitHubRunnersProps {
   /**
    * Security group attached to all management functions. Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
    *
+   * **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
+   *
    * @deprecated use {@link securityGroups} instead
    */
   readonly securityGroup?: ec2.ISecurityGroup;
 
   /**
-   * Security groups attached to all management functions. Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
+   * Security groups attached to all management functions. Use this to provide outbound access from management functions to GitHub Enterprise Server hosted inside a VPC.
+   *
+   * **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
+   *
+   * **Note:** Defining inbound rules on this security group does nothing. This security group only controls outbound access FROM the management functions. To limit access TO the webhook or setup functions, use {@link webhookAccess} and {@link setupAccess} instead.
    */
   readonly securityGroups?: ec2.ISecurityGroup[];
 
   /**
-   * Path to a directory containing a file named certs.pem containing any additional certificates required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.
+   * Path to a certificate file (.pem or .crt) or a directory containing certificate files (.pem or .crt) required to trust GitHub Enterprise Server. Use this when GitHub Enterprise Server certificates are self-signed.
    *
-   * You may also want to use custom images for your runner providers that contain the same certificates. See {@link CodeBuildImageBuilder.addCertificates}.
+   * If a directory is provided, all .pem and .crt files in that directory will be used. The certificates will be concatenated into a single file for use by Node.js.
+   *
+   * You may also want to use custom images for your runner providers that contain the same certificates. See {@link RunnerImageComponent.extraCertificates}.
    *
    * ```typescript
+   * const selfSignedCertificates = 'certs/ghes.pem'; // or 'path-to-my-extra-certs-folder' for a directory
    * const imageBuilder = CodeBuildRunnerProvider.imageBuilder(this, 'Image Builder with Certs');
-   * imageBuilder.addComponent(RunnerImageComponent.extraCertificates('path-to-my-extra-certs-folder/certs.pem', 'private-ca');
+   * imageBuilder.addComponent(RunnerImageComponent.extraCertificates(selfSignedCertificates, 'private-ca'));
    *
    * const provider = new CodeBuildRunnerProvider(this, 'CodeBuild', {
    *     imageBuilder: imageBuilder,
@@ -110,7 +206,7 @@ export interface GitHubRunnersProps {
    *   'runners',
    *   {
    *     providers: [provider],
-   *     extraCertificates: 'path-to-my-extra-certs-folder',
+   *     extraCertificates: selfSignedCertificates,
    *   }
    * );
    * ```
@@ -162,11 +258,31 @@ export interface GitHubRunnersProps {
    *
    * GitHub jobs time out after not being able to get a runner for 24 hours. You should not retry for more than 24 hours.
    *
-   * Total time spent waiting can be calculated with interval * (backoffRate ^ maxAttempts) / (backoffRate - 1).
+   * Retries use full jitter, so total time spent waiting is about half the sum of min(interval * backoffRate ^ attempt, maxDelay) over all attempts.
    *
-   * @default retry 23 times up to about 24 hours
+   * @default retry 210 times over a bit more than 24 hours
    */
   readonly retryOptions?: ProviderRetryOptions;
+
+  /**
+   * Optional Lambda function to customize provider selection logic and label assignment.
+   *
+   * * The function receives the webhook payload along with default provider and its labels as {@link ProviderSelectorInput}
+   * * The function returns a selected provider and its labels as {@link ProviderSelectorResult}
+   * * You can decline to provision a runner by returning undefined as the provider selector result
+   * * You can fully customize the labels for the about-to-be-provisioned runner (add, remove, modify, dynamic labels, etc.)
+   * * Labels don't have to match the labels originally configured for the provider, but see warnings below
+   * * This function will be called synchronously during webhook processing, so it should be fast and efficient (webhook limit is 30 seconds total)
+   *
+   * **WARNING: It is your responsibility to ensure the selected provider's labels match the job's required labels. If you return the wrong labels, the runner will be created but GitHub Actions will not assign the job to it.**
+   *
+   * **WARNING: Provider selection is not a guarantee that a specific provider will be assigned for the job. GitHub Actions may assign the job to any runner with matching labels. The provider selector only determines which provider's runner will be *created*, but GitHub Actions may route the job to any available runner with the required labels.**
+   *
+   * **For reliable provider assignment based on job characteristics, consider using repo-level runner registration where you can control which runners are available for specific repositories. This information is also available while using the setup wizard.
+   *
+   * @see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
+   */
+  readonly providerSelector?: lambda.IFunction;
 }
 
 /**
@@ -246,7 +362,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   /**
    * Configured runner providers.
    */
-  readonly providers: IRunnerProvider[];
+  readonly providers: (IRunnerProvider | ICompositeProvider)[];
 
   /**
    * Secrets for GitHub communication including webhook secret and runner authentication.
@@ -263,30 +379,34 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private readonly webhook: GithubWebhookHandler;
   private readonly redeliverer: GithubWebhookRedelivery;
   private readonly orchestrator: stepfunctions.StateMachine;
+  private readonly stolenRunnerDetector: StolenRunnerDetector;
   private readonly setupUrl: string;
   private readonly extraLambdaEnv: { [p: string]: string } = {};
   private readonly extraLambdaProps: lambda.FunctionOptions;
   private stateMachineLogGroup?: logs.LogGroup;
-  private jobsCompletedMetricFilters?: logs.MetricFilter[];
+  private readonly parameterizedProviders: IParameterizedRunnerProvider[] = [];
+  private jobsCompletedMetricFiltersInitialized = false;
+  private stolenRunnersMetricFilterInitialized = false;
+  private warmRunnerManager?: lambda.Function;
+  private warmRunnerQueue?: sqs.Queue;
+  private warmConfigHashes: string[] = [];
+  private deleteFailedRunnerFunction?: lambda.IFunction;
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
 
     this.secrets = new Secrets(this, 'Secrets');
+
     this.extraLambdaProps = {
       vpc: this.props?.vpc,
       vpcSubnets: this.props?.vpcSubnets,
       allowPublicSubnet: this.props?.allowPublicSubnet,
       securityGroups: this.lambdaSecurityGroups(),
-      layers: this.props?.extraCertificates ? [new lambda.LayerVersion(scope, 'Certificate Layer', {
-        description: 'Layer containing GitHub Enterprise Server certificate for cdk-github-runners',
-        code: lambda.Code.fromAsset(this.props.extraCertificates),
-      })] : undefined,
+      layers: [],
     };
     this.connections = new ec2.Connections({ securityGroups: this.extraLambdaProps.securityGroups });
-    if (this.props?.extraCertificates) {
-      this.extraLambdaEnv.NODE_EXTRA_CA_CERTS = '/opt/certs.pem';
-    }
+
+    this.createCertificateLayer(scope);
 
     if (this.props?.providers) {
       this.providers = this.props.providers;
@@ -299,26 +419,51 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     }
 
     if (this.providers.length == 0) {
-      throw new Error('At least one runner provider is required');
+      Annotations.of(this).addError('At least one runner provider is required');
     }
 
     this.checkIntersectingLabels();
 
+    // the state machine only knows how to run the built-in providers
+    // instanceof doesn't really work in CDK so duck-type instead
+    for (const provider of this.providers) {
+      if (!isParameterizedRunnerProvider(provider)) {
+        Annotations.of(provider).addError(
+          'Custom runner providers are not supported. Use the built-in providers, or open an issue describing your use case.',
+        );
+        continue;
+      }
+      this.parameterizedProviders.push(provider);
+    }
+
     this.orchestrator = this.stateMachine(props);
+    this.stolenRunnerDetector = new StolenRunnerDetector(this, 'Stolen Runners', {
+      secrets: this.secrets,
+      orchestrator: this.orchestrator,
+      runnerLogGroups: [...this.extractUniqueSubProviders()].map(p => p.logGroup),
+      extraLambdaProps: this.extraLambdaProps,
+      extraLambdaEnv: this.extraLambdaEnv,
+    });
     this.webhook = new GithubWebhookHandler(this, 'Webhook Handler', {
       orchestrator: this.orchestrator,
       secrets: this.secrets,
       access: this.props?.webhookAccess ?? LambdaAccess.lambdaUrl(),
-      supportedLabels: this.providers.map(p => {
-        return {
-          provider: p.node.path,
-          labels: p.labels,
-        };
-      }),
+      providers: this.providers.reduce<Record<string, string[]>>((acc, p) => {
+        acc[p.node.path] = p.labels;
+        return acc;
+      }, {}),
       requireSelfHostedLabel: this.props?.requireSelfHostedLabel ?? true,
+      providerSelector: this.props?.providerSelector,
+      stolenRunnerQueue: this.stolenRunnerDetector.queue,
+      extraLambdaProps: this.extraLambdaProps,
+      extraLambdaEnv: this.extraLambdaEnv,
+      idleTimeoutSeconds: this.props?.idleTimeout?.toSeconds(),
     });
+    this.stolenRunnerDetector.grantRecordRunners(this.webhook.handler);
     this.redeliverer = new GithubWebhookRedelivery(this, 'Webhook Redelivery', {
       secrets: this.secrets,
+      extraLambdaProps: this.extraLambdaProps,
+      extraLambdaEnv: this.extraLambdaEnv,
     });
 
     this.setupUrl = this.setupFunction();
@@ -326,6 +471,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   private stateMachine(props?: GitHubRunnersProps) {
+    // runs after the config is selected so it can check the selected config against the GitHub setup, and fail before any provider starts an
+    // instance, a build, or a task
     const tokenRetrieverTask = new stepfunctions_tasks.LambdaInvoke(
       this,
       'Get Runner Token',
@@ -333,100 +480,185 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         lambdaFunction: this.tokenRetriever(),
         payloadResponseOnly: true,
         resultPath: '$.runner',
-      },
-    );
-
-    let deleteFailedRunnerFunction = this.deleteFailedRunner();
-    const deleteFailedRunnerTask = new stepfunctions_tasks.LambdaInvoke(
-      this,
-      'Delete Failed Runner',
-      {
-        lambdaFunction: deleteFailedRunnerFunction,
-        payloadResponseOnly: true,
-        resultPath: '$.delete',
-        payload: stepfunctions.TaskInput.fromObject({
-          runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+        payload: stepfunctions.TaskInput.fromObject(<TokenRetrieverInput>{
           owner: stepfunctions.JsonPath.stringAt('$.owner'),
           repo: stepfunctions.JsonPath.stringAt('$.repo'),
+          runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
           installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
-          error: stepfunctions.JsonPath.objectAt('$.error'),
+          group: stepfunctions.JsonPath.stringAt('$.providerParams.runnerGroup'),
         }),
       },
     );
-    deleteFailedRunnerTask.addRetry({
-      errors: [
-        'RunnerBusy',
-      ],
+
+    const idleReaper = this.idleReaper();
+    const defaultIdleSeconds = (props?.idleTimeout ?? cdk.Duration.minutes(5)).toSeconds();
+
+    const queueIdleReaperTask = new stepfunctions_tasks.SqsSendMessage(this, 'Queue Idle Reaper', {
+      queue: this.idleReaperQueue(idleReaper),
+      queryLanguage: stepfunctions.QueryLanguage.JSONATA,
+      messageBody: stepfunctions.TaskInput.fromObject({
+        executionArn: '{% $states.context.Execution.Id %}',
+        runnerName: '{% $states.context.Execution.Name %}',
+        owner: '{% $states.input.owner %}',
+        repo: '{% $states.input.repo %}',
+        installationId: '{% $states.input.installationId %}',
+        maxIdleSeconds: `{% $exists($states.input.maxIdleSeconds) ? $states.input.maxIdleSeconds : ${defaultIdleSeconds} %}`,
+      }),
+      outputs: '{% $states.input %}', // discard
+    });
+
+    // we embed every provider's config in the definition and look it up by the provider path the webhook sends
+    // the fragments then read it from $.providerParams, so one fragment per family runs any number of providers
+    const providerConfigs: Record<string, AnyRunnerConfig> = {};
+    const usedFamilies = new Set<string>();
+    for (const provider of this.parameterizedProviders) {
+      const providerConfig = provider._runnerConfig();
+      providerConfigs[provider.node.path] = providerConfig;
+      for (const family of configFamilies(providerConfig)) {
+        if (!FAMILY_FRAGMENTS.has(family)) {
+          Annotations.of(provider).addError(
+            `Unknown runner family "${family}". Available families are: ${[...FAMILY_FRAGMENTS.keys()].sort().join(', ')}.`,
+          );
+          continue;
+        }
+        usedFamilies.add(family);
+      }
+    }
+    const families = [...usedFamilies].sort();
+    const providerConsts: Record<string, string> = {};
+    for (const family of families) {
+      Object.assign(providerConsts, FAMILY_CONSTANTS.get(family)?.() ?? {});
+    }
+    const configPass = new stepfunctions.Pass(this, 'Load Config', {
+      // variables that don't need to be part of the state
+      // states are limited to 256kb but variables can have up to 10mb
+      // easier to debug with smaller states too
+      assign: {
+        providerConfigs,
+        ...providerConsts,
+      },
+    });
+
+    const selectConfig = new stepfunctions.Pass(this, 'Select Provider Config', {
+      queryLanguage: stepfunctions.QueryLanguage.JSONATA,
+      outputs: `{% ${selectProviderParams('$lookup($providerConfigs, $states.input.provider)')} %}`,
+    });
+
+    const providerFamilyChooser = new stepfunctions.Choice(this, 'Choose Provider Family');
+
+
+    // one fragment per family in use, with stable construct IDs so adding or removing providers doesn't change the state machine
+    for (const family of families) {
+      const builder = FAMILY_FRAGMENTS.get(family)!;
+      providerFamilyChooser.when(
+        stepfunctions.Condition.stringEquals('$.providerParams.family', family),
+        builder(this),
+      );
+    }
+
+    providerFamilyChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown provider'));
+
+    // a config can chain a fallback to try when it fails (CompositeProvider.fallback, EC2 subnets)
+    // this parallel catches the failure, cleans up the runner, and loops back with the next config
+    const tryProvider = new stepfunctions.Parallel(this, 'Try Provider').branch(providerFamilyChooser);
+
+    this.deleteFailedRunnerFunction ??= this.deleteFailedRunner();
+    const fallbackCleanup = new stepfunctions_tasks.LambdaInvoke(this, 'Clean Up Failed Runner', {
+      comment: 'Clean-up failed runner from GitHub Actions (if present)',
+      lambdaFunction: this.deleteFailedRunnerFunction,
+      payloadResponseOnly: true,
+      resultPath: '$.delete',
+      payload: stepfunctions.TaskInput.fromObject({
+        runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+        owner: stepfunctions.JsonPath.stringAt('$.owner'),
+        repo: stepfunctions.JsonPath.stringAt('$.repo'),
+        installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
+      }),
+    });
+    fallbackCleanup.addRetry({
+      errors: ['RunnerBusy'],
       interval: cdk.Duration.minutes(1),
       backoffRate: 1,
       maxAttempts: 60,
     });
 
-    const idleReaper = this.idleReaper();
-    const queueIdleReaperTask = new stepfunctions_tasks.SqsSendMessage(this, 'Queue Idle Reaper', {
-      queue: this.idleReaperQueue(idleReaper),
-      messageBody: stepfunctions.TaskInput.fromObject({
-        executionArn: stepfunctions.JsonPath.stringAt('$$.Execution.Id'),
-        runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
-        owner: stepfunctions.JsonPath.stringAt('$.owner'),
-        repo: stepfunctions.JsonPath.stringAt('$.repo'),
-        installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
-        maxIdleSeconds: (props?.idleTimeout ?? cdk.Duration.minutes(5)).toSeconds(),
-      }),
-      resultPath: stepfunctions.JsonPath.DISCARD,
+    const fallbackChoice = new stepfunctions.Choice(this, 'Fallback Configured?');
+    const useFallback = new stepfunctions.Pass(this, 'Use Fallback Config', {
+      queryLanguage: stepfunctions.QueryLanguage.JSONATA,
+      outputs: `{% ${selectProviderParams('$states.input.providerParams.fallback')} %}`,
+    });
+    const allFailed = new stepfunctions.Fail(this, 'All Attempts Failed', {
+      // re-raise the last error so the outer catch and retry see the original failure
+      // it's a state of its own so a red clean-up always means the clean-up itself broke (#989)
+      comment: 'Fail the execution with the original error that stopped the runner',
+      errorPath: stepfunctions.JsonPath.stringAt('$.error.Error'),
+      causePath: stepfunctions.JsonPath.stringAt('$.error.Cause'),
     });
 
-    const providerChooser = new stepfunctions.Choice(this, 'Choose provider');
-    for (const provider of this.providers) {
-      const providerTask = provider.getStepFunctionTask(
-        {
-          runnerTokenPath: stepfunctions.JsonPath.stringAt('$.runner.token'),
-          runnerNamePath: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
-          githubDomainPath: stepfunctions.JsonPath.stringAt('$.runner.domain'),
-          ownerPath: stepfunctions.JsonPath.stringAt('$.owner'),
-          repoPath: stepfunctions.JsonPath.stringAt('$.repo'),
-          registrationUrl: stepfunctions.JsonPath.stringAt('$.runner.registrationUrl'),
-        },
-      );
-      providerChooser.when(
-        stepfunctions.Condition.and(
-          stepfunctions.Condition.stringEquals('$.provider', provider.node.path),
-        ),
-        providerTask,
-      );
-    }
+    tryProvider.addCatch(fallbackCleanup, { errors: [stepfunctions.Errors.ALL], resultPath: '$.error' });
+    // the clean-up lambda reports what it did in $.delete instead of failing
+    // either way we move on to the next fallback config
+    fallbackCleanup.next(fallbackChoice);
+    fallbackCleanup.addCatch(fallbackChoice, { errors: [stepfunctions.Errors.ALL], resultPath: stepfunctions.JsonPath.DISCARD });
+    fallbackChoice.when(stepfunctions.Condition.isPresent('$.providerParams.fallback'), useFallback);
+    fallbackChoice.otherwise(allFailed);
+    useFallback.next(tryProvider);
 
-    providerChooser.otherwise(new stepfunctions.Succeed(this, 'Unknown label'));
-
+    // one parallel is enough now: the fallback loop above already cleaned up the runner before it gave up
+    // we used to need two nested ones just to clean up before the retry, because Retry runs before Catch
     const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
-      new stepfunctions.Parallel(this, 'Error Handler').branch(
-        // we get a token for every retry because the token can expire faster than the job can timeout
-        tokenRetrieverTask.next(providerChooser),
-      ).addCatch(
-        // delete runner on failure as it won't remove itself and there is a limit on the number of registered runners
-        deleteFailedRunnerTask,
-        {
-          resultPath: '$.error',
-        },
-      ),
+      // we get a token for every retry because the token can expire faster than the job can timeout
+      selectConfig.next(tokenRetrieverTask).next(tryProvider),
     );
 
     if (props?.retryOptions?.retry ?? true) {
+      // we aim to wait at most 24 hours because that's when github jobs time out
       const interval = props?.retryOptions?.interval ?? cdk.Duration.minutes(1);
-      const maxAttempts = props?.retryOptions?.maxAttempts ?? 23;
-      const backoffRate = props?.retryOptions?.backoffRate ?? 1.3;
+      // a shorter maxDelay needs more attempts to cover the same 24 hours, and every attempt costs execution history
+      // events that Step Functions caps at 25,000. measured on this state machine, a failed attempt costs 25 events
+      // for a provider with no fallback and 73 for a four config fallback chain, so 210 attempts land around 15,000
+      // while a 5 minute cap would need ~600 attempts and go right past it
+      //
+      // those are normal path numbers and not a ceiling. a longer fallback chain costs more, and an attempt whose
+      // clean-up keeps hitting RunnerBusy costs 793, which no attempt count that still covers 24 hours can fit
+      //
+      // if the execution history limit does hit, we will end give up on this runner. this would only happen when we
+      // are having lots of issues provisioning a runners. stolen runner detector may end up replacing it when the
+      // errors finally stop.
+      const maxDelay = props?.retryOptions?.maxDelay ?? cdk.Duration.minutes(15);
+      const maxAttempts = props?.retryOptions?.maxAttempts ?? 210;
+      const backoffRate = props?.retryOptions?.backoffRate ?? 2;
 
-      const totalSeconds = interval.toSeconds() * backoffRate ** maxAttempts / (backoffRate - 1);
-      if (totalSeconds >= cdk.Duration.days(1).toSeconds()) {
+      // jitter picks a random wait between zero and the interval, so we wait half of it on average
+      // we aim a bit over 24 hours so most jobs keep retrying for the whole day they can wait
+      // if we do stop early, the job will steal another runner and the stolen runner detector will replace it
+      //
+      // the wait grows geometrically until it hits maxDelay and stays there, so the total is a geometric
+      // series plus a flat tail. maxAttempts is a public option, so we don't want to loop over it
+      const growingAttempts = backoffRate > 1
+        ? Math.min(maxAttempts, Math.max(0, Math.ceil(Math.log(maxDelay.toSeconds() / interval.toSeconds()) / Math.log(backoffRate))))
+        : (interval.toSeconds() < maxDelay.toSeconds() ? maxAttempts : 0);
+      const growingSeconds = backoffRate === 1
+        ? interval.toSeconds() * growingAttempts
+        : interval.toSeconds() * (backoffRate ** growingAttempts - 1) / (backoffRate - 1);
+      const totalSeconds = (growingSeconds + (maxAttempts - growingAttempts) * maxDelay.toSeconds()) / 2;
+
+      // the default overshoots 24 hours on purpose, so only complain when it's clearly more than a job can use
+      if (totalSeconds >= cdk.Duration.hours(30).toSeconds()) {
         // https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners#usage-limits
-        // "Job queue time - Each job for self-hosted runners can be queued for a maximum of 24 hours. If a self-hosted runner does not start executing the job within this limit, the job is terminated and fails to complete."
-        Annotations.of(this).addWarning(`Total retry time is greater than 24 hours (${Math.floor(totalSeconds / 60 / 60)} hours). Jobs expire after 24 hours so it would be a waste of resources to retry further.`);
+        // "Job queue time - Each job for self-hosted runners can be queued for a maximum of 24 hours. If a self-hosted runner does not start
+        // executing the job within this limit, the job is terminated and fails to complete."
+        Annotations.of(this).addWarning(`Average total retry time is ${Math.floor(totalSeconds / 60 / 60)} hours. Jobs expire after 24`
+          + ' hours so it would be a waste of resources to retry further.');
       }
 
       runProviders.addRetry({
         interval,
+        maxDelay,
         maxAttempts,
         backoffRate,
+        // without jitter every runner that failed on the same missing capacity or API quota comes back at the exact same time
+        jitterStrategy: stepfunctions.JitterType.FULL,
         // we retry on everything
         // deleted idle runners will also fail, but the reaper will stop this step function to avoid endless retries
       });
@@ -451,15 +683,16 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       this,
       'Runner Orchestrator',
       {
-        definitionBody: stepfunctions.DefinitionBody.fromChainable(queueIdleReaperTask.next(runProviders)),
+        definitionBody: stepfunctions.DefinitionBody.fromChainable(queueIdleReaperTask.next(configPass).next(runProviders)),
+        definitionSubstitutions: dedupeStateMachineTokens(this, { providerConfigs, providerConsts }),
         logs: logOptions,
       },
     );
 
     stateMachine.grantRead(idleReaper);
     stateMachine.grantExecution(idleReaper, 'states:StopExecution');
-    for (const provider of this.providers) {
-      provider.grantStateMachine(stateMachine);
+    for (const provider of this.parameterizedProviders) {
+      provider._grantStateMachine(stateMachine);
     }
 
     return stateMachine;
@@ -538,7 +771,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       },
     );
 
-    const providers = this.providers.map(provider => provider.status(statusFunction));
+    // composite providers return an array of statuses, regular providers return a single status
+    const providers = this.parameterizedProviders.flatMap(provider => provider._status(statusFunction));
 
     // expose providers as stack metadata as it's too big for Lambda environment variables
     // specifically integration testing got an error because lambda update request was >5kb
@@ -623,7 +857,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         }
         if (p1.labels.every(l => p2.labels.includes(l))) {
           if (p2.labels.every(l => p1.labels.includes(l))) {
-            throw new Error(`Both ${p1.node.path} and ${p2.node.path} use the same labels [${p1.labels.join(', ')}]`);
+            Annotations.of(this).addError(`Both ${p1.node.path} and ${p2.node.path} use the same labels [${p1.labels.join(', ')}]`);
+            return;
           }
           Annotations.of(p1).addWarning(`Labels [${p1.labels.join(', ')}] intersect with another provider (${p2.node.path} -- [${p2.labels.join(', ')}]). If a workflow specifies the labels [${p1.labels.join(', ')}], it is not guaranteed which provider will be used. It is recommended you do not use intersecting labels`);
         }
@@ -658,6 +893,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     reaper.addEventSource(new lambda_event_sources.SqsEventSource(queue, {
       reportBatchItemFailures: true,
       maxBatchingWindow: cdk.Duration.minutes(1),
+      batchSize: 10,
     }));
 
     this.secrets.github.grantRead(reaper);
@@ -693,19 +929,85 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   /**
+   * Extracts all unique IRunnerProvider instances from providers and composite providers (one level only).
+   * Uses a Set to ensure we don't process the same provider twice, even if it's used in multiple composites.
+   *
+   * @returns Set of unique IRunnerProvider instances
+   */
+  private extractUniqueSubProviders(): Set<IRunnerProvider> {
+    const seen = new Set<IRunnerProvider>();
+    for (const provider of this.providers) {
+      // instanceof doesn't really work in CDK so use this hack instead
+      if ('logGroup' in provider) {
+        // Regular provider
+        seen.add(provider);
+      } else {
+        // Composite provider - access the providers field
+        for (const subProvider of provider.providers) {
+          seen.add(subProvider);
+        }
+      }
+    }
+    return seen;
+  }
+
+  /**
+   * Creates a Lambda layer with certificates if extraCertificates is specified.
+   */
+  private createCertificateLayer(scope: Construct): void {
+    if (!this.props?.extraCertificates) {
+      return;
+    }
+
+    const certificateFiles = discoverCertificateFiles(this.props.extraCertificates);
+
+    // Concatenate all certificates into a single file for NODE_EXTRA_CA_CERTS
+    let combinedCertContent = '';
+    for (const certFile of certificateFiles) {
+      const certContent = fs.readFileSync(certFile, 'utf8');
+      combinedCertContent += certContent;
+      // Ensure proper PEM format with newline between certificates
+      if (!certContent.endsWith('\n')) {
+        combinedCertContent += '\n';
+      }
+    }
+
+    // Create a temporary directory, write the certificate file, create asset, then delete temp dir
+    const workdir = fs.mkdtempSync(path.join(os.tmpdir(), 'certificate-layer-'));
+    try {
+      const certPath = path.join(workdir, 'certs.pem');
+      fs.writeFileSync(certPath, combinedCertContent);
+
+      // Set environment variable and create layer
+      this.extraLambdaEnv.NODE_EXTRA_CA_CERTS = '/opt/certs.pem';
+      this.extraLambdaProps.layers!.push(
+        new lambda.LayerVersion(scope, 'Certificate Layer', {
+          description: 'Layer containing GitHub Enterprise Server certificate(s) for cdk-github-runners',
+          code: lambda.Code.fromAsset(workdir),
+        }),
+      );
+    } finally {
+      // Calling `fromAsset()` has copied files to the assembly, so we can delete the temporary directory.
+      fs.rmSync(workdir, { recursive: true, force: true });
+    }
+  }
+
+  /**
    * Metric for the number of GitHub Actions jobs completed. It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succeeded", "SucceededWithIssues", "Failed", "Canceled", "Skipped", or "Abandoned".
    *
    * **WARNING:** this method creates a metric filter for each provider. Each metric has a status dimension with six possible values. These resources may incur cost.
    */
-  public metricJobCompleted(props?: cloudwatch.MetricProps): cloudwatch.Metric {
-    if (!this.jobsCompletedMetricFilters) {
+  public metricJobCompleted(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
+    if (!this.jobsCompletedMetricFiltersInitialized) {
       // we can't use logs.FilterPattern.spaceDelimited() because it has no support for ||
       // status list taken from https://github.com/actions/runner/blob/be9632302ceef50bfb36ea998cea9c94c75e5d4d/src/Sdk/DTWebApi/WebApi/TaskResult.cs
       // we need "..." for Lambda that prefixes some extra data to log lines
       const pattern = logs.FilterPattern.literal('[..., marker = "CDKGHA", job = "JOB", done = "DONE", labels, status = "Succeeded" || status = "SucceededWithIssues" || status = "Failed" || status = "Canceled" || status = "Skipped" || status = "Abandoned"]');
 
-      this.jobsCompletedMetricFilters = this.providers.map(p =>
-        p.logGroup.addMetricFilter(`${p.logGroup.node.id} filter`, {
+      // Extract all unique sub-providers from regular and composite providers
+      // Build a set first to avoid filtering the same log twice
+      for (const p of this.extractUniqueSubProviders()) {
+        const metricFilter = p.logGroup.addMetricFilter(`${p.logGroup.node.id} filter`, {
           metricNamespace: 'GitHubRunners',
           metricName: 'JobCompleted',
           filterPattern: pattern,
@@ -715,23 +1017,22 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
             ProviderLabels: '$labels',
             Status: '$status',
           },
-        }),
-      );
+        });
 
-      for (const metricFilter of this.jobsCompletedMetricFilters) {
         if (metricFilter.node.defaultChild instanceof logs.CfnMetricFilter) {
           metricFilter.node.defaultChild.addPropertyOverride('MetricTransformations.0.Unit', 'Count');
         } else {
           Annotations.of(metricFilter).addWarning('Unable to set metric filter Unit to Count');
         }
       }
+      this.jobsCompletedMetricFiltersInitialized = true;
     }
 
     return new cloudwatch.Metric({
       namespace: 'GitHubRunners',
       metricName: 'JobsCompleted',
       unit: cloudwatch.Unit.COUNT,
-      statistic: cloudwatch.Statistic.SUM,
+      statistic: cloudwatch.Stats.SUM,
       ...props,
     }).attachTo(this);
   }
@@ -743,7 +1044,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    *
    * A successful runner doesn't mean the job it executed was successful. For that, see {@link metricJobCompleted}.
    */
-  public metricSucceeded(props?: cloudwatch.MetricProps): cloudwatch.Metric {
+  public metricSucceeded(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
     return this.orchestrator.metricSucceeded(props);
   }
 
@@ -752,15 +1053,55 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    *
    * A failed runner usually means the runner failed to start and so a job was never executed. It doesn't necessarily mean the job was executed and failed. For that, see {@link metricJobCompleted}.
    */
-  public metricFailed(props?: cloudwatch.MetricProps): cloudwatch.Metric {
+  public metricFailed(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
     return this.orchestrator.metricFailed(props);
   }
 
   /**
    * Metric for the interval, in milliseconds, between the time the execution starts and the time it closes. This time may be longer than the time the runner took.
    */
-  public metricTime(props?: cloudwatch.MetricProps): cloudwatch.Metric {
+  public metricTime(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
     return this.orchestrator.metricTime(props);
+  }
+
+  /**
+   * Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them.
+   *
+   * A high number here means your runners are shared with jobs you didn't mean to serve. Use the "Stolen runners"
+   * CloudWatch Logs Insights query created by {@link createLogsInsightsQueries} to see which repositories and jobs
+   * are taking them.
+   *
+   * This metric has two dimensions:
+   *  1. `Replaced` which is "true" or "false" indicating whether the stolen runner was replaced. A runner may not be replaced if it was stolen too
+   *     many times in a row. The current limit is 3. When this is false, there is probably a bug in our detection or something misconfigured.
+   *  2. `Provider` is the provider construct path of the runner that was stolen. You can check your code to see which labels it has that may cause
+   *     it to be stolen. The logs insights queries can provide even more information about the stolen runners.
+   *
+   * **WARNING:** this method creates a metric filter. This resource may incur cost.
+   */
+  public metricStolenRunners(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
+    if (!this.stolenRunnersMetricFilterInitialized) {
+      singletonLogGroup(this, SingletonLogType.ORCHESTRATOR).addMetricFilter('Stolen Runners filter', {
+        metricNamespace: 'GitHubRunners',
+        metricName: 'StolenRunners',
+        filterPattern: logs.FilterPattern.stringValue('$.message.metric', '=', 'StolenRunnerDetected'),
+        metricValue: '1',
+        // can't with dimensions -- defaultValue: 0,
+        dimensions: {
+          Replaced: '$.message.replaced',
+          Provider: '$.message.provider',
+        },
+      });
+      this.stolenRunnersMetricFilterInitialized = true;
+    }
+
+    return new cloudwatch.Metric({
+      namespace: 'GitHubRunners',
+      metricName: 'StolenRunners',
+      unit: cloudwatch.Unit.COUNT,
+      statistic: cloudwatch.Stats.SUM,
+      ...props,
+    }).attachTo(this);
   }
 
   /**
@@ -769,14 +1110,21 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * Runner images are rebuilt every week by default. This provides the latest GitHub Runner version and software updates.
    *
    * If you want to be sure you are using the latest runner version, you can use this topic to be notified when a build fails.
+   *
+   * When the image builder is defined in a separate stack (e.g. in a split-stacks setup), pass that stack or construct
+   * as the optional scope so the topic and failure-notification aspects are created in the same stack as the image
+   * builder. Otherwise the aspects may not find the image builder resources.
+   *
+   * @param scope Optional scope (e.g. the image builder stack) where the topic and aspects will be created. Defaults to this construct.
    */
-  public failedImageBuildsTopic() {
-    const topic = new sns.Topic(this, 'Failed Runner Image Builds');
-    const stack = cdk.Stack.of(this);
+  public failedImageBuildsTopic(scope?: Construct) {
+    scope ??= this;
+    const topic = new sns.Topic(scope, 'Failed Runner Image Builds');
+    const stack = cdk.Stack.of(scope);
     cdk.Aspects.of(stack).add(new CodeBuildImageBuilderFailedBuildNotifier(topic));
     cdk.Aspects.of(stack).add(
       new AwsImageBuilderFailedBuildNotifier(
-        AwsImageBuilderFailedBuildNotifier.createFilteringTopic(this, topic),
+        AwsImageBuilderFailedBuildNotifier.createFilteringTopic(scope, topic),
       ),
     );
     return topic;
@@ -789,10 +1137,13 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * * "Ignored webhook" helps understand why runners aren't started
    * * "Ignored jobs based on labels" helps debug label matching issues
    * * "Webhook started runners" helps understand which runners were started
+   * * "Warm runner status" and "Warm runner errors" (when warm runners are configured)
+   *
+   * @param prefix Prefix for the query definitions. Defaults to "GitHub Runners".
    */
-  public createLogsInsightsQueries() {
+  public createLogsInsightsQueries(prefix = 'GitHub Runners') {
     new logs.QueryDefinition(this, 'Webhook errors', {
-      queryDefinitionName: 'GitHub Runners/Webhook errors',
+      queryDefinitionName: `${prefix}/Webhook errors`,
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
         filterStatements: [
@@ -805,7 +1156,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Orchestration errors', {
-      queryDefinitionName: 'GitHub Runners/Orchestration errors',
+      queryDefinitionName: `${prefix}/Orchestration errors`,
       logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
       queryString: new logs.QueryString({
         filterStatements: [
@@ -817,7 +1168,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Runner image build errors', {
-      queryDefinitionName: 'GitHub Runners/Runner image build errors',
+      queryDefinitionName: `${prefix}/Runner image build errors`,
       logGroups: [singletonLogGroup(this, SingletonLogType.RUNNER_IMAGE_BUILD)],
       queryString: new logs.QueryString({
         filterStatements: [
@@ -829,7 +1180,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Ignored webhooks', {
-      queryDefinitionName: 'GitHub Runners/Ignored webhooks',
+      queryDefinitionName: `${prefix}/Ignored webhooks`,
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
         fields: ['@timestamp', 'message.notice'],
@@ -843,7 +1194,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Ignored jobs based on labels', {
-      queryDefinitionName: 'GitHub Runners/Ignored jobs based on labels',
+      queryDefinitionName: `${prefix}/Ignored jobs based on labels`,
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
         fields: ['@timestamp', 'message.notice'],
@@ -857,10 +1208,10 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Webhook started runners', {
-      queryDefinitionName: 'GitHub Runners/Webhook started runners',
+      queryDefinitionName: `${prefix}/Webhook started runners`,
       logGroups: [this.webhook.handler.logGroup],
       queryString: new logs.QueryString({
-        fields: ['@timestamp', 'message.sfnInput.jobUrl', 'message.sfnInput.labels', 'message.sfnInput.provider'],
+        fields: ['@timestamp', 'message.sfnInput.jobUrl', 'message.sfnInput.jobLabels', 'message.sfnInput.labels', 'message.sfnInput.provider'],
         filterStatements: [
           `strcontains(@logStream, "${this.webhook.handler.functionName}")`,
           'message.sfnInput.jobUrl like /http.*/',
@@ -871,7 +1222,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     });
 
     new logs.QueryDefinition(this, 'Webhook redeliveries', {
-      queryDefinitionName: 'GitHub Runners/Webhook redeliveries',
+      queryDefinitionName: `${prefix}/Webhook redeliveries`,
       logGroups: [this.redeliverer.handler.logGroup],
       queryString: new logs.QueryString({
         fields: ['@timestamp', 'message.notice', 'message.deliveryId', 'message.guid'],
@@ -882,6 +1233,122 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         limit: 100,
       }),
     });
+
+    new logs.QueryDefinition(this, 'Stolen runners', {
+      queryDefinitionName: `${prefix}/Stolen runners`,
+      logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
+      queryString: new logs.QueryString({
+        fields: [
+          '@timestamp', 'message.notice', 'message.stolenRunnerName', 'message.runnerName', 'message.stolenByJobId',
+          'message.jobUrl', 'message.owner', 'message.repo', 'message.provider',
+        ],
+        filterStatements: [
+          'isPresent(message.metric) and strcontains(message.metric, "Stolen")',
+        ],
+        sort: '@timestamp desc',
+        limit: 100,
+      }),
+    });
+
+    new logs.QueryDefinition(this, 'Warm runner status', {
+      queryDefinitionName: `${prefix}/Warm runner status`,
+      logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
+      queryString: new logs.QueryString({
+        fields: ['@timestamp', 'message.notice', 'message.input.runnerName', 'message.input.providerPath', 'message.started', 'message.stillRunning', 'message.runnerBusy'],
+        filterStatements: [
+          cdk.Lazy.string({
+            produce: () => {
+              if (this.warmRunnerManager) {
+                return `strcontains(@logStream, "${this.warmRunnerManager.functionName}")`;
+              } else {
+                return 'WARM RUNNERS NOT ENABLED';
+              }
+            },
+          }),
+        ],
+        sort: '@timestamp desc',
+        limit: 200,
+      }),
+    });
+
+    new logs.QueryDefinition(this, 'Warm runner errors', {
+      queryDefinitionName: `${prefix}/Warm runner errors`,
+      logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
+      queryString: new logs.QueryString({
+        fields: ['@timestamp', 'message.notice', 'message.input.runnerName', 'message.error'],
+        filterStatements: [
+          cdk.Lazy.string({
+            produce: () => {
+              if (this.warmRunnerManager) {
+                return `strcontains(@logStream, "${this.warmRunnerManager.functionName}")`;
+              } else {
+                return 'WARM RUNNERS NOT ENABLED';
+              }
+            },
+          }),
+          'level = "ERROR"',
+        ],
+        sort: '@timestamp desc',
+        limit: 100,
+      }),
+    });
+  }
+
+  /**
+   * Register a warm runner config hash. All registered hashes are passed to the
+   * manager Lambda via WARM_CONFIG_HASHES env var so keepers can detect stale configs.
+   *
+   * @internal
+   */
+  public _registerWarmConfigHash(hash: string): void {
+    this.warmConfigHashes.push(hash);
+  }
+
+  /**
+   * Lazily create shared warm runner infrastructure (Lambda, SQS queue).
+   * Returns the manager Lambda and queue for use as EventBridge targets.
+   *
+   * @internal
+   */
+  public _ensureWarmRunnerInfra(): { lambda: lambda.Function; queue: sqs.Queue } {
+    if (this.warmRunnerManager && this.warmRunnerQueue) {
+      return { lambda: this.warmRunnerManager, queue: this.warmRunnerQueue };
+    }
+
+    this.warmRunnerQueue = new sqs.Queue(this, 'Warm Runner Queue', {
+      visibilityTimeout: cdk.Duration.minutes(1),
+    });
+
+    this.warmRunnerManager = new WarmRunnerManagerFunction(this, 'Warm Runner Manager', {
+      description: 'Manage warm GitHub runners: fill on invoke, keep alive via SQS',
+      environment: {
+        GITHUB_SECRET_ARN: this.secrets.github.secretArn,
+        GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
+        STEP_FUNCTION_ARN: this.orchestrator.stateMachineArn,
+        WARM_RUNNER_QUEUE_URL: this.warmRunnerQueue.queueUrl,
+        WARM_CONFIG_HASHES: cdk.Lazy.string({ produce: () => this.warmConfigHashes.join(',') }),
+        ...this.extraLambdaEnv,
+      },
+      timeout: cdk.Duration.seconds(50),
+      logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
+      loggingFormat: lambda.LoggingFormat.JSON,
+      ...this.extraLambdaProps,
+    });
+
+    this.secrets.github.grantRead(this.warmRunnerManager);
+    this.secrets.githubPrivateKey.grantRead(this.warmRunnerManager);
+    this.orchestrator.grantRead(this.warmRunnerManager);
+    this.orchestrator.grantStartExecution(this.warmRunnerManager);
+    this.orchestrator.grantExecution(this.warmRunnerManager, 'states:StopExecution');
+
+    this.warmRunnerManager.addEventSource(new lambda_event_sources.SqsEventSource(this.warmRunnerQueue, {
+      reportBatchItemFailures: true,
+      maxBatchingWindow: cdk.Duration.seconds(10),
+      batchSize: 10,
+    }));
+    this.warmRunnerQueue.grantSendMessages(this.warmRunnerManager);
+
+    return { lambda: this.warmRunnerManager, queue: this.warmRunnerQueue };
   }
 
   /**

@@ -1,16 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
-import {
-  aws_ec2 as ec2,
-  aws_ecr as ecr,
-  aws_iam as iam,
-  aws_lambda as lambda,
-  aws_logs as logs,
-  aws_stepfunctions as stepfunctions,
-  CustomResource,
-  Duration,
-} from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_ecr as ecr, aws_iam as iam, aws_lambda as lambda, aws_logs as logs, CustomResource, Duration } from 'aws-cdk-lib';
 import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
-import { Construct, IConstruct } from 'constructs';
+import { Construct, IConstruct, IDependable } from 'constructs';
 import { AmiRootDeviceFunction } from './ami-root-device-function';
 import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
 
@@ -234,11 +225,11 @@ export interface RunnerImage {
   readonly runnerVersion: RunnerVersion;
 
   /**
-   * A dependable string that can be waited on to ensure the image is ready.
+   * A dependable that can be waited on to ensure the image is ready.
    *
    * @internal
    */
-  readonly _dependable?: string;
+  readonly _dependable?: IDependable;
 }
 
 /**
@@ -271,10 +262,24 @@ export interface RunnerAmi {
    * @deprecated open a ticket if you need this
    */
   readonly runnerVersion: RunnerVersion;
+
+  /**
+   * Set this to a value that changes whenever the AMI changes (the AMI id or any version string works).
+   *
+   * It's used to know when the AMI's root device name needs to be looked up again. If left empty, the root
+   * device name is looked up once and reused. That's fine as long as the AMI's root device never changes.
+   *
+   * This value may be used for other things in the future that require knowing when the AMI changed.
+   */
+  readonly cacheKey?: string;
 }
 
 /**
- * Retry options for providers. The default is to retry 23 times for about 24 hours with increasing interval.
+ * Retry options for providers. The default is to retry 210 times for a bit over 24 hours with increasing interval.
+ *
+ * Retries use full jitter, so every wait is a random time between zero and the calculated interval. This spreads out
+ * runners that all failed at the same time, so they don't hit the same missing capacity or API quota together again.
+ * It also means the average wait is half the calculated interval, and that's what the 24 hours are calculated from.
  */
 export interface ProviderRetryOptions {
   /**
@@ -285,23 +290,34 @@ export interface ProviderRetryOptions {
   readonly retry?: boolean;
 
   /**
-   * How much time to wait after first retryable failure. This interval will be multiplied by {@link backoffRate} each retry.
+   * How much time to wait after first retryable failure. This interval will be multiplied by {@link backoffRate} each retry, up to {@link maxDelay}.
    *
    * @default 1 minute
    */
   readonly interval?: Duration;
 
   /**
+   * Maximum wait between retries. Without it, exponential backoff quickly grows to hours between attempts, so a job
+   * can end up waiting hours for a runner even though capacity came back minutes after it failed.
+   *
+   * Don't go too low either. A lower maximum needs more attempts to cover the same 24 hours, and every attempt adds
+   * to the execution history that Step Functions caps at 25,000 events.
+   *
+   * @default 15 minutes
+   */
+  readonly maxDelay?: Duration;
+
+  /**
    * How many times to retry.
    *
-   * @default 23
+   * @default 210
    */
   readonly maxAttempts?: number;
 
   /**
    * Multiplication for how much longer the wait interval gets on every retry.
    *
-   * @default 1.3
+   * @default 2
    */
   readonly backoffRate?: number;
 }
@@ -323,48 +339,13 @@ export interface RunnerProviderProps {
    * @deprecated use {@link retryOptions} on {@link GitHubRunners} instead
    */
   readonly retryOptions?: ProviderRetryOptions;
-}
-
-/**
- * Workflow job parameters as parsed from the webhook event. Pass these into your runner executor and run something like:
- *
- * ```sh
- * ./config.sh --unattended --url "{REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL}" --name "${RUNNER_NAME}" --disableupdate
- * ```
- *
- * All parameters are specified as step function paths and therefore must be used only in step function task parameters.
- */
-export interface RunnerRuntimeParameters {
-  /**
-   * Path to runner token used to register token.
-   */
-  readonly runnerTokenPath: string;
 
   /**
-   * Path to desired runner name. We specifically set the name to make troubleshooting easier.
+   * Add default labels based on OS and architecture of the runner. This will tell GitHub Runner to add default labels like `self-hosted`, `linux`, `x64`, and `arm64`.
+   *
+   * @default true
    */
-  readonly runnerNamePath: string;
-
-  /**
-   * Path to GitHub domain. Most of the time this will be github.com but for self-hosted GitHub instances, this will be different.
-   */
-  readonly githubDomainPath: string;
-
-  /**
-   * Path to repository owner name.
-   */
-  readonly ownerPath: string;
-
-  /**
-   * Path to repository name.
-   */
-  readonly repoPath: string;
-
-  /**
-   * Repository or organization URL to register runner at.
-   */
-  readonly registrationUrl: string;
-
+  readonly defaultLabels?: boolean;
 }
 
 /**
@@ -417,6 +398,11 @@ export interface IRunnerProviderStatus {
   readonly labels: string[];
 
   /**
+   * CDK construct node path for this provider.
+   */
+  readonly constructPath?: string;
+
+  /**
    * VPC where runners will be launched.
    */
   readonly vpcArn?: string;
@@ -448,7 +434,9 @@ export interface IRunnerProviderStatus {
 }
 
 /**
- * Interface for all runner providers. Implementations create all required resources and return a step function task that starts those resources from {@link getStepFunctionTask}.
+ * Interface for all runner providers.
+ *
+ * This interface cannot be implemented by external code. If the built-in providers don't cover your use case, open an issue so we can discuss it.
  */
 export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, IConstruct {
   /**
@@ -466,37 +454,177 @@ export interface IRunnerProvider extends ec2.IConnectable, iam.IGrantable, ICons
    * Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
    */
   readonly logGroup: logs.ILogGroup;
+}
+
+/**
+ * Contract between GitHubRunners and its providers, both normal and composite. It's hidden from the public API
+ * because the state machine has one shared fragment per provider family, and we only implement the families in
+ * this library.
+ *
+ * @internal
+ */
+export interface IParameterizedRunnerProvider extends IConstruct {
+  /**
+   * GitHub Actions labels used for this provider.
+   */
+  readonly labels: string[];
+
 
   /**
-   * List of step functions errors that should be retried.
+   * Runtime configuration for this provider. We embed it in the state machine definition and the family fragments
+   * read it from `$.providerParams`. Must be JSON-serializable, but can contain CloudFormation tokens.
    *
-   * @deprecated do not use
+   * A config can chain another one at `fallback` to try when it fails, or hold a `distribute` list of weighted
+   * configs to pick from.
    */
-  readonly retryableErrors: string[];
+  _runnerConfig(): AnyRunnerConfig;
 
   /**
-   * Generate step function tasks that execute the runner.
-   *
-   * Called by GithubRunners and shouldn't be called manually.
-   *
-   * @param parameters specific build parameters
+   * Grant the state machine role whatever the family fragment needs to run this particular provider.
    */
-  getStepFunctionTask(parameters: RunnerRuntimeParameters): stepfunctions.IChainable;
+  _grantStateMachine(stateMachineRole: iam.IGrantable): void;
 
   /**
-   * An optional method that modifies the role of the state machine after all the tasks have been generated. This can be used to add additional policy
-   * statements to the state machine role that are not automatically added by the task returned from {@link getStepFunctionTask}.
-   *
-   * @param stateMachineRole role for the state machine that executes the task returned from {@link getStepFunctionTask}.
+   * Return status of the runner provider to be used in the main status function. Also gives the status function any
+   * needed permissions to query the Docker image or AMI. Composite providers return one status per sub-provider.
    */
-  grantStateMachine(stateMachineRole: iam.IGrantable): void;
+  _status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus | IRunnerProviderStatus[];
+}
+
+/**
+ * Check whether a provider implements the internal contract.
+ *
+ * instanceof doesn't really work in CDK so duck-type instead.
+ *
+ * @internal
+ */
+export function isParameterizedRunnerProvider(provider: IConstruct): provider is IParameterizedRunnerProvider {
+  return '_runnerConfig' in provider;
+}
+
+/**
+ * Reference paths to the runner values the execution input carries. Written once here so a rename can't quietly
+ * miss a fragment.
+ *
+ * @internal
+ */
+export const RUNNER_INPUT = {
+  token: '$.runner.token',
+  name: '$$.Execution.Name',
+  labels: '$.labels',
+  domain: '$.runner.domain',
+  owner: '$.owner',
+  repo: '$.repo',
+  registrationUrl: '$.runner.registrationUrl',
+} as const;
+
+/**
+ * Reference path to a field of a provider's runner config. Typed on the family's config so renaming a field breaks every fragment that reads it.
+ *
+ * @internal
+ */
+export function providerParam<C>(key: keyof C & string): string {
+  return `$.providerParams.${key}`;
+}
+
+/**
+ * Fields every runner config carries.
+ *
+ * @internal
+ */
+export interface RunnerConfig {
+  /** family whose fragment runs this config */
+  readonly family: string;
+  /** config to try when this one fails */
+  readonly fallback?: RunnerConfig;
+  /** provider that actually runs the job, for tagging, when it isn't `$.provider` */
+  readonly provider: string;
+  /** runner group this config registers with, or an empty string. families pass their own shape to the runner */
+  readonly runnerGroup: string;
+  /** tags the provider sets on whatever it creates, before the standard runner tags get merged in */
+  readonly tags?: { readonly Key: string; readonly Value: string }[];
+  /** ECS won't take the labels as they come in -- no commas, no parenthesis -- so its configs ask for a cleaned up labels tag */
+  readonly cleanLabels?: boolean;
+}
+
+/**
+ * A config that picks one of several weighted configs at runtime. Composite distribution providers return this
+ * instead of a runner config of their own.
+ *
+ * @internal
+ */
+export interface DistributedRunnerConfig {
+  /** sum of every weight, so a random number in [0, totalWeight) can be compared against the thresholds */
+  readonly totalWeight: number;
+  /** running weight sums, paired with the config to use below each one */
+  readonly distribute: {
+    readonly threshold: number;
+    readonly config: AnyRunnerConfig;
+  }[];
+}
+
+/**
+ * Runner configs whose runner picks up its group and label flags from the environment.
+ *
+ * @internal
+ */
+export interface RunnerEnvConfig extends RunnerConfig {
+  readonly group1: string;
+  readonly group2: string;
+  readonly defaultLabels: string;
+}
+
+/**
+ * Either kind of config the state machine can select.
+ *
+ * @internal
+ */
+export type AnyRunnerConfig = RunnerConfig | DistributedRunnerConfig;
+
+/**
+ * Environment variables we pass to the runner, in the order we've always passed them. `format` renders one, so
+ * each family can use whatever shape its API wants.
+ *
+ * @internal
+ */
+export function runnerEnvironment(format: (name: string, value: string) => any): any[] {
+  const p = providerParam<RunnerEnvConfig>;
+  return [
+    format('RUNNER_TOKEN', RUNNER_INPUT.token),
+    format('RUNNER_NAME', RUNNER_INPUT.name),
+    format('RUNNER_LABEL', RUNNER_INPUT.labels),
+    format('RUNNER_GROUP1', p('group1')),
+    format('RUNNER_GROUP2', p('group2')),
+    format('DEFAULT_LABELS', p('defaultLabels')),
+    format('GITHUB_DOMAIN', RUNNER_INPUT.domain),
+    format('OWNER', RUNNER_INPUT.owner),
+    format('REPO', RUNNER_INPUT.repo),
+    format('REGISTRATION_URL', RUNNER_INPUT.registrationUrl),
+  ];
+}
+
+/**
+ * Interface for composite runner providers that combine multiple sub-providers.
+ * Unlike IRunnerProvider, composite providers do not have connections, grant capabilities,
+ * or log groups as they delegate to their sub-providers.
+ *
+ * Note that this interface cannot be implemented by external code. Use {@link CompositeProvider} factory methods.
+ */
+export interface ICompositeProvider extends IConstruct {
+  /**
+   * GitHub Actions labels used for this provider.
+   *
+   * These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+   * based on runs-on. We use match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+   * job's labels, this provider will be chosen and spawn a new runner.
+   */
+  readonly labels: string[];
 
   /**
-   * Return status of the runner provider to be used in the main status function. Also gives the status function any needed permissions to query the Docker image or AMI.
-   *
-   * @param statusFunctionRole grantable for the status function
+   * All sub-providers contained in this composite provider.
+   * This is used to extract providers for metric filters and other operations.
    */
-  status(statusFunctionRole: iam.IGrantable): IRunnerProviderStatus;
+  readonly providers: IRunnerProvider[];
 }
 
 /**
@@ -548,7 +676,7 @@ export abstract class BaseProvider extends Construct {
 
   protected labelsFromProperties(defaultLabel: string, propsLabel: string | undefined, propsLabels: string[] | undefined): string[] {
     if (propsLabels && propsLabel) {
-      throw new Error('Must supply either `label` or `labels` in runner properties, but not both. Try removing the `label` property.');
+      cdk.Annotations.of(this).addError('Must supply either `label` or `labels` in runner properties, but not both. Try removing the `label` property.');
     }
 
     if (propsLabels) {
@@ -568,7 +696,7 @@ export abstract class BaseProvider extends Construct {
  *
  * @internal
  */
-export function amiRootDevice(scope: Construct, ami?: string) {
+export function amiRootDevice(scope: Construct, ami?: string, cacheKey?: string) {
   const crHandler = singletonLambda(AmiRootDeviceFunction, scope, 'AMI Root Device Reader', {
     description: 'Custom resource handler that discovers the boot drive device name for a given AMI',
     timeout: cdk.Duration.minutes(1),
@@ -592,6 +720,8 @@ export function amiRootDevice(scope: Construct, ami?: string) {
     resourceType: 'Custom::AmiRootDevice',
     properties: {
       Ami: ami ?? '',
+      CacheKey: cacheKey,
     },
   });
 }
+
