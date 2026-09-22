@@ -386,4 +386,26 @@ describe('GitHubRunners', () => {
       }),
     });
   });
+
+  test('Dashboard creates required metric filters', () => {
+    const runners = new GitHubRunners(stack, 'runners', {
+      providers: [new LambdaRunnerProvider(stack, 'p1')],
+    });
+
+    runners.createDashboard('test-dashboard');
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties('AWS::CloudWatch::Dashboard', {
+      DashboardName: 'test-dashboard',
+    });
+
+    // the dashboard is useless without the metrics behind it
+    template.hasResourceProperties('AWS::Logs::MetricFilter', Match.objectLike({
+      MetricTransformations: Match.arrayWith([Match.objectLike({ MetricName: 'JobCompleted' })]),
+    }));
+    template.hasResourceProperties('AWS::Logs::MetricFilter', Match.objectLike({
+      MetricTransformations: Match.arrayWith([Match.objectLike({ MetricName: 'StolenRunners' })]),
+    }));
+  });
 });

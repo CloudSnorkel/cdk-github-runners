@@ -3343,6 +3343,7 @@ new GitHubRunners(scope: Construct, id: string, props?: GitHubRunnersProps)
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.with">with</a></code> | Applies one or more mixins to this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.createDashboard">createDashboard</a></code> | Creates a CloudWatch dashboard with the metrics you need to know if your runners are healthy. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.createLogsInsightsQueries">createLogsInsightsQueries</a></code> | Creates CloudWatch Logs Insights saved queries that can be used to debug issues with the runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic">failedImageBuildsTopic</a></code> | Creates a topic for notifications when a runner image build fails. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed">metricFailed</a></code> | Metric for failed runner executions. |
@@ -3379,6 +3380,36 @@ constructs.
 - *Type:* ...constructs.IMixin[]
 
 The mixins to apply.
+
+---
+
+##### `createDashboard` <a name="createDashboard" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.createDashboard"></a>
+
+```typescript
+public createDashboard(name?: string): Dashboard
+```
+
+Creates a CloudWatch dashboard with the metrics you need to know if your runners are healthy.
+
+It answers the questions you're most likely to ask:
+
+* Are jobs running and passing? See "Jobs completed by status".
+* Which runner is broken? See "Failed jobs by runner label".
+* Are jobs stuck because runners fail to start? See "Runner executions".
+* How long do runners take (and therefore cost)? See "Runner time".
+* Is GitHub reaching the webhook at all? See "Webhook".
+* What exactly went wrong? See "Recent errors".
+
+**WARNING:** this method calls {@link metricJobCompleted} and {@link metricStolenRunners} which create metric
+filters. These resources may incur cost.
+
+###### `name`<sup>Optional</sup> <a name="name" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.createDashboard.parameter.name"></a>
+
+- *Type:* string
+
+Name of the dashboard.
+
+Defaults to "GitHub-Runners".
 
 ---
 

@@ -36,6 +36,9 @@ class MonitoringStack extends Stack {
       alarmDescription: 'Alert when runner starts fail',
     });
 
+    // Create a CloudWatch dashboard with the most useful runner metrics in one place
+    runners.createDashboard();
+
     // Notify us when runner image builds fail
     // Runner images are rebuilt every week by default. Failed builds mean you'll get
     // stuck with out-of-date software, which may lead to security vulnerabilities

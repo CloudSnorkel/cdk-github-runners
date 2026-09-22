@@ -1295,6 +1295,133 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   /**
+   * Creates a CloudWatch dashboard with the metrics you need to know if your runners are healthy.
+   *
+   * It answers the questions you're most likely to ask:
+   *
+   * * Are jobs running and passing? See "Jobs completed by status".
+   * * Which runner is broken? See "Failed jobs by runner label".
+   * * Are jobs stuck because runners fail to start? See "Runner executions".
+   * * How long do runners take (and therefore cost)? See "Runner time".
+   * * Is GitHub reaching the webhook at all? See "Webhook".
+   * * What exactly went wrong? See "Recent errors".
+   *
+   * **WARNING:** this method calls {@link metricJobCompleted} and {@link metricStolenRunners} which create metric filters.
+   * These resources may incur cost.
+   *
+   * This dashboard is very basic. Pull requests and issues are welcome to improve it.
+   *
+   * @param name Name of the dashboard. Defaults to "GitHub-Runners".
+   */
+  public createDashboard(name = 'GitHub-Runners'): cloudwatch.Dashboard {
+    // create the metric filters behind these metrics
+    this.metricJobCompleted();
+    const stolenRunners = this.metricStolenRunners();
+
+    // job metrics have both ProviderLabels and Status dimensions, so we search for them instead of listing every
+    // provider and sub-provider here
+    const jobs = (status: string, label: string) => new cloudwatch.MathExpression({
+      expression: `SUM(SEARCH('{GitHubRunners,ProviderLabels,Status} MetricName="JobCompleted" Status="${status}"', 'Sum'))`,
+      label,
+      usingMetrics: {},
+    });
+
+    const dashboard = new cloudwatch.Dashboard(this, 'Dashboard', {
+      dashboardName: name,
+      defaultInterval: cdk.Duration.days(1),
+    });
+
+    dashboard.addWidgets(new cloudwatch.SingleValueWidget({
+      title: 'Summary',
+      metrics: [
+        jobs('Succeeded', 'Jobs succeeded'),
+        jobs('Failed', 'Jobs failed'),
+        this.metricFailed({ label: 'Runners failed to start' }),
+        stolenRunners.with({ label: 'Stolen runners' }),
+      ],
+      // totals for the dashboard time range instead of just the last period
+      setPeriodToTimeRange: true,
+      width: 24,
+      height: 4,
+    }));
+
+    dashboard.addWidgets(
+      new cloudwatch.GraphWidget({
+        title: 'Jobs completed by status',
+        // status list taken from https://github.com/actions/runner/blob/be9632302ceef50bfb36ea998cea9c94c75e5d4d/src/Sdk/DTWebApi/WebApi/TaskResult.cs
+        left: ['Succeeded', 'SucceededWithIssues', 'Failed', 'Canceled', 'Skipped', 'Abandoned'].map(s => jobs(s, s)),
+        stacked: true,
+        width: 12,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Failed jobs by runner label',
+        // a search expression can't be labeled per provider, so list the providers to keep the legend readable
+        left: [...this.extractUniqueSubProviders()].map(p => new cloudwatch.Metric({
+          namespace: 'GitHubRunners',
+          metricName: 'JobCompleted',
+          dimensionsMap: {
+            ProviderLabels: p.labels.join(','),
+            Status: 'Failed',
+          },
+          label: p.labels.join(', '),
+          statistic: cloudwatch.Stats.SUM,
+        })),
+        stacked: true,
+        width: 12,
+      }),
+    );
+
+    dashboard.addWidgets(
+      new cloudwatch.GraphWidget({
+        title: 'Runner executions',
+        left: [
+          this.metricSucceeded({ label: 'Succeeded' }),
+          this.metricFailed({ label: 'Failed' }),
+          this.orchestrator.metricTimedOut({ label: 'Timed out' }),
+        ],
+        stacked: true,
+        width: 8,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Runner time (including start-up)',
+        left: [
+          this.metricTime({ statistic: cloudwatch.Stats.p(50), label: 'p50' }),
+          this.metricTime({ statistic: cloudwatch.Stats.p(90), label: 'p90' }),
+          this.metricTime({ statistic: cloudwatch.Stats.MAXIMUM, label: 'max' }),
+        ],
+        width: 8,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Webhook',
+        left: [
+          this.webhook.handler.metricInvocations({ label: 'Requests' }),
+          this.webhook.handler.metricErrors({ label: 'Errors' }),
+        ],
+        width: 8,
+      }),
+    );
+
+    // all management functions and the orchestrator share this log group
+    dashboard.addWidgets(new cloudwatch.LogQueryWidget({
+      title: 'Recent errors',
+      logGroupNames: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR).logGroupName],
+      view: cloudwatch.LogQueryVisualizationType.TABLE,
+      queryString: new logs.QueryString({
+        fields: ['@timestamp', '@logStream', 'message'],
+        filterStatements: [
+          'level = "ERROR"',
+        ],
+        sort: '@timestamp desc',
+        limit: 20,
+      }).toString(),
+      width: 24,
+      height: 6,
+    }));
+
+    return dashboard;
+  }
+
+  /**
    * Register a warm runner config hash. All registered hashes are passed to the
    * manager Lambda via WARM_CONFIG_HASHES env var so keepers can detect stale configs.
    *
@@ -1349,81 +1476,5 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     this.warmRunnerQueue.grantSendMessages(this.warmRunnerManager);
 
     return { lambda: this.warmRunnerManager, queue: this.warmRunnerQueue };
-  }
-
-  /**
-   * Creates a CloudWatch dashboard with key metrics for GitHubRunners.
-   *
-   * @param name The name of the dashboard.
-   */
-  public createDashboard(name: string = 'GitHub-Runners'): cloudwatch.Dashboard {
-    const dashboard = new cloudwatch.Dashboard(this, 'Dashboard', {
-      dashboardName: name,
-    });
-
-    dashboard.addWidgets(
-      new cloudwatch.GraphWidget({
-        title: 'Successful jobs by label',
-        left: this.providers.map(p => new cloudwatch.Metric({
-          namespace: 'GitHubRunners',
-          metricName: 'JobCompleted',
-          dimensionsMap: {
-            ProviderLabels: p.labels.join(','),
-            Status: 'Succeeded',
-          },
-          label: p.labels.join(', '),
-          statistic: cloudwatch.Stats.SUM,
-        })),
-        stacked: true,
-        view: cloudwatch.GraphWidgetView.TIME_SERIES,
-        legendPosition: cloudwatch.LegendPosition.BOTTOM,
-      }),
-      new cloudwatch.GraphWidget({
-        title: 'Failed jobs by label and failure',
-        left: this.providers.map(p => new cloudwatch.Metric({
-          namespace: 'GitHubRunners',
-          metricName: 'JobCompleted',
-          dimensionsMap: {
-            ProviderLabels: p.labels.join(','),
-          },
-          label: p.labels.join(', '),
-          statistic: cloudwatch.Stats.SUM,
-        })),
-        stacked: true,
-        view: cloudwatch.GraphWidgetView.TIME_SERIES,
-        legendPosition: cloudwatch.LegendPosition.BOTTOM,
-      }),
-      new cloudwatch.GraphWidget({
-        title: 'Runner Succeeded',
-        left: [this.metricSucceeded()],
-      }),
-      new cloudwatch.GraphWidget({
-        title: 'Runner Failed',
-        left: [this.metricFailed()],
-      }),
-      new cloudwatch.GraphWidget({
-        title: 'Runner Execution Time (ms)',
-        left: [this.metricTime()],
-      }),
-    );
-
-    dashboard.addWidgets(new cloudwatch.LogQueryWidget({
-      logGroupNames: [this.webhook.handler.logGroup.logGroupName],
-      title: 'Recent Webhook Errors',
-      view: cloudwatch.LogQueryVisualizationType.TABLE,
-      queryString: new logs.QueryString({
-        filterStatements: [
-          `strcontains(@logStream, "${this.webhook.handler.functionName}")`,
-          'level = "ERROR"',
-        ],
-        sort: '@timestamp desc',
-        fields: ['@timestamp', 'message'],
-        limit: 20,
-      }).toString(),
-      width: 12,
-      height: 6,
-    }));
-
-    return dashboard;
   }
 }
