@@ -3343,10 +3343,12 @@ new GitHubRunners(scope: Construct, id: string, props?: GitHubRunnersProps)
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.toString">toString</a></code> | Returns a string representation of this construct. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.with">with</a></code> | Applies one or more mixins to this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.createDashboard">createDashboard</a></code> | Creates a CloudWatch dashboard with the metrics you need to know if your runners are healthy. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.createLogsInsightsQueries">createLogsInsightsQueries</a></code> | Creates CloudWatch Logs Insights saved queries that can be used to debug issues with the runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic">failedImageBuildsTopic</a></code> | Creates a topic for notifications when a runner image build fails. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed">metricFailed</a></code> | Metric for failed runner executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted">metricJobCompleted</a></code> | Metric for the number of GitHub Actions jobs completed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricLambdaErrors">metricLambdaErrors</a></code> | Metric for the number of failed invocations of the management Lambda functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners">metricStolenRunners</a></code> | Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricSucceeded">metricSucceeded</a></code> | Metric for successful executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricTime">metricTime</a></code> | Metric for the interval, in milliseconds, between the time the execution starts and the time it closes. |
@@ -3379,6 +3381,39 @@ constructs.
 - *Type:* ...constructs.IMixin[]
 
 The mixins to apply.
+
+---
+
+##### `createDashboard` <a name="createDashboard" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.createDashboard"></a>
+
+```typescript
+public createDashboard(name?: string): Dashboard
+```
+
+Creates a CloudWatch dashboard with the metrics you need to know if your runners are healthy.
+
+It answers the questions you're most likely to ask:
+
+* Are jobs running and passing? See "Jobs completed by status".
+* Which runner is broken? See "Failed jobs by runner label".
+* Are jobs stuck because runners fail to start? See "Runner executions".
+* How long do runners take (and therefore cost)? See "Runner time".
+* Is GitHub reaching the webhook at all? See "Webhook".
+* Is any of our code failing? See "Lambda errors".
+* What exactly went wrong? See "Recent errors".
+
+**WARNING:** this method calls {@link metricJobCompleted} and {@link metricStolenRunners} which create metric filters.
+These resources may incur cost.
+
+This dashboard is very basic. Pull requests and issues are welcome to improve it.
+
+###### `name`<sup>Optional</sup> <a name="name" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.createDashboard.parameter.name"></a>
+
+- *Type:* string
+
+Name of the dashboard.
+
+Defaults to "GitHub-Runners".
 
 ---
 
@@ -3461,6 +3496,29 @@ It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succe
 ###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted.parameter.props"></a>
 
 - *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
+
+---
+
+##### `metricLambdaErrors` <a name="metricLambdaErrors" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricLambdaErrors"></a>
+
+```typescript
+public metricLambdaErrors(props?: MathExpressionOptions): MathExpression
+```
+
+Metric for the number of failed invocations of the management Lambda functions.
+
+These are the functions that handle webhooks, retrieve runner tokens, stop idle runners, replace stolen runners, etc. Anything over zero means
+jobs may not have gotten a runner. You should use this metric to trigger an alarm.
+
+Only unhandled errors are counted here, as reported by Lambda itself. Errors that are handled and logged, like a webhook with a bad signature,
+are not failed invocations. Use the "Webhook errors" and "Orchestration errors" queries created by {@link createLogsInsightsQueries} to find
+those.
+
+Management functions created after this method is called are not included. Call it last if you use warm runners.
+
+###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricLambdaErrors.parameter.props"></a>
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.MathExpressionOptions
 
 ---
 

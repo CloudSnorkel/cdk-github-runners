@@ -40,6 +40,19 @@ class MonitoringStack(Stack):
             alarm_description="Alert when runner starts fail"
         )
 
+        # Create CloudWatch alarm for errors in our management functions
+        # These handle webhooks, runner tokens, idle runners, etc. When they fail, jobs may
+        # never get a runner at all
+        runners.metric_lambda_errors().create_alarm(
+            self, "LambdaErrorsAlarm",
+            threshold=1,
+            evaluation_periods=1,
+            alarm_description="Alert when management functions fail"
+        )
+
+        # Create a CloudWatch dashboard with the most useful runner metrics in one place
+        runners.create_dashboard()
+
         # Notify us when runner image builds fail
         # Runner images are rebuilt every week by default. Failed builds mean you'll get
         # stuck with out-of-date software, which may lead to security vulnerabilities

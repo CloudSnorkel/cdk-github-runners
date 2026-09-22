@@ -36,6 +36,18 @@ class MonitoringStack extends Stack {
       alarmDescription: 'Alert when runner starts fail',
     });
 
+    // Create CloudWatch alarm for errors in our management functions
+    // These handle webhooks, runner tokens, idle runners, etc. When they fail, jobs may
+    // never get a runner at all
+    runners.metricLambdaErrors().createAlarm(this, 'LambdaErrorsAlarm', {
+      threshold: 1,
+      evaluationPeriods: 1,
+      alarmDescription: 'Alert when management functions fail',
+    });
+
+    // Create a CloudWatch dashboard with the most useful runner metrics in one place
+    runners.createDashboard();
+
     // Notify us when runner image builds fail
     // Runner images are rebuilt every week by default. Failed builds mean you'll get
     // stuck with out-of-date software, which may lead to security vulnerabilities

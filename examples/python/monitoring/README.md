@@ -6,6 +6,7 @@ This example demonstrates how to set up CloudWatch alarms and SNS notifications 
 
 - How to create CloudWatch alarms for failed runner starts
 - How to set up email notifications for failed runner image builds
+- How to create a CloudWatch dashboard with all the important runner metrics
 - How to monitor runner health and get notified of issues
 
 ## Monitoring Capabilities

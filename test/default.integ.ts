@@ -418,6 +418,7 @@ runners.metricJobCompleted();
 runners.failedImageBuildsTopic();
 runners.metricStolenRunners();
 runners.createLogsInsightsQueries();
+runners.createDashboard();
 
 if (testDeploymentFailureAfterImageBuilt) {
   const rollbackTestHandle = new cloudformation.CfnWaitConditionHandle(stack, 'Rollback Test Handle');
