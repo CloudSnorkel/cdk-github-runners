@@ -219,6 +219,11 @@ function action () {
 }
 try {
   setup_logs
+  $setupLogsStatus = $LASTEXITCODE
+  if ($setupLogsStatus -ne 0) {
+    aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" --error Runner.SetupLogs.$setupLogsStatus --cause "Failed to configure CloudWatch agent (exit $setupLogsStatus), no runner log was uploaded"
+    return
+  }
   $r = action
   if ($r -eq 0) {
     aws stepfunctions send-task-success --task-token "$TASK_TOKEN" --task-output '{ }' 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
