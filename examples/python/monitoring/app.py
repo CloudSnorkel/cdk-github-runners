@@ -41,7 +41,7 @@ class MonitoringStack(Stack):
         )
 
         # Create a CloudWatch dashboard with the most useful runner metrics in one place
-        runners.createDashboard()
+        runners.create_dashboard()
 
         # Notify us when runner image builds fail
         # Runner images are rebuilt every week by default. Failed builds mean you'll get
