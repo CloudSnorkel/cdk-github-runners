@@ -20587,7 +20587,7 @@
        {
         "Ref": "SetupLog8A8B0E5C"
        },
-       "' | fields @timestamp, @logStream, message\\n| filter level = \\\"ERROR\\\"\\n| sort @timestamp desc\\n| limit 20\"}}]}"
+       "' | fields @timestamp, @logStream, coalesce(message.notice, message.errorMessage, message.name) as error, @message\\n| filter level = \\\"ERROR\\\"\\n| sort @timestamp desc\\n| limit 20\"}}]}"
       ]
      ]
     },

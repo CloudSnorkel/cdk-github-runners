@@ -1468,7 +1468,14 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       ],
       view: cloudwatch.LogQueryVisualizationType.TABLE,
       queryString: new logs.QueryString({
-        fields: ['@timestamp', '@logStream', 'message'],
+        // we log JSON, so `message` is an object and shows up as an empty column. pick out the human readable part of
+        // the errors we log ourselves and of the ones Lambda logs for us, and keep the raw record for the details.
+        fields: [
+          '@timestamp',
+          '@logStream',
+          'coalesce(message.notice, message.errorMessage, message.name) as error',
+          '@message',
+        ],
         filterStatements: [
           'level = "ERROR"',
         ],
