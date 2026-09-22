@@ -3507,12 +3507,12 @@ public metricLambdaErrors(props?: MathExpressionOptions): MathExpression
 
 Metric for the number of failed invocations of the management Lambda functions.
 
-These are the functions that handle webhooks, retrieve runner tokens, stop idle runners, replace stolen runners,
-etc. Anything over zero means jobs may not have gotten a runner. You should use this metric to trigger an alarm.
+These are the functions that handle webhooks, retrieve runner tokens, stop idle runners, replace stolen runners, etc. Anything over zero means
+jobs may not have gotten a runner. You should use this metric to trigger an alarm.
 
-Only unhandled errors are counted here, as reported by Lambda itself. Errors that are handled and logged, like a
-webhook with a bad signature, are not failed invocations. Use the "Webhook errors" and "Orchestration errors"
-queries created by {@link createLogsInsightsQueries} to find those.
+Only unhandled errors are counted here, as reported by Lambda itself. Errors that are handled and logged, like a webhook with a bad signature,
+are not failed invocations. Use the "Webhook errors" and "Orchestration errors" queries created by {@link createLogsInsightsQueries} to find
+those.
 
 Management functions created after this method is called are not included. Call it last if you use warm runners.
 
