@@ -32,6 +32,8 @@ import { isGpuInstanceType, MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT } f
 // this script is specifically made so `poweroff` is absolutely always called
 // each `{}` is a variable coming from `params` below
 const linuxUserDataTemplate = `#!/bin/bash
+trap 'sleep 10; poweroff' EXIT # give cloudwatch agent 10 seconds to upload logs and ALWAYS poweroff on any type of exit
+
 set -x -o pipefail
 
 TASK_TOKEN="{}"
@@ -62,7 +64,7 @@ heartbeat () {
   done
 }
 setup_logs () {
-  cat <<EOF > /tmp/log.conf || exit 1
+  cat <<EOF > /tmp/log.conf || return 1
   {
     "logs": {
       "log_stream_name": "unknown",
@@ -87,7 +89,7 @@ setup_logs () {
     }
   }
 EOF
-  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || exit 2
+  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || return 2
 }
 action () {
   # Determine the value of RUNNER_FLAGS
@@ -117,13 +119,16 @@ action () {
   fi
 }
 heartbeat &
-if setup_logs && action |& tee /var/log/runner.log; then
+
+setup_logs
+setup_logs_status=$?
+if [ $setup_logs_status -ne 0 ]; then
+  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" --error Runner.SetupLogs.$setup_logs_status --cause "Failed to configure CloudWatch agent (exit $setup_logs_status), no runner log was uploaded"
+elif action |& tee /var/log/runner.log; then
   aws stepfunctions send-task-success --task-token "$TASK_TOKEN" --task-output '{"ok": true}' |& tee -a /var/log/runner.log
 else
   aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" --error Runner.Error.$? --cause "Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $(tail -n 1 /var/log/runner.log)" |& tee -a /var/log/runner.log
 fi
-sleep 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
-poweroff
 `.replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
 
 // this script is specifically made so `poweroff` is absolutely always called
@@ -212,16 +217,24 @@ function action () {
 
   return 0
 }
-setup_logs
-$r = action
-if ($r -eq 0) {
-  aws stepfunctions send-task-success --task-token "$TASK_TOKEN" --task-output '{ }' 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
-} else {
-  $lastLine = Get-Content -Path C:/actions/runner.log -Tail 1 -ErrorAction SilentlyContinue
-  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" --error Runner.Error.$r --cause "Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $lastLine" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+try {
+  setup_logs
+  $setupLogsStatus = $LASTEXITCODE
+  if ($setupLogsStatus -ne 0) {
+    aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" --error Runner.SetupLogs.$setupLogsStatus --cause "Failed to configure CloudWatch agent (exit $setupLogsStatus), no runner log was uploaded"
+    return
+  }
+  $r = action
+  if ($r -eq 0) {
+    aws stepfunctions send-task-success --task-token "$TASK_TOKEN" --task-output '{ }' 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  } else {
+    $lastLine = Get-Content -Path C:/actions/runner.log -Tail 1 -ErrorAction SilentlyContinue
+    aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" --error Runner.Error.$r --cause "Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $lastLine" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  }
+} finally {
+  Start-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
+  Stop-Computer -ComputerName localhost -Force
 }
-Start-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs
-Stop-Computer -ComputerName localhost -Force
 </powershell>
 `.replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
 
