@@ -2,6 +2,7 @@ const mockSfnSend = jest.fn();
 const mockGetOctokit = jest.fn();
 const mockGetRunner = jest.fn();
 const mockDeleteRunner = jest.fn();
+const mockTerminateRunnerInstances = jest.fn();
 
 jest.mock('@aws-sdk/client-sfn', () => ({
   SFNClient: jest.fn(() => ({ send: (...args: unknown[]) => mockSfnSend(...args) })),
@@ -13,6 +14,10 @@ jest.mock('../src/lambda-github', () => ({
   getOctokit: (...args: unknown[]) => mockGetOctokit(...args),
   getRunner: (...args: unknown[]) => mockGetRunner(...args),
   deleteRunner: (...args: unknown[]) => mockDeleteRunner(...args),
+}));
+
+jest.mock('../src/lambda-ec2', () => ({
+  terminateRunnerInstances: (...args: unknown[]) => mockTerminateRunnerInstances(...args),
 }));
 
 // Import handler after mocks are set up
@@ -48,6 +53,8 @@ describe('idle-runner-repear', () => {
       octokit: {},
       githubSecrets: { runnerLevel: 'repo' },
     });
+
+    mockTerminateRunnerInstances.mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -132,5 +139,62 @@ describe('idle-runner-repear', () => {
 
     expect(mockSfnSend.mock.calls.map(c => c[0].command)).toEqual(['DescribeExecution', 'StopExecution']);
     expect(mockDeleteRunner).toHaveBeenCalledWith({}, 'repo', 'my-org', 'my-repo', 42);
+  });
+
+  // the step function's catchers never run on a successful execution, so this is the only thing that will ever
+  // notice an instance whose `poweroff` wedged after the job was reported done
+  test('Terminates instances left behind by a successful execution', async () => {
+    mockSfnSend.mockResolvedValue({ status: 'SUCCEEDED' });
+
+    const result = await handler(EVENT);
+
+    expect(retried(result)).toBe(false);
+    expect(mockTerminateRunnerInstances).toHaveBeenCalledWith('runner-1');
+    // it never had to ask GitHub anything
+    expect(mockGetRunner).not.toHaveBeenCalled();
+  });
+
+  // a runner that never registered is what a failed boot looks like. GitHub has nothing to clean up, EC2 might
+  test('Terminates instances when a stopped execution left no runner registered', async () => {
+    mockSfnSend.mockResolvedValue({ status: 'ABORTED' });
+    mockGetRunner.mockResolvedValue(undefined);
+
+    const result = await handler(EVENT);
+
+    expect(retried(result)).toBe(false);
+    expect(mockTerminateRunnerInstances).toHaveBeenCalledWith('runner-1');
+  });
+
+  // StopExecution skips the step function's catchers, so the reaper has to clean up the instance it just orphaned
+  test('Terminates the instance behind a reaped idle runner', async () => {
+    mockSfnSend.mockResolvedValue({ status: 'RUNNING' });
+    mockGetRunner.mockResolvedValue(IDLE_RUNNER);
+    mockDeleteRunner.mockResolvedValue(undefined);
+
+    const result = await handler(EVENT);
+
+    expect(retried(result)).toBe(false);
+    expect(mockDeleteRunner).toHaveBeenCalled();
+    expect(mockTerminateRunnerInstances).toHaveBeenCalledWith('runner-1');
+  });
+
+  test('Leaves a busy runner alone', async () => {
+    mockSfnSend.mockResolvedValue({ status: 'RUNNING' });
+    mockGetRunner.mockResolvedValue(BUSY_RUNNER);
+
+    await handler(EVENT);
+
+    expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
+  });
+
+  // the idle timeout hasn't been reached, so the runner is still allowed to pick up a job
+  test('Leaves a freshly started idle runner alone', async () => {
+    mockSfnSend.mockResolvedValue({ status: 'RUNNING' });
+    mockGetRunner.mockResolvedValue(FRESH_RUNNER);
+
+    await handler(EVENT);
+
+    expect(mockDeleteRunner).not.toHaveBeenCalled();
+    expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
   });
 });

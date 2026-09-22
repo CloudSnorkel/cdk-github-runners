@@ -1,11 +1,16 @@
 const mockGetOctokit = jest.fn();
 const mockGetRunner = jest.fn();
 const mockDeleteRunner = jest.fn();
+const mockTerminateRunnerInstances = jest.fn();
 
 jest.mock('../src/lambda-github', () => ({
   getOctokit: (...args: unknown[]) => mockGetOctokit(...args),
   getRunner: (...args: unknown[]) => mockGetRunner(...args),
   deleteRunner: (...args: unknown[]) => mockDeleteRunner(...args),
+}));
+
+jest.mock('../src/lambda-ec2', () => ({
+  terminateRunnerInstances: (...args: unknown[]) => mockTerminateRunnerInstances(...args),
 }));
 
 // Import handler after mocks are set up
@@ -31,6 +36,8 @@ describe('delete-failed-runner', () => {
       octokit: {},
       githubSecrets: { runnerLevel: 'repo' },
     });
+
+    mockTerminateRunnerInstances.mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -41,7 +48,7 @@ describe('delete-failed-runner', () => {
     mockGetRunner.mockResolvedValue(RUNNER);
     mockDeleteRunner.mockResolvedValue(undefined);
 
-    await expect(handler(EVENT)).resolves.toEqual({ runnerFound: true, runnerDeleted: true });
+    await expect(handler(EVENT)).resolves.toEqual({ runnerFound: true, runnerDeleted: true, instancesTerminated: [] });
 
     expect(mockDeleteRunner).toHaveBeenCalledWith({}, 'repo', 'my-org', 'my-repo', 42);
   });
@@ -51,7 +58,7 @@ describe('delete-failed-runner', () => {
   test('Succeeds when the runner is already gone', async () => {
     mockGetRunner.mockResolvedValue(undefined);
 
-    await expect(handler(EVENT)).resolves.toEqual({ runnerFound: false, runnerDeleted: false });
+    await expect(handler(EVENT)).resolves.toEqual({ runnerFound: false, runnerDeleted: false, instancesTerminated: [] });
 
     expect(mockDeleteRunner).not.toHaveBeenCalled();
     expect(console.warn).toHaveBeenCalled();
@@ -62,7 +69,7 @@ describe('delete-failed-runner', () => {
     mockGetRunner.mockResolvedValue(RUNNER);
     mockDeleteRunner.mockRejectedValue(new Error('Internal server error'));
 
-    await expect(handler(EVENT)).resolves.toEqual({ runnerFound: true, runnerDeleted: false });
+    await expect(handler(EVENT)).resolves.toEqual({ runnerFound: true, runnerDeleted: false, instancesTerminated: [] });
 
     expect(console.error).toHaveBeenCalled();
   });
@@ -73,5 +80,35 @@ describe('delete-failed-runner', () => {
     mockDeleteRunner.mockRejectedValue(new Error('Bad request - runner "runner-1" is still running a job'));
 
     await expect(handler(EVENT)).rejects.toMatchObject({ name: 'RunnerBusy' });
+  });
+
+  // an EC2 runner whose user data never ran never registers, so this is the path that cleans up after a boot that
+  // never reached `poweroff`
+  test('Terminates leftover instances when the runner never registered', async () => {
+    mockGetRunner.mockResolvedValue(undefined);
+    mockTerminateRunnerInstances.mockResolvedValue(['i-123']);
+
+    await expect(handler(EVENT)).resolves.toEqual({ runnerFound: false, runnerDeleted: false, instancesTerminated: ['i-123'] });
+
+    expect(mockTerminateRunnerInstances).toHaveBeenCalledWith('runner-1');
+  });
+
+  test('Terminates leftover instances after deleting the runner', async () => {
+    mockGetRunner.mockResolvedValue(RUNNER);
+    mockDeleteRunner.mockResolvedValue(undefined);
+    mockTerminateRunnerInstances.mockResolvedValue(['i-456']);
+
+    await expect(handler(EVENT)).resolves.toEqual({ runnerFound: true, runnerDeleted: true, instancesTerminated: ['i-456'] });
+  });
+
+  // GitHub says a job is still running on this runner. the task token is dead, but that job's instance is the one we
+  // would be killing, so the retry has to play out instead
+  test('Does not terminate anything while the runner is still busy', async () => {
+    mockGetRunner.mockResolvedValue(RUNNER);
+    mockDeleteRunner.mockRejectedValue(new Error('Bad request - runner "runner-1" is still running a job'));
+
+    await expect(handler(EVENT)).rejects.toMatchObject({ name: 'RunnerBusy' });
+
+    expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
   });
 });

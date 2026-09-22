@@ -1,6 +1,7 @@
 import { DescribeExecutionCommand, SFNClient, StopExecutionCommand } from '@aws-sdk/client-sfn';
 import type { Octokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
 import * as AWSLambda from 'aws-lambda';
+import { terminateRunnerInstances } from './lambda-ec2';
 import { deleteRunner, getOctokit, getRunner, GitHubSecrets } from './lambda-github';
 
 interface IdleReaperLambdaInput {
@@ -37,6 +38,9 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
         runnerName: input.runnerName,
         input,
       });
+      // the runner reported success, so any instance still running for it has outlived its job. that can happen when `poweroff` doesn't work for any
+      // reason. generally in rare cases, but we don't want to leave expensive instances behind.
+      await terminateRunnerInstances(input.runnerName);
       continue;
     }
 
@@ -67,12 +71,14 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
     const runner = await getRunner(octokit, secrets.runnerLevel, input.owner, input.repo, input.runnerName);
     if (!runner) {
       if (executionStopped) {
-        // nothing was left behind
         console.log({
           notice: 'Stopped step function has no runner to clean up',
           runnerName: input.runnerName,
           input,
         });
+        // no runner on GitHub, terminate any instance that didn't properly power-off due to some extreme failure (e.g. IMDS failure, OOM killer,
+        // wedged poweroff, etc.). the step function is stopped, so it won't be able to clean up after itself.
+        await terminateRunnerInstances(input.runnerName);
         continue;
       }
 
@@ -188,6 +194,11 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
             retryLater();
             continue;
           }
+
+          // StopExecution above skips the step function's cleaners, so this is the only place that can terminate the instance behind an idle runner.
+          // the runner was idle and is now deleted, so nothing is running on it. in most cases the instance will power itself off, but if it doesn't,
+          // we need to terminate it to avoid paying for a dead instance.
+          await terminateRunnerInstances(input.runnerName);
         } else {
           // still idle, timeout not reached -- retry later
           retryLater();

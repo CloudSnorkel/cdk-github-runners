@@ -6,10 +6,10 @@ import {
   Annotations,
   aws_cloudwatch as cloudwatch,
   aws_ec2 as ec2,
+  aws_iam as iam,
   aws_lambda as lambda,
   aws_lambda_event_sources as lambda_event_sources,
   aws_logs as logs,
-  aws_iam as iam,
   aws_sns as sns,
   aws_sqs as sqs,
   aws_stepfunctions as stepfunctions,
@@ -19,6 +19,7 @@ import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
 import { DeleteFailedRunnerFunction } from './delete-failed-runner-function';
 import { IdleRunnerRepearFunction } from './idle-runner-repear-function';
+import { ReservedTags } from './lambda-common';
 import {
   AnyRunnerConfig,
   AwsImageBuilderFailedBuildNotifier,
@@ -64,7 +65,9 @@ const FAMILY_FRAGMENTS = new Map<string, (scope: Construct) => stepfunctions.ICh
  *
  * Tags are included even for provider that may not use them for debugging purposes. They are visible in the step function state.
  *
- * The standard tags only have values at runtime, so providers can't bake them in at synth time. Provider tags can override our tags.
+ * The standard tags only have values at runtime, so providers can't bake them in at synth time. Provider tags can override our tags, except for the
+ * `GitHubRunners:` prefixed ones, which providers reject at synth. That keeps `GitHubRunners:Runner`, used for instance termination, as something
+ * only we can set, and it's also why no duplicate key can never reach `ec2:RunInstances`, which rejects those.
  *
  * `GitHubRunners:Provider` should name the provider that actually runs the job, which is not `$.provider` when we got here through a composite, so
  * the config's own `provider` field wins when it has one.
@@ -75,7 +78,7 @@ const FAMILY_FRAGMENTS = new Map<string, (scope: Construct) => stepfunctions.ICh
  * Labels are tagged as they come in, so the tag shows what the runner registers with, warm runner and provider selector labels included. Configs
  * that ask for `cleanLabels` get the same labels with spaces instead of the commas ECS rejects, and anything else it rejects as an underscore.
  */
-function selectProviderParams(configExpr: string): string {
+function selectProviderParams(scope: Construct, configExpr: string): string {
   return `$merge([
     $states.input,
     {'providerParams': (
@@ -85,9 +88,11 @@ function selectProviderParams(configExpr: string): string {
       $merge([{'family': 'provider not found', 'runnerGroup': ''}, $config, {'tags': $append(
         [
           {'Key': 'Name', 'Value': $states.context.Execution.Name},
-          {'Key': 'GitHubRunners:Provider', 'Value': $config.provider},
-          {'Key': 'GitHubRunners:Repo', 'Value': $states.input.owner & '/' & $states.input.repo},
-          {'Key': 'GitHubRunners:Labels', 'Value': $config.cleanLabels ? $replace($join($split($states.input.labels, ','), ' '), /[^A-Za-z0-9 _.:\\/=+@-]/, '_') : $states.input.labels}
+          {'Key': '${ReservedTags.STACK}', 'Value': '${cdk.Stack.of(scope).stackName}'},
+          {'Key': '${ReservedTags.PROVIDER}', 'Value': $config.provider},
+          {'Key': '${ReservedTags.REPO}', 'Value': $states.input.owner & '/' & $states.input.repo},
+          {'Key': '${ReservedTags.LABELS}', 'Value': $config.cleanLabels ? $replace($join($split($states.input.labels, ','), ' '), /[^A-Za-z0-9 _.:\\/=+@-]/, '_') : $states.input.labels},
+          {'Key': '${ReservedTags.RUNNER}', 'Value': $states.context.Execution.Name}
         ][$not(Key in $config.tags.Key)],
         $config.tags)}])
     )}
@@ -544,7 +549,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     const selectConfig = new stepfunctions.Pass(this, 'Select Provider Config', {
       queryLanguage: stepfunctions.QueryLanguage.JSONATA,
-      outputs: `{% ${selectProviderParams('$lookup($providerConfigs, $states.input.provider)')} %}`,
+      outputs: `{% ${selectProviderParams(this, '$lookup($providerConfigs, $states.input.provider)')} %}`,
     });
 
     const providerFamilyChooser = new stepfunctions.Choice(this, 'Choose Provider Family');
@@ -588,7 +593,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     const fallbackChoice = new stepfunctions.Choice(this, 'Fallback Configured?');
     const useFallback = new stepfunctions.Pass(this, 'Use Fallback Config', {
       queryLanguage: stepfunctions.QueryLanguage.JSONATA,
-      outputs: `{% ${selectProviderParams('$states.input.providerParams.fallback')} %}`,
+      outputs: `{% ${selectProviderParams(this, '$states.input.providerParams.fallback')} %}`,
     });
     const allFailed = new stepfunctions.Fail(this, 'All Attempts Failed', {
       // re-raise the last error so the outer catch and retry see the original failure
@@ -727,6 +732,33 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     return func;
   }
 
+  /**
+   * Let a cleanup function terminate EC2 instances that outlived their job.
+   */
+  private grantRunnerInstanceCleanup(func: lambda.Function) {
+    func.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['ec2:DescribeInstances'],
+      resources: ['*'],
+    }));
+
+    func.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['ec2:TerminateInstances'],
+      resources: ['*'],
+      conditions: {
+        // this is a runner from our stack
+        StringEquals: {
+          [`ec2:ResourceTag/${ReservedTags.STACK}`]: cdk.Stack.of(this).stackName,
+        },
+        // "the tag exists", whatever runner name is in it
+        Null: {
+          [`ec2:ResourceTag/${ReservedTags.RUNNER}`]: 'false',
+        },
+      },
+    }));
+
+    func.addEnvironment('STACK_NAME', cdk.Stack.of(this).stackName);
+  }
+
   private deleteFailedRunner() {
     const func = new DeleteFailedRunnerFunction(
       this,
@@ -747,6 +779,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     this.secrets.github.grantRead(func);
     this.secrets.githubPrivateKey.grantRead(func);
+    this.grantRunnerInstanceCleanup(func);
 
     this.managementFunctions.push(func);
 
@@ -913,6 +946,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     this.secrets.github.grantRead(reaper);
     this.secrets.githubPrivateKey.grantRead(reaper);
+    this.grantRunnerInstanceCleanup(reaper);
 
     return queue;
   }

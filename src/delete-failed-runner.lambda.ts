@@ -1,4 +1,5 @@
 import type { RequestError } from '@octokit/request-error' with { 'resolution-mode': 'import' };
+import { terminateRunnerInstances } from './lambda-ec2';
 import { deleteRunner, getOctokit, getRunner } from './lambda-github';
 import { StepFunctionLambdaInput } from './lambda-helpers';
 
@@ -26,6 +27,12 @@ interface DeleteFailedRunnerResult {
    * Did we delete the runner? Always false when no runner was found, as there is nothing to delete.
    */
   readonly runnerDeleted: boolean;
+
+  /**
+   * Instances we terminated because they outlived the runner. Usually empty: an EC2 runner should power itself off so any instance listed here failed
+   * to do that for some reason. Other providers are not affected because AWS handles turning them off for us.
+   */
+  readonly instancesTerminated: string[];
 }
 
 export async function handler(event: StepFunctionLambdaInput): Promise<DeleteFailedRunnerResult> {
@@ -40,7 +47,12 @@ export async function handler(event: StepFunctionLambdaInput): Promise<DeleteFai
       repo: event.repo,
       runnerName: event.runnerName,
     });
-    return { runnerFound: false, runnerDeleted: false };
+    return {
+      runnerFound: false,
+      runnerDeleted: false,
+      // terminate any instances that didn't properly power-off due to some extreme failure
+      instancesTerminated: await terminateRunnerInstances(event.runnerName),
+    };
   }
 
   console.log({
@@ -61,6 +73,10 @@ export async function handler(event: StepFunctionLambdaInput): Promise<DeleteFai
     const reqError = <RequestError>e;
     if (reqError.message.includes('is still running a job')) {
       // ideally we would stop the job that's hanging on this failed runner, but GitHub Actions only has API to stop the entire workflow
+      //
+      // we deliberately don't terminate the instance here. the task token is dead, but GitHub says a job is still
+      // running on this runner, and that job's instance is the one we would be killing. the step function retries
+      // this state for an hour, which is long enough for the job to finish and the runner to remove itself
       throw new RunnerBusy(reqError.message);
     } else {
       console.error({
@@ -71,9 +87,9 @@ export async function handler(event: StepFunctionLambdaInput): Promise<DeleteFai
         runnerName: event.runnerName,
         error: e,
       });
-      return { runnerFound: true, runnerDeleted: false };
+      return { runnerFound: true, runnerDeleted: false, instancesTerminated: await terminateRunnerInstances(event.runnerName) };
     }
   }
 
-  return { runnerFound: true, runnerDeleted: true };
+  return { runnerFound: true, runnerDeleted: true, instancesTerminated: await terminateRunnerInstances(event.runnerName) };
 }

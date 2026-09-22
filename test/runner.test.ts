@@ -430,4 +430,40 @@ describe('GitHubRunners', () => {
       expect(m.MetricStat.Metric.Dimensions[0].Name).toEqual('FunctionName');
     }
   });
+
+  // ec2:TerminateInstances on '*' with no condition would let a bug in clean-up terminate anything in the account
+  test('Clean-up functions can only terminate instances carrying the runner tag', () => {
+    new GitHubRunners(stack, 'runners', {
+      providers: [new LambdaRunnerProvider(stack, 'p1')],
+    });
+
+    const policies = Object.values(Template.fromStack(stack).findResources('AWS::IAM::Policy'));
+
+    const terminateStatements = policies.flatMap((policy: any) =>
+      policy.Properties.PolicyDocument.Statement.filter(
+        (statement: any) => JSON.stringify(statement.Action).includes('ec2:TerminateInstances'),
+      ),
+    );
+
+    // both the failure-path clean-up and the idle reaper
+    expect(terminateStatements).toHaveLength(2);
+
+    for (const statement of terminateStatements) {
+      // "the tag exists". a user's own instance never carries it, because the prefix is rejected at synth
+      expect(statement.Condition).toEqual({
+        StringEquals: { 'ec2:ResourceTag/GitHubRunners:Stack': 'test' },
+        Null: { 'ec2:ResourceTag/GitHubRunners:Runner': 'false' },
+      });
+    }
+  });
+
+  test('Runner instances are tagged with the runner name', () => {
+    new GitHubRunners(stack, 'runners', {
+      providers: [new LambdaRunnerProvider(stack, 'p1')],
+    });
+
+    const definition = JSON.stringify(Template.fromStack(stack).findResources('AWS::StepFunctions::StateMachine'));
+
+    expect(definition).toContain("{'Key': 'GitHubRunners:Runner', 'Value': $states.context.Execution.Name}");
+  });
 });
