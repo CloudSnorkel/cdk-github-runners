@@ -3400,8 +3400,10 @@ It answers the questions you're most likely to ask:
 * Is GitHub reaching the webhook at all? See "Webhook".
 * What exactly went wrong? See "Recent errors".
 
-**WARNING:** this method calls {@link metricJobCompleted} and {@link metricStolenRunners} which create metric
-filters. These resources may incur cost.
+**WARNING:** this method calls {@link metricJobCompleted} and {@link metricStolenRunners} which create metric filters.
+These resources may incur cost.
+
+This dashboard is very basic. Pull requests and issues are welcome to improve it.
 
 ###### `name`<sup>Optional</sup> <a name="name" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.createDashboard.parameter.name"></a>
 
