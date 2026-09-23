@@ -3,6 +3,23 @@ import { terminateRunnerInstances } from './lambda-ec2';
 import { deleteRunner, getOctokit, getRunner } from './lambda-github';
 import { StepFunctionLambdaInput } from './lambda-helpers';
 
+/**
+ * Runner families that can leave an EC2 instance behind. Everything else is managed by AWS for us, so there is
+ * nothing to look for and no reason to spend an `ec2:DescribeInstances` call on a quota shared with every runner in
+ * the account.
+ */
+const EC2_FAMILIES = ['ec2'];
+
+interface DeleteFailedRunnerInput extends StepFunctionLambdaInput {
+  /**
+   * Family of the provider config that was tried, straight out of `$.providerParams.family`. A fallback chain hits
+   * this Lambda once per attempt, so this is the family of that attempt and not of the whole chain.
+   *
+   * Undefined for executions started before this field existed, in which case we look for instances anyway.
+   */
+  readonly family?: string;
+}
+
 class RunnerBusy extends Error {
   constructor(msg: string) {
     super(msg);
@@ -35,7 +52,18 @@ interface DeleteFailedRunnerResult {
   readonly instancesTerminated: string[];
 }
 
-export async function handler(event: StepFunctionLambdaInput): Promise<DeleteFailedRunnerResult> {
+/**
+ * Terminate leftover instances, but only for families that can have them.
+ */
+async function terminateInstancesIfNeeded(event: DeleteFailedRunnerInput): Promise<string[]> {
+  if (!EC2_FAMILIES.includes(event.family ?? '')) {
+    return [];
+  }
+
+  return terminateRunnerInstances(event.runnerName);
+}
+
+export async function handler(event: DeleteFailedRunnerInput): Promise<DeleteFailedRunnerResult> {
   const { octokit, githubSecrets } = await getOctokit(event.installationId);
 
   // find runner id
@@ -51,7 +79,7 @@ export async function handler(event: StepFunctionLambdaInput): Promise<DeleteFai
       runnerFound: false,
       runnerDeleted: false,
       // terminate any instances that didn't properly power-off due to some extreme failure
-      instancesTerminated: await terminateRunnerInstances(event.runnerName),
+      instancesTerminated: await terminateInstancesIfNeeded(event),
     };
   }
 
@@ -93,5 +121,5 @@ export async function handler(event: StepFunctionLambdaInput): Promise<DeleteFai
     }
   }
 
-  return { runnerFound: true, runnerDeleted: true, instancesTerminated: await terminateRunnerInstances(event.runnerName) };
+  return { runnerFound: true, runnerDeleted: true, instancesTerminated: await terminateInstancesIfNeeded(event) };
 }

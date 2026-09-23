@@ -466,4 +466,15 @@ describe('GitHubRunners', () => {
 
     expect(definition).toContain("{'Key': 'GitHubRunners:Runner', 'Value': $states.context.Execution.Name}");
   });
+
+  test('Clean-up is told which family was tried', () => {
+    new GitHubRunners(stack, 'runners', {
+      providers: [new LambdaRunnerProvider(stack, 'p1')],
+    });
+
+    const sm: any = Object.values(Template.fromStack(stack).findResources('AWS::StepFunctions::StateMachine'))[0];
+    const definition = sm.Properties.DefinitionString['Fn::Join'][1].filter((p: any) => typeof p === 'string').join('');
+
+    expect(definition).toContain('"family.$":"$.providerParams.family"');
+  });
 });

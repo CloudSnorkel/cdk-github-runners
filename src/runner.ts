@@ -581,6 +581,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         owner: stepfunctions.JsonPath.stringAt('$.owner'),
         repo: stepfunctions.JsonPath.stringAt('$.repo'),
         installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
+        family: stepfunctions.JsonPath.stringAt('$.providerParams.family'),
       }),
     });
     fallbackCleanup.addRetry({

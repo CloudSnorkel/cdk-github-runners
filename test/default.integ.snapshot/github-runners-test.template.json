@@ -14660,7 +14660,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "83906fd89794579874e58f9057226664b1c4a43e3e5c1a81501cfdc8e39a3a92.zip"
+     "S3Key": "07782ba3f2ded6f4c8e7256545067de0edbd66eeb901256f1fa48ab023c75f3c.zip"
     },
     "Description": "Delete failed GitHub Actions runner on error",
     "Environment": {
@@ -16631,7 +16631,7 @@
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\"}},\"All Attempts Failed\":{\"Type\":\"Fail\",\"Comment\":\"Fail the execution with the original error that stopped the runner\",\"ErrorPath\":\"$.error.Error\",\"CausePath\":\"$.error.Cause\"}}}]}}}"
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"family.$\":\"$.providerParams.family\"}},\"All Attempts Failed\":{\"Type\":\"Fail\",\"Comment\":\"Fail the execution with the original error that stopped the runner\",\"ErrorPath\":\"$.error.Error\",\"CausePath\":\"$.error.Cause\"}}}]}}}"
       ]
      ]
     },

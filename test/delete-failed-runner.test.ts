@@ -111,4 +111,48 @@ describe('delete-failed-runner', () => {
 
     expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
   });
+
+  // every other provider is managed by AWS, so there is never an instance to look for. a fallback chain hits this
+  // Lambda once per attempt, so an unnecessary lookup here is paid repeatedly
+  test('Skips the EC2 lookup for a family that cannot leave an instance behind', async () => {
+    mockGetRunner.mockResolvedValue(RUNNER);
+    mockDeleteRunner.mockResolvedValue(undefined);
+
+    await expect(handler({ ...EVENT, family: 'fargate' })).resolves.toEqual({
+      runnerFound: true, runnerDeleted: true, instancesTerminated: [],
+    });
+
+    expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
+  });
+
+  test('Looks for instances when the family that was tried is ec2', async () => {
+    mockGetRunner.mockResolvedValue(RUNNER);
+    mockDeleteRunner.mockResolvedValue(undefined);
+    mockTerminateRunnerInstances.mockResolvedValue(['i-123']);
+
+    await expect(handler({ ...EVENT, family: 'ec2' })).resolves.toEqual({
+      runnerFound: true, runnerDeleted: true, instancesTerminated: ['i-123'],
+    });
+  });
+
+  // executions started before this field existed carry no family, and missing an instance is worse than an extra call
+  test('Looks for instances when the family is unknown', async () => {
+    mockGetRunner.mockResolvedValue(RUNNER);
+    mockDeleteRunner.mockResolvedValue(undefined);
+
+    await handler(EVENT);
+
+    expect(mockTerminateRunnerInstances).toHaveBeenCalledWith('runner-1');
+  });
+
+  // a runner that never registered is the failed-boot case, and it still needs the instance cleaned up
+  test('Skips the EC2 lookup for a non-EC2 family even when no runner registered', async () => {
+    mockGetRunner.mockResolvedValue(undefined);
+
+    await expect(handler({ ...EVENT, family: 'lambda' })).resolves.toEqual({
+      runnerFound: false, runnerDeleted: false, instancesTerminated: [],
+    });
+
+    expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
+  });
 });
