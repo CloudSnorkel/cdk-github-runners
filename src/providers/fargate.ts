@@ -17,6 +17,7 @@ import {
   RunnerEnvConfig,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
+import { ReservedTags } from '../lambda-common';
 import { MINIMAL_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
 /**
@@ -335,6 +336,9 @@ export function ecsTags(scope: Construct, tags: { [key: string]: string }): { [k
     }
     if (key.toLowerCase().startsWith('aws:')) {
       cdk.Annotations.of(scope).addError(`Tag names cannot start with "aws:": ${JSON.stringify(key)}`);
+    }
+    if (key.startsWith(ReservedTags.PREFIX)) {
+      cdk.Annotations.of(scope).addError(`Tag names cannot start with "${ReservedTags.PREFIX}": ${JSON.stringify(key)}`);
     }
     check('tag name', key, 128);
     check('tag value', value, 256);
