@@ -8010,7 +8010,7 @@ Make sure the selected VPC and subnets have access to the following with either 
 * SQS
 * Step Functions
 * CloudFormation (status function only)
-* EC2 (status function only)
+* EC2
 * ECR (status function only)
 
 ---

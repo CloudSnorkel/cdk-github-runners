@@ -103,6 +103,7 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
           runnerName: input.runnerName,
           input,
         });
+        retryLater(); // we still want the opportunity to clean up the instance if the runner doesn't remove itself for some reason, so we retry later
         continue;
       }
 

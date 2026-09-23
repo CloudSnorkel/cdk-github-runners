@@ -87,7 +87,9 @@ export async function handler(event: StepFunctionLambdaInput): Promise<DeleteFai
         runnerName: event.runnerName,
         error: e,
       });
-      return { runnerFound: true, runnerDeleted: false, instancesTerminated: await terminateRunnerInstances(event.runnerName) };
+      // we can't be sure the runner is not busy. if the RunnerBusy loop get exhausted and the step function errors out, the idle reaper will hard
+      // delete the instance once the runner finally times-out.
+      return { runnerFound: true, runnerDeleted: false, instancesTerminated: [] };
     }
   }
 

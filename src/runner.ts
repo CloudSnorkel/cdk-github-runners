@@ -67,7 +67,7 @@ const FAMILY_FRAGMENTS = new Map<string, (scope: Construct) => stepfunctions.ICh
  *
  * The standard tags only have values at runtime, so providers can't bake them in at synth time. Provider tags can override our tags, except for the
  * `GitHubRunners:` prefixed ones, which providers reject at synth. That keeps `GitHubRunners:Runner`, used for instance termination, as something
- * only we can set, and it's also why no duplicate key can never reach `ec2:RunInstances`, which rejects those.
+ * only we can set. It also prevents duplicate tags from reaching ec2:RunInstances that doesn't like those.
  *
  * `GitHubRunners:Provider` should name the provider that actually runs the job, which is not `$.provider` when we got here through a composite, so
  * the config's own `provider` field wins when it has one.
@@ -151,7 +151,7 @@ export interface GitHubRunnersProps {
    * * SQS
    * * Step Functions
    * * CloudFormation (status function only)
-   * * EC2 (status function only)
+   * * EC2
    * * ECR (status function only)
    */
   readonly vpc?: ec2.IVpc;
