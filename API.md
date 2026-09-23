@@ -6872,8 +6872,9 @@ public readonly tags: {[ key: string ]: string};
 
 Additional tags to apply to launched runner instances and their volumes.
 
-These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
-You may override the built-in tags.
+These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`, and
+`GitHubRunners:Runner`. You may only override `Name`. Tags prefixed `GitHubRunners:` are reserved and rejected. Some of our reserved tags are
+used for house-keeping purposes.
 
 ---
 
