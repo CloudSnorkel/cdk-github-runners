@@ -7322,7 +7322,7 @@ public readonly tags: {[ key: string ]: string};
 Additional tags to apply to launched runner tasks.
 
 These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
-You may override the built-in tags.
+You may not override tags with the `GitHubRunners:` prefix.
 
 ---
 
@@ -7654,7 +7654,7 @@ public readonly tags: {[ key: string ]: string};
 Additional tags to apply to launched runner tasks.
 
 These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
-You may override the built-in tags.
+You may not override tags with the `GitHubRunners:` prefix.
 
 ---
 
