@@ -17498,7 +17498,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "0e5fc8eeca87a5752334d5eb55981ebaba62d3201a8f32cd9d98ead047d76163.zip"
+     "S3Key": "9285a5b7b36c2801d52a972faa2adc41eee2814adb772b50670925757d70e108.zip"
     },
     "Description": "Runner providers and their labels"
    }
