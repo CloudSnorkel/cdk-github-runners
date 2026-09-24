@@ -1,8 +1,8 @@
-import * as crypto from 'crypto';
 import * as fs from 'fs';
+import * as os from 'node:os';
 import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
-import { aws_lambda as lambda, aws_stepfunctions as stepfunctions, aws_sqs as sqs } from 'aws-cdk-lib';
+import { aws_lambda as lambda, aws_sqs as sqs, aws_stepfunctions as stepfunctions } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaAccess } from './access';
 import { PROVIDERS_PATH } from './lambda-common';
@@ -141,24 +141,19 @@ export class GithubWebhookHandler extends Construct {
   constructor(scope: Construct, id: string, props: GithubWebhookHandlerProps) {
     super(scope, id);
 
-    const providers = JSON.stringify(props.providers);
-    const providersLayer = new lambda.LayerVersion(this, 'Providers', {
-      description: 'Runner providers and their labels',
-      code: lambda.Code.fromAsset('.', {
-        assetHash: crypto.createHash('sha256').update(providers).digest('hex'),
-        bundling: {
-          local: {
-            tryBundle(outputDir: string): boolean {
-              fs.writeFileSync(path.join(outputDir, path.posix.basename(PROVIDERS_PATH)), providers);
-              return true;
-            },
-          },
-          // never used as the local bundler always succeeds
-          image: cdk.DockerImage.fromRegistry('public.ecr.aws/docker/library/busybox:stable'),
-          command: ['exit 1'],
-        },
-      }),
-    });
+    const workdir = fs.mkdtempSync(path.join(os.tmpdir(), 'providers-layer-'));
+    let providersLayer: lambda.LayerVersion;
+    try {
+      fs.writeFileSync(path.join(workdir, path.posix.basename(PROVIDERS_PATH)), JSON.stringify(props.providers));
+      providersLayer = new lambda.LayerVersion(this, 'Providers', {
+        description: 'Runner providers and their labels',
+        code: lambda.Code.fromAsset(workdir),
+      });
+    } finally {
+      // Calling `fromAsset()` has copied files to the assembly, so we can delete the temporary directory.
+      fs.rmSync(path.join(workdir, path.posix.basename(PROVIDERS_PATH)));
+      fs.rmdirSync(workdir);
+    }
 
     this.handler = new WebhookHandlerFunction(
       this,
