@@ -1,6 +1,7 @@
 import { DescribeExecutionCommand, SFNClient, StopExecutionCommand } from '@aws-sdk/client-sfn';
 import type { Octokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
 import * as AWSLambda from 'aws-lambda';
+import { terminateRunnerInstances } from './lambda-ec2';
 import { deleteRunner, getOctokit, getRunner, GitHubSecrets } from './lambda-github';
 
 interface IdleReaperLambdaInput {
@@ -37,6 +38,9 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
         runnerName: input.runnerName,
         input,
       });
+      // the runner reported success, so any instance still running for it has outlived its job. that can happen when `poweroff` doesn't work for any
+      // reason. generally in rare cases, but we don't want to leave expensive instances behind.
+      await terminateRunnerInstances(input.runnerName);
       continue;
     }
 
@@ -67,12 +71,14 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
     const runner = await getRunner(octokit, secrets.runnerLevel, input.owner, input.repo, input.runnerName);
     if (!runner) {
       if (executionStopped) {
-        // nothing was left behind
         console.log({
           notice: 'Stopped step function has no runner to clean up',
           runnerName: input.runnerName,
           input,
         });
+        // no runner on GitHub, terminate any instance that didn't properly power-off due to some extreme failure (e.g. IMDS failure, OOM killer,
+        // wedged poweroff, etc.). the step function is stopped, so it won't be able to clean up after itself.
+        await terminateRunnerInstances(input.runnerName);
         continue;
       }
 
@@ -97,6 +103,7 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
           runnerName: input.runnerName,
           input,
         });
+        retryLater(); // we still want the opportunity to clean up the instance if the runner doesn't remove itself for some reason, so we retry later
         continue;
       }
 
@@ -188,6 +195,10 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
             retryLater();
             continue;
           }
+
+          // the runner is deleted but the instance is still alive and about to notice. do not terminate. give it a delivery cycle to log why it's
+          // stopping and power itself off. if it's still here next time, the !runner branch above terminates it
+          retryLater();
         } else {
           // still idle, timeout not reached -- retry later
           retryLater();

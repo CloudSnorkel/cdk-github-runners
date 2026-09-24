@@ -17,6 +17,7 @@ import {
   RunnerEnvConfig,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
+import { ReservedTags } from '../lambda-common';
 import { MINIMAL_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
 /**
@@ -171,7 +172,7 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    * Additional tags to apply to launched runner tasks.
    *
    * These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
-   * You may override the built-in tags.
+   * You may not override tags with the `GitHubRunners:` prefix.
    *
    * @default no additional tags
    */
@@ -335,6 +336,9 @@ export function ecsTags(scope: Construct, tags: { [key: string]: string }): { [k
     }
     if (key.toLowerCase().startsWith('aws:')) {
       cdk.Annotations.of(scope).addError(`Tag names cannot start with "aws:": ${JSON.stringify(key)}`);
+    }
+    if (key.startsWith(ReservedTags.PREFIX)) {
+      cdk.Annotations.of(scope).addError(`Tag names cannot start with "${ReservedTags.PREFIX}": ${JSON.stringify(key)}`);
     }
     check('tag name', key, 128);
     check('tag value', value, 256);

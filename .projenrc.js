@@ -177,6 +177,7 @@ cdkConfig.json.addDeletionOverride('context');
 cdkConfig.json.addDeletionOverride('output');
 
 // allow lambda utility files to import dev dependencies
+project.eslint.allowDevDeps('src/lambda-ec2.ts');
 project.eslint.allowDevDeps('src/lambda-helpers.ts');
 project.eslint.allowDevDeps('src/lambda-github.ts');
 project.eslint.allowDevDeps('src/lambda-tracker.ts');

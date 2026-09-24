@@ -14,6 +14,42 @@ export const MAX_RUNNER_NAME_LENGTH = 64;
 export const WARM_RUNNER_JOB_ID = -1;
 
 /**
+ * @internal
+ */
+export enum ReservedTags {
+  /**
+   * Common prefix for all tags we use.
+   */
+  PREFIX = 'GitHubRunners:',
+
+  /**
+   * Tag holding the CloudFormation stack name. Helps limit IAM permissions to just resources launched/created by our stack.
+   */
+  STACK = `${PREFIX}Stack`,
+
+  /**
+   * Tag holding the provider name.
+   */
+  PROVIDER = `${PREFIX}Provider`,
+
+  /**
+   * Tag holding the runner labels.
+   */
+  LABELS = `${PREFIX}Labels`,
+
+  /**
+   * Tag holding the runner name, which is also the step function execution name. One execution can launch many instances over its retries and subnet
+   * fallbacks, and they all carry the same value.
+   */
+  RUNNER = `${PREFIX}Runner`,
+
+  /**
+   * Tag holding the GitHub owner name (e.g. CloudSnorkel/cdk-github-runners).
+   */
+  REPO = `${PREFIX}Repo`,
+}
+
+/**
  * Private key secret value we deploy with. The user is meant to replace it with a real key, and a runner that gets
  * this far with the placeholder still in place was never set up.
  *
