@@ -21,8 +21,7 @@ import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct, IConstruct } from 'constructs';
-import { defaultBaseDockerImage } from './aws-image-builder';
-import { BaseContainerImage } from './aws-image-builder/base-image';
+import { BaseContainerImage, defaultBaseDockerImage } from './aws-image-builder';
 import { BuildImageFunction } from './build-image-function';
 import { BuildImageFunctionProperties } from './build-image.lambda';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
@@ -363,7 +362,9 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
             'if [ "$WAIT_HANDLE" != "unspecified" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H "Content-Type:" -d "@/tmp/payload.json" "$WAIT_HANDLE"; fi',
             // generate and push soci index
             // we do this after finishing the build, so we don't have to wait. it's also not required, so it's ok if it fails
-            'if [ `docker inspect --format=\'{{json .Config.Labels.DISABLE_SOCI}}\' "$REPO_URI"` = "null" ]; then\n' +
+            'if ! SOCI_LABEL=`docker inspect --format=\'{{json .Config.Labels.DISABLE_SOCI}}\' "$REPO_URI" 2>/dev/null`; then\n' +
+            'echo "Skipping soci index: no image to index, the build never produced $REPO_URI"\n' +
+            'elif [ "$SOCI_LABEL" = "null" ]; then\n' +
             'docker rmi "$REPO_URI"\n' + // it downloads the image again to /tmp, so save on space
             'LATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
             `curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
