@@ -1,9 +1,10 @@
 const mockEc2Send = jest.fn();
+const mockPaginateDescribeInstances = jest.fn();
 
 jest.mock('@aws-sdk/client-ec2', () => ({
   EC2Client: jest.fn(() => ({ send: (...args: unknown[]) => mockEc2Send(...args) })),
-  DescribeInstancesCommand: jest.fn(input => ({ command: 'DescribeInstances', input })),
   TerminateInstancesCommand: jest.fn(input => ({ command: 'TerminateInstances', input })),
+  paginateDescribeInstances: (...args: unknown[]) => mockPaginateDescribeInstances(...args),
 }));
 
 // Import after mocks are set up
@@ -17,12 +18,24 @@ const instance = (id: string, tags: Record<string, string>) => ({
 
 const ours = (id: string, runnerName = 'runner-1') => instance(id, { [ReservedTags.RUNNER]: runnerName, [ReservedTags.STACK]: 'test' });
 
-const describeReturns = (...instances: unknown[]) => {
-  mockEc2Send.mockImplementation((cmd: any) => {
-    if (cmd.command === 'DescribeInstances') {
-      return Promise.resolve({ Reservations: [{ Instances: instances }] });
+/** One page holding one reservation with all the given instances. */
+const describeReturns = (...instances: unknown[]) => describePages([[instances]]);
+
+/** Full control: an array of pages, each an array of reservations, each an array of instances. */
+const describePages = (pages: unknown[][][]) => {
+  mockPaginateDescribeInstances.mockImplementation(async function* () {
+    for (const reservations of pages) {
+      yield { Reservations: reservations.map(instances => ({ Instances: instances })) };
     }
-    return Promise.resolve({});
+  });
+};
+
+/** The paginator rejecting, which is what a describe failure looks like now. */
+const describeThrows = (error: Error) => {
+  mockPaginateDescribeInstances.mockImplementation(async function* () {
+    throw error;
+    // eslint-disable-next-line no-unreachable
+    yield {};
   });
 };
 
@@ -36,6 +49,12 @@ describe('terminateRunnerInstances', () => {
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'error').mockImplementation(() => {});
     process.env.STACK_NAME = 'test';
+
+    // clearAllMocks() clears calls but keeps implementations, so a test that makes send() reject would leak into
+    // every test after it. reset both to a benign default instead of relying on each test to set them
+    mockEc2Send.mockReset().mockResolvedValue({});
+    mockPaginateDescribeInstances.mockReset();
+    describeReturns();
   });
 
   afterEach(() => {
@@ -55,8 +74,9 @@ describe('terminateRunnerInstances', () => {
 
     await terminateRunnerInstances('runner-1');
 
-    const describe = mockEc2Send.mock.calls[0][0];
-    expect(describe.input.Filters).toEqual([
+    const [config, input] = mockPaginateDescribeInstances.mock.calls[0];
+    expect(config.client).toBeDefined();
+    expect(input.Filters).toEqual([
       { Name: `tag:${ReservedTags.RUNNER}`, Values: ['runner-1'] },
       { Name: `tag:${ReservedTags.STACK}`, Values: ['test'] },
       { Name: 'instance-state-name', Values: ['pending', 'running', 'stopping', 'stopped'] },
@@ -91,7 +111,7 @@ describe('terminateRunnerInstances', () => {
 
   // callers are clean-up paths, and their own failure would mask the error that got us there
   test('Swallows describe failures', async () => {
-    mockEc2Send.mockRejectedValue(new Error('UnauthorizedOperation'));
+    describeThrows(new Error('UnauthorizedOperation'));
 
     await expect(terminateRunnerInstances('runner-1')).resolves.toEqual([]);
 
@@ -99,12 +119,8 @@ describe('terminateRunnerInstances', () => {
   });
 
   test('Swallows terminate failures', async () => {
-    mockEc2Send.mockImplementation((cmd: any) => {
-      if (cmd.command === 'DescribeInstances') {
-        return Promise.resolve({ Reservations: [{ Instances: [ours('i-1')] }] });
-      }
-      return Promise.reject(new Error('UnauthorizedOperation'));
-    });
+    describeReturns(ours('i-1'));
+    mockEc2Send.mockRejectedValue(new Error('UnauthorizedOperation'));
 
     await expect(terminateRunnerInstances('runner-1')).resolves.toEqual([]);
 
@@ -112,13 +128,46 @@ describe('terminateRunnerInstances', () => {
   });
 
   test('Handles instances spread over several reservations', async () => {
-    mockEc2Send.mockImplementation((cmd: any) => {
-      if (cmd.command === 'DescribeInstances') {
-        return Promise.resolve({ Reservations: [{ Instances: [ours('i-1')] }, { Instances: [ours('i-2')] }] });
-      }
-      return Promise.resolve({});
-    });
+    describePages([[[ours('i-1')], [ours('i-2')]]]);
 
     await expect(terminateRunnerInstances('runner-1')).resolves.toEqual(['i-1', 'i-2']);
+  });
+
+  // EC2 applies filters per page, so a page can come back empty with more pages behind it. stopping at the first
+  // empty page would silently miss instances
+  test('Collects instances across pages, including empty ones', async () => {
+    describePages([
+      [[ours('i-1')]],
+      [[]],
+      [[ours('i-2'), ours('i-3')]],
+    ]);
+
+    await expect(terminateRunnerInstances('runner-1')).resolves.toEqual(['i-1', 'i-2', 'i-3']);
+
+    expect(terminateCalls()).toEqual([
+      { command: 'TerminateInstances', input: { InstanceIds: ['i-1', 'i-2', 'i-3'] } },
+    ]);
+  });
+
+  test('Terminates nothing when every page is empty', async () => {
+    describePages([[[]], [[]]]);
+
+    await expect(terminateRunnerInstances('runner-1')).resolves.toEqual([]);
+
+    expect(terminateCalls()).toEqual([]);
+  });
+
+  // TerminateInstances rejects the whole call if it gets too many ids, so a single oversized call would leave every
+  // one of them running
+  test('Chunks termination into calls TerminateInstances will accept', async () => {
+    const many = Array.from({ length: 250 }, (_, i) => ours(`i-${i}`));
+    describePages([[many]]);
+
+    const result = await terminateRunnerInstances('runner-1');
+
+    expect(result).toHaveLength(250);
+    expect(terminateCalls().map((c: any) => c.input.InstanceIds.length)).toEqual([100, 100, 50]);
+    // every id is asked for exactly once, in order
+    expect(terminateCalls().flatMap((c: any) => c.input.InstanceIds)).toEqual(result);
   });
 });

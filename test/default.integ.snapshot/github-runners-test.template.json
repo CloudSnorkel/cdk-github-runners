@@ -14504,7 +14504,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "9f43a6ffc0b2d7c12a232c8d83e22dadb24b3fca33ef5cf7b059a73d4ffbafe8.zip"
+     "S3Key": "24cac663b733733491cc47fb8cbdd840a1cc487ebb31825a1b3a1dc53f4ffd4d.zip"
     },
     "Description": "Stop idle GitHub runners to avoid paying for runners when the job was already canceled",
     "Environment": {
@@ -14660,7 +14660,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "f2f20429fdba2f8a8677af0d4e8755fbeb95c00c50740f3bf02768ba0d7466ef.zip"
+     "S3Key": "aff8313f5b2227ba7c331003b58ba3e5981965024e11431389d7010f2fd16d6f.zip"
     },
     "Description": "Delete failed GitHub Actions runner on error",
     "Environment": {

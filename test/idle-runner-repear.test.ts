@@ -93,13 +93,17 @@ describe('idle-runner-repear', () => {
     expect(mockDeleteRunner).not.toHaveBeenCalled();
   });
 
-  test('Stopped step function leaves a busy runner alone', async () => {
+  // a stopped step function runs no cleaners, so this message is the only thing that can ever terminate the instance
+  // behind this runner once it finishes its job. dropping it would leave a failed poweroff running forever
+  test('Stopped step function keeps watching a busy runner', async () => {
     mockSfnSend.mockResolvedValue({ status: 'ABORTED' });
     mockGetRunner.mockResolvedValue(BUSY_RUNNER);
 
-    expect(retried(await handler(EVENT))).toBe(false);
+    expect(retried(await handler(EVENT))).toBe(true);
 
     expect(mockDeleteRunner).not.toHaveBeenCalled();
+    // nothing to terminate yet - it is still running a job
+    expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
   });
 
   test('Stopped step function with no runner is dropped', async () => {

@@ -23,6 +23,8 @@ const EVENT = {
   installationId: 123,
 };
 
+const EC2_EVENT = { ...EVENT, family: 'ec2' };
+
 const RUNNER = { id: 42, name: 'runner-1' };
 
 describe('delete-failed-runner', () => {
@@ -88,7 +90,7 @@ describe('delete-failed-runner', () => {
     mockGetRunner.mockResolvedValue(undefined);
     mockTerminateRunnerInstances.mockResolvedValue(['i-123']);
 
-    await expect(handler(EVENT)).resolves.toEqual({ runnerFound: false, runnerDeleted: false, instancesTerminated: ['i-123'] });
+    await expect(handler(EC2_EVENT)).resolves.toEqual({ runnerFound: false, runnerDeleted: false, instancesTerminated: ['i-123'] });
 
     expect(mockTerminateRunnerInstances).toHaveBeenCalledWith('runner-1');
   });
@@ -98,7 +100,7 @@ describe('delete-failed-runner', () => {
     mockDeleteRunner.mockResolvedValue(undefined);
     mockTerminateRunnerInstances.mockResolvedValue(['i-456']);
 
-    await expect(handler(EVENT)).resolves.toEqual({ runnerFound: true, runnerDeleted: true, instancesTerminated: ['i-456'] });
+    await expect(handler(EC2_EVENT)).resolves.toEqual({ runnerFound: true, runnerDeleted: true, instancesTerminated: ['i-456'] });
   });
 
   // GitHub says a job is still running on this runner. the task token is dead, but that job's instance is the one we
@@ -135,14 +137,15 @@ describe('delete-failed-runner', () => {
     });
   });
 
-  // executions started before this field existed carry no family, and missing an instance is worse than an extra call
-  test('Looks for instances when the family is unknown', async () => {
+  // executions already running when this deploys were started by a step function that doesn't send a family, so they
+  // get no clean-up. that window is short and this is best effort, so we don't spend an EC2 call guessing
+  test('Skips the EC2 lookup when the family is unknown', async () => {
     mockGetRunner.mockResolvedValue(RUNNER);
     mockDeleteRunner.mockResolvedValue(undefined);
 
     await handler(EVENT);
 
-    expect(mockTerminateRunnerInstances).toHaveBeenCalledWith('runner-1');
+    expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
   });
 
   // a runner that never registered is the failed-boot case, and it still needs the instance cleaned up

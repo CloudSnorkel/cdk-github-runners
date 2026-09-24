@@ -15,7 +15,7 @@ interface DeleteFailedRunnerInput extends StepFunctionLambdaInput {
    * Family of the provider config that was tried, straight out of `$.providerParams.family`. A fallback chain hits
    * this Lambda once per attempt, so this is the family of that attempt and not of the whole chain.
    *
-   * Undefined for executions started before this field existed, in which case we look for instances anyway.
+   * Undefined for executions started before this field existed.
    */
   readonly family?: string;
 }

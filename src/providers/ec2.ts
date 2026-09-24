@@ -549,7 +549,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider, 
     this.tags = props?.tags ?? {};
 
     // reserved, because cleanup terminates instances by a tag with this prefix
-    Object.keys(this.tags).filter(key => key.startsWith(ReservedTags.PREFIX)).map(tag => {
+    Object.keys(this.tags).filter(key => key.startsWith(ReservedTags.PREFIX)).forEach(tag => {
       cdk.Annotations.of(this).addError(
         `Tag "${tag}" can't be set: the "${ReservedTags.PREFIX}" prefix is reserved.`,
       );

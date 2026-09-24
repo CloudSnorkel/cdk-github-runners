@@ -71,9 +71,18 @@ export async function terminateRunnerInstances(runnerName: string): Promise<stri
       instanceIds: ids,
     });
 
-    await ec2.send(new TerminateInstancesCommand({ InstanceIds: ids }));
+    const terminated: string[] = [];
+    for (let i = 0; i < ids.length; i += 100) {
+      const batch = ids.slice(i, i + 100);
+      try {
+        await ec2.send(new TerminateInstancesCommand({ InstanceIds: batch }));
+        terminated.push(...batch);
+      } catch (e) {
+        console.error({ notice: 'Failed to terminate a batch of runner instances', runnerName, batch, error: e });
+      }
+    }
 
-    return ids;
+    return terminated;
   } catch (e) {
     console.error({
       notice: 'Failed to terminate leftover runner instances',
