@@ -1,4 +1,4 @@
-import { DescribeInstancesCommand, DescribeInstancesCommandOutput, EC2Client, Instance, TerminateInstancesCommand } from '@aws-sdk/client-ec2';
+import { EC2Client, Instance, paginateDescribeInstances, TerminateInstancesCommand } from '@aws-sdk/client-ec2';
 import { ReservedTags } from './lambda-common';
 
 const ec2 = new EC2Client();
@@ -41,32 +41,25 @@ export async function terminateRunnerInstances(runnerName: string): Promise<stri
   }
 
   try {
-    let nextToken: string | undefined = undefined;
     const ids = [];
 
-    do {
-      const described: DescribeInstancesCommandOutput = await ec2.send(new DescribeInstancesCommand({
-        Filters: [
-          { Name: `tag:${ReservedTags.RUNNER}`, Values: [runnerName] },
-          { Name: `tag:${ReservedTags.STACK}`, Values: [stackName] },
-          // anything not already on its way out. a runner should never be stopped, but if one somehow is, it still holds an EBS volume we are paying for
-          { Name: 'instance-state-name', Values: ['pending', 'running', 'stopping', 'stopped'] },
-        ],
-        NextToken: nextToken,
-      }));
-
-      const instances = (described.Reservations ?? []).flatMap(r => r.Instances ?? []);
-
+    for await (const page of paginateDescribeInstances({ client: ec2 }, {
+      Filters: [
+        { Name: `tag:${ReservedTags.RUNNER}`, Values: [runnerName] },
+        { Name: `tag:${ReservedTags.STACK}`, Values: [stackName] },
+        // anything not already on its way out. a runner should never be stopped, but if one somehow is, it still holds an EBS volume we are paying for
+        { Name: 'instance-state-name', Values: ['pending', 'running', 'stopping', 'stopped'] },
+      ],
+    })) {
       // re-check the tag ourselves instead of trusting the filter. terminating someone else's instance would be far worse than leaving one of ours
       // behind, so this is worth the few lines
-      ids.push(...instances
+      ids.push(...(page.Reservations ?? [])
+        .flatMap(r => r.Instances ?? [])
         .filter(i => tagValue(i, ReservedTags.RUNNER) === runnerName)
         .filter(i => tagValue(i, ReservedTags.STACK) === stackName)
         .map(i => i.InstanceId)
         .filter((id): id is string => !!id));
-
-      nextToken = described.NextToken;
-    } while (nextToken);
+    }
 
     if (ids.length === 0) {
       return [];
