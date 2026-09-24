@@ -6213,7 +6213,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 180
    },
    "DependsOn": [
@@ -7738,7 +7738,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 600
    },
    "DependsOn": [
@@ -8456,7 +8456,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 60
    },
    "DependsOn": [
@@ -11152,7 +11152,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 900
    },
    "DependsOn": [
@@ -14131,7 +14131,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x"
+    "Runtime": "nodejs22.x"
    },
    "DependsOn": [
     "ProviderSelectorServiceRole7E80C062"
@@ -14289,7 +14289,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 30
    },
    "DependsOn": [
@@ -14532,7 +14532,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 300
    },
    "DependsOn": [
@@ -14688,7 +14688,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 30
    },
    "DependsOn": [
@@ -16879,14 +16879,12 @@
         "dynamodb:DescribeTable"
        ],
        "Effect": "Allow",
-       "Resource": [
-        {
-         "Fn::GetAtt": [
-          "runnersStolenRunnersJobsDFC963A5",
-          "Arn"
-         ]
-        }
-       ]
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersStolenRunnersJobsDFC963A5",
+         "Arn"
+        ]
+       }
       },
       {
        "Action": [
@@ -16894,14 +16892,12 @@
         "dynamodb:GetShardIterator"
        ],
        "Effect": "Allow",
-       "Resource": [
-        {
-         "Fn::GetAtt": [
-          "runnersStolenRunnersJobsDFC963A5",
-          "Arn"
-         ]
-        }
-       ]
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersStolenRunnersJobsDFC963A5",
+         "Arn"
+        ]
+       }
       },
       {
        "Action": [
@@ -17037,7 +17033,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 120
    },
    "DependsOn": [
@@ -17629,14 +17625,12 @@
         "dynamodb:DescribeTable"
        ],
        "Effect": "Allow",
-       "Resource": [
-        {
-         "Fn::GetAtt": [
-          "runnersStolenRunnersJobsDFC963A5",
-          "Arn"
-         ]
-        }
-       ]
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersStolenRunnersJobsDFC963A5",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -17709,7 +17703,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 31
    },
    "DependsOn": [
@@ -17859,7 +17853,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 270
    },
    "DependsOn": [
@@ -18065,7 +18059,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 180
    },
    "DependsOn": [
@@ -18425,7 +18419,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 180
    },
    "DependsOn": [
@@ -20282,7 +20276,7 @@
       "Arn"
      ]
     },
-    "Runtime": "nodejs24.x"
+    "Runtime": "nodejs22.x"
    },
    "DependsOn": [
     "runnersImageBuilderBuildsFilterServiceRoleDefaultPolicy4525F6C1",
