@@ -364,7 +364,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
             // we do this after finishing the build, so we don't have to wait. it's also not required, so it's ok if it fails
             'if ! SOCI_LABEL=`docker inspect --format=\'{{json .Config.Labels.DISABLE_SOCI}}\' "$REPO_URI" 2>/dev/null`; then\n' +
             'echo "Skipping soci index: no image to index, the build never produced $REPO_URI"\n' +
-            'elif [ "$SOCI_LABEL" != "null" ]; then\n' +
+            'elif [ "$SOCI_LABEL" = "null" ]; then\n' +
             'docker rmi "$REPO_URI"\n' + // it downloads the image again to /tmp, so save on space
             'LATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
             `curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
