@@ -6872,8 +6872,9 @@ public readonly tags: {[ key: string ]: string};
 
 Additional tags to apply to launched runner instances and their volumes.
 
-These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
-You may override the built-in tags.
+These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`, and
+`GitHubRunners:Runner`. You may only override `Name`. Tags prefixed `GitHubRunners:` are reserved and rejected. Some of our reserved tags are
+used for house-keeping purposes.
 
 ---
 
@@ -7321,7 +7322,7 @@ public readonly tags: {[ key: string ]: string};
 Additional tags to apply to launched runner tasks.
 
 These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
-You may override the built-in tags.
+You may not override tags with the `GitHubRunners:` prefix.
 
 ---
 
@@ -7653,7 +7654,7 @@ public readonly tags: {[ key: string ]: string};
 Additional tags to apply to launched runner tasks.
 
 These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
-You may override the built-in tags.
+You may not override tags with the `GitHubRunners:` prefix.
 
 ---
 
@@ -8009,7 +8010,7 @@ Make sure the selected VPC and subnets have access to the following with either 
 * SQS
 * Step Functions
 * CloudFormation (status function only)
-* EC2 (status function only)
+* EC2
 * ECR (status function only)
 
 ---

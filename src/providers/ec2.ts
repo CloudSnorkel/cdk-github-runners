@@ -27,6 +27,7 @@ import {
   RunnerImageBuilderType,
   RunnerImageComponent,
 } from '../image-builders';
+import { ReservedTags } from '../lambda-common';
 import { isGpuInstanceType, MINIMAL_EC2_SSM_SESSION_MANAGER_POLICY_STATEMENT } from '../utils';
 
 // this script is specifically made so `poweroff` is absolutely always called
@@ -362,8 +363,9 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
   /**
    * Additional tags to apply to launched runner instances and their volumes.
    *
-   * These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`.
-   * You may override the built-in tags.
+   * These additional tags are set on top of `Name`, `GitHubRunners:Provider`, `GitHubRunners:Repo`, and `GitHubRunners:Labels`, and
+   * `GitHubRunners:Runner`. You may only override `Name`. Tags prefixed `GitHubRunners:` are reserved and rejected. Some of our reserved tags are
+   * used for house-keeping purposes.
    *
    * @default no additional tags
    */
@@ -545,6 +547,13 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider, 
     this.spotMaxPrice = props?.spotMaxPrice;
     this.defaultLabels = props?.defaultLabels ?? true;
     this.tags = props?.tags ?? {};
+
+    // reserved, because cleanup terminates instances by a tag with this prefix
+    Object.keys(this.tags).filter(key => key.startsWith(ReservedTags.PREFIX)).forEach(tag => {
+      cdk.Annotations.of(this).addError(
+        `Tag "${tag}" can't be set: the "${ReservedTags.PREFIX}" prefix is reserved.`,
+      );
+    });
 
     if (this.subnets.length === 0) {
       cdk.Annotations.of(this).addError('At least one subnet is required');

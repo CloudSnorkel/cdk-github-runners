@@ -516,11 +516,36 @@ describe('Providers', () => {
         },
       });
 
-      // the standard tags have runtime values, so the orchestrator merges them onto these at execution time
+      // the standard tags have runtime values, so the orchestrator merges them onto these at execution time.
+      // Name is still overridable -- nothing depends on it
       expect((provider as any)._runnerConfig().tags).toEqual([
         { Key: 'SecurityMonitoring', Value: 'enabled' },
         { Key: 'Name', Value: 'test' },
       ]);
+    });
+
+    // clean-up terminates instances by GitHubRunners:Runner, and the permission to terminate is granted only for
+    // instances carrying that tag. keeping the prefix ours is what stops clean-up from ever reaching a user's own
+    // instance, so a provider must not be able to put it on one
+    test('tags with the reserved prefix are rejected', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new Ec2RunnerProvider(stack, 'providerReserved', {
+        vpc,
+        securityGroups: [sg],
+        labels: ['ec2-reserved'],
+        tags: { 'GitHubRunners:Runner': 'mine', 'GitHubRunners:Anything': 'mine' },
+      });
+
+      Annotations.fromStack(stack).hasError(
+        '/test/providerReserved',
+        Match.stringLikeRegexp('"GitHubRunners:Runner" can\'t be set'),
+      );
+      Annotations.fromStack(stack).hasError(
+        '/test/providerReserved',
+        Match.stringLikeRegexp('"GitHubRunners:Anything" can\'t be set'),
+      );
     });
 
     test('no tags prop still opts the config into the standard runner tags', () => {
