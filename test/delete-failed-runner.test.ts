@@ -95,12 +95,24 @@ describe('delete-failed-runner', () => {
     expect(mockTerminateRunnerInstances).toHaveBeenCalledWith('runner-1');
   });
 
-  test('Terminates leftover instances after deleting the runner', async () => {
+  // the runner registered, so the instance booted fine and will notice the deregistration and power itself off.
+  // terminating now would cut its logs off mid-line. the idle reaper picks it up later if it doesn't go away
+  test('Leaves the instance alone after deleting a live runner', async () => {
     mockGetRunner.mockResolvedValue(RUNNER);
     mockDeleteRunner.mockResolvedValue(undefined);
-    mockTerminateRunnerInstances.mockResolvedValue(['i-456']);
 
-    await expect(handler(EC2_EVENT)).resolves.toEqual({ runnerFound: true, runnerDeleted: true, instancesTerminated: ['i-456'] });
+    await expect(handler(EC2_EVENT)).resolves.toEqual({ runnerFound: true, runnerDeleted: true, instancesTerminated: [] });
+
+    expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
+  });
+
+  test('Leaves the instance alone when the runner was found but could not be deleted', async () => {
+    mockGetRunner.mockResolvedValue(RUNNER);
+    mockDeleteRunner.mockRejectedValue(new Error('Internal server error'));
+
+    await expect(handler(EC2_EVENT)).resolves.toEqual({ runnerFound: true, runnerDeleted: false, instancesTerminated: [] });
+
+    expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
   });
 
   // GitHub says a job is still running on this runner. the task token is dead, but that job's instance is the one we
@@ -116,32 +128,31 @@ describe('delete-failed-runner', () => {
 
   // every other provider is managed by AWS, so there is never an instance to look for. a fallback chain hits this
   // Lambda once per attempt, so an unnecessary lookup here is paid repeatedly
+  // these all go through the no-runner path, because that is the only one that looks for instances at all now. a
+  // registered runner would skip regardless of family and the test would pass for the wrong reason
   test('Skips the EC2 lookup for a family that cannot leave an instance behind', async () => {
-    mockGetRunner.mockResolvedValue(RUNNER);
-    mockDeleteRunner.mockResolvedValue(undefined);
+    mockGetRunner.mockResolvedValue(undefined);
 
     await expect(handler({ ...EVENT, family: 'fargate' })).resolves.toEqual({
-      runnerFound: true, runnerDeleted: true, instancesTerminated: [],
+      runnerFound: false, runnerDeleted: false, instancesTerminated: [],
     });
 
     expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
   });
 
   test('Looks for instances when the family that was tried is ec2', async () => {
-    mockGetRunner.mockResolvedValue(RUNNER);
-    mockDeleteRunner.mockResolvedValue(undefined);
+    mockGetRunner.mockResolvedValue(undefined);
     mockTerminateRunnerInstances.mockResolvedValue(['i-123']);
 
     await expect(handler({ ...EVENT, family: 'ec2' })).resolves.toEqual({
-      runnerFound: true, runnerDeleted: true, instancesTerminated: ['i-123'],
+      runnerFound: false, runnerDeleted: false, instancesTerminated: ['i-123'],
     });
   });
 
   // executions already running when this deploys were started by a step function that doesn't send a family, so they
   // get no clean-up. that window is short and this is best effort, so we don't spend an EC2 call guessing
   test('Skips the EC2 lookup when the family is unknown', async () => {
-    mockGetRunner.mockResolvedValue(RUNNER);
-    mockDeleteRunner.mockResolvedValue(undefined);
+    mockGetRunner.mockResolvedValue(undefined);
 
     await handler(EVENT);
 

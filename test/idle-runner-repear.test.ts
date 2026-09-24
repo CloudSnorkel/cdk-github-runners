@@ -76,7 +76,8 @@ describe('idle-runner-repear', () => {
     mockGetRunner.mockResolvedValue(IDLE_RUNNER);
     mockDeleteRunner.mockResolvedValue(undefined);
 
-    expect(retried(await handler(EVENT))).toBe(false);
+    // the runner is deleted, but we keep the message so we can terminate the instance if it doesn't power itself off
+    expect(retried(await handler(EVENT))).toBe(true);
 
     expect(mockDeleteRunner).toHaveBeenCalledWith({}, 'repo', 'my-org', 'my-repo', 42);
     // there is no step function left to stop
@@ -102,7 +103,7 @@ describe('idle-runner-repear', () => {
     expect(retried(await handler(EVENT))).toBe(true);
 
     expect(mockDeleteRunner).not.toHaveBeenCalled();
-    // nothing to terminate yet - it is still running a job
+    // nothing to terminate yet -- it is still running a job
     expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
   });
 
@@ -139,7 +140,8 @@ describe('idle-runner-repear', () => {
     mockGetRunner.mockResolvedValue(IDLE_RUNNER);
     mockDeleteRunner.mockResolvedValue(undefined);
 
-    expect(retried(await handler(EVENT))).toBe(false);
+    // same as above -- the message stays alive so the instance can be terminated later if needed
+    expect(retried(await handler(EVENT))).toBe(true);
 
     expect(mockSfnSend.mock.calls.map(c => c[0].command)).toEqual(['DescribeExecution', 'StopExecution']);
     expect(mockDeleteRunner).toHaveBeenCalledWith({}, 'repo', 'my-org', 'my-repo', 42);
@@ -169,17 +171,18 @@ describe('idle-runner-repear', () => {
     expect(mockTerminateRunnerInstances).toHaveBeenCalledWith('runner-1');
   });
 
-  // StopExecution skips the step function's catchers, so the reaper has to clean up the instance it just orphaned
-  test('Terminates the instance behind a reaped idle runner', async () => {
+  // the instance is still up and about to notice its runner is gone. terminating now cuts its logs off mid-line, so
+  // we keep the message and let the no-runner branch terminate it next time if it hasn't powered off by then
+  test('Keeps watching after reaping an idle runner instead of terminating it', async () => {
     mockSfnSend.mockResolvedValue({ status: 'RUNNING' });
     mockGetRunner.mockResolvedValue(IDLE_RUNNER);
     mockDeleteRunner.mockResolvedValue(undefined);
 
     const result = await handler(EVENT);
 
-    expect(retried(result)).toBe(false);
+    expect(retried(result)).toBe(true);
     expect(mockDeleteRunner).toHaveBeenCalled();
-    expect(mockTerminateRunnerInstances).toHaveBeenCalledWith('runner-1');
+    expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
   });
 
   test('Leaves a busy runner alone', async () => {

@@ -157,6 +157,30 @@ describe('terminateRunnerInstances', () => {
     expect(terminateCalls()).toEqual([]);
   });
 
+  // EC2 applies filters per page, so a page can come back empty with more pages behind it. stopping at the first
+  // empty page would silently miss instances
+  test('Collects instances across pages, including empty ones', async () => {
+    describePages([
+      [[ours('i-1')]],
+      [[]],
+      [[ours('i-2'), ours('i-3')]],
+    ]);
+
+    await expect(terminateRunnerInstances('runner-1')).resolves.toEqual(['i-1', 'i-2', 'i-3']);
+
+    expect(terminateCalls()).toEqual([
+      { command: 'TerminateInstances', input: { InstanceIds: ['i-1', 'i-2', 'i-3'] } },
+    ]);
+  });
+
+  test('Terminates nothing when every page is empty', async () => {
+    describePages([[[]], [[]]]);
+
+    await expect(terminateRunnerInstances('runner-1')).resolves.toEqual([]);
+
+    expect(terminateCalls()).toEqual([]);
+  });
+
   // TerminateInstances rejects the whole call if it gets too many ids, so a single oversized call would leave every
   // one of them running
   test('Chunks termination into calls TerminateInstances will accept', async () => {

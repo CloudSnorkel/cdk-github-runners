@@ -121,5 +121,7 @@ export async function handler(event: DeleteFailedRunnerInput): Promise<DeleteFai
     }
   }
 
-  return { runnerFound: true, runnerDeleted: true, instancesTerminated: await terminateInstancesIfNeeded(event) };
+  // don't terminate here to let the runner logs flush to CloudWatch. the runner should power itself off, but if it doesn't we will terminate it later
+  // in the idle reaper.
+  return { runnerFound: true, runnerDeleted: true, instancesTerminated: [] };
 }

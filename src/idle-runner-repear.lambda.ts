@@ -196,10 +196,9 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
             continue;
           }
 
-          // StopExecution above skips the step function's cleaners, so this is the only place that can terminate the instance behind an idle runner.
-          // the runner was idle and is now deleted, so nothing is running on it. in most cases the instance will power itself off, but if it doesn't,
-          // we need to terminate it to avoid paying for a dead instance.
-          await terminateRunnerInstances(input.runnerName);
+          // the runner is deleted but the instance is still alive and about to notice. do not terminate. give it a delivery cycle to log why it's
+          // stopping and power itself off. if it's still here next time, the !runner branch above terminates it
+          retryLater();
         } else {
           // still idle, timeout not reached -- retry later
           retryLater();
