@@ -1,5 +1,5 @@
 {
-  "version": "50.0.0",
+  "version": "54.0.0",
   "files": {
     "b79d176c81d00c17eeb304a704ea0d8420a8350154b6798748106205718dec22": {
       "displayName": "AL2 builder/Component 5 GithubRunner Asset 0",
@@ -323,16 +323,16 @@
         }
       }
     },
-    "ab38e9a5e61af4688c1ee8758e9048eb12a1afaa2c574c1260d84c2c4ff7f29f": {
+    "285b42c47b22189c383fd32b6fbbba9c78bc3ae7a2e72be5b39479fc8aea1f05": {
       "displayName": "github-runners-test Template",
       "source": {
         "path": "github-runners-test.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "current_account-current_region-e2aad22b": {
+        "current_account-current_region-ffcaa0ae": {
           "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
-          "objectKey": "ab38e9a5e61af4688c1ee8758e9048eb12a1afaa2c574c1260d84c2c4ff7f29f.json",
+          "objectKey": "285b42c47b22189c383fd32b6fbbba9c78bc3ae7a2e72be5b39479fc8aea1f05.json",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
         }
       }
