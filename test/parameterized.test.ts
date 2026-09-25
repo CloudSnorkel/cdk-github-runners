@@ -248,14 +248,34 @@ describe('Parameterized providers', () => {
     expect(definition).toContain('{"ErrorEquals":["States.ALL"],"ResultPath":"$.error","Next":"Clean Up Failed Runner"}');
 
     // cleanup reports what it did and advances to the fallback choice on its normal path, so it never goes red
-    // just for re-raising the error that got us here (#989); the catch is only for a cleanup that really failed
+    // just for re-raising the error that got us here (#989). a cleanup that really failed never falls back (see below)
     expect(definition).toContain('"Clean Up Failed Runner":{"Next":"Fallback Configured?"');
-    expect(definition).toContain('{"ErrorEquals":["States.ALL"],"ResultPath":null,"Next":"Fallback Configured?"}');
     expect(definition).toContain('"Fallback Configured?":{"Type":"Choice","Choices":[{"Variable":"$.providerParams.fallback","IsPresent":true,"Next":"Use Fallback Config"}],"Default":"All Attempts Failed"}');
     expect(definition).toContain('$selected := $states.input.providerParams.fallback;');
 
     // out of fallbacks, a state of its own re-raises the original error for the outer catch and retry
     expect(definition).toContain('"All Attempts Failed":{"Type":"Fail","Comment":"Fail the execution with the original error that stopped the runner","ErrorPath":"$.error.Error","CausePath":"$.error.Cause"}');
+  });
+
+  // every attempt uses the same runner name, so a runner we couldn't delete would make every following attempt fail to
+  // register (#1007). no fallback and no outer retry for that
+  test('a runner that could not be deleted fails the execution without retrying', () => {
+    new GitHubRunners(stack, 'runners', {
+      providers: [new CodeBuildRunnerProvider(stack, 'p1', { imageBuilder: staticImage(stack, 'i1') })],
+    });
+
+    const parsed = JSON.parse(definitionString(Template.fromStack(stack)).replace(/<TOKEN>/g, 'token'));
+    const branch = parsed.States['Run Providers'].Branches[0].States;
+
+    // any clean-up error is retried for an hour, then skips the fallback choice under one name the outer retry knows
+    expect(branch['Clean Up Failed Runner'].Retry).toContainEqual({ ErrorEquals: ['States.ALL'], IntervalSeconds: 60, MaxAttempts: 60, BackoffRate: 1 });
+    expect(branch['Clean Up Failed Runner'].Catch).toEqual([{ ErrorEquals: ['States.ALL'], ResultPath: '$.delete', Next: 'Runner Not Deleted' }]);
+    expect(branch['Runner Not Deleted']).toMatchObject({ Type: 'Fail', Error: 'RunnerNotDeleted', CausePath: '$.delete.Cause' });
+
+    // the outer retry never retries it. the specific retrier has to come before the one catching everything
+    const retry = parsed.States['Run Providers'].Retry;
+    expect(retry[0]).toEqual({ ErrorEquals: ['RunnerNotDeleted'], MaxAttempts: 0 });
+    expect(retry[1].ErrorEquals).toEqual(['States.ALL']);
   });
 
   test('ec2 providers run one subnet at a time using fallback configs', () => {
@@ -349,7 +369,7 @@ describe('Parameterized providers', () => {
     const branch = parsed.States['Run Providers'].Branches[0].States;
     expect(Object.keys(branch)).toEqual([
       'Select Provider Config', 'Get Runner Token', 'Try Provider',
-      'Use Fallback Config', 'Fallback Configured?', 'Clean Up Failed Runner', 'All Attempts Failed',
+      'Use Fallback Config', 'Fallback Configured?', 'Clean Up Failed Runner', 'Runner Not Deleted', 'All Attempts Failed',
     ]);
     // the token is fetched after the config is selected, so the token retriever can check the selected config
     expect(branch['Select Provider Config'].Next).toBe('Get Runner Token');

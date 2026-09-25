@@ -1,4 +1,3 @@
-import type { RequestError } from '@octokit/request-error' with { 'resolution-mode': 'import' };
 import { terminateRunnerInstances } from './lambda-ec2';
 import { deleteRunner, getOctokit, getRunner } from './lambda-github';
 import { StepFunctionLambdaInput } from './lambda-helpers';
@@ -20,19 +19,11 @@ interface DeleteFailedRunnerInput extends StepFunctionLambdaInput {
   readonly family?: string;
 }
 
-class RunnerBusy extends Error {
-  constructor(msg: string) {
-    super(msg);
-    this.name = 'RunnerBusy';
-    Object.setPrototypeOf(this, RunnerBusy.prototype);
-  }
-}
-
 /**
  * Outcome of the clean-up, stored in `$.delete` by the step function so the execution history says what happened.
  *
- * We don't fail the execution ourselves. The original error that got us here is re-raised by a separate `Rethrow Error`
- * state, so a red `Delete Failed Runner` state always means the clean-up itself had a problem.
+ * The original error that got us here is re-raised by a separate `Rethrow Error` state, so a red `Delete Failed Runner`
+ * state always means the clean-up itself had a problem. We only throw when we can't be sure the runner is gone.
  */
 interface DeleteFailedRunnerResult {
   /**
@@ -60,10 +51,23 @@ async function terminateInstancesIfNeeded(event: DeleteFailedRunnerInput): Promi
     return [];
   }
 
-  return terminateRunnerInstances(event.runnerName);
+  // the runner is already gone, so this can't block the next attempt. we don't throw as the step function would retry
+  // and eventually give up on the whole execution. the idle reaper will try again once this execution is done.
+  try {
+    return await terminateRunnerInstances(event.runnerName);
+  } catch (e) {
+    console.error({
+      notice: 'Unable to terminate leftover instances',
+      runnerName: event.runnerName,
+      error: e,
+    });
+    return [];
+  }
 }
 
 export async function handler(event: DeleteFailedRunnerInput): Promise<DeleteFailedRunnerResult> {
+  // any error before we know the runner is gone is thrown as-is. the step function retries all of them for an hour and
+  // then fails the whole execution without retrying it. see `Runner Not Deleted` in runner.ts for why.
   const { octokit, githubSecrets } = await getOctokit(event.installationId);
 
   // find runner id
@@ -95,30 +99,28 @@ export async function handler(event: DeleteFailedRunnerInput): Promise<DeleteFai
   // it seems like runners are automatically removed after a timeout, if they first accepted a job.
   // we try removing it anyway for cases where a job wasn't accepted, and just in case it wasn't removed.
   // repos have a limited number of self-hosted runners, so we can't leave dead ones behind.
+  //
+  // any error here means the runner is still registered, usually because it's still running a job. we don't try to
+  // parse the error as GitHub changed the busy message before (#1007) and older GHES versions may still use the old one.
+  // deleting a runner that's already gone returns 204, so trying to delete a missing runner doesn't throw and just succeeds.
   try {
     await deleteRunner(octokit, githubSecrets.runnerLevel, event.owner, event.repo, runner.id);
   } catch (e) {
-    const reqError = <RequestError>e;
-    if (reqError.message.includes('is still running a job')) {
-      // ideally we would stop the job that's hanging on this failed runner, but GitHub Actions only has API to stop the entire workflow
-      //
-      // we deliberately don't terminate the instance here. the task token is dead, but GitHub says a job is still
-      // running on this runner, and that job's instance is the one we would be killing. the step function retries
-      // this state for an hour, which is long enough for the job to finish and the runner to remove itself
-      throw new RunnerBusy(reqError.message);
-    } else {
-      console.error({
-        notice: 'Unable to delete runner',
-        owner: event.owner,
-        repo: event.repo,
-        runnerId: runner.id,
-        runnerName: event.runnerName,
-        error: e,
-      });
-      // we can't be sure the runner is not busy. if the RunnerBusy loop get exhausted and the step function errors out, the idle reaper will hard
-      // delete the instance once the runner finally times-out.
-      return { runnerFound: true, runnerDeleted: false, instancesTerminated: [] };
-    }
+    console.error({
+      notice: 'Unable to delete runner',
+      owner: event.owner,
+      repo: event.repo,
+      runnerId: runner.id,
+      runnerName: event.runnerName,
+      error: e,
+    });
+    // ideally we would stop the job that's hanging on this failed runner, but GitHub Actions only has API to stop the entire workflow
+    //
+    // we deliberately don't terminate the instance here. the task token is dead, but GitHub says a job might still be running on this runner, and
+    // that job's instance is the one we would be killing. the step function retries this state for an hour, which is long enough for the job to
+    // finish and the runner to remove itself. if it's still there after that, the idle reaper keeps watching it and will hard delete the instance
+    // once it's done.
+    throw e;
   }
 
   // don't terminate here to let the runner logs flush to CloudWatch. the runner should power itself off, but if it doesn't we will terminate it later
