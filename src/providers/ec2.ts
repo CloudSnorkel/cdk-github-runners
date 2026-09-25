@@ -37,13 +37,15 @@ trap 'sleep 10; poweroff' EXIT # give cloudwatch agent 10 seconds to upload logs
 
 set -x -o pipefail
 
-TASK_TOKEN="{}"
+echo -n "{}" > /tmp/task-token # aws cli reads --task-token from here so set -x doesn't log it
+chmod 600 /tmp/task-token
+
 logGroupName="{}"
 runnerNamePath="{}"
 githubDomainPath="{}"
 ownerPath="{}"
 repoPath="{}"
-runnerTokenPath="{}"
+export ACTIONS_RUNNER_INPUT_TOKEN="{}" # config.sh reads --token from here so set -x doesn't log it
 labels="{}"
 registrationURL="{}"
 runnerGroup1="{}"
@@ -57,10 +59,10 @@ heartbeat () {
   while true; do
     SPOT_ACTION=$(curl -s -f -H "X-aws-ec2-metadata-token: $(curl -s -f -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 1" 2>/dev/null)" "http://169.254.169.254/latest/meta-data/spot/instance-action" 2>/dev/null) || true
     if [ -n "$SPOT_ACTION" ]; then
-      aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" --error SpotInterrupted --cause "EC2 Spot instance interruption: $SPOT_ACTION" || true
+      aws stepfunctions send-task-failure --task-token file:///tmp/task-token --error SpotInterrupted --cause "EC2 Spot instance interruption: $SPOT_ACTION" || true
       exit 0
     fi
-    aws stepfunctions send-task-heartbeat --task-token "$TASK_TOKEN"
+    aws stepfunctions send-task-heartbeat --task-token file:///tmp/task-token
     sleep 60
   done
 }
@@ -106,7 +108,7 @@ action () {
   /home/runner/job-reporter.sh "$runnerNamePath" /var/log/workflow.log
 
   # Execute the configuration command for runner registration
-  sudo -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --token "$runnerTokenPath" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1
+  sudo --preserve-env=ACTIONS_RUNNER_INPUT_TOKEN -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1
 
   # Execute the run command
   sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
@@ -124,11 +126,11 @@ heartbeat &
 setup_logs
 setup_logs_status=$?
 if [ $setup_logs_status -ne 0 ]; then
-  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" --error Runner.SetupLogs.$setup_logs_status --cause "Failed to configure CloudWatch agent (exit $setup_logs_status), no runner log was uploaded"
+  aws stepfunctions send-task-failure --task-token file:///tmp/task-token --error Runner.SetupLogs.$setup_logs_status --cause "Failed to configure CloudWatch agent (exit $setup_logs_status), no runner log was uploaded"
 elif action |& tee /var/log/runner.log; then
-  aws stepfunctions send-task-success --task-token "$TASK_TOKEN" --task-output '{"ok": true}' |& tee -a /var/log/runner.log
+  aws stepfunctions send-task-success --task-token file:///tmp/task-token --task-output '{"ok": true}' |& tee -a /var/log/runner.log
 else
-  aws stepfunctions send-task-failure --task-token "$TASK_TOKEN" --error Runner.Error.$? --cause "Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $(tail -n 1 /var/log/runner.log)" |& tee -a /var/log/runner.log
+  aws stepfunctions send-task-failure --task-token file:///tmp/task-token --error Runner.Error.$? --cause "Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $(tail -n 1 /var/log/runner.log)" |& tee -a /var/log/runner.log
 fi
 `.replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
 
