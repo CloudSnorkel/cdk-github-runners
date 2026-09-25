@@ -584,8 +584,9 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         family: stepfunctions.JsonPath.stringAt('$.providerParams.family'),
       }),
     });
+    // any error means we can't be sure the runner is gone. we don't try to tell them apart (#1007)
     fallbackCleanup.addRetry({
-      errors: ['RunnerBusy'],
+      errors: [stepfunctions.Errors.ALL],
       interval: cdk.Duration.minutes(1),
       backoffRate: 1,
       maxAttempts: 60,
@@ -604,11 +605,23 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       causePath: stepfunctions.JsonPath.stringAt('$.error.Cause'),
     });
 
+    // we couldn't delete the runner, so any further attempt would probably fail to register under the same name. we stop the whole execution instead
+    // of wasting resources on runners that won't even be able to register. the cleanup can fail with any error, so this state gives them all one name
+    // that the outer retry can skip. the original error is kept in the cause.
+    // we stop the execution, but at this point either:
+    //   * the runner is still running a job: a new runner wouldn't help and would just be extra.
+    //   * permanent failure (e.g. missing permissions): the user has to fix it anyway. starting a new runner will not help.
+    //   * GitHub outage longer than an hour: a.k.a. monday morning but either way acceptable point to give up.
+    // the idle reaper keeps watching runners of failed executions, so whatever is left behind still gets cleaned up.
+    const runnerNotDeleted = new stepfunctions.Fail(this, 'Runner Not Deleted', {
+      comment: 'Give up on this runner without retrying as it would fail to register under the same name',
+      error: 'RunnerNotDeleted',
+      causePath: stepfunctions.JsonPath.stringAt('$.delete.Cause'),
+    });
+
     tryProvider.addCatch(fallbackCleanup, { errors: [stepfunctions.Errors.ALL], resultPath: '$.error' });
-    // the clean-up lambda reports what it did in $.delete instead of failing
-    // either way we move on to the next fallback config
     fallbackCleanup.next(fallbackChoice);
-    fallbackCleanup.addCatch(fallbackChoice, { errors: [stepfunctions.Errors.ALL], resultPath: stepfunctions.JsonPath.DISCARD });
+    fallbackCleanup.addCatch(runnerNotDeleted, { errors: [stepfunctions.Errors.ALL], resultPath: '$.delete' });
     fallbackChoice.when(stepfunctions.Condition.isPresent('$.providerParams.fallback'), useFallback);
     fallbackChoice.otherwise(allFailed);
     useFallback.next(tryProvider);
@@ -628,8 +641,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       // for a provider with no fallback and 73 for a four config fallback chain, so 210 attempts land around 15,000
       // while a 5 minute cap would need ~600 attempts and go right past it
       //
-      // those are normal path numbers and not a ceiling. a longer fallback chain costs more, and an attempt whose
-      // clean-up keeps hitting RunnerBusy costs 793, which no attempt count that still covers 24 hours can fit
+      // those are normal path numbers and not a ceiling. a longer fallback chain costs more. an attempt whose clean-up
+      // keeps failing costs 793, but that ends the execution so it only happens once
       //
       // if the execution history limit does hit, we will end give up on this runner. this would only happen when we
       // are having lots of issues provisioning a runners. stolen runner detector may end up replacing it when the
@@ -661,6 +674,11 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           + ' hours so it would be a waste of resources to retry further.');
       }
 
+      // see `runnerNotDeleted` above
+      runProviders.addRetry({
+        errors: ['RunnerNotDeleted'],
+        maxAttempts: 0,
+      });
       runProviders.addRetry({
         interval,
         maxDelay,

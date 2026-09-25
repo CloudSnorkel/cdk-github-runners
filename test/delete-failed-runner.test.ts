@@ -67,21 +67,47 @@ describe('delete-failed-runner', () => {
     expect(console.error).not.toHaveBeenCalled();
   });
 
-  test('Succeeds but reports the runner was not deleted when GitHub rejects the delete', async () => {
+  // the step function does need to see this one, so it can retry until the runner is gone. the next attempt reuses the
+  // runner name and can't register while this one is still there
+  test('Fails when GitHub rejects the delete', async () => {
     mockGetRunner.mockResolvedValue(RUNNER);
     mockDeleteRunner.mockRejectedValue(new Error('Internal server error'));
 
-    await expect(handler(EVENT)).resolves.toEqual({ runnerFound: true, runnerDeleted: false, instancesTerminated: [] });
+    await expect(handler(EVENT)).rejects.toThrow();
 
     expect(console.error).toHaveBeenCalled();
   });
 
-  // this one the step function does need to see, so it can retry until the job lets go of the runner
-  test('Fails with RunnerBusy when the runner is still running a job', async () => {
+  // GitHub changed this message before (#1007) and older GHES versions still use the old one, so both must retry
+  test.each([
+    'Bad request - runner "runner-1" is still running a job',
+    'Runner "runner-1" is currently running a job and cannot be deleted',
+  ])('Fails when the runner is still running a job: %s', async (message) => {
     mockGetRunner.mockResolvedValue(RUNNER);
-    mockDeleteRunner.mockRejectedValue(new Error('Bad request - runner "runner-1" is still running a job'));
+    mockDeleteRunner.mockRejectedValue(new Error(message));
 
-    await expect(handler(EVENT)).rejects.toMatchObject({ name: 'RunnerBusy' });
+    await expect(handler(EVENT)).rejects.toThrow(message);
+  });
+
+  // if we can't look, the runner may still be there and the next attempt would fail to register under the same name
+  test('Fails when it can not look for the runner', async () => {
+    mockGetRunner.mockRejectedValue(new Error('Internal server error'));
+
+    await expect(handler(EC2_EVENT)).rejects.toThrow();
+
+    expect(mockDeleteRunner).not.toHaveBeenCalled();
+    expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
+  });
+
+  // the runner is gone, so a leftover instance can't stop the next attempt from registering. it's not worth failing
+  // the whole execution over, and the idle reaper tries again later
+  test('Succeeds when leftover instances can not be terminated', async () => {
+    mockGetRunner.mockResolvedValue(undefined);
+    mockTerminateRunnerInstances.mockRejectedValue(new Error('UnauthorizedOperation'));
+
+    await expect(handler(EC2_EVENT)).resolves.toEqual({ runnerFound: false, runnerDeleted: false, instancesTerminated: [] });
+
+    expect(console.error).toHaveBeenCalled();
   });
 
   // an EC2 runner whose user data never ran never registers, so this is the path that cleans up after a boot that
@@ -110,7 +136,7 @@ describe('delete-failed-runner', () => {
     mockGetRunner.mockResolvedValue(RUNNER);
     mockDeleteRunner.mockRejectedValue(new Error('Internal server error'));
 
-    await expect(handler(EC2_EVENT)).resolves.toEqual({ runnerFound: true, runnerDeleted: false, instancesTerminated: [] });
+    await expect(handler(EC2_EVENT)).rejects.toThrow();
 
     expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
   });
@@ -119,9 +145,9 @@ describe('delete-failed-runner', () => {
   // would be killing, so the retry has to play out instead
   test('Does not terminate anything while the runner is still busy', async () => {
     mockGetRunner.mockResolvedValue(RUNNER);
-    mockDeleteRunner.mockRejectedValue(new Error('Bad request - runner "runner-1" is still running a job'));
+    mockDeleteRunner.mockRejectedValue(new Error('Runner "runner-1" is currently running a job and cannot be deleted'));
 
-    await expect(handler(EVENT)).rejects.toMatchObject({ name: 'RunnerBusy' });
+    await expect(handler(EC2_EVENT)).rejects.toThrow();
 
     expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
   });
