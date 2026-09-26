@@ -27,8 +27,8 @@ import { DeleteResourcesFunction } from './delete-resources-function';
 import { CleanerTarget, DeleteResourcesProps, ScheduledCleanupEvent } from './delete-resources.lambda';
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
 import { generateBuildWorkflowWithDockerSetupCommands, Workflow } from './workflow';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../../providers';
-import { singletonLogGroup, singletonLambda, SingletonLogType } from '../../utils';
+import { Architecture, Os, RunnerAmi, RunnerImage } from '../../providers';
+import { singletonLambda, singletonLogGroup, SingletonLogType } from '../../utils';
 import { BuildImageFunction } from '../build-image-function';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps, uniqueImageBuilderName } from '../common';
 
@@ -176,7 +176,7 @@ export interface ImageBuilderComponentProperties {
  * }
  * ```
  *
- * @deprecated Use `RunnerImageComponent` instead as this be internal soon.
+ * @internal
  */
 export class ImageBuilderComponent extends cdk.Resource {
   /**
@@ -513,7 +513,6 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       os: this.os,
       architecture: this.architecture,
       logGroup: log,
-      runnerVersion: RunnerVersion.specific('unknown'),
       // no dependable as CloudFormation will fail to get image ARN once the image is deleted (we delete old images daily)
     };
 
@@ -804,7 +803,6 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
       architecture: this.architecture,
       os: this.os,
       logGroup: log,
-      runnerVersion: RunnerVersion.specific('unknown'),
       cacheKey: recipe.version, // re-evaluate AMI whenever the recipe changes
     };
 

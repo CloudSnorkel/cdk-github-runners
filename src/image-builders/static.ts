@@ -3,7 +3,7 @@ import { Construct, DependencyGroup } from 'constructs';
 import { BaseContainerImage } from './aws-image-builder/base-image';
 import { CodeBuildRunnerImageBuilder } from './codebuild';
 import { IRunnerImageBuilder } from './common';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
+import { Architecture, Os, RunnerAmi, RunnerImage } from '../providers';
 
 /**
  * Helper class with methods to use static images that are built outside the context of this project.
@@ -17,7 +17,7 @@ export class StaticRunnerImage {
    * @param architecture image architecture
    * @param os image OS
    */
-  public static fromEcrRepository(repository: ecr.IRepository, tag: string = 'latest', architecture = Architecture.X86_64, os = Os.LINUX): IRunnerImageBuilder {
+  public static fromEcrRepository(repository: ecr.IRepository, tag: string = 'latest', architecture = Architecture.X86_64, os = Os.LINUX_UBUNTU): IRunnerImageBuilder {
     return {
       bindDockerImage(): RunnerImage {
         return {
@@ -25,7 +25,6 @@ export class StaticRunnerImage {
           imageTag: tag,
           architecture,
           os,
-          runnerVersion: RunnerVersion.latest(),
           // the image already exists, so there is nothing to wait for. we still need a dependable, or
           // providers that require one (like Lambda) will refuse to use this image.
           _dependable: new DependencyGroup(),
@@ -49,7 +48,8 @@ export class StaticRunnerImage {
    * @param architecture image architecture
    * @param os image OS
    */
-  public static fromDockerHub(scope: Construct, id: string, image: string, architecture = Architecture.X86_64, os = Os.LINUX): IRunnerImageBuilder {
+  public static fromDockerHub(scope: Construct, id: string, image: string,
+    architecture = Architecture.X86_64, os = Os.LINUX_UBUNTU): IRunnerImageBuilder {
     return new CodeBuildRunnerImageBuilder(scope, id, {
       os,
       architecture,

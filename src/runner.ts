@@ -173,15 +173,6 @@ export interface GitHubRunnersProps {
   readonly allowPublicSubnet?: boolean;
 
   /**
-   * Security group attached to all management functions. Use this with to provide access to GitHub Enterprise Server hosted inside a VPC.
-   *
-   * **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
-   *
-   * @deprecated use {@link securityGroups} instead
-   */
-  readonly securityGroup?: ec2.ISecurityGroup;
-
-  /**
    * Security groups attached to all management functions. Use this to provide outbound access from management functions to GitHub Enterprise Server hosted inside a VPC.
    *
    * **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
@@ -973,9 +964,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
   private lambdaSecurityGroups() {
     if (!this.props?.vpc) {
-      if (this.props?.securityGroup) {
-        cdk.Annotations.of(this).addWarning('securityGroup is specified, but vpc is not. securityGroup will be ignored');
-      }
       if (this.props?.securityGroups) {
         cdk.Annotations.of(this).addWarning('securityGroups is specified, but vpc is not. securityGroups will be ignored');
       }
@@ -984,14 +972,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     }
 
     if (this.props.securityGroups) {
-      if (this.props.securityGroup) {
-        cdk.Annotations.of(this).addWarning('Both securityGroup and securityGroups are specified. securityGroup will be ignored');
-      }
       return this.props.securityGroups;
-    }
-
-    if (this.props.securityGroup) {
-      return [this.props.securityGroup];
     }
 
     return [new ec2.SecurityGroup(this, 'Management Lambdas Security Group', { vpc: this.props.vpc })];

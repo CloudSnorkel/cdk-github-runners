@@ -25,7 +25,7 @@ import { BaseContainerImage, defaultBaseDockerImage } from './aws-image-builder'
 import { BuildImageFunction } from './build-image-function';
 import { BuildImageFunctionProperties } from './build-image.lambda';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
+import { Architecture, Os, RunnerAmi, RunnerImage } from '../providers';
 import { singletonLambda, singletonLogGroup, SingletonLogType, singletonRole } from '../utils';
 
 
@@ -229,7 +229,6 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       architecture: this.architecture,
       os: this.os,
       logGroup,
-      runnerVersion: RunnerVersion.specific('unknown'),
       _dependable: completedImage,
     };
     return this.boundDockerImage;

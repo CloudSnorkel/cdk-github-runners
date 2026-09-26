@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_iam as iam, aws_logs as logs, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { AwsImageBuilderRunnerImageBuilderProps, BaseContainerImageInput, BaseImageInput } from './aws-image-builder';
+import { AwsImageBuilderRunnerImageBuilderProps, BaseContainerImageInput, BaseImage } from './aws-image-builder';
 import { CodeBuildRunnerImageBuilderProps } from './codebuild';
 import { RunnerImageComponent } from './components';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
@@ -186,7 +186,7 @@ export interface RunnerImageBuilderProps {
    *
    * @default latest Ubuntu 22.04 AMI for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, Ubuntu 24.04 AMI for Os.LINUX_UBUNTU_2404, latest Amazon Linux 2 AMI for Os.LINUX_AMAZON_2, latest Windows Server 2022 AMI for Os.WINDOWS
    */
-  readonly baseAmi?: BaseImageInput;
+  readonly baseAmi?: BaseImage;
 
   /**
    * Version of GitHub Runners to install.

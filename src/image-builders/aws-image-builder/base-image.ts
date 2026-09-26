@@ -5,15 +5,6 @@ import { Construct } from 'constructs';
 import { Architecture, Os } from '../../providers';
 
 /**
- * Type that can be used to specify a base image - either a string (deprecated) or a BaseImage object.
- *
- * To create a BaseImage object, use the static factory methods like BaseImage.fromAmiId().
- *
- * Note: String support is deprecated and will be removed in a future version. Use BaseImage static factory methods instead.
- */
-export type BaseImageInput = string | BaseImage;
-
-/**
  * Represents a base image that is used to start from in EC2 Image Builder image builds.
  *
  * This class is adapted from AWS CDK's BaseImage class to support both string and object inputs.
@@ -98,7 +89,7 @@ export class BaseImage {
   public static fromGpuBase(os: Os, architecture: Architecture): BaseImage {
     const arch = architecture.is(Architecture.X86_64) ? 'x86_64' : 'arm64';
 
-    if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_UBUNTU_2204) || os.is(Os.LINUX)) {
+    if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_UBUNTU_2204)) {
       return BaseImage.fromSsmParameterName(`/aws/service/deeplearning/ami/${arch}/base-oss-nvidia-driver-gpu-ubuntu-22.04/latest/ami-id`);
     }
     if (os.is(Os.LINUX_UBUNTU_2404)) {
