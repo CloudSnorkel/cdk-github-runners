@@ -107,6 +107,8 @@ export interface FastLaunchOptions {
 
 /**
  * An asset including file or directory to place inside the built image.
+ *
+ * @internal
  */
 export interface ImageBuilderAsset {
   /**

@@ -111,13 +111,6 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
     this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
 
-    // warn if using deprecated string format (only if user explicitly provided it)
-    if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {
-      Annotations.of(this).addWarning(
-        'Passing baseDockerImage as a string is deprecated. Please use BaseContainerImage static factory methods instead, e.g., BaseContainerImage.fromDockerHub("ubuntu", "22.04") or BaseContainerImage.fromString("public.ecr.aws/lts/ubuntu:22.04")',
-      );
-    }
-
     // warn against isolated networks
     if (props?.subnetSelection?.subnetType == ec2.SubnetType.PRIVATE_ISOLATED) {
       Annotations.of(this).addWarning('Private isolated subnets cannot pull from public ECR and VPC endpoint is not supported yet. ' +

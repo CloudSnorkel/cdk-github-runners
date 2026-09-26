@@ -146,9 +146,7 @@ export interface RunnerImageBuilderProps {
   /**
    * Base image from which Docker runner images will be built.
    *
-   * This can be:
-   * - A string (ECR/ECR public image URI, DockerHub image, or Image Builder ARN) - deprecated, use BaseContainerImage static factory methods instead
-   * - A BaseContainerImage instance created using static factory methods:
+   * This can be a BaseContainerImage instance created using static factory methods:
    *   - `BaseContainerImage.fromDockerHub('ubuntu', '22.04')` - Use DockerHub
    *   - `BaseContainerImage.fromEcr(repo, 'latest')` - Use ECR (automatically grants permissions with CodeBuild)
    *   - `BaseContainerImage.fromEcrPublic('lts', 'ubuntu', '22.04')` - Use ECR Public
