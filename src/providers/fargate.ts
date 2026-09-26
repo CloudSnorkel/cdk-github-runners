@@ -205,12 +205,12 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
     return [
       'powershell', '-Command',
       `cd \\actions ;
-        & ./job-reporter.ps1 "\${Env:RUNNER_NAME}" ;
+        & ./job-reporter.ps1 "$Env:RUNNER_NAME" ;
         if ($Env:RUNNER_VERSION -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ;
-        ./config.cmd --unattended --url "\${Env:REGISTRATION_URL}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL},cdkghr:started:\$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${Env:RUNNER_NAME}" \${Env:RUNNER_GROUP1} \${Env:RUNNER_GROUP2} \${Env:DEFAULT_LABELS} ;
+        ./config.cmd --unattended --url "$Env:REGISTRATION_URL" --token "$Env:RUNNER_TOKEN" --ephemeral --work _work --labels "$Env:RUNNER_LABEL,cdkghr:started:\$(Get-Date -UFormat +%s)" $RunnerFlags --name "$Env:RUNNER_NAME" $Env:RUNNER_GROUP1 $Env:RUNNER_GROUP2 $Env:DEFAULT_LABELS ;
         ./run.cmd ;
         $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;
-        if ($STATUS) { echo "CDKGHA JOB DONE $\{Env:RUNNER_LABEL\} $STATUS" }`,
+        if ($STATUS) { echo "CDKGHA JOB DONE $Env:RUNNER_LABEL $STATUS" }`,
     ];
   } else {
     throw new Error(`Fargate runner doesn't support ${os.name}`);
