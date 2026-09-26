@@ -125,15 +125,6 @@ export class BaseImage {
 }
 
 /**
- * Type that can be used to specify a base container image - either a string (deprecated) or a BaseContainerImage object.
- *
- * To create a BaseContainerImage object, use the static factory methods like BaseContainerImage.fromEcr().
- *
- * Note: String support is deprecated and will be removed in a future version. Use BaseContainerImage static factory methods instead.
- */
-export type BaseContainerImageInput = string | BaseContainerImage;
-
-/**
  * Represents a base container image that is used to start from in EC2 Image Builder container builds.
  *
  * This class is adapted from AWS CDK's BaseContainerImage class to support both string and object inputs.

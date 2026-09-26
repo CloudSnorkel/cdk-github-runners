@@ -109,10 +109,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.buildImage = props?.codeBuildOptions?.buildImage ?? this.getDefaultBuildImage();
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
     this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
-
-    // normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated, only at public API level)
-    const baseDockerImageInput = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
-    this.baseImage = typeof baseDockerImageInput === 'string' ? BaseContainerImage.fromString(baseDockerImageInput) : baseDockerImageInput;
+    this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
 
     // warn if using deprecated string format (only if user explicitly provided it)
     if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {

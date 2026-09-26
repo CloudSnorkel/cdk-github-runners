@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_iam as iam, aws_logs as logs, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { AwsImageBuilderRunnerImageBuilderProps, BaseContainerImageInput, BaseImage } from './aws-image-builder';
+import { AwsImageBuilderRunnerImageBuilderProps, BaseContainerImage, BaseImage } from './aws-image-builder';
 import { CodeBuildRunnerImageBuilderProps } from './codebuild';
 import { RunnerImageComponent } from './components';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
@@ -158,7 +158,7 @@ export interface RunnerImageBuilderProps {
    *
    * @default public.ecr.aws/lts/ubuntu:22.04 for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, public.ecr.aws/lts/ubuntu:24.04 for Os.LINUX_UBUNTU_2404, public.ecr.aws/amazonlinux/amazonlinux:2 for Os.LINUX_AMAZON_2, mcr.microsoft.com/windows/servercore:ltsc2019-amd64 for Os.WINDOWS
    */
-  readonly baseDockerImage?: BaseContainerImageInput;
+  readonly baseDockerImage?: BaseContainerImage;
 
   /**
    * Additional commands to run on the build host before starting the Docker runner image build.
