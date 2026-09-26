@@ -20463,7 +20463,7 @@
      }
     ],
     "Name": "GitHub Runners/Warm runner status",
-    "QueryString": "fields @timestamp, message.notice, message.input.runnerName, message.input.providerPath, message.started, message.stillRunning, message.runnerBusy\n| filter WARM RUNNERS NOT ENABLED\n| sort @timestamp desc\n| limit 200"
+    "QueryString": "fields @timestamp, message.notice, message.runnerName, message.providerPath, message.started, message.stillRunning, message.runnerBusy\n| filter WARM RUNNERS NOT ENABLED\n| sort @timestamp desc\n| limit 200"
    }
   },
   "runnersWarmrunnererrors7307E362": {
@@ -20475,7 +20475,7 @@
      }
     ],
     "Name": "GitHub Runners/Warm runner errors",
-    "QueryString": "fields @timestamp, message.notice, message.input.runnerName, message.error\n| filter WARM RUNNERS NOT ENABLED\n| filter level = \"ERROR\"\n| sort @timestamp desc\n| limit 100"
+    "QueryString": "fields @timestamp, message.notice, message.runnerName, message.error\n| filter WARM RUNNERS NOT ENABLED\n| filter level = \"ERROR\"\n| sort @timestamp desc\n| limit 100"
    }
   },
   "runnersDashboardAD2609CF": {
