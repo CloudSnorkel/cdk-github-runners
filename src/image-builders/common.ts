@@ -172,9 +172,7 @@ export interface RunnerImageBuilderProps {
   /**
    * Base AMI from which runner AMIs will be built.
    *
-   * This can be:
-   * - A string (AMI ID, Image Builder ARN, SSM parameter reference, or Marketplace product ID) - deprecated, use BaseImage static factory methods instead
-   * - A BaseImage instance created using static factory methods:
+   * This can be a BaseImage instance created using static factory methods:
    *   - `BaseImage.fromAmiId('ami-12345')` - Use an AMI ID
    *   - `BaseImage.fromString('arn:aws:imagebuilder:...')` - Use any string (ARN, AMI ID, etc.)
    *   - `BaseImage.fromSsmParameter(parameter)` - Use an SSM parameter object

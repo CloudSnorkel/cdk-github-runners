@@ -122,6 +122,8 @@ export interface ImageBuilderAsset {
 
 /**
  * Properties for ImageBuilderComponent construct.
+ *
+ * @internal
  */
 export interface ImageBuilderComponentProperties {
   /**
@@ -368,25 +370,8 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
     this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
 
-    // normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated, only at public API level)
-    const baseDockerImageInput = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
-    this.baseImage = typeof baseDockerImageInput === 'string' ? BaseContainerImage.fromString(baseDockerImageInput) : baseDockerImageInput;
-
-    // normalize BaseImageInput to BaseImage (string support is deprecated, only at public API level)
-    const baseAmiInput = props?.baseAmi ?? defaultBaseAmi(this, this.os, this.architecture);
-    this.baseAmi = typeof baseAmiInput === 'string' ? BaseImage.fromString(baseAmiInput) : baseAmiInput;
-
-    // warn if using deprecated string format
-    if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {
-      Annotations.of(this).addWarning(
-        'Passing baseDockerImage as a string is deprecated. Please use BaseContainerImage static factory methods instead, e.g., BaseContainerImage.fromDockerHub("ubuntu", "22.04") or BaseContainerImage.fromString("public.ecr.aws/lts/ubuntu:22.04")',
-      );
-    }
-    if (props?.baseAmi && typeof props.baseAmi === 'string') {
-      Annotations.of(this).addWarning(
-        'Passing baseAmi as a string is deprecated. Please use BaseImage static factory methods instead, e.g., BaseImage.fromAmiId("ami-12345") or BaseImage.fromString("arn:aws:...")',
-      );
-    }
+    this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
+    this.baseAmi = props?.baseAmi ?? defaultBaseAmi(this, this.os, this.architecture);
 
     // tags for finding resources
     this.tags = {

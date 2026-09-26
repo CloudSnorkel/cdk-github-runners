@@ -56,7 +56,7 @@ class StorageOptionsStack(Stack):
             ),
             # Increase storage for AMI builder to support larger images
             # The runner storage size must be at least as large as the AMI builder storage size
-            ami_builder=Ec2RunnerProvider.image_builder(
+            image_builder=Ec2RunnerProvider.image_builder(
                 self, "Ami Builder",
                 vpc=vpc,
                 aws_image_builder_options=AwsImageBuilderRunnerImageBuilderProps(

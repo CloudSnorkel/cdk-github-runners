@@ -52,7 +52,7 @@ class StorageOptionsStack extends Stack {
       },
       // Increase storage for AMI builder to support larger images
       // The runner storage size must be at least as large as the AMI builder storage size
-      amiBuilder: Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
+      imageBuilder: Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
         vpc: vpc,
         awsImageBuilderOptions: {
           storageSize: Size.gibibytes(50), // 50 GB for AMI builder (default is usually 30GB for Linux)
