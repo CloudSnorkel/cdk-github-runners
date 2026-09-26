@@ -541,7 +541,8 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
       // anything else resets the back-off, including an idle runner that died after a while (e.g. spot interruption).
       const ranMs = (execution.stopDate ?? new Date()).getTime() - (execution.startDate ?? new Date()).getTime();
       const failed = !stillRunning && !runner?.busy && execution.status !== 'SUCCEEDED' && ranMs < FAST_FAILURE_MS;
-      const failures = failed ? (input.failures ?? 0) + 1 : 0;
+      const previousFailures = Number.isInteger(input.failures) && input.failures! > 0 ? input.failures! : 0;
+      const failures = failed ? previousFailures + 1 : 0;
       console.log({
         notice: 'Warm runner finished or busy; starting replacement',
         configHash: input.configHash,

@@ -498,4 +498,44 @@ describe('Warm runner infra is shared', () => {
     expect(hashes).toContain(warm2._fillPayload.configHash);
     expect(hashes[0]).not.toBe(hashes[1]);
   });
+
+  test('manager allows recursive loop and gets longest duration', () => {
+    const p1 = new CodeBuildRunnerProvider(stack, 'p1', { labels: ['a'] });
+    const p2 = new LambdaRunnerProvider(stack, 'p2', { labels: ['b'] });
+
+    const runners = new GitHubRunners(stack, 'runners', {
+      providers: [p1, p2],
+    });
+
+    new AlwaysOnWarmRunner(stack, 'warm1', {
+      runners,
+      provider: p1,
+      count: 1,
+      owner: 'my-org',
+      registrationLevel: 'org',
+    });
+
+    new ScheduledWarmRunner(stack, 'warm2', {
+      runners,
+      provider: p2,
+      count: 1,
+      owner: 'my-org',
+      registrationLevel: 'org',
+      schedule: events.Schedule.cron({ weekDay: 'MON', hour: '0', minute: '0' }),
+      duration: cdk.Duration.days(2),
+    });
+
+    const template = Template.fromStack(stack);
+
+    // keeper messages enqueue their own replacement, so AWS recursive loop detection would stop warm runners (#948)
+    template.hasResourceProperties('AWS::Lambda::Function', {
+      Description: 'Manage warm GitHub runners: fill on invoke, keep alive via SQS',
+      RecursiveLoop: 'Allow',
+      Environment: {
+        Variables: Match.objectLike({
+          WARM_MAX_DURATION_SECONDS: '172800',
+        }),
+      },
+    });
+  });
 });

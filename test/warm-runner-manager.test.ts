@@ -261,6 +261,32 @@ describe('warm-runner-manager.lambda handler', () => {
       );
     });
 
+    test.each([
+      ['negative', -3],
+      ['fractional', 1.5],
+      ['not a number', 'abc'],
+    ])('step function failed with %s failure count - backs off from zero', async (_name, failures) => {
+      const message = createKeeperMessage({ failures: failures as number });
+      const event = createSqsEvent([createKeeperSqsRecord(message)]);
+
+      mockSfnSend
+        .mockResolvedValueOnce({ status: 'FAILED', startDate: new Date(Date.now() - 60_000), stopDate: new Date() })
+        .mockResolvedValueOnce({ executionArn: 'arn:aws:states:us-east-1:123456789012:execution:test:new-runner' });
+      mockGetRunner.mockResolvedValue(null);
+      mockSqsSend.mockResolvedValue({});
+
+      await handler(event);
+
+      expect(mockSqsSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          input: expect.objectContaining({
+            MessageBody: expect.stringContaining('"failures":1'),
+            DelaySeconds: 120,
+          }),
+        }),
+      );
+    });
+
     test('idle runner died after a while - replaces without back-off', async () => {
       const message = createKeeperMessage({ failures: 3 });
       const event = createSqsEvent([createKeeperSqsRecord(message)]);
