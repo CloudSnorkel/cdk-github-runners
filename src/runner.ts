@@ -395,6 +395,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private warmRunnerManager?: lambda.Function;
   private warmRunnerQueue?: sqs.Queue;
   private warmConfigHashes: string[] = [];
+  private warmMaxDuration = 0;
   private deleteFailedRunnerFunction?: lambda.IFunction;
   private readonly managementFunctions: lambda.IFunction[] = [];
 
@@ -1545,11 +1546,13 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   /**
    * Register a warm runner config hash. All registered hashes are passed to the
    * manager Lambda via WARM_CONFIG_HASHES env var so keepers can detect stale configs.
+   * The longest duration is passed via WARM_MAX_DURATION_SECONDS so keepers can reject bogus deadlines.
    *
    * @internal
    */
-  public _registerWarmConfigHash(hash: string): void {
+  public _registerWarmConfigHash(hash: string, duration: number): void {
     this.warmConfigHashes.push(hash);
+    this.warmMaxDuration = Math.max(this.warmMaxDuration, duration);
   }
 
   /**
@@ -1575,11 +1578,15 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         STEP_FUNCTION_ARN: this.orchestrator.stateMachineArn,
         WARM_RUNNER_QUEUE_URL: this.warmRunnerQueue.queueUrl,
         WARM_CONFIG_HASHES: cdk.Lazy.string({ produce: () => this.warmConfigHashes.join(',') }),
+        WARM_MAX_DURATION_SECONDS: cdk.Lazy.string({ produce: () => this.warmMaxDuration.toString() }),
         ...this.extraLambdaEnv,
       },
       timeout: cdk.Duration.seconds(50),
       logGroup: singletonLogGroup(this, SingletonLogType.ORCHESTRATOR),
       loggingFormat: lambda.LoggingFormat.JSON,
+      // keeper messages enqueue their own replacement, so a busy runner slot is an intentional Lambda -> SQS -> Lambda chain
+      // it's bounded by the absolute deadline and rate limited by the keeper, so AWS recursion detection is not needed
+      recursiveLoop: lambda.RecursiveLoop.ALLOW,
       ...this.extraLambdaProps,
     });
 

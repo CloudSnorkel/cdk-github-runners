@@ -52,6 +52,16 @@
  *   checking. The visibility timeout (1 min) determines how often runners are
  *   polled. Failed messages are retried until they succeed or the runner
  *   self-terminates at its idle timeout.
+ * - Keeper messages enqueue their own replacement, which is a Lambda -> SQS -> Lambda
+ *   loop by design. AWS recursive loop detection is disabled for this function, so
+ *   the loop is rate limited here instead: new keeper messages are delayed by a
+ *   minute, and that delay doubles (up to 15 minutes) for every runner in a row that
+ *   failed within 5 minutes without taking a job. This keeps a broken provider from
+ *   starting a new runner every few seconds until the deadline. A provider that fails
+ *   slower than that is only limited by the one minute delay. That one minute delay
+ *   doesn't delay the runner itself, but only the keeper message which checks if it's
+ *   busy and needs to be replaced. A runner won't normally start much faster than a
+ *   minute anyway so this delay doesn't impact the user much.
  * - Each fill unconditionally starts `count` runners — it does not check how many
  *   are already running. On cron fire, this creates a brief overlap with the
  *   previous cycle's runners (which are near their deadline).
@@ -86,6 +96,9 @@ const sfn = new SFNClient();
 const sqs = new SQSClient();
 
 const SFN_EXECUTION_NAME_MAX_LENGTH = 80;
+const KEEPER_DELAY_SECONDS = 60;
+const KEEPER_MAX_DELAY_SECONDS = 900; // SQS maximum
+const FAST_FAILURE_MS = 5 * 60 * 1000;
 
 export interface WarmRunnerKeeperMessage {
   readonly executionArn: string;
@@ -97,6 +110,7 @@ export interface WarmRunnerKeeperMessage {
   readonly providerLabels: string[];
   readonly absoluteDeadline: number; // Unix ms — inherited by replacements
   readonly configHash: string;
+  readonly failures?: number; // consecutive failed runners in this slot (for back-off calculation)
 }
 
 /**
@@ -144,6 +158,7 @@ interface StartWarmRunnerInput {
   readonly configHash: string;
   readonly executionName: string;
   readonly slot?: number; // 0-based index when filling multiple slots; helps correlate logs
+  readonly failures?: number; // consecutive failed runners in this slot (for back-off calculation)
 }
 
 /**
@@ -225,11 +240,17 @@ async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
     providerLabels: input.providerLabels,
     absoluteDeadline: input.absoluteDeadline,
     configHash: input.configHash,
+    failures: input.failures,
   };
+
+  // delay the first check so a runner that keeps failing can't spin in a tight loop of replacements
+  // back off exponentially while the slot keeps failing (a new runner can't register in less than a minute anyway)
+  const delaySeconds = Math.min(KEEPER_DELAY_SECONDS * 2 ** (input.failures ?? 0), KEEPER_MAX_DELAY_SECONDS);
 
   await sqs.send(new SendMessageCommand({
     QueueUrl: queueUrl,
     MessageBody: JSON.stringify(message),
+    DelaySeconds: delaySeconds,
   }));
 
   console.log({
@@ -239,6 +260,8 @@ async function startWarmRunnerAndEnqueueKeeper(input: StartWarmRunnerInput) {
     runnerName: input.executionName,
     executionArn,
     remainingSeconds,
+    failures: input.failures,
+    delaySeconds,
   });
 }
 
@@ -361,6 +384,7 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
   }
 
   const validHashes = new Set((process.env.WARM_CONFIG_HASHES ?? '').split(',').filter(Boolean));
+  const maxDurationMs = parseInt(process.env.WARM_MAX_DURATION_SECONDS ?? '0', 10) * 1000;
   const result: AWSLambda.SQSBatchResponse = { batchItemFailures: [] };
   const octokitCache = new Map<number | undefined, { octokit: Octokit; secrets: GitHubSecrets }>();
 
@@ -458,6 +482,30 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
       continue;
     }
 
+    // reject bad deadlines to avoid spinning up too many warm runners.
+    // missing deadline or further than any config allows - the deadline is all that ends a chain, so don't trust it and stop the runner.
+    // a minute of slack covers clock differences between invocations.
+    if (!Number.isFinite(input.absoluteDeadline) || (maxDurationMs > 0 && input.absoluteDeadline > Date.now() + maxDurationMs + 60_000)) {
+      console.error({
+        notice: 'Warm runner deadline is invalid or further than the longest configured duration, stopping and deleting',
+        configHash: input.configHash,
+        runnerName: input.runnerName,
+        absoluteDeadline: input.absoluteDeadline,
+        maxDurationMs,
+      });
+      try {
+        await stopAndDeleteRunner(input, octokit, secrets, 'WarmRunnerBadDeadline');
+      } catch (e) {
+        console.error({
+          notice: 'Failed to stop warm runner with bad deadline; it will self-terminate at idle timeout',
+          configHash: input.configHash,
+          runnerName: input.runnerName,
+          error: e,
+        });
+      }
+      continue;
+    }
+
     // past deadline - keeper must stop and delete the runner
     if (Date.now() >= input.absoluteDeadline) {
       console.log({
@@ -489,12 +537,19 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
 
     // need replacement: step function finished (not running) or runner took a job (busy)
     if (!stillRunning || runner?.busy) {
+      // a runner that failed quickly without taking a job (e.g. broken provider config) will likely fail again, so back off.
+      // anything else resets the back-off, including an idle runner that died after a while (e.g. spot interruption).
+      const ranMs = (execution.stopDate ?? new Date()).getTime() - (execution.startDate ?? new Date()).getTime();
+      const failed = !stillRunning && !runner?.busy && execution.status !== 'SUCCEEDED' && ranMs < FAST_FAILURE_MS;
+      const failures = failed ? (input.failures ?? 0) + 1 : 0;
       console.log({
         notice: 'Warm runner finished or busy; starting replacement',
         configHash: input.configHash,
         runnerName: input.runnerName,
         stillRunning,
         runnerBusy: runner?.busy ?? false,
+        executionStatus: execution.status,
+        failures,
       });
       try {
         await startWarmRunnerAndEnqueueKeeper({
@@ -506,6 +561,7 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
           absoluteDeadline: input.absoluteDeadline,
           configHash: input.configHash,
           executionName: deterministicExecutionName(input.providerPath, record.messageId),
+          failures,
         });
       } catch (e) {
         console.error({
