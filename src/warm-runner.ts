@@ -108,7 +108,7 @@ function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule:
   };
 
   const { lambda: managerFn, queue } = props.runners._ensureWarmRunnerInfra();
-  props.runners._registerWarmConfigHash(configHash);
+  props.runners._registerWarmConfigHash(configHash, duration);
 
   // Schedule to fill the warm pool (usually daily). Sends to SQS so we get stable messageId for idempotent fills.
   new events.Rule(scope, 'Schedule', {
