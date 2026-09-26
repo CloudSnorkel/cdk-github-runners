@@ -610,49 +610,30 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
   }
 
   private defaultClusterInstanceAmi() {
-    let baseImage: ec2.IMachineImage;
-    let ssmPath: string;
-    let found = false;
+    let os = ec2.OperatingSystemType.LINUX;
+    let ssmPath: string | undefined;
 
     if (this.image.os.isIn(Os._ALL_LINUX_VERSIONS)) {
       if (this.gpuCount > 0 && this.image.architecture.is(Architecture.X86_64)) {
-        baseImage = ecs.EcsOptimizedImage.amazonLinux2023(ecs.AmiHardwareType.GPU);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/gpu/recommended/image_id';
-        found = true;
       } else if (this.image.architecture.is(Architecture.X86_64)) {
-        baseImage = ecs.EcsOptimizedImage.amazonLinux2023(ecs.AmiHardwareType.STANDARD);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id';
-        found = true;
       } else if (this.image.architecture.is(Architecture.ARM64)) {
-        baseImage = ecs.EcsOptimizedImage.amazonLinux2023(ecs.AmiHardwareType.ARM);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/arm64/recommended/image_id';
-        found = true;
       }
     }
 
     if (this.image.os.is(Os.WINDOWS)) {
-      baseImage = ecs.EcsOptimizedImage.windows(ecs.WindowsOptimizedVersion.SERVER_2019);
+      os = ec2.OperatingSystemType.WINDOWS;
       ssmPath = '/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized/image_id';
-      found = true;
     }
 
-    if (!found) {
+    if (!ssmPath) {
       throw new Error(`Unable to find AMI for ECS instances for ${this.image.os.name}/${this.image.architecture.name} (gpuCount=${this.gpuCount})`);
     }
 
-    const image: ec2.IMachineImage = {
-      getImage(scope: Construct): ec2.MachineImageConfig {
-        const baseImageRes = baseImage.getImage(scope);
-
-        return {
-          imageId: `resolve:ssm:${ssmPath}`,
-          userData: baseImageRes.userData,
-          osType: baseImageRes.osType,
-        };
-      },
-    };
-
-    return image;
+    // resolved by EC2 on every launch, so new instances always get the latest AMI without redeploying
+    return ec2.MachineImage.resolveSsmParameterAtLaunch(ssmPath, { os });
   }
 
   private pullCommand() {

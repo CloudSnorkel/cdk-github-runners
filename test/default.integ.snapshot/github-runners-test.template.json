@@ -10723,7 +10723,7 @@
       "Command": [
        "powershell",
        "-Command",
-       "cd \\actions ;\n        & ./job-reporter.ps1 \"${Env:RUNNER_NAME}\" ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ;\n        ./config.cmd --unattended --url \"${Env:REGISTRATION_URL}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"${Env:RUNNER_NAME}\" ${Env:RUNNER_GROUP1} ${Env:RUNNER_GROUP2} ${Env:DEFAULT_LABELS} ;\n        ./run.cmd ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
+       "cd \\actions ;\n        & ./job-reporter.ps1 \"$Env:RUNNER_NAME\" ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ;\n        ./config.cmd --unattended --url \"$Env:REGISTRATION_URL\" --token \"$Env:RUNNER_TOKEN\" --ephemeral --work _work --labels \"$Env:RUNNER_LABEL,cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"$Env:RUNNER_NAME\" $Env:RUNNER_GROUP1 $Env:RUNNER_GROUP2 $Env:DEFAULT_LABELS ;\n        ./run.cmd ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE $Env:RUNNER_LABEL $STATUS\" }"
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -12781,7 +12781,7 @@
       "Command": [
        "powershell",
        "-Command",
-       "cd \\actions ;\n        & ./job-reporter.ps1 \"${Env:RUNNER_NAME}\" ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ;\n        ./config.cmd --unattended --url \"${Env:REGISTRATION_URL}\" --token \"${Env:RUNNER_TOKEN}\" --ephemeral --work _work --labels \"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"${Env:RUNNER_NAME}\" ${Env:RUNNER_GROUP1} ${Env:RUNNER_GROUP2} ${Env:DEFAULT_LABELS} ;\n        ./run.cmd ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\" }"
+       "cd \\actions ;\n        & ./job-reporter.ps1 \"$Env:RUNNER_NAME\" ;\n        if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" } ;\n        ./config.cmd --unattended --url \"$Env:REGISTRATION_URL\" --token \"$Env:RUNNER_TOKEN\" --ephemeral --work _work --labels \"$Env:RUNNER_LABEL,cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"$Env:RUNNER_NAME\" $Env:RUNNER_GROUP1 $Env:RUNNER_GROUP2 $Env:DEFAULT_LABELS ;\n        ./run.cmd ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE $Env:RUNNER_LABEL $STATUS\" }"
       ],
       "Essential": true,
       "Image": {
@@ -20675,25 +20675,6 @@
    "DeletionPolicy": "Delete"
   }
  },
- "Parameters": {
-  "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2023recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
-   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
-   "Default": "/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id"
-  },
-  "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2023arm64recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
-   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
-   "Default": "/aws/service/ecs/optimized-ami/amazon-linux-2023/arm64/recommended/image_id"
-  },
-  "SsmParameterValueawsserviceamiwindowslatestWindowsServer2019EnglishFullECSOptimizedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
-   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
-   "Default": "/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized/image_id"
-  },
-  "BootstrapVersion": {
-   "Type": "AWS::SSM::Parameter::Value<String>",
-   "Default": "/cdk-bootstrap/hnb659fds/version",
-   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
-  }
- },
  "Outputs": {
   "runnersstatuscommand4A30F0F5": {
    "Value": {
@@ -20712,6 +20693,13 @@
      ]
     ]
    }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
   }
  },
  "Rules": {
