@@ -160,7 +160,7 @@
   },
   "main": "lib/index.js",
   "license": "Apache-2.0",
-  "stability": "experimental",
+  "stability": "stable",
   "publishConfig": {
     "access": "public"
   },
