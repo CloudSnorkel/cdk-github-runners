@@ -1349,7 +1349,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       queryDefinitionName: `${prefix}/Warm runner status`,
       logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
       queryString: new logs.QueryString({
-        fields: ['@timestamp', 'message.notice', 'message.input.runnerName', 'message.input.providerPath', 'message.started', 'message.stillRunning', 'message.runnerBusy'],
+        fields: ['@timestamp', 'message.notice', 'message.runnerName', 'message.providerPath', 'message.started', 'message.stillRunning', 'message.runnerBusy'],
         filterStatements: [
           cdk.Lazy.string({
             produce: () => {
@@ -1370,7 +1370,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       queryDefinitionName: `${prefix}/Warm runner errors`,
       logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
       queryString: new logs.QueryString({
-        fields: ['@timestamp', 'message.notice', 'message.input.runnerName', 'message.error'],
+        fields: ['@timestamp', 'message.notice', 'message.runnerName', 'message.error'],
         filterStatements: [
           cdk.Lazy.string({
             produce: () => {
