@@ -132,7 +132,7 @@ elif action |& tee /var/log/runner.log; then
 else
   aws stepfunctions send-task-failure --task-token file:///tmp/task-token --error Runner.Error.$? --cause "Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $(tail -n 1 /var/log/runner.log)" |& tee -a /var/log/runner.log
 fi
-gi`.replace(/\\/g, '\\\\').replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
+`.replace(/\\/g, '\\\\').replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
 
 // this script is specifically made so `poweroff` is absolutely always called
 // each `{}` is a variable coming from `params` below and their order should match the linux script
