@@ -131,6 +131,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
     // too many console.log() lines in EVERY build
     extraCliOptions: ['--silent'],
   },
+  buildWorkflowOptions: {
+    workflowTriggers: { pullRequest: {} }, // no workflow_dispatch, CodeQL flags it as cache poisoning
+  },
 });
 
 // disable automatic releases, but keep workflow that can be triggered manually
