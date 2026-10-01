@@ -179,7 +179,7 @@ FargateRunnerProvider.imageBuilder(stack, 'AL2 builder', {
 const runners = new GitHubRunners(stack, 'runners', {
   providers: [
     new CodeBuildRunnerProvider(stack, 'CodeBuildx64', {
-      label: 'codebuild-x64',
+      labels: ['codebuild-x64'],
       imageBuilder: codeBuildImageBuilder,
     }),
     new CodeBuildRunnerProvider(stack, 'CodeBuildUbuntu2404x64', {

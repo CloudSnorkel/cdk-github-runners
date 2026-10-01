@@ -614,16 +614,6 @@ export abstract class RunnerImageComponent {
   }
 
   /**
-   * A component to install Docker-in-Docker.
-   *
-   * @deprecated use `docker()`
-   * @param version Software version to install (e.g. '29.1.5'). Default: latest.
-   */
-  static dockerInDocker(version?: string): RunnerImageComponent {
-    return RunnerImageComponent.docker(version);
-  }
-
-  /**
    * A component to add a trusted certificate authority. This can be used to support GitHub Enterprise Server with self-signed certificate.
    *
    * @param source path to certificate file in PEM format, or a directory containing certificate files (.pem or .crt)

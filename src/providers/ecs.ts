@@ -107,17 +107,6 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
   readonly capacityProvider?: ecs.AsgCapacityProvider;
 
   /**
-   * Assign public IP to the runner task.
-   *
-   * @deprecated ECS runner tasks use bridge networking, so they share the host instance's network interface and
-   * cannot get a public IP of their own. This property is ignored. Give the cluster instances internet access
-   * instead (a public subnet or a NAT gateway), and open an issue if you need `awsvpc` networking for ECS.
-   *
-   * @default - ignored
-   */
-  readonly assignPublicIp?: boolean;
-
-  /**
    * The number of cpu units used by the task. 1024 units is 1 vCPU. Fractions of a vCPU are supported.
    *
    * @default 1024
@@ -575,13 +564,6 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
 
     // permissions for SSM Session Manager
     this.task.taskRole.addToPrincipalPolicy(MINIMAL_ECS_SSM_SESSION_MANAGER_POLICY_STATEMENT);
-
-    if (props?.assignPublicIp) {
-      cdk.Annotations.of(this).addWarning('assignPublicIp is set to `true`, but ECS tasks on EC2 run using bridge mode. In bridge mode, the task ' +
-        'uses the host instance\'s network interface and IP address. The task will not have its own public IP address. Ensure that the host ' +
-        'instances have internet access (e.g., through a NAT gateway) if the tasks need to access external resources. Please open a GitHub issue ' +
-        'if you need VPC networking mode for ECS.');
-    }
   }
 
   private defaultClusterInstanceType() {

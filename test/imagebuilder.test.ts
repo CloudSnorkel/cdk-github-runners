@@ -6,13 +6,11 @@ import { aws_ec2 as ec2, aws_ecr as ecr, aws_ssm as ssm } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import {
-  AmiBuilder,
   Architecture,
   BaseContainerImage,
   BaseImage,
   CodeBuildRunnerImageBuilder,
   CodeBuildRunnerProvider,
-  ContainerImageBuilder,
   Ec2RunnerProvider,
   FargateRunnerProvider,
   GitHubRunners,
@@ -34,19 +32,6 @@ describe('Image Builder', () => {
 
   afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
-  test('AMI builder matching instance type (DEPRECATED)', () => {
-
-    const vpc = new ec2.Vpc(stack, 'vpc');
-
-    expect(() => {
-      new AmiBuilder(stack, 'linux arm64', {
-        os: Os.LINUX,
-        architecture: Architecture.ARM64,
-        vpc,
-      });
-    }).toThrowError('Builder architecture (ARM64) doesn\'t match selected instance type (m6i.large / x86_64)');
-  });
-
   test('AMI builder matching instance type', () => {
 
     const vpc = new ec2.Vpc(stack, 'vpc');
@@ -59,75 +44,6 @@ describe('Image Builder', () => {
         builderType: RunnerImageBuilderType.AWS_IMAGE_BUILDER,
       });
     }).toThrowError('Builder architecture (ARM64) doesn\'t match selected instance type (m6i.large / x86_64)');
-  });
-
-  test('AMI builder supported OS', () => {
-
-    const vpc = new ec2.Vpc(stack, 'vpc');
-
-    new AmiBuilder(stack, 'linux x64', {
-      os: Os.LINUX,
-      architecture: Architecture.X86_64,
-      vpc,
-    });
-    new AmiBuilder(stack, 'linux arm64', {
-      os: Os.LINUX,
-      architecture: Architecture.ARM64,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
-      vpc,
-    });
-    new AmiBuilder(stack, 'win x64', {
-      os: Os.WINDOWS,
-      architecture: Architecture.X86_64,
-      vpc,
-    });
-    new AmiBuilder(stack, 'win arm64', {
-      os: Os.WINDOWS,
-      architecture: Architecture.ARM64,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
-      vpc,
-    });
-  });
-
-  test('AMI do not skip docker', () => {
-
-    const vpc = new ec2.Vpc(stack, 'vpc');
-
-    new AmiBuilder(stack, 'windows', {
-      os: Os.WINDOWS,
-      vpc,
-      installDocker: true,
-    });
-
-    const template = Template.fromStack(stack);
-
-    template.hasResourceProperties(
-      'AWS::ImageBuilder::Component',
-      Match.objectLike({
-        Description: 'Install latest version of Docker',
-      }),
-    );
-  });
-
-  test('AMI skip docker', () => {
-
-    const vpc = new ec2.Vpc(stack, 'vpc');
-
-    new AmiBuilder(stack, 'windows', {
-      os: Os.WINDOWS,
-      vpc,
-      installDocker: false,
-    });
-
-    const template = Template.fromStack(stack);
-
-    template.resourcePropertiesCountIs(
-      'AWS::ImageBuilder::Component',
-      Match.objectLike({
-        Description: 'Install latest version of Docker',
-      }),
-      0,
-    );
   });
 
   test('AMI tags are merged into the distribution configuration', () => {
@@ -189,40 +105,6 @@ describe('Image Builder', () => {
         }),
       ]),
     }));
-  });
-
-  test('Container image builder supported OS', () => {
-
-    const vpc = new ec2.Vpc(stack, 'vpc');
-
-    expect(() => {
-      new ContainerImageBuilder(stack, 'linux x64', {
-        os: Os.LINUX,
-        architecture: Architecture.X86_64,
-        vpc,
-      });
-    }).toThrowError('Unsupported OS: Linux.');
-    expect(() => {
-      new ContainerImageBuilder(stack, 'linux arm64', {
-        os: Os.LINUX,
-        architecture: Architecture.ARM64,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
-        vpc,
-      });
-    }).toThrowError('Unsupported architecture: ARM64. Consider CodeBuild for faster image builds.');
-    new ContainerImageBuilder(stack, 'win x64', {
-      os: Os.WINDOWS,
-      architecture: Architecture.X86_64,
-      vpc,
-    });
-    expect(() => {
-      new ContainerImageBuilder(stack, 'win arm64', {
-        os: Os.WINDOWS,
-        architecture: Architecture.ARM64,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
-        vpc,
-      });
-    }).toThrowError('Unsupported architecture: ARM64. Consider CodeBuild for faster image builds.');
   });
 
   test('AWS Image Builder reuse', () => {
