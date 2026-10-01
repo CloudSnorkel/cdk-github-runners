@@ -15,22 +15,27 @@ jobs:
       patch_created: ${{ steps.create_patch.outputs.patch_created }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: main
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+        id: setup_pnpm
+        uses: pnpm/action-setup@v6.0.10
         with:
           version: 10.33.0
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        id: setup_node_js
+        uses: actions/setup-node@v7.0.0
         with:
           node-version: lts/*
           cache: pnpm
           package-manager-cache: true
       - name: Install dependencies
+        id: install_dependencies
         run: pnpm i --frozen-lockfile
       - name: Upgrade dependencies
+        id: upgrade_dependencies
         run: pnpm exec projen upgrade
       - name: Find mutations
         id: create_patch
@@ -40,8 +45,9 @@ jobs:
         shell: bash
         working-directory: ./
       - name: Upload patch
+        id: upload_patch
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: repo.patch
           path: repo.patch
@@ -55,23 +61,27 @@ jobs:
     if: ${{ needs.upgrade.outputs.patch_created }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: main
       - name: Download patch
-        uses: actions/download-artifact@v8
+        id: download_patch
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: repo.patch
           path: ${{ runner.temp }}
       - name: Apply patch
+        id: apply_patch
         run: '[ -s ${{ runner.temp }}/repo.patch ] && git apply ${{ runner.temp }}/repo.patch || echo "Empty patch. Skipping."'
       - name: Set git identity
+        id: set_git_identity
         run: |-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Create Pull Request
         id: create-pr
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@v8.1.1
         with:
           token: ${{ secrets.PROJEN_GITHUB_TOKEN }}
           commit-message: |-
