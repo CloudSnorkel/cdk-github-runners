@@ -12,7 +12,6 @@ import {
   IRunnerImageBuilder,
   LambdaRunnerProvider,
   Os,
-  RunnerVersion,
 } from '../src';
 
 describe('Providers', () => {
@@ -598,7 +597,6 @@ describe('Providers', () => {
           launchTemplate: ec2.LaunchTemplate.fromLaunchTemplateAttributes(stack, 'byo-lt', { launchTemplateId: 'lt-01234567' }),
           architecture: Architecture.X86_64,
           os: Os.LINUX_UBUNTU_2404,
-          runnerVersion: RunnerVersion.latest(),
           // no cacheKey
         };
       },

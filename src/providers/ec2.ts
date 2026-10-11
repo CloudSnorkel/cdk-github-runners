@@ -256,11 +256,6 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
   readonly imageBuilder?: IRunnerImageBuilder;
 
   /**
-   * @deprecated use imageBuilder
-   */
-  readonly amiBuilder?: IRunnerImageBuilder;
-
-  /**
    * GitHub Actions labels used for this provider.
    *
    * These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
@@ -310,29 +305,11 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
   readonly storageOptions?: StorageOptions;
 
   /**
-   * Security Group to assign to launched runner instances.
-   *
-   * @default a new security group
-   *
-   * @deprecated use {@link securityGroups}
-   */
-  readonly securityGroup?: ec2.ISecurityGroup;
-
-  /**
    * Security groups to assign to launched runner instances.
    *
    * @default a new security group
    */
   readonly securityGroups?: ec2.ISecurityGroup[];
-
-  /**
-   * Subnet where the runner instances will be launched.
-   *
-   * @default default subnet of account's default VPC
-   *
-   * @deprecated use {@link vpc} and {@link subnetSelection}
-   */
-  readonly subnet?: ec2.ISubnet;
 
   /**
    * VPC where runner instances will be launched.
@@ -540,8 +517,8 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider, 
     this.labels = props?.labels ?? ['ec2'];
     this.group = props?.group;
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'Default VPC', { isDefault: true });
-    this.securityGroups = props?.securityGroup ? [props.securityGroup] : (props?.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })]);
-    this.subnets = props?.subnet ? [props.subnet] : this.vpc.selectSubnets(props?.subnetSelection).subnets;
+    this.securityGroups = props?.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })];
+    this.subnets = this.vpc.selectSubnets(props?.subnetSelection).subnets;
     this.instanceType = props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
     this.storageSize = props?.storageSize ?? cdk.Size.gibibytes(30); // 30 is the minimum for Windows
     this.storageOptions = props?.storageOptions;
@@ -563,7 +540,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider, 
 
     const arch = this.instanceType.architecture === ec2.InstanceArchitecture.ARM_64 ? Architecture.ARM64 : Architecture.X86_64;
 
-    this.amiBuilder = props?.imageBuilder ?? props?.amiBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
+    this.amiBuilder = props?.imageBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
       vpc: props?.vpc,
       subnetSelection: props?.subnetSelection,
       securityGroups: this.securityGroups,
@@ -746,10 +723,3 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider, 
     return new ec2.Connections({ securityGroups: this.securityGroups });
   }
 }
-
-/**
- * @deprecated use {@link Ec2RunnerProvider}
- */
-export class Ec2Runner extends Ec2RunnerProvider {
-}
-

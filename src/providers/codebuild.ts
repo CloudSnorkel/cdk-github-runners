@@ -1,4 +1,3 @@
-import * as path from 'path';
 import {
   Annotations,
   ArnFormat,
@@ -22,12 +21,12 @@ import {
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
+  providerParam,
+  RunnerEnvConfig,
   runnerEnvironment,
   RunnerImage,
   RunnerProviderProps,
   RunnerVersion,
-  providerParam,
-  RunnerEnvConfig,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 
@@ -43,14 +42,6 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
    * @default CodeBuildRunnerProvider.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
-
-  /**
-   * GitHub Actions label used for this provider.
-   *
-   * @default undefined
-   * @deprecated use {@link labels} instead
-   */
-  readonly label?: string;
 
   /**
    * GitHub Actions labels used for this provider.
@@ -83,15 +74,6 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
    * @default no VPC
    */
   readonly vpc?: ec2.IVpc;
-
-  /**
-   * Security group to assign to this instance.
-   *
-   * @default public project with no security group
-   *
-   * @deprecated use {@link securityGroups}
-   */
-  readonly securityGroup?: ec2.ISecurityGroup;
 
   /**
    * Security groups to assign to this instance.
@@ -181,36 +163,6 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
   public static readonly _FAMILY = 'codebuild';
 
   /**
-   * Path to Dockerfile for Linux x64 with all the requirements for CodeBuild runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
-   *
-   * Available build arguments that can be set in the image builder:
-   * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
-   * * `EXTRA_PACKAGES` can be used to install additional packages.
-   * * `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stable"`.
-   * * `DIND_COMMIT` overrides the commit where dind is found.
-   * * `DOCKER_VERSION` overrides the installed Docker version.
-   * * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
-   *
-   * @deprecated Use `imageBuilder()` instead.
-   */
-  public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'codebuild', 'linux-x64');
-
-  /**
-   * Path to Dockerfile for Linux ARM64 with all the requirements for CodeBuild runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
-   *
-   * Available build arguments that can be set in the image builder:
-   * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
-   * * `EXTRA_PACKAGES` can be used to install additional packages.
-   * * `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stable"`.
-   * * `DIND_COMMIT` overrides the commit where dind is found.
-   * * `DOCKER_VERSION` overrides the installed Docker version.
-   * * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
-   *
-   * @deprecated Use `imageBuilder()` instead.
-   */
-  public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'codebuild', 'linux-arm64');
-
-  /**
    * The fragment that runs any CodeBuild provider. Reads the config {@link _runnerConfig} generated for it from
    * `$.providerParams`. Renders what CodeBuildStartBuild used to render per provider.
    *
@@ -286,10 +238,8 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
 
   /**
    * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to CodeBuild.
-   *
-   * @deprecated This field is internal and should not be accessed directly.
    */
-  readonly image: RunnerImage;
+  private readonly image: RunnerImage;
 
   /**
    * Log group where provided runners will save their logs.
@@ -320,18 +270,14 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
         'See https://docs.aws.amazon.com/codebuild/latest/userguide/vpc-support.html#best-practices-for-vpcs');
     }
 
-    this.labels = this.labelsFromProperties('codebuild', props?.label, props?.labels);
+    this.labels = props?.labels ?? ['codebuild'];
     this.group = props?.group;
     this.vpc = props?.vpc;
-    if (props?.securityGroup) {
-      this.securityGroups = [props.securityGroup];
+    if (props?.securityGroups) {
+      this.securityGroups = props.securityGroups;
     } else {
-      if (props?.securityGroups) {
-        this.securityGroups = props.securityGroups;
-      } else {
-        if (this.vpc) {
-          this.securityGroups = [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })];
-        }
+      if (this.vpc) {
+        this.securityGroups = [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })];
       }
     }
 
@@ -527,10 +473,4 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
   public get connections(): ec2.Connections {
     return this.project.connections;
   }
-}
-
-/**
- * @deprecated use {@link CodeBuildRunnerProvider}
- */
-export class CodeBuildRunner extends CodeBuildRunnerProvider {
 }

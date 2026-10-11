@@ -105,13 +105,6 @@ export class Architecture {
  */
 export class Os {
   /**
-  * Linux
-  *
-  * @deprecated use {@link LINUX_UBUNTU}, {@link LINUX_UBUNTU_2404}, {@link LINUX_AMAZON_2} or {@link LINUX_AMAZON_2023}
-  */
-  public static readonly LINUX = Os.of('Linux');
-
-  /**
    * Ubuntu Linux
    */
   public static readonly LINUX_UBUNTU = Os.of('Ubuntu Linux');
@@ -140,7 +133,7 @@ export class Os {
    * @internal
    */
   public static readonly _ALL_LINUX_VERSIONS =
-    [Os.LINUX, Os.LINUX_UBUNTU, Os.LINUX_UBUNTU_2204, Os.LINUX_UBUNTU_2404, Os.LINUX_AMAZON_2, Os.LINUX_AMAZON_2023];
+    [Os.LINUX_UBUNTU, Os.LINUX_UBUNTU_2204, Os.LINUX_UBUNTU_2404, Os.LINUX_AMAZON_2, Os.LINUX_AMAZON_2023];
 
   /**
      * @internal
@@ -218,13 +211,6 @@ export interface RunnerImage {
   readonly logGroup?: logs.LogGroup;
 
   /**
-   * Installed runner version.
-   *
-   * @deprecated open a ticket if you need this
-   */
-  readonly runnerVersion: RunnerVersion;
-
-  /**
    * A dependable that can be waited on to ensure the image is ready.
    *
    * @internal
@@ -255,13 +241,6 @@ export interface RunnerAmi {
    * Log group where image builds are logged.
    */
   readonly logGroup?: logs.LogGroup;
-
-  /**
-   * Installed runner version.
-   *
-   * @deprecated open a ticket if you need this
-   */
-  readonly runnerVersion: RunnerVersion;
 
   /**
    * Set this to a value that changes whenever the AMI changes (the AMI id or any version string works).
@@ -334,11 +313,6 @@ export interface RunnerProviderProps {
    * @default logs.RetentionDays.ONE_MONTH
    */
   readonly logRetention?: logs.RetentionDays;
-
-  /**
-   * @deprecated use {@link retryOptions} on {@link GitHubRunners} instead
-   */
-  readonly retryOptions?: ProviderRetryOptions;
 
   /**
    * Add default labels based on OS and architecture of the runner. This will tell GitHub Runner to add default labels like `self-hosted`, `linux`, `x64`, and `arm64`.
@@ -672,20 +646,6 @@ export abstract class BaseProvider extends Construct {
     super(scope, id);
 
     cdk.Tags.of(this).add('GitHubRunners:Provider', this.node.path);
-  }
-
-  protected labelsFromProperties(defaultLabel: string, propsLabel: string | undefined, propsLabels: string[] | undefined): string[] {
-    if (propsLabels && propsLabel) {
-      cdk.Annotations.of(this).addError('Must supply either `label` or `labels` in runner properties, but not both. Try removing the `label` property.');
-    }
-
-    if (propsLabels) {
-      return propsLabels;
-    }
-    if (propsLabel) {
-      return [propsLabel];
-    }
-    return [defaultLabel];
   }
 }
 

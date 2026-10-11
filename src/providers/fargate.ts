@@ -1,4 +1,3 @@
-import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_ecs as ecs, aws_iam as iam, aws_logs as logs, aws_stepfunctions as stepfunctions, RemovalPolicy } from 'aws-cdk-lib';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
@@ -9,12 +8,12 @@ import {
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
+  providerParam,
+  RunnerEnvConfig,
   runnerEnvironment,
   RunnerImage,
   RunnerProviderProps,
   RunnerVersion,
-  providerParam,
-  RunnerEnvConfig,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 import { ReservedTags } from '../lambda-common';
@@ -32,14 +31,6 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    * @default FargateRunnerProvider.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
-
-  /**
-   * GitHub Actions label used for this provider.
-   *
-   * @default undefined
-   * @deprecated use {@link labels} instead
-   */
-  readonly label?: string;
 
   /**
    * GitHub Actions labels used for this provider.
@@ -79,15 +70,6 @@ export interface FargateRunnerProviderProps extends RunnerProviderProps {
    * @default Fargate default
    */
   readonly subnetSelection?: ec2.SubnetSelection;
-
-  /**
-   * Security group to assign to the task.
-   *
-   * @default a new security group
-   *
-   * @deprecated use {@link securityGroups}
-   */
-  readonly securityGroup?: ec2.ISecurityGroup;
 
   /**
    * Security groups to assign to the task.
@@ -379,28 +361,6 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   public static readonly _FAMILY = 'fargate';
 
   /**
-   * Path to Dockerfile for Linux x64 with all the requirement for Fargate runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
-   *
-   * Available build arguments that can be set in the image builder:
-   * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
-   * * `EXTRA_PACKAGES` can be used to install additional packages.
-   *
-   * @deprecated Use `imageBuilder()` instead.
-   */
-  public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-x64');
-
-  /**
-   * Path to Dockerfile for Linux ARM64 with all the requirement for Fargate runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
-   *
-   * Available build arguments that can be set in the image builder:
-   * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
-   * * `EXTRA_PACKAGES` can be used to install additional packages.
-   *
-   * @deprecated Use `imageBuilder()` instead.
-   */
-  public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'fargate', 'linux-arm64');
-
-  /**
    * The fragment that runs any Fargate provider. Reads the config {@link _runnerConfig} generated for it from
    * `$.providerParams`. Renders what EcsRunTask used to render per provider.
    *
@@ -480,17 +440,13 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
 
   /**
    * Fargate task hosting the runner.
-   *
-   * @deprecated This field is internal and should not be accessed directly.
    */
-  readonly task: ecs.FargateTaskDefinition;
+  private readonly task: ecs.FargateTaskDefinition;
 
   /**
    * Container definition hosting the runner.
-   *
-   * @deprecated This field is internal and should not be accessed directly.
    */
-  readonly container: ecs.ContainerDefinition;
+  private readonly container: ecs.ContainerDefinition;
 
   /**
    * Labels associated with this provider.
@@ -499,24 +455,18 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
 
   /**
    * VPC used for hosting the runner task.
-   *
-   * @deprecated This field is internal and should not be accessed directly.
    */
-  readonly vpc?: ec2.IVpc;
+  private readonly vpc?: ec2.IVpc;
 
   /**
    * Subnets used for hosting the runner task.
-   *
-   * @deprecated This field is internal and should not be accessed directly.
    */
-  readonly subnetSelection?: ec2.SubnetSelection;
+  private readonly subnetSelection?: ec2.SubnetSelection;
 
   /**
    * Whether runner task will have a public IP.
-   *
-   * @deprecated This field is internal and should not be accessed directly.
    */
-  readonly assignPublicIp: boolean;
+  private readonly assignPublicIp: boolean;
 
   /**
    * Grant principal used to add permissions to the runner role.
@@ -530,17 +480,13 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
 
   /**
    * Use spot pricing for Fargate tasks.
-   *
-   * @deprecated This field is internal and should not be accessed directly.
    */
-  readonly spot: boolean;
+  private readonly spot: boolean;
 
   /**
    * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to Fargate tasks.
-   *
-   * @deprecated This field is internal and should not be accessed directly.
    */
-  readonly image: RunnerImage;
+  private readonly image: RunnerImage;
 
   /**
    * Log group where provided runners will save their logs.
@@ -558,12 +504,12 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
   constructor(scope: Construct, id: string, props?: FargateRunnerProviderProps) {
     super(scope, id, props);
 
-    this.labels = this.labelsFromProperties('fargate', props?.label, props?.labels);
+    this.labels = props?.labels ?? ['fargate'];
     this.group = props?.group;
     this.defaultLabels = props?.defaultLabels ?? true;
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'default vpc', { isDefault: true });
     this.subnetSelection = props?.subnetSelection;
-    this.securityGroups = props?.securityGroup ? [props.securityGroup] : (props?.securityGroups ?? [new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc })]);
+    this.securityGroups = props?.securityGroups ?? [new ec2.SecurityGroup(this, 'security group', { vpc: this.vpc })];
     this.connections = new ec2.Connections({ securityGroups: this.securityGroups });
     this.assignPublicIp = props?.assignPublicIp ?? true;
     this.cluster = props?.cluster ? props.cluster : new ecs.Cluster(
@@ -705,10 +651,4 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       },
     };
   }
-}
-
-/**
- * @deprecated use {@link FargateRunnerProvider}
- */
-export class FargateRunner extends FargateRunnerProvider {
 }
