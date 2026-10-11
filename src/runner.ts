@@ -1453,7 +1453,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         // status list taken from https://github.com/actions/runner/blob/be9632302ceef50bfb36ea998cea9c94c75e5d4d/src/Sdk/DTWebApi/WebApi/TaskResult.cs
         left: ['Succeeded', 'SucceededWithIssues', 'Failed', 'Canceled', 'Skipped', 'Abandoned'].map(s => jobs(s, s)),
         stacked: true,
-        width: 12,
+        width: 8,
       }),
       new cloudwatch.GraphWidget({
         title: 'Failed jobs by runner label',
@@ -1470,7 +1470,17 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           statistic: cloudwatch.Stats.SUM,
         })),
         stacked: true,
-        width: 12,
+        width: 8,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Stolen runners',
+        // not replaced means the replacement limit was hit, so the job may be left without a runner
+        left: [
+          search('Replaced', 'StolenRunners', 'Replaced="true"'),
+          search('Not replaced', 'StolenRunners', 'Replaced="false"'),
+        ],
+        stacked: true,
+        width: 8,
       }),
     );
 
