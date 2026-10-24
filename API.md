@@ -3562,11 +3562,11 @@ Metric for the number of runners we stopped on purpose before they got a job.
 These step function executions end up as aborted and not failed, so they don't show up in {@link metricFailed}.
 
 This metric has one dimension, `Reason`, which is the error the step function was stopped with:
- * `IdleRunner` -- the runner was idle for longer than its idle timeout and was reaped. This is usually a runner whose job was taken by
-   another runner, or a job that was cancelled before it started.
- * `StaleWarmRunner` -- a warm runner was replaced because its configuration changed.
- * `WarmRunnerExpired` -- a warm runner reached the end of its duration.
- * `WarmRunnerBadDeadline` -- a warm runner had an invalid deadline and was stopped.
+ * `IdleRunner`: the runner was idle for longer than its idle timeout and was reaped. This is usually a runner whose job was taken by
+   another runner, or a job that was canceled before it started.
+ * `StaleWarmRunner`: a warm runner was replaced because its configuration changed.
+ * `WarmRunnerExpired`: a warm runner reached the end of its duration.
+ * `WarmRunnerBadDeadline`: a warm runner had an invalid deadline and was stopped.
 
 **WARNING:** this method creates a metric filter. This resource may incur cost.
 
