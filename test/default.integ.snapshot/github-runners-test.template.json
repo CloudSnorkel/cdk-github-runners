@@ -14504,7 +14504,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "976b9c5d15a6305d2e1c4b9be6f61fce6a77405e1371d4e4c70cfbd568cceea6.zip"
+     "S3Key": "aa26ceef506c8ece6cffba5c35a136483769b895314c8f7ff2e3a9f4cd9cd5e6.zip"
     },
     "Description": "Stop idle GitHub runners to avoid paying for runners when the job was already canceled",
     "Environment": {
@@ -14660,7 +14660,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "807fbe4eb0bddda40167a57406415bca20c2234807bf9a50de070c7d3445fc8e.zip"
+     "S3Key": "37054aa4918f56aee29c0f7403e09b8b436f9f9c7f202d44559bce76bd646dd9.zip"
     },
     "Description": "Delete failed GitHub Actions runner on error",
     "Environment": {
@@ -16631,7 +16631,7 @@
          "Arn"
         ]
        },
-       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"family.$\":\"$.providerParams.family\"}},\"Runner Not Deleted\":{\"Type\":\"Fail\",\"Comment\":\"Give up on this runner without retrying as it would fail to register under the same name\",\"Error\":\"RunnerNotDeleted\",\"CausePath\":\"$.delete.Cause\"},\"All Attempts Failed\":{\"Type\":\"Fail\",\"Comment\":\"Fail the execution with the original error that stopped the runner\",\"ErrorPath\":\"$.error.Error\",\"CausePath\":\"$.error.Cause\"}}}]}}}"
+       "\",\"Parameters\":{\"runnerName.$\":\"$$.Execution.Name\",\"owner.$\":\"$.owner\",\"repo.$\":\"$.repo\",\"installationId.$\":\"$.installationId\",\"family.$\":\"$.providerParams.family\",\"error.$\":\"$.error\"}},\"Runner Not Deleted\":{\"Type\":\"Fail\",\"Comment\":\"Give up on this runner without retrying as it would fail to register under the same name\",\"Error\":\"RunnerNotDeleted\",\"CausePath\":\"$.delete.Cause\"},\"All Attempts Failed\":{\"Type\":\"Fail\",\"Comment\":\"Fail the execution with the original error that stopped the runner\",\"ErrorPath\":\"$.error.Error\",\"CausePath\":\"$.error.Cause\"}}}]}}}"
       ]
      ]
     },
@@ -20493,7 +20493,7 @@
        {
         "Ref": "runnersRunnerOrchestratorF9B66EBA"
        },
-       "\",{\"label\":\"Runners failed to start\",\"stat\":\"Sum\"}],[{\"label\":\"Stolen runners\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\"', 'Sum'))\"}],[{\"label\":\"Lambda errors\",\"expression\":\"SUM([e0,e1,e2,e3,e4,e5,e6,e7])\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       "\",{\"label\":\"Runners failed to start\",\"stat\":\"Sum\"}],[{\"label\":\"Stolen runners\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\"', 'Sum'))\"}],[{\"label\":\"Idle runners stopped\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"IdleRunner\\\"', 'Sum'))\"}],[{\"label\":\"Lambda errors\",\"expression\":\"SUM([e0,e1,e2,e3,e4,e5,e6,e7])\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
        {
         "Ref": "runnerstokenretrieverD5E8392A"
        },
@@ -20525,19 +20525,23 @@
        {
         "Ref": "runnersstatus1A5771C0"
        },
-       "\",{\"id\":\"e7\",\"visible\":false,\"stat\":\"Sum\"}]],\"setPeriodToTimeRange\":true}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":0,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Jobs completed by status\",\"region\":\"",
+       "\",{\"id\":\"e7\",\"visible\":false,\"stat\":\"Sum\"}]],\"setPeriodToTimeRange\":true}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Jobs completed by status\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
-       "\",\"stacked\":true,\"metrics\":[[{\"label\":\"Succeeded\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Succeeded\\\"', 'Sum'))\"}],[{\"label\":\"SucceededWithIssues\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"SucceededWithIssues\\\"', 'Sum'))\"}],[{\"label\":\"Failed\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Failed\\\"', 'Sum'))\"}],[{\"label\":\"Canceled\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Canceled\\\"', 'Sum'))\"}],[{\"label\":\"Skipped\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Skipped\\\"', 'Sum'))\"}],[{\"label\":\"Abandoned\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Abandoned\\\"', 'Sum'))\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":8,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Failed jobs by runner label\",\"region\":\"",
+       "\",\"stacked\":true,\"metrics\":[[{\"label\":\"Succeeded\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Succeeded\\\"', 'Sum'))\"}],[{\"label\":\"SucceededWithIssues\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"SucceededWithIssues\\\"', 'Sum'))\"}],[{\"label\":\"Failed\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Failed\\\"', 'Sum'))\"}],[{\"label\":\"Canceled\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Canceled\\\"', 'Sum'))\"}],[{\"label\":\"Skipped\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Skipped\\\"', 'Sum'))\"}],[{\"label\":\"Abandoned\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Abandoned\\\"', 'Sum'))\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":6,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Failed jobs by runner label\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
-       "\",\"stacked\":true,\"metrics\":[[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-ubuntu-2404-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-ubuntu-2404-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"codebuild, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,windows,x64\",\"Status\",\"Failed\",{\"label\":\"codebuild, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs-ubuntu-2404,x64\",\"Status\",\"Failed\",{\"label\":\"ecs-ubuntu-2404, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,x64\",\"Status\",\"Failed\",{\"label\":\"lambda, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,arm64\",\"Status\",\"Failed\",{\"label\":\"lambda, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,windows,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, windows, x64\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":16,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Stolen runners\",\"region\":\"",
+       "\",\"stacked\":true,\"metrics\":[[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-ubuntu-2404-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-ubuntu-2404-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"codebuild, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,windows,x64\",\"Status\",\"Failed\",{\"label\":\"codebuild, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs-ubuntu-2404,x64\",\"Status\",\"Failed\",{\"label\":\"ecs-ubuntu-2404, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,x64\",\"Status\",\"Failed\",{\"label\":\"lambda, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,arm64\",\"Status\",\"Failed\",{\"label\":\"lambda, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,windows,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, windows, x64\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":12,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Stolen runners\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
-       "\",\"stacked\":true,\"metrics\":[[{\"label\":\"Replaced\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\" Replaced=\\\"true\\\"', 'Sum'))\"}],[{\"label\":\"Not replaced\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\" Replaced=\\\"false\\\"', 'Sum'))\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner executions\",\"region\":\"",
+       "\",\"stacked\":true,\"metrics\":[[{\"label\":\"Replaced\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\" Replaced=\\\"true\\\"', 'Sum'))\"}],[{\"label\":\"Not replaced\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\" Replaced=\\\"false\\\"', 'Sum'))\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":18,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Stopped runners by reason\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"stacked\":true,\"metrics\":[[{\"label\":\"IdleRunner\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"IdleRunner\\\"', 'Sum'))\"}],[{\"label\":\"StaleWarmRunner\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"StaleWarmRunner\\\"', 'Sum'))\"}],[{\"label\":\"WarmRunnerExpired\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"WarmRunnerExpired\\\"', 'Sum'))\"}],[{\"label\":\"WarmRunnerBadDeadline\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"WarmRunnerBadDeadline\\\"', 'Sum'))\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner executions\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -20553,7 +20557,11 @@
        {
         "Ref": "runnersRunnerOrchestratorF9B66EBA"
        },
-       "\",{\"label\":\"Timed out\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":6,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner time (including start-up)\",\"region\":\"",
+       "\",{\"label\":\"Timed out\",\"stat\":\"Sum\"}],[\"AWS/States\",\"ExecutionsAborted\",\"StateMachineArn\",\"",
+       {
+        "Ref": "runnersRunnerOrchestratorF9B66EBA"
+       },
+       "\",{\"label\":\"Aborted\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":6,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner time (including start-up)\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -20617,7 +20625,15 @@
        {
         "Ref": "runnersstatus1A5771C0"
        },
-       "\",{\"label\":\"status\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"log\",\"width\":24,\"height\":6,\"x\":0,\"y\":16,\"properties\":{\"view\":\"table\",\"title\":\"Recent errors\",\"region\":\"",
+       "\",{\"label\":\"status\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"log\",\"width\":24,\"height\":6,\"x\":0,\"y\":16,\"properties\":{\"view\":\"table\",\"title\":\"Recent failed attempts\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"query\":\"SOURCE '",
+       {
+        "Ref": "OrchestratorLogFB9610E7"
+       },
+       "' | fields @timestamp, message.error.Error as error, message.family as family, message.runnerName as runner, message.repo as repo, message.error.Cause as cause\\n| filter message.notice = \\\"Runner failed\\\"\\n| sort @timestamp desc\\n| limit 20\"}},{\"type\":\"log\",\"width\":24,\"height\":6,\"x\":0,\"y\":22,\"properties\":{\"view\":\"table\",\"title\":\"Recent errors\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -20664,6 +20680,28 @@
        }
       ],
       "MetricName": "StolenRunners",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1"
+     }
+    ]
+   }
+  },
+  "OrchestratorLogStoppedRunnersfilter757CC462": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "{ $.message.metric = \"RunnerStopped\" }",
+    "LogGroupName": {
+     "Ref": "OrchestratorLogFB9610E7"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "Reason",
+        "Value": "$.message.reason"
+       }
+      ],
+      "MetricName": "StoppedRunners",
       "MetricNamespace": "GitHubRunners",
       "MetricValue": "1"
      }

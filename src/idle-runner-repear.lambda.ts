@@ -162,6 +162,15 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
                 error: 'IdleRunner',
                 cause: `Runner ${input.runnerName} on ${input.owner}/${input.repo} is idle for too long (${diffMs / 1000} seconds and limit is ${input.maxIdleSeconds} seconds)`,
               }));
+              console.log({
+                notice: 'Stopped step function',
+                metric: 'RunnerStopped',
+                reason: 'IdleRunner',
+                executionArn: input.executionArn,
+                runnerName: input.runnerName,
+                owner: input.owner,
+                repo: input.repo,
+              });
             } catch (e) {
               console.error({
                 notice: 'Failed to stop step function',

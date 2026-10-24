@@ -55,6 +55,26 @@ describe('delete-failed-runner', () => {
     expect(mockDeleteRunner).toHaveBeenCalledWith({}, 'repo', 'my-org', 'my-repo', 42);
   });
 
+  // the dashboard shows failure reasons from this log line
+  test('Logs the error that failed the runner', async () => {
+    mockGetRunner.mockResolvedValue(undefined);
+    const error = { Error: 'Ec2.Ec2Exception', Cause: 'Insufficient capacity.' };
+
+    await handler({ ...EC2_EVENT, error });
+
+    expect(console.log).toHaveBeenCalledWith(expect.objectContaining({ notice: 'Runner failed', runnerName: 'runner-1', family: 'ec2', error }));
+  });
+
+  // a retry would log the same failure again
+  test('Does not log the failure when the clean-up fails', async () => {
+    mockGetRunner.mockResolvedValue(RUNNER);
+    mockDeleteRunner.mockRejectedValue(new Error('runner is busy'));
+
+    await expect(handler(EVENT)).rejects.toThrow();
+
+    expect(console.log).not.toHaveBeenCalledWith(expect.objectContaining({ notice: 'Runner failed' }));
+  });
+
   // the step function fails the execution with a separate `Rethrow Error` state, so a missing runner -- which is the
   // common case -- must not fail this Lambda
   test('Succeeds when the runner is already gone', async () => {

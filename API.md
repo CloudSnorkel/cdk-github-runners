@@ -3350,6 +3350,7 @@ new GitHubRunners(scope: Construct, id: string, props?: GitHubRunnersProps)
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted">metricJobCompleted</a></code> | Metric for the number of GitHub Actions jobs completed. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricLambdaErrors">metricLambdaErrors</a></code> | Metric for the number of failed invocations of the management Lambda functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners">metricStolenRunners</a></code> | Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStoppedRunners">metricStoppedRunners</a></code> | Metric for the number of runners we stopped on purpose before they got a job. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricSucceeded">metricSucceeded</a></code> | Metric for successful executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricTime">metricTime</a></code> | Metric for the interval, in milliseconds, between the time the execution starts and the time it closes. |
 
@@ -3397,12 +3398,14 @@ It answers the questions you're most likely to ask:
 * Are jobs running and passing? See "Jobs completed by status".
 * Which runner is broken? See "Failed jobs by runner label".
 * Are jobs stuck because runners fail to start? See "Runner executions".
+* Why were runners stopped before getting a job? See "Stopped runners by reason".
+* Why are runners failing to start? See "Recent failed attempts".
 * How long do runners take (and therefore cost)? See "Runner time".
 * Is GitHub reaching the webhook at all? See "Webhook".
 * Is any of our code failing? See "Lambda errors".
 * What exactly went wrong? See "Recent errors".
 
-**WARNING:** this method calls {@link metricJobCompleted} and {@link metricStolenRunners} which create metric filters.
+**WARNING:** this method calls {@link metricJobCompleted}, {@link metricStolenRunners} and {@link metricStoppedRunners} which create metric filters.
 These resources may incur cost.
 
 This dashboard is very basic. Pull requests and issues are welcome to improve it.
@@ -3543,6 +3546,31 @@ This metric has two dimensions:
 **WARNING:** this method creates a metric filter. This resource may incur cost.
 
 ###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners.parameter.props"></a>
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
+
+---
+
+##### `metricStoppedRunners` <a name="metricStoppedRunners" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStoppedRunners"></a>
+
+```typescript
+public metricStoppedRunners(props?: MetricOptions): Metric
+```
+
+Metric for the number of runners we stopped on purpose before they got a job.
+
+These step function executions end up as aborted and not failed, so they don't show up in {@link metricFailed}.
+
+This metric has one dimension, `Reason`, which is the error the step function was stopped with:
+ * `IdleRunner`: the runner was idle for longer than its idle timeout and was reaped. This is usually a runner whose job was taken by
+   another runner, or a job that was canceled before it started.
+ * `StaleWarmRunner`: a warm runner was replaced because its configuration changed.
+ * `WarmRunnerExpired`: a warm runner reached the end of its duration.
+ * `WarmRunnerBadDeadline`: a warm runner had an invalid deadline and was stopped.
+
+**WARNING:** this method creates a metric filter. This resource may incur cost.
+
+###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStoppedRunners.parameter.props"></a>
 
 - *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
 
