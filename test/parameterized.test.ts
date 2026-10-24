@@ -272,6 +272,9 @@ describe('Parameterized providers', () => {
     expect(branch['Clean Up Failed Runner'].Catch).toEqual([{ ErrorEquals: ['States.ALL'], ResultPath: '$.delete', Next: 'Runner Not Deleted' }]);
     expect(branch['Runner Not Deleted']).toMatchObject({ Type: 'Fail', Error: 'RunnerNotDeleted', CausePath: '$.delete.Cause' });
 
+    // the clean-up logs the error that got it there, so the dashboard can show failure reasons
+    expect(branch['Clean Up Failed Runner'].Parameters['error.$']).toEqual('$.error');
+
     // the outer retry never retries it. the specific retrier has to come before the one catching everything
     const retry = parsed.States['Run Providers'].Retry;
     expect(retry[0]).toEqual({ ErrorEquals: ['RunnerNotDeleted'], MaxAttempts: 0 });

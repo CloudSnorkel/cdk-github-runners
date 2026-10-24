@@ -407,6 +407,9 @@ describe('GitHubRunners', () => {
     template.hasResourceProperties('AWS::Logs::MetricFilter', Match.objectLike({
       MetricTransformations: Match.arrayWith([Match.objectLike({ MetricName: 'StolenRunners' })]),
     }));
+    template.hasResourceProperties('AWS::Logs::MetricFilter', Match.objectLike({
+      MetricTransformations: Match.arrayWith([Match.objectLike({ MetricName: 'StoppedRunners' })]),
+    }));
   });
 
   test('Lambda errors metric covers all management functions', () => {

@@ -308,6 +308,15 @@ async function stopAndDeleteRunner(input: WarmRunnerKeeperMessage, octokit: Octo
       error: reason,
       cause: 'Warm runner stopped by keeper',
     }));
+    console.log({
+      notice: 'Stopped step function',
+      metric: 'RunnerStopped',
+      reason,
+      configHash: input.configHash,
+      runnerName: input.runnerName,
+      executionArn: input.executionArn,
+      provider: input.providerPath,
+    });
   } catch (e) {
     console.error({
       notice: 'Failed to stop step function',

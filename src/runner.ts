@@ -392,6 +392,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private readonly parameterizedProviders: IParameterizedRunnerProvider[] = [];
   private jobsCompletedMetricFiltersInitialized = false;
   private stolenRunnersMetricFilterInitialized = false;
+  private stoppedRunnersMetricFilterInitialized = false;
   private warmRunnerManager?: lambda.Function;
   private warmRunnerQueue?: sqs.Queue;
   private warmConfigHashes: string[] = [];
@@ -583,6 +584,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         repo: stepfunctions.JsonPath.stringAt('$.repo'),
         installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
         family: stepfunctions.JsonPath.stringAt('$.providerParams.family'),
+        // always there as the catch below puts it there. only logged so failure reasons can be seen without state machine logging
+        error: stepfunctions.JsonPath.objectAt('$.error'),
       }),
     });
     // any error means we can't be sure the runner is gone. we don't try to tell them apart (#1007)
@@ -1174,6 +1177,44 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   }
 
   /**
+   * Metric for the number of runners we stopped on purpose before they got a job.
+   *
+   * These step function executions end up as aborted and not failed, so they don't show up in {@link metricFailed}.
+   *
+   * This metric has one dimension, `Reason`, which is the error the step function was stopped with:
+   *  * `IdleRunner`: the runner was idle for longer than its idle timeout and was reaped. This is usually a runner whose job was taken by
+   *    another runner, or a job that was canceled before it started.
+   *  * `StaleWarmRunner`: a warm runner was replaced because its configuration changed.
+   *  * `WarmRunnerExpired`: a warm runner reached the end of its duration.
+   *  * `WarmRunnerBadDeadline`: a warm runner had an invalid deadline and was stopped.
+   *
+   * **WARNING:** this method creates a metric filter. This resource may incur cost.
+   */
+  public metricStoppedRunners(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
+    if (!this.stoppedRunnersMetricFilterInitialized) {
+      singletonLogGroup(this, SingletonLogType.ORCHESTRATOR).addMetricFilter('Stopped Runners filter', {
+        metricNamespace: 'GitHubRunners',
+        metricName: 'StoppedRunners',
+        filterPattern: logs.FilterPattern.stringValue('$.message.metric', '=', 'RunnerStopped'),
+        metricValue: '1',
+        // can't with dimensions -- defaultValue: 0,
+        dimensions: {
+          Reason: '$.message.reason',
+        },
+      });
+      this.stoppedRunnersMetricFilterInitialized = true;
+    }
+
+    return new cloudwatch.Metric({
+      namespace: 'GitHubRunners',
+      metricName: 'StoppedRunners',
+      unit: cloudwatch.Unit.COUNT,
+      statistic: cloudwatch.Stats.SUM,
+      ...props,
+    }).attachTo(this);
+  }
+
+  /**
    * Metric for the number of failed invocations of the management Lambda functions.
    *
    * These are the functions that handle webhooks, retrieve runner tokens, stop idle runners, replace stolen runners, etc. Anything over zero means
@@ -1398,12 +1439,14 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * * Are jobs running and passing? See "Jobs completed by status".
    * * Which runner is broken? See "Failed jobs by runner label".
    * * Are jobs stuck because runners fail to start? See "Runner executions".
+   * * Why were runners stopped before getting a job? See "Stopped runners by reason".
+   * * Why are runners failing to start? See "Recent failed attempts".
    * * How long do runners take (and therefore cost)? See "Runner time".
    * * Is GitHub reaching the webhook at all? See "Webhook".
    * * Is any of our code failing? See "Lambda errors".
    * * What exactly went wrong? See "Recent errors".
    *
-   * **WARNING:** this method calls {@link metricJobCompleted} and {@link metricStolenRunners} which create metric filters.
+   * **WARNING:** this method calls {@link metricJobCompleted}, {@link metricStolenRunners} and {@link metricStoppedRunners} which create metric filters.
    * These resources may incur cost.
    *
    * This dashboard is very basic. Pull requests and issues are welcome to improve it.
@@ -1414,6 +1457,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     // create the metric filters behind these metrics
     this.metricJobCompleted();
     this.metricStolenRunners();
+    this.metricStoppedRunners();
 
     // our log metric filters add dimensions, and a metric with dimensions can only be read with those dimensions.
     // search expressions let us sum them all up without listing every dimension value.
@@ -1439,6 +1483,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         jobs('Failed', 'Jobs failed'),
         this.metricFailed({ label: 'Runners failed to start' }),
         search('Stolen runners', 'StolenRunners'),
+        search('Idle runners stopped', 'StoppedRunners', 'Reason="IdleRunner"'),
         this.metricLambdaErrors({ label: 'Lambda errors' }),
       ],
       // totals for the dashboard time range instead of just the last period
@@ -1453,7 +1498,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         // status list taken from https://github.com/actions/runner/blob/be9632302ceef50bfb36ea998cea9c94c75e5d4d/src/Sdk/DTWebApi/WebApi/TaskResult.cs
         left: ['Succeeded', 'SucceededWithIssues', 'Failed', 'Canceled', 'Skipped', 'Abandoned'].map(s => jobs(s, s)),
         stacked: true,
-        width: 8,
+        width: 6,
       }),
       new cloudwatch.GraphWidget({
         title: 'Failed jobs by runner label',
@@ -1470,7 +1515,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           statistic: cloudwatch.Stats.SUM,
         })),
         stacked: true,
-        width: 8,
+        width: 6,
       }),
       new cloudwatch.GraphWidget({
         title: 'Stolen runners',
@@ -1480,7 +1525,15 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           search('Not replaced', 'StolenRunners', 'Replaced="false"'),
         ],
         stacked: true,
-        width: 8,
+        width: 6,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Stopped runners by reason',
+        // these executions are aborted on purpose, so they're not counted as failed. see metricStoppedRunners() for what each reason means
+        left: ['IdleRunner', 'StaleWarmRunner', 'WarmRunnerExpired', 'WarmRunnerBadDeadline']
+          .map(r => search(r, 'StoppedRunners', `Reason="${r}"`)),
+        stacked: true,
+        width: 6,
       }),
     );
 
@@ -1491,6 +1544,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           this.metricSucceeded({ label: 'Succeeded' }),
           this.metricFailed({ label: 'Failed' }),
           this.orchestrator.metricTimedOut({ label: 'Timed out' }),
+          // stopped on purpose, see "Stopped runners by reason"
+          this.orchestrator.metricAborted({ label: 'Aborted' }),
         ],
         stacked: true,
         width: 6,
@@ -1522,6 +1577,31 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         width: 6,
       }),
     );
+
+    dashboard.addWidgets(new cloudwatch.LogQueryWidget({
+      title: 'Recent failed attempts',
+      logGroupNames: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR).logGroupName],
+      view: cloudwatch.LogQueryVisualizationType.TABLE,
+      queryString: new logs.QueryString({
+        // logged by the clean-up function, which every failed attempt goes through. retries and fallbacks fail more
+        // than once, so a runner can show up here many times before it starts or gives up.
+        fields: [
+          '@timestamp',
+          'message.error.Error as error',
+          'message.family as family',
+          'message.runnerName as runner',
+          'message.repo as repo',
+          'message.error.Cause as cause',
+        ],
+        filterStatements: [
+          'message.notice = "Runner failed"',
+        ],
+        sort: '@timestamp desc',
+        limit: 20,
+      }).toString(),
+      width: 24,
+      height: 6,
+    }));
 
     // the orchestrator, webhook and runner management functions log here, setup and status log separately
     dashboard.addWidgets(new cloudwatch.LogQueryWidget({

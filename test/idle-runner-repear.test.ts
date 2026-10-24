@@ -147,6 +147,27 @@ describe('idle-runner-repear', () => {
     expect(mockDeleteRunner).toHaveBeenCalledWith({}, 'repo', 'my-org', 'my-repo', 42);
   });
 
+  // the dashboard counts reaped runners from this log line
+  test('Logs a metric for the stopped step function', async () => {
+    mockSfnSend.mockResolvedValue({ status: 'RUNNING' });
+    mockGetRunner.mockResolvedValue(IDLE_RUNNER);
+    mockDeleteRunner.mockResolvedValue(undefined);
+
+    await handler(EVENT);
+
+    expect(console.log).toHaveBeenCalledWith(expect.objectContaining({ metric: 'RunnerStopped', reason: 'IdleRunner' }));
+  });
+
+  test('Logs no metric when there is no step function left to stop', async () => {
+    mockSfnSend.mockResolvedValue({ status: 'FAILED', error: 'States.Runtime' });
+    mockGetRunner.mockResolvedValue(IDLE_RUNNER);
+    mockDeleteRunner.mockResolvedValue(undefined);
+
+    await handler(EVENT);
+
+    expect(console.log).not.toHaveBeenCalledWith(expect.objectContaining({ metric: 'RunnerStopped' }));
+  });
+
   // the step function's catchers never run on a successful execution, so this is the only thing that will ever
   // notice an instance whose `poweroff` wedged after the job was reported done
   test('Terminates instances left behind by a successful execution', async () => {
