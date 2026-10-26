@@ -143,6 +143,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/delete-failed-runner.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -161,6 +162,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/delete-failed-runner.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -180,6 +182,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/idle-runner-repear.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -198,6 +201,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/idle-runner-repear.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -217,6 +221,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/image-builders/aws-image-builder/delete-resources.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -235,6 +240,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/image-builders/aws-image-builder/delete-resources.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -254,6 +260,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -272,6 +279,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -291,6 +299,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/image-builders/build-image.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -309,6 +318,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/image-builders/build-image.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -328,6 +338,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/providers/ami-root-device.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -346,6 +357,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/providers/ami-root-device.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -365,6 +377,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/providers/update-lambda.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -383,6 +396,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/providers/update-lambda.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -402,6 +416,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/setup.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -420,6 +435,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/setup.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -439,6 +455,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/status.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -457,6 +474,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/status.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -476,6 +494,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/stolen-runner-handler.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -494,6 +513,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/stolen-runner-handler.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -513,6 +533,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/token-retriever.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -531,6 +552,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/token-retriever.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -550,6 +572,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/warm-runner-manager.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -568,6 +591,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/warm-runner-manager.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -587,6 +611,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/webhook-handler.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -605,6 +630,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/webhook-handler.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -624,6 +650,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/webhook-redelivery.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*"
           ]
@@ -642,6 +669,7 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/webhook-redelivery.lambda/index.js",
+            "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
             "--watch"
@@ -1126,7 +1154,8 @@
         {
           "exec": "git diff --ignore-space-at-eol --exit-code"
         }
-      ]
+      ],
+      "condition": "git log --oneline -1 | grep -v \"chore(release):\" > /dev/null"
     },
     "test": {
       "name": "test",
