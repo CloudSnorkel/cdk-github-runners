@@ -72,8 +72,8 @@ const FAMILY_FRAGMENTS = new Map<string, (scope: Construct) => stepfunctions.ICh
  * `GitHubRunners:Provider` should name the provider that actually runs the job, which is not `$.provider` when we got here through a composite, so
  * the config's own `provider` field wins when it has one.
  *
- * `runnerGroup` gets a default so an unknown provider, whose lookup finds nothing, still produces params the next states can read. Without it the
- * token retriever fails on a missing reference path instead of reaching `Unknown provider`.
+ * `runnerGroup` and `defaultLabels` get defaults so an unknown provider, whose lookup finds nothing, still produces params the next states can read.
+ * Without it the token retriever fails on a missing reference path instead of reaching `Unknown provider`.
  *
  * Labels are tagged as they come in, so the tag shows what the runner registers with, warm runner and provider selector labels included. Configs
  * that ask for `cleanLabels` get the same labels with spaces instead of the commas ECS rejects, and anything else it rejects as an underscore.
@@ -85,7 +85,7 @@ function selectProviderParams(scope: Construct, configExpr: string): string {
       $selected := ${configExpr};
       $r := $random() * $selected.totalWeight;
       $config := $exists($selected.distribute) ? $selected.distribute[threshold > $r][0].config : $selected;
-      $merge([{'family': 'provider not found', 'runnerGroup': ''}, $config, {'tags': $append(
+      $merge([{'family': 'provider not found', 'runnerGroup': '', 'defaultLabels': []}, $config, {'tags': $append(
         [
           {'Key': 'Name', 'Value': $states.context.Execution.Name},
           {'Key': '${ReservedTags.STACK}', 'Value': '${cdk.Stack.of(scope).stackName}'},
@@ -496,6 +496,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
           installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
           group: stepfunctions.JsonPath.stringAt('$.providerParams.runnerGroup'),
+          labels: stepfunctions.JsonPath.stringAt('$.labels'),
+          defaultLabels: stepfunctions.JsonPath.listAt('$.providerParams.defaultLabels'),
         }),
       },
     );
@@ -734,7 +736,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       this,
       'token-retriever',
       {
-        description: 'Get token from GitHub Actions used to start new self-hosted runner',
+        description: 'Get just-in-time config from GitHub Actions used to start new self-hosted runner',
         environment: {
           GITHUB_SECRET_ARN: this.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
@@ -956,17 +958,25 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     // see this comment to understand why it's a queue that's out of the step function
     // https://github.com/CloudSnorkel/cdk-github-runners/pull/314#issuecomment-1528901192
 
+    // the reaper only stops a runner it saw idle twice, one delivery apart, so a runner gets reaped somewhere between 5 and 10 minutes after
+    // it went idle with the default idle timeout. a runner that is still booting is not online yet, so it doesn't count as idle.
     const queue = new sqs.Queue(this, 'Idle Reaper Queue', {
-      deliveryDelay: cdk.Duration.minutes(10),
-      visibilityTimeout: cdk.Duration.minutes(10),
+      deliveryDelay: cdk.Duration.minutes(5),
+      visibilityTimeout: cdk.Duration.minutes(5),
     });
 
+    // trigger reaper function from queue
     reaper.addEventSource(new lambda_event_sources.SqsEventSource(queue, {
       reportBatchItemFailures: true,
       maxBatchingWindow: cdk.Duration.minutes(1),
       batchSize: 10,
     }));
 
+    // the reaper sends itself a new message when it first sees a runner idle
+    reaper.addEnvironment('IDLE_REAPER_QUEUE_URL', queue.queueUrl);
+    queue.grantSendMessages(reaper);
+
+    // access to required github secrets and runner cleanup
     this.secrets.github.grantRead(reaper);
     this.secrets.githubPrivateKey.grantRead(reaper);
     this.grantRunnerInstanceCleanup(reaper);

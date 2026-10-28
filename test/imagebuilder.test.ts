@@ -1019,6 +1019,17 @@ describe('Image cleanup', () => {
     }));
   });
 
+  test('rebuild interval longer than 14 days warns that runners will stop getting jobs', () => {
+    CodeBuildRunnerProvider.imageBuilder(stack, 'biweekly', { rebuildInterval: cdk.Duration.days(14) });
+    CodeBuildRunnerProvider.imageBuilder(stack, 'rarely', { rebuildInterval: cdk.Duration.days(30) });
+    CodeBuildRunnerProvider.imageBuilder(stack, 'never', { rebuildInterval: cdk.Duration.days(0) });
+
+    const annotations = Annotations.fromStack(stack);
+    annotations.hasNoWarning('/test/biweekly', Match.stringLikeRegexp('rebuildInterval'));
+    annotations.hasWarning('/test/rarely', Match.stringLikeRegexp('rebuildInterval is 30 days'));
+    annotations.hasWarning('/test/never', Match.stringLikeRegexp('rebuildInterval is disabled'));
+  });
+
   test('overriding the stack AMI tag warns about cleanup', () => {
     const vpc = new ec2.Vpc(stack, 'vpc');
 

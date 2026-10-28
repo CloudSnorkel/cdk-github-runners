@@ -14,7 +14,7 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import {
   Architecture, BaseProvider, IRunnerProvider, IRunnerProviderStatus, Os, providerParam, RUNNER_INPUT,
-  RunnerConfig, RunnerImage, RunnerProviderProps, RunnerVersion,
+  RunnerConfig, RunnerImage, RunnerProviderProps, RunnerVersion, runnerDefaultLabels,
 } from './common';
 import { UpdateLambdaFunction } from './update-lambda-function';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
@@ -129,8 +129,6 @@ export interface LambdaRunnerProviderProps extends RunnerProviderProps {
  */
 export interface LambdaRunnerConfig extends RunnerConfig {
   readonly functionArn: string;
-  readonly group: string;
-  readonly defaultLabels: string;
 }
 
 /**
@@ -181,15 +179,12 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
         Parameters: {
           'FunctionName.$': p('functionArn'),
           'Payload': {
-            'token.$': RUNNER_INPUT.token,
+            'jitConfig.$': RUNNER_INPUT.jitConfig,
             'runnerName.$': RUNNER_INPUT.name,
             'label.$': RUNNER_INPUT.labels,
             'githubDomain.$': RUNNER_INPUT.domain,
             'owner.$': RUNNER_INPUT.owner,
             'repo.$': RUNNER_INPUT.repo,
-            'registrationUrl.$': RUNNER_INPUT.registrationUrl,
-            'group.$': p('group'),
-            'defaultLabels.$': p('defaultLabels'),
           },
         },
         // the transient errors LambdaInvoke retries for us by default
@@ -425,8 +420,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       provider: this.node.path,
       functionArn: this.function.functionArn,
       runnerGroup: this.group ?? '',
-      group: this.group ? `--runnergroup ${this.group}` : '',
-      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+      defaultLabels: runnerDefaultLabels(this.image.os, this.image.architecture, this.defaultLabels),
     };
   }
 

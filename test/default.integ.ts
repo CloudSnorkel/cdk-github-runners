@@ -12,6 +12,7 @@ import {
   aws_ecs as ecs,
   aws_lambda as lambda,
   aws_logs as logs,
+  custom_resources as cr,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
@@ -31,6 +32,11 @@ import {
 // we have an open issue where the new version of the image remains until the next scheduled build.
 // after failing to deploy, run the integration tests. any provider that fails is using the new image which doesn't match the rolled back stack.
 const testDeploymentFailureAfterImageBuilt = false;
+
+// turn this on to test a half deployed stack. the step function only gets its new definition half an hour after everything else was updated.
+// start jobs before deploying and during that half hour. old executions run with the new token retriever and the new runner scripts, and new
+// executions don't exist yet. it's the state every deploy goes through briefly, and executions started before it stay in for up to a day.
+const testDelayedStepFunctionUpdate = false;
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'github-runners-test');
@@ -445,6 +451,45 @@ if (testDeploymentFailureAfterImageBuilt) {
       rollbackTestFailure.node.addDependency(dependency);
     }
   }
+}
+
+if (testDelayedStepFunctionUpdate) {
+  // waits an hour after everything it depends on was updated. it runs again on every deploy because deployTime changes on every synth.
+  const delayFunctionProps = {
+    runtime: lambda.Runtime.NODEJS_LATEST,
+    handler: 'index.handler',
+    logGroup: new logs.LogGroup(stack, 'Delay Logs', { retention: logs.RetentionDays.ONE_WEEK }),
+  };
+  const delayProvider = new cr.Provider(stack, 'Delay Provider', {
+    onEventHandler: new lambda.Function(stack, 'Delay Start', {
+      ...delayFunctionProps,
+      code: lambda.Code.fromInline('exports.handler = async () => ({ Data: { start: Date.now() } });'),
+    }),
+    isCompleteHandler: new lambda.Function(stack, 'Delay Check', {
+      ...delayFunctionProps,
+      code: lambda.Code.fromInline(`
+        exports.handler = async (event) => ({
+          // onEvent's data should be here, but fall back to synth time instead of never finishing
+          IsComplete: event.RequestType === 'Delete' ||
+            Date.now() - Number(event.Data?.start ?? event.ResourceProperties.deployTime) >= 30 * 60 * 1000,
+        });
+      `),
+    }),
+    queryInterval: cdk.Duration.minutes(1),
+    totalTimeout: cdk.Duration.hours(1),
+  });
+  const delay = new cdk.CustomResource(stack, 'Delay', {
+    serviceToken: delayProvider.serviceToken,
+    properties: { deployTime: Date.now().toString() },
+  });
+
+  // everything the runner scripts and the token retriever come from goes first, the step function goes last
+  // composite providers don't contain their sub-providers
+  for (const provider of runners.providers.flatMap(p => 'providers' in p ? p.providers : [p])) {
+    delay.node.addDependency(provider);
+  }
+  delay.node.addDependency(runners.node.findChild('token-retriever'));
+  runners.node.findChild('Runner Orchestrator').node.addDependency(delay);
 }
 
 app.synth();

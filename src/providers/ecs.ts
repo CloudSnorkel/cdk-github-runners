@@ -25,7 +25,8 @@ import {
   RunnerVersion,
   StorageOptions,
   providerParam,
-  RunnerEnvConfig,
+  RunnerConfig,
+  runnerDefaultLabels,
 } from './common';
 import { cleanEcsTag, ecsRunCommand, ecsTags, grantEcsRunTask } from './fargate';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
@@ -241,7 +242,7 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
  *
  * @internal
  */
-interface EcsRunnerConfig extends RunnerEnvConfig {
+interface EcsRunnerConfig extends RunnerConfig {
   readonly clusterArn: string;
   readonly taskDefinitionFamily: string;
   readonly containerName: string;
@@ -707,9 +708,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       tags: Object.entries(this.tags).map(([Key, Value]) => ({ Key, Value })),
       cleanLabels: true,
       runnerGroup: this.group ?? '',
-      group1: this.group ? '--runnergroup' : '',
-      group2: this.group ? this.group : '',
-      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+      defaultLabels: runnerDefaultLabels(this.image.os, this.image.architecture, this.defaultLabels),
     };
   }
 

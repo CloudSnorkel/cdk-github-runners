@@ -509,13 +509,12 @@ export function isParameterizedRunnerProvider(provider: IConstruct): provider is
  * @internal
  */
 export const RUNNER_INPUT = {
-  token: '$.runner.token',
+  jitConfig: '$.runner.jitConfig',
   name: '$$.Execution.Name',
   labels: '$.labels',
   domain: '$.runner.domain',
   owner: '$.owner',
   repo: '$.repo',
-  registrationUrl: '$.runner.registrationUrl',
 } as const;
 
 /**
@@ -539,8 +538,10 @@ export interface RunnerConfig {
   readonly fallback?: RunnerConfig;
   /** provider that actually runs the job, for tagging, when it isn't `$.provider` */
   readonly provider: string;
-  /** runner group this config registers with, or an empty string. families pass their own shape to the runner */
+  /** runner group this config registers with, or an empty string */
   readonly runnerGroup: string;
+  /** labels config.sh would have added on its own, or nothing when the provider turned them off. see {@link runnerDefaultLabels} */
+  readonly defaultLabels: string[];
   /** tags the provider sets on whatever it creates, before the standard runner tags get merged in */
   readonly tags?: { readonly Key: string; readonly Value: string }[];
   /** ECS won't take the labels as they come in -- no commas, no parenthesis -- so its configs ask for a cleaned up labels tag */
@@ -564,17 +565,6 @@ export interface DistributedRunnerConfig {
 }
 
 /**
- * Runner configs whose runner picks up its group and label flags from the environment.
- *
- * @internal
- */
-export interface RunnerEnvConfig extends RunnerConfig {
-  readonly group1: string;
-  readonly group2: string;
-  readonly defaultLabels: string;
-}
-
-/**
  * Either kind of config the state machine can select.
  *
  * @internal
@@ -582,25 +572,30 @@ export interface RunnerEnvConfig extends RunnerConfig {
 export type AnyRunnerConfig = RunnerConfig | DistributedRunnerConfig;
 
 /**
- * Environment variables we pass to the runner, in the order we've always passed them. `format` renders one, so
+ * Environment variables we pass to the runner. `format` renders one, so
  * each family can use whatever shape its API wants.
  *
  * @internal
  */
 export function runnerEnvironment(format: (name: string, value: string) => any): any[] {
-  const p = providerParam<RunnerEnvConfig>;
   return [
-    format('RUNNER_TOKEN', RUNNER_INPUT.token),
+    format('RUNNER_JIT_CONFIG', RUNNER_INPUT.jitConfig),
     format('RUNNER_NAME', RUNNER_INPUT.name),
     format('RUNNER_LABEL', RUNNER_INPUT.labels),
-    format('RUNNER_GROUP1', p('group1')),
-    format('RUNNER_GROUP2', p('group2')),
-    format('DEFAULT_LABELS', p('defaultLabels')),
     format('GITHUB_DOMAIN', RUNNER_INPUT.domain),
     format('OWNER', RUNNER_INPUT.owner),
     format('REPO', RUNNER_INPUT.repo),
-    format('REGISTRATION_URL', RUNNER_INPUT.registrationUrl),
   ];
+}
+
+/**
+ * Labels config.sh adds on its own unless it gets `--no-default-labels`. JIT runners don't run config.sh, and whoever creates the JIT config
+ * doesn't know the OS or architecture, so we have to pass them.
+ *
+ * @internal
+ */
+export function runnerDefaultLabels(os: Os, architecture: Architecture, enabled: boolean): string[] {
+  return enabled ? ['self-hosted', os.is(Os.WINDOWS) ? 'Windows' : 'Linux', architecture.is(Architecture.ARM64) ? 'ARM64' : 'X64'] : [];
 }
 
 /**
