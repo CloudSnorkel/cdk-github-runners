@@ -8517,7 +8517,7 @@ public readonly includeExecutionData: boolean;
 ```
 
 - *Type:* boolean
-- *Default:* false
+- *Default:* true
 
 Determines whether execution data is included in your log.
 
@@ -8530,7 +8530,7 @@ public readonly level: LogLevel;
 ```
 
 - *Type:* aws-cdk-lib.aws_stepfunctions.LogLevel
-- *Default:* ERROR
+- *Default:* ALL
 
 Defines which category of execution history events are logged.
 

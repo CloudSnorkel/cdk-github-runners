@@ -302,14 +302,14 @@ export interface LogOptions {
   /**
    * Determines whether execution data is included in your log.
    *
-   * @default false
+   * @default true
    */
   readonly includeExecutionData?: boolean;
 
   /**
    * Defines which category of execution history events are logged.
    *
-   * @default ERROR
+   * @default ALL
    */
   readonly level?: stepfunctions.LogLevel;
 
