@@ -372,13 +372,14 @@ describe('Parameterized providers', () => {
     const parsed = JSON.parse(definition.replace(/<TOKEN>/g, 'token'));
     const branch = parsed.States['Run Providers'].Branches[0].States;
     expect(Object.keys(branch)).toEqual([
-      'Select Provider Config', 'Get Runner Token', 'Try Provider',
-      'Use Fallback Config', 'Fallback Configured?', 'Clean Up Failed Runner', 'Runner Not Deleted', 'All Attempts Failed',
+      'Select Provider Config', 'Get Runner Token',
+      'Use Fallback Config', 'Fallback Configured?', 'Clean Up Failed Runner', 'Try Provider', 'Runner Not Deleted', 'All Attempts Failed',
     ]);
     // the token is fetched after the config is selected, so the token retriever can check the selected config
     expect(branch['Select Provider Config'].Next).toBe('Get Runner Token');
     expect(branch['Get Runner Token'].Next).toBe('Try Provider');
-    expect(branch['Use Fallback Config'].Next).toBe('Try Provider');
+    // the clean-up deleted the runner of the failed attempt, so the fallback needs a JIT config of its own
+    expect(branch['Use Fallback Config'].Next).toBe('Get Runner Token');
   });
 
   test('a distributed config keeps the picked provider fallback chain', () => {

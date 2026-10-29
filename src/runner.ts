@@ -630,12 +630,13 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     fallbackCleanup.addCatch(runnerNotDeleted, { errors: [stepfunctions.Errors.ALL], resultPath: '$.delete' });
     fallbackChoice.when(stepfunctions.Condition.isPresent('$.providerParams.fallback'), useFallback);
     fallbackChoice.otherwise(allFailed);
-    useFallback.next(tryProvider);
+    // fallback can have a different group, OS, or architecture so each fallback gets a JIT config of its own
+    useFallback.next(tokenRetrieverTask);
 
     // one parallel is enough now: the fallback loop above already cleaned up the runner before it gave up
     // we used to need two nested ones just to clean up before the retry, because Retry runs before Catch
     const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
-      // we get a token for every retry because the token can expire faster than the job can timeout
+      // we get a JIT config for every retry and every fallback, because the clean-up before them deletes the runner it registered
       selectConfig.next(tokenRetrieverTask).next(tryProvider),
     );
 
