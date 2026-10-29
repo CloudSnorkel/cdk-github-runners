@@ -162,6 +162,6 @@ export class StolenRunnerDetector extends Construct {
   public grantRecordRunners(func: lambda.Function) {
     func.addEnvironment('RUNNER_TRACKER_TABLE', this.table.tableName);
     func.addEnvironment('RUNNER_TRACKER_TTL_SECONDS', `${this.ttlSeconds}`);
-    this.table.grantWriteData(func);
+    this.table.grantReadWriteData(func);
   }
 }

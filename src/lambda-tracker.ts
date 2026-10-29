@@ -1,11 +1,13 @@
-import { DynamoDBClient, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { DeleteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { OrchestratorInput } from './lambda-common';
 
 /**
  * The set of jobs we started a runner for.
  *
  * This is the entire state behind stolen runner detection. One item per job, written before its runner can exist,
- * expiring on its own. Nothing is updated, nothing is counted, and nothing needs cleaning up.
+ * expiring on its own, and deleted only if its runner is gone without ever getting a job. One item per runner that
+ * we know the fate of, so we only check each one once. Nothing is updated, nothing is counted, and nothing needs
+ * cleaning up.
  *
  * A job in here is a job we control. A job that isn't is a job we never agreed to serve, so a runner of ours
  * running it was taken from whoever we did start it for.
@@ -72,6 +74,51 @@ export async function recordControlledJob(input: OrchestratorInput) {
       ttl: { N: `${expiry()}` },
     },
   }));
+}
+
+/**
+ * Forget we started a runner for this job. Used when we take that runner away before it ever got the job, so the job
+ * no longer has a runner of ours. If one of our other runners picks it up later, that runner was stolen.
+ *
+ * @internal
+ */
+export async function forgetControlledJob(jobId: number) {
+  await ddb.send(new DeleteItemCommand({
+    TableName: tableName(),
+    Key: { pk: { S: `job#${jobId}` } },
+  }));
+}
+
+/**
+ * Remember that we know what happened to this runner's job. Either the runner reported a job, or the runner is gone and we already forgot
+ * the job left without a runner because of it.
+ *
+ * @internal
+ */
+export async function recordRunnerAccounted(runnerName: string, jobId?: number) {
+  await ddb.send(new PutItemCommand({
+    TableName: tableName(),
+    Item: {
+      pk: { S: `runner#${runnerName}` },
+      ttl: { N: `${expiry()}` },
+      ...(jobId ? { jobId: { N: `${jobId}` } } : {}),
+    },
+  }));
+}
+
+/**
+ * Do we know what happened to this runner's job?
+ *
+ * @internal
+ */
+export async function isRunnerAccounted(runnerName: string): Promise<boolean> {
+  const result = await ddb.send(new GetItemCommand({
+    TableName: tableName(),
+    Key: { pk: { S: `runner#${runnerName}` } },
+    ConsistentRead: true,
+  }));
+
+  return !!result.Item;
 }
 
 /**

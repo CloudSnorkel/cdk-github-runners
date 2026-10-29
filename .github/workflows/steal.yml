@@ -1,0 +1,25 @@
+# Tests stolen runner detection against providers/labels deployed by test/default.integ.ts. See TESTING.md for what to check.
+
+name: steal
+on: workflow_dispatch
+permissions: {}
+jobs:
+  abandoned:
+    # our provider selector will route this to a real provider
+    # but it will also mess up the labels so the job will never be assigned
+    runs-on: [self-hosted, steal-test]
+    steps:
+      - run: echo "$RUNNER_NAME"
+  wait:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sleep 1200 # long enough for the idle reaper to reap the runner of `abandoned`
+  late:
+    # our provider selector will route this to a real provider
+    # but this time it will keep the right labels so this job CAN be assigned
+    # however the job WON'T be assigned because 'abandoned' above will steal it first
+    # if everything works right, we will detect this theft and create a replacement runner for this job
+    needs: wait
+    runs-on: [self-hosted, steal-test]
+    steps:
+      - run: echo "$RUNNER_NAME"; [[ "$RUNNER_NAME" == *-r1 ]] # ran on a replacement runner

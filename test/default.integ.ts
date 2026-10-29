@@ -404,10 +404,17 @@ const runners = new GitHubRunners(stack, 'runners', {
   providerSelector: new lambda.Function(stack, 'Provider Selector', {
     runtime: lambda.Runtime.NODEJS_LATEST,
     handler: 'index.handler',
-    // dummy selector that always returns the default
+    // returns the default, except for the stolen runner test in TESTING.md
     code: lambda.Code.fromInline(`
       exports.handler = async function(event) {
         console.log(JSON.stringify(event));
+        if (event.payload.workflow_job.labels.includes('steal-test')) {
+          // the runner started for abandoned is missing a label, so it can never take it
+          return {
+            provider: Object.keys(event.providers).find(p => event.providers[p].includes('codebuild-x64')),
+            labels: event.payload.workflow_job.name == 'abandoned' ? ['self-hosted'] : ['self-hosted', 'steal-test'],
+          };
+        }
         return {
           provider: event.defaultProvider,
           labels: event.defaultLabels,
