@@ -1,6 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
 import {
-  aws_cloudformation as cloudformation,
   aws_ec2 as ec2,
   aws_events as events,
   aws_events_targets as events_targets,
@@ -20,9 +19,10 @@ import {
   providerParam,
   RUNNER_INPUT,
   RunnerConfig,
+  runnerDefaultLabels,
   RunnerImage,
   RunnerProviderProps,
-  RunnerVersion, runnerDefaultLabels,
+  RunnerVersion,
 } from './common';
 import { UpdateLambdaFunction } from './update-lambda-function';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
@@ -303,18 +303,6 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     // the image must exist before the function is created, or Lambda won't be able to resolve the tag
     if (image._dependable) {
       this.function.node.addDependency(image._dependable);
-
-      // we used to pass the wait condition ref around as a string, which created a cross-stack export when the image
-      // builder and the provider were in separate stacks. we now depend on the wait condition itself, so nothing
-      // references the ref anymore. keep exporting it, so upgrades don't fail with "export cannot be deleted as it is
-      // in use". TODO deprecated hack - remove in a future version once everyone has upgraded.
-      if (Construct.isConstruct(image._dependable) && cloudformation.CfnWaitCondition.isCfnWaitCondition(image._dependable)) {
-        if (cdk.Stack.of(image._dependable) !== cdk.Stack.of(this)) { // cross-stack
-          if (!cdk.Stack.of(image._dependable).nestedStackParent) { // not a nested stack
-            cdk.Stack.of(image._dependable).exportValue(image._dependable.ref);
-          }
-        }
-      }
     }
 
     this.grantPrincipal = this.function.grantPrincipal;
