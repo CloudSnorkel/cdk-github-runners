@@ -634,7 +634,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
     imageRecipeArn?: string, containerRecipeArn?: string): imagebuilder.CfnImagePipeline {
     // set schedule
     let scheduleOptions: imagebuilder.CfnImagePipeline.ScheduleProperty | undefined;
-    if (this.rebuildInterval.toDays() > 0) {
+    if (this.rebuildInterval.toMilliseconds() > 0) {
       scheduleOptions = {
         scheduleExpression: events.Schedule.rate(this.rebuildInterval).expressionString,
         pipelineExecutionStartCondition: 'EXPRESSION_MATCH_ONLY',
