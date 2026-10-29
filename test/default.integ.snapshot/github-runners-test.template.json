@@ -7917,6 +7917,7 @@
      },
      "InstanceType": "m6i.large",
      "MetadataOptions": {
+      "HttpPutResponseHopLimit": 1,
       "HttpTokens": "required"
      },
      "SecurityGroupIds": [
@@ -8629,6 +8630,7 @@
      "ImageId": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id",
      "InstanceType": "m6i.large",
      "MetadataOptions": {
+      "HttpPutResponseHopLimit": 1,
       "HttpTokens": "required"
      },
      "SecurityGroupIds": [
@@ -9254,6 +9256,7 @@
      },
      "InstanceType": "m6i.large",
      "MetadataOptions": {
+      "HttpPutResponseHopLimit": 1,
       "HttpTokens": "required"
      },
      "SecurityGroupIds": [
@@ -9845,6 +9848,7 @@
      "ImageId": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2023/arm64/recommended/image_id",
      "InstanceType": "m6g.large",
      "MetadataOptions": {
+      "HttpPutResponseHopLimit": 1,
       "HttpTokens": "required"
      },
      "SecurityGroupIds": [
@@ -10436,6 +10440,7 @@
      "ImageId": "resolve:ssm:/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized/image_id",
      "InstanceType": "m6i.large",
      "MetadataOptions": {
+      "HttpPutResponseHopLimit": 1,
       "HttpTokens": "required"
      },
      "SecurityGroupIds": [

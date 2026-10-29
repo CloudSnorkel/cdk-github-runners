@@ -7039,6 +7039,10 @@ Existing capacity provider to use.
 
 Make sure the AMI used by the capacity provider is compatible with ECS.
 
+Runner containers use bridge networking and share the instance with other jobs. Its launch template must require IMDSv2 and set the
+metadata hop limit to 1 (`requireImdsv2: true` and `httpPutResponseHopLimit: 1`), or jobs can take the instance role. A warning is
+added when we can't confirm both.
+
 ---
 
 ##### `cluster`<sup>Optional</sup> <a name="cluster" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.cluster"></a>
