@@ -179,8 +179,14 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
   readonly storageOptions?: StorageOptions;
 
   /**
-   * Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. Disabling this can
-   * speed up provisioning of CodeBuild runners. If you don't intend on running or building Docker images, disable this for faster start-up times.
+   * Support building and running Docker images by enabling Docker-in-Docker (dind) and the required privileged mode for the runner container.
+   *
+   * A job running in a privileged container can take over the instance, access other jobs running on it, and affect jobs that run on it
+   * later. All jobs that can run on the same cluster should be equally trusted. Disable this if your jobs don't need Docker.
+   *
+   * Disabling Docker-in-Docker can also speed up runner provisioning as the runner doesn't have to wait for Docker to boot.
+   *
+   * @see https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
    *
    * @default true
    */
@@ -262,6 +268,9 @@ interface EcsRunnerConfig extends RunnerConfig {
  * ECS can be useful when you want more control of the infrastructure running the GitHub Actions Docker containers. You can control the autoscaling
  * group to scale down to zero during the night and scale up during work hours. This way you can still save money, but have to wait less for
  * infrastructure to spin up.
+ *
+ * Jobs share instances, and by default run in privileged containers that can take over the instance. All jobs that can run on the same cluster
+ * should be equally trusted. See https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */

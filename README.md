@@ -31,6 +31,7 @@ Ephemeral (or on-demand) runners are the [recommended way by GitHub][14] for aut
 
 - [API](#api)
 - [Providers](#providers)
+  - [Job Isolation](#job-isolation)
 - [Installation](#installation)
 - [Customizing](#customizing)
   - [Composite Providers](#composite-providers)
@@ -72,6 +73,22 @@ The best provider to use mostly depends on your current infrastructure. When in 
 * EC2 is useful when you want runners to have complete access to the host
 * ECS is useful when you want to control the infrastructure, like leaving the runner host running for faster startups
 * Lambda is useful for short jobs that can work within time, size and readonly system constraints
+
+### Job Isolation
+
+Every job gets a new runner, but not every provider gives every job its own machine. EC2, CodeBuild, and Fargate run each job on its own instance, build, or task. ECS and Lambda can run different jobs on the same machine, so jobs that can run on the same ECS cluster or Lambda function should be treated as one trust boundary.
+
+* **ECS** runs jobs as containers on a shared cluster of long-lived instances. With `dockerInDocker` enabled, which is the default for Linux, runner containers are privileged. A job running in a privileged container can take over the instance. From there it can access other jobs running on the same instance, and leave processes behind that affect jobs that run on it later.
+* **Lambda** reuses execution environments between jobs. A job can leave processes behind that can access or affect later jobs running on the same function. We do clear up `/tmp` between jobs which is the only writable filesystem available.
+
+To keep jobs of different trust levels apart:
+
+* Don't run untrusted code, like pull requests from forks of public repositories, on an ECS or Lambda provider that also runs jobs with access to secrets.
+* Use separate providers for different trust levels, and route jobs to them with labels or runner groups. For ECS, give each provider its own cluster.
+* Disable `dockerInDocker` on ECS if your jobs don't need Docker.
+* If jobs of different trust levels must share a provider, use EC2, CodeBuild, or Fargate. EC2 and CodeBuild also support Docker.
+
+If you are using ECS or Lambda to maximize runner provisioning speed, you could also consider [warm runners](#warm-runners).
 
 ## Installation
 
