@@ -689,6 +689,9 @@ ECS can be useful when you want more control of the infrastructure running the G
 group to scale down to zero during the night and scale up during work hours. This way you can still save money, but have to wait less for
 infrastructure to spin up.
 
+Jobs share instances, and by default run in privileged containers on Linux that can take over the instance. All jobs that can run on the same
+cluster should be equally trusted. See https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
+
 This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.Initializer"></a>
@@ -1282,6 +1285,7 @@ new GitHubRunners(scope: Construct, id: string, props?: GitHubRunnersProps)
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted">metricJobCompleted</a></code> | Metric for the number of GitHub Actions jobs completed. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricLambdaErrors">metricLambdaErrors</a></code> | Metric for the number of failed invocations of the management Lambda functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners">metricStolenRunners</a></code> | Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStoppedRunners">metricStoppedRunners</a></code> | Metric for the number of runners we stopped on purpose before they got a job. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricSucceeded">metricSucceeded</a></code> | Metric for successful executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricTime">metricTime</a></code> | Metric for the interval, in milliseconds, between the time the execution starts and the time it closes. |
 
@@ -1329,12 +1333,14 @@ It answers the questions you're most likely to ask:
 * Are jobs running and passing? See "Jobs completed by status".
 * Which runner is broken? See "Failed jobs by runner label".
 * Are jobs stuck because runners fail to start? See "Runner executions".
+* Why were runners stopped before getting a job? See "Stopped runners by reason".
+* Why are runners failing to start? See "Recent failed attempts".
 * How long do runners take (and therefore cost)? See "Runner time".
 * Is GitHub reaching the webhook at all? See "Webhook".
 * Is any of our code failing? See "Lambda errors".
 * What exactly went wrong? See "Recent errors".
 
-**WARNING:** this method calls {@link metricJobCompleted} and {@link metricStolenRunners} which create metric filters.
+**WARNING:** this method calls {@link metricJobCompleted}, {@link metricStolenRunners} and {@link metricStoppedRunners} which create metric filters.
 These resources may incur cost.
 
 This dashboard is very basic. Pull requests and issues are welcome to improve it.
@@ -1475,6 +1481,31 @@ This metric has two dimensions:
 **WARNING:** this method creates a metric filter. This resource may incur cost.
 
 ###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners.parameter.props"></a>
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
+
+---
+
+##### `metricStoppedRunners` <a name="metricStoppedRunners" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStoppedRunners"></a>
+
+```typescript
+public metricStoppedRunners(props?: MetricOptions): Metric
+```
+
+Metric for the number of runners we stopped on purpose before they got a job.
+
+These step function executions end up as aborted and not failed, so they don't show up in {@link metricFailed}.
+
+This metric has one dimension, `Reason`, which is the error the step function was stopped with:
+ * `IdleRunner`: the runner was idle for longer than its idle timeout and was reaped. This is usually a runner whose job was taken by
+   another runner, or a job that was canceled before it started.
+ * `StaleWarmRunner`: a warm runner was replaced because its configuration changed.
+ * `WarmRunnerExpired`: a warm runner reached the end of its duration.
+ * `WarmRunnerBadDeadline`: a warm runner had an invalid deadline and was stopped.
+
+**WARNING:** this method creates a metric filter. This resource may incur cost.
+
+###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStoppedRunners.parameter.props"></a>
 
 - *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
 
@@ -1636,6 +1667,9 @@ public readonly props: GitHubRunnersProps;
 GitHub Actions runner provider using Lambda to execute jobs.
 
 Creates a Docker-based function that gets executed for each job.
+
+Execution environments can be reused between jobs. All jobs that can run on the same function should be equally trusted. See
+https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
 
 This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
 
@@ -3410,7 +3444,7 @@ const ecsRunnerProviderProps: EcsRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.capacityProvider">capacityProvider</a></code> | <code>aws-cdk-lib.aws_ecs.AsgCapacityProvider</code> | Existing capacity provider to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_ecs.Cluster</code> | Existing ECS cluster to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.cpu">cpu</a></code> | <code>number</code> | The number of cpu units used by the task. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required privileged mode for the runner container. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.gpu">gpu</a></code> | <code>number</code> | Number of GPUs to request for the runner task. When set, the task will be scheduled on GPU-capable instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.group">group</a></code> | <code>string</code> | GitHub Actions runner group name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build Docker images containing GitHub Runner and all requirements. |
@@ -3478,6 +3512,10 @@ Existing capacity provider to use.
 
 Make sure the AMI used by the capacity provider is compatible with ECS.
 
+Runner containers use bridge networking and share the instance with other jobs. Its launch template must require IMDSv2 and set the
+metadata hop limit to 1 (`requireImdsv2: true` and `httpPutResponseHopLimit: 1`), or jobs can take the instance role. A warning is
+added when we can't confirm both.
+
 ---
 
 ##### `cluster`<sup>Optional</sup> <a name="cluster" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.cluster"></a>
@@ -3490,6 +3528,10 @@ public readonly cluster: Cluster;
 - *Default:* a new cluster
 
 Existing ECS cluster to use.
+
+Jobs from all providers using the same cluster can share instances. Only share a cluster between providers whose jobs are equally trusted.
+
+> [https://github.com/CloudSnorkel/cdk-github-runners#job-isolation](https://github.com/CloudSnorkel/cdk-github-runners#job-isolation)
 
 ---
 
@@ -3517,10 +3559,14 @@ public readonly dockerInDocker: boolean;
 - *Type:* boolean
 - *Default:* true
 
-Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode.
+Support building and running Docker images by enabling Docker-in-Docker (dind) and the required privileged mode for the runner container.
 
-Disabling this can
-speed up provisioning of CodeBuild runners. If you don't intend on running or building Docker images, disable this for faster start-up times.
+A job running in a privileged container can take over the instance, access other jobs running on it, and affect jobs that run on it
+later. All jobs that can run on the same cluster should be equally trusted. Disable this if your jobs don't need Docker.
+
+Disabling Docker-in-Docker can also speed up runner provisioning as the runner doesn't have to wait for Docker to boot.
+
+> [https://github.com/CloudSnorkel/cdk-github-runners#job-isolation](https://github.com/CloudSnorkel/cdk-github-runners#job-isolation)
 
 ---
 
@@ -4682,7 +4728,7 @@ public readonly includeExecutionData: boolean;
 ```
 
 - *Type:* boolean
-- *Default:* false
+- *Default:* true
 
 Determines whether execution data is included in your log.
 
@@ -4695,7 +4741,7 @@ public readonly level: LogLevel;
 ```
 
 - *Type:* aws-cdk-lib.aws_stepfunctions.LogLevel
-- *Default:* ERROR
+- *Default:* ALL
 
 Defines which category of execution history events are logged.
 

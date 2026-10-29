@@ -9,15 +9,12 @@ if [ -f /var/lang/lib/libssl.so ]; then
 fi
 
 # extract parameters
+RUNNER_JIT_CONFIG=$(echo "$1" | jq -r '.jitConfig // empty')
+RUNNER_NAME=$(echo "$1" | jq -r .runnerName)
+RUNNER_LABEL=$(echo "$1" | jq -r .label)
 OWNER=$(echo "$1" | jq -r .owner)
 REPO=$(echo "$1" | jq -r .repo)
 GITHUB_DOMAIN=$(echo "$1" | jq -r .githubDomain)
-RUNNER_TOKEN=$(echo "$1" | jq -r .token)
-RUNNER_NAME=$(echo "$1" | jq -r .runnerName)
-RUNNER_LABEL=$(echo "$1" | jq -r .label)
-REGISTRATION_URL=$(echo "$1" | jq -r .registrationUrl)
-RUNNER_GROUP=$(echo "$1" | jq -r .group)
-DEFAULT_LABELS=$(echo "$1" | jq -r .defaultLabels)
 
 # copy runner code (it needs a writable directory)
 cp -r /home/runner /tmp/
@@ -31,10 +28,19 @@ export HOME=/tmp/home
 ./job-reporter.sh "${RUNNER_NAME}"
 
 # start runner
-if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
-./config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" --name "${RUNNER_NAME}" ${RUNNER_FLAGS} ${RUNNER_GROUP} ${DEFAULT_LABELS}
-echo Config done
-./run.sh
+if [ -n "${RUNNER_JIT_CONFIG}" ]; then
+  ./run.sh --jitconfig "${RUNNER_JIT_CONFIG}"
+else
+  # DEPRECATED: remove in 1.0.0 with this whole else branch. executions that started before JIT runners pass a registration token instead.
+  RUNNER_TOKEN=$(echo "$1" | jq -r .token)
+  REGISTRATION_URL=$(echo "$1" | jq -r .registrationUrl)
+  RUNNER_GROUP=$(echo "$1" | jq -r .group)
+  DEFAULT_LABELS=$(echo "$1" | jq -r .defaultLabels)
+  if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
+  ./config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" --name "${RUNNER_NAME}" ${RUNNER_FLAGS} ${RUNNER_GROUP} ${DEFAULT_LABELS}
+  echo Config done
+  ./run.sh
+fi
 echo Run done
 
 # print status for metrics

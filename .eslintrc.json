@@ -175,7 +175,8 @@
           "src/lambda-helpers.ts",
           "src/lambda-github.ts",
           "src/lambda-tracker.ts",
-          "setup/src/main.ts"
+          "setup/src/main.ts",
+          ".projenrc.js"
         ],
         "optionalDependencies": false,
         "peerDependencies": true

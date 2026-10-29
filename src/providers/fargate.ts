@@ -9,7 +9,8 @@ import {
   IRunnerProviderStatus,
   Os,
   providerParam,
-  RunnerEnvConfig,
+  RunnerConfig,
+  runnerDefaultLabels,
   runnerEnvironment,
   RunnerImage,
   RunnerProviderProps,
@@ -177,22 +178,32 @@ export function ecsRunCommand(os: Os, dind: boolean): string[] {
       `${dindCommand}
         cd /home/runner &&
         ./job-reporter.sh "$RUNNER_NAME" &&
-        if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
-        ./config.sh --unattended --url "$REGISTRATION_URL" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&
-        ./run.sh &&
+        if [ -n "$RUNNER_JIT_CONFIG" ]; then
+          ./run.sh --jitconfig "$RUNNER_JIT_CONFIG";
+        else
+          # DEPRECATED: remove in 1.0.0 with this whole else branch. executions that started before JIT runners pass a registration token instead.
+          if [ "$RUNNER_VERSION" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi &&
+          ./config.sh --unattended --url "$REGISTRATION_URL" --token "$RUNNER_TOKEN" --ephemeral --work _work --labels "$RUNNER_LABEL,cdkghr:started:\`date +%s\`" $RUNNER_FLAGS --name "$RUNNER_NAME" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&
+          ./run.sh;
+        fi &&
         STATUS=$(grep -Phors "finish job request for job [0-9a-f-]+ with result: .*" _diag | tail -n1 | awk '{print $NF}') &&
         if [ -n "$STATUS" ]; then echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"; fi`,
     ];
   } else if (os.is(Os.WINDOWS)) {
+    // DEPRECATED: remove in 1.0.0 with the else branch below. executions that started before JIT runners pass a registration token instead.
     return [
       'powershell', '-Command',
       `cd \\actions ;
-        & ./job-reporter.ps1 "\${Env:RUNNER_NAME}" ;
-        if ($Env:RUNNER_VERSION -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" } ;
-        ./config.cmd --unattended --url "\${Env:REGISTRATION_URL}" --token "\${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "\${Env:RUNNER_LABEL},cdkghr:started:\$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${Env:RUNNER_NAME}" \${Env:RUNNER_GROUP1} \${Env:RUNNER_GROUP2} \${Env:DEFAULT_LABELS} ;
-        ./run.cmd ;
+        & ./job-reporter.ps1 "$Env:RUNNER_NAME" ;
+        if ($Env:RUNNER_JIT_CONFIG) {
+          ./run.cmd --jitconfig "$Env:RUNNER_JIT_CONFIG"
+        } else {
+          if ($Env:RUNNER_VERSION -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
+          ./config.cmd --unattended --url "$Env:REGISTRATION_URL" --token "$Env:RUNNER_TOKEN" --ephemeral --work _work --labels "$Env:RUNNER_LABEL,cdkghr:started:\$(Get-Date -UFormat +%s)" $RunnerFlags --name "$Env:RUNNER_NAME" $Env:RUNNER_GROUP1 $Env:RUNNER_GROUP2 $Env:DEFAULT_LABELS
+          ./run.cmd
+        } ;
         $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;
-        if ($STATUS) { echo "CDKGHA JOB DONE $\{Env:RUNNER_LABEL\} $STATUS" }`,
+        if ($STATUS) { echo "CDKGHA JOB DONE $Env:RUNNER_LABEL $STATUS" }`,
     ];
   } else {
     throw new Error(`Fargate runner doesn't support ${os.name}`);
@@ -338,7 +349,7 @@ export function ecsTags(scope: Construct, tags: { [key: string]: string }): { [k
  *
  * @internal
  */
-interface FargateRunnerConfig extends RunnerEnvConfig {
+interface FargateRunnerConfig extends RunnerConfig {
   readonly clusterArn: string;
   readonly taskDefinitionFamily: string;
   readonly containerName: string;
@@ -617,9 +628,7 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
       tags: Object.entries(this.tags).map(([Key, Value]) => ({ Key, Value })),
       cleanLabels: true,
       runnerGroup: this.group ?? '',
-      group1: this.group ? '--runnergroup' : '',
-      group2: this.group ? this.group : '',
-      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+      defaultLabels: runnerDefaultLabels(this.image.os, this.image.architecture, this.defaultLabels),
     };
   }
 

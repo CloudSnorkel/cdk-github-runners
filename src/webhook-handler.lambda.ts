@@ -49,13 +49,8 @@ export function verifyBody(event: AWSLambda.APIGatewayProxyEventV2, secret: any)
   hmac.update(body);
   const expectedSig = Buffer.from(`sha256=${hmac.digest('hex')}`, 'utf8');
 
-  console.log({
-    notice: 'Calculated signature',
-    signature: expectedSig.toString(),
-  });
-
   if (sig.length !== expectedSig.length || !crypto.timingSafeEqual(sig, expectedSig)) {
-    throw new Error(`Signature mismatch. Expected ${expectedSig.toString()} but got ${sig.toString()}`);
+    throw new Error('Signature mismatch. Is the webhook secret correct?');
   }
 
   return body.toString();

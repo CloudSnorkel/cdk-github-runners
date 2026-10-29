@@ -20,7 +20,7 @@ You will need to make several decisions during setup. Here's a quick guide to he
 
 **Choose between:**
 - **GitHub.com** - Public GitHub
-- **GitHub Enterprise Server** - Self-hosted GitHub instance
+- **GitHub Enterprise Server** - Self-hosted GitHub instance (3.10 or newer)
 
 **When to use Enterprise Server:** If your organization uses a self-hosted GitHub Enterprise Server instance.
 

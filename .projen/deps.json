@@ -113,7 +113,7 @@
     },
     {
       "name": "commit-and-tag-version",
-      "version": "^12",
+      "version": "^13",
       "type": "build"
     },
     {
@@ -223,6 +223,11 @@
     {
       "name": "cron-parser",
       "type": "bundled"
+    },
+    {
+      "name": "postcss-selector-parser",
+      "version": "^7.1.6",
+      "type": "override"
     },
     {
       "name": "aws-cdk-lib",

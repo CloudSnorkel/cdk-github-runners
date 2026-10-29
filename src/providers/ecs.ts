@@ -25,7 +25,8 @@ import {
   RunnerVersion,
   StorageOptions,
   providerParam,
-  RunnerEnvConfig,
+  RunnerConfig,
+  runnerDefaultLabels,
 } from './common';
 import { cleanEcsTag, ecsRunCommand, ecsTags, grantEcsRunTask } from './fargate';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
@@ -93,6 +94,10 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
   /**
    * Existing ECS cluster to use.
    *
+   * Jobs from all providers using the same cluster can share instances. Only share a cluster between providers whose jobs are equally trusted.
+   *
+   * @see https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
+   *
    * @default a new cluster
    */
   readonly cluster?: ecs.Cluster;
@@ -101,6 +106,10 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
    * Existing capacity provider to use.
    *
    * Make sure the AMI used by the capacity provider is compatible with ECS.
+   *
+   * Runner containers use bridge networking and share the instance with other jobs. Its launch template must require IMDSv2 and set the
+   * metadata hop limit to 1 (`requireImdsv2: true` and `httpPutResponseHopLimit: 1`), or jobs can take the instance role. A warning is
+   * added when we can't confirm both.
    *
    * @default new capacity provider
    */
@@ -163,8 +172,14 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
   readonly storageOptions?: StorageOptions;
 
   /**
-   * Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. Disabling this can
-   * speed up provisioning of CodeBuild runners. If you don't intend on running or building Docker images, disable this for faster start-up times.
+   * Support building and running Docker images by enabling Docker-in-Docker (dind) and the required privileged mode for the runner container.
+   *
+   * A job running in a privileged container can take over the instance, access other jobs running on it, and affect jobs that run on it
+   * later. All jobs that can run on the same cluster should be equally trusted. Disable this if your jobs don't need Docker.
+   *
+   * Disabling Docker-in-Docker can also speed up runner provisioning as the runner doesn't have to wait for Docker to boot.
+   *
+   * @see https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
    *
    * @default true
    */
@@ -230,7 +245,7 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
  *
  * @internal
  */
-interface EcsRunnerConfig extends RunnerEnvConfig {
+interface EcsRunnerConfig extends RunnerConfig {
   readonly clusterArn: string;
   readonly taskDefinitionFamily: string;
   readonly containerName: string;
@@ -246,6 +261,9 @@ interface EcsRunnerConfig extends RunnerEnvConfig {
  * ECS can be useful when you want more control of the infrastructure running the GitHub Actions Docker containers. You can control the autoscaling
  * group to scale down to zero during the night and scale up during work hours. This way you can still save money, but have to wait less for
  * infrastructure to spin up.
+ *
+ * Jobs share instances, and by default run in privileged containers on Linux that can take over the instance. All jobs that can run on the same
+ * cluster should be equally trusted. See https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
@@ -470,6 +488,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       }
 
       this.capacityProvider = props.capacityProvider;
+      this.warnOnContainerImdsAccess();
     } else {
       const spot = props?.spot ?? props?.spotMaxPrice !== undefined;
 
@@ -495,6 +514,9 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
           maxPrice: props?.spotMaxPrice ? parseFloat(props?.spotMaxPrice) : undefined,
         } : undefined,
         requireImdsv2: true,
+        // containers on the bridge network are one hop away, so this keeps jobs from reaching IMDS and taking the instance role.
+        // tasks get their own role from the ECS agent endpoint, which this doesn't affect. some AMIs, like AL2023, default to 2.
+        httpPutResponseHopLimit: 1,
         securityGroup: this.securityGroups[0],
         role: new iam.Role(this, 'Launch Template Role', {
           assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
@@ -591,50 +613,67 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
     throw new Error(`Unable to find instance type for ECS instances for ${this.image.architecture.name}`);
   }
 
+  /**
+   * Warn when we can't confirm the custom capacity provider keeps containers away from IMDS. Only launch templates and launch configurations
+   * created in this app can be checked.
+   */
+  private warnOnContainerImdsAccess() {
+    // the cfn properties can also be IResolvable, but the L2 constructs always set plain objects. anything else can't be confirmed and warns.
+    const cfnAsg = this.capacityProvider.autoScalingGroup.node.defaultChild as any;
+    const target = (id: any) => {
+      const token = typeof id === 'string' ? cdk.Tokenization.reverseString(id).firstToken : undefined;
+      return token instanceof cdk.Reference ? token.target : undefined;
+    };
+
+    const launchTemplateSpec = cfnAsg.launchTemplate ?? cfnAsg.mixedInstancesPolicy?.launchTemplate?.launchTemplateSpecification;
+    const launchTemplate = target(launchTemplateSpec?.launchTemplateId ?? launchTemplateSpec?.launchTemplateName);
+    const launchConfiguration = target(cfnAsg.launchConfigurationName);
+    // only resolve the metadata options, and in the stack that owns them, so we don't touch anything else the user put in there
+    let metadataOptions: any;
+    try {
+      if (launchTemplate instanceof ec2.CfnLaunchTemplate) {
+        metadataOptions = cdk.Stack.of(launchTemplate).resolve((launchTemplate.launchTemplateData as any)?.metadataOptions);
+      } else if (launchConfiguration instanceof autoscaling.CfnLaunchConfiguration) {
+        metadataOptions = cdk.Stack.of(launchConfiguration).resolve(launchConfiguration.metadataOptions);
+      }
+    } catch {
+      // can't tell, so warn below
+    }
+
+    if (metadataOptions?.httpTokens !== 'required' || metadataOptions?.httpPutResponseHopLimit !== 1) {
+      cdk.Annotations.of(this).addWarningV2(
+        '@cloudsnorkel/cdk-github-runners:ecsCapacityProviderImds',
+        'Unable to confirm the custom capacity provider launch template requires IMDSv2 with a hop limit of 1. ' +
+        'Without it, jobs can reach IMDS and take the instance role. Set `requireImdsv2: true` and `httpPutResponseHopLimit: 1` on the launch template.',
+      );
+    }
+  }
+
   private defaultClusterInstanceAmi() {
-    let baseImage: ec2.IMachineImage;
-    let ssmPath: string;
-    let found = false;
+    let os = ec2.OperatingSystemType.LINUX;
+    let ssmPath: string | undefined;
 
     if (this.image.os.isIn(Os._ALL_LINUX_VERSIONS)) {
       if (this.gpuCount > 0 && this.image.architecture.is(Architecture.X86_64)) {
-        baseImage = ecs.EcsOptimizedImage.amazonLinux2023(ecs.AmiHardwareType.GPU);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/gpu/recommended/image_id';
-        found = true;
       } else if (this.image.architecture.is(Architecture.X86_64)) {
-        baseImage = ecs.EcsOptimizedImage.amazonLinux2023(ecs.AmiHardwareType.STANDARD);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id';
-        found = true;
       } else if (this.image.architecture.is(Architecture.ARM64)) {
-        baseImage = ecs.EcsOptimizedImage.amazonLinux2023(ecs.AmiHardwareType.ARM);
         ssmPath = '/aws/service/ecs/optimized-ami/amazon-linux-2023/arm64/recommended/image_id';
-        found = true;
       }
     }
 
     if (this.image.os.is(Os.WINDOWS)) {
-      baseImage = ecs.EcsOptimizedImage.windows(ecs.WindowsOptimizedVersion.SERVER_2019);
+      os = ec2.OperatingSystemType.WINDOWS;
       ssmPath = '/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized/image_id';
-      found = true;
     }
 
-    if (!found) {
+    if (!ssmPath) {
       throw new Error(`Unable to find AMI for ECS instances for ${this.image.os.name}/${this.image.architecture.name} (gpuCount=${this.gpuCount})`);
     }
 
-    const image: ec2.IMachineImage = {
-      getImage(scope: Construct): ec2.MachineImageConfig {
-        const baseImageRes = baseImage.getImage(scope);
-
-        return {
-          imageId: `resolve:ssm:${ssmPath}`,
-          userData: baseImageRes.userData,
-          osType: baseImageRes.osType,
-        };
-      },
-    };
-
-    return image;
+    // resolved by EC2 on every launch, so new instances always get the latest AMI without redeploying
+    return ec2.MachineImage.resolveSsmParameterAtLaunch(ssmPath, { os });
   }
 
   private pullCommand() {
@@ -708,9 +747,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       tags: Object.entries(this.tags).map(([Key, Value]) => ({ Key, Value })),
       cleanLabels: true,
       runnerGroup: this.group ?? '',
-      group1: this.group ? '--runnergroup' : '',
-      group2: this.group ? this.group : '',
-      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+      defaultLabels: runnerDefaultLabels(this.image.os, this.image.architecture, this.defaultLabels),
     };
   }
 

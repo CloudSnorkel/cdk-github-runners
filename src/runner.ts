@@ -72,8 +72,8 @@ const FAMILY_FRAGMENTS = new Map<string, (scope: Construct) => stepfunctions.ICh
  * `GitHubRunners:Provider` should name the provider that actually runs the job, which is not `$.provider` when we got here through a composite, so
  * the config's own `provider` field wins when it has one.
  *
- * `runnerGroup` gets a default so an unknown provider, whose lookup finds nothing, still produces params the next states can read. Without it the
- * token retriever fails on a missing reference path instead of reaching `Unknown provider`.
+ * `runnerGroup` and `defaultLabels` get defaults so an unknown provider, whose lookup finds nothing, still produces params the next states can read.
+ * Without it the token retriever fails on a missing reference path instead of reaching `Unknown provider`.
  *
  * Labels are tagged as they come in, so the tag shows what the runner registers with, warm runner and provider selector labels included. Configs
  * that ask for `cleanLabels` get the same labels with spaces instead of the commas ECS rejects, and anything else it rejects as an underscore.
@@ -85,7 +85,7 @@ function selectProviderParams(scope: Construct, configExpr: string): string {
       $selected := ${configExpr};
       $r := $random() * $selected.totalWeight;
       $config := $exists($selected.distribute) ? $selected.distribute[threshold > $r][0].config : $selected;
-      $merge([{'family': 'provider not found', 'runnerGroup': ''}, $config, {'tags': $append(
+      $merge([{'family': 'provider not found', 'runnerGroup': '', 'defaultLabels': []}, $config, {'tags': $append(
         [
           {'Key': 'Name', 'Value': $states.context.Execution.Name},
           {'Key': '${ReservedTags.STACK}', 'Value': '${cdk.Stack.of(scope).stackName}'},
@@ -293,14 +293,14 @@ export interface LogOptions {
   /**
    * Determines whether execution data is included in your log.
    *
-   * @default false
+   * @default true
    */
   readonly includeExecutionData?: boolean;
 
   /**
    * Defines which category of execution history events are logged.
    *
-   * @default ERROR
+   * @default ALL
    */
   readonly level?: stepfunctions.LogLevel;
 
@@ -383,11 +383,12 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private readonly parameterizedProviders: IParameterizedRunnerProvider[] = [];
   private jobsCompletedMetricFiltersInitialized = false;
   private stolenRunnersMetricFilterInitialized = false;
+  private stoppedRunnersMetricFilterInitialized = false;
   private warmRunnerManager?: lambda.Function;
   private warmRunnerQueue?: sqs.Queue;
   private warmConfigHashes: string[] = [];
   private warmMaxDuration = 0;
-  private deleteFailedRunnerFunction?: lambda.IFunction;
+  private readonly idleReaperFunction: lambda.Function;
   private readonly managementFunctions: lambda.IFunction[] = [];
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
@@ -434,6 +435,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       this.parameterizedProviders.push(provider);
     }
 
+    this.idleReaperFunction = this.idleReaper();
     this.orchestrator = this.stateMachine(props);
     this.stolenRunnerDetector = new StolenRunnerDetector(this, 'Stolen Runners', {
       secrets: this.secrets,
@@ -458,6 +460,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       idleTimeoutSeconds: this.props?.idleTimeout?.toSeconds(),
     });
     this.stolenRunnerDetector.grantRecordRunners(this.webhook.handler);
+    this.stolenRunnerDetector.grantRecordRunners(this.idleReaperFunction);
     this.redeliverer = new GithubWebhookRedelivery(this, 'Webhook Redelivery', {
       secrets: this.secrets,
       extraLambdaProps: this.extraLambdaProps,
@@ -486,15 +489,16 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           runnerName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
           installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
           group: stepfunctions.JsonPath.stringAt('$.providerParams.runnerGroup'),
+          labels: stepfunctions.JsonPath.stringAt('$.labels'),
+          defaultLabels: stepfunctions.JsonPath.listAt('$.providerParams.defaultLabels'),
         }),
       },
     );
 
-    const idleReaper = this.idleReaper();
     const defaultIdleSeconds = (props?.idleTimeout ?? cdk.Duration.minutes(5)).toSeconds();
 
     const queueIdleReaperTask = new stepfunctions_tasks.SqsSendMessage(this, 'Queue Idle Reaper', {
-      queue: this.idleReaperQueue(idleReaper),
+      queue: this.idleReaperQueue(this.idleReaperFunction),
       queryLanguage: stepfunctions.QueryLanguage.JSONATA,
       messageBody: stepfunctions.TaskInput.fromObject({
         executionArn: '{% $states.context.Execution.Id %}',
@@ -562,10 +566,9 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     // this parallel catches the failure, cleans up the runner, and loops back with the next config
     const tryProvider = new stepfunctions.Parallel(this, 'Try Provider').branch(providerFamilyChooser);
 
-    this.deleteFailedRunnerFunction ??= this.deleteFailedRunner();
     const fallbackCleanup = new stepfunctions_tasks.LambdaInvoke(this, 'Clean Up Failed Runner', {
       comment: 'Clean-up failed runner from GitHub Actions (if present)',
-      lambdaFunction: this.deleteFailedRunnerFunction,
+      lambdaFunction: this.deleteFailedRunner(),
       payloadResponseOnly: true,
       resultPath: '$.delete',
       payload: stepfunctions.TaskInput.fromObject({
@@ -574,6 +577,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         repo: stepfunctions.JsonPath.stringAt('$.repo'),
         installationId: stepfunctions.JsonPath.numberAt('$.installationId'),
         family: stepfunctions.JsonPath.stringAt('$.providerParams.family'),
+        // always there as the catch below puts it there. only logged so failure reasons can be seen without state machine logging
+        error: stepfunctions.JsonPath.objectAt('$.error'),
       }),
     });
     // any error means we can't be sure the runner is gone. we don't try to tell them apart (#1007)
@@ -616,12 +621,13 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     fallbackCleanup.addCatch(runnerNotDeleted, { errors: [stepfunctions.Errors.ALL], resultPath: '$.delete' });
     fallbackChoice.when(stepfunctions.Condition.isPresent('$.providerParams.fallback'), useFallback);
     fallbackChoice.otherwise(allFailed);
-    useFallback.next(tryProvider);
+    // fallback can have a different group, OS, or architecture so each fallback gets a JIT config of its own
+    useFallback.next(tokenRetrieverTask);
 
     // one parallel is enough now: the fallback loop above already cleaned up the runner before it gave up
     // we used to need two nested ones just to clean up before the retry, because Retry runs before Catch
     const runProviders = new stepfunctions.Parallel(this, 'Run Providers').branch(
-      // we get a token for every retry because the token can expire faster than the job can timeout
+      // we get a JIT config for every retry and every fallback, because the clean-up before them deletes the runner it registered
       selectConfig.next(tokenRetrieverTask).next(tryProvider),
     );
 
@@ -708,8 +714,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       },
     );
 
-    stateMachine.grantRead(idleReaper);
-    stateMachine.grantExecution(idleReaper, 'states:StopExecution');
+    stateMachine.grantRead(this.idleReaperFunction);
+    stateMachine.grantExecution(this.idleReaperFunction, 'states:StopExecution');
     for (const provider of this.parameterizedProviders) {
       provider._grantStateMachine(stateMachine);
     }
@@ -722,7 +728,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       this,
       'token-retriever',
       {
-        description: 'Get token from GitHub Actions used to start new self-hosted runner',
+        description: 'Get just-in-time config from GitHub Actions used to start new self-hosted runner',
         environment: {
           GITHUB_SECRET_ARN: this.secrets.github.secretArn,
           GITHUB_PRIVATE_KEY_SECRET_ARN: this.secrets.githubPrivateKey.secretArn,
@@ -944,17 +950,25 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     // see this comment to understand why it's a queue that's out of the step function
     // https://github.com/CloudSnorkel/cdk-github-runners/pull/314#issuecomment-1528901192
 
+    // the reaper only stops a runner it saw idle twice, one delivery apart, so a runner gets reaped somewhere between 5 and 10 minutes after
+    // it went idle with the default idle timeout. a runner that is still booting is not online yet, so it doesn't count as idle.
     const queue = new sqs.Queue(this, 'Idle Reaper Queue', {
-      deliveryDelay: cdk.Duration.minutes(10),
-      visibilityTimeout: cdk.Duration.minutes(10),
+      deliveryDelay: cdk.Duration.minutes(5),
+      visibilityTimeout: cdk.Duration.minutes(5),
     });
 
+    // trigger reaper function from queue
     reaper.addEventSource(new lambda_event_sources.SqsEventSource(queue, {
       reportBatchItemFailures: true,
       maxBatchingWindow: cdk.Duration.minutes(1),
       batchSize: 10,
     }));
 
+    // the reaper sends itself a new message when it first sees a runner idle
+    reaper.addEnvironment('IDLE_REAPER_QUEUE_URL', queue.queueUrl);
+    queue.grantSendMessages(reaper);
+
+    // access to required github secrets and runner cleanup
     this.secrets.github.grantRead(reaper);
     this.secrets.githubPrivateKey.grantRead(reaper);
     this.grantRunnerInstanceCleanup(reaper);
@@ -1148,6 +1162,44 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     return new cloudwatch.Metric({
       namespace: 'GitHubRunners',
       metricName: 'StolenRunners',
+      unit: cloudwatch.Unit.COUNT,
+      statistic: cloudwatch.Stats.SUM,
+      ...props,
+    }).attachTo(this);
+  }
+
+  /**
+   * Metric for the number of runners we stopped on purpose before they got a job.
+   *
+   * These step function executions end up as aborted and not failed, so they don't show up in {@link metricFailed}.
+   *
+   * This metric has one dimension, `Reason`, which is the error the step function was stopped with:
+   *  * `IdleRunner`: the runner was idle for longer than its idle timeout and was reaped. This is usually a runner whose job was taken by
+   *    another runner, or a job that was canceled before it started.
+   *  * `StaleWarmRunner`: a warm runner was replaced because its configuration changed.
+   *  * `WarmRunnerExpired`: a warm runner reached the end of its duration.
+   *  * `WarmRunnerBadDeadline`: a warm runner had an invalid deadline and was stopped.
+   *
+   * **WARNING:** this method creates a metric filter. This resource may incur cost.
+   */
+  public metricStoppedRunners(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
+    if (!this.stoppedRunnersMetricFilterInitialized) {
+      singletonLogGroup(this, SingletonLogType.ORCHESTRATOR).addMetricFilter('Stopped Runners filter', {
+        metricNamespace: 'GitHubRunners',
+        metricName: 'StoppedRunners',
+        filterPattern: logs.FilterPattern.stringValue('$.message.metric', '=', 'RunnerStopped'),
+        metricValue: '1',
+        // can't with dimensions -- defaultValue: 0,
+        dimensions: {
+          Reason: '$.message.reason',
+        },
+      });
+      this.stoppedRunnersMetricFilterInitialized = true;
+    }
+
+    return new cloudwatch.Metric({
+      namespace: 'GitHubRunners',
+      metricName: 'StoppedRunners',
       unit: cloudwatch.Unit.COUNT,
       statistic: cloudwatch.Stats.SUM,
       ...props,
@@ -1379,12 +1431,14 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * * Are jobs running and passing? See "Jobs completed by status".
    * * Which runner is broken? See "Failed jobs by runner label".
    * * Are jobs stuck because runners fail to start? See "Runner executions".
+   * * Why were runners stopped before getting a job? See "Stopped runners by reason".
+   * * Why are runners failing to start? See "Recent failed attempts".
    * * How long do runners take (and therefore cost)? See "Runner time".
    * * Is GitHub reaching the webhook at all? See "Webhook".
    * * Is any of our code failing? See "Lambda errors".
    * * What exactly went wrong? See "Recent errors".
    *
-   * **WARNING:** this method calls {@link metricJobCompleted} and {@link metricStolenRunners} which create metric filters.
+   * **WARNING:** this method calls {@link metricJobCompleted}, {@link metricStolenRunners} and {@link metricStoppedRunners} which create metric filters.
    * These resources may incur cost.
    *
    * This dashboard is very basic. Pull requests and issues are welcome to improve it.
@@ -1395,6 +1449,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     // create the metric filters behind these metrics
     this.metricJobCompleted();
     this.metricStolenRunners();
+    this.metricStoppedRunners();
 
     // our log metric filters add dimensions, and a metric with dimensions can only be read with those dimensions.
     // search expressions let us sum them all up without listing every dimension value.
@@ -1420,6 +1475,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         jobs('Failed', 'Jobs failed'),
         this.metricFailed({ label: 'Runners failed to start' }),
         search('Stolen runners', 'StolenRunners'),
+        search('Idle runners stopped', 'StoppedRunners', 'Reason="IdleRunner"'),
         this.metricLambdaErrors({ label: 'Lambda errors' }),
       ],
       // totals for the dashboard time range instead of just the last period
@@ -1434,7 +1490,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         // status list taken from https://github.com/actions/runner/blob/be9632302ceef50bfb36ea998cea9c94c75e5d4d/src/Sdk/DTWebApi/WebApi/TaskResult.cs
         left: ['Succeeded', 'SucceededWithIssues', 'Failed', 'Canceled', 'Skipped', 'Abandoned'].map(s => jobs(s, s)),
         stacked: true,
-        width: 12,
+        width: 6,
       }),
       new cloudwatch.GraphWidget({
         title: 'Failed jobs by runner label',
@@ -1451,7 +1507,25 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           statistic: cloudwatch.Stats.SUM,
         })),
         stacked: true,
-        width: 12,
+        width: 6,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Stolen runners',
+        // not replaced means the replacement limit was hit, so the job may be left without a runner
+        left: [
+          search('Replaced', 'StolenRunners', 'Replaced="true"'),
+          search('Not replaced', 'StolenRunners', 'Replaced="false"'),
+        ],
+        stacked: true,
+        width: 6,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Stopped runners by reason',
+        // these executions are aborted on purpose, so they're not counted as failed. see metricStoppedRunners() for what each reason means
+        left: ['IdleRunner', 'StaleWarmRunner', 'WarmRunnerExpired', 'WarmRunnerBadDeadline']
+          .map(r => search(r, 'StoppedRunners', `Reason="${r}"`)),
+        stacked: true,
+        width: 6,
       }),
     );
 
@@ -1462,6 +1536,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           this.metricSucceeded({ label: 'Succeeded' }),
           this.metricFailed({ label: 'Failed' }),
           this.orchestrator.metricTimedOut({ label: 'Timed out' }),
+          // stopped on purpose, see "Stopped runners by reason"
+          this.orchestrator.metricAborted({ label: 'Aborted' }),
         ],
         stacked: true,
         width: 6,
@@ -1493,6 +1569,31 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         width: 6,
       }),
     );
+
+    dashboard.addWidgets(new cloudwatch.LogQueryWidget({
+      title: 'Recent failed attempts',
+      logGroupNames: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR).logGroupName],
+      view: cloudwatch.LogQueryVisualizationType.TABLE,
+      queryString: new logs.QueryString({
+        // logged by the clean-up function, which every failed attempt goes through. retries and fallbacks fail more
+        // than once, so a runner can show up here many times before it starts or gives up.
+        fields: [
+          '@timestamp',
+          'message.error.Error as error',
+          'message.family as family',
+          'message.runnerName as runner',
+          'message.repo as repo',
+          'message.error.Cause as cause',
+        ],
+        filterStatements: [
+          'message.notice = "Runner failed"',
+        ],
+        sort: '@timestamp desc',
+        limit: 20,
+      }).toString(),
+      width: 24,
+      height: 6,
+    }));
 
     // the orchestrator, webhook and runner management functions log here, setup and status log separately
     dashboard.addWidgets(new cloudwatch.LogQueryWidget({

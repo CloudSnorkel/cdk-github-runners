@@ -32,6 +32,7 @@ const mockResolveInstallationId = jest.fn();
 
 jest.mock('../src/lambda-github', () => ({
   getOctokit: (...args: unknown[]) => mockGetOctokit(...args),
+  cachedGetOctokit: () => (...args: unknown[]) => mockGetOctokit(...args),
   getRunner: (...args: unknown[]) => mockGetRunner(...args),
   deleteRunner: (...args: unknown[]) => mockDeleteRunner(...args),
   resolveInstallationId: (...args: unknown[]) => mockResolveInstallationId(...args),
@@ -146,6 +147,7 @@ describe('warm-runner-manager.lambda handler', () => {
       mockGetRunner.mockResolvedValue({ id: 123, busy: false });
       mockDeleteRunner.mockResolvedValue(undefined);
 
+      const logSpy = jest.spyOn(console, 'log').mockImplementation();
       const result = await handler(event);
 
       expect(result.batchItemFailures).toEqual([]);
@@ -157,6 +159,9 @@ describe('warm-runner-manager.lambda handler', () => {
           }),
         }),
       );
+      // the dashboard counts stopped runners by reason from this log line
+      expect(logSpy).toHaveBeenCalledWith(expect.objectContaining({ metric: 'RunnerStopped', reason: 'StaleWarmRunner' }));
+      logSpy.mockRestore();
       expect(mockGetRunner).toHaveBeenCalledWith(mockOctokit, 'repo', 'my-org', 'my-repo', 'warm-runner-1');
       expect(mockDeleteRunner).toHaveBeenCalledWith(mockOctokit, 'repo', 'my-org', 'my-repo', 123);
     });

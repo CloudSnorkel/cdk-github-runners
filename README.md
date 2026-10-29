@@ -8,6 +8,7 @@
 [![Release](https://github.com/CloudSnorkel/cdk-github-runners/actions/workflows/release.yml/badge.svg)](https://github.com/CloudSnorkel/cdk-github-runners/actions/workflows/release.yml)
 [![Discord](https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white)][20]
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/LICENSE)
+[![awesome-runners](https://img.shields.io/badge/listed%20on-awesome--runners-blue.svg)](https://github.com/jonico/awesome-runners)
 
 Use this CDK construct to create ephemeral [self-hosted GitHub runners][1] on-demand inside your AWS account.
 
@@ -22,7 +23,7 @@ Self-hosted runners in AWS are useful when:
 * You need easy access to internal resources in your actions
 * You want to pre-install some software for your actions
 * You want to provide some basic AWS API access (but [aws-actions/configure-aws-credentials][2] has more security controls)
-* You are using GitHub Enterprise Server
+* You are using GitHub Enterprise Server (3.10 or newer, as runners are registered with [just-in-time configurations](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions#using-just-in-time-runners))
 
 Ephemeral (or on-demand) runners are the [recommended way by GitHub][14] for auto-scaling, and they make sure all jobs run with a clean image. Runners are started on-demand. You don't pay unless a job is running.
 
@@ -30,6 +31,7 @@ Ephemeral (or on-demand) runners are the [recommended way by GitHub][14] for aut
 
 - [API](#api)
 - [Providers](#providers)
+  - [Job Isolation](#job-isolation)
 - [Installation](#installation)
 - [Customizing](#customizing)
   - [Composite Providers](#composite-providers)
@@ -38,6 +40,7 @@ Ephemeral (or on-demand) runners are the [recommended way by GitHub][14] for aut
 - [Examples](#examples)
 - [Architecture](#architecture)
 - [Troubleshooting](#troubleshooting)
+  - [Rebuilding runner images](#rebuilding-runner-images)
 - [Monitoring](#monitoring)
 - [Getting Help](#getting-help)
 - [Contributing](#contributing)
@@ -70,6 +73,24 @@ The best provider to use mostly depends on your current infrastructure. When in 
 * EC2 is useful when you want runners to have complete access to the host
 * ECS is useful when you want to control the infrastructure, like leaving the runner host running for faster startups
 * Lambda is useful for short jobs that can work within time, size and readonly system constraints
+
+### Job Isolation
+
+Every job gets a new runner, but not every provider gives every job its own machine. EC2, CodeBuild, and Fargate run each job on its own instance, build, or task. ECS and Lambda can run different jobs on the same machine, so jobs that can run on the same ECS cluster or Lambda function should be treated as one trust boundary.
+
+* **ECS** runs jobs as containers on a shared cluster of long-lived instances. With `dockerInDocker` enabled, which is the default for Linux, runner containers are privileged. A job running in a privileged container can take over the instance. From there it can access other jobs running on the same instance, and leave processes behind that affect jobs that run on it later. If you bring your own `capacityProvider`, its launch template must also require IMDSv2 with a hop limit of 1, or even unprivileged jobs can take the instance role.
+* **Lambda** reuses execution environments between jobs. A job can leave processes behind that can access or affect later jobs running on the same function. We do clear up `/tmp` between jobs which is the only writable filesystem available.
+
+To keep jobs of different trust levels apart:
+
+* Don't run untrusted code, like pull requests from forks of public repositories, on an ECS or Lambda provider that also runs jobs with access to secrets.
+* Use separate providers for different trust levels. Labels alone don't keep untrusted workflows off a provider, as any workflow can request any label. Use [runner groups](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/managing-access-to-self-hosted-runners-using-groups) limited to specific repositories or workflows. For ECS, give each provider its own cluster.
+* Disable `dockerInDocker` on ECS if your jobs don't need Docker.
+* If jobs of different trust levels must share a provider, use EC2, CodeBuild, or Fargate. EC2 and CodeBuild also support Docker.
+
+All jobs running on the same provider, regardless of the type, share the provider's IAM role, security groups, network access, and anything granted to `grantPrincipal`, so only grant what every job on the provider may use.
+
+If you are using ECS or Lambda to maximize runner provisioning speed, you could also consider [warm runners](#warm-runners).
 
 ## Installation
 
@@ -572,6 +593,7 @@ Configuration problems that we can detect up-front fail the orchestrator with a 
    1. If it's not called or logs errors, confirm the webhook settings on the GitHub side
    2. If you see too many errors, make sure you're only sending `workflow_job` events
 5. When using GitHub app, make sure there are active installations in `github.auth.app.installations`
+6. If runners start but never pick up a job and get stopped with `IdleRunner`, their runner version may be too old. Runners can't update themselves, and GitHub stops sending jobs to runners that are not updated within 30 days of a new runner release, or right away for a critical security update. [Rebuild your runner images](#rebuilding-runner-images) to fix it
 
 All logs are saved in CloudWatch.
 * Log group names can be found in `status.json` for each provider, image builder, and other parts of the system
@@ -582,6 +604,29 @@ To get `status.json`, check out the CloudFormation stack output for a command th
 ```
 aws --region us-east-1 lambda invoke --function-name status-XYZ123 status.json
 ```
+
+### Rebuilding runner images
+
+Runner images are rebuilt every `rebuildInterval` (7 days by default). To rebuild all of them right now, run this with the name of the every stack your runners are built in. It starts every image builder in the stack and prints the build ids. Runners pick up the new images as soon as the builds finish.
+
+```sh
+STACK=my-runners-stack
+resources() {
+  aws cloudformation list-stack-resources --stack-name "$STACK" --output text \
+    --query "StackResourceSummaries[?ResourceType=='$1'].PhysicalResourceId"
+}
+for project in $(resources AWS::CodeBuild::Project); do
+  # skip runner projects of CodeBuild providers, we only want image builders
+  aws codebuild batch-get-projects --names "$project" --output text --query 'projects[0].description' \
+    | grep -q '^Build docker image for self-hosted GitHub runner' \
+    && aws codebuild start-build --project-name "$project" --output text --query 'build.id'
+done
+for pipeline in $(resources AWS::ImageBuilder::ImagePipeline); do
+  aws imagebuilder start-image-pipeline-execution --image-pipeline-arn "$pipeline" --output text --query 'imageBuildVersionArn'
+done
+```
+
+Make sure you use `failedImageBuildsTopic()` to get notified of any failed builds.
 
 ## Monitoring
 

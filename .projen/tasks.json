@@ -37,7 +37,7 @@
         "BUMPFILE": "dist/version.txt",
         "RELEASETAG": "dist/releasetag.txt",
         "RELEASE_TAG_PREFIX": "",
-        "BUMP_PACKAGE": "commit-and-tag-version@^12"
+        "BUMP_PACKAGE": "commit-and-tag-version@^13"
       },
       "steps": [
         {
@@ -133,7 +133,17 @@
       "description": "Create a JavaScript bundle from src/delete-failed-runner.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/delete-failed-runner.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/delete-failed-runner.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/delete-failed-runner.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/delete-failed-runner.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -142,7 +152,18 @@
       "description": "Continuously update the JavaScript bundle from src/delete-failed-runner.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/delete-failed-runner.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/delete-failed-runner.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/delete-failed-runner.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/delete-failed-runner.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -151,7 +172,17 @@
       "description": "Create a JavaScript bundle from src/idle-runner-repear.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/idle-runner-repear.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/idle-runner-repear.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/idle-runner-repear.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/idle-runner-repear.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -160,7 +191,18 @@
       "description": "Continuously update the JavaScript bundle from src/idle-runner-repear.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/idle-runner-repear.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/idle-runner-repear.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/idle-runner-repear.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/idle-runner-repear.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -169,7 +211,17 @@
       "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/delete-resources.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-resources.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-resources.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/image-builders/aws-image-builder/delete-resources.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/image-builders/aws-image-builder/delete-resources.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -178,7 +230,18 @@
       "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/delete-resources.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/delete-resources.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/delete-resources.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/image-builders/aws-image-builder/delete-resources.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/image-builders/aws-image-builder/delete-resources.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -187,7 +250,17 @@
       "description": "Create a JavaScript bundle from src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -196,7 +269,18 @@
       "description": "Continuously update the JavaScript bundle from src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/image-builders/aws-image-builder/filter-failed-builds.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -205,7 +289,17 @@
       "description": "Create a JavaScript bundle from src/image-builders/build-image.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/build-image.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/build-image.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/image-builders/build-image.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/image-builders/build-image.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -214,7 +308,18 @@
       "description": "Continuously update the JavaScript bundle from src/image-builders/build-image.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/image-builders/build-image.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/image-builders/build-image.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/image-builders/build-image.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/image-builders/build-image.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -223,7 +328,17 @@
       "description": "Create a JavaScript bundle from src/providers/ami-root-device.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/providers/ami-root-device.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/ami-root-device.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/providers/ami-root-device.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/providers/ami-root-device.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -232,7 +347,18 @@
       "description": "Continuously update the JavaScript bundle from src/providers/ami-root-device.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/providers/ami-root-device.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/ami-root-device.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/providers/ami-root-device.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/providers/ami-root-device.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -241,7 +367,17 @@
       "description": "Create a JavaScript bundle from src/providers/update-lambda.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/providers/update-lambda.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/update-lambda.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/providers/update-lambda.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/providers/update-lambda.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -250,7 +386,18 @@
       "description": "Continuously update the JavaScript bundle from src/providers/update-lambda.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/providers/update-lambda.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/providers/update-lambda.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/providers/update-lambda.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/providers/update-lambda.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -259,7 +406,17 @@
       "description": "Create a JavaScript bundle from src/setup.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/setup.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/setup.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/setup.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/setup.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -268,7 +425,18 @@
       "description": "Continuously update the JavaScript bundle from src/setup.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/setup.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/setup.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/setup.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/setup.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -277,7 +445,17 @@
       "description": "Create a JavaScript bundle from src/status.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/status.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/status.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/status.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/status.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -286,7 +464,18 @@
       "description": "Continuously update the JavaScript bundle from src/status.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/status.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/status.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/status.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/status.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -295,7 +484,17 @@
       "description": "Create a JavaScript bundle from src/stolen-runner-handler.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/stolen-runner-handler.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/stolen-runner-handler.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/stolen-runner-handler.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/stolen-runner-handler.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -304,7 +503,18 @@
       "description": "Continuously update the JavaScript bundle from src/stolen-runner-handler.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/stolen-runner-handler.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/stolen-runner-handler.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/stolen-runner-handler.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/stolen-runner-handler.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -313,7 +523,17 @@
       "description": "Create a JavaScript bundle from src/token-retriever.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/token-retriever.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/token-retriever.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/token-retriever.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/token-retriever.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -322,7 +542,18 @@
       "description": "Continuously update the JavaScript bundle from src/token-retriever.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/token-retriever.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/token-retriever.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/token-retriever.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/token-retriever.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -331,7 +562,17 @@
       "description": "Create a JavaScript bundle from src/warm-runner-manager.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/warm-runner-manager.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/warm-runner-manager.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/warm-runner-manager.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/warm-runner-manager.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -340,7 +581,18 @@
       "description": "Continuously update the JavaScript bundle from src/warm-runner-manager.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/warm-runner-manager.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/warm-runner-manager.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/warm-runner-manager.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/warm-runner-manager.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -349,7 +601,17 @@
       "description": "Create a JavaScript bundle from src/webhook-handler.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/webhook-handler.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-handler.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/webhook-handler.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/webhook-handler.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -358,7 +620,18 @@
       "description": "Continuously update the JavaScript bundle from src/webhook-handler.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/webhook-handler.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-handler.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/webhook-handler.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/webhook-handler.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -367,7 +640,17 @@
       "description": "Create a JavaScript bundle from src/webhook-redelivery.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/webhook-redelivery.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-redelivery.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/*"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/webhook-redelivery.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/webhook-redelivery.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
         }
       ]
     },
@@ -376,7 +659,18 @@
       "description": "Continuously update the JavaScript bundle from src/webhook-redelivery.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/webhook-redelivery.lambda.ts --target=\"node22\" --platform=\"node\" --outfile=\"assets/webhook-redelivery.lambda/index.js\" --tsconfig=\"test/tsconfig.json\" --external:@aws-sdk/* --watch"
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/webhook-redelivery.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/webhook-redelivery.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
         }
       ]
     },
@@ -388,22 +682,35 @@
       },
       "steps": [
         {
-          "exec": "git checkout -b scratch",
+          "execArgs": [
+            "git",
+            "checkout",
+            "-b",
+            "scratch"
+          ],
           "name": "save current HEAD in \"scratch\" branch"
         },
         {
-          "exec": "git checkout $BRANCH"
+          "exec": "git checkout \"$BRANCH\""
         },
         {
-          "exec": "git fetch origin",
+          "execArgs": [
+            "git",
+            "fetch",
+            "origin"
+          ],
           "name": "fetch latest changes from origin"
         },
         {
-          "exec": "git reset --hard origin/$BRANCH",
+          "exec": "git reset --hard \"origin/$BRANCH\"",
           "name": "hard reset to origin commit"
         },
         {
-          "exec": "git clean -fdx",
+          "execArgs": [
+            "git",
+            "clean",
+            "-fdx"
+          ],
           "name": "clean all untracked files"
         },
         {
@@ -417,7 +724,13 @@
       "description": "Perform API compatibility check against latest version",
       "steps": [
         {
-          "exec": "jsii-diff npm:$(node -p \"require('./package.json').name\") -k --ignore-file .compatignore || (echo \"\nUNEXPECTED BREAKING CHANGES: add keys such as 'removed:constructs.Node.of' to .compatignore to skip.\n\" && exit 1)"
+          "execArgs": [
+            "jsii-diff",
+            "npm:@cloudsnorkel/cdk-github-runners",
+            "-k",
+            "--ignore-file",
+            ".compatignore"
+          ]
         }
       ]
     },
@@ -479,7 +792,20 @@
       },
       "steps": [
         {
-          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern $@ src test build-tools setup/src/*.ts setup/src/*.svelte .projenrc.js",
+          "execArgs": [
+            "eslint",
+            "--ext",
+            ".ts,.tsx",
+            "--fix",
+            "--no-error-on-unmatched-pattern",
+            "$@",
+            "src",
+            "test",
+            "build-tools",
+            "setup/src/*.ts",
+            "setup/src/*.svelte",
+            ".projenrc.js"
+          ],
           "receiveArgs": true
         }
       ]
@@ -507,10 +833,29 @@
       "description": "assert the snapshot of integration test 'default'",
       "steps": [
         {
-          "exec": "[ -d \"test/default.integ.snapshot\" ] || (echo \"No snapshot available for integration test 'default'. Run 'projen integ:default:deploy' to capture.\" && exit 1)"
+          "execArgs": [
+            "node",
+            "-e",
+            "const [dir, name, task] = process.argv.slice(1); const stat = require('fs').statSync(dir, { throwIfNoEntry: false }); if (!stat || !stat.isDirectory()) { console.error(`No snapshot available for integration test '${name}'. Run 'projen ${task}' to capture.`); process.exit(1); }",
+            "test/default.integ.snapshot",
+            "default",
+            "integ:default:deploy"
+          ]
         },
         {
-          "exec": "cdk synth --app \"ts-node -P test/tsconfig.json test/default.integ.ts\" --no-notices --no-version-reporting --no-asset-metadata --no-path-metadata -o test/.tmp/default.integ/assert.cdk.out > /dev/null"
+          "execArgs": [
+            "cdk",
+            "synth",
+            "--quiet",
+            "--app",
+            "ts-node -P test/tsconfig.json test/default.integ.ts",
+            "--no-notices",
+            "--no-version-reporting",
+            "--no-asset-metadata",
+            "--no-path-metadata",
+            "-o",
+            "test/.tmp/default.integ/assert.cdk.out"
+          ]
         },
         {
           "execArgs": [
@@ -542,7 +887,20 @@
           ]
         },
         {
-          "exec": "cdk deploy --app \"ts-node -P test/tsconfig.json test/default.integ.ts\" --no-notices --no-version-reporting --no-asset-metadata --no-path-metadata '**' --require-approval=never -o test/.tmp/default.integ/deploy.cdk.out"
+          "execArgs": [
+            "cdk",
+            "deploy",
+            "--app",
+            "ts-node -P test/tsconfig.json test/default.integ.ts",
+            "--no-notices",
+            "--no-version-reporting",
+            "--no-asset-metadata",
+            "--no-path-metadata",
+            "**",
+            "--require-approval=never",
+            "-o",
+            "test/.tmp/default.integ/deploy.cdk.out"
+          ]
         },
         {
           "execArgs": [
@@ -568,7 +926,14 @@
       "description": "destroy integration test 'default'",
       "steps": [
         {
-          "exec": "cdk destroy --app test/default.integ.snapshot '**' --no-version-reporting"
+          "execArgs": [
+            "cdk",
+            "destroy",
+            "--app",
+            "test/default.integ.snapshot",
+            "**",
+            "--no-version-reporting"
+          ]
         }
       ]
     },
@@ -577,7 +942,19 @@
       "description": "update snapshot for integration test \"default\"",
       "steps": [
         {
-          "exec": "cdk synth --app \"ts-node -P test/tsconfig.json test/default.integ.ts\" --no-notices --no-version-reporting --no-asset-metadata --no-path-metadata -o test/default.integ.snapshot > /dev/null"
+          "execArgs": [
+            "cdk",
+            "synth",
+            "--quiet",
+            "--app",
+            "ts-node -P test/tsconfig.json test/default.integ.ts",
+            "--no-notices",
+            "--no-version-reporting",
+            "--no-asset-metadata",
+            "--no-path-metadata",
+            "-o",
+            "test/default.integ.snapshot"
+          ]
         }
       ]
     },
@@ -586,7 +963,19 @@
       "description": "watch integration test 'default' (without updating snapshots)",
       "steps": [
         {
-          "exec": "cdk watch --app \"ts-node -P test/tsconfig.json test/default.integ.ts\" --no-notices --no-version-reporting --no-asset-metadata --no-path-metadata '**' -o test/.tmp/default.integ/deploy.cdk.out"
+          "execArgs": [
+            "cdk",
+            "watch",
+            "--app",
+            "ts-node -P test/tsconfig.json test/default.integ.ts",
+            "--no-notices",
+            "--no-version-reporting",
+            "--no-asset-metadata",
+            "--no-path-metadata",
+            "**",
+            "-o",
+            "test/.tmp/default.integ/deploy.cdk.out"
+          ]
         }
       ]
     },
@@ -744,7 +1133,11 @@
       },
       "steps": [
         {
-          "exec": "rm -fr dist"
+          "execArgs": [
+            "rm",
+            "-fr",
+            "dist"
+          ]
         },
         {
           "spawn": "bump"
@@ -758,14 +1151,20 @@
         {
           "exec": "git diff --ignore-space-at-eol --exit-code"
         }
-      ]
+      ],
+      "condition": "git log --oneline -1 | grep -v \"chore(release):\" > /dev/null"
     },
     "test": {
       "name": "test",
       "description": "Run tests",
       "steps": [
         {
-          "exec": "jest --silent --passWithNoTests --updateSnapshot",
+          "execArgs": [
+            "jest",
+            "--silent",
+            "--passWithNoTests",
+            "--updateSnapshot"
+          ],
           "receiveArgs": true
         },
         {
@@ -781,7 +1180,10 @@
       "description": "Run jest in watch mode",
       "steps": [
         {
-          "exec": "jest --watch"
+          "execArgs": [
+            "jest",
+            "--watch"
+          ]
         }
       ]
     },
@@ -794,7 +1196,7 @@
         "BUMPFILE": "dist/version.txt",
         "RELEASETAG": "dist/releasetag.txt",
         "RELEASE_TAG_PREFIX": "",
-        "BUMP_PACKAGE": "commit-and-tag-version@^12"
+        "BUMP_PACKAGE": "commit-and-tag-version@^13"
       },
       "steps": [
         {

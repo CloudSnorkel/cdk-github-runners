@@ -901,6 +901,44 @@ describe('Image cleanup', () => {
     }));
   });
 
+  test('rebuild interval longer than 14 days warns that runners will stop getting jobs', () => {
+    CodeBuildRunnerProvider.imageBuilder(stack, 'biweekly', { rebuildInterval: cdk.Duration.days(14) });
+    CodeBuildRunnerProvider.imageBuilder(stack, 'rarely', { rebuildInterval: cdk.Duration.days(30) });
+    CodeBuildRunnerProvider.imageBuilder(stack, 'never', { rebuildInterval: cdk.Duration.days(0) });
+
+    const annotations = Annotations.fromStack(stack);
+    annotations.hasNoWarning('/test/biweekly', Match.stringLikeRegexp('rebuildInterval'));
+    annotations.hasWarning('/test/rarely', Match.stringLikeRegexp('rebuildInterval is 30 days'));
+    annotations.hasWarning('/test/never', Match.stringLikeRegexp('rebuildInterval is disabled'));
+  });
+
+  test('rebuild interval can be in hours', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    CodeBuildRunnerProvider.imageBuilder(stack, 'codebuild', { rebuildInterval: cdk.Duration.hours(12) }).bindDockerImage();
+    Ec2RunnerProvider.imageBuilder(stack, 'image builder', { vpc, rebuildInterval: cdk.Duration.hours(12) }).bindAmi();
+    new AmiBuilder(stack, 'deprecated image builder', { vpc, rebuildInterval: cdk.Duration.hours(12) }).bindAmi();
+
+    const template = Template.fromStack(stack);
+    template.hasResourceProperties('AWS::Events::Rule', { ScheduleExpression: 'rate(12 hours)' });
+    expect(Object.values(template.findResources('AWS::ImageBuilder::ImagePipeline', {
+      Properties: { Schedule: { ScheduleExpression: 'rate(12 hours)' } },
+    }))).toHaveLength(2);
+    Annotations.fromStack(stack).hasNoWarning('*', Match.stringLikeRegexp('rebuildInterval'));
+  });
+
+  test('rebuild interval in hours longer than 14 days warns too', () => {
+    CodeBuildRunnerProvider.imageBuilder(stack, 'builder', { rebuildInterval: cdk.Duration.hours(400) });
+
+    Annotations.fromStack(stack).hasWarning('/test/builder', Match.stringLikeRegexp('rebuildInterval is 16 days 16 hours'));
+  });
+
+  test('zero rebuild interval leaves the image pipeline without a schedule', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    Ec2RunnerProvider.imageBuilder(stack, 'builder', { vpc, rebuildInterval: cdk.Duration.days(0) }).bindAmi();
+
+    Template.fromStack(stack).hasResourceProperties('AWS::ImageBuilder::ImagePipeline', { Schedule: Match.absent() });
+  });
+
   test('overriding the stack AMI tag warns about cleanup', () => {
     const vpc = new ec2.Vpc(stack, 'vpc');
 

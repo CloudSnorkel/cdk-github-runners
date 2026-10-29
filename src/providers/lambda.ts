@@ -22,7 +22,7 @@ import {
   RunnerConfig,
   RunnerImage,
   RunnerProviderProps,
-  RunnerVersion,
+  RunnerVersion, runnerDefaultLabels,
 } from './common';
 import { UpdateLambdaFunction } from './update-lambda-function';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
@@ -120,14 +120,15 @@ export interface LambdaRunnerProviderProps extends RunnerProviderProps {
  */
 export interface LambdaRunnerConfig extends RunnerConfig {
   readonly functionArn: string;
-  readonly group: string;
-  readonly defaultLabels: string;
 }
 
 /**
  * GitHub Actions runner provider using Lambda to execute jobs.
  *
  * Creates a Docker-based function that gets executed for each job.
+ *
+ * Execution environments can be reused between jobs. All jobs that can run on the same function should be equally trusted. See
+ * https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
@@ -150,15 +151,12 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
         Parameters: {
           'FunctionName.$': p('functionArn'),
           'Payload': {
-            'token.$': RUNNER_INPUT.token,
+            'jitConfig.$': RUNNER_INPUT.jitConfig,
             'runnerName.$': RUNNER_INPUT.name,
             'label.$': RUNNER_INPUT.labels,
             'githubDomain.$': RUNNER_INPUT.domain,
             'owner.$': RUNNER_INPUT.owner,
             'repo.$': RUNNER_INPUT.repo,
-            'registrationUrl.$': RUNNER_INPUT.registrationUrl,
-            'group.$': p('group'),
-            'defaultLabels.$': p('defaultLabels'),
           },
         },
         // the transient errors LambdaInvoke retries for us by default
@@ -392,8 +390,7 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       provider: this.node.path,
       functionArn: this.function.functionArn,
       runnerGroup: this.group ?? '',
-      group: this.group ? `--runnergroup ${this.group}` : '',
-      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+      defaultLabels: runnerDefaultLabels(this.image.os, this.image.architecture, this.defaultLabels),
     };
   }
 

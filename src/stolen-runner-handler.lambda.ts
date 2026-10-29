@@ -10,7 +10,7 @@ import { SendMessageBatchCommand, SQSClient } from '@aws-sdk/client-sqs';
 import * as AWSLambda from 'aws-lambda';
 import { MAX_RUNNER_NAME_LENGTH, OrchestratorInput, WARM_RUNNER_JOB_ID } from './lambda-common';
 import { getOctokit, isNotFound, resolveInstallationId } from './lambda-github';
-import { isControlledJob, RunnerReportMessage } from './lambda-tracker';
+import { isControlledJob, recordRunnerAccounted, RunnerReportMessage } from './lambda-tracker';
 
 const sfn = new SFNClient();
 const sqs = new SQSClient();
@@ -192,6 +192,9 @@ async function handleRunnerReport(report: RunnerReportMessage) {
   if (!input) {
     return;
   }
+
+  // the runner got a job, so the idle reaper doesn't need to look for a job it left without a runner once it's gone
+  await recordRunnerAccounted(report.runnerName, report.jobId);
 
   if (input.jobId == WARM_RUNNER_JOB_ID) {
     // warm runners aren't started for any job in particular, so nothing they run is technically stolen
