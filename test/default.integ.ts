@@ -454,7 +454,7 @@ if (testDeploymentFailureAfterImageBuilt) {
 }
 
 if (testDelayedStepFunctionUpdate) {
-  // waits an hour after everything it depends on was updated. it runs again on every deploy because deployTime changes on every synth.
+  // waits half an hour after everything it depends on was updated. it runs again on every deploy because deployTime changes on every synth.
   const delayFunctionProps = {
     runtime: lambda.Runtime.NODEJS_LATEST,
     handler: 'index.handler',
