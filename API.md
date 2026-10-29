@@ -2190,6 +2190,9 @@ ECS can be useful when you want more control of the infrastructure running the G
 group to scale down to zero during the night and scale up during work hours. This way you can still save money, but have to wait less for
 infrastructure to spin up.
 
+Jobs share instances, and by default run in privileged containers on Linux that can take over the instance. All jobs that can run on the same
+cluster should be equally trusted. See https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
+
 This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.Initializer"></a>
@@ -4369,6 +4372,9 @@ Available build arguments that can be set in the image builder:
 GitHub Actions runner provider using Lambda to execute jobs.
 
 Creates a Docker-based function that gets executed for each job.
+
+Execution environments can be reused between jobs. All jobs that can run on the same function should be equally trusted. See
+https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
 
 This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
 
@@ -6942,7 +6948,7 @@ const ecsRunnerProviderProps: EcsRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.capacityProvider">capacityProvider</a></code> | <code>aws-cdk-lib.aws_ecs.AsgCapacityProvider</code> | Existing capacity provider to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_ecs.Cluster</code> | Existing ECS cluster to use. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.cpu">cpu</a></code> | <code>number</code> | The number of cpu units used by the task. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.dockerInDocker">dockerInDocker</a></code> | <code>boolean</code> | Support building and running Docker images by enabling Docker-in-Docker (dind) and the required privileged mode for the runner container. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.gpu">gpu</a></code> | <code>number</code> | Number of GPUs to request for the runner task. When set, the task will be scheduled on GPU-capable instances. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.group">group</a></code> | <code>string</code> | GitHub Actions runner group name. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build Docker images containing GitHub Runner and all requirements. |
@@ -7056,6 +7062,10 @@ public readonly cluster: Cluster;
 
 Existing ECS cluster to use.
 
+Jobs from all providers using the same cluster can share instances. Only share a cluster between providers whose jobs are equally trusted.
+
+> [https://github.com/CloudSnorkel/cdk-github-runners#job-isolation](https://github.com/CloudSnorkel/cdk-github-runners#job-isolation)
+
 ---
 
 ##### `cpu`<sup>Optional</sup> <a name="cpu" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProviderProps.property.cpu"></a>
@@ -7082,10 +7092,14 @@ public readonly dockerInDocker: boolean;
 - *Type:* boolean
 - *Default:* true
 
-Support building and running Docker images by enabling Docker-in-Docker (dind) and the required CodeBuild privileged mode.
+Support building and running Docker images by enabling Docker-in-Docker (dind) and the required privileged mode for the runner container.
 
-Disabling this can
-speed up provisioning of CodeBuild runners. If you don't intend on running or building Docker images, disable this for faster start-up times.
+A job running in a privileged container can take over the instance, access other jobs running on it, and affect jobs that run on it
+later. All jobs that can run on the same cluster should be equally trusted. Disable this if your jobs don't need Docker.
+
+Disabling Docker-in-Docker can also speed up runner provisioning as the runner doesn't have to wait for Docker to boot.
+
+> [https://github.com/CloudSnorkel/cdk-github-runners#job-isolation](https://github.com/CloudSnorkel/cdk-github-runners#job-isolation)
 
 ---
 
