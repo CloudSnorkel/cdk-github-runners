@@ -4373,13 +4373,10 @@ GitHub Actions runner provider using Lambda to execute jobs.
 
 Creates a Docker-based function that gets executed for each job.
 
-Execution environments can be reused between jobs. All jobs that can run on the same function should be equally trusted.
+Execution environments can be reused between jobs. All jobs that can run on the same function should be equally trusted. See
+https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
 
-> [https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
-
-This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.](https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
-
-This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.)
+This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.Initializer"></a>
 
