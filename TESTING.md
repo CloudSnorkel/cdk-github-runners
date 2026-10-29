@@ -56,6 +56,7 @@ Integration tests check the happy paths. We should also test the unhappy paths m
   * Confirm runner doesn't stay registered in GitHub
 * Stolen runner detection
   * Confirm a new runner is created when an unknown job is assigned to one of our runners
+  * Confirm the idle reaper forgets the job of a runner that is gone without ever getting a job (reaped, failed to start, or deleted by hand)
 * Other tests to be automated in the future
   * Go to [`default.integ.ts`](test/default.integ.ts) and enable the test flags at the top
 
@@ -101,3 +102,16 @@ Stolen runners can be tested with the following steps:
 4. Enable the webhook
 5. Run integration tests again
 6. Confirm that all jobs from both workflow runs succeeded 
+
+A runner reaped before GitHub assigned its job (e.g. during a GitHub outage) leaves that job without a runner. If the job is
+assigned to another one of our runners later, that runner should be treated as stolen. The provider selector in
+[`default.integ.ts`](test/default.integ.ts) starts a runner that can't take the job it was started for. This lets us test
+the use case where a job is not assigned to a runner, even though the runner ran. Deploy the integration test and run the
+`steal.yml` workflow.
+
+1. Confirm the idle reaper aborted the step function of `abandoned` and logged `Forgetting job left without a runner` with its job id
+2. Confirm the stolen runner handler logged `Runner was stolen, started another one` with `stolenByJobId` of `abandoned` and `jobId` of `late`
+3. Confirm all jobs succeeded
+
+GitHub decides which of the two queued jobs the runner for `late` takes. If it takes `late`, `abandoned` stays queued and nothing
+was tested. Cancel the workflow and run it again.

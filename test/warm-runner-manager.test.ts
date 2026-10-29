@@ -32,6 +32,7 @@ const mockResolveInstallationId = jest.fn();
 
 jest.mock('../src/lambda-github', () => ({
   getOctokit: (...args: unknown[]) => mockGetOctokit(...args),
+  cachedGetOctokit: () => (...args: unknown[]) => mockGetOctokit(...args),
   getRunner: (...args: unknown[]) => mockGetRunner(...args),
   deleteRunner: (...args: unknown[]) => mockDeleteRunner(...args),
   resolveInstallationId: (...args: unknown[]) => mockResolveInstallationId(...args),

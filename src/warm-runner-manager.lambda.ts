@@ -78,18 +78,12 @@
  *   be tweaked using `retryOptions`. This will be improved in the future.
  */
 import * as crypto from 'crypto';
-import {
-  DescribeExecutionCommand,
-  SFNClient,
-  StartExecutionCommand,
-  StopExecutionCommand,
-  ExecutionAlreadyExists,
-} from '@aws-sdk/client-sfn';
-import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { DescribeExecutionCommand, ExecutionAlreadyExists, SFNClient, StartExecutionCommand, StopExecutionCommand } from '@aws-sdk/client-sfn';
+import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import type { Octokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
 import * as AWSLambda from 'aws-lambda';
 import { OrchestratorInput, WARM_RUNNER_JOB_ID } from './lambda-common';
-import { deleteRunner, getOctokit, getRunner, GitHubSecrets, resolveInstallationId } from './lambda-github';
+import { cachedGetOctokit, deleteRunner, getRunner, GitHubSecrets, resolveInstallationId } from './lambda-github';
 import { customResourceRespond } from './lambda-helpers';
 
 const sfn = new SFNClient();
@@ -395,7 +389,7 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
   const validHashes = new Set((process.env.WARM_CONFIG_HASHES ?? '').split(',').filter(Boolean));
   const maxDurationMs = parseInt(process.env.WARM_MAX_DURATION_SECONDS ?? '0', 10) * 1000;
   const result: AWSLambda.SQSBatchResponse = { batchItemFailures: [] };
-  const octokitCache = new Map<number | undefined, { octokit: Octokit; secrets: GitHubSecrets }>();
+  const getOctokitCached = cachedGetOctokit();
 
   for (const record of event.Records) {
     let body: WarmRunnerKeeperMessage | WarmRunnerFillPayload;
@@ -455,19 +449,8 @@ export async function handler(event: AWSLambda.SQSEvent | AWSLambda.CloudFormati
       runnerName: input.runnerName,
     });
 
-    // get github access (cached per installationId to avoid re-reading the secrets manager and Github API every time)
-    let octokit: Octokit;
-    let secrets: GitHubSecrets;
-    const cached = octokitCache.get(input.installationId);
-    if (cached) {
-      octokit = cached.octokit;
-      secrets = cached.secrets;
-    } else {
-      const got = await getOctokit(input.installationId);
-      octokit = got.octokit;
-      secrets = got.githubSecrets;
-      octokitCache.set(input.installationId, { octokit, secrets });
-    }
+    // get github access
+    const { octokit, githubSecrets: secrets } = await getOctokitCached(input.installationId);
 
     // stale config - best-effort stop, then discard message (runner will self-terminate at its idle timeout)
     if (!validHashes.has(input.configHash)) {

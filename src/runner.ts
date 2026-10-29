@@ -397,7 +397,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private warmRunnerQueue?: sqs.Queue;
   private warmConfigHashes: string[] = [];
   private warmMaxDuration = 0;
-  private deleteFailedRunnerFunction?: lambda.IFunction;
+  private readonly idleReaperFunction: lambda.Function;
   private readonly managementFunctions: lambda.IFunction[] = [];
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
@@ -444,6 +444,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       this.parameterizedProviders.push(provider);
     }
 
+    this.idleReaperFunction = this.idleReaper();
     this.orchestrator = this.stateMachine(props);
     this.stolenRunnerDetector = new StolenRunnerDetector(this, 'Stolen Runners', {
       secrets: this.secrets,
@@ -468,6 +469,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       idleTimeoutSeconds: this.props?.idleTimeout?.toSeconds(),
     });
     this.stolenRunnerDetector.grantRecordRunners(this.webhook.handler);
+    this.stolenRunnerDetector.grantRecordRunners(this.idleReaperFunction);
     this.redeliverer = new GithubWebhookRedelivery(this, 'Webhook Redelivery', {
       secrets: this.secrets,
       extraLambdaProps: this.extraLambdaProps,
@@ -502,11 +504,10 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       },
     );
 
-    const idleReaper = this.idleReaper();
     const defaultIdleSeconds = (props?.idleTimeout ?? cdk.Duration.minutes(5)).toSeconds();
 
     const queueIdleReaperTask = new stepfunctions_tasks.SqsSendMessage(this, 'Queue Idle Reaper', {
-      queue: this.idleReaperQueue(idleReaper),
+      queue: this.idleReaperQueue(this.idleReaperFunction),
       queryLanguage: stepfunctions.QueryLanguage.JSONATA,
       messageBody: stepfunctions.TaskInput.fromObject({
         executionArn: '{% $states.context.Execution.Id %}',
@@ -574,10 +575,9 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     // this parallel catches the failure, cleans up the runner, and loops back with the next config
     const tryProvider = new stepfunctions.Parallel(this, 'Try Provider').branch(providerFamilyChooser);
 
-    this.deleteFailedRunnerFunction ??= this.deleteFailedRunner();
     const fallbackCleanup = new stepfunctions_tasks.LambdaInvoke(this, 'Clean Up Failed Runner', {
       comment: 'Clean-up failed runner from GitHub Actions (if present)',
-      lambdaFunction: this.deleteFailedRunnerFunction,
+      lambdaFunction: this.deleteFailedRunner(),
       payloadResponseOnly: true,
       resultPath: '$.delete',
       payload: stepfunctions.TaskInput.fromObject({
@@ -723,8 +723,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       },
     );
 
-    stateMachine.grantRead(idleReaper);
-    stateMachine.grantExecution(idleReaper, 'states:StopExecution');
+    stateMachine.grantRead(this.idleReaperFunction);
+    stateMachine.grantExecution(this.idleReaperFunction, 'states:StopExecution');
     for (const provider of this.parameterizedProviders) {
       provider._grantStateMachine(stateMachine);
     }

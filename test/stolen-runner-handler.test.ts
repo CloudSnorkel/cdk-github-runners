@@ -43,10 +43,12 @@ jest.mock('../src/lambda-github', () => ({
 }));
 
 const mockIsControlledJob = jest.fn();
+const mockRecordRunnerAccounted = jest.fn();
 const mockClaimReport = jest.fn();
 
 jest.mock('../src/lambda-tracker', () => ({
   isControlledJob: (...args: unknown[]) => mockIsControlledJob(...args),
+  recordRunnerAccounted: (...args: unknown[]) => mockRecordRunnerAccounted(...args),
   claimReport: (...args: unknown[]) => mockClaimReport(...args),
   WARM_RUNNER_JOB_ID: -1,
 }));
@@ -138,6 +140,7 @@ beforeEach(() => {
   process.env.STEP_FUNCTION_ARN = STEP_FUNCTION_ARN;
   process.env.JOB_ASSIGNMENT_QUEUE_URL = QUEUE_URL;
   mockIsControlledJob.mockResolvedValue(false);
+  mockRecordRunnerAccounted.mockResolvedValue(undefined);
   mockClaimReport.mockResolvedValue(true);
   mockResolveInstallationId.mockResolvedValue(undefined);
   runnerWasStartedFor(createInput());
@@ -151,6 +154,13 @@ describe('runner reports', () => {
     expect(startedExecutions()).toHaveLength(0);
     // no need to ask whether it is a job we control, it is the job this runner exists for
     expect(mockIsControlledJob).not.toHaveBeenCalled();
+  });
+
+  // so the idle reaper doesn't look for a job it left without a runner once it's gone
+  test('a runner that reported a job is remembered', async () => {
+    await handler(sqsEvent([report({ jobId: OUR_JOB_ID })]));
+
+    expect(mockRecordRunnerAccounted).toHaveBeenCalledWith(RUNNER_NAME, OUR_JOB_ID);
   });
 
   test('a runner running another job of ours is left alone', async () => {
