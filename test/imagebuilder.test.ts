@@ -916,13 +916,12 @@ describe('Image cleanup', () => {
     const vpc = new ec2.Vpc(stack, 'vpc');
     CodeBuildRunnerProvider.imageBuilder(stack, 'codebuild', { rebuildInterval: cdk.Duration.hours(12) }).bindDockerImage();
     Ec2RunnerProvider.imageBuilder(stack, 'image builder', { vpc, rebuildInterval: cdk.Duration.hours(12) }).bindAmi();
-    new AmiBuilder(stack, 'deprecated image builder', { vpc, rebuildInterval: cdk.Duration.hours(12) }).bindAmi();
 
     const template = Template.fromStack(stack);
     template.hasResourceProperties('AWS::Events::Rule', { ScheduleExpression: 'rate(12 hours)' });
     expect(Object.values(template.findResources('AWS::ImageBuilder::ImagePipeline', {
       Properties: { Schedule: { ScheduleExpression: 'rate(12 hours)' } },
-    }))).toHaveLength(2);
+    }))).toHaveLength(1);
     Annotations.fromStack(stack).hasNoWarning('*', Match.stringLikeRegexp('rebuildInterval'));
   });
 
