@@ -136,6 +136,10 @@ export interface LambdaRunnerConfig extends RunnerConfig {
  *
  * Creates a Docker-based function that gets executed for each job.
  *
+ * Execution environments can be reused between jobs. All jobs that can run on the same function should be equally trusted.
+ *
+ * @see https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
+ *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
  */
 export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvider {

@@ -2190,8 +2190,8 @@ ECS can be useful when you want more control of the infrastructure running the G
 group to scale down to zero during the night and scale up during work hours. This way you can still save money, but have to wait less for
 infrastructure to spin up.
 
-Jobs share instances, and by default run in privileged containers that can take over the instance. All jobs that can run on the same cluster
-should be equally trusted. See https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
+Jobs share instances, and by default run in privileged containers on Linux that can take over the instance. All jobs that can run on the same
+cluster should be equally trusted. See https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
 
 This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
 
@@ -4373,7 +4373,13 @@ GitHub Actions runner provider using Lambda to execute jobs.
 
 Creates a Docker-based function that gets executed for each job.
 
-This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+Execution environments can be reused between jobs. All jobs that can run on the same function should be equally trusted.
+
+> [https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
+
+This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.](https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
+
+This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.)
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.Initializer"></a>
 
@@ -7058,6 +7064,10 @@ public readonly cluster: Cluster;
 - *Default:* a new cluster
 
 Existing ECS cluster to use.
+
+Jobs from all providers using the same cluster can share instances. Only share a cluster between providers whose jobs are equally trusted.
+
+> [https://github.com/CloudSnorkel/cdk-github-runners#job-isolation](https://github.com/CloudSnorkel/cdk-github-runners#job-isolation)
 
 ---
 
