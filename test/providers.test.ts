@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_ec2 as ec2, aws_ecs as ecs } from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_ecs as ecs, aws_iam as iam } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
@@ -153,6 +153,16 @@ describe('Providers', () => {
           },
         ],
       }));
+
+      // jobs must not be able to reach IMDS and take the instance role
+      template.hasResourceProperties('AWS::EC2::LaunchTemplate', Match.objectLike({
+        LaunchTemplateData: Match.objectLike({
+          MetadataOptions: {
+            HttpTokens: 'required',
+            HttpPutResponseHopLimit: 1,
+          },
+        }),
+      }));
     });
 
     test('storageOptions without storageSize adds error annotation and synthesizes', () => {
@@ -195,6 +205,95 @@ describe('Providers', () => {
 
       // don't create our own autoscaling group when capacity provider is specified
       template.resourceCountIs('AWS::AutoScaling::AutoScalingGroup', 1);
+    });
+
+    test('Custom capacity provider that blocks IMDS from containers', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new EcsRunnerProvider(stack, 'provider', {
+        vpc: vpc,
+        securityGroups: [sg],
+        capacityProvider: new ecs.AsgCapacityProvider(stack, 'Capacity Provider', {
+          autoScalingGroup: new autoscaling.AutoScalingGroup(stack, 'Auto Scaling Group', {
+            vpc: vpc,
+            launchTemplate: new ec2.LaunchTemplate(stack, 'Launch Template', {
+              instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
+              machineImage: ecs.EcsOptimizedImage.amazonLinux2023(),
+              userData: ec2.UserData.forLinux(),
+              role: new iam.Role(stack, 'Role', { assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com') }),
+              requireImdsv2: true,
+              httpPutResponseHopLimit: 1,
+            }),
+          }),
+        }),
+      });
+
+      Annotations.fromStack(stack).hasNoWarning('/test/provider', Match.stringLikeRegexp('IMDS'));
+    });
+
+    test('Custom capacity provider launch template referencing another stack', () => {
+      const otherStack = new cdk.Stack(app, 'other');
+      const vpc = new ec2.Vpc(otherStack, 'vpc');
+      const sg = new ec2.SecurityGroup(otherStack, 'sg', { vpc });
+
+      new EcsRunnerProvider(stack, 'provider', {
+        vpc: vpc,
+        securityGroups: [sg],
+        capacityProvider: new ecs.AsgCapacityProvider(stack, 'Capacity Provider', {
+          autoScalingGroup: new autoscaling.AutoScalingGroup(stack, 'Auto Scaling Group', {
+            vpc: vpc,
+            launchTemplate: new ec2.LaunchTemplate(stack, 'Launch Template', {
+              instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
+              machineImage: ecs.EcsOptimizedImage.amazonLinux2023(),
+              userData: ec2.UserData.forLinux(),
+              role: new iam.Role(stack, 'Role', { assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com') }),
+              securityGroup: sg,
+              requireImdsv2: true,
+              httpPutResponseHopLimit: 1,
+            }),
+          }),
+        }),
+      });
+
+      Annotations.fromStack(stack).hasNoWarning('/test/provider', Match.stringLikeRegexp('IMDS'));
+    });
+
+    test('Custom capacity provider that may expose IMDS to containers', () => {
+      const vpc = new ec2.Vpc(stack, 'vpc');
+      const sg = new ec2.SecurityGroup(stack, 'sg', { vpc });
+
+      new EcsRunnerProvider(stack, 'launch config', {
+        vpc: vpc,
+        securityGroups: [sg],
+        capacityProvider: new ecs.AsgCapacityProvider(stack, 'Capacity Provider 1', {
+          autoScalingGroup: new autoscaling.AutoScalingGroup(stack, 'Auto Scaling Group 1', {
+            vpc: vpc,
+            instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
+            machineImage: ecs.EcsOptimizedImage.amazonLinux2(),
+            requireImdsv2: true,
+          }),
+        }),
+      });
+      new EcsRunnerProvider(stack, 'launch template', {
+        vpc: vpc,
+        securityGroups: [sg],
+        capacityProvider: new ecs.AsgCapacityProvider(stack, 'Capacity Provider 2', {
+          autoScalingGroup: new autoscaling.AutoScalingGroup(stack, 'Auto Scaling Group 2', {
+            vpc: vpc,
+            launchTemplate: new ec2.LaunchTemplate(stack, 'Launch Template', {
+              instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
+              machineImage: ecs.EcsOptimizedImage.amazonLinux2023(),
+              userData: ec2.UserData.forLinux(),
+              role: new iam.Role(stack, 'Role', { assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com') }),
+              requireImdsv2: true,
+            }),
+          }),
+        }),
+      });
+
+      Annotations.fromStack(stack).hasWarning('/test/launch config', Match.stringLikeRegexp('IMDS'));
+      Annotations.fromStack(stack).hasWarning('/test/launch template', Match.stringLikeRegexp('IMDS'));
     });
 
     test('Default image builder uses ARM architecture when ARM instance type is selected', () => {

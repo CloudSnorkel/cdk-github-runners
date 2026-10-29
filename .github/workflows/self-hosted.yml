@@ -42,18 +42,21 @@ jobs:
             runs-on: [self-hosted, linux, ecs, X64]
             docker: true
             sudo: true
+            imds: blocked
           - name: ecs ubuntu 2404 x64
             os: linux
             arch: X64
             runs-on: [self-hosted, ecs-ubuntu-2404, X64]
             docker: true
             sudo: true
+            imds: blocked
           - name: ecs arm64
             os: linux
             arch: ARM64
             runs-on: [self-hosted, linux, ecs, arm64]
             docker: true
             sudo: true
+            imds: blocked
           - name: lambda x64
             os: linux
             arch: X64
@@ -163,6 +166,17 @@ jobs:
         run: |
           ls /custom-file
           ls /custom-dir/FUNDING.yml
+      - name: IMDS blocked
+        if: ${{ matrix.imds == 'blocked' }}
+        run: |
+          # jobs must not be able to get the instance role of a host they share with other jobs
+          if TOKEN=$(curl -sS -f -m 5 -X PUT http://169.254.169.254/latest/api/token -H "X-aws-ec2-metadata-token-ttl-seconds: 60"); then
+            echo "::add-mask::$TOKEN"
+            ROLE=$(curl -sS -f -m 5 -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/iam/security-credentials/ || true)
+            echo "::error::Job reached IMDS and can get the host instance role ($ROLE)"
+            exit 1
+          fi
+          echo "IMDS is not reachable"
 
   self-hosted-dind:
     strategy:
@@ -201,6 +215,7 @@ jobs:
             arch: X64
             runs-on: [self-hosted, windows, ecs, x64]
             docker: false
+            imds: blocked
           - name: fargate windows
             os: windows
             arch: X64
@@ -281,3 +296,21 @@ jobs:
           $ErrorActionPreference = 'Stop'
           ls /custom-file
           ls /custom-dir/FUNDING.yml
+      - name: IMDS blocked
+        if: ${{ matrix.imds == 'blocked' }}
+        run: |
+          # jobs must not be able to get the instance role of a host they share with other jobs
+          try {
+            $token = Invoke-RestMethod -Method PUT -Uri http://169.254.169.254/latest/api/token -Headers @{"X-aws-ec2-metadata-token-ttl-seconds"="60"} -TimeoutSec 5
+          } catch {
+            Write-Host "IMDS is not reachable"
+            exit 0
+          }
+          Write-Host "::add-mask::$token"
+          try {
+            $role = Invoke-RestMethod -Uri http://169.254.169.254/latest/meta-data/iam/security-credentials/ -Headers @{"X-aws-ec2-metadata-token"=$token} -TimeoutSec 5
+          } catch {
+            $role = ""
+          }
+          Write-Host "::error::Job reached IMDS and can get the host instance role ($role)"
+          exit 1

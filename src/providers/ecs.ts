@@ -103,6 +103,10 @@ export interface EcsRunnerProviderProps extends RunnerProviderProps {
    *
    * Make sure the AMI used by the capacity provider is compatible with ECS.
    *
+   * Runner containers use bridge networking and share the instance with other jobs. Its launch template must require IMDSv2 and set the
+   * metadata hop limit to 1 (`requireImdsv2: true` and `httpPutResponseHopLimit: 1`), or jobs can take the instance role. A warning is
+   * added when we can't confirm both.
+   *
    * @default new capacity provider
    */
   readonly capacityProvider?: ecs.AsgCapacityProvider;
@@ -482,6 +486,7 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       }
 
       this.capacityProvider = props.capacityProvider;
+      this.warnOnContainerImdsAccess();
     } else {
       const spot = props?.spot ?? props?.spotMaxPrice !== undefined;
 
@@ -507,6 +512,9 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
           maxPrice: props?.spotMaxPrice ? parseFloat(props?.spotMaxPrice) : undefined,
         } : undefined,
         requireImdsv2: true,
+        // containers on the bridge network are one hop away, so this keeps jobs from reaching IMDS and taking the instance role.
+        // tasks get their own role from the ECS agent endpoint, which this doesn't affect. some AMIs, like AL2023, default to 2.
+        httpPutResponseHopLimit: 1,
         securityGroup: this.securityGroups[0],
         role: new iam.Role(this, 'Launch Template Role', {
           assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
@@ -608,6 +616,42 @@ export class EcsRunnerProvider extends BaseProvider implements IRunnerProvider {
       return ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE);
     }
     throw new Error(`Unable to find instance type for ECS instances for ${this.image.architecture.name}`);
+  }
+
+  /**
+   * Warn when we can't confirm the custom capacity provider keeps containers away from IMDS. Only launch templates and launch configurations
+   * created in this app can be checked.
+   */
+  private warnOnContainerImdsAccess() {
+    // the cfn properties can also be IResolvable, but the L2 constructs always set plain objects. anything else can't be confirmed and warns.
+    const cfnAsg = this.capacityProvider.autoScalingGroup.node.defaultChild as any;
+    const target = (id: any) => {
+      const token = typeof id === 'string' ? cdk.Tokenization.reverseString(id).firstToken : undefined;
+      return token instanceof cdk.Reference ? token.target : undefined;
+    };
+
+    const launchTemplateSpec = cfnAsg.launchTemplate ?? cfnAsg.mixedInstancesPolicy?.launchTemplate?.launchTemplateSpecification;
+    const launchTemplate = target(launchTemplateSpec?.launchTemplateId ?? launchTemplateSpec?.launchTemplateName);
+    const launchConfiguration = target(cfnAsg.launchConfigurationName);
+    // only resolve the metadata options, and in the stack that owns them, so we don't touch anything else the user put in there
+    let metadataOptions: any;
+    try {
+      if (launchTemplate instanceof ec2.CfnLaunchTemplate) {
+        metadataOptions = cdk.Stack.of(launchTemplate).resolve((launchTemplate.launchTemplateData as any)?.metadataOptions);
+      } else if (launchConfiguration instanceof autoscaling.CfnLaunchConfiguration) {
+        metadataOptions = cdk.Stack.of(launchConfiguration).resolve(launchConfiguration.metadataOptions);
+      }
+    } catch {
+      // can't tell, so warn below
+    }
+
+    if (metadataOptions?.httpTokens !== 'required' || metadataOptions?.httpPutResponseHopLimit !== 1) {
+      cdk.Annotations.of(this).addWarningV2(
+        '@cloudsnorkel/cdk-github-runners:ecsCapacityProviderImds',
+        'Unable to confirm the custom capacity provider launch template requires IMDSv2 with a hop limit of 1. ' +
+        'Without it, jobs can reach IMDS and take the instance role. Set `requireImdsv2: true` and `httpPutResponseHopLimit: 1` on the launch template.',
+      );
+    }
   }
 
   private defaultClusterInstanceAmi() {
