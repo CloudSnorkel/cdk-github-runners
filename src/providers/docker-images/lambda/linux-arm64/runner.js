@@ -5,13 +5,15 @@ exports.handler = async (event, context) => {
     const shellScript = exec('sh runner.sh', {
       env: {
         ...process.env,
+        RUNNER_JIT_CONFIG: event.jitConfig || '',
+        RUNNER_NAME: event.runnerName,
+        RUNNER_LABEL: event.label,
         OWNER: event.owner,
         REPO: event.repo,
         GITHUB_DOMAIN: event.githubDomain,
-        RUNNER_TOKEN: event.token,
-        RUNNER_NAME: event.runnerName,
-        RUNNER_LABEL: event.label,
-        REGISTRATION_URL: event.registrationUrl,
+        // DEPRECATED: remove in 1.0.0. only executions that started before JIT runners pass these, to register with a registration token.
+        RUNNER_TOKEN: event.token || '',
+        REGISTRATION_URL: event.registrationUrl || '',
       },
     });
     shellScript.stdout.on('data', (data) => {

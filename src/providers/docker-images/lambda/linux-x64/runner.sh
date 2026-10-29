@@ -18,10 +18,15 @@ if [ -f /var/lang/lib/libssl.so ]; then
 fi
 
 # start runner
-if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
-./config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" --name "${RUNNER_NAME}" ${RUNNER_FLAGS}
-echo Config done
-./run.sh
+if [ -n "${RUNNER_JIT_CONFIG}" ]; then
+  ./run.sh --jitconfig "${RUNNER_JIT_CONFIG}"
+else
+  # DEPRECATED: remove in 1.0.0 with this whole else branch. executions that started before JIT runners pass a registration token instead.
+  if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi
+  ./config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" --name "${RUNNER_NAME}" ${RUNNER_FLAGS}
+  echo Config done
+  ./run.sh
+fi
 echo Run done
 
 # print status for metrics

@@ -351,6 +351,19 @@ export abstract class RunnerImageBuilderBase extends Construct implements IConfi
     if (props?.components) {
       this.components.push(...props.components);
     }
+
+    // JIT runners can't update themselves, as GitHub generates their config with `DisableUpdate: true`. GitHub stops queuing jobs to runners
+    // that are not updated within 30 days of a new runner release, so the image has to be rebuilt before then. an image can be as old as the
+    // rebuild interval, and twice that after a failed build, so we want at least two builds in those 30 days.
+    // https://docs.github.com/en/actions/reference/runners/self-hosted-runners#runner-software-updates-on-self-hosted-runners
+    const rebuildDays = props?.rebuildInterval?.toDays();
+    if (rebuildDays !== undefined && (rebuildDays <= 0 || rebuildDays > 14)) {
+      cdk.Annotations.of(this).addWarningV2(
+        '@cloudsnorkel/cdk-github-runners:RunnerImageBuilder.rebuildIntervalTooLong',
+        `rebuildInterval is ${rebuildDays === 0 ? 'disabled' : `${rebuildDays} days`}. GitHub stops sending jobs to runners that are not ` +
+        'updated within 30 days of a new runner release. Rebuild at least every 14 days to always have the latest runner version ready.',
+      );
+    }
   }
 
   abstract bindDockerImage(): RunnerImage;

@@ -23,7 +23,7 @@ Self-hosted runners in AWS are useful when:
 * You need easy access to internal resources in your actions
 * You want to pre-install some software for your actions
 * You want to provide some basic AWS API access (but [aws-actions/configure-aws-credentials][2] has more security controls)
-* You are using GitHub Enterprise Server
+* You are using GitHub Enterprise Server (3.10 or newer, as runners are registered with [just-in-time configurations](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions#using-just-in-time-runners))
 
 Ephemeral (or on-demand) runners are the [recommended way by GitHub][14] for auto-scaling, and they make sure all jobs run with a clean image. Runners are started on-demand. You don't pay unless a job is running.
 
@@ -39,6 +39,7 @@ Ephemeral (or on-demand) runners are the [recommended way by GitHub][14] for aut
 - [Examples](#examples)
 - [Architecture](#architecture)
 - [Troubleshooting](#troubleshooting)
+  - [Rebuilding runner images](#rebuilding-runner-images)
 - [Monitoring](#monitoring)
 - [Getting Help](#getting-help)
 - [Contributing](#contributing)
@@ -573,6 +574,7 @@ Configuration problems that we can detect up-front fail the orchestrator with a 
    1. If it's not called or logs errors, confirm the webhook settings on the GitHub side
    2. If you see too many errors, make sure you're only sending `workflow_job` events
 5. When using GitHub app, make sure there are active installations in `github.auth.app.installations`
+6. If runners start but never pick up a job and get stopped with `IdleRunner`, their runner version may be too old. Runners can't update themselves, and GitHub stops sending jobs to runners that are not updated within 30 days of a new runner release, or right away for a critical security update. [Rebuild your runner images](#rebuilding-runner-images) to fix it
 
 All logs are saved in CloudWatch.
 * Log group names can be found in `status.json` for each provider, image builder, and other parts of the system
@@ -583,6 +585,29 @@ To get `status.json`, check out the CloudFormation stack output for a command th
 ```
 aws --region us-east-1 lambda invoke --function-name status-XYZ123 status.json
 ```
+
+### Rebuilding runner images
+
+Runner images are rebuilt every `rebuildInterval` (7 days by default). To rebuild all of them right now, run this with the name of the every stack your runners are built in. It starts every image builder in the stack and prints the build ids. Runners pick up the new images as soon as the builds finish.
+
+```sh
+STACK=my-runners-stack
+resources() {
+  aws cloudformation list-stack-resources --stack-name "$STACK" --output text \
+    --query "StackResourceSummaries[?ResourceType=='$1'].PhysicalResourceId"
+}
+for project in $(resources AWS::CodeBuild::Project); do
+  # skip runner projects of CodeBuild providers, we only want image builders
+  aws codebuild batch-get-projects --names "$project" --output text --query 'projects[0].description' \
+    | grep -q '^Build docker image for self-hosted GitHub runner' \
+    && aws codebuild start-build --project-name "$project" --output text --query 'build.id'
+done
+for pipeline in $(resources AWS::ImageBuilder::ImagePipeline); do
+  aws imagebuilder start-image-pipeline-execution --image-pipeline-arn "$pipeline" --output text --query 'imageBuildVersionArn'
+done
+```
+
+Make sure you use `failedImageBuildsTopic()` to get notified of any failed builds.
 
 ## Monitoring
 

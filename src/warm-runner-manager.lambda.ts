@@ -29,8 +29,8 @@
  * 3. **Shutdown mechanisms** — The keeper is the primary mechanism for enforcing the
  *    absolute deadline: when a runner is past its deadline, the keeper stops the
  *    Step Function and deletes the runner. Fallbacks:
- *    - **Idle reaper**: Measures idle time from runner *registration* (cdkghr:started
- *      label), not step function start. So it fires at deadline + provisioning delay.
+ *    - **Idle reaper**: Measures idle time from when it first sees the runner online and
+ *      idle, not step function start. So it fires at deadline + provisioning delay.
  *      It's a fallback if the keeper misses a message; it does not enforce the
  *      absolute deadline precisely.
  *    - **Step Function idle timeout**: Each runner is started with `maxIdleSeconds`

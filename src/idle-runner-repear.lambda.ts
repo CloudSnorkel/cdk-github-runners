@@ -1,4 +1,5 @@
 import { DescribeExecutionCommand, SFNClient, StopExecutionCommand } from '@aws-sdk/client-sfn';
+import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import type { Octokit } from '@octokit/rest' with { 'resolution-mode': 'import' };
 import * as AWSLambda from 'aws-lambda';
 import { terminateRunnerInstances } from './lambda-ec2';
@@ -10,10 +11,16 @@ interface IdleReaperLambdaInput {
   readonly owner: string;
   readonly repo: string;
   readonly installationId?: number;
+  /** how many seconds the runner is allowed to be idle before we reap it */
   readonly maxIdleSeconds: number;
+  /** id of the runner we first saw idle, so a retried runner with the same name doesn't inherit its idle time */
+  readonly runnerId?: number;
+  /** when we first saw that runner idle, in milliseconds since epoch */
+  readonly idleSince?: number;
 }
 
 const sfn = new SFNClient();
+const sqs = new SQSClient();
 
 export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSBatchResponse> {
   const result: AWSLambda.SQSBatchResponse = { batchItemFailures: [] };
@@ -117,117 +124,135 @@ export async function handler(event: AWSLambda.SQSEvent): Promise<AWSLambda.SQSB
       continue;
     }
 
-    // check if max idle timeout has reached
-    let found = false;
-    for (const label of runner.labels) {
-      if (label.name.toLowerCase().startsWith('cdkghr:started:')) {
-        const started = parseFloat(label.name.split(':')[2]);
-        const startedDate = new Date(started * 1000);
-        const now = new Date();
-        const diffMs = now.getTime() - startedDate.getTime();
-
-        console.log({
-          notice: 'Runner is idle',
-          runnerId: runner.id,
-          runnerName: input.runnerName,
-          idleSeconds: diffMs / 1000,
-          input,
-        });
-
-        if (diffMs > 1000 * input.maxIdleSeconds) {
-          // max idle time reached, delete runner
-          console.log({
-            notice: 'Runner is idle for too long',
-            runnerId: runner.id,
-            runnerName: input.runnerName,
-            idleSeconds: diffMs / 1000,
-            maxIdleSeconds: input.maxIdleSeconds,
-            input,
-          });
-
-          // nothing to stop when it already stopped on its own
-          if (!executionStopped) {
-            try {
-              // stop step function first, so it's marked as aborted with the proper error
-              // if we delete the runner first, the step function will be marked as failed with a generic error
-              console.log({
-                notice: 'Stopping step function',
-                executionArn: input.executionArn,
-                runnerId: runner.id,
-                runnerName: input.runnerName,
-                input,
-              });
-              await sfn.send(new StopExecutionCommand({
-                executionArn: input.executionArn,
-                error: 'IdleRunner',
-                cause: `Runner ${input.runnerName} on ${input.owner}/${input.repo} is idle for too long (${diffMs / 1000} seconds and limit is ${input.maxIdleSeconds} seconds)`,
-              }));
-              console.log({
-                notice: 'Stopped step function',
-                metric: 'RunnerStopped',
-                reason: 'IdleRunner',
-                executionArn: input.executionArn,
-                runnerName: input.runnerName,
-                owner: input.owner,
-                repo: input.repo,
-              });
-            } catch (e) {
-              console.error({
-                notice: 'Failed to stop step function',
-                executionArn: input.executionArn,
-                runnerId: runner.id,
-                runnerName: input.runnerName,
-                error: e,
-                input,
-              });
-              retryLater();
-              continue;
-            }
-          }
-
-          try {
-            console.log({
-              notice: 'Deleting runner',
-              runnerId: runner.id,
-              runnerName: input.runnerName,
-              input,
-            });
-            await deleteRunner(octokit, secrets.runnerLevel, input.owner, input.repo, runner.id);
-          } catch (e) {
-            console.error({
-              notice: 'Failed to delete runner',
-              runnerId: runner.id,
-              runnerName: input.runnerName,
-              error: e,
-              input,
-            });
-            retryLater();
-            continue;
-          }
-
-          // the runner is deleted but the instance is still alive and about to notice. do not terminate. give it a delivery cycle to log why it's
-          // stopping and power itself off. if it's still here next time, the !runner branch above terminates it
-          retryLater();
-        } else {
-          // still idle, timeout not reached -- retry later
-          retryLater();
-        }
-
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      // no started label? retry later (it won't retry forever as eventually the runner will stop and the step function will finish)
-      console.error({
-        notice: 'No `cdkghr:started:xxx` label found???',
+    // JIT runners are registered before they boot, so an offline runner is usually one that is still starting. some providers can take more than
+    // ten minutes to get there. once the step function is gone, nothing is going to start it, so we treat it as idle and let the timeout decide.
+    if (runner.status !== 'online' && !executionStopped) {
+      console.log({
+        notice: 'Runner not online yet',
         runnerId: runner.id,
         runnerName: input.runnerName,
         input,
       });
       retryLater();
+      continue;
     }
+
+    // the first time we see the runner idle, we start the clock with a new message that remembers which runner we saw. a retried runner
+    // registers again with a new id, so it starts the clock over.
+    if (input.runnerId !== runner.id || input.idleSince === undefined) {
+      console.log({
+        notice: 'Runner is idle',
+        runnerId: runner.id,
+        runnerName: input.runnerName,
+        input,
+      });
+      try {
+        await sqs.send(new SendMessageCommand({
+          QueueUrl: process.env.IDLE_REAPER_QUEUE_URL,
+          MessageBody: JSON.stringify(<IdleReaperLambdaInput>{ ...input, runnerId: runner.id, idleSince: Date.now() }),
+        }));
+      } catch (e) {
+        console.error({
+          notice: 'Failed to enqueue idle check',
+          runnerId: runner.id,
+          runnerName: input.runnerName,
+          error: e,
+          input,
+        });
+        retryLater();
+      }
+      continue;
+    }
+
+    // check if max idle timeout has reached
+    const idleMs = Date.now() - input.idleSince;
+    console.log({
+      notice: 'Runner is still idle',
+      runnerId: runner.id,
+      runnerName: input.runnerName,
+      idleSeconds: idleMs / 1000,
+      input,
+    });
+
+    if (idleMs < 1000 * input.maxIdleSeconds) {
+      // still idle, timeout not reached - retry later
+      retryLater();
+      continue;
+    }
+
+    // max idle time reached, delete runner
+    console.log({
+      notice: 'Runner is idle for too long',
+      runnerId: runner.id,
+      runnerName: input.runnerName,
+      idleSeconds: idleMs / 1000,
+      maxIdleSeconds: input.maxIdleSeconds,
+      input,
+    });
+
+    // nothing to stop when it already stopped on its own
+    if (!executionStopped) {
+      try {
+        // stop step function first, so it's marked as aborted with the proper error
+        // if we delete the runner first, the step function will be marked as failed with a generic error
+        console.log({
+          notice: 'Stopping step function',
+          executionArn: input.executionArn,
+          runnerId: runner.id,
+          runnerName: input.runnerName,
+          input,
+        });
+        await sfn.send(new StopExecutionCommand({
+          executionArn: input.executionArn,
+          error: 'IdleRunner',
+          cause: `Runner ${input.runnerName} on ${input.owner}/${input.repo} is idle for too long (${idleMs / 1000} seconds and limit is ${input.maxIdleSeconds} seconds)`,
+        }));
+        console.log({
+          notice: 'Stopped step function',
+          metric: 'RunnerStopped',
+          reason: 'IdleRunner',
+          executionArn: input.executionArn,
+          runnerName: input.runnerName,
+          owner: input.owner,
+          repo: input.repo,
+        });
+      } catch (e) {
+        console.error({
+          notice: 'Failed to stop step function',
+          executionArn: input.executionArn,
+          runnerId: runner.id,
+          runnerName: input.runnerName,
+          error: e,
+          input,
+        });
+        retryLater();
+        continue;
+      }
+    }
+
+    try {
+      console.log({
+        notice: 'Deleting runner',
+        runnerId: runner.id,
+        runnerName: input.runnerName,
+        input,
+      });
+      await deleteRunner(octokit, secrets.runnerLevel, input.owner, input.repo, runner.id);
+    } catch (e) {
+      console.error({
+        notice: 'Failed to delete runner',
+        runnerId: runner.id,
+        runnerName: input.runnerName,
+        error: e,
+        input,
+      });
+      retryLater();
+      continue;
+    }
+
+    // the runner is deleted but the instance is still alive and about to notice. do not terminate. give it a delivery cycle to log why it's
+    // stopping and power itself off. if it's still here next time, the !runner branch above terminates it
+    retryLater();
   }
 
   return result;

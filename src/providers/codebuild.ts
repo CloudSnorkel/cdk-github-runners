@@ -27,7 +27,8 @@ import {
   RunnerProviderProps,
   RunnerVersion,
   providerParam,
-  RunnerEnvConfig,
+  RunnerConfig,
+  runnerDefaultLabels,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 
@@ -165,7 +166,7 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
  *
  * @internal
  */
-interface CodeBuildRunnerConfig extends RunnerEnvConfig {
+interface CodeBuildRunnerConfig extends RunnerConfig {
   readonly projectName: string;
 }
 
@@ -342,12 +343,14 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       version: 0.2,
       env: {
         variables: {
-          RUNNER_TOKEN: 'unspecified',
+          RUNNER_JIT_CONFIG: '',
           RUNNER_NAME: 'unspecified',
           RUNNER_LABEL: 'unspecified',
           OWNER: 'unspecified',
           REPO: 'unspecified',
           GITHUB_DOMAIN: 'github.com',
+          // DEPRECATED: remove in 1.0.0. only executions that started before JIT runners pass these, to register with a registration token.
+          RUNNER_TOKEN: 'unspecified',
           REGISTRATION_URL: 'unspecified',
           RUNNER_GROUP1: '',
           RUNNER_GROUP2: '',
@@ -359,14 +362,16 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
           commands: [
             this.dind ? 'nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &' : '',
             this.dind ? 'timeout 15 sh -c "until docker info; do echo .; sleep 1; done"' : '',
-            'if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi',
             '/home/runner/job-reporter.sh ${RUNNER_NAME}',
-            'sudo -Hu runner /home/runner/config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" ${RUNNER_FLAGS} --name "${RUNNER_NAME}" ${RUNNER_GROUP1} ${RUNNER_GROUP2} ${DEFAULT_LABELS}',
+            // DEPRECATED: remove in 1.0.0. registers the runner of executions that started before JIT runners, which pass a registration token.
+            'if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi',
+            'if [ -z "${RUNNER_JIT_CONFIG}" ]; then sudo -Hu runner /home/runner/config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" ${RUNNER_FLAGS} --name "${RUNNER_NAME}" ${RUNNER_GROUP1} ${RUNNER_GROUP2} ${DEFAULT_LABELS}; fi',
           ],
         },
         build: {
           commands: [
-            'sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh',
+            // DEPRECATED: remove the else branch in 1.0.0. it runs the runner registered with a registration token above.
+            'if [ -n "${RUNNER_JIT_CONFIG}" ]; then sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh --jitconfig "${RUNNER_JIT_CONFIG}"; else sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh; fi',
             'STATUS=$(grep -Phors "finish job request for job [0-9a-f-]+ with result: .*" /home/runner/_diag/ | tail -n1 | awk \'{print $NF}\')',
             'if [ -n "$STATUS" ]; then echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"; fi',
           ],
@@ -381,12 +386,14 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       buildSpec.phases.install.commands = [
         'cd \\actions',
         '& ./job-reporter.ps1 "${Env:RUNNER_NAME}"',
+        // DEPRECATED: remove in 1.0.0. registers the runner of executions that started before JIT runners, which pass a registration token.
         'if (${Env:RUNNER_VERSION} -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }',
-        './config.cmd --unattended --url "${Env:REGISTRATION_URL}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat %s)" ${RunnerFlags} --name "${Env:RUNNER_NAME}" ${Env:RUNNER_GROUP1} ${Env:RUNNER_GROUP2} ${Env:DEFAULT_LABELS}',
+        'if (-not ${Env:RUNNER_JIT_CONFIG}) { ./config.cmd --unattended --url "${Env:REGISTRATION_URL}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat %s)" ${RunnerFlags} --name "${Env:RUNNER_NAME}" ${Env:RUNNER_GROUP1} ${Env:RUNNER_GROUP2} ${Env:DEFAULT_LABELS} }',
       ];
       buildSpec.phases.build.commands = [
         'cd \\actions',
-        './run.cmd',
+        // DEPRECATED: remove the else branch in 1.0.0. it runs the runner registered with a registration token above.
+        'if (${Env:RUNNER_JIT_CONFIG}) { ./run.cmd --jitconfig "${Env:RUNNER_JIT_CONFIG}" } else { ./run.cmd }',
         '$STATUS = Select-String -Path \'./_diag/*.log\' -Pattern \'finish job request for job [0-9a-f\\-]+ with result: (.*)\' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1',
         'if ($STATUS) { echo "CDKGHA JOB DONE $\{Env:RUNNER_LABEL\} $STATUS" }',
       ];
@@ -472,9 +479,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       provider: this.node.path,
       projectName: this.project.projectName,
       runnerGroup: this.group ?? '',
-      group1: this.group ? '--runnergroup' : '',
-      group2: this.group ? this.group : '',
-      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+      defaultLabels: runnerDefaultLabels(this.image.os, this.image.architecture, this.defaultLabels),
     };
   }
 
