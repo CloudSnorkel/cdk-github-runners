@@ -1587,7 +1587,7 @@
         },
         " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/f3db4b8f77ef212b9f01591dba2bcb1585d0bde231ee17155bfd2c81c88308e1.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/7fe15e8c886f40aa09fc90c71dcb10f412ead943696a6009ec0a6c2edceb2a4b.sh"
         },
         " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
         {
@@ -1626,15 +1626,15 @@
     ]
    }
   },
-  "LambdaImageBuilderx64BuildWaitHandle3d42c4f327341552AE": {
+  "LambdaImageBuilderx64BuildWaitHandle086c52d4029406F56C": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderx64BuildWait3d42c4f327070F1890": {
+  "LambdaImageBuilderx64BuildWait086c52d402C4FDE040": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle3d42c4f327341552AE"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandle086c52d4029406F56C"
     },
     "Timeout": "3600"
    }
@@ -1655,7 +1655,7 @@
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle3d42c4f327341552AE"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandle086c52d4029406F56C"
     }
    },
    "DependsOn": [
@@ -4483,7 +4483,7 @@
         },
         " asset6-Lambda-Entrypoint-0\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/f3db4b8f77ef212b9f01591dba2bcb1585d0bde231ee17155bfd2c81c88308e1.sh"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/7fe15e8c886f40aa09fc90c71dcb10f412ead943696a6009ec0a6c2edceb2a4b.sh"
         },
         " asset6-Lambda-Entrypoint-1\",\n        \"cat > component6-Lambda-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-Lambda-Entrypoint.sh\",\n        \"aws s3 cp ",
         {
@@ -4522,15 +4522,15 @@
     ]
    }
   },
-  "LambdaImageBuilderzBuildWaitHandle1230af69ba0015ED89": {
+  "LambdaImageBuilderzBuildWaitHandlec3506233f40E64D675": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderzBuildWait1230af69baF707795B": {
+  "LambdaImageBuilderzBuildWaitc3506233f49C09A4AE": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle1230af69ba0015ED89"
+     "Ref": "LambdaImageBuilderzBuildWaitHandlec3506233f40E64D675"
     },
     "Timeout": "3600"
    }
@@ -4551,7 +4551,7 @@
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle1230af69ba0015ED89"
+     "Ref": "LambdaImageBuilderzBuildWaitHandlec3506233f40E64D675"
     }
    },
    "DependsOn": [
@@ -6618,7 +6618,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_JIT_CONFIG\": \"\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"REGISTRATION_URL\": \"unspecified\",\n      \"RUNNER_GROUP1\": \"\",\n      \"RUNNER_GROUP2\": \"\",\n      \"DEFAULT_LABELS\": \"\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"/home/runner/job-reporter.sh ${RUNNER_NAME}\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"if [ -z \\\"${RUNNER_JIT_CONFIG}\\\" ]; then sudo -Hu runner /home/runner/config.sh --unattended --url \\\"${REGISTRATION_URL}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\" ${RUNNER_GROUP1} ${RUNNER_GROUP2} ${DEFAULT_LABELS}; fi\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"if [ -n \\\"${RUNNER_JIT_CONFIG}\\\" ]; then sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh --jitconfig \\\"${RUNNER_JIT_CONFIG}\\\"; else sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh; fi\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f-]+ with result: .*\\\" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')\",\n        \"if [ -n \\\"$STATUS\\\" ]; then echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"; fi\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_JIT_CONFIG\": \"\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"/home/runner/job-reporter.sh ${RUNNER_NAME}\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh --jitconfig \\\"${RUNNER_JIT_CONFIG}\\\"\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f-]+ with result: .*\\\" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')\",\n        \"if [ -n \\\"$STATUS\\\" ]; then echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"; fi\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Tags": [
@@ -6914,7 +6914,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_JIT_CONFIG\": \"\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"REGISTRATION_URL\": \"unspecified\",\n      \"RUNNER_GROUP1\": \"\",\n      \"RUNNER_GROUP2\": \"\",\n      \"DEFAULT_LABELS\": \"\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"/home/runner/job-reporter.sh ${RUNNER_NAME}\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"if [ -z \\\"${RUNNER_JIT_CONFIG}\\\" ]; then sudo -Hu runner /home/runner/config.sh --unattended --url \\\"${REGISTRATION_URL}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\" ${RUNNER_GROUP1} ${RUNNER_GROUP2} ${DEFAULT_LABELS}; fi\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"if [ -n \\\"${RUNNER_JIT_CONFIG}\\\" ]; then sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh --jitconfig \\\"${RUNNER_JIT_CONFIG}\\\"; else sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh; fi\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f-]+ with result: .*\\\" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')\",\n        \"if [ -n \\\"$STATUS\\\" ]; then echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"; fi\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_JIT_CONFIG\": \"\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"/home/runner/job-reporter.sh ${RUNNER_NAME}\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh --jitconfig \\\"${RUNNER_JIT_CONFIG}\\\"\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f-]+ with result: .*\\\" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')\",\n        \"if [ -n \\\"$STATUS\\\" ]; then echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"; fi\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Tags": [
@@ -7210,7 +7210,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_JIT_CONFIG\": \"\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"REGISTRATION_URL\": \"unspecified\",\n      \"RUNNER_GROUP1\": \"\",\n      \"RUNNER_GROUP2\": \"\",\n      \"DEFAULT_LABELS\": \"\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"/home/runner/job-reporter.sh ${RUNNER_NAME}\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"if [ -z \\\"${RUNNER_JIT_CONFIG}\\\" ]; then sudo -Hu runner /home/runner/config.sh --unattended --url \\\"${REGISTRATION_URL}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\" ${RUNNER_GROUP1} ${RUNNER_GROUP2} ${DEFAULT_LABELS}; fi\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"if [ -n \\\"${RUNNER_JIT_CONFIG}\\\" ]; then sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh --jitconfig \\\"${RUNNER_JIT_CONFIG}\\\"; else sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh; fi\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f-]+ with result: .*\\\" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')\",\n        \"if [ -n \\\"$STATUS\\\" ]; then echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"; fi\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_JIT_CONFIG\": \"\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"/home/runner/job-reporter.sh ${RUNNER_NAME}\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh --jitconfig \\\"${RUNNER_JIT_CONFIG}\\\"\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f-]+ with result: .*\\\" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')\",\n        \"if [ -n \\\"$STATUS\\\" ]; then echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"; fi\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Tags": [
@@ -7506,7 +7506,7 @@
      ]
     },
     "Source": {
-     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_JIT_CONFIG\": \"\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"REGISTRATION_URL\": \"unspecified\",\n      \"RUNNER_GROUP1\": \"\",\n      \"RUNNER_GROUP2\": \"\",\n      \"DEFAULT_LABELS\": \"\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"& ./job-reporter.ps1 \\\"${Env:RUNNER_NAME}\\\"\",\n        \"if (${Env:RUNNER_VERSION} -eq \\\"latest\\\") { $RunnerFlags = \\\"\\\" } else { $RunnerFlags = \\\"--disableupdate\\\" }\",\n        \"if (-not ${Env:RUNNER_JIT_CONFIG}) { ./config.cmd --unattended --url \\\"${Env:REGISTRATION_URL}\\\" --token \\\"${Env:RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat %s)\\\" ${RunnerFlags} --name \\\"${Env:RUNNER_NAME}\\\" ${Env:RUNNER_GROUP1} ${Env:RUNNER_GROUP2} ${Env:DEFAULT_LABELS} }\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"if (${Env:RUNNER_JIT_CONFIG}) { ./run.cmd --jitconfig \\\"${Env:RUNNER_JIT_CONFIG}\\\" } else { ./run.cmd }\",\n        \"$STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1\",\n        \"if ($STATUS) { echo \\\"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\\\" }\"\n      ]\n    }\n  }\n}",
+     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_JIT_CONFIG\": \"\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"& ./job-reporter.ps1 \\\"${Env:RUNNER_NAME}\\\"\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cd \\\\actions\",\n        \"./run.cmd --jitconfig \\\"${Env:RUNNER_JIT_CONFIG}\\\"\",\n        \"$STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1\",\n        \"if ($STATUS) { echo \\\"CDKGHA JOB DONE ${Env:RUNNER_LABEL} $STATUS\\\" }\"\n      ]\n    }\n  }\n}",
      "Type": "NO_SOURCE"
     },
     "Tags": [
@@ -8205,7 +8205,7 @@
       "Command": [
        "sh",
        "-c",
-       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        if [ -n \"$RUNNER_JIT_CONFIG\" ]; then\n          ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\";\n        else\n          # DEPRECATED: remove in 1.0.0 with this whole else branch. executions that started before JIT runners pass a registration token instead.\n          if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n          ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n          ./run.sh;\n        fi &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
+       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\" &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -8918,7 +8918,7 @@
       "Command": [
        "sh",
        "-c",
-       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        if [ -n \"$RUNNER_JIT_CONFIG\" ]; then\n          ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\";\n        else\n          # DEPRECATED: remove in 1.0.0 with this whole else branch. executions that started before JIT runners pass a registration token instead.\n          if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n          ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n          ./run.sh;\n        fi &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
+       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\" &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -9544,7 +9544,7 @@
       "Command": [
        "sh",
        "-c",
-       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        if [ -n \"$RUNNER_JIT_CONFIG\" ]; then\n          ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\";\n        else\n          # DEPRECATED: remove in 1.0.0 with this whole else branch. executions that started before JIT runners pass a registration token instead.\n          if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n          ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n          ./run.sh;\n        fi &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
+       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\" &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -10136,7 +10136,7 @@
       "Command": [
        "sh",
        "-c",
-       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        if [ -n \"$RUNNER_JIT_CONFIG\" ]; then\n          ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\";\n        else\n          # DEPRECATED: remove in 1.0.0 with this whole else branch. executions that started before JIT runners pass a registration token instead.\n          if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n          ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n          ./run.sh;\n        fi &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
+       "nohup sudo dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\"\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\" &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -10728,7 +10728,7 @@
       "Command": [
        "powershell",
        "-Command",
-       "cd \\actions ;\n        & ./job-reporter.ps1 \"$Env:RUNNER_NAME\" ;\n        if ($Env:RUNNER_JIT_CONFIG) {\n          ./run.cmd --jitconfig \"$Env:RUNNER_JIT_CONFIG\"\n        } else {\n          if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" }\n          ./config.cmd --unattended --url \"$Env:REGISTRATION_URL\" --token \"$Env:RUNNER_TOKEN\" --ephemeral --work _work --labels \"$Env:RUNNER_LABEL,cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"$Env:RUNNER_NAME\" $Env:RUNNER_GROUP1 $Env:RUNNER_GROUP2 $Env:DEFAULT_LABELS\n          ./run.cmd\n        } ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE $Env:RUNNER_LABEL $STATUS\" }"
+       "cd \\actions ;\n        & ./job-reporter.ps1 \"$Env:RUNNER_NAME\" ;\n        ./run.cmd --jitconfig \"$Env:RUNNER_JIT_CONFIG\" ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE $Env:RUNNER_LABEL $STATUS\" }"
       ],
       "Cpu": 1024,
       "Essential": true,
@@ -10972,7 +10972,7 @@
     ]
    },
    "DependsOn": [
-    "LambdaImageBuilderx64BuildWait3d42c4f327070F1890"
+    "LambdaImageBuilderx64BuildWait086c52d402C4FDE040"
    ]
   },
   "LambdaFunction9233991D": {
@@ -11058,7 +11058,7 @@
     "Timeout": 900
    },
    "DependsOn": [
-    "LambdaImageBuilderx64BuildWait3d42c4f327070F1890",
+    "LambdaImageBuilderx64BuildWait086c52d402C4FDE040",
     "LambdaFunctionServiceRoleB1826A50"
    ]
   },
@@ -11243,7 +11243,7 @@
     ]
    },
    "DependsOn": [
-    "LambdaImageBuilderzBuildWait1230af69baF707795B"
+    "LambdaImageBuilderzBuildWaitc3506233f49C09A4AE"
    ]
   },
   "LambdaARMFunctionDD4B5FF7": {
@@ -11329,7 +11329,7 @@
     "Timeout": 900
    },
    "DependsOn": [
-    "LambdaImageBuilderzBuildWait1230af69baF707795B",
+    "LambdaImageBuilderzBuildWaitc3506233f49C09A4AE",
     "LambdaARMFunctionServiceRole136069A0"
    ]
   },
@@ -11431,7 +11431,7 @@
       "Command": [
        "sh",
        "-c",
-       "\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        if [ -n \"$RUNNER_JIT_CONFIG\" ]; then\n          ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\";\n        else\n          # DEPRECATED: remove in 1.0.0 with this whole else branch. executions that started before JIT runners pass a registration token instead.\n          if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n          ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n          ./run.sh;\n        fi &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
+       "\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\" &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
       ],
       "Essential": true,
       "Image": {
@@ -11702,7 +11702,7 @@
       "Command": [
        "sh",
        "-c",
-       "\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        if [ -n \"$RUNNER_JIT_CONFIG\" ]; then\n          ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\";\n        else\n          # DEPRECATED: remove in 1.0.0 with this whole else branch. executions that started before JIT runners pass a registration token instead.\n          if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n          ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n          ./run.sh;\n        fi &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
+       "\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\" &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
       ],
       "Essential": true,
       "Image": {
@@ -11973,7 +11973,7 @@
       "Command": [
        "sh",
        "-c",
-       "\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        if [ -n \"$RUNNER_JIT_CONFIG\" ]; then\n          ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\";\n        else\n          # DEPRECATED: remove in 1.0.0 with this whole else branch. executions that started before JIT runners pass a registration token instead.\n          if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n          ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n          ./run.sh;\n        fi &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
+       "\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\" &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
       ],
       "Essential": true,
       "Image": {
@@ -12244,7 +12244,7 @@
       "Command": [
        "sh",
        "-c",
-       "\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        if [ -n \"$RUNNER_JIT_CONFIG\" ]; then\n          ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\";\n        else\n          # DEPRECATED: remove in 1.0.0 with this whole else branch. executions that started before JIT runners pass a registration token instead.\n          if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n          ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n          ./run.sh;\n        fi &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
+       "\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\" &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
       ],
       "Essential": true,
       "Image": {
@@ -12515,7 +12515,7 @@
       "Command": [
        "sh",
        "-c",
-       "\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        if [ -n \"$RUNNER_JIT_CONFIG\" ]; then\n          ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\";\n        else\n          # DEPRECATED: remove in 1.0.0 with this whole else branch. executions that started before JIT runners pass a registration token instead.\n          if [ \"$RUNNER_VERSION\" = \"latest\" ]; then RUNNER_FLAGS=\"\"; else RUNNER_FLAGS=\"--disableupdate\"; fi &&\n          ./config.sh --unattended --url \"$REGISTRATION_URL\" --token \"$RUNNER_TOKEN\" --ephemeral --work _work --labels \"$RUNNER_LABEL,cdkghr:started:`date +%s`\" $RUNNER_FLAGS --name \"$RUNNER_NAME\" $RUNNER_GROUP1 $RUNNER_GROUP2 $DEFAULT_LABELS &&\n          ./run.sh;\n        fi &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
+       "\n        cd /home/runner &&\n        ./job-reporter.sh \"$RUNNER_NAME\" &&\n        ./run.sh --jitconfig \"$RUNNER_JIT_CONFIG\" &&\n        STATUS=$(grep -Phors \"finish job request for job [0-9a-f-]+ with result: .*\" _diag | tail -n1 | awk '{print $NF}') &&\n        if [ -n \"$STATUS\" ]; then echo CDKGHA JOB DONE \"$RUNNER_LABEL\" \"$STATUS\"; fi"
       ],
       "Essential": true,
       "Image": {
@@ -12786,7 +12786,7 @@
       "Command": [
        "powershell",
        "-Command",
-       "cd \\actions ;\n        & ./job-reporter.ps1 \"$Env:RUNNER_NAME\" ;\n        if ($Env:RUNNER_JIT_CONFIG) {\n          ./run.cmd --jitconfig \"$Env:RUNNER_JIT_CONFIG\"\n        } else {\n          if ($Env:RUNNER_VERSION -eq \"latest\") { $RunnerFlags = \"\" } else { $RunnerFlags = \"--disableupdate\" }\n          ./config.cmd --unattended --url \"$Env:REGISTRATION_URL\" --token \"$Env:RUNNER_TOKEN\" --ephemeral --work _work --labels \"$Env:RUNNER_LABEL,cdkghr:started:$(Get-Date -UFormat +%s)\" $RunnerFlags --name \"$Env:RUNNER_NAME\" $Env:RUNNER_GROUP1 $Env:RUNNER_GROUP2 $Env:DEFAULT_LABELS\n          ./run.cmd\n        } ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE $Env:RUNNER_LABEL $STATUS\" }"
+       "cd \\actions ;\n        & ./job-reporter.ps1 \"$Env:RUNNER_NAME\" ;\n        ./run.cmd --jitconfig \"$Env:RUNNER_JIT_CONFIG\" ;\n        $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1 ;\n        if ($STATUS) { echo \"CDKGHA JOB DONE $Env:RUNNER_LABEL $STATUS\" }"
       ],
       "Essential": true,
       "Image": {
@@ -14584,7 +14584,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "331ad56733a42a82675cafcdd535afa6370f2af3285d34a55d3f983123f5055e.zip"
+     "S3Key": "3d5c264acceebe8a1b5dbab9f58cda9e76009ca36f62aa4f6fb77fbf91d3ca38.zip"
     },
     "Description": "Get just-in-time config from GitHub Actions used to start new self-hosted runner",
     "Environment": {

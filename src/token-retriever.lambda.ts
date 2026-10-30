@@ -16,8 +16,8 @@ class RunnerTokenError extends Error {
 export interface TokenRetrieverInput extends StepFunctionLambdaInput {
   /** runner group of the config the orchestrator selected, empty when it has none */
   readonly group: string;
-  /** comma separated labels the runner registers with. DEPRECATED: make required in 1.0.0, older executions don't send it */
-  readonly labels?: string;
+  /** comma separated labels the runner registers with */
+  readonly labels: string;
   /** labels config.sh used to add on its own, empty when the provider turned them off. see runnerDefaultLabels() */
   readonly defaultLabels?: string[];
 }
@@ -44,36 +44,17 @@ export async function handler(event: TokenRetrieverInput) {
         're-run the setup wizard and register runners on organization level.');
     }
 
-    if (event.labels !== undefined) {
-      const labels = dedupeLabels([...event.labels.split(','), ...(event.defaultLabels ?? [])]);
-      let jitConfig: string;
-      if (runnerLevel === 'repo') {
-        jitConfig = await getJitConfigForRepo(octokit, event.owner, event.repo, event.runnerName, labels);
-      } else {
-        const groupId = await getRunnerGroupId(octokit, event.owner, event.group);
-        jitConfig = await getJitConfigForOrg(octokit, event.owner, event.runnerName, labels, groupId);
-      }
-      return {
-        domain: githubSecrets.domain,
-        jitConfig,
-      };
-    }
-
-    // DEPRECATED: remove in 1.0.0 with getRegistrationTokenForOrg() and getRegistrationTokenForRepo(). executions that started before JIT
-    // runners keep running the old definition and retrying for up to a day after the deploy. they send no labels and still need a token.
-    let token: string;
-    let registrationUrl: string;
+    const labels = dedupeLabels([...event.labels.split(','), ...(event.defaultLabels ?? [])]);
+    let jitConfig: string;
     if (runnerLevel === 'repo') {
-      token = await getRegistrationTokenForRepo(octokit, event.owner, event.repo);
-      registrationUrl = `https://${githubSecrets.domain}/${event.owner}/${event.repo}`;
+      jitConfig = await getJitConfigForRepo(octokit, event.owner, event.repo, event.runnerName, labels);
     } else {
-      token = await getRegistrationTokenForOrg(octokit, event.owner);
-      registrationUrl = `https://${githubSecrets.domain}/${event.owner}`;
+      const groupId = await getRunnerGroupId(octokit, event.owner, event.group);
+      jitConfig = await getJitConfigForOrg(octokit, event.owner, event.runnerName, labels, groupId);
     }
     return {
       domain: githubSecrets.domain,
-      token,
-      registrationUrl,
+      jitConfig,
     };
   } catch (error) {
     console.error({
@@ -130,29 +111,6 @@ function configurationError(error: any, runnerLevel: RunnerLevel, owner: string,
           : 'Confirm the app is installed on this repository, or that the personal access token can access it.') + said);
     default:
       return undefined;
-  }
-}
-
-async function getRegistrationTokenForOrg(octokit: Octokit, owner: string): Promise<string> {
-  try {
-    const response = await octokit.rest.actions.createRegistrationTokenForOrg({
-      org: owner,
-    });
-    return response.data.token;
-  } catch (error) {
-    throw configurationError(error, 'org', owner, '') ?? error;
-  }
-}
-
-async function getRegistrationTokenForRepo(octokit: Octokit, owner: string, repo: string): Promise<string> {
-  try {
-    const response = await octokit.rest.actions.createRegistrationTokenForRepo({
-      owner: owner,
-      repo: repo,
-    });
-    return response.data.token;
-  } catch (error) {
-    throw configurationError(error, 'repo', owner, repo) ?? error;
   }
 }
 

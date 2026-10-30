@@ -14,6 +14,7 @@ function createEvent(overrides: Record<string, unknown> = {}) {
     runnerName: 'runner-1',
     installationId: 1,
     group: '',
+    labels: 'linux',
     ...overrides,
   } as any;
 }
@@ -22,8 +23,8 @@ type TokenError = { status: number; message?: string; headers?: Record<string, s
 
 function createOctokit(runnerLevel: string | undefined, tokenError?: number | TokenError) {
   const spec = typeof tokenError === 'number' ? { status: tokenError } : tokenError;
-  const registrationToken = (token: string) => spec === undefined
-    ? jest.fn().mockResolvedValue({ data: { token } })
+  const jitConfig = (config: string) => spec === undefined
+    ? jest.fn().mockResolvedValue({ data: { encoded_jit_config: config } })
     : jest.fn().mockRejectedValue(Object.assign(new Error(spec.message ?? 'GitHub says no'), {
       status: spec.status,
       response: { headers: spec.headers ?? {} },
@@ -31,10 +32,11 @@ function createOctokit(runnerLevel: string | undefined, tokenError?: number | To
 
   return {
     octokit: {
+      paginate: jest.fn().mockResolvedValue([{ id: 7, name: 'my-group' }]),
       rest: {
         actions: {
-          createRegistrationTokenForOrg: registrationToken('org-token'),
-          createRegistrationTokenForRepo: registrationToken('repo-token'),
+          generateRunnerJitconfigForOrg: jitConfig('org-jit'),
+          generateRunnerJitconfigForRepo: jitConfig('repo-jit'),
         },
       },
     },
@@ -50,36 +52,28 @@ beforeEach(() => {
 });
 
 describe('Runner token retriever', () => {
-  test('repo level registration returns a repo token', async () => {
+  test('repo level registration returns a repo JIT config', async () => {
     mockGetOctokit.mockResolvedValue(createOctokit('repo'));
 
-    await expect(handler(createEvent())).resolves.toEqual({
-      domain: 'github.com',
-      token: 'repo-token',
-      registrationUrl: 'https://github.com/my-org/my-repo',
-    });
+    await expect(handler(createEvent())).resolves.toEqual({ domain: 'github.com', jitConfig: 'repo-jit' });
   });
 
-  test('org level registration returns an org token', async () => {
+  test('org level registration returns an org JIT config', async () => {
     mockGetOctokit.mockResolvedValue(createOctokit('org'));
 
-    await expect(handler(createEvent())).resolves.toEqual({
-      domain: 'github.com',
-      token: 'org-token',
-      registrationUrl: 'https://github.com/my-org',
-    });
+    await expect(handler(createEvent())).resolves.toEqual({ domain: 'github.com', jitConfig: 'org-jit' });
   });
 
   test('undefined runner level is still treated as repo level', async () => {
     mockGetOctokit.mockResolvedValue(createOctokit(undefined));
 
-    await expect(handler(createEvent())).resolves.toMatchObject({ token: 'repo-token' });
+    await expect(handler(createEvent())).resolves.toMatchObject({ jitConfig: 'repo-jit' });
   });
 
   test('runner group with org level registration starts the runner', async () => {
     mockGetOctokit.mockResolvedValue(createOctokit('org'));
 
-    await expect(handler(createEvent({ group: 'my-group' }))).resolves.toMatchObject({ token: 'org-token' });
+    await expect(handler(createEvent({ group: 'my-group' }))).resolves.toMatchObject({ jitConfig: 'org-jit' });
   });
 
   test('runner group with repo level registration fails with a configuration error', async () => {

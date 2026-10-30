@@ -144,7 +144,6 @@ releaseWorkflow.file.addDeletionOverride('on.push');
 project.npmrc.addConfig('node-linker', 'hoisted');
 
 // bundle docker images
-project.bundler.bundleTask.exec('cp -r src/providers/docker-images assets');
 project.bundler.bundleTask.exec('cp -r src/providers/*.sh assets/providers');
 project.bundler.bundleTask.exec('cp -r src/providers/*.ps1 assets/providers');
 
