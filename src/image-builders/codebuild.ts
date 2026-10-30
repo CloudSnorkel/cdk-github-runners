@@ -319,7 +319,12 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
     const buildSpecVersion = 'v2'; // change this every time the build spec changes
     const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, this.baseImage.image, this.os.name);
-    const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
+    // hash tokens by their resolved form, not by the `${Token[TOKEN.NN]}` placeholder whose counter changes between synths
+    let hashInput = hashedComponents.join('\n');
+    if (cdk.Token.isUnresolved(hashInput)) {
+      hashInput = JSON.stringify(thisStack.resolve(hashInput));
+    }
+    const hash = crypto.createHash('md5').update(hashInput).digest('hex').slice(0, 10);
 
     const buildSpec = codebuild.BuildSpec.fromObject({
       version: 0.2,
