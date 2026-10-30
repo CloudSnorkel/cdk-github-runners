@@ -569,6 +569,28 @@ describe('Component caching', () => {
 
     expect(tokenizedComponentLogicalId(0)).toEqual(tokenizedComponentLogicalId(3));
   });
+
+  test('CodeBuild builder with a tokenized command gets a stable build', () => {
+    // same as above, but the CodeBuild builder names its wait condition after a hash of the build spec
+    function tokenizedWaitHandleLogicalId(extraTokens: number): string {
+      const tokenApp = new cdk.App();
+      const tokenStack = new cdk.Stack(tokenApp, 'test');
+      for (let i = 0; i < extraTokens; i++) {
+        cdk.Lazy.string({ produce: () => `extra${i}` });
+      }
+      const tokenValue = cdk.Lazy.string({ produce: () => 'resolved-value' });
+
+      const builder = CodeBuildRunnerProvider.imageBuilder(tokenStack, 'builder', {
+        baseDockerImage: BaseContainerImage.fromString(cdk.Lazy.string({ produce: () => 'public.ecr.aws/lts/ubuntu:22.04' })),
+      });
+      builder.addComponent(RunnerImageComponent.environmentVariables({ TOKENIZED: tokenValue }));
+      builder.bindDockerImage();
+
+      return Object.keys(Template.fromStack(tokenStack).findResources('AWS::CloudFormation::WaitConditionHandle'))[0];
+    }
+
+    expect(tokenizedWaitHandleLogicalId(0)).toEqual(tokenizedWaitHandleLogicalId(3));
+  });
 });
 
 describe('BaseImage', () => {
