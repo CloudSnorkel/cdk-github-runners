@@ -44,8 +44,10 @@ jobs:
         run: |
           source .github/actions/integ-verify/lib.sh
           # integ-failed-runner.yml and integ-ec2-dies.yml leave their runners to the idle reaper and check them themselves
-          runners=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/jobs" \
-            --jq '.jobs[] | select(.status == "completed" and (.labels | index("self-hosted")) and (.name | test("(timeout|die)$") | not)) | .runner_name // empty')
+          jobs=$(check_runs "$RUN_ID" '&status=completed' | jq -r 'select(.name | test("(timeout|die)$") | not) | .id')
+          runners=$(for job in $jobs; do
+            gh api "repos/$GITHUB_REPOSITORY/actions/jobs/$job" --jq 'select(.labels | index("self-hosted")) | .runner_name // empty'
+          done)
           failed=0
           for runner in $runners; do
             echo "::group::$runner"

@@ -77,8 +77,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          used=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" \
-            --jq '.jobs[] | select(.name == "warm" or (.name | endswith(" / warm"))) | .runner_name')
+          source .github/actions/integ-verify/lib.sh
+          used=$(find_job warm | jq -r .runner_name)
           echo "Job ran on $used"
           for i in $(seq 20); do
             for execution in $(aws stepfunctions list-executions --state-machine-arn "$STATE_MACHINE_ARN" --status-filter RUNNING --max-items 100 \
