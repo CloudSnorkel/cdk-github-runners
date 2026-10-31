@@ -3459,6 +3459,9 @@ Runner images are rebuilt every week by default. This provides the latest GitHub
 
 If you want to be sure you are using the latest runner version, you can use this topic to be notified when a build fails.
 
+Email subscribers get a short summary with the failure reason and a link to the logs. Other subscribers get the original
+JSON notification from CodeBuild or EC2 Image Builder.
+
 When the image builder is defined in a separate stack (e.g. in a split-stacks setup), pass that stack or construct
 as the optional scope so the topic and failure-notification aspects are created in the same stack as the image
 builder. Otherwise the aspects may not find the image builder resources.
