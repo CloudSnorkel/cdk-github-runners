@@ -1,0 +1,63 @@
+# Checks nothing is left behind by the runners of a finished workflow run: their step functions succeeded, they are not
+# registered on GitHub, and their EC2 instances are gone.
+# Needs the integration test role described in TESTING.md.
+
+name: integ-cleanup
+on:
+  workflow_dispatch:
+    inputs:
+      run-id:
+        description: Workflow run to check
+        required: true
+  workflow_call:
+permissions: {}
+jobs:
+  role:
+    # this image has the integration test role
+    runs-on: [self-hosted, codebuild-x64]
+    outputs:
+      role: ${{ steps.role.outputs.role }}
+      region: ${{ steps.role.outputs.region }}
+    steps:
+      - id: role
+        run: |
+          echo "role=$INTEG_ROLE_ARN" >> "$GITHUB_OUTPUT"
+          echo "region=$AWS_REGION" >> "$GITHUB_OUTPUT"
+  check:
+    needs: role
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/integ-verify
+        with:
+          role: ${{ needs.role.outputs.role }}
+          region: ${{ needs.role.outputs.region }}
+      - name: Check runners of finished jobs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run-id || github.run_id }}
+        run: |
+          source .github/actions/integ-verify/lib.sh
+          # integ-failed-runner.yml and integ-ec2-dies.yml leave their runners to the idle reaper and check them themselves
+          runners=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/jobs" \
+            --jq '.jobs[] | select(.status == "completed" and (.labels | index("self-hosted")) and (.name | test("(timeout|die)$") | not)) | .runner_name // empty')
+          failed=0
+          for runner in $runners; do
+            echo "::group::$runner"
+            execution=$(execution_arn "$runner")
+            wait_for_execution "$execution" 20 || failed=1
+            status=$(aws stepfunctions describe-execution --execution-arn "$execution" --query status --output text)
+            if [ "$status" != SUCCEEDED ]; then
+              echo "::error::Runner $runner step function ended with $status"
+              failed=1
+            fi
+            assert_runner_gone "$runner" 5 || failed=1
+            assert_instances_gone "$runner" 5 || failed=1
+            echo "::endgroup::"
+          done
+          exit $failed

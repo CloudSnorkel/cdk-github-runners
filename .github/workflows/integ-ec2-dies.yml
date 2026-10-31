@@ -1,0 +1,83 @@
+# Powers off an EC2 spot runner in the middle of a job, like a spot interruption, and checks it's cleaned up, retried a
+# few times at most (not over and over like #1007), and finally stopped by the idle reaper.
+# Needs the integration test role described in TESTING.md.
+
+name: integ-ec2-dies
+on:
+  workflow_dispatch:
+  workflow_call:
+permissions: {}
+jobs:
+  die:
+    # our provider selector gives this job an EC2 runner no other job can take
+    runs-on: [self-hosted, integ-ec2-dies]
+    # the runner dies under this job, so it always fails
+    continue-on-error: true
+    steps:
+      - run: echo "$RUNNER_NAME"; sudo poweroff; sleep 600
+  role:
+    # this image has the integration test role
+    runs-on: [self-hosted, codebuild-x64]
+    outputs:
+      role: ${{ steps.role.outputs.role }}
+      region: ${{ steps.role.outputs.region }}
+    steps:
+      - id: role
+        run: |
+          echo "role=$INTEG_ROLE_ARN" >> "$GITHUB_OUTPUT"
+          echo "region=$AWS_REGION" >> "$GITHUB_OUTPUT"
+  check:
+    needs: role
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/integ-verify
+        with:
+          role: ${{ needs.role.outputs.role }}
+          region: ${{ needs.role.outputs.region }}
+      - name: Find the runner
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # this workflow can also be called from integ.yml, which puts its name in front of ours
+          while [ -z "$runner" ]; do
+            sleep 30
+            runner=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" \
+              --jq '.jobs[] | select(.name == "die" or (.name | endswith(" / die"))) | .runner_name // empty')
+          done
+          echo "RUNNER=$runner" >> "$GITHUB_ENV"
+      - name: Wait for the idle reaper
+        run: |
+          source .github/actions/integ-verify/lib.sh
+          # the step function notices the dead runner when its 10 minute heartbeat times out, and the retried one idles until it's reaped
+          wait_for_execution "$(execution_arn "$RUNNER")" 100
+      - name: Check the runner was cleaned up and retried
+        run: |
+          source .github/actions/integ-verify/lib.sh
+          execution=$(execution_arn "$RUNNER")
+          assert_aborted_by_reaper "$execution"
+          tries=$(times_entered "$execution" 'Try Provider')
+          echo "Tried $tries times"
+          if [ "$tries" -lt 2 ]; then
+            echo "::error::Expected the runner to be retried, but it was tried $tries times"
+            exit 1
+          fi
+          if [ "$(times_entered "$execution" 'Runner Not Deleted')" != 0 ]; then
+            echo "::error::Dead runner was not cleaned up"
+            exit 1
+          fi
+          # spot capacity errors can add tries before the one that died, and a missed heartbeat ends the task with States.Timeout
+          errors=$(aws stepfunctions get-execution-history --execution-arn "$execution" --output json \
+            --query "events[?stateExitedEventDetails.name == 'Clean Up Failed Runner'].stateExitedEventDetails.output" | jq -r '.[] | fromjson | .error.Error')
+          echo "$errors"
+          if ! grep -qx States.Timeout <<<"$errors"; then
+            echo "::error::Expected the dead runner to be noticed by its heartbeat timing out"
+            exit 1
+          fi
+          assert_runner_gone "$RUNNER" 5
+          assert_instances_gone "$RUNNER" 5

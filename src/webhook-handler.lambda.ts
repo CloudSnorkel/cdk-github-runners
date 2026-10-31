@@ -298,7 +298,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     };
   }
 
-  if (process.env.REQUIRE_SELF_HOSTED_LABEL === '1' && !payload.workflow_job.labels.some((label: string) => label.toLowerCase() == 'self-hosted')) {
+  if (process.env.REQUIRE_SELF_HOSTED_LABEL === '1' && !payload.workflow_job.labels.includes('self-hosted')) {
     console.log({
       notice: `Ignoring labels "${payload.workflow_job.labels}", expecting "self-hosted"`,
       job: payload.workflow_job,

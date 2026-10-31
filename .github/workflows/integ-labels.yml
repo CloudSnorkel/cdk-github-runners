@@ -1,0 +1,96 @@
+# Checks runners start for labels that match a provider in a different case or only partially, and that a job with labels
+# no provider has gets no runner and doesn't get cancelled either.
+# Needs the integration test role described in TESTING.md.
+
+name: integ-labels
+on:
+  workflow_dispatch:
+  workflow_call:
+permissions: {}
+jobs:
+  case:
+    # GitHub matches labels in any case
+    runs-on: [Self-Hosted, LAMBDA, X64]
+    steps:
+      - run: echo "$RUNNER_NAME"
+  subset:
+    # matches only the ECS Ubuntu 24.04 provider by one of its labels, so any runner that picks it up can be replaced by an identical one
+    runs-on: [self-hosted, ecs-ubuntu-2404]
+    steps:
+      - run: echo "$RUNNER_NAME"
+  unknown:
+    # no provider has this label, so the unknown-label job starts a runner for it once it's sure nothing else did
+    runs-on: [self-hosted, integ-no-such-label]
+    steps:
+      - run: echo "$RUNNER_NAME"
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      actions: write # to cancel the run if a job never starts
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: |
+          source .github/actions/integ-verify/lib.sh
+          assert_job_started case 15
+          assert_job_started subset 15
+  role:
+    # any finished job gives us an execution input to copy, and this image has the integration test role
+    runs-on: [self-hosted, codebuild-x64]
+    outputs:
+      runner: ${{ steps.role.outputs.runner }}
+      role: ${{ steps.role.outputs.role }}
+      region: ${{ steps.role.outputs.region }}
+    steps:
+      - id: role
+        run: |
+          echo "runner=$RUNNER_NAME" >> "$GITHUB_OUTPUT"
+          echo "role=$INTEG_ROLE_ARN" >> "$GITHUB_OUTPUT"
+          echo "region=$AWS_REGION" >> "$GITHUB_OUTPUT"
+  unknown-label:
+    needs: role
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: write # to cancel the run if the job never starts
+      contents: read
+      id-token: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/integ-verify
+        with:
+          role: ${{ needs.role.outputs.role }}
+          region: ${{ needs.role.outputs.region }}
+      - name: Check the job stays queued without a runner
+        run: |
+          sleep 300 # plenty of time for the webhook to start a runner it shouldn't
+          job=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" \
+            --jq '.jobs[] | select(.name == "unknown" or (.name | endswith(" / unknown")))')
+          echo "$job" | jq '{id, status, created_at}'
+          if [ "$(jq -r .status <<<"$job")" != queued ]; then
+            echo "::error::Job with unknown labels is $(jq -r .status <<<"$job") instead of queued"
+            exit 1
+          fi
+          echo "JOB_ID=$(jq .id <<<"$job")" >> "$GITHUB_ENV"
+          # every execution started since, as their names don't tell us which job they are for
+          for execution in $(aws stepfunctions list-executions --state-machine-arn "$STATE_MACHINE_ARN" --max-items 100 --query executions |
+            jq -r --arg created "$(jq -r .created_at <<<"$job")" '.[] | select(.startDate[:19] >= $created[:19]) | .executionArn'); do
+            if [ "$(aws stepfunctions describe-execution --execution-arn "$execution" --query input --output text | jq .jobId)" == "$(jq .id <<<"$job")" ]; then
+              echo "::error::Runner $execution was started for the job with unknown labels"
+              exit 1
+            fi
+          done
+      - name: Start a runner for it
+        env:
+          SEED_RUNNER: ${{ needs.role.outputs.runner }}
+        run: |
+          source .github/actions/integ-verify/lib.sh
+          input=$(aws stepfunctions describe-execution --execution-arn "$(execution_arn "$SEED_RUNNER")" --query input --output text)
+          input=$(jq -c --argjson job "$JOB_ID" '.labels = "self-hosted,integ-no-such-label" | .jobId = $job' <<<"$input")
+          aws stepfunctions start-execution --state-machine-arn "$STATE_MACHINE_ARN" --name "unknown-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --input "$input"
+          assert_job_started unknown 15

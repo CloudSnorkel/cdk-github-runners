@@ -1,0 +1,66 @@
+# Cancels a step in the middle of running on an EC2 runner, and checks the runner still finishes properly and leaves
+# nothing behind (#537).
+# Needs the integration test role described in TESTING.md.
+
+name: integ-cancel
+on:
+  workflow_dispatch:
+  workflow_call:
+permissions: {}
+jobs:
+  target:
+    # our provider selector gives this job an EC2 runner no other job can take
+    runs-on: [self-hosted, integ-cancel]
+    # a cancelled job would mark the whole run as cancelled, so we let the runner cancel a step that runs out of time instead
+    continue-on-error: true
+    steps:
+      - run: echo "$RUNNER_NAME"; sleep 1200
+        timeout-minutes: 3
+  role:
+    # this image has the integration test role
+    runs-on: [self-hosted, codebuild-x64]
+    outputs:
+      role: ${{ steps.role.outputs.role }}
+      region: ${{ steps.role.outputs.region }}
+    steps:
+      - id: role
+        run: |
+          echo "role=$INTEG_ROLE_ARN" >> "$GITHUB_OUTPUT"
+          echo "region=$AWS_REGION" >> "$GITHUB_OUTPUT"
+  check:
+    needs: role
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/integ-verify
+        with:
+          role: ${{ needs.role.outputs.role }}
+          region: ${{ needs.role.outputs.region }}
+      - name: Find the runner
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # this workflow can also be called from integ.yml, which puts its name in front of ours
+          while [ -z "$runner" ]; do
+            sleep 30
+            runner=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" \
+              --jq '.jobs[] | select(.name == "target" or (.name | endswith(" / target"))) | .runner_name // empty')
+          done
+          echo "RUNNER=$runner" >> "$GITHUB_ENV"
+      - name: Check the runner finished and left nothing behind
+        run: |
+          source .github/actions/integ-verify/lib.sh
+          execution=$(execution_arn "$RUNNER")
+          wait_for_execution "$execution" 30
+          status=$(aws stepfunctions describe-execution --execution-arn "$execution" --query status --output text)
+          if [ "$status" != SUCCEEDED ]; then
+            echo "::error::Runner step function ended with $status"
+            exit 1
+          fi
+          assert_runner_gone "$RUNNER" 5
+          assert_instances_gone "$RUNNER" 10

@@ -228,6 +228,192 @@
     }
    }
   },
+  "IntegrationTestRole49846946": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRoleWithWebIdentity",
+       "Condition": {
+        "StringEquals": {
+         "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+        },
+        "StringLike": {
+         "token.actions.githubusercontent.com:sub": "repo:CloudSnorkel/cdk-github-runners:ref:refs/heads/*"
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Federated": {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":iam::",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":oidc-provider/token.actions.githubusercontent.com"
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   }
+  },
+  "IntegrationTestRoleDefaultPolicyB67431EA": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "states:ListExecutions",
+        "states:ListStateMachines"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersRunnerOrchestratorF9B66EBA"
+       }
+      },
+      {
+       "Action": [
+        "states:DescribeExecution",
+        "states:DescribeStateMachineForExecution",
+        "states:GetExecutionHistory"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":states:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":execution:",
+          {
+           "Fn::Select": [
+            6,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "runnersRunnerOrchestratorF9B66EBA"
+              }
+             ]
+            }
+           ]
+          },
+          ":*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "states:ListActivities",
+        "states:DescribeStateMachine",
+        "states:DescribeActivity"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": "states:StartExecution",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersRunnerOrchestratorF9B66EBA"
+       }
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "IntegrationTestRunnerCheck22CF2BB4",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "IntegrationTestRunnerCheck22CF2BB4",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "cloudformation:ListStackResources",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "AWS::StackId"
+       }
+      },
+      {
+       "Action": [
+        "sqs:SendMessage",
+        "sqs:GetQueueAttributes",
+        "sqs:GetQueueUrl"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersWarmRunnerQueue858D73CB",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "events:ListTargetsByRule",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "IntegrationTestWarmRunnerScheduleC45D4950",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ec2:DescribeInstances",
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "IntegrationTestRoleDefaultPolicyB67431EA",
+    "Roles": [
+     {
+      "Ref": "IntegrationTestRole49846946"
+     }
+    ]
+   }
+  },
   "FargatebuilderRoleDA300BCD": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -3012,7 +3198,14 @@
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
-        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nchown runner /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY asset6-GithubRunner-0 /home/runner/job-reporter.sh\\nCOPY asset6-GithubRunner-1 /home/runner/job-started-hook.sh\\nCOPY asset6-GithubRunner-2 /home/runner/job-completed-hook.sh\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if ! SOCI_LABEL=`docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\" 2>/dev/null`; then\\necho \\\"Skipping soci index: no image to index, the build never produced $REPO_URI\\\"\\nelif [ \\\"$SOCI_LABEL\\\" = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
+        " asset7-Custom-Undefined-0\",\n        \"cat > component7-Custom-Undefined.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ntouch /custom-file\\nmkdir /custom-dir\\nmv FUNDING.yml /custom-dir\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component7-Custom-Undefined.sh\",\n        \"cat > component8-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'HELLO=world' >> /home/runner/.env\\necho 'FOO=bar' >> /home/runner/.env\\nchown runner /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component8-EnvironmentVariables.sh\",\n        \"cat > component9-EnvironmentVariables.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\necho 'INTEG_ROLE_ARN=",
+        {
+         "Fn::GetAtt": [
+          "IntegrationTestRole49846946",
+          "Arn"
+         ]
+        },
+        "' >> /home/runner/.env\\nchown runner /home/runner/.env\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component9-EnvironmentVariables.sh\",\n        \"cat > Dockerfile <<'EOFGITHUBRUNNERSDOCKERFILE'\\nFROM public.ecr.aws/lts/ubuntu:22.04\\nVOLUME /var/lib/docker\\nCOPY component0-RequiredPackages.sh /tmp\\nRUN /tmp/component0-RequiredPackages.sh\\n\\nCOPY component1-RunnerUser.sh /tmp\\nRUN /tmp/component1-RunnerUser.sh\\n\\nCOPY component2-Git.sh /tmp\\nRUN /tmp/component2-Git.sh\\n\\nCOPY component3-GithubCli.sh /tmp\\nRUN /tmp/component3-GithubCli.sh\\n\\nCOPY component4-AwsCli.sh /tmp\\nRUN /tmp/component4-AwsCli.sh\\n\\nCOPY component5-Docker.sh /tmp\\nRUN /tmp/component5-Docker.sh\\n\\nCOPY asset6-GithubRunner-0 /home/runner/job-reporter.sh\\nCOPY asset6-GithubRunner-1 /home/runner/job-started-hook.sh\\nCOPY asset6-GithubRunner-2 /home/runner/job-completed-hook.sh\\nCOPY component6-GithubRunner.sh /tmp\\nRUN /tmp/component6-GithubRunner.sh\\nENV RUNNER_VERSION=latest\\nCOPY asset7-Custom-Undefined-0 FUNDING.yml\\nCOPY component7-Custom-Undefined.sh /tmp\\nRUN /tmp/component7-Custom-Undefined.sh\\n\\nCOPY component8-EnvironmentVariables.sh /tmp\\nRUN /tmp/component8-EnvironmentVariables.sh\\n\\nCOPY component9-EnvironmentVariables.sh /tmp\\nRUN /tmp/component9-EnvironmentVariables.sh\\n\\n\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"docker build --progress plain . -t \\\"$REPO_URI\\\"\",\n        \"docker push \\\"$REPO_URI\\\"\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"rm -f codebuild-log.sh && STATUS=\\\"SUCCESS\\\"\",\n        \"if [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ]; then STATUS=\\\"FAILURE\\\"; fi\",\n        \"cat <<EOF > /tmp/payload.json\\n{\\n  \\\"Status\\\": \\\"$STATUS\\\",\\n  \\\"UniqueId\\\": \\\"build\\\",\\n  \\\"Reason\\\": `sed 's/[^[:print:]]//g' /tmp/codebuild.log | tail -c 400 | jq -Rsa .`,\\n  \\\"Data\\\": \\\"$RANDOM\\\"\\n}\\nEOF\",\n        \"if [ \\\"$WAIT_HANDLE\\\" != \\\"unspecified\\\" ]; then jq . /tmp/payload.json; curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -X PUT -H \\\"Content-Type:\\\" -d \\\"@/tmp/payload.json\\\" \\\"$WAIT_HANDLE\\\"; fi\",\n        \"if ! SOCI_LABEL=`docker inspect --format='{{json .Config.Labels.DISABLE_SOCI}}' \\\"$REPO_URI\\\" 2>/dev/null`; then\\necho \\\"Skipping soci index: no image to index, the build never produced $REPO_URI\\\"\\nelif [ \\\"$SOCI_LABEL\\\" = \\\"null\\\" ]; then\\ndocker rmi \\\"$REPO_URI\\\"\\nLATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w \\\"%{redirect_url}\\\" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE \\\"[^/]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/${LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_x86_64.tar.gz | tar xz\\n./standalone-soci-indexer \\\"$REPO_URI\\\"\\nfi\"\n      ]\n    }\n  }\n}"
        ]
       ]
      },
@@ -3045,15 +3238,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderBuildWaitHandlef8b02bdfeaAA574B94": {
+  "CodeBuildImageBuilderBuildWaitHandle9c63abe7fcC5F264F1": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderBuildWaitf8b02bdfea575283C1": {
+  "CodeBuildImageBuilderBuildWait9c63abe7fcAF11EB47": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandlef8b02bdfeaAA574B94"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle9c63abe7fcC5F264F1"
     },
     "Timeout": "3600"
    }
@@ -3074,7 +3267,7 @@
      "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandlef8b02bdfeaAA574B94"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle9c63abe7fcC5F264F1"
     }
    },
    "DependsOn": [
@@ -6332,6 +6525,302 @@
       "Ref": "BuildScheduleRoledcc036c8876b451ea2c1552f9e06e9e10132DFDF"
      }
     ]
+   }
+  },
+  "CodeBuildWarmLogsD47CE0E3": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/CodeBuild Warm"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "CodeBuildWarmLogsLogsfilter07F1FDA7": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "[..., marker = \"CDKGHA\", job = \"JOB\", done = \"DONE\", labels, status = \"Succeeded\" || status = \"SucceededWithIssues\" || status = \"Failed\" || status = \"Canceled\" || status = \"Skipped\" || status = \"Abandoned\"]",
+    "LogGroupName": {
+     "Ref": "CodeBuildWarmLogsD47CE0E3"
+    },
+    "MetricTransformations": [
+     {
+      "Dimensions": [
+       {
+        "Key": "ProviderLabels",
+        "Value": "$labels"
+       },
+       {
+        "Key": "Status",
+        "Value": "$status"
+       }
+      ],
+      "MetricName": "JobCompleted",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
+     }
+    ]
+   }
+  },
+  "CodeBuildWarmCodeBuildRole71E7DBD5": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/CodeBuild Warm"
+     }
+    ]
+   }
+  },
+  "CodeBuildWarmCodeBuildRoleDefaultPolicy2AED1F02": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildImageBuilderRepository9DE3B6F0",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildWarmLogsD47CE0E3",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "CodeBuildWarmCodeBuild12341B34"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "CodeBuildWarmCodeBuild12341B34"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":report-group/",
+          {
+           "Ref": "CodeBuildWarmCodeBuild12341B34"
+          },
+          "-*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CodeBuildWarmCodeBuildRoleDefaultPolicy2AED1F02",
+    "Roles": [
+     {
+      "Ref": "CodeBuildWarmCodeBuildRole71E7DBD5"
+     }
+    ]
+   }
+  },
+  "CodeBuildWarmCodeBuild12341B34": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "NO_ARTIFACTS"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "Description": "GitHub Actions self-hosted runner for labels integ-warm",
+    "EncryptionKey": "alias/aws/s3",
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "Image": {
+      "Fn::Join": [
+       "",
+       [
+        {
+         "Fn::Select": [
+          4,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "CodeBuildImageBuilderRepository9DE3B6F0",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".dkr.ecr.",
+        {
+         "Fn::Select": [
+          3,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::GetAtt": [
+              "CodeBuildImageBuilderRepository9DE3B6F0",
+              "Arn"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        ".",
+        {
+         "Ref": "AWS::URLSuffix"
+        },
+        "/",
+        {
+         "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+        },
+        ":latest"
+       ]
+      ]
+     },
+     "ImagePullCredentialsType": "SERVICE_ROLE",
+     "PrivilegedMode": true,
+     "Type": "LINUX_CONTAINER"
+    },
+    "LogsConfig": {
+     "CloudWatchLogs": {
+      "GroupName": {
+       "Ref": "CodeBuildWarmLogsD47CE0E3"
+      },
+      "Status": "ENABLED"
+     }
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "CodeBuildWarmCodeBuildRole71E7DBD5",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": "{\n  \"version\": 0.2,\n  \"env\": {\n    \"variables\": {\n      \"RUNNER_JIT_CONFIG\": \"\",\n      \"RUNNER_NAME\": \"unspecified\",\n      \"RUNNER_LABEL\": \"unspecified\",\n      \"OWNER\": \"unspecified\",\n      \"REPO\": \"unspecified\",\n      \"GITHUB_DOMAIN\": \"github.com\",\n      \"RUNNER_TOKEN\": \"unspecified\",\n      \"REGISTRATION_URL\": \"unspecified\",\n      \"RUNNER_GROUP1\": \"\",\n      \"RUNNER_GROUP2\": \"\",\n      \"DEFAULT_LABELS\": \"\"\n    }\n  },\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &\",\n        \"timeout 15 sh -c \\\"until docker info; do echo .; sleep 1; done\\\"\",\n        \"/home/runner/job-reporter.sh ${RUNNER_NAME}\",\n        \"if [ \\\"${RUNNER_VERSION}\\\" = \\\"latest\\\" ]; then RUNNER_FLAGS=\\\"\\\"; else RUNNER_FLAGS=\\\"--disableupdate\\\"; fi\",\n        \"if [ -z \\\"${RUNNER_JIT_CONFIG}\\\" ]; then sudo -Hu runner /home/runner/config.sh --unattended --url \\\"${REGISTRATION_URL}\\\" --token \\\"${RUNNER_TOKEN}\\\" --ephemeral --work _work --labels \\\"${RUNNER_LABEL},cdkghr:started:`date +%s`\\\" ${RUNNER_FLAGS} --name \\\"${RUNNER_NAME}\\\" ${RUNNER_GROUP1} ${RUNNER_GROUP2} ${DEFAULT_LABELS}; fi\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"if [ -n \\\"${RUNNER_JIT_CONFIG}\\\" ]; then sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh --jitconfig \\\"${RUNNER_JIT_CONFIG}\\\"; else sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh; fi\",\n        \"STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f-]+ with result: .*\\\" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')\",\n        \"if [ -n \\\"$STATUS\\\" ]; then echo CDKGHA JOB DONE \\\"$RUNNER_LABEL\\\" \\\"$STATUS\\\"; fi\"\n      ]\n    }\n  }\n}",
+     "Type": "NO_SOURCE"
+    },
+    "Tags": [
+     {
+      "Key": "GitHubRunners:Provider",
+      "Value": "github-runners-test/CodeBuild Warm"
+     }
+    ],
+    "TimeoutInMinutes": 60
    }
   },
   "CodeBuildx64LogsA21ECD59": {
@@ -14122,7 +14611,7 @@
    "Type": "AWS::Lambda::Function",
    "Properties": {
     "Code": {
-     "ZipFile": "\n      exports.handler = async function(event) {\n        console.log(JSON.stringify(event));\n        if (event.payload.workflow_job.labels.includes('steal-test')) {\n          // the runner started for abandoned is missing a label, so it can never take it\n          return {\n            provider: Object.keys(event.providers).find(p => event.providers[p].includes('codebuild-x64')),\n            labels: event.payload.workflow_job.name == 'abandoned' ? ['self-hosted'] : ['self-hosted', 'steal-test'],\n          };\n        }\n        return {\n          provider: event.defaultProvider,\n          labels: event.defaultLabels,\n        };\n      }\n    "
+     "ZipFile": "\n      exports.handler = async function(event) {\n        console.log(JSON.stringify(event));\n        // jobs of a called workflow are named \"<caller job> / <job>\"\n        const jobName = event.payload.workflow_job.name.split(' / ').pop();\n        if (event.payload.workflow_job.name.startsWith('unserved / ')) {\n          // no provider means no runner, as if the webhook was off. runners started for other jobs will take these and get replaced.\n          return {};\n        }\n        if (event.payload.workflow_job.labels.includes('steal-test')) {\n          // the runner started for abandoned is missing a label, so it can never take it\n          return {\n            provider: Object.keys(event.providers).find(p => event.providers[p].includes('codebuild-x64')),\n            labels: jobName == 'abandoned' ? ['self-hosted'] : ['self-hosted', 'steal-test'],\n          };\n        }\n        if (event.payload.workflow_job.labels.includes('integ-warm')) {\n          // only a warm runner may take this job\n          return {};\n        }\n        if (event.payload.workflow_job.labels.includes('integ-redeliver')) {\n          // fail the first delivery, so only our webhook redelivery can start a runner. GitHub doesn't retry on its own.\n          if (Date.now() - Date.parse(event.payload.workflow_job.created_at) < 4 * 60 * 1000) {\n            throw new Error('Failing delivery on purpose for integ-redelivery.yml');\n          }\n          return {\n            provider: Object.keys(event.providers).find(p => event.providers[p].includes('lambda') && event.providers[p].includes('x64')),\n            labels: ['self-hosted', 'integ-redeliver'],\n          };\n        }\n        if (event.payload.workflow_job.labels.includes('integ-ec2-dies')) {\n          // spot, like the interrupted runners of #1007. no other job can take this runner, so the one that dies is the one we're watching\n          return {\n            provider: Object.keys(event.providers).find(p => event.providers[p].includes('ec2-spot')),\n            labels: ['self-hosted', 'integ-ec2-dies'],\n          };\n        }\n        if (event.payload.workflow_job.labels.includes('integ-cancel')) {\n          // EC2, where a cancelled job once left its instance running (#537)\n          return {\n            provider: Object.keys(event.providers).find(p => ['ec2', 'linux', 'arm64'].every(l => event.providers[p].includes(l))),\n            labels: ['self-hosted', 'integ-cancel'],\n          };\n        }\n        if (event.payload.workflow_job.labels.includes('integ-lambda-timeout')) {\n          // no other job can take this runner, so the runner that times out is the one we're watching\n          return {\n            provider: Object.keys(event.providers).find(p => event.providers[p].includes('lambda') && event.providers[p].includes('x64')),\n            labels: ['self-hosted', 'integ-lambda-timeout'],\n          };\n        }\n        return {\n          provider: event.defaultProvider,\n          labels: event.defaultLabels,\n        };\n      }\n    "
     },
     "Handler": "index.handler",
     "LoggingConfig": {
@@ -15671,6 +16160,21 @@
        ]
       },
       {
+       "Action": [
+        "codebuild:StartBuild",
+        "codebuild:StopBuild",
+        "codebuild:BatchGetBuilds",
+        "codebuild:BatchGetReports"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CodeBuildWarmCodeBuild12341B34",
+         "Arn"
+        ]
+       }
+      },
+      {
        "Action": "lambda:InvokeFunction",
        "Effect": "Allow",
        "Resource": [
@@ -16483,22 +16987,9 @@
        }
       },
       {
-       "Action": "iam:PassRole",
+       "Action": "ec2:runInstances",
        "Effect": "Allow",
-       "Resource": [
-        {
-         "Fn::GetAtt": [
-          "FargateWindowstaskTaskRole364508C8",
-          "Arn"
-         ]
-        },
-        {
-         "Fn::GetAtt": [
-          "FargateWindowstaskExecutionRoleEE562927",
-          "Arn"
-         ]
-        }
-       ]
+       "Resource": "*"
       }
      ],
      "Version": "2012-10-17"
@@ -16519,9 +17010,22 @@
     "PolicyDocument": {
      "Statement": [
       {
-       "Action": "ec2:runInstances",
+       "Action": "iam:PassRole",
        "Effect": "Allow",
-       "Resource": "*"
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "FargateWindowstaskTaskRole364508C8",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::GetAtt": [
+          "FargateWindowstaskExecutionRoleEE562927",
+          "Arn"
+         ]
+        }
+       ]
       },
       {
        "Action": "iam:PassRole",
@@ -16657,7 +17161,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":states:::sqs:sendMessage\"},\"Load Config\":{\"Type\":\"Pass\",\"Next\":\"Run Providers\",\"Assign\":{\"providerConfigs\":{\"github-runners-test/CodeBuildx64\":{\"family\":\"codebuild\",\"provider\":\"github-runners-test/CodeBuildx64\",\"projectName\":\"${__sfnsub_0}\",\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]},\"github-runners-test/CodeBuildUbuntu2404x64\":{\"family\":\"codebuild\",\"provider\":\"github-runners-test/CodeBuildUbuntu2404x64\",\"projectName\":\"${__sfnsub_1}\",\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]},\"github-runners-test/CodeBuildARM\":{\"family\":\"codebuild\",\"provider\":\"github-runners-test/CodeBuildARM\",\"projectName\":\"${__sfnsub_2}\",\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"]},\"github-runners-test/CodeBuildWindows\":{\"family\":\"codebuild\",\"provider\":\"github-runners-test/CodeBuildWindows\",\"projectName\":\"${__sfnsub_3}\",\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Windows\",\"X64\"]},\"github-runners-test/ECS Fallback\":{\"family\":\"ecs\",\"provider\":\"github-runners-test/ECS Spot\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestECSSpottask94D7F678\",\"containerName\":\"runner\",\"capacityProviderName\":\"${__sfnsub_5}\",\"enableExecuteCommand\":true,\"placementStrategies\":[],\"placementConstraints\":[],\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/ECS Spot\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"fallback\":{\"family\":\"ecs\",\"provider\":\"github-runners-test/ECS Non-Spot\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestECSNonSpottask5BD3595F\",\"containerName\":\"runner\",\"capacityProviderName\":\"${__sfnsub_6}\",\"enableExecuteCommand\":true,\"placementStrategies\":[],\"placementConstraints\":[],\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/ECS Non-Spot\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]}},\"github-runners-test/ECS Ubuntu 2404\":{\"family\":\"ecs\",\"provider\":\"github-runners-test/ECS Ubuntu 2404\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestECSUbuntu2404taskB7D564C7\",\"containerName\":\"runner\",\"capacityProviderName\":\"${__sfnsub_7}\",\"enableExecuteCommand\":true,\"placementStrategies\":[],\"placementConstraints\":[],\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/ECS Ubuntu 2404\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]},\"github-runners-test/ECS ARM64\":{\"family\":\"ecs\",\"provider\":\"github-runners-test/ECS ARM64\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestECSARM64taskE94E43A3\",\"containerName\":\"runner\",\"capacityProviderName\":\"${__sfnsub_8}\",\"enableExecuteCommand\":true,\"placementStrategies\":[],\"placementConstraints\":[],\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/ECS ARM64\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"]},\"github-runners-test/ECS Windows\":{\"family\":\"ecs\",\"provider\":\"github-runners-test/ECS Windows\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestECSWindowstask6B1D5861\",\"containerName\":\"runner\",\"capacityProviderName\":\"${__sfnsub_9}\",\"enableExecuteCommand\":false,\"placementStrategies\":[],\"placementConstraints\":[],\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/ECS Windows\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Windows\",\"X64\"]},\"github-runners-test/Lambda\":{\"family\":\"lambda\",\"provider\":\"github-runners-test/Lambda\",\"functionArn\":\"${__sfnsub_10}\",\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]},\"github-runners-test/LambdaARM\":{\"family\":\"lambda\",\"provider\":\"github-runners-test/LambdaARM\",\"functionArn\":\"${__sfnsub_11}\",\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"]},\"github-runners-test/Fargate\":{\"family\":\"fargate\",\"provider\":\"github-runners-test/Fargate\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestFargatetaskA755E0CE\",\"containerName\":\"runner\",\"capacityProvider\":\"FARGATE\",\"enableExecuteCommand\":true,\"subnets\":[\"${__sfnsub_12}\",\"${__sfnsub_13}\"],\"securityGroups\":[\"${__sfnsub_14}\"],\"assignPublicIp\":\"ENABLED\",\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/Fargate\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]},\"github-runners-test/Fargate-x64-spot distribute\":{\"totalWeight\":5,\"distribute\":[{\"threshold\":3,\"config\":{\"family\":\"fargate\",\"provider\":\"github-runners-test/Fargate-x64-spot subnet 1\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestFargatex64spotsubnet1taskB7FA8E3F\",\"containerName\":\"runner\",\"capacityProvider\":\"FARGATE_SPOT\",\"enableExecuteCommand\":true,\"subnets\":[\"${__sfnsub_13}\"],\"securityGroups\":[\"${__sfnsub_14}\"],\"assignPublicIp\":\"ENABLED\",\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/Fargate-x64-spot subnet 1\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]}},{\"threshold\":5,\"config\":{\"family\":\"fargate\",\"provider\":\"github-runners-test/Fargate-x64-spot subnet 2\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestFargatex64spotsubnet2task0D9BF116\",\"containerName\":\"runner\",\"capacityProvider\":\"FARGATE_SPOT\",\"enableExecuteCommand\":true,\"subnets\":[\"${__sfnsub_12}\"],\"securityGroups\":[\"${__sfnsub_14}\"],\"assignPublicIp\":\"ENABLED\",\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/Fargate-x64-spot subnet 2\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]}}]},\"github-runners-test/Fargate-arm64\":{\"family\":\"fargate\",\"provider\":\"github-runners-test/Fargate-arm64\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestFargatearm64task6B95C05B\",\"containerName\":\"runner\",\"capacityProvider\":\"FARGATE\",\"enableExecuteCommand\":true,\"subnets\":[\"${__sfnsub_12}\",\"${__sfnsub_13}\"],\"securityGroups\":[\"${__sfnsub_14}\"],\"assignPublicIp\":\"ENABLED\",\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/Fargate-arm64\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"]},\"github-runners-test/Fargate-arm64-spot\":{\"family\":\"fargate\",\"provider\":\"github-runners-test/Fargate-arm64-spot\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestFargatearm64spottaskF9ADF192\",\"containerName\":\"runner\",\"capacityProvider\":\"FARGATE_SPOT\",\"enableExecuteCommand\":true,\"subnets\":[\"${__sfnsub_12}\",\"${__sfnsub_13}\"],\"securityGroups\":[\"${__sfnsub_14}\"],\"assignPublicIp\":\"ENABLED\",\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/Fargate-arm64-spot\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"]},\"github-runners-test/Fargate-Windows\":{\"family\":\"fargate\",\"provider\":\"github-runners-test/Fargate-Windows\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestFargateWindowstask95BB2245\",\"containerName\":\"runner\",\"capacityProvider\":\"FARGATE\",\"enableExecuteCommand\":false,\"subnets\":[\"${__sfnsub_12}\",\"${__sfnsub_13}\"],\"securityGroups\":[\"${__sfnsub_14}\"],\"assignPublicIp\":\"ENABLED\",\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/Fargate-Windows\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Windows\",\"X64\"]},\"github-runners-test/EC2 Fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Linux\",\"launchTemplateId\":\"${__sfnsub_15}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_14}\"],\"instanceProfileArn\":\"${__sfnsub_16}\",\"logGroupName\":\"${__sfnsub_17}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_18}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":40,\"VolumeType\":\"gp3\",\"Iops\":3000,\"Throughput\":200}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"subnet\":\"${__sfnsub_12}\",\"fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Linux\",\"launchTemplateId\":\"${__sfnsub_15}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_14}\"],\"instanceProfileArn\":\"${__sfnsub_16}\",\"logGroupName\":\"${__sfnsub_17}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_18}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":40,\"VolumeType\":\"gp3\",\"Iops\":3000,\"Throughput\":200}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"subnet\":\"${__sfnsub_13}\",\"fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Linux 2\",\"launchTemplateId\":\"${__sfnsub_15}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_14}\"],\"instanceProfileArn\":\"${__sfnsub_19}\",\"logGroupName\":\"${__sfnsub_20}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_21}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":40,\"VolumeType\":\"gp3\",\"Iops\":3000,\"Throughput\":200}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"subnet\":\"${__sfnsub_12}\",\"fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Linux 2\",\"launchTemplateId\":\"${__sfnsub_15}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_14}\"],\"instanceProfileArn\":\"${__sfnsub_19}\",\"logGroupName\":\"${__sfnsub_20}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_21}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":40,\"VolumeType\":\"gp3\",\"Iops\":3000,\"Throughput\":200}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"subnet\":\"${__sfnsub_13}\"}}}},\"github-runners-test/EC2 Spot Linux\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Spot Linux\",\"launchTemplateId\":\"${__sfnsub_15}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_14}\"],\"instanceProfileArn\":\"${__sfnsub_22}\",\"logGroupName\":\"${__sfnsub_23}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_24}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":40}}],\"instanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"subnet\":\"${__sfnsub_12}\",\"fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Spot Linux\",\"launchTemplateId\":\"${__sfnsub_15}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_14}\"],\"instanceProfileArn\":\"${__sfnsub_22}\",\"logGroupName\":\"${__sfnsub_23}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_24}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":40}}],\"instanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"subnet\":\"${__sfnsub_13}\"}},\"github-runners-test/EC2 Linux arm64\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Linux arm64\",\"launchTemplateId\":\"${__sfnsub_25}\",\"instanceType\":\"m6g.large\",\"securityGroupIds\":[\"${__sfnsub_14}\"],\"instanceProfileArn\":\"${__sfnsub_26}\",\"logGroupName\":\"${__sfnsub_27}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_28}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"],\"subnet\":\"${__sfnsub_12}\",\"fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Linux arm64\",\"launchTemplateId\":\"${__sfnsub_25}\",\"instanceType\":\"m6g.large\",\"securityGroupIds\":[\"${__sfnsub_14}\"],\"instanceProfileArn\":\"${__sfnsub_26}\",\"logGroupName\":\"${__sfnsub_27}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_28}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"],\"subnet\":\"${__sfnsub_13}\"}},\"github-runners-test/EC2 Windows\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Windows\",\"launchTemplateId\":\"${__sfnsub_29}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_14}\"],\"instanceProfileArn\":\"${__sfnsub_30}\",\"logGroupName\":\"${__sfnsub_31}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_32}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":1,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Windows\",\"X64\"],\"subnet\":\"${__sfnsub_12}\",\"fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Windows\",\"launchTemplateId\":\"${__sfnsub_29}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_14}\"],\"instanceProfileArn\":\"${__sfnsub_30}\",\"logGroupName\":\"${__sfnsub_31}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_32}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":1,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Windows\",\"X64\"],\"subnet\":\"${__sfnsub_13}\"}}},\"ec2UserDataLinux\":\"#!/bin/bash\\ntrap 'sleep 10; poweroff' EXIT # give cloudwatch agent 10 seconds to upload logs and ALWAYS poweroff on any type of exit\\n\\nset -x -o pipefail\\n\\necho -n \\\"{}\\\" > /tmp/task-token # aws cli reads --task-token from here so set -x doesn't log it\\nchmod 600 /tmp/task-token\\n\\nlogGroupName=\\\"{}\\\"\\nrunnerNamePath=\\\"{}\\\"\\ngithubDomainPath=\\\"{}\\\"\\nownerPath=\\\"{}\\\"\\nrepoPath=\\\"{}\\\"\\nexport ACTIONS_RUNNER_INPUT_JITCONFIG=\\\"{}\\\" # run.sh reads --jitconfig from here so set -x doesn't log it\\nlabels=\\\"{}\\\"\\n\\nexport AWS_RETRY_MODE=standard # better retry\\ntouch /var/log/runner.log\\n\\nheartbeat () \\\\{\\n  while true; do\\n    SPOT_ACTION=$(curl -s -f -H \\\"X-aws-ec2-metadata-token: $(curl -s -f -X PUT \\\"http://169.254.169.254/latest/api/token\\\" -H \\\"X-aws-ec2-metadata-token-ttl-seconds: 1\\\" 2>/dev/null)\\\" \\\"http://169.254.169.254/latest/meta-data/spot/instance-action\\\" 2>/dev/null) || true\\n    if [ -n \\\"$SPOT_ACTION\\\" ]; then\\n      aws stepfunctions send-task-failure --task-token file:///tmp/task-token --error SpotInterrupted --cause \\\"EC2 Spot instance interruption: $SPOT_ACTION\\\" || true\\n      exit 0\\n    fi\\n    aws stepfunctions send-task-heartbeat --task-token file:///tmp/task-token\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || return 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\},\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/workflow.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath-workflow\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || return 2\\n\\\\}\\naction () \\\\{\\n  # Report workflow id for stolen runner detection (to separate log so it doesn't hang this bash function)\\n  /home/runner/job-reporter.sh \\\"$runnerNamePath\\\" /var/log/workflow.log\\n\\n  # Execute the run command\\n  sudo --preserve-env=ACTIONS_RUNNER_INPUT_JITCONFIG,AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\n  # Retrieve the status\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f-]+ with result: .*\\\" /home/runner/_diag/ | tail -n1 | awk '\\\\{print $NF\\\\}')\\n\\n  # Check and print the job status\\n  if [ -n \\\"$STATUS\\\" ]; then\\n    echo CDKGHA JOB DONE \\\"$labels\\\" \\\"$STATUS\\\"\\n  fi\\n\\\\}\\nheartbeat &\\n\\nsetup_logs\\nsetup_logs_status=$?\\nif [ $setup_logs_status -ne 0 ]; then\\n  aws stepfunctions send-task-failure --task-token file:///tmp/task-token --error Runner.SetupLogs.$setup_logs_status --cause \\\"Failed to configure CloudWatch agent (exit $setup_logs_status), no runner log was uploaded\\\"\\nelif action |& tee /var/log/runner.log; then\\n  aws stepfunctions send-task-success --task-token file:///tmp/task-token --task-output '\\\\{\\\"ok\\\": true\\\\}' |& tee -a /var/log/runner.log\\nelse\\n  aws stepfunctions send-task-failure --task-token file:///tmp/task-token --error Runner.Error.$? --cause \\\"Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $(tail -n 1 /var/log/runner.log)\\\" |& tee -a /var/log/runner.log\\nfi\\n\",\"ec2UserDataWindows\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\n$logGroupName=\\\"{}\\\"\\n$runnerNamePath=\\\"{}\\\"\\n$githubDomainPath=\\\"{}\\\"\\n$ownerPath=\\\"{}\\\"\\n$repoPath=\\\"{}\\\"\\n$jitConfig=\\\"{}\\\"\\n$labels=\\\"{}\\\"\\n\\n$Env:AWS_RETRY_MODE = \\\"standard\\\"  # better retry\\n\\n# EC2Launch only starts ssm agent after user data is done, so we need to start it ourselves (it is disabled by default)\\nSet-Service -StartupType Manual AmazonSSMAgent\\nStart-Service AmazonSSMAgent\\n\\n$HeartbeatParentPid = $PID\\nStart-Job -ScriptBlock \\\\{\\n  while ($true) \\\\{\\n    try \\\\{\\n      $spot = Invoke-RestMethod -Uri \\\"http://169.254.169.254/latest/meta-data/spot/instance-action\\\" -Headers @\\\\{\\\"X-aws-ec2-metadata-token\\\"=(Invoke-RestMethod -Method PUT -Uri \\\"http://169.254.169.254/latest/api/token\\\" -Headers @\\\\{\\\"X-aws-ec2-metadata-token-ttl-seconds\\\"=\\\"1\\\"\\\\} -TimeoutSec 2)\\\\} -TimeoutSec 2\\n      $spotJson = if ($spot -is [string]) \\\\{ $spot \\\\} else \\\\{ $spot | ConvertTo-Json -Compress \\\\}\\n      aws stepfunctions send-task-failure --task-token \\\"$using:TASK_TOKEN\\\" --error SpotInterrupted --cause \\\"EC2 Spot instance interruption: $spotJson\\\"\\n      break\\n    \\\\} catch \\\\{\\n    \\\\}\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    Start-Sleep -Seconds 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  # the runner report can't go in runner.log: run.cmd's Out-File holds that file open for as long as the runner is\\n  # running, which is exactly when the report is written. one file per stream, so it gets its own stream. the\\n  # subscription filter is on the log group, so the detector doesn't care.\\n  echo \\\"\\\\{\\n    `\\\"logs`\\\": \\\\{\\n      `\\\"log_stream_name`\\\": `\\\"unknown`\\\",\\n      `\\\"logs_collected`\\\": \\\\{\\n        `\\\"files`\\\": \\\\{\\n         `\\\"collect_list`\\\": [\\n            \\\\{\\n              `\\\"file_path`\\\": `\\\"/actions/runner.log`\\\",\\n              `\\\"log_group_name`\\\": `\\\"$logGroupName`\\\",\\n              `\\\"log_stream_name`\\\": `\\\"$runnerNamePath`\\\",\\n              `\\\"timezone`\\\": `\\\"UTC`\\\"\\n            \\\\},\\n            \\\\{\\n              `\\\"file_path`\\\": `\\\"/actions/workflow.log`\\\",\\n              `\\\"log_group_name`\\\": `\\\"$logGroupName`\\\",\\n              `\\\"log_stream_name`\\\": `\\\"$runnerNamePath-workflow`\\\",\\n              `\\\"timezone`\\\": `\\\"UTC`\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\\" | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n\\n  & ./job-reporter.ps1 \\\"$\\\\{runnerNamePath\\\\}\\\" /actions/workflow.log 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n\\n  ./run.cmd --jitconfig \\\"$\\\\{jitConfig\\\\}\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n\\n  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\\\\\-]+ with result: (.*)' | %\\\\{$_.Matches.Groups[1].Value\\\\} | Select-Object -Last 1\\n\\n  if ($STATUS) \\\\{\\n      echo \\\"CDKGHA JOB DONE $\\\\{labels\\\\} $STATUS\\\" | Out-File -Encoding ASCII -Append /actions/runner.log\\n  \\\\}\\n\\n  return 0\\n\\\\}\\ntry \\\\{\\n  setup_logs\\n  $setupLogsStatus = $LASTEXITCODE\\n  if ($setupLogsStatus -ne 0) \\\\{\\n    aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\" --error Runner.SetupLogs.$setupLogsStatus --cause \\\"Failed to configure CloudWatch agent (exit $setupLogsStatus), no runner log was uploaded\\\"\\n    return\\n  \\\\}\\n  $r = action\\n  if ($r -eq 0) \\\\{\\n    aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}' 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  \\\\} else \\\\{\\n    $lastLine = Get-Content -Path C:/actions/runner.log -Tail 1 -ErrorAction SilentlyContinue\\n    aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\" --error Runner.Error.$r --cause \\\"Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $lastLine\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  \\\\}\\n\\\\} finally \\\\{\\n  Start-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\n  Stop-Computer -ComputerName localhost -Force\\n\\\\}\\n</powershell>\\n\"}},\"Run Providers\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"RunnerNotDeleted\"],\"MaxAttempts\":0},{\"ErrorEquals\":[\"States.ALL\"],\"IntervalSeconds\":60,\"MaxAttempts\":210,\"BackoffRate\":2,\"MaxDelaySeconds\":900,\"JitterStrategy\":\"FULL\"}],\"Branches\":[{\"StartAt\":\"Select Provider Config\",\"States\":{\"Select Provider Config\":{\"Type\":\"Pass\",\"QueryLanguage\":\"JSONata\",\"Output\":\"{% $merge([\\n    $states.input,\\n    {'providerParams': (\\n      $selected := $lookup($providerConfigs, $states.input.provider);\\n      $r := $random() * $selected.totalWeight;\\n      $config := $exists($selected.distribute) ? $selected.distribute[threshold > $r][0].config : $selected;\\n      $merge([{'family': 'provider not found', 'runnerGroup': '', 'defaultLabels': []}, $config, {'tags': $append(\\n        [\\n          {'Key': 'Name', 'Value': $states.context.Execution.Name},\\n          {'Key': 'GitHubRunners:Stack', 'Value': 'github-runners-test'},\\n          {'Key': 'GitHubRunners:Provider', 'Value': $config.provider},\\n          {'Key': 'GitHubRunners:Repo', 'Value': $states.input.owner & '/' & $states.input.repo},\\n          {'Key': 'GitHubRunners:Labels', 'Value': $config.cleanLabels ? $replace($join($split($states.input.labels, ','), ' '), /[^A-Za-z0-9 _.:\\\\/=+@-]/, '_') : $states.input.labels},\\n          {'Key': 'GitHubRunners:Runner', 'Value': $states.context.Execution.Name}\\n        ][$not(Key in $config.tags.Key)],\\n        $config.tags)}])\\n    )}\\n  ]) %}\",\"Next\":\"Get Runner Token\"},\"Get Runner Token\":{\"Next\":\"Try Provider\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
+       ":states:::sqs:sendMessage\"},\"Load Config\":{\"Type\":\"Pass\",\"Next\":\"Run Providers\",\"Assign\":{\"providerConfigs\":{\"github-runners-test/CodeBuildx64\":{\"family\":\"codebuild\",\"provider\":\"github-runners-test/CodeBuildx64\",\"projectName\":\"${__sfnsub_0}\",\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]},\"github-runners-test/CodeBuildUbuntu2404x64\":{\"family\":\"codebuild\",\"provider\":\"github-runners-test/CodeBuildUbuntu2404x64\",\"projectName\":\"${__sfnsub_1}\",\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]},\"github-runners-test/CodeBuildARM\":{\"family\":\"codebuild\",\"provider\":\"github-runners-test/CodeBuildARM\",\"projectName\":\"${__sfnsub_2}\",\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"]},\"github-runners-test/CodeBuildWindows\":{\"family\":\"codebuild\",\"provider\":\"github-runners-test/CodeBuildWindows\",\"projectName\":\"${__sfnsub_3}\",\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Windows\",\"X64\"]},\"github-runners-test/ECS Fallback\":{\"family\":\"ecs\",\"provider\":\"github-runners-test/ECS Spot\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestECSSpottask94D7F678\",\"containerName\":\"runner\",\"capacityProviderName\":\"${__sfnsub_5}\",\"enableExecuteCommand\":true,\"placementStrategies\":[],\"placementConstraints\":[],\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/ECS Spot\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"fallback\":{\"family\":\"ecs\",\"provider\":\"github-runners-test/ECS Non-Spot\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestECSNonSpottask5BD3595F\",\"containerName\":\"runner\",\"capacityProviderName\":\"${__sfnsub_6}\",\"enableExecuteCommand\":true,\"placementStrategies\":[],\"placementConstraints\":[],\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/ECS Non-Spot\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]}},\"github-runners-test/ECS Ubuntu 2404\":{\"family\":\"ecs\",\"provider\":\"github-runners-test/ECS Ubuntu 2404\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestECSUbuntu2404taskB7D564C7\",\"containerName\":\"runner\",\"capacityProviderName\":\"${__sfnsub_7}\",\"enableExecuteCommand\":true,\"placementStrategies\":[],\"placementConstraints\":[],\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/ECS Ubuntu 2404\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]},\"github-runners-test/ECS ARM64\":{\"family\":\"ecs\",\"provider\":\"github-runners-test/ECS ARM64\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestECSARM64taskE94E43A3\",\"containerName\":\"runner\",\"capacityProviderName\":\"${__sfnsub_8}\",\"enableExecuteCommand\":true,\"placementStrategies\":[],\"placementConstraints\":[],\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/ECS ARM64\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"]},\"github-runners-test/ECS Windows\":{\"family\":\"ecs\",\"provider\":\"github-runners-test/ECS Windows\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestECSWindowstask6B1D5861\",\"containerName\":\"runner\",\"capacityProviderName\":\"${__sfnsub_9}\",\"enableExecuteCommand\":false,\"placementStrategies\":[],\"placementConstraints\":[],\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/ECS Windows\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Windows\",\"X64\"]},\"github-runners-test/Lambda\":{\"family\":\"lambda\",\"provider\":\"github-runners-test/Lambda\",\"functionArn\":\"${__sfnsub_10}\",\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]},\"github-runners-test/CodeBuild Warm\":{\"family\":\"codebuild\",\"provider\":\"github-runners-test/CodeBuild Warm\",\"projectName\":\"${__sfnsub_11}\",\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]},\"github-runners-test/LambdaARM\":{\"family\":\"lambda\",\"provider\":\"github-runners-test/LambdaARM\",\"functionArn\":\"${__sfnsub_12}\",\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"]},\"github-runners-test/Fargate\":{\"family\":\"fargate\",\"provider\":\"github-runners-test/Fargate\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestFargatetaskA755E0CE\",\"containerName\":\"runner\",\"capacityProvider\":\"FARGATE\",\"enableExecuteCommand\":true,\"subnets\":[\"${__sfnsub_13}\",\"${__sfnsub_14}\"],\"securityGroups\":[\"${__sfnsub_15}\"],\"assignPublicIp\":\"ENABLED\",\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/Fargate\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]},\"github-runners-test/Fargate-x64-spot distribute\":{\"totalWeight\":5,\"distribute\":[{\"threshold\":3,\"config\":{\"family\":\"fargate\",\"provider\":\"github-runners-test/Fargate-x64-spot subnet 1\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestFargatex64spotsubnet1taskB7FA8E3F\",\"containerName\":\"runner\",\"capacityProvider\":\"FARGATE_SPOT\",\"enableExecuteCommand\":true,\"subnets\":[\"${__sfnsub_14}\"],\"securityGroups\":[\"${__sfnsub_15}\"],\"assignPublicIp\":\"ENABLED\",\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/Fargate-x64-spot subnet 1\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]}},{\"threshold\":5,\"config\":{\"family\":\"fargate\",\"provider\":\"github-runners-test/Fargate-x64-spot subnet 2\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestFargatex64spotsubnet2task0D9BF116\",\"containerName\":\"runner\",\"capacityProvider\":\"FARGATE_SPOT\",\"enableExecuteCommand\":true,\"subnets\":[\"${__sfnsub_13}\"],\"securityGroups\":[\"${__sfnsub_15}\"],\"assignPublicIp\":\"ENABLED\",\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/Fargate-x64-spot subnet 2\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"]}}]},\"github-runners-test/Fargate-arm64\":{\"family\":\"fargate\",\"provider\":\"github-runners-test/Fargate-arm64\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestFargatearm64task6B95C05B\",\"containerName\":\"runner\",\"capacityProvider\":\"FARGATE\",\"enableExecuteCommand\":true,\"subnets\":[\"${__sfnsub_13}\",\"${__sfnsub_14}\"],\"securityGroups\":[\"${__sfnsub_15}\"],\"assignPublicIp\":\"ENABLED\",\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/Fargate-arm64\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"]},\"github-runners-test/Fargate-arm64-spot\":{\"family\":\"fargate\",\"provider\":\"github-runners-test/Fargate-arm64-spot\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestFargatearm64spottaskF9ADF192\",\"containerName\":\"runner\",\"capacityProvider\":\"FARGATE_SPOT\",\"enableExecuteCommand\":true,\"subnets\":[\"${__sfnsub_13}\",\"${__sfnsub_14}\"],\"securityGroups\":[\"${__sfnsub_15}\"],\"assignPublicIp\":\"ENABLED\",\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/Fargate-arm64-spot\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"]},\"github-runners-test/Fargate-Windows\":{\"family\":\"fargate\",\"provider\":\"github-runners-test/Fargate-Windows\",\"clusterArn\":\"${__sfnsub_4}\",\"taskDefinitionFamily\":\"githubrunnerstestFargateWindowstask95BB2245\",\"containerName\":\"runner\",\"capacityProvider\":\"FARGATE\",\"enableExecuteCommand\":false,\"subnets\":[\"${__sfnsub_13}\",\"${__sfnsub_14}\"],\"securityGroups\":[\"${__sfnsub_15}\"],\"assignPublicIp\":\"ENABLED\",\"tags\":[{\"Key\":\"GitHubRunners:Provider\",\"Value\":\"github-runners-test/Fargate-Windows\"}],\"cleanLabels\":true,\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Windows\",\"X64\"]},\"github-runners-test/EC2 Fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Linux\",\"launchTemplateId\":\"${__sfnsub_16}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_15}\"],\"instanceProfileArn\":\"${__sfnsub_17}\",\"logGroupName\":\"${__sfnsub_18}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_19}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":40,\"VolumeType\":\"gp3\",\"Iops\":3000,\"Throughput\":200}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"subnet\":\"${__sfnsub_13}\",\"fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Linux\",\"launchTemplateId\":\"${__sfnsub_16}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_15}\"],\"instanceProfileArn\":\"${__sfnsub_17}\",\"logGroupName\":\"${__sfnsub_18}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_19}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":40,\"VolumeType\":\"gp3\",\"Iops\":3000,\"Throughput\":200}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"subnet\":\"${__sfnsub_14}\",\"fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Linux 2\",\"launchTemplateId\":\"${__sfnsub_16}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_15}\"],\"instanceProfileArn\":\"${__sfnsub_20}\",\"logGroupName\":\"${__sfnsub_21}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_22}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":40,\"VolumeType\":\"gp3\",\"Iops\":3000,\"Throughput\":200}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"subnet\":\"${__sfnsub_13}\",\"fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Linux 2\",\"launchTemplateId\":\"${__sfnsub_16}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_15}\"],\"instanceProfileArn\":\"${__sfnsub_20}\",\"logGroupName\":\"${__sfnsub_21}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_22}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":40,\"VolumeType\":\"gp3\",\"Iops\":3000,\"Throughput\":200}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"subnet\":\"${__sfnsub_14}\"}}}},\"github-runners-test/EC2 Spot Linux\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Spot Linux\",\"launchTemplateId\":\"${__sfnsub_16}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_15}\"],\"instanceProfileArn\":\"${__sfnsub_23}\",\"logGroupName\":\"${__sfnsub_24}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_25}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":40}}],\"instanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"subnet\":\"${__sfnsub_13}\",\"fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Spot Linux\",\"launchTemplateId\":\"${__sfnsub_16}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_15}\"],\"instanceProfileArn\":\"${__sfnsub_23}\",\"logGroupName\":\"${__sfnsub_24}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_25}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":40}}],\"instanceMarketOptions\":{\"MarketType\":\"spot\",\"SpotOptions\":{\"SpotInstanceType\":\"one-time\"}},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"X64\"],\"subnet\":\"${__sfnsub_14}\"}},\"github-runners-test/EC2 Linux arm64\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Linux arm64\",\"launchTemplateId\":\"${__sfnsub_26}\",\"instanceType\":\"m6g.large\",\"securityGroupIds\":[\"${__sfnsub_15}\"],\"instanceProfileArn\":\"${__sfnsub_27}\",\"logGroupName\":\"${__sfnsub_28}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_29}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"],\"subnet\":\"${__sfnsub_13}\",\"fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Linux arm64\",\"launchTemplateId\":\"${__sfnsub_26}\",\"instanceType\":\"m6g.large\",\"securityGroupIds\":[\"${__sfnsub_15}\"],\"instanceProfileArn\":\"${__sfnsub_27}\",\"logGroupName\":\"${__sfnsub_28}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_29}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":0,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Linux\",\"ARM64\"],\"subnet\":\"${__sfnsub_14}\"}},\"github-runners-test/EC2 Windows\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Windows\",\"launchTemplateId\":\"${__sfnsub_30}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_15}\"],\"instanceProfileArn\":\"${__sfnsub_31}\",\"logGroupName\":\"${__sfnsub_32}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_33}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":1,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Windows\",\"X64\"],\"subnet\":\"${__sfnsub_13}\",\"fallback\":{\"family\":\"ec2\",\"provider\":\"github-runners-test/EC2 Windows\",\"launchTemplateId\":\"${__sfnsub_30}\",\"instanceType\":\"m6i.large\",\"securityGroupIds\":[\"${__sfnsub_15}\"],\"instanceProfileArn\":\"${__sfnsub_31}\",\"logGroupName\":\"${__sfnsub_32}\",\"blockDeviceMappings\":[{\"DeviceName\":\"${__sfnsub_33}\",\"Ebs\":{\"DeleteOnTermination\":true,\"VolumeSize\":30}}],\"instanceMarketOptions\":{},\"userDataTemplateIdx\":1,\"tags\":[],\"runnerGroup\":\"\",\"defaultLabels\":[\"self-hosted\",\"Windows\",\"X64\"],\"subnet\":\"${__sfnsub_14}\"}}},\"ec2UserDataLinux\":\"#!/bin/bash\\ntrap 'sleep 10; poweroff' EXIT # give cloudwatch agent 10 seconds to upload logs and ALWAYS poweroff on any type of exit\\n\\nset -x -o pipefail\\n\\necho -n \\\"{}\\\" > /tmp/task-token # aws cli reads --task-token from here so set -x doesn't log it\\nchmod 600 /tmp/task-token\\n\\nlogGroupName=\\\"{}\\\"\\nrunnerNamePath=\\\"{}\\\"\\ngithubDomainPath=\\\"{}\\\"\\nownerPath=\\\"{}\\\"\\nrepoPath=\\\"{}\\\"\\nexport ACTIONS_RUNNER_INPUT_JITCONFIG=\\\"{}\\\" # run.sh reads --jitconfig from here so set -x doesn't log it\\nlabels=\\\"{}\\\"\\n\\nexport AWS_RETRY_MODE=standard # better retry\\ntouch /var/log/runner.log\\n\\nheartbeat () \\\\{\\n  while true; do\\n    SPOT_ACTION=$(curl -s -f -H \\\"X-aws-ec2-metadata-token: $(curl -s -f -X PUT \\\"http://169.254.169.254/latest/api/token\\\" -H \\\"X-aws-ec2-metadata-token-ttl-seconds: 1\\\" 2>/dev/null)\\\" \\\"http://169.254.169.254/latest/meta-data/spot/instance-action\\\" 2>/dev/null) || true\\n    if [ -n \\\"$SPOT_ACTION\\\" ]; then\\n      aws stepfunctions send-task-failure --task-token file:///tmp/task-token --error SpotInterrupted --cause \\\"EC2 Spot instance interruption: $SPOT_ACTION\\\" || true\\n      exit 0\\n    fi\\n    aws stepfunctions send-task-heartbeat --task-token file:///tmp/task-token\\n    sleep 60\\n  done\\n\\\\}\\nsetup_logs () \\\\{\\n  cat <<EOF > /tmp/log.conf || return 1\\n  \\\\{\\n    \\\"logs\\\": \\\\{\\n      \\\"log_stream_name\\\": \\\"unknown\\\",\\n      \\\"logs_collected\\\": \\\\{\\n        \\\"files\\\": \\\\{\\n          \\\"collect_list\\\": [\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/runner.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\},\\n            \\\\{\\n              \\\"file_path\\\": \\\"/var/log/workflow.log\\\",\\n              \\\"log_group_name\\\": \\\"$logGroupName\\\",\\n              \\\"log_stream_name\\\": \\\"$runnerNamePath-workflow\\\",\\n              \\\"timezone\\\": \\\"UTC\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\nEOF\\n  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || return 2\\n\\\\}\\naction () \\\\{\\n  # Report workflow id for stolen runner detection (to separate log so it doesn't hang this bash function)\\n  /home/runner/job-reporter.sh \\\"$runnerNamePath\\\" /var/log/workflow.log\\n\\n  # Execute the run command\\n  sudo --preserve-env=ACTIONS_RUNNER_INPUT_JITCONFIG,AWS_REGION -Hu runner /home/runner/run.sh || exit 2\\n\\n  # Retrieve the status\\n  STATUS=$(grep -Phors \\\"finish job request for job [0-9a-f-]+ with result: .*\\\" /home/runner/_diag/ | tail -n1 | awk '\\\\{print $NF\\\\}')\\n\\n  # Check and print the job status\\n  if [ -n \\\"$STATUS\\\" ]; then\\n    echo CDKGHA JOB DONE \\\"$labels\\\" \\\"$STATUS\\\"\\n  fi\\n\\\\}\\nheartbeat &\\n\\nsetup_logs\\nsetup_logs_status=$?\\nif [ $setup_logs_status -ne 0 ]; then\\n  aws stepfunctions send-task-failure --task-token file:///tmp/task-token --error Runner.SetupLogs.$setup_logs_status --cause \\\"Failed to configure CloudWatch agent (exit $setup_logs_status), no runner log was uploaded\\\"\\nelif action |& tee /var/log/runner.log; then\\n  aws stepfunctions send-task-success --task-token file:///tmp/task-token --task-output '\\\\{\\\"ok\\\": true\\\\}' |& tee -a /var/log/runner.log\\nelse\\n  aws stepfunctions send-task-failure --task-token file:///tmp/task-token --error Runner.Error.$? --cause \\\"Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $(tail -n 1 /var/log/runner.log)\\\" |& tee -a /var/log/runner.log\\nfi\\n\",\"ec2UserDataWindows\":\"<powershell>\\n$TASK_TOKEN = \\\"{}\\\"\\n$logGroupName=\\\"{}\\\"\\n$runnerNamePath=\\\"{}\\\"\\n$githubDomainPath=\\\"{}\\\"\\n$ownerPath=\\\"{}\\\"\\n$repoPath=\\\"{}\\\"\\n$jitConfig=\\\"{}\\\"\\n$labels=\\\"{}\\\"\\n\\n$Env:AWS_RETRY_MODE = \\\"standard\\\"  # better retry\\n\\n# EC2Launch only starts ssm agent after user data is done, so we need to start it ourselves (it is disabled by default)\\nSet-Service -StartupType Manual AmazonSSMAgent\\nStart-Service AmazonSSMAgent\\n\\n$HeartbeatParentPid = $PID\\nStart-Job -ScriptBlock \\\\{\\n  while ($true) \\\\{\\n    try \\\\{\\n      $spot = Invoke-RestMethod -Uri \\\"http://169.254.169.254/latest/meta-data/spot/instance-action\\\" -Headers @\\\\{\\\"X-aws-ec2-metadata-token\\\"=(Invoke-RestMethod -Method PUT -Uri \\\"http://169.254.169.254/latest/api/token\\\" -Headers @\\\\{\\\"X-aws-ec2-metadata-token-ttl-seconds\\\"=\\\"1\\\"\\\\} -TimeoutSec 2)\\\\} -TimeoutSec 2\\n      $spotJson = if ($spot -is [string]) \\\\{ $spot \\\\} else \\\\{ $spot | ConvertTo-Json -Compress \\\\}\\n      aws stepfunctions send-task-failure --task-token \\\"$using:TASK_TOKEN\\\" --error SpotInterrupted --cause \\\"EC2 Spot instance interruption: $spotJson\\\"\\n      break\\n    \\\\} catch \\\\{\\n    \\\\}\\n    aws stepfunctions send-task-heartbeat --task-token \\\"$using:TASK_TOKEN\\\"\\n    Start-Sleep -Seconds 60\\n  \\\\}\\n\\\\}\\nfunction setup_logs () \\\\{\\n  # the runner report can't go in runner.log: run.cmd's Out-File holds that file open for as long as the runner is\\n  # running, which is exactly when the report is written. one file per stream, so it gets its own stream. the\\n  # subscription filter is on the log group, so the detector doesn't care.\\n  echo \\\"\\\\{\\n    `\\\"logs`\\\": \\\\{\\n      `\\\"log_stream_name`\\\": `\\\"unknown`\\\",\\n      `\\\"logs_collected`\\\": \\\\{\\n        `\\\"files`\\\": \\\\{\\n         `\\\"collect_list`\\\": [\\n            \\\\{\\n              `\\\"file_path`\\\": `\\\"/actions/runner.log`\\\",\\n              `\\\"log_group_name`\\\": `\\\"$logGroupName`\\\",\\n              `\\\"log_stream_name`\\\": `\\\"$runnerNamePath`\\\",\\n              `\\\"timezone`\\\": `\\\"UTC`\\\"\\n            \\\\},\\n            \\\\{\\n              `\\\"file_path`\\\": `\\\"/actions/workflow.log`\\\",\\n              `\\\"log_group_name`\\\": `\\\"$logGroupName`\\\",\\n              `\\\"log_stream_name`\\\": `\\\"$runnerNamePath-workflow`\\\",\\n              `\\\"timezone`\\\": `\\\"UTC`\\\"\\n            \\\\}\\n          ]\\n        \\\\}\\n      \\\\}\\n    \\\\}\\n  \\\\}\\\" | Out-File -Encoding ASCII $Env:TEMP/log.conf\\n  & \\\"C:/Program Files/Amazon/AmazonCloudWatchAgent/amazon-cloudwatch-agent-ctl.ps1\\\" -a fetch-config -m ec2 -s -c file:$Env:TEMP/log.conf\\n\\\\}\\nfunction action () \\\\{\\n  cd /actions\\n\\n  & ./job-reporter.ps1 \\\"$\\\\{runnerNamePath\\\\}\\\" /actions/workflow.log 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n\\n  ./run.cmd --jitconfig \\\"$\\\\{jitConfig\\\\}\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  if ($LASTEXITCODE -ne 0) \\\\{ return 2 \\\\}\\n\\n  $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\\\\\\\-]+ with result: (.*)' | %\\\\{$_.Matches.Groups[1].Value\\\\} | Select-Object -Last 1\\n\\n  if ($STATUS) \\\\{\\n      echo \\\"CDKGHA JOB DONE $\\\\{labels\\\\} $STATUS\\\" | Out-File -Encoding ASCII -Append /actions/runner.log\\n  \\\\}\\n\\n  return 0\\n\\\\}\\ntry \\\\{\\n  setup_logs\\n  $setupLogsStatus = $LASTEXITCODE\\n  if ($setupLogsStatus -ne 0) \\\\{\\n    aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\" --error Runner.SetupLogs.$setupLogsStatus --cause \\\"Failed to configure CloudWatch agent (exit $setupLogsStatus), no runner log was uploaded\\\"\\n    return\\n  \\\\}\\n  $r = action\\n  if ($r -eq 0) \\\\{\\n    aws stepfunctions send-task-success --task-token \\\"$TASK_TOKEN\\\" --task-output '\\\\{ \\\\}' 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  \\\\} else \\\\{\\n    $lastLine = Get-Content -Path C:/actions/runner.log -Tail 1 -ErrorAction SilentlyContinue\\n    aws stepfunctions send-task-failure --task-token \\\"$TASK_TOKEN\\\" --error Runner.Error.$r --cause \\\"Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $lastLine\\\" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log\\n  \\\\}\\n\\\\} finally \\\\{\\n  Start-Sleep -Seconds 10  # give cloudwatch agent its default 5 seconds buffer duration to upload logs\\n  Stop-Computer -ComputerName localhost -Force\\n\\\\}\\n</powershell>\\n\"}},\"Run Providers\":{\"Type\":\"Parallel\",\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"RunnerNotDeleted\"],\"MaxAttempts\":0},{\"ErrorEquals\":[\"States.ALL\"],\"IntervalSeconds\":60,\"MaxAttempts\":210,\"BackoffRate\":2,\"MaxDelaySeconds\":900,\"JitterStrategy\":\"FULL\"}],\"Branches\":[{\"StartAt\":\"Select Provider Config\",\"States\":{\"Select Provider Config\":{\"Type\":\"Pass\",\"QueryLanguage\":\"JSONata\",\"Output\":\"{% $merge([\\n    $states.input,\\n    {'providerParams': (\\n      $selected := $lookup($providerConfigs, $states.input.provider);\\n      $r := $random() * $selected.totalWeight;\\n      $config := $exists($selected.distribute) ? $selected.distribute[threshold > $r][0].config : $selected;\\n      $merge([{'family': 'provider not found', 'runnerGroup': '', 'defaultLabels': []}, $config, {'tags': $append(\\n        [\\n          {'Key': 'Name', 'Value': $states.context.Execution.Name},\\n          {'Key': 'GitHubRunners:Stack', 'Value': 'github-runners-test'},\\n          {'Key': 'GitHubRunners:Provider', 'Value': $config.provider},\\n          {'Key': 'GitHubRunners:Repo', 'Value': $states.input.owner & '/' & $states.input.repo},\\n          {'Key': 'GitHubRunners:Labels', 'Value': $config.cleanLabels ? $replace($join($split($states.input.labels, ','), ' '), /[^A-Za-z0-9 _.:\\\\/=+@-]/, '_') : $states.input.labels},\\n          {'Key': 'GitHubRunners:Runner', 'Value': $states.context.Execution.Name}\\n        ][$not(Key in $config.tags.Key)],\\n        $config.tags)}])\\n    )}\\n  ]) %}\",\"Next\":\"Get Runner Token\"},\"Get Runner Token\":{\"Next\":\"Try Provider\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.runner\",\"Resource\":\"",
        {
         "Fn::GetAtt": [
          "runnerstokenretrieverD5E8392A",
@@ -16736,90 +17240,93 @@
       ]
      },
      "__sfnsub_11": {
+      "Ref": "CodeBuildWarmCodeBuild12341B34"
+     },
+     "__sfnsub_12": {
       "Fn::GetAtt": [
        "LambdaARMFunctionDD4B5FF7",
        "Arn"
       ]
      },
-     "__sfnsub_12": {
+     "__sfnsub_13": {
       "Ref": "VpcPublicSubnet1Subnet5C2D37C4"
      },
-     "__sfnsub_13": {
+     "__sfnsub_14": {
       "Ref": "VpcPublicSubnet2Subnet691E08A3"
      },
-     "__sfnsub_14": {
+     "__sfnsub_15": {
       "Fn::GetAtt": [
        "SGADB53937",
        "GroupId"
       ]
      },
-     "__sfnsub_15": {
+     "__sfnsub_16": {
       "Ref": "AMILinuxBuilderLaunchtemplateA29452C4"
      },
-     "__sfnsub_16": {
+     "__sfnsub_17": {
       "Fn::GetAtt": [
        "EC2LinuxInstanceProfile2D2BB473",
        "Arn"
       ]
      },
-     "__sfnsub_17": {
+     "__sfnsub_18": {
       "Ref": "EC2LinuxLogsC4CD8F14"
      },
-     "__sfnsub_18": {
+     "__sfnsub_19": {
       "Ref": "EC2LinuxAMIRootDevice26D5E56E"
      },
-     "__sfnsub_19": {
+     "__sfnsub_20": {
       "Fn::GetAtt": [
        "EC2Linux2InstanceProfile03409581",
        "Arn"
       ]
      },
-     "__sfnsub_20": {
+     "__sfnsub_21": {
       "Ref": "EC2Linux2Logs666ED658"
      },
-     "__sfnsub_21": {
+     "__sfnsub_22": {
       "Ref": "EC2Linux2AMIRootDeviceE323C433"
      },
-     "__sfnsub_22": {
+     "__sfnsub_23": {
       "Fn::GetAtt": [
        "EC2SpotLinuxInstanceProfileB12320D4",
        "Arn"
       ]
      },
-     "__sfnsub_23": {
+     "__sfnsub_24": {
       "Ref": "EC2SpotLinuxLogsF78D5F0E"
      },
-     "__sfnsub_24": {
+     "__sfnsub_25": {
       "Ref": "EC2SpotLinuxAMIRootDeviceC8A06843"
      },
-     "__sfnsub_25": {
+     "__sfnsub_26": {
       "Ref": "AMILinuxarm64BuilderLaunchtemplate8F5EFF44"
      },
-     "__sfnsub_26": {
+     "__sfnsub_27": {
       "Fn::GetAtt": [
        "EC2Linuxarm64InstanceProfile1E6F8D53",
        "Arn"
       ]
      },
-     "__sfnsub_27": {
+     "__sfnsub_28": {
       "Ref": "EC2Linuxarm64Logs577E371E"
      },
-     "__sfnsub_28": {
+     "__sfnsub_29": {
       "Ref": "EC2Linuxarm64AMIRootDevice3046D37D"
      },
-     "__sfnsub_29": {
+     "__sfnsub_30": {
       "Ref": "WindowsEC2BuilderLaunchtemplate0A66E9C2"
      },
-     "__sfnsub_30": {
+     "__sfnsub_31": {
       "Fn::GetAtt": [
        "EC2WindowsInstanceProfileDCA59D9C",
        "Arn"
       ]
      },
-     "__sfnsub_31": {
+     "__sfnsub_32": {
       "Ref": "EC2WindowsLogsDC1F2ABF"
      },
-     "__sfnsub_32": {
+     "__sfnsub_33": {
       "Ref": "EC2WindowsAMIRootDevice9FFC971A"
      }
     },
@@ -17335,6 +17842,24 @@
     "runnersStolenRunnersHandlerRunnerReports7D72FE8C"
    ]
   },
+  "runnersStolenRunnersRunnerReportsc8e72eb11211B7F7": {
+   "Type": "AWS::Logs::SubscriptionFilter",
+   "Properties": {
+    "DestinationArn": {
+     "Fn::GetAtt": [
+      "runnersStolenRunnersHandler70049240",
+      "Arn"
+     ]
+    },
+    "FilterPattern": "\"CDKGHR JOB RUNNER=\"",
+    "LogGroupName": {
+     "Ref": "CodeBuildWarmLogsD47CE0E3"
+    }
+   },
+   "DependsOn": [
+    "runnersStolenRunnersHandlerRunnerReports7D72FE8C"
+   ]
+  },
   "runnersStolenRunnersRunnerReportsc85b686bD3C7DE63": {
    "Type": "AWS::Logs::SubscriptionFilter",
    "Properties": {
@@ -17558,7 +18083,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "9285a5b7b36c2801d52a972faa2adc41eee2814adb772b50670925757d70e108.zip"
+     "S3Key": "92f0fe1eaf3e7f09b04d75ebc9fb51e1e30129711dd004aca9557d7e603ef73c.zip"
     },
     "Description": "Runner providers and their labels"
    }
@@ -17728,7 +18253,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "977f579eb4e00d088b09279554e47a283b43d188cccbe9e879d09079ce894019.zip"
+     "S3Key": "4a23b317db6188703b2f940e16d0b1da2561b9df7b402baca78581b771a951b1.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -19376,6 +19901,76 @@
       }
      },
      {
+      "type": "CodeBuildRunnerProvider",
+      "labels": [
+       "integ-warm"
+      ],
+      "constructPath": "github-runners-test/CodeBuild Warm",
+      "roleArn": {
+       "Fn::GetAtt": [
+        "CodeBuildWarmCodeBuildRole71E7DBD5",
+        "Arn"
+       ]
+      },
+      "logGroup": {
+       "Ref": "CodeBuildWarmLogsD47CE0E3"
+      },
+      "image": {
+       "imageRepository": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "CodeBuildImageBuilderRepository9DE3B6F0",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          ".dkr.ecr.",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "CodeBuildImageBuilderRepository9DE3B6F0",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          ".",
+          {
+           "Ref": "AWS::URLSuffix"
+          },
+          "/",
+          {
+           "Ref": "CodeBuildImageBuilderRepository9DE3B6F0"
+          }
+         ]
+        ]
+       },
+       "imageTag": "latest",
+       "imageBuilderLogGroup": {
+        "Ref": "CodeBuildImageBuilderLogsE4CADFCC"
+       }
+      }
+     },
+     {
       "type": "LambdaRunnerProvider",
       "labels": [
        "lambda",
@@ -20237,6 +20832,329 @@
     ]
    }
   },
+  "runnersWarmRunnerQueue858D73CB": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "VisibilityTimeout": 60
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "runnersWarmRunnerQueuePolicyB5D54EA8": {
+   "Type": "AWS::SQS::QueuePolicy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "sqs:SendMessage",
+        "sqs:GetQueueAttributes",
+        "sqs:GetQueueUrl"
+       ],
+       "Condition": {
+        "ArnEquals": {
+         "aws:SourceArn": {
+          "Fn::GetAtt": [
+           "IntegrationTestWarmRunnerScheduleC45D4950",
+           "Arn"
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "events.amazonaws.com"
+       },
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersWarmRunnerQueue858D73CB",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Queues": [
+     {
+      "Ref": "runnersWarmRunnerQueue858D73CB"
+     }
+    ]
+   }
+  },
+  "runnersWarmRunnerManagerServiceRole461F211F": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "runnersWarmRunnerManagerServiceRoleDefaultPolicyDAE2AB59": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubEFD96479"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+       }
+      },
+      {
+       "Action": [
+        "states:ListExecutions",
+        "states:ListStateMachines"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersRunnerOrchestratorF9B66EBA"
+       }
+      },
+      {
+       "Action": [
+        "states:DescribeExecution",
+        "states:DescribeStateMachineForExecution",
+        "states:GetExecutionHistory"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":states:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":execution:",
+          {
+           "Fn::Select": [
+            6,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "runnersRunnerOrchestratorF9B66EBA"
+              }
+             ]
+            }
+           ]
+          },
+          ":*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "states:ListActivities",
+        "states:DescribeStateMachine",
+        "states:DescribeActivity"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": "states:StartExecution",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersRunnerOrchestratorF9B66EBA"
+       }
+      },
+      {
+       "Action": "states:StopExecution",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":states:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":execution:",
+          {
+           "Fn::Select": [
+            6,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "runnersRunnerOrchestratorF9B66EBA"
+              }
+             ]
+            }
+           ]
+          },
+          ":*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "sqs:ReceiveMessage",
+        "sqs:ChangeMessageVisibility",
+        "sqs:GetQueueUrl",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersWarmRunnerQueue858D73CB",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "sqs:SendMessage",
+        "sqs:GetQueueAttributes",
+        "sqs:GetQueueUrl"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersWarmRunnerQueue858D73CB",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "runnersWarmRunnerManagerServiceRoleDefaultPolicyDAE2AB59",
+    "Roles": [
+     {
+      "Ref": "runnersWarmRunnerManagerServiceRole461F211F"
+     }
+    ]
+   }
+  },
+  "runnersWarmRunnerManager01615E89": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "b0c37c4f994ad292c9b6deb223ce530213b6da40f660072e158c25ce845b49c9.zip"
+    },
+    "Description": "Manage warm GitHub runners: fill on invoke, keep alive via SQS",
+    "Environment": {
+     "Variables": {
+      "GITHUB_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubEFD96479"
+      },
+      "GITHUB_PRIVATE_KEY_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+      },
+      "STEP_FUNCTION_ARN": {
+       "Ref": "runnersRunnerOrchestratorF9B66EBA"
+      },
+      "WARM_RUNNER_QUEUE_URL": {
+       "Ref": "runnersWarmRunnerQueue858D73CB"
+      },
+      "WARM_CONFIG_HASHES": "71d5bfb87de0d51a",
+      "WARM_MAX_DURATION_SECONDS": "1800",
+      "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
+     }
+    },
+    "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "LogGroup": {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    },
+    "RecursiveLoop": "Allow",
+    "Role": {
+     "Fn::GetAtt": [
+      "runnersWarmRunnerManagerServiceRole461F211F",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Timeout": 50
+   },
+   "DependsOn": [
+    "runnersWarmRunnerManagerServiceRoleDefaultPolicyDAE2AB59",
+    "runnersWarmRunnerManagerServiceRole461F211F"
+   ]
+  },
+  "runnersWarmRunnerManagerSqsEventSourcegithubrunnerstestrunnersWarmRunnerQueueA882E904A61F36FF": {
+   "Type": "AWS::Lambda::EventSourceMapping",
+   "Properties": {
+    "BatchSize": 10,
+    "EventSourceArn": {
+     "Fn::GetAtt": [
+      "runnersWarmRunnerQueue858D73CB",
+      "Arn"
+     ]
+    },
+    "FunctionName": {
+     "Ref": "runnersWarmRunnerManager01615E89"
+    },
+    "FunctionResponseTypes": [
+     "ReportBatchItemFailures"
+    ],
+    "MaximumBatchingWindowInSeconds": 10
+   }
+  },
   "runnersFailedRunnerImageBuilds233D2237": {
    "Type": "AWS::SNS::Topic"
   },
@@ -20541,7 +21459,18 @@
      }
     ],
     "Name": "GitHub Runners/Warm runner status",
-    "QueryString": "fields @timestamp, message.notice, message.runnerName, message.providerPath, message.started, message.stillRunning, message.runnerBusy\n| filter WARM RUNNERS NOT ENABLED\n| sort @timestamp desc\n| limit 200"
+    "QueryString": {
+     "Fn::Join": [
+      "",
+      [
+       "fields @timestamp, message.notice, message.runnerName, message.providerPath, message.started, message.stillRunning, message.runnerBusy\n| filter strcontains(@logStream, \"",
+       {
+        "Ref": "runnersWarmRunnerManager01615E89"
+       },
+       "\")\n| sort @timestamp desc\n| limit 200"
+      ]
+     ]
+    }
    }
   },
   "runnersWarmrunnererrors7307E362": {
@@ -20553,7 +21482,18 @@
      }
     ],
     "Name": "GitHub Runners/Warm runner errors",
-    "QueryString": "fields @timestamp, message.notice, message.runnerName, message.error\n| filter WARM RUNNERS NOT ENABLED\n| filter level = \"ERROR\"\n| sort @timestamp desc\n| limit 100"
+    "QueryString": {
+     "Fn::Join": [
+      "",
+      [
+       "fields @timestamp, message.notice, message.runnerName, message.error\n| filter strcontains(@logStream, \"",
+       {
+        "Ref": "runnersWarmRunnerManager01615E89"
+       },
+       "\")\n| filter level = \"ERROR\"\n| sort @timestamp desc\n| limit 100"
+      ]
+     ]
+    }
    }
   },
   "runnersDashboardAD2609CF": {
@@ -20571,7 +21511,7 @@
        {
         "Ref": "runnersRunnerOrchestratorF9B66EBA"
        },
-       "\",{\"label\":\"Runners failed to start\",\"stat\":\"Sum\"}],[{\"label\":\"Stolen runners\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\"', 'Sum'))\"}],[{\"label\":\"Idle runners stopped\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"IdleRunner\\\"', 'Sum'))\"}],[{\"label\":\"Lambda errors\",\"expression\":\"SUM([e0,e1,e2,e3,e4,e5,e6,e7])\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       "\",{\"label\":\"Runners failed to start\",\"stat\":\"Sum\"}],[{\"label\":\"Stolen runners\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\"', 'Sum'))\"}],[{\"label\":\"Idle runners stopped\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"IdleRunner\\\"', 'Sum'))\"}],[{\"label\":\"Lambda errors\",\"expression\":\"SUM([e0,e1,e2,e3,e4,e5,e6,e7,e8])\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
        {
         "Ref": "runnersIdleReaper6FBF63A3"
        },
@@ -20603,7 +21543,11 @@
        {
         "Ref": "runnersstatus1A5771C0"
        },
-       "\",{\"id\":\"e7\",\"visible\":false,\"stat\":\"Sum\"}]],\"setPeriodToTimeRange\":true}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Jobs completed by status\",\"region\":\"",
+       "\",{\"id\":\"e7\",\"visible\":false,\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersWarmRunnerManager01615E89"
+       },
+       "\",{\"id\":\"e8\",\"visible\":false,\"stat\":\"Sum\"}]],\"setPeriodToTimeRange\":true}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Jobs completed by status\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -20611,7 +21555,7 @@
        {
         "Ref": "AWS::Region"
        },
-       "\",\"stacked\":true,\"metrics\":[[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-ubuntu-2404-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-ubuntu-2404-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"codebuild, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,windows,x64\",\"Status\",\"Failed\",{\"label\":\"codebuild, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs-ubuntu-2404,x64\",\"Status\",\"Failed\",{\"label\":\"ecs-ubuntu-2404, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,x64\",\"Status\",\"Failed\",{\"label\":\"lambda, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,arm64\",\"Status\",\"Failed\",{\"label\":\"lambda, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,windows,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, windows, x64\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":12,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Stolen runners\",\"region\":\"",
+       "\",\"stacked\":true,\"metrics\":[[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-ubuntu-2404-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-ubuntu-2404-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"codebuild, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,windows,x64\",\"Status\",\"Failed\",{\"label\":\"codebuild, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs-ubuntu-2404,x64\",\"Status\",\"Failed\",{\"label\":\"ecs-ubuntu-2404, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,x64\",\"Status\",\"Failed\",{\"label\":\"lambda, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"integ-warm\",\"Status\",\"Failed\",{\"label\":\"integ-warm\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,arm64\",\"Status\",\"Failed\",{\"label\":\"lambda, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,windows,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, windows, x64\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":12,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Stolen runners\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -20703,7 +21647,11 @@
        {
         "Ref": "runnersstatus1A5771C0"
        },
-       "\",{\"label\":\"status\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"log\",\"width\":24,\"height\":6,\"x\":0,\"y\":16,\"properties\":{\"view\":\"table\",\"title\":\"Recent failed attempts\",\"region\":\"",
+       "\",{\"label\":\"status\",\"stat\":\"Sum\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Ref": "runnersWarmRunnerManager01615E89"
+       },
+       "\",{\"label\":\"Warm Runner Manager\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"log\",\"width\":24,\"height\":6,\"x\":0,\"y\":16,\"properties\":{\"view\":\"table\",\"title\":\"Recent failed attempts\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -20793,6 +21741,137 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "IntegrationTestWarmRunnerScheduleC45D4950": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "ScheduleExpression": "cron(0 0 1 1 ? *)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "runnersWarmRunnerQueue858D73CB",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "Input": "{\"action\":\"fill\",\"providerPath\":\"github-runners-test/CodeBuild Warm\",\"providerLabels\":[\"integ-warm\"],\"count\":1,\"duration\":1800,\"owner\":\"CloudSnorkel\",\"repo\":\"cdk-github-runners\",\"configHash\":\"71d5bfb87de0d51a\"}"
+     }
+    ]
+   }
+  },
+  "IntegrationTestRunnerCheckLogs5EF71FE9": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 7
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain"
+  },
+  "IntegrationTestRunnerCheckServiceRole0B960F82": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "IntegrationTestRunnerCheckServiceRoleDefaultPolicyD1CB6CBB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubEFD96479"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "IntegrationTestRunnerCheckServiceRoleDefaultPolicyD1CB6CBB",
+    "Roles": [
+     {
+      "Ref": "IntegrationTestRunnerCheckServiceRole0B960F82"
+     }
+    ]
+   }
+  },
+  "IntegrationTestRunnerCheck22CF2BB4": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "ZipFile": "\n    const crypto = require('crypto');\n    const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');\n    const sm = new SecretsManagerClient();\n    const secret = async id => (await sm.send(new GetSecretValueCommand({ SecretId: id }))).SecretString;\n    const call = async (url, options) => {\n      const response = await fetch(url, options);\n      if (!response.ok) {\n        throw new Error(url + ' returned ' + response.status + ': ' + await response.text());\n      }\n      return response.json();\n    };\n\n    // event is the execution input with the runner name added\n    exports.handler = async function(event) {\n      const github = JSON.parse(await secret(process.env.GITHUB_SECRET_ARN));\n      const api = github.domain == 'github.com' ? 'https://api.github.com' : 'https://' + github.domain + '/api/v3';\n      const org = github.runnerLevel == 'org';\n      let token = github.personalAuthToken;\n      if (!token) {\n        const now = Math.floor(Date.now() / 1000);\n        const encode = o => Buffer.from(JSON.stringify(o)).toString('base64url');\n        const unsigned = encode({ alg: 'RS256', typ: 'JWT' }) + '.' + encode({ iat: now - 60, exp: now + 300, iss: github.appId });\n        const signature = crypto.sign('sha256', Buffer.from(unsigned), await secret(process.env.GITHUB_PRIVATE_KEY_SECRET_ARN));\n        token = (await call(api + '/app/installations/' + event.installationId + '/access_tokens', {\n          method: 'POST',\n          headers: { authorization: 'Bearer ' + unsigned + '.' + signature.toString('base64url') },\n          // all we need is to list runners\n          body: JSON.stringify({ permissions: org ? { organization_self_hosted_runners: 'read' } : { administration: 'read' } }),\n        })).token;\n      }\n      const runners = (org ? '/orgs/' + event.owner : '/repos/' + event.owner + '/' + event.repo) + '/actions/runners?name=' + encodeURIComponent(event.runnerName);\n      return (await call(api + runners, { headers: { authorization: 'Bearer ' + token } })).total_count > 0;\n    };\n  "
+    },
+    "Description": "Check if GitHub runner is registered for integration tests",
+    "Environment": {
+     "Variables": {
+      "GITHUB_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubEFD96479"
+      },
+      "GITHUB_PRIVATE_KEY_SECRET_ARN": {
+       "Ref": "runnersSecretsGitHubPrivateKey79498F91"
+      }
+     }
+    },
+    "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogGroup": {
+      "Ref": "IntegrationTestRunnerCheckLogs5EF71FE9"
+     }
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "IntegrationTestRunnerCheckServiceRole0B960F82",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "IntegrationTestRunnerCheckServiceRoleDefaultPolicyD1CB6CBB",
+    "IntegrationTestRunnerCheckServiceRole0B960F82"
+   ]
   }
  },
  "Outputs": {

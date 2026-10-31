@@ -1,0 +1,28 @@
+# Checks a job whose webhook delivery failed still gets a runner. Our provider selector fails the first delivery of this job,
+# and GitHub never retries it, so only the webhook redelivery Lambda can start its runner. If it doesn't, the run is cancelled.
+
+name: integ-redelivery
+on:
+  workflow_dispatch:
+  workflow_call:
+permissions: {}
+jobs:
+  redeliver:
+    # our provider selector gives this job a Lambda runner no other job can take
+    runs-on: [self-hosted, integ-redeliver]
+    steps:
+      - run: echo "$RUNNER_NAME"
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      actions: write # to cancel the run if the job never starts
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: |
+          source .github/actions/integ-verify/lib.sh
+          # redelivery runs every 5 minutes, and our selector fails deliveries for the first 4 minutes
+          assert_job_started redeliver 20

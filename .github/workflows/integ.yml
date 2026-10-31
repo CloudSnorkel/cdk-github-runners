@@ -1,0 +1,100 @@
+# Runs all integration tests against providers/labels deployed by test/default.integ.ts.
+# See TESTING.md for setting up your own account.
+
+name: integ
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'
+permissions: {}
+jobs:
+  # our provider selector starts no runners for these jobs, as if the webhook was off
+  unserved:
+    uses: ./.github/workflows/integ-all-providers.yml
+    permissions:
+      contents: read
+  wait:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sleep 60 # so the unserved jobs are queued first and these runners take them
+  # runners of these jobs are stolen by the unserved jobs and replaced, so both sets run
+  served:
+    needs: wait
+    uses: ./.github/workflows/integ-all-providers.yml
+    permissions:
+      contents: read
+  steal:
+    uses: ./.github/workflows/integ-steal.yml
+  idle-reaper:
+    uses: ./.github/workflows/integ-idle-reaper.yml
+    permissions:
+      contents: read
+      id-token: write
+  failed-runner:
+    uses: ./.github/workflows/integ-failed-runner.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+  labels:
+    uses: ./.github/workflows/integ-labels.yml
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+  redelivery:
+    uses: ./.github/workflows/integ-redelivery.yml
+    permissions:
+      actions: write
+      contents: read
+  ec2-dies:
+    uses: ./.github/workflows/integ-ec2-dies.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+  cancel:
+    uses: ./.github/workflows/integ-cancel.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+  warm:
+    uses: ./.github/workflows/integ-warm.yml
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+  # waits only for the quick tests, the slow ones check their own runners
+  cleanup:
+    needs: [ unserved, served, steal ]
+    uses: ./.github/workflows/integ-cleanup.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+  # GitHub keeps a job without a runner queued for a whole day. fail fast by cancelling the run if any job is queued for too long
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    permissions:
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - run: |
+          while true; do
+            sleep 300
+            jobs=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" --jq '.jobs[] | select(.name != "watchdog")')
+            # steal's abandoned job waits for a runner for about 20 minutes on purpose
+            stuck=$(jq -r --arg since "$(date -u -d '-45 minutes' +%FT%TZ)" 'select(.status == "queued" and .created_at < $since) | .name' <<<"$jobs")
+            if [ -n "$stuck" ]; then
+              echo "::error::Nothing started a runner in 45 minutes for: $stuck"
+              gh run cancel "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY"
+              exit 1
+            fi
+            # jobs waiting on others aren't listed yet, but something is always running until the end
+            if [ -z "$(jq -r 'select(.status != "completed") | .name' <<<"$jobs")" ]; then
+              exit 0
+            fi
+          done
