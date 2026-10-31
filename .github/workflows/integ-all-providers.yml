@@ -1,12 +1,11 @@
 # This tests against providers/labels deployed by test/default.integ.ts
 # If you want to run this on your account, you will first have to integration test and set it up to point to your fork.
 
-name: self-hosted-integration-test
+name: integ-all-providers
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * 1'
+  workflow_call:
 
 jobs:
   self-hosted:
@@ -63,12 +62,14 @@ jobs:
             runs-on: [self-hosted, lambda, x64]
             docker: false
             sudo: false
+            no-python: true # Amazon Linux, and setup-python only has builds for Ubuntu
           - name: lambda arm64
             os: linux
             arch: ARM64
             runs-on: [self-hosted, lambda, arm64]
             docker: false
             sudo: false
+            no-python: true # Amazon Linux, and setup-python only has builds for Ubuntu
           - name: fargate x64
             os: linux
             arch: X64
@@ -166,6 +167,26 @@ jobs:
         run: |
           ls /custom-file
           ls /custom-dir/FUNDING.yml
+      - name: write home
+        run: touch "$HOME/integ-write-test" "$RUNNER_TEMP/integ-write-test"
+      - name: cache
+        uses: actions/cache@v5
+        with:
+          path: integ-cache
+          key: integ-${{ matrix.name }}
+      - run: mkdir -p integ-cache && date > integ-cache/stamp
+      - name: setup-node
+        uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 24
+      - run: node --version
+      - name: setup-python
+        if: ${{ !matrix.no-python }}
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.13'
+      - run: python --version
+        if: ${{ !matrix.no-python }}
       - name: IMDS blocked
         if: ${{ matrix.imds == 'blocked' }}
         run: |
@@ -296,6 +317,35 @@ jobs:
           $ErrorActionPreference = 'Stop'
           ls /custom-file
           ls /custom-dir/FUNDING.yml
+      - name: write home
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType File "$Env:USERPROFILE/integ-write-test", "$Env:RUNNER_TEMP/integ-write-test"
+      - name: cache
+        uses: actions/cache@v5
+        with:
+          path: integ-cache
+          key: integ-${{ matrix.name }}
+      - run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force integ-cache
+          Get-Date | Out-File integ-cache/stamp
+      - name: setup-node
+        uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 24
+      - run: |
+          $ErrorActionPreference = 'Stop'
+          node --version
+          if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }
+      - name: setup-python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.13'
+      - run: |
+          $ErrorActionPreference = 'Stop'
+          python --version
+          if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }
       - name: IMDS blocked
         if: ${{ matrix.imds == 'blocked' }}
         run: |

@@ -1,0 +1,82 @@
+# Lets a Lambda runner time out in the middle of a job and checks it's cleaned up, retried, and finally stopped by the idle reaper.
+# Needs the integration test role described in TESTING.md.
+
+name: integ-failed-runner
+on:
+  workflow_dispatch:
+  workflow_call:
+permissions: {}
+jobs:
+  timeout:
+    # our provider selector gives this job a Lambda runner no other job can take
+    runs-on: [self-hosted, integ-lambda-timeout]
+    # the runner dies under this job, so it always fails
+    continue-on-error: true
+    steps:
+      - run: echo "$RUNNER_NAME"; sleep 1200 # longer than the 15 minute Lambda timeout
+  role:
+    # this image has the integration test role
+    runs-on: [self-hosted, codebuild-x64]
+    outputs:
+      role: ${{ steps.role.outputs.role }}
+      region: ${{ steps.role.outputs.region }}
+    steps:
+      - id: role
+        run: |
+          echo "role=$INTEG_ROLE_ARN" >> "$GITHUB_OUTPUT"
+          echo "region=$AWS_REGION" >> "$GITHUB_OUTPUT"
+  check:
+    needs: role
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/integ-verify
+        with:
+          role: ${{ needs.role.outputs.role }}
+          region: ${{ needs.role.outputs.region }}
+      - name: Find the runner
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # this workflow can also be called from integ.yml, which puts its name in front of ours
+          while [ -z "$runner" ]; do
+            sleep 30
+            runner=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" \
+              --jq '.jobs[] | select(.name == "timeout" or (.name | endswith(" / timeout"))) | .runner_name // empty')
+          done
+          echo "RUNNER=$runner" >> "$GITHUB_ENV"
+      - name: Wait for the idle reaper
+        run: |
+          source .github/actions/integ-verify/lib.sh
+          # the first runner dies after 15 minutes, and the retried one idles until it's reaped
+          wait_for_execution "$(execution_arn "$RUNNER")" 120
+      - name: Check the runner was cleaned up and retried
+        run: |
+          source .github/actions/integ-verify/lib.sh
+          execution=$(execution_arn "$RUNNER")
+          assert_aborted_by_reaper "$execution"
+          if [ "$(times_entered "$execution" 'Try Provider')" -lt 2 ]; then
+            echo "::error::Runner was not retried"
+            exit 1
+          fi
+          # a red clean-up state would have ended in Runner Not Deleted, and All Attempts Failed passes on the runner's own error
+          if [ "$(times_entered "$execution" 'Runner Not Deleted')" != 0 ] || [ "$(times_entered "$execution" 'All Attempts Failed')" == 0 ]; then
+            echo "::error::Failed runner was not cleaned up"
+            exit 1
+          fi
+          cleanup=$(first_output "$execution" 'Clean Up Failed Runner')
+          echo "$cleanup" | jq '{error, delete}'
+          if [ "$(jq '.delete.runnerFound == .delete.runnerDeleted' <<<"$cleanup")" != true ]; then
+            echo "::error::Clean-up found the runner but didn't delete it"
+            exit 1
+          fi
+          if [ "$(jq -r '.error.Error // empty' <<<"$cleanup")" == "" ]; then
+            echo "::error::Clean-up didn't get the error that stopped the runner"
+            exit 1
+          fi
+          assert_runner_gone "$RUNNER" 5

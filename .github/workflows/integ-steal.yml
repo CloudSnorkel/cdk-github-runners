@@ -1,7 +1,9 @@
 # Tests stolen runner detection against providers/labels deployed by test/default.integ.ts. See TESTING.md for what to check.
 
-name: steal
-on: workflow_dispatch
+name: integ-steal
+on:
+  workflow_dispatch:
+  workflow_call:
 permissions: {}
 jobs:
   abandoned:

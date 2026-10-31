@@ -1,0 +1,95 @@
+# Fills the warm runner pool and checks a job runs on a warm runner and gets it replaced. Our provider selector starts no
+# runners for this job, so only a warm runner can take it. The pool is never filled on schedule, and stops itself 30 minutes
+# after this fills it.
+# Needs the integration test role described in TESTING.md.
+
+name: integ-warm
+on:
+  workflow_dispatch:
+  workflow_call:
+permissions: {}
+jobs:
+  role:
+    # this image has the integration test role
+    runs-on: [self-hosted, codebuild-x64]
+    outputs:
+      role: ${{ steps.role.outputs.role }}
+      region: ${{ steps.role.outputs.region }}
+    steps:
+      - id: role
+        run: |
+          echo "role=$INTEG_ROLE_ARN" >> "$GITHUB_OUTPUT"
+          echo "region=$AWS_REGION" >> "$GITHUB_OUTPUT"
+  fill:
+    needs: role
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/integ-verify
+        with:
+          role: ${{ needs.role.outputs.role }}
+          region: ${{ needs.role.outputs.region }}
+      - name: Send the scheduled fill now
+        run: |
+          rule=$(aws cloudformation list-stack-resources --stack-name github-runners-test \
+            --query "StackResourceSummaries[?ResourceType == 'AWS::Events::Rule' && starts_with(LogicalResourceId, 'IntegrationTestWarmRunnerSchedule')].PhysicalResourceId" --output text)
+          target=$(aws events list-targets-by-rule --rule "${rule:?not found in stack}" --query 'Targets[0]')
+          # same message the schedule would send, which fills the pool for 30 minutes
+          aws sqs send-message --queue-url "$(aws sqs get-queue-url --queue-name "$(jq -r '.Arn | split(":") | last' <<<"$target")" --query QueueUrl --output text)" \
+            --message-body "$(jq -r .Input <<<"$target")"
+  warm:
+    needs: fill
+    runs-on: [self-hosted, integ-warm]
+    steps:
+      - run: echo "$RUNNER_NAME"
+  watchdog:
+    needs: fill
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      actions: write # to cancel the run if the job never starts
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: |
+          source .github/actions/integ-verify/lib.sh
+          assert_job_started warm 20
+  replaced:
+    needs: [ role, warm ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/integ-verify
+        with:
+          role: ${{ needs.role.outputs.role }}
+          region: ${{ needs.role.outputs.region }}
+      - name: Check the warm runner was replaced
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          used=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" \
+            --jq '.jobs[] | select(.name == "warm" or (.name | endswith(" / warm"))) | .runner_name')
+          echo "Job ran on $used"
+          for i in $(seq 20); do
+            for execution in $(aws stepfunctions list-executions --state-machine-arn "$STATE_MACHINE_ARN" --status-filter RUNNING --max-items 100 \
+              --query 'executions[].executionArn' --output text); do
+              if [ "${execution##*:}" != "$used" ] &&
+                aws stepfunctions describe-execution --execution-arn "$execution" --query input --output text | jq -e '.labels | split(",") | index("integ-warm")' >/dev/null; then
+                echo "Replaced by ${execution##*:}"
+                exit 0
+              fi
+            done
+            sleep 30
+          done
+          echo "::error::No warm runner replaced $used after 10 minutes"
+          exit 1

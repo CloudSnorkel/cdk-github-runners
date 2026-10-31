@@ -274,7 +274,7 @@ export interface GitHubRunnersProps {
    *
    * * The function receives the webhook payload along with default provider and its labels as {@link ProviderSelectorInput}
    * * The function returns a selected provider and its labels as {@link ProviderSelectorResult}
-   * * You can decline to provision a runner by returning undefined as the provider selector result
+   * * You can decline to provision a runner by returning undefined as the provider in the selector result
    * * You can fully customize the labels for the about-to-be-provisioned runner (add, remove, modify, dynamic labels, etc.)
    * * Labels don't have to match the labels originally configured for the provider, but see warnings below
    * * This function will be called synchronously during webhook processing, so it should be fast and efficient (webhook limit is 30 seconds total)
