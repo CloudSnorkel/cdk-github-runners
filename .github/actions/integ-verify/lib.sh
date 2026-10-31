@@ -81,14 +81,30 @@ assert_instances_gone() {
   done
 }
 
+# listing jobs of our runs takes GitHub up to 10 seconds and often fails with 502, so we go through the run's check runs instead
+# $1 run id, $2 extra query
+check_runs() {
+  local suite
+  suite=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$1" --jq .check_suite_id)
+  gh api --paginate "repos/$GITHUB_REPOSITORY/check-suites/$suite/check-runs?per_page=100$2" --jq '.check_runs[]'
+}
+
+# prints job $1 of this run, or nothing if it wasn't created yet
+find_job() {
+  local id
+  # called workflows put the caller's job name in front
+  id=$(check_runs "$GITHUB_RUN_ID" | jq -r --arg name "$1" 'select(.name == $name or (.name | endswith(" / " + $name))) | .id')
+  if [ -n "$id" ]; then
+    gh api "repos/$GITHUB_REPOSITORY/actions/jobs/$id"
+  fi
+}
+
 # GitHub keeps a job without a runner queued for a whole day. fail fast by cancelling the run if job $1 is still queued after $2 minutes
 assert_job_started() {
   local deadline=$((SECONDS + $2 * 60))
   local status
   while true; do
-    # called workflows put the caller's job name in front
-    status=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" \
-      --jq ".jobs[] | select(.name == \"$1\" or (.name | endswith(\" / $1\"))) | .status")
+    status=$(find_job "$1" | jq -r .status)
     if [ -n "$status" ] && [ "$status" != queued ]; then
       return
     fi

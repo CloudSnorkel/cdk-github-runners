@@ -69,8 +69,8 @@ jobs:
       - name: Check the job stays queued without a runner
         run: |
           sleep 300 # plenty of time for the webhook to start a runner it shouldn't
-          job=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" \
-            --jq '.jobs[] | select(.name == "unknown" or (.name | endswith(" / unknown")))')
+          source .github/actions/integ-verify/lib.sh
+          job=$(find_job unknown)
           echo "$job" | jq '{id, status, created_at}'
           if [ "$(jq -r .status <<<"$job")" != queued ]; then
             echo "::error::Job with unknown labels is $(jq -r .status <<<"$job") instead of queued"

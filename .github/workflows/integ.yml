@@ -83,11 +83,16 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - run: |
+          # listing jobs of our runs takes GitHub up to 10 seconds and often fails with 502, so we go through the run's check runs instead
+          suite=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .check_suite_id)
           while true; do
             sleep 300
-            jobs=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" --jq '.jobs[] | select(.name != "watchdog")')
+            jobs=$(gh api --paginate "repos/$GITHUB_REPOSITORY/check-suites/$suite/check-runs?per_page=100" --jq '.check_runs[] | select(.name != "watchdog")')
             # steal's abandoned job waits for a runner for about 20 minutes on purpose
-            stuck=$(jq -r --arg since "$(date -u -d '-45 minutes' +%FT%TZ)" 'select(.status == "queued" and .created_at < $since) | .name' <<<"$jobs")
+            since=$(date -u -d '-45 minutes' +%FT%TZ)
+            stuck=$(for job in $(jq -r 'select(.status == "queued") | .id' <<<"$jobs"); do
+              gh api "repos/$GITHUB_REPOSITORY/actions/jobs/$job" --jq "select(.created_at < \"$since\") | .name"
+            done)
             if [ -n "$stuck" ]; then
               echo "::error::Nothing started a runner in 45 minutes for: $stuck"
               gh run cancel "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY"

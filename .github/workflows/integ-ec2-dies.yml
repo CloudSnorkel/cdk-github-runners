@@ -44,11 +44,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # this workflow can also be called from integ.yml, which puts its name in front of ours
+          source .github/actions/integ-verify/lib.sh
           while [ -z "$runner" ]; do
             sleep 30
-            runner=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" \
-              --jq '.jobs[] | select(.name == "die" or (.name | endswith(" / die"))) | .runner_name // empty')
+            runner=$(find_job die | jq -r '.runner_name // empty')
           done
           echo "RUNNER=$runner" >> "$GITHUB_ENV"
       - name: Wait for the idle reaper
