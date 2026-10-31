@@ -594,6 +594,7 @@ Configuration problems that we can detect up-front fail the orchestrator with a 
    2. If you see too many errors, make sure you're only sending `workflow_job` events
 5. When using GitHub app, make sure there are active installations in `github.auth.app.installations`
 6. If runners start but never pick up a job and get stopped with `IdleRunner`, their runner version may be too old. Runners can't update themselves, and GitHub stops sending jobs to runners that are not updated within 30 days of a new runner release, or right away for a critical security update. [Rebuild your runner images](#rebuilding-runner-images) to fix it
+7. If organization-level runners never pick up jobs from public repositories, check the runner group settings. By default, only private repositories can use runners in a runner group. You can allow public repositories in the [runner group repository access settings](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/managing-access-to-self-hosted-runners-using-groups#changing-which-repositories-can-access-a-runner-group), but make sure you understand the [security risks](#job-isolation) first
 
 All logs are saved in CloudWatch.
 * Log group names can be found in `status.json` for each provider, image builder, and other parts of the system
