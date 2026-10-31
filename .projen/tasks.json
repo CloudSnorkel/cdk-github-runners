@@ -1132,7 +1132,8 @@
       "name": "release",
       "description": "Prepare a release from \"main\" branch",
       "env": {
-        "RELEASE": "true"
+        "RELEASE": "true",
+        "MAJOR": "1"
       },
       "steps": [
         {
