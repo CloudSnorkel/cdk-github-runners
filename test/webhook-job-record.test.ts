@@ -87,6 +87,17 @@ test('queued job is recorded before the runner is started', async () => {
   expect(mockSfnSend.mock.calls[0][0].input.name).toBe(runnerName);
 });
 
+test('self-hosted label is case-insensitive like the rest of GitHub labels', async () => {
+  const result: any = await handler(webhookEvent({
+    action: 'queued',
+    repository: { name: 'my-repo', owner: { login: 'my-org' } },
+    workflow_job: { id: 1234, labels: ['Self-Hosted', 'Linux'], html_url: 'https://job' },
+  }));
+
+  expect(result.statusCode).toBe(202);
+  expect(mockSfnSend).toHaveBeenCalledTimes(1);
+});
+
 test('failure to record a job does not stop the runner', async () => {
   mockRecordControlledJob.mockRejectedValue(new Error('DynamoDB is having a bad day'));
 
