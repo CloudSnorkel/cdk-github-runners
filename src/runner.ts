@@ -925,8 +925,11 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         if (p1 == p2) {
           continue;
         }
-        if (p1.labels.every(l => p2.labels.includes(l))) {
-          if (p2.labels.every(l => p1.labels.includes(l))) {
+        // GitHub labels are case-insensitive
+        const p1Labels = p1.labels.map(l => l.toLowerCase());
+        const p2Labels = p2.labels.map(l => l.toLowerCase());
+        if (p1Labels.every(l => p2Labels.includes(l))) {
+          if (p2Labels.every(l => p1Labels.includes(l))) {
             Annotations.of(this).addError(`Both ${p1.node.path} and ${p2.node.path} use the same labels [${p1.labels.join(', ')}]`);
             return;
           }
