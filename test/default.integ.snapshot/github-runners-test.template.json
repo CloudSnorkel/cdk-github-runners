@@ -732,7 +732,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates libatomic1\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/b79d176c81d00c17eeb304a704ea0d8420a8350154b6798748106205718dec22.sh"
         },
@@ -781,15 +781,15 @@
     ]
    }
   },
-  "FargatebuilderBuildWaitHandle87e8fa4458ADA9439C": {
+  "FargatebuilderBuildWaitHandle926143b4694633464A": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderBuildWait87e8fa4458F3604C8A": {
+  "FargatebuilderBuildWait926143b469EA780987": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderBuildWaitHandle87e8fa4458ADA9439C"
+     "Ref": "FargatebuilderBuildWaitHandle926143b4694633464A"
     },
     "Timeout": "3600"
    }
@@ -810,7 +810,7 @@
      "Ref": "FargatebuilderCodeBuild4F182743"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderBuildWaitHandle87e8fa4458ADA9439C"
+     "Ref": "FargatebuilderBuildWaitHandle926143b4694633464A"
     }
    },
    "DependsOn": [
@@ -1178,7 +1178,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates libatomic1\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/b79d176c81d00c17eeb304a704ea0d8420a8350154b6798748106205718dec22.sh"
         },
@@ -1227,15 +1227,15 @@
     ]
    }
   },
-  "FargatebuilderarmBuildWaitHandleacb1a8845c1AF537AC": {
+  "FargatebuilderarmBuildWaitHandle63873a22889214F823": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "FargatebuilderarmBuildWaitacb1a8845cAFA384EF": {
+  "FargatebuilderarmBuildWait63873a22888BD705F2": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "FargatebuilderarmBuildWaitHandleacb1a8845c1AF537AC"
+     "Ref": "FargatebuilderarmBuildWaitHandle63873a22889214F823"
     },
     "Timeout": "3600"
    }
@@ -1256,7 +1256,7 @@
      "Ref": "FargatebuilderarmCodeBuild0D30679A"
     },
     "WaitHandle": {
-     "Ref": "FargatebuilderarmBuildWaitHandleacb1a8845c1AF537AC"
+     "Ref": "FargatebuilderarmBuildWaitHandle63873a22889214F823"
     }
    },
    "DependsOn": [
@@ -1755,7 +1755,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils libatomic\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/b79d176c81d00c17eeb304a704ea0d8420a8350154b6798748106205718dec22.sh"
         },
@@ -1812,15 +1812,15 @@
     ]
    }
   },
-  "LambdaImageBuilderx64BuildWaitHandle3d42c4f327341552AE": {
+  "LambdaImageBuilderx64BuildWaitHandle0f825664467C7D99DB": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderx64BuildWait3d42c4f327070F1890": {
+  "LambdaImageBuilderx64BuildWait0f825664463CE2EFCF": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle3d42c4f327341552AE"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandle0f825664467C7D99DB"
     },
     "Timeout": "3600"
    }
@@ -1841,7 +1841,7 @@
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandle3d42c4f327341552AE"
+     "Ref": "LambdaImageBuilderx64BuildWaitHandle0f825664467C7D99DB"
     }
    },
    "DependsOn": [
@@ -2544,7 +2544,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentRequiredPackagesUbuntuLinuxX8664d2779bf2afComponent19B6D69E",
+        "GHRInternalComponentRequiredPackagesUbuntuLinuxX8664bf153bc838Component84B4BCD4",
         "Arn"
        ]
       }
@@ -3182,7 +3182,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates libatomic1\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/b79d176c81d00c17eeb304a704ea0d8420a8350154b6798748106205718dec22.sh"
         },
@@ -3238,15 +3238,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderBuildWaitHandle9c63abe7fcC5F264F1": {
+  "CodeBuildImageBuilderBuildWaitHandle15e2660780B27F1798": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderBuildWait9c63abe7fcAF11EB47": {
+  "CodeBuildImageBuilderBuildWait15e266078023833DA3": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandle9c63abe7fcC5F264F1"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle15e2660780B27F1798"
     },
     "Timeout": "3600"
    }
@@ -3267,7 +3267,7 @@
      "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandle9c63abe7fcC5F264F1"
+     "Ref": "CodeBuildImageBuilderBuildWaitHandle15e2660780B27F1798"
     }
    },
    "DependsOn": [
@@ -3635,7 +3635,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates libatomic1\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/b79d176c81d00c17eeb304a704ea0d8420a8350154b6798748106205718dec22.sh"
         },
@@ -3684,15 +3684,15 @@
     ]
    }
   },
-  "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlef8bba7a9cbA0CF3DE5": {
+  "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle0b142a7d51EACFE9D7": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildUbuntu2404ImageBuilderBuildWaitf8bba7a9cb9C70DFDE": {
+  "CodeBuildUbuntu2404ImageBuilderBuildWait0b142a7d519F4702FD": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlef8bba7a9cbA0CF3DE5"
+     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle0b142a7d51EACFE9D7"
     },
     "Timeout": "3600"
    }
@@ -3713,7 +3713,7 @@
      "Ref": "CodeBuildUbuntu2404ImageBuilderCodeBuild30AF5C46"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandlef8bba7a9cbA0CF3DE5"
+     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle0b142a7d51EACFE9D7"
     }
    },
    "DependsOn": [
@@ -4081,7 +4081,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates libatomic1\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\naddgroup runner\\nadduser --system --disabled-password --home /home/runner --ingroup runner runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nadd-apt-repository ppa:git-core/ppa\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg\\necho \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]   https://cli.github.com/packages stable main\\\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"cat > component5-Docker.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg\\necho   \\\"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\\napt-get -o Acquire::Retries=5 update\\nDEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin\\nusermod -aG docker runner\\nln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-Docker.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/b79d176c81d00c17eeb304a704ea0d8420a8350154b6798748106205718dec22.sh"
         },
@@ -4130,15 +4130,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderarmBuildWaitHandled1edd09047F0D9BE62": {
+  "CodeBuildImageBuilderarmBuildWaitHandlef874d32f5796525545": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderarmBuildWaitd1edd0904776629EBB": {
+  "CodeBuildImageBuilderarmBuildWaitf874d32f57AC021E96": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandled1edd09047F0D9BE62"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandlef874d32f5796525545"
     },
     "Timeout": "3600"
    }
@@ -4159,7 +4159,7 @@
      "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandled1edd09047F0D9BE62"
+     "Ref": "CodeBuildImageBuilderarmBuildWaitHandlef874d32f5796525545"
     }
    },
    "DependsOn": [
@@ -4658,7 +4658,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf upgrade -y\\ndnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils libatomic\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ndnf install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\ndnf install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/b79d176c81d00c17eeb304a704ea0d8420a8350154b6798748106205718dec22.sh"
         },
@@ -4715,15 +4715,15 @@
     ]
    }
   },
-  "LambdaImageBuilderzBuildWaitHandle1230af69ba0015ED89": {
+  "LambdaImageBuilderzBuildWaitHandle5ce197ffdbB740C259": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderzBuildWait1230af69baF707795B": {
+  "LambdaImageBuilderzBuildWait5ce197ffdbFBF01720": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle1230af69ba0015ED89"
+     "Ref": "LambdaImageBuilderzBuildWaitHandle5ce197ffdbB740C259"
     },
     "Timeout": "3600"
    }
@@ -4744,7 +4744,7 @@
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle1230af69ba0015ED89"
+     "Ref": "LambdaImageBuilderzBuildWaitHandle5ce197ffdbB740C259"
     }
    },
    "DependsOn": [
@@ -4975,7 +4975,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentRequiredPackagesUbuntuLinuxARM64052072c9a6Component30B9F7E6",
+        "GHRInternalComponentRequiredPackagesUbuntuLinuxARM6490efa33d3fComponent4F9A0495",
         "Arn"
        ]
       }
@@ -6114,7 +6114,7 @@
         {
          "Ref": "AWS::Region"
         },
-        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum update -y\\nyum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\nyum install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
+        ".amazonaws.com\",\n        \"cat > component0-RequiredPackages.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum update -y\\nyum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils libatomic\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component0-RequiredPackages.sh\",\n        \"cat > component1-RunnerUser.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\n/usr/sbin/groupadd runner\\n/usr/sbin/useradd --system --shell /usr/sbin/nologin --home-dir /home/runner --gid runner runner\\nmkdir -p /home/runner\\nchown runner /home/runner\\necho \\\"%runner   ALL=(ALL:ALL) NOPASSWD: ALL\\\" > /etc/sudoers.d/runner\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component1-RunnerUser.sh\",\n        \"cat > component2-Git.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nyum install -y git\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component2-Git.sh\",\n        \"cat > component3-GithubCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo\\nyum install -y gh\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component3-GithubCli.sh\",\n        \"cat > component4-AwsCli.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSL \\\"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\\\" -o awscliv2.zip\\nunzip -q awscliv2.zip\\n./aws/install --update\\nrm -rf awscliv2.zip aws\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component4-AwsCli.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/b79d176c81d00c17eeb304a704ea0d8420a8350154b6798748106205718dec22.sh"
         },
@@ -6159,15 +6159,15 @@
     ]
    }
   },
-  "AL2builderBuildWaitHandlee1f91dc340C4EFEEB2": {
+  "AL2builderBuildWaitHandle406557ccd5E56D2D13": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "AL2builderBuildWaite1f91dc340D4B3E21E": {
+  "AL2builderBuildWait406557ccd516ECC032": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "AL2builderBuildWaitHandlee1f91dc340C4EFEEB2"
+     "Ref": "AL2builderBuildWaitHandle406557ccd5E56D2D13"
     },
     "Timeout": "3600"
    }
@@ -6188,7 +6188,7 @@
      "Ref": "AL2builderCodeBuild55A26C62"
     },
     "WaitHandle": {
-     "Ref": "AL2builderBuildWaitHandlee1f91dc340C4EFEEB2"
+     "Ref": "AL2builderBuildWaitHandle406557ccd5E56D2D13"
     }
    },
    "DependsOn": [
@@ -11461,7 +11461,7 @@
     ]
    },
    "DependsOn": [
-    "LambdaImageBuilderx64BuildWait3d42c4f327070F1890"
+    "LambdaImageBuilderx64BuildWait0f825664463CE2EFCF"
    ]
   },
   "LambdaFunction9233991D": {
@@ -11547,7 +11547,7 @@
     "Timeout": 900
    },
    "DependsOn": [
-    "LambdaImageBuilderx64BuildWait3d42c4f327070F1890",
+    "LambdaImageBuilderx64BuildWait0f825664463CE2EFCF",
     "LambdaFunctionServiceRoleB1826A50"
    ]
   },
@@ -11732,7 +11732,7 @@
     ]
    },
    "DependsOn": [
-    "LambdaImageBuilderzBuildWait1230af69baF707795B"
+    "LambdaImageBuilderzBuildWait5ce197ffdbFBF01720"
    ]
   },
   "LambdaARMFunctionDD4B5FF7": {
@@ -11818,7 +11818,7 @@
     "Timeout": 900
    },
    "DependsOn": [
-    "LambdaImageBuilderzBuildWait1230af69baF707795B",
+    "LambdaImageBuilderzBuildWait5ce197ffdbFBF01720",
     "LambdaARMFunctionServiceRole136069A0"
    ]
   },
@@ -13606,12 +13606,12 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "GHRInternalComponentRequiredPackagesUbuntuLinuxX8664d2779bf2afComponent19B6D69E": {
+  "GHRInternalComponentRequiredPackagesUbuntuLinuxX8664bf153bc838Component84B4BCD4": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"RequiredPackages (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\"]}}]}]}",
+    "Data": "{\"name\":\"RequiredPackages (Ubuntu Linux/X86_64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates libatomic1\"]}}]}]}",
     "Description": "RequiredPackages component for Ubuntu Linux/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-RequiredPackages-Ubuntu-Linux-X86-64-d2779bf2af-A70EABD7",
+    "Name": "github-runners-test-GHRInternal--Component-RequiredPackages-Ubuntu-Linux-X86-64-bf153bc838-97246251",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
@@ -14257,12 +14257,12 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "GHRInternalComponentRequiredPackagesUbuntuLinuxARM64052072c9a6Component30B9F7E6": {
+  "GHRInternalComponentRequiredPackagesUbuntuLinuxARM6490efa33d3fComponent4F9A0495": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
-    "Data": "{\"name\":\"RequiredPackages (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates\"]}}]}]}",
+    "Data": "{\"name\":\"RequiredPackages (Ubuntu Linux/ARM64)\",\"schemaVersion\":\"1.0\",\"phases\":[{\"name\":\"build\",\"steps\":[{\"name\":\"Run\",\"action\":\"ExecuteBash\",\"inputs\":{\"commands\":[\"set -ex\",\"apt-get -o Acquire::Retries=5 update\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y\",\"DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates libatomic1\"]}}]}]}",
     "Description": "RequiredPackages component for Ubuntu Linux/ARM64",
-    "Name": "github-runners-test-GHRInternal--Component-RequiredPackages-Ubuntu-Linux-ARM64-052072c9a6-6E214E2A",
+    "Name": "github-runners-test-GHRInternal--Component-RequiredPackages-Ubuntu-Linux-ARM64-90efa33d3f-90368E08",
     "Platform": "Linux",
     "Version": "1.0.0"
    }
