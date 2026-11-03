@@ -101,6 +101,43 @@ describe('GitHubRunners', () => {
     Template.fromStack(stack);
   });
 
+  test('Intersecting labels warning is case-insensitive', () => {
+    new GitHubRunners(stack, 'runners', {
+      providers: [
+        new CodeBuildRunnerProvider(stack, 'p1', {
+          labels: ['a'],
+        }),
+        new CodeBuildRunnerProvider(stack, 'p2', {
+          labels: ['A', 'b'],
+        }),
+      ],
+    });
+
+    Annotations.fromStack(stack).hasWarning(
+      '/test/p1',
+      Match.stringLikeRegexp('Labels \\[a\\] intersect with another provider \\(test/p2 -- \\[A, b\\]\\).*'),
+    );
+  });
+
+  test('Duplicate labels error is case-insensitive', () => {
+    new GitHubRunners(stack, 'runners', {
+      providers: [
+        new CodeBuildRunnerProvider(stack, 'p1', {
+          labels: ['a'],
+        }),
+        new CodeBuildRunnerProvider(stack, 'p2', {
+          labels: ['A'],
+        }),
+      ],
+    });
+
+    Annotations.fromStack(stack).hasError(
+      '/test/runners',
+      'Both test/p1 and test/p2 use the same labels [a]',
+    );
+    Template.fromStack(stack);
+  });
+
   test('Metrics', () => {
     const runners = new GitHubRunners(stack, 'runners', {
       providers: [new CodeBuildRunnerProvider(stack, 'p1')],
