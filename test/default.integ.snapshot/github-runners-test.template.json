@@ -17563,7 +17563,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "c358fefc72ac8bd62d0db233e93764c4127388a84e0122104ef16eb98a739cb5.zip"
+     "S3Key": "d9ce96fffcda13847ea729f8974ed7a32e10238690d448e85a1e5409c04c9f00.zip"
     },
     "Description": "Detect GitHub Actions runners stolen by other jobs and start a new runner for the abandoned job",
     "Environment": {
@@ -18253,7 +18253,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "977f579eb4e00d088b09279554e47a283b43d188cccbe9e879d09079ce894019.zip"
+     "S3Key": "f1dc0fb0465fcfe82d4e908377b085e342de6d1c16fc362f5a22b733147aa428.zip"
     },
     "Description": "Handle GitHub webhook and start runner orchestrator",
     "Environment": {
@@ -21708,6 +21708,24 @@
       "MetricName": "StolenRunners",
       "MetricNamespace": "GitHubRunners",
       "MetricValue": "1"
+     }
+    ]
+   }
+  },
+  "OrchestratorLogMultipleProvidersfilterC445255D": {
+   "Type": "AWS::Logs::MetricFilter",
+   "Properties": {
+    "FilterPattern": "{ $.message.metric = \"MultipleProvidersMatched\" }",
+    "LogGroupName": {
+     "Ref": "OrchestratorLogFB9610E7"
+    },
+    "MetricTransformations": [
+     {
+      "DefaultValue": 0,
+      "MetricName": "JobsMatchingMultipleProviders",
+      "MetricNamespace": "GitHubRunners",
+      "MetricValue": "1",
+      "Unit": "Count"
      }
     ]
    }

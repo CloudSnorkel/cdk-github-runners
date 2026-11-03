@@ -153,6 +153,32 @@ describe('selectProvider', () => {
     expect(result.labels).toBeUndefined();
   });
 
+  test('uses the first provider and warns when the job matches more than one', async () => {
+    providersFile.providers = {
+      'Stack/x64': ['lambda', 'x64'],
+      'Stack/arm64': ['lambda', 'arm64'],
+    };
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const result = await webhook.selectProvider(mockPayload, ['self-hosted', 'lambda']);
+
+    expect(result.provider).toBe('Stack/x64');
+    expect(warn).toHaveBeenCalledWith(expect.objectContaining({
+      metric: 'MultipleProvidersMatched',
+      providers: ['Stack/x64', 'Stack/arm64'],
+    }));
+    warn.mockRestore();
+  });
+
+  test('does not warn when the job matches one provider', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    await webhook.selectProvider(mockPayload, ['linux']);
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
   describe('with provider selector', () => {
     const mockCallProviderSelector = jest.fn();
 

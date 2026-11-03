@@ -3351,6 +3351,7 @@ new GitHubRunners(scope: Construct, id: string, props?: GitHubRunnersProps)
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic">failedImageBuildsTopic</a></code> | Creates a topic for notifications when a runner image build fails. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed">metricFailed</a></code> | Metric for failed runner executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted">metricJobCompleted</a></code> | Metric for the number of GitHub Actions jobs completed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobsMatchingMultipleProviders">metricJobsMatchingMultipleProviders</a></code> | Metric for the number of jobs whose labels matched more than one provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricLambdaErrors">metricLambdaErrors</a></code> | Metric for the number of failed invocations of the management Lambda functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners">metricStolenRunners</a></code> | Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStoppedRunners">metricStoppedRunners</a></code> | Metric for the number of runners we stopped on purpose before they got a job. |
@@ -3503,6 +3504,29 @@ It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succe
 **WARNING:** this method creates a metric filter for each provider. Each metric has a status dimension with six possible values. These resources may incur cost.
 
 ###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted.parameter.props"></a>
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
+
+---
+
+##### `metricJobsMatchingMultipleProviders` <a name="metricJobsMatchingMultipleProviders" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobsMatchingMultipleProviders"></a>
+
+```typescript
+public metricJobsMatchingMultipleProviders(props?: MetricOptions): Metric
+```
+
+Metric for the number of jobs whose labels matched more than one provider.
+
+We start a runner from the first matching provider, but GitHub may give such a job a runner from any of them, including one started for
+another job. Stolen runner detection starts another runner for the job left behind, but the job itself may run on a provider you didn't
+expect. Anything over zero means some workflows ask for too few labels. Add labels to those jobs so they match only one provider. The
+webhook logs have the job labels, matching providers, and job URL.
+
+Jobs routed by a provider selector are not counted, as the selector picks the provider.
+
+**WARNING:** this method creates a metric filter. This resource may incur cost.
+
+###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobsMatchingMultipleProviders.parameter.props"></a>
 
 - *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
 

@@ -66,6 +66,16 @@ export const GITHUB_PRIVATE_KEY_PLACEHOLDER = '-----BEGIN RSA PRIVATE KEY-----\n
 export const PROVIDERS_PATH = '/opt/providers.json';
 
 /**
+ * Can a runner with these labels run a job asking for these labels? Every label the job requires must be on the runner.
+ *
+ * @internal
+ */
+export function labelsMatch(jobLabels: string[], runnerLabels: string[]): boolean {
+  const runnerLabelsLowerCase = runnerLabels.map((label) => label.toLowerCase());
+  return jobLabels.every(label => label.toLowerCase() == 'self-hosted' || runnerLabelsLowerCase.includes(label.toLowerCase()));
+}
+
+/**
  * Input for the runner orchestrator step function. Read back from the step function itself when a runner needs
  * replacing, so it never has to be stored anywhere else.
  *
