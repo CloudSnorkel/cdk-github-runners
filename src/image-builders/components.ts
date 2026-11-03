@@ -110,21 +110,22 @@ export abstract class RunnerImageComponent {
       name = 'RequiredPackages';
 
       getCommands(os: Os, _architecture: Architecture): string[] {
+        // libatomic is needed by Node.js 26 and the runner doesn't install it (actions/runner#4591)
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS)) {
           return [
             'apt-get -o Acquire::Retries=5 update',
             'DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 upgrade -y',
-            'DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates',
+            'DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y curl sudo jq bash zip unzip iptables software-properties-common ca-certificates libatomic1',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2)) {
           return [
             'yum update -y',
-            'yum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils',
+            'yum install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils libatomic',
           ];
         } else if (os.is(Os.LINUX_AMAZON_2023)) {
           return [
             'dnf upgrade -y',
-            'dnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils',
+            'dnf install -y jq tar gzip bzip2 which binutils zip unzip sudo shadow-utils findutils libatomic',
           ];
         } else if (os.is(Os.WINDOWS)) {
           return [];
