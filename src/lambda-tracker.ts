@@ -60,7 +60,8 @@ function expiry(): number {
  * Remember that we started a runner for this job. Written before the step function starts, so it's always there by
  * the time GitHub could possibly hand the runner a job.
  *
- * The extra fields are for whoever is reading the table during an incident. Only the key is ever used. TTL is used for cleanup.
+ * Runner labels tell whether that runner can run another job of ours instead. The job URL is for whoever is reading the table during an
+ * incident. TTL is used for cleanup.
  *
  * @internal
  */
@@ -122,11 +123,11 @@ export async function isRunnerAccounted(runnerName: string): Promise<boolean> {
 }
 
 /**
- * Is this a job we started a runner for?
+ * Labels of the runner we started for this job, or undefined if we didn't start one.
  *
  * @internal
  */
-export async function isControlledJob(jobId: number): Promise<boolean> {
+export async function controlledJobRunnerLabels(jobId: number): Promise<string[] | undefined> {
   // consistent, because the job may have been recorded moments ago and reading a stale "no" would look like theft
   const result = await ddb.send(new GetItemCommand({
     TableName: tableName(),
@@ -134,5 +135,5 @@ export async function isControlledJob(jobId: number): Promise<boolean> {
     ConsistentRead: true,
   }));
 
-  return !!result.Item;
+  return result.Item?.runnerLabels?.S?.split(',');
 }

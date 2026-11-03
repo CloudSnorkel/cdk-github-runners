@@ -524,6 +524,7 @@ const warmRunner = new ScheduledWarmRunner(stack, 'Integration Test Warm Runner'
 runners.metricJobCompleted();
 runners.failedImageBuildsTopic();
 runners.metricStolenRunners();
+runners.metricJobsMatchingMultipleProviders();
 runners.createLogsInsightsQueries();
 runners.createDashboard();
 

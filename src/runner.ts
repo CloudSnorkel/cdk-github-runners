@@ -393,6 +393,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   private jobsCompletedMetricFiltersInitialized = false;
   private stolenRunnersMetricFilterInitialized = false;
   private stoppedRunnersMetricFilterInitialized = false;
+  private multipleProvidersMetricFilterInitialized = false;
   private warmRunnerManager?: lambda.Function;
   private warmRunnerQueue?: sqs.Queue;
   private warmConfigHashes: string[] = [];
@@ -1184,6 +1185,39 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     return new cloudwatch.Metric({
       namespace: 'GitHubRunners',
       metricName: 'StolenRunners',
+      unit: cloudwatch.Unit.COUNT,
+      statistic: cloudwatch.Stats.SUM,
+      ...props,
+    }).attachTo(this);
+  }
+
+  /**
+   * Metric for the number of jobs whose labels matched more than one provider.
+   *
+   * We start a runner from the first matching provider, but GitHub may give such a job a runner from any of them, including one started for
+   * another job. Stolen runner detection starts another runner for the job left behind, but the job itself may run on a provider you didn't
+   * expect. Anything over zero means some workflows ask for too few labels. Add labels to those jobs so they match only one provider. The
+   * webhook logs have the job labels, matching providers, and job URL.
+   *
+   * Jobs routed by a provider selector are not counted, as the selector picks the provider.
+   *
+   * **WARNING:** this method creates a metric filter. This resource may incur cost.
+   */
+  public metricJobsMatchingMultipleProviders(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
+    if (!this.multipleProvidersMetricFilterInitialized) {
+      singletonLogGroup(this, SingletonLogType.ORCHESTRATOR).addMetricFilter('Multiple Providers filter', {
+        metricNamespace: 'GitHubRunners',
+        metricName: 'JobsMatchingMultipleProviders',
+        filterPattern: logs.FilterPattern.stringValue('$.message.metric', '=', 'MultipleProvidersMatched'),
+        metricValue: '1',
+        defaultValue: 0,
+      });
+      this.multipleProvidersMetricFilterInitialized = true;
+    }
+
+    return new cloudwatch.Metric({
+      namespace: 'GitHubRunners',
+      metricName: 'JobsMatchingMultipleProviders',
       unit: cloudwatch.Unit.COUNT,
       statistic: cloudwatch.Stats.SUM,
       ...props,
