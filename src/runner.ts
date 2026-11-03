@@ -1210,6 +1210,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         metricName: 'JobsMatchingMultipleProviders',
         filterPattern: logs.FilterPattern.stringValue('$.message.metric', '=', 'MultipleProvidersMatched'),
         metricValue: '1',
+        unit: cloudwatch.Unit.COUNT,
         defaultValue: 0,
       });
       this.multipleProvidersMetricFilterInitialized = true;

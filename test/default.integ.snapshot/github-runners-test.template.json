@@ -21724,7 +21724,8 @@
       "DefaultValue": 0,
       "MetricName": "JobsMatchingMultipleProviders",
       "MetricNamespace": "GitHubRunners",
-      "MetricValue": "1"
+      "MetricValue": "1",
+      "Unit": "Count"
      }
     ]
    }
