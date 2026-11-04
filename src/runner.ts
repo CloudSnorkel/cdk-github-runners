@@ -1548,7 +1548,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       'Each GitHub Actions job that asks for a self-hosted runner sends a webhook. We start a runner for it from the provider that matches the job labels. ' +
       'The runner registers with GitHub, runs one job, and goes away.',
       '',
-      'Alarm on **Runners failed to start**, **Lambda errors**, **Jobs matching multiple providers** and stolen runners that were **Not replaced**. ' +
+      'Alarm on **Runners failed to start**, **Lambda errors** and **Jobs matching multiple providers**. ' +
       'When any of them is over zero, jobs may be waiting for a runner that will never come. ' +
       'Also subscribe to `failedImageBuildsTopic()` so you know when runner images stop getting updates.',
     );
@@ -1668,9 +1668,10 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       'We start each runner for a specific job, but GitHub can give it to any queued job with matching labels. ' +
       'When two of our jobs swap runners, nothing is lost and nothing is counted here.',
       '',
-      '**Stolen runners** were taken by a job that left the job they were started for without a runner. That\'s a job from a repository ' +
-      'we don\'t serve, or one whose own runner can\'t run the job left behind. We start a replacement for each. **Not replaced** means ' +
-      'the same job lost its runner too many times in a row and may wait forever. Use the "Stolen runners" Logs Insights query to see who took them.',
+      '**Stolen runners** were taken by a job that left the job they were started for without a runner. That\'s a job we didn\'t start ' +
+      'a runner for, like one from a repository we don\'t serve, or one whose own runner can\'t run the job left behind. ' +
+      'We start a replacement for each. **Not replaced** means the same job lost its runner too many times in a row and may wait forever. ' +
+      'Use the "Stolen runners" Logs Insights query to see who took them.',
       '',
       '**Jobs matching multiple providers** ask for too few labels, so they may run on a provider you didn\'t expect and take runners from other jobs. ' +
       'Add labels to those jobs. Use the "Jobs matching multiple providers" Logs Insights query to find them and the providers they matched. ' +
