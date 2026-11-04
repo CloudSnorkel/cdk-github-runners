@@ -2081,7 +2081,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerWindowsX8664a7b5b0b9cdComponent80487838",
+        "GHRInternalComponentGithubRunnerWindowsX866496e08d13efComponent73DD982D",
         "Arn"
        ]
       }
@@ -5532,7 +5532,7 @@
      {
       "ComponentArn": {
        "Fn::GetAtt": [
-        "GHRInternalComponentGithubRunnerWindowsX8664a7b5b0b9cdComponent80487838",
+        "GHRInternalComponentGithubRunnerWindowsX866496e08d13efComponent73DD982D",
         "Arn"
        ]
       }
@@ -8057,7 +8057,7 @@
     "Version": "1.0.0"
    }
   },
-  "GHRInternalComponentGithubRunnerWindowsX8664a7b5b0b9cdComponent80487838": {
+  "GHRInternalComponentGithubRunnerWindowsX866496e08d13efComponent73DD982D": {
    "Type": "AWS::ImageBuilder::Component",
    "Properties": {
     "Data": {
@@ -8081,7 +8081,7 @@
      ]
     },
     "Description": "GithubRunner component for Windows/X86_64",
-    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Windows-X86-64-a7b5b0b9cd-DE9E10F0",
+    "Name": "github-runners-test-GHRInternal--Component-GithubRunner-Windows-X86-64-96e08d13ef-5125EC3B",
     "Platform": "Windows",
     "Version": "1.0.0"
    }
