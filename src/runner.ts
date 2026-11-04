@@ -1196,8 +1196,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    *
    * We start a runner from the first matching provider, but GitHub may give such a job a runner from any of them, including one started for
    * another job. Stolen runner detection starts another runner for the job left behind, but the job itself may run on a provider you didn't
-   * expect. Anything over zero means some workflows ask for too few labels. Add labels to those jobs so they match only one provider. The
-   * webhook logs have the job labels, matching providers, and job URL.
+   * expect. Anything over zero means some workflows ask for too few labels. Add labels to those jobs so they match only one provider. Use the
+   * "Jobs matching multiple providers" CloudWatch Logs Insights query created by {@link createLogsInsightsQueries} to find them.
    *
    * Jobs routed by a provider selector are not counted, as the selector picks the provider.
    *
@@ -1323,6 +1323,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * * "Ignored webhook" helps understand why runners aren't started
    * * "Ignored jobs based on labels" helps debug label matching issues
    * * "Webhook started runners" helps understand which runners were started
+   * * "Jobs matching multiple providers" lists jobs that need more labels so they match only one provider
    * * "Warm runner status" and "Warm runner errors" (when warm runners are configured)
    *
    * @param prefix Prefix for the query definitions. Defaults to "GitHub Runners".
@@ -1436,6 +1437,20 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       }),
     });
 
+    new logs.QueryDefinition(this, 'Jobs matching multiple providers', {
+      queryDefinitionName: `${prefix}/Jobs matching multiple providers`,
+      logGroups: [this.webhook.handler.logGroup],
+      queryString: new logs.QueryString({
+        // labels and providers are arrays, which Logs Insights splits into one field per item, so the full record shows them
+        fields: ['@timestamp', 'message.jobUrl', 'message.provider', '@message'],
+        filterStatements: [
+          'message.metric = "MultipleProvidersMatched"',
+        ],
+        sort: '@timestamp desc',
+        limit: 100,
+      }),
+    });
+
     new logs.QueryDefinition(this, 'Warm runner status', {
       queryDefinitionName: `${prefix}/Warm runner status`,
       logGroups: [singletonLogGroup(this, SingletonLogType.ORCHESTRATOR)],
@@ -1483,20 +1498,16 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   /**
    * Creates a CloudWatch dashboard with the metrics you need to know if your runners are healthy.
    *
-   * It answers the questions you're most likely to ask:
+   * It's split into sections, each with a short explanation of what its numbers mean and which ones to watch:
    *
-   * * Are jobs running and passing? See "Jobs completed by status".
-   * * Which runner is broken? See "Failed jobs by runner label".
-   * * Are jobs stuck because runners fail to start? See "Runner executions".
-   * * Why were runners stopped before getting a job? See "Stopped runners by reason".
-   * * Why are runners failing to start? See "Recent failed attempts".
-   * * How long do runners take (and therefore cost)? See "Runner time".
-   * * Is GitHub reaching the webhook at all? See "Webhook".
-   * * Is any of our code failing? See "Lambda errors".
-   * * What exactly went wrong? See "Recent errors".
+   * * **Jobs**: are jobs running and passing, and which runner is failing them?
+   * * **Runners**: do runners start, how long do they take (and therefore cost), and why do they fail to start?
+   * * **Runner assignment**: are runners taken by jobs they weren't started for, do jobs match more than one provider, and why
+   *   were runners stopped before getting a job?
+   * * **Management functions (orchestration)**: is GitHub reaching the webhook, and is any of our code failing?
    *
-   * **WARNING:** this method calls {@link metricJobCompleted}, {@link metricStolenRunners} and {@link metricStoppedRunners} which create metric filters.
-   * These resources may incur cost.
+   * **WARNING:** this method calls {@link metricJobCompleted}, {@link metricStolenRunners}, {@link metricStoppedRunners} and
+   * {@link metricJobsMatchingMultipleProviders} which create metric filters. These resources may incur cost.
    *
    * This dashboard is very basic. Pull requests and issues are welcome to improve it.
    *
@@ -1525,6 +1536,23 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       defaultInterval: cdk.Duration.days(1),
     });
 
+    // a full width text widget that starts a section and explains its numbers
+    const section = (height: number, ...lines: string[]) => dashboard.addWidgets(new cloudwatch.TextWidget({
+      markdown: lines.join('\n'),
+      width: 24,
+      height,
+    }));
+
+    section(3,
+      '# GitHub Runners',
+      'Each GitHub Actions job that asks for a self-hosted runner sends a webhook. We start a runner for it from the provider that matches the job labels. ' +
+      'The runner registers with GitHub, runs one job, and goes away.',
+      '',
+      'Alarm on **Runners failed to start**, **Lambda errors** and **Jobs matching multiple providers**. ' +
+      'When any of them is over zero, jobs may be waiting for a runner that will never come. ' +
+      'Also subscribe to `failedImageBuildsTopic()` so you know when runner images stop getting updates.',
+    );
+
     dashboard.addWidgets(new cloudwatch.SingleValueWidget({
       title: 'Summary',
       metrics: [
@@ -1532,14 +1560,22 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         jobs('Failed', 'Jobs failed'),
         this.metricFailed({ label: 'Runners failed to start' }),
         search('Stolen runners', 'StolenRunners'),
+        this.metricJobsMatchingMultipleProviders({ label: 'Jobs matching multiple providers' }),
         search('Idle runners stopped', 'StoppedRunners', 'Reason="IdleRunner"'),
         this.metricLambdaErrors({ label: 'Lambda errors' }),
       ],
       // totals for the dashboard time range instead of just the last period
       setPeriodToTimeRange: true,
       width: 24,
-      height: 4,
+      height: 5,
     }));
+
+    section(2,
+      '## Jobs',
+      'Jobs that ran on our runners, counted when the runner finishes them. These are the results your users see in GitHub. ' +
+      'A failed job is usually a problem in the workflow, not the runner. But if one runner label fails much more than the others, ' +
+      'its image may be missing something the jobs need. **Abandoned** means the runner went away in the middle of the job.',
+    );
 
     dashboard.addWidgets(
       new cloudwatch.GraphWidget({
@@ -1547,7 +1583,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         // status list taken from https://github.com/actions/runner/blob/be9632302ceef50bfb36ea998cea9c94c75e5d4d/src/Sdk/DTWebApi/WebApi/TaskResult.cs
         left: ['Succeeded', 'SucceededWithIssues', 'Failed', 'Canceled', 'Skipped', 'Abandoned'].map(s => jobs(s, s)),
         stacked: true,
-        width: 6,
+        width: 12,
       }),
       new cloudwatch.GraphWidget({
         title: 'Failed jobs by runner label',
@@ -1564,26 +1600,18 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           statistic: cloudwatch.Stats.SUM,
         })),
         stacked: true,
-        width: 6,
+        width: 12,
       }),
-      new cloudwatch.GraphWidget({
-        title: 'Stolen runners',
-        // not replaced means the replacement limit was hit, so the job may be left without a runner
-        left: [
-          search('Replaced', 'StolenRunners', 'Replaced="true"'),
-          search('Not replaced', 'StolenRunners', 'Replaced="false"'),
-        ],
-        stacked: true,
-        width: 6,
-      }),
-      new cloudwatch.GraphWidget({
-        title: 'Stopped runners by reason',
-        // these executions are aborted on purpose, so they're not counted as failed. see metricStoppedRunners() for what each reason means
-        left: ['IdleRunner', 'StaleWarmRunner', 'WarmRunnerExpired', 'WarmRunnerBadDeadline']
-          .map(r => search(r, 'StoppedRunners', `Reason="${r}"`)),
-        stacked: true,
-        width: 6,
-      }),
+    );
+
+    section(3,
+      '## Runners',
+      'Every runner we start is one step function execution. **Succeeded** means the runner started, ran and exited. ' +
+      '**Failed** means it never managed to start, so the job it was started for may wait until GitHub gives up on it. ' +
+      'Alarm on failed. **Recent failed attempts** below shows why. ' +
+      '**Aborted** runners were stopped on purpose and are explained in the next section.',
+      '',
+      '**Runner time** includes start-up, so it\'s close to what you pay for each runner. A jump usually means slower start-ups or longer jobs.',
     );
 
     dashboard.addWidgets(
@@ -1597,7 +1625,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           this.orchestrator.metricAborted({ label: 'Aborted' }),
         ],
         stacked: true,
-        width: 6,
+        width: 12,
       }),
       new cloudwatch.GraphWidget({
         title: 'Runner time (including start-up)',
@@ -1606,24 +1634,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
           this.metricTime({ statistic: cloudwatch.Stats.p(90), label: 'p90' }),
           this.metricTime({ statistic: cloudwatch.Stats.MAXIMUM, label: 'max' }),
         ],
-        width: 6,
-      }),
-      new cloudwatch.GraphWidget({
-        title: 'Webhook',
-        left: [
-          this.webhook.handler.metricInvocations({ label: 'Requests' }),
-          this.webhook.handler.metricErrors({ label: 'Errors' }),
-        ],
-        width: 6,
-      }),
-      new cloudwatch.GraphWidget({
-        title: 'Lambda errors',
-        // one series per function, so a spike points at the function that needs looking at
-        left: this.managementFunctions.map(f => f.metricErrors({
-          label: f.node.path.slice(this.node.path.length + 1),
-        })),
-        stacked: true,
-        width: 6,
+        width: 12,
       }),
     );
 
@@ -1651,6 +1662,81 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
       width: 24,
       height: 6,
     }));
+
+    section(5,
+      '## Runner assignment',
+      'We start each runner for a specific job, but GitHub can give it to any queued job with matching labels. ' +
+      'When two of our jobs swap runners, nothing is lost and nothing is counted here.',
+      '',
+      '**Stolen runners** were taken by a job that left the job they were started for without a runner. That\'s a job we didn\'t start ' +
+      'a runner for, like one from a repository we don\'t serve, or one whose own runner can\'t run the job left behind. ' +
+      'We start a replacement for each. **Not replaced** means the same job lost its runner too many times in a row and may wait forever. ' +
+      'Use the "Stolen runners" Logs Insights query to see who took them.',
+      '',
+      '**Jobs matching multiple providers** ask for too few labels, so they may run on a provider you didn\'t expect and take runners from other jobs. ' +
+      'Add labels to those jobs. Use the "Jobs matching multiple providers" Logs Insights query to find them and the providers they matched. ' +
+      'Both queries are created by `createLogsInsightsQueries()`.',
+      '',
+      '**Idle runners stopped** never got a job before their idle timeout. These are usually runners started for jobs that were canceled before ' +
+      'the runner was ready, or the extra runner left over after a stolen runner was replaced.',
+      '',
+      'You shouldn\'t see big numbers for any of these. Each one is a runner that was started for nothing, so you\'re wasting resources. ' +
+      'Stolen runners and jobs matching multiple providers may also leave jobs hanging.',
+    );
+
+    dashboard.addWidgets(
+      new cloudwatch.GraphWidget({
+        title: 'Stolen runners',
+        // not replaced means the replacement limit was hit, so the job may be left without a runner
+        left: [
+          search('Replaced', 'StolenRunners', 'Replaced="true"'),
+          search('Not replaced', 'StolenRunners', 'Replaced="false"'),
+        ],
+        stacked: true,
+        width: 8,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Jobs matching multiple providers',
+        left: [this.metricJobsMatchingMultipleProviders({ label: 'Jobs' })],
+        width: 8,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Stopped runners by reason',
+        // these executions are aborted on purpose, so they're not counted as failed. see metricStoppedRunners() for what each reason means
+        left: ['IdleRunner', 'StaleWarmRunner', 'WarmRunnerExpired', 'WarmRunnerBadDeadline']
+          .map(r => search(r, 'StoppedRunners', `Reason="${r}"`)),
+        stacked: true,
+        width: 8,
+      }),
+    );
+
+    section(3,
+      '## Management functions (orchestration)',
+      'The Lambda functions that orchestrate runners: they receive webhooks, start runners, stop idle runners and replace stolen ones. ' +
+      'Their logs are in the orchestrator log group, and the "Orchestration errors" Logs Insights query finds their errors. ' +
+      'If jobs are queued and the webhook gets no requests, GitHub isn\'t reaching it. Check the webhook deliveries of your GitHub app. ' +
+      '**Lambda errors** over zero means jobs may not get a runner. Alarm on it, and see **Recent errors** below for what went wrong.',
+    );
+
+    dashboard.addWidgets(
+      new cloudwatch.GraphWidget({
+        title: 'Webhook',
+        left: [
+          this.webhook.handler.metricInvocations({ label: 'Requests' }),
+          this.webhook.handler.metricErrors({ label: 'Errors' }),
+        ],
+        width: 12,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Lambda errors',
+        // one series per function, so a spike points at the function that needs looking at
+        left: this.managementFunctions.map(f => f.metricErrors({
+          label: f.node.path.slice(this.node.path.length + 1),
+        })),
+        stacked: true,
+        width: 12,
+      }),
+    );
 
     // the orchestrator, webhook and runner management functions log here, setup and status log separately
     dashboard.addWidgets(new cloudwatch.LogQueryWidget({
