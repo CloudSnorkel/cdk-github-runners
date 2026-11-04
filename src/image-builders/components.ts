@@ -299,7 +299,7 @@ export abstract class RunnerImageComponent {
             ];
           }
           return [
-            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh',
+            'cmd /c curl --retry 5 --retry-delay 30 -fsSL -o NUL -w "%{url_effective}" https://github.com/cli/cli/releases/latest > $Env:TEMP\\latest-gh',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-gh',
             '$GH_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_windows_amd64.msi" -OutFile gh.msi',
@@ -355,7 +355,7 @@ export abstract class RunnerImageComponent {
             ];
           }
           return [
-            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\latest-git',
+            'cmd /c curl --retry 5 --retry-delay 30 -fsSL -o NUL -w "%{url_effective}" https://github.com/git-for-windows/git/releases/latest > $Env:TEMP\\latest-git',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-git',
             '$GIT_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             '$GIT_VERSION_SHORT = ($GIT_VERSION -Split \'.windows.\')[0]',
@@ -421,7 +421,7 @@ export abstract class RunnerImageComponent {
         if (os.isIn(Os._ALL_LINUX_UBUNTU_VERSIONS) || os.isIn(Os._ALL_LINUX_AMAZON_VERSIONS)) {
           let versionCommand: string;
           if (runnerVersion.is(RunnerVersion.latest())) {
-            versionCommand = 'RUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest | grep -oE "[^/v]+$"`';
+            versionCommand = 'RUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -o /dev/null -w "%{url_effective}" https://github.com/actions/runner/releases/latest | grep -oE "[^/v]+$"`';
           } else {
             versionCommand = `RUNNER_VERSION='${runnerVersion.version}'`;
           }
@@ -465,7 +465,7 @@ export abstract class RunnerImageComponent {
           let runnerCommands: string[];
           if (runnerVersion.is(RunnerVersion.latest())) {
             runnerCommands = [
-              'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/actions/runner/releases/latest > $Env:TEMP\\latest-gha',
+              'cmd /c curl --retry 5 --retry-delay 30 -fsSL -o NUL -w "%{url_effective}" https://github.com/actions/runner/releases/latest > $Env:TEMP\\latest-gha',
               '$LatestUrl = Get-Content $Env:TEMP\\latest-gha',
               '$RUNNER_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             ];
@@ -478,7 +478,7 @@ export abstract class RunnerImageComponent {
             'mkdir C:\\hostedtoolcache\\windows',
             'mkdir C:\\tools',
             // download zstd and extract to C:\tools
-            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/meta/zstd/releases/latest > $Env:TEMP\\latest-zstd',
+            'cmd /c curl --retry 5 --retry-delay 30 -fsSL -o NUL -w "%{url_effective}" https://github.com/meta/zstd/releases/latest > $Env:TEMP\\latest-zstd',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-zstd',
             '$ZSTD_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
             'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/meta/zstd/releases/download/v$ZSTD_VERSION/zstd-v$ZSTD_VERSION-win64.zip" -OutFile zstd.zip',
@@ -596,7 +596,7 @@ export abstract class RunnerImageComponent {
             // enable containers feature
             'Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart',
             // install docker-compose
-            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/docker/compose/releases/latest > $Env:TEMP\\latest-docker-compose',
+            'cmd /c curl --retry 5 --retry-delay 30 -fsSL -o NUL -w "%{url_effective}" https://github.com/docker/compose/releases/latest > $Env:TEMP\\latest-docker-compose',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-docker-compose',
             '$LatestDockerCompose = ($LatestUrl -Split \'/\')[-1]',
             'Invoke-WebRequest -UseBasicParsing -Uri  "https://github.com/docker/compose/releases/download/${LatestDockerCompose}/docker-compose-Windows-x86_64.exe" -OutFile $Env:ProgramFiles\\Docker\\docker-compose.exe',
