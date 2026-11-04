@@ -644,9 +644,9 @@ Other useful metrics to track:
 3. Use `GitHubRunners.metricStolenRunners()` to get a metric for number of runners detected as stolen by another job. Anything over zero can indicate a misconfiguration or GitHub webhook issues.
 4. Use `GitHubRunners.metricJobsMatchingMultipleProviders()` to get a metric for the number of jobs whose labels matched more than one provider and may run on any of them. Anything over zero means some workflows should ask for more labels.
 
-Use `GitHubRunners.createDashboard()` to get a CloudWatch dashboard with all of these metrics in one place. It shows
-completed jobs by status, failed jobs by runner label, runners that failed to start, runner time, webhook activity, and
-recent errors from the logs.
+Use `GitHubRunners.createDashboard()` to get a CloudWatch dashboard with all of these metrics in one place. It's split
+into sections for jobs, runners, runner assignment and management functions. Each section explains what its numbers
+mean and which ones to alarm on.
 
 ## Known Issues
 

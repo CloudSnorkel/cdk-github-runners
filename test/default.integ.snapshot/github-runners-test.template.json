@@ -21450,6 +21450,18 @@
     "QueryString": "fields @timestamp, message.notice, message.stolenRunnerName, message.runnerName, message.stolenByJobId, message.jobUrl, message.owner, message.repo, message.provider\n| filter isPresent(message.metric) and strcontains(message.metric, \"Stolen\")\n| sort @timestamp desc\n| limit 100"
    }
   },
+  "runnersJobsmatchingmultipleprovidersE435B43B": {
+   "Type": "AWS::Logs::QueryDefinition",
+   "Properties": {
+    "LogGroupNames": [
+     {
+      "Ref": "OrchestratorLogFB9610E7"
+     }
+    ],
+    "Name": "GitHub Runners/Jobs matching multiple providers",
+    "QueryString": "fields @timestamp, message.jobUrl, message.provider, @message\n| filter message.metric = \"MultipleProvidersMatched\"\n| sort @timestamp desc\n| limit 100"
+   }
+  },
   "runnersWarmrunnerstatusB9D1210D": {
    "Type": "AWS::Logs::QueryDefinition",
    "Properties": {
@@ -21503,7 +21515,7 @@
      "Fn::Join": [
       "",
       [
-       "{\"start\":\"-P1D\",\"widgets\":[{\"type\":\"metric\",\"width\":24,\"height\":4,\"x\":0,\"y\":0,\"properties\":{\"view\":\"singleValue\",\"title\":\"Summary\",\"region\":\"",
+       "{\"start\":\"-P1D\",\"widgets\":[{\"type\":\"text\",\"width\":24,\"height\":3,\"x\":0,\"y\":0,\"properties\":{\"markdown\":\"# GitHub Runners\\nEach GitHub Actions job that asks for a self-hosted runner sends a webhook. We start a runner for it from the provider that matches the job labels. The runner registers with GitHub, runs one job, and goes away.\\n\\nAlarm on **Runners failed to start**, **Lambda errors**, **Jobs matching multiple providers** and stolen runners that were **Not replaced**. When any of them is over zero, jobs may be waiting for a runner that will never come. Also subscribe to `failedImageBuildsTopic()` so you know when runner images stop getting updates.\"}},{\"type\":\"metric\",\"width\":24,\"height\":5,\"x\":0,\"y\":3,\"properties\":{\"view\":\"singleValue\",\"title\":\"Summary\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -21511,7 +21523,7 @@
        {
         "Ref": "runnersRunnerOrchestratorF9B66EBA"
        },
-       "\",{\"label\":\"Runners failed to start\",\"stat\":\"Sum\"}],[{\"label\":\"Stolen runners\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\"', 'Sum'))\"}],[{\"label\":\"Idle runners stopped\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"IdleRunner\\\"', 'Sum'))\"}],[{\"label\":\"Lambda errors\",\"expression\":\"SUM([e0,e1,e2,e3,e4,e5,e6,e7,e8])\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       "\",{\"label\":\"Runners failed to start\",\"stat\":\"Sum\"}],[{\"label\":\"Stolen runners\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\"', 'Sum'))\"}],[\"GitHubRunners\",\"JobsMatchingMultipleProviders\",{\"label\":\"Jobs matching multiple providers\",\"stat\":\"Sum\"}],[{\"label\":\"Idle runners stopped\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"IdleRunner\\\"', 'Sum'))\"}],[{\"label\":\"Lambda errors\",\"expression\":\"SUM([e0,e1,e2,e3,e4,e5,e6,e7,e8])\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
        {
         "Ref": "runnersIdleReaper6FBF63A3"
        },
@@ -21547,23 +21559,15 @@
        {
         "Ref": "runnersWarmRunnerManager01615E89"
        },
-       "\",{\"id\":\"e8\",\"visible\":false,\"stat\":\"Sum\"}]],\"setPeriodToTimeRange\":true}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Jobs completed by status\",\"region\":\"",
+       "\",{\"id\":\"e8\",\"visible\":false,\"stat\":\"Sum\"}]],\"setPeriodToTimeRange\":true}},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":8,\"properties\":{\"markdown\":\"## Jobs\\nJobs that ran on our runners, counted when the runner finishes them. These are the results your users see in GitHub. A failed job is usually a problem in the workflow, not the runner. But if one runner label fails much more than the others, its image may be missing something the jobs need. **Abandoned** means the runner went away in the middle of the job.\"}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Jobs completed by status\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
-       "\",\"stacked\":true,\"metrics\":[[{\"label\":\"Succeeded\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Succeeded\\\"', 'Sum'))\"}],[{\"label\":\"SucceededWithIssues\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"SucceededWithIssues\\\"', 'Sum'))\"}],[{\"label\":\"Failed\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Failed\\\"', 'Sum'))\"}],[{\"label\":\"Canceled\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Canceled\\\"', 'Sum'))\"}],[{\"label\":\"Skipped\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Skipped\\\"', 'Sum'))\"}],[{\"label\":\"Abandoned\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Abandoned\\\"', 'Sum'))\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":6,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Failed jobs by runner label\",\"region\":\"",
+       "\",\"stacked\":true,\"metrics\":[[{\"label\":\"Succeeded\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Succeeded\\\"', 'Sum'))\"}],[{\"label\":\"SucceededWithIssues\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"SucceededWithIssues\\\"', 'Sum'))\"}],[{\"label\":\"Failed\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Failed\\\"', 'Sum'))\"}],[{\"label\":\"Canceled\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Canceled\\\"', 'Sum'))\"}],[{\"label\":\"Skipped\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Skipped\\\"', 'Sum'))\"}],[{\"label\":\"Abandoned\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"JobCompleted\\\" Status=\\\"Abandoned\\\"', 'Sum'))\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Failed jobs by runner label\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
-       "\",\"stacked\":true,\"metrics\":[[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-ubuntu-2404-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-ubuntu-2404-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"codebuild, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,windows,x64\",\"Status\",\"Failed\",{\"label\":\"codebuild, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs-ubuntu-2404,x64\",\"Status\",\"Failed\",{\"label\":\"ecs-ubuntu-2404, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,x64\",\"Status\",\"Failed\",{\"label\":\"lambda, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"integ-warm\",\"Status\",\"Failed\",{\"label\":\"integ-warm\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,arm64\",\"Status\",\"Failed\",{\"label\":\"lambda, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,windows,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, windows, x64\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":12,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Stolen runners\",\"region\":\"",
-       {
-        "Ref": "AWS::Region"
-       },
-       "\",\"stacked\":true,\"metrics\":[[{\"label\":\"Replaced\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\" Replaced=\\\"true\\\"', 'Sum'))\"}],[{\"label\":\"Not replaced\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\" Replaced=\\\"false\\\"', 'Sum'))\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":18,\"y\":4,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Stopped runners by reason\",\"region\":\"",
-       {
-        "Ref": "AWS::Region"
-       },
-       "\",\"stacked\":true,\"metrics\":[[{\"label\":\"IdleRunner\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"IdleRunner\\\"', 'Sum'))\"}],[{\"label\":\"StaleWarmRunner\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"StaleWarmRunner\\\"', 'Sum'))\"}],[{\"label\":\"WarmRunnerExpired\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"WarmRunnerExpired\\\"', 'Sum'))\"}],[{\"label\":\"WarmRunnerBadDeadline\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"WarmRunnerBadDeadline\\\"', 'Sum'))\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner executions\",\"region\":\"",
+       "\",\"stacked\":true,\"metrics\":[[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-ubuntu-2404-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-ubuntu-2404-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"codebuild, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,windows,x64\",\"Status\",\"Failed\",{\"label\":\"codebuild, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs-ubuntu-2404,x64\",\"Status\",\"Failed\",{\"label\":\"ecs-ubuntu-2404, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,x64\",\"Status\",\"Failed\",{\"label\":\"lambda, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"integ-warm\",\"Status\",\"Failed\",{\"label\":\"integ-warm\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,arm64\",\"Status\",\"Failed\",{\"label\":\"lambda, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,windows,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, windows, x64\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"text\",\"width\":24,\"height\":3,\"x\":0,\"y\":16,\"properties\":{\"markdown\":\"## Runners\\nEvery runner we start is one step function execution. **Succeeded** means the runner started, ran and exited. **Failed** means it never managed to start, so the job it was started for may wait until GitHub gives up on it. Alarm on failed. **Recent failed attempts** below shows why. **Aborted** runners were stopped on purpose and are explained in the next section.\\n\\n**Runner time** includes start-up, so it's close to what you pay for each runner. A jump usually means slower start-ups or longer jobs.\"}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":19,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner executions\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -21583,7 +21587,7 @@
        {
         "Ref": "runnersRunnerOrchestratorF9B66EBA"
        },
-       "\",{\"label\":\"Aborted\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":6,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner time (including start-up)\",\"region\":\"",
+       "\",{\"label\":\"Aborted\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":19,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner time (including start-up)\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -21599,7 +21603,27 @@
        {
         "Ref": "runnersRunnerOrchestratorF9B66EBA"
        },
-       "\",{\"label\":\"max\",\"stat\":\"Maximum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":12,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Webhook\",\"region\":\"",
+       "\",{\"label\":\"max\",\"stat\":\"Maximum\"}]],\"yAxis\":{}}},{\"type\":\"log\",\"width\":24,\"height\":6,\"x\":0,\"y\":25,\"properties\":{\"view\":\"table\",\"title\":\"Recent failed attempts\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"query\":\"SOURCE '",
+       {
+        "Ref": "OrchestratorLogFB9610E7"
+       },
+       "' | fields @timestamp, message.error.Error as error, message.family as family, message.runnerName as runner, message.repo as repo, message.error.Cause as cause\\n| filter message.notice = \\\"Runner failed\\\"\\n| sort @timestamp desc\\n| limit 20\"}},{\"type\":\"text\",\"width\":24,\"height\":5,\"x\":0,\"y\":31,\"properties\":{\"markdown\":\"## Runner assignment\\nWe start each runner for a specific job, but GitHub can give it to any queued job with matching labels. When two of our jobs swap runners, nothing is lost and nothing is counted here.\\n\\n**Stolen runners** were taken by a job that left the job they were started for without a runner. That's a job from a repository we don't serve, or one whose own runner can't run the job left behind. We start a replacement for each. **Not replaced** means the same job lost its runner too many times in a row and may wait forever. Use the \\\"Stolen runners\\\" Logs Insights query to see who took them.\\n\\n**Jobs matching multiple providers** ask for too few labels, so they may run on a provider you didn't expect and take runners from other jobs. Add labels to those jobs. Use the \\\"Jobs matching multiple providers\\\" Logs Insights query to find them and the providers they matched. Both queries are created by `createLogsInsightsQueries()`.\\n\\n**Idle runners stopped** never got a job before their idle timeout. These are usually runners started for jobs that were canceled before the runner was ready, or the extra runner left over after a stolen runner was replaced.\\n\\nYou shouldn't see big numbers for any of these. Each one is a runner that was started for nothing, so you're wasting resources. Stolen runners and jobs matching multiple providers may also leave jobs hanging.\"}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":0,\"y\":36,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Stolen runners\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"stacked\":true,\"metrics\":[[{\"label\":\"Replaced\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\" Replaced=\\\"true\\\"', 'Sum'))\"}],[{\"label\":\"Not replaced\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StolenRunners\\\" Replaced=\\\"false\\\"', 'Sum'))\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":8,\"y\":36,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Jobs matching multiple providers\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"GitHubRunners\",\"JobsMatchingMultipleProviders\",{\"label\":\"Jobs\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":16,\"y\":36,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Stopped runners by reason\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"stacked\":true,\"metrics\":[[{\"label\":\"IdleRunner\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"IdleRunner\\\"', 'Sum'))\"}],[{\"label\":\"StaleWarmRunner\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"StaleWarmRunner\\\"', 'Sum'))\"}],[{\"label\":\"WarmRunnerExpired\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"WarmRunnerExpired\\\"', 'Sum'))\"}],[{\"label\":\"WarmRunnerBadDeadline\",\"expression\":\"SUM(SEARCH('Namespace=\\\"GitHubRunners\\\" MetricName=\\\"StoppedRunners\\\" Reason=\\\"WarmRunnerBadDeadline\\\"', 'Sum'))\"}]],\"yAxis\":{}}},{\"type\":\"text\",\"width\":24,\"height\":3,\"x\":0,\"y\":42,\"properties\":{\"markdown\":\"## Management functions (orchestration)\\nThe Lambda functions that orchestrate runners: they receive webhooks, start runners, stop idle runners and replace stolen ones. Their logs are in the orchestrator log group, and the \\\"Orchestration errors\\\" Logs Insights query finds their errors. If jobs are queued and the webhook gets no requests, GitHub isn't reaching it. Check the webhook deliveries of your GitHub app. **Lambda errors** over zero means jobs may not get a runner. Alarm on it, and see **Recent errors** below for what went wrong.\"}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":45,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Webhook\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -21611,7 +21635,7 @@
        {
         "Ref": "runnersWebhookHandlerwebhookhandler22779A81"
        },
-       "\",{\"label\":\"Errors\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":18,\"y\":10,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Lambda errors\",\"region\":\"",
+       "\",{\"label\":\"Errors\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":45,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Lambda errors\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
@@ -21651,15 +21675,7 @@
        {
         "Ref": "runnersWarmRunnerManager01615E89"
        },
-       "\",{\"label\":\"Warm Runner Manager\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"log\",\"width\":24,\"height\":6,\"x\":0,\"y\":16,\"properties\":{\"view\":\"table\",\"title\":\"Recent failed attempts\",\"region\":\"",
-       {
-        "Ref": "AWS::Region"
-       },
-       "\",\"query\":\"SOURCE '",
-       {
-        "Ref": "OrchestratorLogFB9610E7"
-       },
-       "' | fields @timestamp, message.error.Error as error, message.family as family, message.runnerName as runner, message.repo as repo, message.error.Cause as cause\\n| filter message.notice = \\\"Runner failed\\\"\\n| sort @timestamp desc\\n| limit 20\"}},{\"type\":\"log\",\"width\":24,\"height\":6,\"x\":0,\"y\":22,\"properties\":{\"view\":\"table\",\"title\":\"Recent errors\",\"region\":\"",
+       "\",{\"label\":\"Warm Runner Manager\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"log\",\"width\":24,\"height\":6,\"x\":0,\"y\":51,\"properties\":{\"view\":\"table\",\"title\":\"Recent errors\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },
