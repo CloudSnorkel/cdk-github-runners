@@ -14,8 +14,8 @@ jobs:
     steps:
       - run: echo "$RUNNER_NAME"
   subset:
-    # matches only the ECS Ubuntu 24.04 provider by one of its labels, so any runner that picks it up can be replaced by an identical one
-    runs-on: [self-hosted, ecs-ubuntu-2404]
+    # matches only the CodeBuild arm64 provider by some of its labels, so any runner that picks it up can be replaced by an identical one
+    runs-on: [self-hosted, codebuild, arm64]
     steps:
       - run: echo "$RUNNER_NAME"
   unknown:
