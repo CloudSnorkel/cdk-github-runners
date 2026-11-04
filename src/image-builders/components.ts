@@ -478,10 +478,10 @@ export abstract class RunnerImageComponent {
             'mkdir C:\\hostedtoolcache\\windows',
             'mkdir C:\\tools',
             // download zstd and extract to C:\tools
-            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/facebook/zstd/releases/latest > $Env:TEMP\\latest-zstd',
+            'cmd /c curl --retry 5 --retry-delay 30 -w "%{redirect_url}" -fsS https://github.com/meta/zstd/releases/latest > $Env:TEMP\\latest-zstd',
             '$LatestUrl = Get-Content $Env:TEMP\\latest-zstd',
             '$ZSTD_VERSION = ($LatestUrl -Split \'/\')[-1].substring(1)',
-            'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/facebook/zstd/releases/download/v$ZSTD_VERSION/zstd-v$ZSTD_VERSION-win64.zip" -OutFile zstd.zip',
+            'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/meta/zstd/releases/download/v$ZSTD_VERSION/zstd-v$ZSTD_VERSION-win64.zip" -OutFile zstd.zip',
             'Expand-Archive zstd.zip -DestinationPath C:\\tools',
             'Move-Item -Path C:\\tools\\zstd-v$ZSTD_VERSION-win64\\zstd.exe C:\\tools',
             'Remove-Item -LiteralPath "C:\\tools\\zstd-v$ZSTD_VERSION-win64" -Force -Recurse',
