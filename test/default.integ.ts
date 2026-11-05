@@ -216,12 +216,6 @@ FargateRunnerProvider.imageBuilder(stack, 'AL2 builder', {
   os: Os.LINUX_AMAZON_2,
 }).bindDockerImage();
 
-// only warm runners can take integ-warm jobs, so integ-warm.yml knows its job ran on one
-const warmProvider = new CodeBuildRunnerProvider(stack, 'CodeBuild Warm', {
-  labels: ['integ-warm'],
-  imageBuilder: codeBuildImageBuilder,
-});
-
 const runners = new GitHubRunners(stack, 'runners', {
   providers: [
     new CodeBuildRunnerProvider(stack, 'CodeBuildx64', {
@@ -306,10 +300,10 @@ const runners = new GitHubRunners(stack, 'runners', {
       maxInstances: 1,
     }),
     new LambdaRunnerProvider(stack, 'Lambda', {
-      labels: ['lambda', 'x64'],
+      // our provider selector leaves integ-warm off every runner it starts, so only warm runners can take integ-warm jobs and integ-warm.yml knows its job ran on one
+      labels: ['lambda', 'x64', 'integ-warm'],
       imageBuilder: lambdaImageBuilder,
     }),
-    warmProvider,
     new LambdaRunnerProvider(stack, 'LambdaARM', {
       labels: ['lambda', 'arm64'],
       imageBuilder: lambdaArm64ImageBuilder,
@@ -477,9 +471,9 @@ const runners = new GitHubRunners(stack, 'runners', {
           };
         }
         if (event.payload.workflow_job.labels.includes('integ-ec2-dies')) {
-          // spot, like the interrupted runners of #1007. no other job can take this runner, so the one that dies is the one we're watching
+          // the instance dies like the interrupted spot runners of #1007. no other job can take this runner, so the one that dies is the one we're watching
           return {
-            provider: Object.keys(event.providers).find(p => event.providers[p].includes('ec2-spot')),
+            provider: Object.keys(event.providers).find(p => ['ec2', 'linux', 'arm64'].every(l => event.providers[p].includes(l))),
             labels: ['self-hosted', 'integ-ec2-dies'],
           };
         }
@@ -499,7 +493,7 @@ const runners = new GitHubRunners(stack, 'runners', {
         }
         return {
           provider: event.defaultProvider,
-          labels: event.defaultLabels,
+          labels: event.defaultLabels?.filter(l => l != 'integ-warm'),
         };
       }
     `),
@@ -513,7 +507,7 @@ const runners = new GitHubRunners(stack, 'runners', {
 const [githubOwner, githubRepo] = githubRepository.split('/');
 const warmRunner = new ScheduledWarmRunner(stack, 'Integration Test Warm Runner', {
   runners,
-  provider: warmProvider,
+  provider: runners.providers.find(p => p.labels.includes('integ-warm'))!,
   count: 1,
   owner: githubOwner,
   repo: githubRepo,

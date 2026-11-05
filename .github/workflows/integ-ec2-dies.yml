@@ -1,4 +1,4 @@
-# Powers off an EC2 spot runner in the middle of a job, like a spot interruption, and checks it's cleaned up, retried a
+# Powers off an EC2 runner in the middle of a job, like a spot interruption, and checks it's cleaned up, retried a
 # few times at most (not over and over like #1007), and finally stopped by the idle reaper.
 # Needs the integration test role described in TESTING.md.
 
@@ -70,7 +70,7 @@ jobs:
             echo "::error::Dead runner was not cleaned up"
             exit 1
           fi
-          # spot capacity errors can add tries before the one that died, and a missed heartbeat ends the task with States.Timeout
+          # capacity errors can add tries before the one that died, and a missed heartbeat ends the task with States.Timeout
           errors=$(aws stepfunctions get-execution-history --execution-arn "$execution" --output json \
             --query "events[?stateExitedEventDetails.name == 'Clean Up Failed Runner'].stateExitedEventDetails.output" | jq -r '.[] | fromjson | .error.Error')
           echo "$errors"
