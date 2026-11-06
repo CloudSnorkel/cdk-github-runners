@@ -23,7 +23,7 @@ This example demonstrates how to configure custom EBS storage options for EC2 ru
 When building AMIs with large components, you may need to increase the storage size for the AMI builder. This is done using `awsImageBuilderOptions.storageSize`:
 
 ```typescript
-amiBuilder: Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
+imageBuilder: Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
   awsImageBuilderOptions: {
     storageSize: Size.gibibytes(50), // Increase from default 30GB
   },

@@ -1,7 +1,5 @@
-import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import {
-  aws_cloudformation as cloudformation,
   aws_ec2 as ec2,
   aws_events as events,
   aws_events_targets as events_targets,
@@ -13,8 +11,18 @@ import {
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import {
-  Architecture, BaseProvider, IRunnerProvider, IRunnerProviderStatus, Os, providerParam, RUNNER_INPUT,
-  RunnerConfig, RunnerImage, RunnerProviderProps, RunnerVersion, runnerDefaultLabels,
+  Architecture,
+  BaseProvider,
+  IRunnerProvider,
+  IRunnerProviderStatus,
+  Os,
+  providerParam,
+  RUNNER_INPUT,
+  RunnerConfig,
+  runnerDefaultLabels,
+  RunnerImage,
+  RunnerProviderProps,
+  RunnerVersion,
 } from './common';
 import { UpdateLambdaFunction } from './update-lambda-function';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
@@ -31,14 +39,6 @@ export interface LambdaRunnerProviderProps extends RunnerProviderProps {
    * @default LambdaRunnerProvider.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
-
-  /**
-   * GitHub Actions label used for this provider.
-   *
-   * @default undefined
-   * @deprecated use {@link labels} instead
-   */
-  readonly label?: string;
 
   /**
    * GitHub Actions labels used for this provider.
@@ -99,15 +99,6 @@ export interface LambdaRunnerProviderProps extends RunnerProviderProps {
   readonly vpc?: ec2.IVpc;
 
   /**
-   * Security group to assign to this instance.
-   *
-   * @default public lambda with no security group
-   *
-   * @deprecated use {@link securityGroups}
-   */
-  readonly securityGroup?: ec2.ISecurityGroup;
-
-  /**
    * Security groups to assign to this instance.
    *
    * @default public lambda with no security group
@@ -144,28 +135,6 @@ export interface LambdaRunnerConfig extends RunnerConfig {
 export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvider {
   /** @internal */
   public static readonly _FAMILY = 'lambda';
-
-  /**
-   * Path to Dockerfile for Linux x64 with all the requirement for Lambda runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
-   *
-   * Available build arguments that can be set in the image builder:
-   * * `BASE_IMAGE` sets the `FROM` line. This should be similar to public.ecr.aws/lambda/nodejs:14.
-   * * `EXTRA_PACKAGES` can be used to install additional packages.
-   *
-   * @deprecated Use `imageBuilder()` instead.
-   */
-  public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-x64');
-
-  /**
-   * Path to Dockerfile for Linux ARM64 with all the requirement for Lambda runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
-   *
-   * Available build arguments that can be set in the image builder:
-   * * `BASE_IMAGE` sets the `FROM` line. This should be similar to public.ecr.aws/lambda/nodejs:14.
-   * * `EXTRA_PACKAGES` can be used to install additional packages.
-   *
-   * @deprecated Use `imageBuilder()` instead.
-   */
-  public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'lambda', 'linux-arm64');
 
   /**
    * The fragment that runs any Lambda provider. Reads the config {@link _runnerConfig} generated for it from
@@ -258,10 +227,8 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
 
   /**
    * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to Lambda.
-   *
-   * @deprecated This field is internal and should not be accessed directly.
    */
-  readonly image: RunnerImage;
+  private readonly image: RunnerImage;
 
   /**
    * Log group where provided runners will save their logs.
@@ -279,11 +246,11 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
   constructor(scope: Construct, id: string, props?: LambdaRunnerProviderProps) {
     super(scope, id, props);
 
-    this.labels = this.labelsFromProperties('lambda', props?.label, props?.labels);
+    this.labels = props?.labels ?? ['lambda'];
     this.group = props?.group;
     this.defaultLabels = props?.defaultLabels ?? true;
     this.vpc = props?.vpc;
-    this.securityGroups = props?.securityGroup ? [props.securityGroup] : props?.securityGroups;
+    this.securityGroups = props?.securityGroups;
 
     const imageBuilder = props?.imageBuilder ?? LambdaRunnerProvider.imageBuilder(this, 'Image Builder');
     const image = this.image = imageBuilder.bindDockerImage();
@@ -336,18 +303,6 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
     // the image must exist before the function is created, or Lambda won't be able to resolve the tag
     if (image._dependable) {
       this.function.node.addDependency(image._dependable);
-
-      // we used to pass the wait condition ref around as a string, which created a cross-stack export when the image
-      // builder and the provider were in separate stacks. we now depend on the wait condition itself, so nothing
-      // references the ref anymore. keep exporting it, so upgrades don't fail with "export cannot be deleted as it is
-      // in use". TODO deprecated hack - remove in a future version once everyone has upgraded.
-      if (Construct.isConstruct(image._dependable) && cloudformation.CfnWaitCondition.isCfnWaitCondition(image._dependable)) {
-        if (cdk.Stack.of(image._dependable) !== cdk.Stack.of(this)) { // cross-stack
-          if (!cdk.Stack.of(image._dependable).nestedStackParent) { // not a nested stack
-            cdk.Stack.of(image._dependable).exportValue(image._dependable.ref);
-          }
-        }
-      }
     }
 
     this.grantPrincipal = this.function.grantPrincipal;
@@ -455,10 +410,4 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
       },
     };
   }
-}
-
-/**
- * @deprecated use {@link LambdaRunnerProvider}
- */
-export class LambdaRunner extends LambdaRunnerProvider {
 }

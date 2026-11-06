@@ -440,7 +440,6 @@ export abstract class RunnerImageComponent {
             `curl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO "https://github.com/actions/runner/releases/download/v\${RUNNER_VERSION}/actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
             `tar -C /home/runner -xzf "actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz"`,
             `rm actions-runner-linux-${archUrl}-\${RUNNER_VERSION}.tar.gz`,
-            `echo -n ${runnerVersion.version} > /home/runner/RUNNER_VERSION`,
             'chmod +x /home/runner/job-reporter.sh',
             'chmod +x /home/runner/job-started-hook.sh',
             'chmod +x /home/runner/job-completed-hook.sh',
@@ -499,7 +498,6 @@ export abstract class RunnerImageComponent {
             'Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip" -OutFile actions.zip',
             'Expand-Archive actions.zip -DestinationPath C:\\actions',
             'del actions.zip',
-            `echo ${runnerVersion.version} | Out-File -Encoding ASCII -NoNewline C:\\actions\\RUNNER_VERSION`,
           ]);
         }
 
@@ -507,9 +505,7 @@ export abstract class RunnerImageComponent {
       }
 
       getDockerCommands(_os: Os, _architecture: Architecture): string[] {
-        return [
-          `ENV RUNNER_VERSION=${runnerVersion.version}`,
-        ];
+        return [];
       }
     }();
   }
@@ -612,16 +608,6 @@ export abstract class RunnerImageComponent {
         return os.is(Os.WINDOWS);
       }
     }();
-  }
-
-  /**
-   * A component to install Docker-in-Docker.
-   *
-   * @deprecated use `docker()`
-   * @param version Software version to install (e.g. '29.1.5'). Default: latest.
-   */
-  static dockerInDocker(version?: string): RunnerImageComponent {
-    return RunnerImageComponent.docker(version);
   }
 
   /**

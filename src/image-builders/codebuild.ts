@@ -25,7 +25,7 @@ import { BaseContainerImage, defaultBaseDockerImage } from './aws-image-builder'
 import { BuildImageFunction } from './build-image-function';
 import { BuildImageFunctionProperties } from './build-image.lambda';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
+import { Architecture, Os, RunnerAmi, RunnerImage } from '../providers';
 import { singletonLambda, singletonLogGroup, SingletonLogType, singletonRole } from '../utils';
 
 
@@ -109,17 +109,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.buildImage = props?.codeBuildOptions?.buildImage ?? this.getDefaultBuildImage();
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
     this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
-
-    // normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated, only at public API level)
-    const baseDockerImageInput = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
-    this.baseImage = typeof baseDockerImageInput === 'string' ? BaseContainerImage.fromString(baseDockerImageInput) : baseDockerImageInput;
-
-    // warn if using deprecated string format (only if user explicitly provided it)
-    if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {
-      Annotations.of(this).addWarning(
-        'Passing baseDockerImage as a string is deprecated. Please use BaseContainerImage static factory methods instead, e.g., BaseContainerImage.fromDockerHub("ubuntu", "22.04") or BaseContainerImage.fromString("public.ecr.aws/lts/ubuntu:22.04")',
-      );
-    }
+    this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
 
     // warn against isolated networks
     if (props?.subnetSelection?.subnetType == ec2.SubnetType.PRIVATE_ISOLATED) {
@@ -229,7 +219,6 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       architecture: this.architecture,
       os: this.os,
       logGroup,
-      runnerVersion: RunnerVersion.specific('unknown'),
       _dependable: completedImage,
     };
     return this.boundDockerImage;
