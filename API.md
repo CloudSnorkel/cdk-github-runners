@@ -1283,6 +1283,7 @@ new GitHubRunners(scope: Construct, id: string, props?: GitHubRunnersProps)
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.failedImageBuildsTopic">failedImageBuildsTopic</a></code> | Creates a topic for notifications when a runner image build fails. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed">metricFailed</a></code> | Metric for failed runner executions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted">metricJobCompleted</a></code> | Metric for the number of GitHub Actions jobs completed. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobsMatchingMultipleProviders">metricJobsMatchingMultipleProviders</a></code> | Metric for the number of jobs whose labels matched more than one provider. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricLambdaErrors">metricLambdaErrors</a></code> | Metric for the number of failed invocations of the management Lambda functions. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStolenRunners">metricStolenRunners</a></code> | Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners.metricStoppedRunners">metricStoppedRunners</a></code> | Metric for the number of runners we stopped on purpose before they got a job. |
@@ -1328,20 +1329,16 @@ public createDashboard(name?: string): Dashboard
 
 Creates a CloudWatch dashboard with the metrics you need to know if your runners are healthy.
 
-It answers the questions you're most likely to ask:
+It's split into sections, each with a short explanation of what its numbers mean and which ones to watch:
 
-* Are jobs running and passing? See "Jobs completed by status".
-* Which runner is broken? See "Failed jobs by runner label".
-* Are jobs stuck because runners fail to start? See "Runner executions".
-* Why were runners stopped before getting a job? See "Stopped runners by reason".
-* Why are runners failing to start? See "Recent failed attempts".
-* How long do runners take (and therefore cost)? See "Runner time".
-* Is GitHub reaching the webhook at all? See "Webhook".
-* Is any of our code failing? See "Lambda errors".
-* What exactly went wrong? See "Recent errors".
+* **Jobs**: are jobs running and passing, and which runner is failing them?
+* **Runners**: do runners start, how long do they take (and therefore cost), and why do they fail to start?
+* **Runner assignment**: are runners taken by jobs they weren't started for, do jobs match more than one provider, and why
+  were runners stopped before getting a job?
+* **Management functions (orchestration)**: is GitHub reaching the webhook, and is any of our code failing?
 
-**WARNING:** this method calls {@link metricJobCompleted}, {@link metricStolenRunners} and {@link metricStoppedRunners} which create metric filters.
-These resources may incur cost.
+**WARNING:** this method calls {@link metricJobCompleted}, {@link metricStolenRunners}, {@link metricStoppedRunners} and
+{@link metricJobsMatchingMultipleProviders} which create metric filters. These resources may incur cost.
 
 This dashboard is very basic. Pull requests and issues are welcome to improve it.
 
@@ -1367,6 +1364,7 @@ Creates CloudWatch Logs Insights saved queries that can be used to debug issues 
 * "Ignored webhook" helps understand why runners aren't started
 * "Ignored jobs based on labels" helps debug label matching issues
 * "Webhook started runners" helps understand which runners were started
+* "Jobs matching multiple providers" lists jobs that need more labels so they match only one provider
 * "Warm runner status" and "Warm runner errors" (when warm runners are configured)
 
 ###### `prefix`<sup>Optional</sup> <a name="prefix" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.createLogsInsightsQueries.parameter.prefix"></a>
@@ -1390,6 +1388,9 @@ Creates a topic for notifications when a runner image build fails.
 Runner images are rebuilt every week by default. This provides the latest GitHub Runner version and software updates.
 
 If you want to be sure you are using the latest runner version, you can use this topic to be notified when a build fails.
+
+Email subscribers get a short summary with the failure reason and a link to the logs. Other subscribers get the original
+JSON notification from CodeBuild or EC2 Image Builder.
 
 When the image builder is defined in a separate stack (e.g. in a split-stacks setup), pass that stack or construct
 as the optional scope so the topic and failure-notification aspects are created in the same stack as the image
@@ -1432,6 +1433,29 @@ It has `ProviderLabels` and `Status` dimensions. The status can be one of "Succe
 **WARNING:** this method creates a metric filter for each provider. Each metric has a status dimension with six possible values. These resources may incur cost.
 
 ###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobCompleted.parameter.props"></a>
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
+
+---
+
+##### `metricJobsMatchingMultipleProviders` <a name="metricJobsMatchingMultipleProviders" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobsMatchingMultipleProviders"></a>
+
+```typescript
+public metricJobsMatchingMultipleProviders(props?: MetricOptions): Metric
+```
+
+Metric for the number of jobs whose labels matched more than one provider.
+
+We start a runner from the first matching provider, but GitHub may give such a job a runner from any of them, including one started for
+another job. Stolen runner detection starts another runner for the job left behind, but the job itself may run on a provider you didn't
+expect. Anything over zero means some workflows ask for too few labels. Add labels to those jobs so they match only one provider. Use the
+"Jobs matching multiple providers" CloudWatch Logs Insights query created by {@link createLogsInsightsQueries} to find them.
+
+Jobs routed by a provider selector are not counted, as the selector picks the provider.
+
+**WARNING:** this method creates a metric filter. This resource may incur cost.
+
+###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricJobsMatchingMultipleProviders.parameter.props"></a>
 
 - *Type:* aws-cdk-lib.aws_cloudwatch.MetricOptions
 
@@ -4344,7 +4368,7 @@ Optional Lambda function to customize provider selection logic and label assignm
 
 * The function receives the webhook payload along with default provider and its labels as {@link ProviderSelectorInput }
 * The function returns a selected provider and its labels as {@link ProviderSelectorResult }
-* You can decline to provision a runner by returning undefined as the provider selector result
+* You can decline to provision a runner by returning undefined as the provider in the selector result
 * You can fully customize the labels for the about-to-be-provisioned runner (add, remove, modify, dynamic labels, etc.)
 * Labels don't have to match the labels originally configured for the provider, but see warnings below
 * This function will be called synchronously during webhook processing, so it should be fast and efficient (webhook limit is 30 seconds total)

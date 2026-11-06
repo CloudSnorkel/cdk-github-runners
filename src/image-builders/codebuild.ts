@@ -308,7 +308,12 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
     const buildSpecVersion = 'v2'; // change this every time the build spec changes
     const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, this.baseImage.image, this.os.name);
-    const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
+    // hash tokens by their resolved form, not by the `${Token[TOKEN.NN]}` placeholder whose counter changes between synths
+    let hashInput = hashedComponents.join('\n');
+    if (cdk.Token.isUnresolved(hashInput)) {
+      hashInput = JSON.stringify(thisStack.resolve(hashInput));
+    }
+    const hash = crypto.createHash('md5').update(hashInput).digest('hex').slice(0, 10);
 
     const buildSpec = codebuild.BuildSpec.fromObject({
       version: 0.2,
@@ -355,7 +360,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
             'echo "Skipping soci index: no image to index, the build never produced $REPO_URI"\n' +
             'elif [ "$SOCI_LABEL" = "null" ]; then\n' +
             'docker rmi "$REPO_URI"\n' + // it downloads the image again to /tmp, so save on space
-            'LATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
+            'LATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -o /dev/null -w "%{url_effective}" https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
             `curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
             './standalone-soci-indexer "$REPO_URI"\n' +
             'fi',

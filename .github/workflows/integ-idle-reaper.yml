@@ -1,0 +1,58 @@
+# Starts a runner for a job that already finished and checks the idle reaper stops it.
+# Needs the integration test role described in TESTING.md.
+
+name: integ-idle-reaper
+on:
+  workflow_dispatch:
+  workflow_call:
+permissions: {}
+jobs:
+  seed:
+    # any finished job gives us an execution input to copy, and this image has the integration test role
+    runs-on: [self-hosted, codebuild-x64]
+    outputs:
+      runner: ${{ steps.runner.outputs.name }}
+      role: ${{ steps.runner.outputs.role }}
+      region: ${{ steps.runner.outputs.region }}
+    steps:
+      - id: runner
+        run: |
+          echo "name=$RUNNER_NAME" >> "$GITHUB_OUTPUT"
+          echo "role=$INTEG_ROLE_ARN" >> "$GITHUB_OUTPUT"
+          echo "region=$AWS_REGION" >> "$GITHUB_OUTPUT"
+  idle:
+    needs: seed
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/integ-verify
+        with:
+          role: ${{ needs.seed.outputs.role }}
+          region: ${{ needs.seed.outputs.region }}
+      - name: Start a runner without a job
+        env:
+          SEED_RUNNER: ${{ needs.seed.outputs.runner }}
+        run: |
+          source .github/actions/integ-verify/lib.sh
+          input=$(aws stepfunctions describe-execution --execution-arn "$(execution_arn "$SEED_RUNNER")" --query input --output text)
+          # labels no job asks for, so no other job can keep this runner busy
+          input=$(jq -c '.labels = "self-hosted,integ-idle"' <<<"$input")
+          echo "RUNNER=idle-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_ENV"
+          aws stepfunctions start-execution --state-machine-arn "$STATE_MACHINE_ARN" --name "idle-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --input "$input"
+      - name: Wait for the idle reaper
+        run: |
+          source .github/actions/integ-verify/lib.sh
+          wait_for_execution "$(execution_arn "$RUNNER")" 45
+      - name: Check the runner was reaped
+        run: |
+          source .github/actions/integ-verify/lib.sh
+          assert_aborted_by_reaper "$(execution_arn "$RUNNER")"
+          if [ "$(times_entered "$(execution_arn "$RUNNER")" 'Try Provider')" != 1 ]; then
+            echo "::error::Runner was retried after it was reaped"
+            exit 1
+          fi
+          assert_runner_gone "$RUNNER" 5

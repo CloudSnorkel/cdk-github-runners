@@ -4,7 +4,7 @@ import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { ExecutionAlreadyExists, SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import * as AWSLambda from 'aws-lambda';
-import { MAX_RUNNER_NAME_LENGTH, OrchestratorInput, PROVIDERS_PATH } from './lambda-common';
+import { labelsMatch, MAX_RUNNER_NAME_LENGTH, OrchestratorInput, PROVIDERS_PATH } from './lambda-common';
 import { getOctokit } from './lambda-github';
 import { getSecretJsonValue } from './lambda-helpers';
 import { recordControlledJob, RunnerReportMessage } from './lambda-tracker';
@@ -84,23 +84,6 @@ function loadProviders(): Record<string, string[]> {
 }
 
 /**
- * Match job labels to a provider using default label matching logic.
- */
-function matchLabelsToProvider(jobLabels: string[], providers: Record<string, string[]>): string | undefined {
-  const jobLabelLowerCase = jobLabels.map((label) => label.toLowerCase());
-
-  // is every label the job requires available in the runner provider?
-  for (const provider of Object.keys(providers)) {
-    const providerLabelsLowerCase = providers[provider].map((label) => label.toLowerCase());
-    if (jobLabelLowerCase.every(label => label == 'self-hosted' || providerLabelsLowerCase.includes(label))) {
-      return provider;
-    }
-  }
-
-  return undefined;
-}
-
-/**
  * Call the provider selector Lambda function if configured.
  * @internal
  */
@@ -149,12 +132,25 @@ export async function callProviderSelector(
  */
 export async function selectProvider(payload: any, jobLabels: string[], hook = callProviderSelector): Promise<ProviderSelectorResult> {
   const providers = loadProviders();
-  const defaultProvider = matchLabelsToProvider(jobLabels, providers);
+  const matchingProviders = Object.keys(providers).filter(provider => labelsMatch(jobLabels, providers[provider]));
+  const defaultProvider = matchingProviders[0];
   const defaultLabels = defaultProvider ? providers[defaultProvider] : undefined;
   const defaultSelection = { provider: defaultProvider, labels: defaultLabels };
   const selectorResult = await hook(payload, providers, defaultSelection);
 
   if (selectorResult === undefined) {
+    if (matchingProviders.length > 1) {
+      // GitHub may still give this job a runner from any of these providers, and its own runner to a job of any of them. the stolen runner
+      // detector starts another runner for a job left without one that fits, but the job itself may end up on a provider nobody expected.
+      console.warn({
+        notice: 'Job labels match more than one provider, using the first one. Add labels to the job so it matches only one provider.',
+        metric: 'MultipleProvidersMatched',
+        jobLabels,
+        providers: matchingProviders,
+        provider: defaultProvider,
+        jobUrl: payload.workflow_job.html_url,
+      });
+    }
     return defaultSelection;
   }
 
@@ -298,7 +294,7 @@ export async function handler(event: AWSLambda.APIGatewayProxyEventV2): Promise<
     };
   }
 
-  if (process.env.REQUIRE_SELF_HOSTED_LABEL === '1' && !payload.workflow_job.labels.includes('self-hosted')) {
+  if (process.env.REQUIRE_SELF_HOSTED_LABEL === '1' && !payload.workflow_job.labels.some((label: string) => label.toLowerCase() == 'self-hosted')) {
     console.log({
       notice: `Ignoring labels "${payload.workflow_job.labels}", expecting "self-hosted"`,
       job: payload.workflow_job,
