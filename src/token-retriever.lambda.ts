@@ -19,7 +19,7 @@ export interface TokenRetrieverInput extends StepFunctionLambdaInput {
   /** comma separated labels the runner registers with */
   readonly labels: string;
   /** labels config.sh used to add on its own, empty when the provider turned them off. see runnerDefaultLabels() */
-  readonly defaultLabels?: string[];
+  readonly defaultLabels: string[];
 }
 
 export async function handler(event: TokenRetrieverInput) {
@@ -44,7 +44,7 @@ export async function handler(event: TokenRetrieverInput) {
         're-run the setup wizard and register runners on organization level.');
     }
 
-    const labels = dedupeLabels([...event.labels.split(','), ...(event.defaultLabels ?? [])]);
+    const labels = dedupeLabels([...event.labels.split(','), ...event.defaultLabels]);
     let jitConfig: string;
     if (runnerLevel === 'repo') {
       jitConfig = await getJitConfigForRepo(octokit, event.owner, event.repo, event.runnerName, labels);

@@ -15,6 +15,7 @@ function createEvent(overrides: Record<string, unknown> = {}) {
     installationId: 1,
     group: '',
     labels: 'linux',
+    defaultLabels: [],
     ...overrides,
   } as any;
 }

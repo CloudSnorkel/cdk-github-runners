@@ -21,6 +21,8 @@ const EVENT = {
   repo: 'my-repo',
   runnerName: 'runner-1',
   installationId: 123,
+  family: 'codebuild',
+  error: { Error: 'States.TaskFailed', Cause: 'runner failed' },
 };
 
 const EC2_EVENT = { ...EVENT, family: 'ec2' };
@@ -195,12 +197,11 @@ describe('delete-failed-runner', () => {
     });
   });
 
-  // executions already running when this deploys were started by a step function that doesn't send a family, so they
-  // get no clean-up. that window is short and this is best effort, so we don't spend an EC2 call guessing
+  // the orchestrator sends this family for a provider it can't find
   test('Skips the EC2 lookup when the family is unknown', async () => {
     mockGetRunner.mockResolvedValue(undefined);
 
-    await handler(EVENT);
+    await handler({ ...EVENT, family: 'provider not found' });
 
     expect(mockTerminateRunnerInstances).not.toHaveBeenCalled();
   });
