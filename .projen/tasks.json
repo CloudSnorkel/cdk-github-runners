@@ -115,9 +115,6 @@
           "spawn": "bundle:image-builders/aws-image-builder/filter-failed-builds.lambda"
         },
         {
-          "exec": "cp -r src/providers/docker-images assets"
-        },
-        {
           "exec": "cp -r src/providers/*.sh assets/providers"
         },
         {

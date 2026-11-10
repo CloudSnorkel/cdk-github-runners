@@ -13,18 +13,14 @@ interface DeleteFailedRunnerInput extends StepFunctionLambdaInput {
   /**
    * Family of the provider config that was tried, straight out of `$.providerParams.family`. A fallback chain hits
    * this Lambda once per attempt, so this is the family of that attempt and not of the whole chain.
-   *
-   * Undefined for executions started before this field existed.
    */
-  readonly family?: string;
+  readonly family: string;
 
   /**
    * The error that failed this attempt, straight out of the catch in `$.error`. We only log it, so failure reasons can be seen without state machine
    * logging enabled.
-   *
-   * Undefined for executions started before this field existed.
    */
-  readonly error?: { readonly Error?: string; readonly Cause?: string };
+  readonly error: { readonly Error?: string; readonly Cause?: string };
 }
 
 /**
@@ -55,7 +51,7 @@ interface DeleteFailedRunnerResult {
  * Terminate leftover instances, but only for families that can have them.
  */
 async function terminateInstancesIfNeeded(event: DeleteFailedRunnerInput): Promise<string[]> {
-  if (!EC2_FAMILIES.includes(event.family ?? '')) {
+  if (!EC2_FAMILIES.includes(event.family)) {
     return [];
   }
 

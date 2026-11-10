@@ -113,7 +113,7 @@ export function defaultBaseAmi(scope: Construct, os: Os, architecture: Architect
     throw new Error(`Unsupported architecture for base AMI: ${architecture.name}`);
   }
 
-  if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_UBUNTU_2204) || os.is(Os.LINUX)) {
+  if (os.is(Os.LINUX_UBUNTU) || os.is(Os.LINUX_UBUNTU_2204)) {
     return BaseImage.fromImageBuilder(scope, `ubuntu-server-22-lts-${arch}`);
   }
 
