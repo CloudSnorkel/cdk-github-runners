@@ -16,6 +16,10 @@ class RunnerTokenError extends Error {
 export interface TokenRetrieverInput extends StepFunctionLambdaInput {
   /** runner group of the config the orchestrator selected, empty when it has none */
   readonly group: string;
+  /** comma separated labels the runner registers with */
+  readonly labels: string;
+  /** labels config.sh used to add on its own, empty when the provider turned them off. see runnerDefaultLabels() */
+  readonly defaultLabels: string[];
 }
 
 export async function handler(event: TokenRetrieverInput) {
@@ -40,19 +44,17 @@ export async function handler(event: TokenRetrieverInput) {
         're-run the setup wizard and register runners on organization level.');
     }
 
-    let token: string;
-    let registrationUrl: string;
+    const labels = dedupeLabels([...event.labels.split(','), ...event.defaultLabels]);
+    let jitConfig: string;
     if (runnerLevel === 'repo') {
-      token = await getRegistrationTokenForRepo(octokit, event.owner, event.repo);
-      registrationUrl = `https://${githubSecrets.domain}/${event.owner}/${event.repo}`;
+      jitConfig = await getJitConfigForRepo(octokit, event.owner, event.repo, event.runnerName, labels);
     } else {
-      token = await getRegistrationTokenForOrg(octokit, event.owner);
-      registrationUrl = `https://${githubSecrets.domain}/${event.owner}`;
+      const groupId = await getRunnerGroupId(octokit, event.owner, event.group);
+      jitConfig = await getJitConfigForOrg(octokit, event.owner, event.runnerName, labels, groupId);
     }
     return {
       domain: githubSecrets.domain,
-      token,
-      registrationUrl,
+      jitConfig,
     };
   } catch (error) {
     console.error({
@@ -112,25 +114,63 @@ function configurationError(error: any, runnerLevel: RunnerLevel, owner: string,
   }
 }
 
-async function getRegistrationTokenForOrg(octokit: Octokit, owner: string): Promise<string> {
+/**
+ * The JIT API wants a runner group id and not a name. Every org and repo has the default group with id 1, which is also what config.sh used when
+ * no group was given.
+ */
+async function getRunnerGroupId(octokit: Octokit, owner: string, group: string): Promise<number> {
+  if (!group) {
+    return 1;
+  }
+
+  let groups: { id: number; name: string }[];
   try {
-    const response = await octokit.rest.actions.createRegistrationTokenForOrg({
+    // octokit has no typed method for this endpoint
+    groups = await octokit.paginate('GET /orgs/{org}/actions/runner-groups', { org: owner, per_page: 100 });
+  } catch (error) {
+    throw configurationError(error, 'org', owner, '') ?? error;
+  }
+
+  const found = groups.find(g => g.name.toLowerCase() === group.toLowerCase());
+  if (!found) {
+    throw new RunnerConfigurationError(`Runner group "${group}" doesn't exist in organization "${owner}".`);
+  }
+  return found.id;
+}
+
+async function getJitConfigForOrg(octokit: Octokit, owner: string, name: string, labels: string[], groupId: number): Promise<string> {
+  try {
+    const response = await octokit.rest.actions.generateRunnerJitconfigForOrg({
       org: owner,
+      name,
+      labels,
+      runner_group_id: groupId,
     });
-    return response.data.token;
+    return response.data.encoded_jit_config;
   } catch (error) {
     throw configurationError(error, 'org', owner, '') ?? error;
   }
 }
 
-async function getRegistrationTokenForRepo(octokit: Octokit, owner: string, repo: string): Promise<string> {
+async function getJitConfigForRepo(octokit: Octokit, owner: string, repo: string, name: string, labels: string[]): Promise<string> {
   try {
-    const response = await octokit.rest.actions.createRegistrationTokenForRepo({
-      owner: owner,
-      repo: repo,
+    const response = await octokit.rest.actions.generateRunnerJitconfigForRepo({
+      owner,
+      repo,
+      name,
+      labels,
+      runner_group_id: 1,
     });
-    return response.data.token;
+    return response.data.encoded_jit_config;
   } catch (error) {
     throw configurationError(error, 'repo', owner, repo) ?? error;
   }
+}
+
+/**
+ * Like config.sh, drop empty labels and the same label in different case.
+ */
+function dedupeLabels(labels: string[]): string[] {
+  const seen = new Set<string>();
+  return labels.filter(l => l && !seen.has(l.toLowerCase()) && seen.add(l.toLowerCase()));
 }

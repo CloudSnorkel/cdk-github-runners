@@ -42,11 +42,13 @@ jest.mock('../src/lambda-github', () => ({
   isNotFound: (e: unknown) => (e as { status?: number })?.status === 404,
 }));
 
-const mockIsControlledJob = jest.fn();
+const mockControlledJobRunnerLabels = jest.fn();
+const mockRecordRunnerAccounted = jest.fn();
 const mockClaimReport = jest.fn();
 
 jest.mock('../src/lambda-tracker', () => ({
-  isControlledJob: (...args: unknown[]) => mockIsControlledJob(...args),
+  controlledJobRunnerLabels: (...args: unknown[]) => mockControlledJobRunnerLabels(...args),
+  recordRunnerAccounted: (...args: unknown[]) => mockRecordRunnerAccounted(...args),
   claimReport: (...args: unknown[]) => mockClaimReport(...args),
   WARM_RUNNER_JOB_ID: -1,
 }));
@@ -137,7 +139,8 @@ beforeEach(() => {
   mockResolveInstallationId.mockReset();
   process.env.STEP_FUNCTION_ARN = STEP_FUNCTION_ARN;
   process.env.JOB_ASSIGNMENT_QUEUE_URL = QUEUE_URL;
-  mockIsControlledJob.mockResolvedValue(false);
+  mockControlledJobRunnerLabels.mockResolvedValue(undefined);
+  mockRecordRunnerAccounted.mockResolvedValue(undefined);
   mockClaimReport.mockResolvedValue(true);
   mockResolveInstallationId.mockResolvedValue(undefined);
   runnerWasStartedFor(createInput());
@@ -150,23 +153,44 @@ describe('runner reports', () => {
 
     expect(startedExecutions()).toHaveLength(0);
     // no need to ask whether it is a job we control, it is the job this runner exists for
-    expect(mockIsControlledJob).not.toHaveBeenCalled();
+    expect(mockControlledJobRunnerLabels).not.toHaveBeenCalled();
+  });
+
+  // so the idle reaper doesn't look for a job it left without a runner once it's gone
+  test('a runner that reported a job is remembered', async () => {
+    await handler(sqsEvent([report({ jobId: OUR_JOB_ID })]));
+
+    expect(mockRecordRunnerAccounted).toHaveBeenCalledWith(RUNNER_NAME, OUR_JOB_ID);
   });
 
   test('a runner running another job of ours is left alone', async () => {
     // GitHub shuffled jobs between runners we started -- every job involved has a runner
     githubJobs([{ id: THIEF_JOB_ID, runner_name: RUNNER_NAME }]);
-    mockIsControlledJob.mockResolvedValue(true);
+    mockControlledJobRunnerLabels.mockResolvedValue(['linux', 'big']);
 
     await handler(sqsEvent([report()]));
 
-    expect(mockIsControlledJob).toHaveBeenCalledWith(THIEF_JOB_ID);
+    expect(mockControlledJobRunnerLabels).toHaveBeenCalledWith(THIEF_JOB_ID);
     expect(startedExecutions()).toHaveLength(0);
+  });
+
+  test('a runner running another job of ours whose runner cannot run our job is replaced', async () => {
+    // a [self-hosted, lambda] job took the runner started for a [self-hosted, lambda, arm64] job, and its own runner is x64
+    runnerWasStartedFor(createInput({ jobLabels: 'self-hosted,lambda,arm64', labels: 'lambda,arm64' }));
+    githubJobs([{ id: THIEF_JOB_ID, runner_name: RUNNER_NAME }]);
+    mockControlledJobRunnerLabels.mockResolvedValue(['lambda', 'x64']);
+
+    await handler(sqsEvent([report()]));
+
+    const started = startedExecutions();
+    expect(started).toHaveLength(1);
+    expect(started[0].input.name).toEqual(`${RUNNER_NAME}-r1`);
+    expect(JSON.parse(started[0].input.input)).toEqual(createInput({ jobLabels: 'self-hosted,lambda,arm64', labels: 'lambda,arm64' }));
   });
 
   test('a runner running a job we never started it for is replaced', async () => {
     githubJobs([{ id: THIEF_JOB_ID, runner_name: RUNNER_NAME }]);
-    mockIsControlledJob.mockResolvedValue(false);
+    mockControlledJobRunnerLabels.mockResolvedValue(undefined);
 
     await handler(sqsEvent([report({ repo: 'other-org/other-repo', workflowId: 999 })]));
 
@@ -193,7 +217,7 @@ describe('runner reports', () => {
       run_id: 999,
       filter: 'all',
     }));
-    expect(mockIsControlledJob).toHaveBeenCalledWith(THIEF_JOB_ID);
+    expect(mockControlledJobRunnerLabels).toHaveBeenCalledWith(THIEF_JOB_ID);
     expect(startedExecutions()).toHaveLength(1);
   });
 

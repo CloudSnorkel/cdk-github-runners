@@ -132,6 +132,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
     // too many console.log() lines in EVERY build
     extraCliOptions: ['--silent'],
   },
+  buildWorkflowOptions: {
+    workflowTriggers: { pullRequest: {} }, // no workflow_dispatch, CodeQL flags it as cache poisoning
+  },
 });
 
 // disable automatic releases, but keep workflow that can be triggered manually
@@ -142,7 +145,6 @@ releaseWorkflow.file.addDeletionOverride('on.push');
 project.npmrc.addConfig('node-linker', 'hoisted');
 
 // bundle docker images
-project.bundler.bundleTask.exec('cp -r src/providers/docker-images assets');
 project.bundler.bundleTask.exec('cp -r src/providers/*.sh assets/providers');
 project.bundler.bundleTask.exec('cp -r src/providers/*.ps1 assets/providers');
 
@@ -163,6 +165,8 @@ project.bundler.bundleTask.exec('vite build setup');
 project.bundler.bundleTask.exec('cp -r setup/dist/index.html assets/setup.lambda/index.html');
 project.eslint.addLintPattern('setup/src/*.ts');
 project.eslint.addLintPattern('setup/src/*.svelte');
+// eslint-plugin-svelte@2 pins postcss-selector-parser@^6 which is vulnerable to GHSA-rj75-hqrm-r3gf
+project.package.addPackageResolutions('postcss-selector-parser@^7.1.6');
 
 // support integ:default:watch -- https://github.com/projen/projen/issues/1347
 const cdkConfig = new CdkConfig(project, {

@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_iam as iam, aws_logs as logs, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { AwsImageBuilderRunnerImageBuilderProps, BaseContainerImageInput, BaseImageInput } from './aws-image-builder';
+import { AwsImageBuilderRunnerImageBuilderProps, BaseContainerImage, BaseImage } from './aws-image-builder';
 import { CodeBuildRunnerImageBuilderProps } from './codebuild';
 import { RunnerImageComponent } from './components';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
@@ -146,9 +146,7 @@ export interface RunnerImageBuilderProps {
   /**
    * Base image from which Docker runner images will be built.
    *
-   * This can be:
-   * - A string (ECR/ECR public image URI, DockerHub image, or Image Builder ARN) - deprecated, use BaseContainerImage static factory methods instead
-   * - A BaseContainerImage instance created using static factory methods:
+   * This can be a BaseContainerImage instance created using static factory methods:
    *   - `BaseContainerImage.fromDockerHub('ubuntu', '22.04')` - Use DockerHub
    *   - `BaseContainerImage.fromEcr(repo, 'latest')` - Use ECR (automatically grants permissions with CodeBuild)
    *   - `BaseContainerImage.fromEcrPublic('lts', 'ubuntu', '22.04')` - Use ECR Public
@@ -158,7 +156,7 @@ export interface RunnerImageBuilderProps {
    *
    * @default public.ecr.aws/lts/ubuntu:22.04 for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, public.ecr.aws/lts/ubuntu:24.04 for Os.LINUX_UBUNTU_2404, public.ecr.aws/amazonlinux/amazonlinux:2 for Os.LINUX_AMAZON_2, mcr.microsoft.com/windows/servercore:ltsc2019-amd64 for Os.WINDOWS
    */
-  readonly baseDockerImage?: BaseContainerImageInput;
+  readonly baseDockerImage?: BaseContainerImage;
 
   /**
    * Additional commands to run on the build host before starting the Docker runner image build.
@@ -172,9 +170,7 @@ export interface RunnerImageBuilderProps {
   /**
    * Base AMI from which runner AMIs will be built.
    *
-   * This can be:
-   * - A string (AMI ID, Image Builder ARN, SSM parameter reference, or Marketplace product ID) - deprecated, use BaseImage static factory methods instead
-   * - A BaseImage instance created using static factory methods:
+   * This can be a BaseImage instance created using static factory methods:
    *   - `BaseImage.fromAmiId('ami-12345')` - Use an AMI ID
    *   - `BaseImage.fromString('arn:aws:imagebuilder:...')` - Use any string (ARN, AMI ID, etc.)
    *   - `BaseImage.fromSsmParameter(parameter)` - Use an SSM parameter object
@@ -186,7 +182,7 @@ export interface RunnerImageBuilderProps {
    *
    * @default latest Ubuntu 22.04 AMI for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, Ubuntu 24.04 AMI for Os.LINUX_UBUNTU_2404, latest Amazon Linux 2 AMI for Os.LINUX_AMAZON_2, latest Windows Server 2022 AMI for Os.WINDOWS
    */
-  readonly baseAmi?: BaseImageInput;
+  readonly baseAmi?: BaseImage;
 
   /**
    * Version of GitHub Runners to install.
@@ -350,6 +346,21 @@ export abstract class RunnerImageBuilderBase extends Construct implements IConfi
 
     if (props?.components) {
       this.components.push(...props.components);
+    }
+
+    // JIT runners can't update themselves, as GitHub generates their config with `DisableUpdate: true`. GitHub stops queuing jobs to runners
+    // that are not updated within 30 days of a new runner release, so the image has to be rebuilt before then. an image can be as old as the
+    // rebuild interval, and twice that after a failed build, so we want at least two builds in those 30 days.
+    // https://docs.github.com/en/actions/reference/runners/self-hosted-runners#runner-software-updates-on-self-hosted-runners
+    // hours and not days, so an interval like 12 hours doesn't fail on a fraction of a day
+    const rebuildInterval = props?.rebuildInterval;
+    const rebuildHours = rebuildInterval?.toHours({ integral: false });
+    if (rebuildInterval && rebuildHours !== undefined && (rebuildHours <= 0 || rebuildHours > 14 * 24)) {
+      cdk.Annotations.of(this).addWarningV2(
+        '@cloudsnorkel/cdk-github-runners:RunnerImageBuilder.rebuildIntervalTooLong',
+        `rebuildInterval is ${rebuildHours <= 0 ? 'disabled' : rebuildInterval.toHumanString()}. GitHub stops sending jobs to runners that are not ` +
+        'updated within 30 days of a new runner release. Rebuild at least every 14 days to always have the latest runner version ready.',
+      );
     }
   }
 

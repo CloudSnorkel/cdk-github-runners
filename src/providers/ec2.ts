@@ -13,7 +13,8 @@ import {
   providerParam,
   RUNNER_INPUT,
   RunnerAmi,
-  RunnerEnvConfig,
+  RunnerConfig,
+  runnerDefaultLabels,
   RunnerProviderProps,
   RunnerVersion,
   StorageOptions,
@@ -45,12 +46,8 @@ runnerNamePath="{}"
 githubDomainPath="{}"
 ownerPath="{}"
 repoPath="{}"
-export ACTIONS_RUNNER_INPUT_TOKEN="{}" # config.sh reads --token from here so set -x doesn't log it
+export ACTIONS_RUNNER_INPUT_JITCONFIG="{}" # run.sh reads --jitconfig from here so set -x doesn't log it
 labels="{}"
-registrationURL="{}"
-runnerGroup1="{}"
-runnerGroup2="{}"
-defaultLabels="{}"
 
 export AWS_RETRY_MODE=standard # better retry
 touch /var/log/runner.log
@@ -95,23 +92,11 @@ EOF
   /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/tmp/log.conf || return 2
 }
 action () {
-  # Determine the value of RUNNER_FLAGS
-  if [ "$(< /home/runner/RUNNER_VERSION)" = "latest" ]; then
-    RUNNER_FLAGS=""
-  else
-    RUNNER_FLAGS="--disableupdate"
-  fi
-
-  labelsTemplate="$labels,cdkghr:started:$(date +%s)"
-
   # Report workflow id for stolen runner detection (to separate log so it doesn't hang this bash function)
   /home/runner/job-reporter.sh "$runnerNamePath" /var/log/workflow.log
 
-  # Execute the configuration command for runner registration
-  sudo --preserve-env=ACTIONS_RUNNER_INPUT_TOKEN -Hu runner /home/runner/config.sh --unattended --url "$registrationURL" --ephemeral --work _work --labels "$labelsTemplate" $RUNNER_FLAGS --name "$runnerNamePath" $runnerGroup1 $runnerGroup2 $defaultLabels || exit 1
-
   # Execute the run command
-  sudo --preserve-env=AWS_REGION -Hu runner /home/runner/run.sh || exit 2
+  sudo --preserve-env=ACTIONS_RUNNER_INPUT_JITCONFIG,AWS_REGION -Hu runner /home/runner/run.sh || exit 2
 
   # Retrieve the status
   STATUS=$(grep -Phors "finish job request for job [0-9a-f-]+ with result: .*" /home/runner/_diag/ | tail -n1 | awk '{print $NF}')
@@ -132,7 +117,7 @@ elif action |& tee /var/log/runner.log; then
 else
   aws stepfunctions send-task-failure --task-token file:///tmp/task-token --error Runner.Error.$? --cause "Check CloudWatch for full log -- $logGroupName/$runnerNamePath -- $(tail -n 1 /var/log/runner.log)" |& tee -a /var/log/runner.log
 fi
-`.replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
+`.replace(/\\/g, '\\\\').replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
 
 // this script is specifically made so `poweroff` is absolutely always called
 // each `{}` is a variable coming from `params` below and their order should match the linux script
@@ -143,12 +128,8 @@ $runnerNamePath="{}"
 $githubDomainPath="{}"
 $ownerPath="{}"
 $repoPath="{}"
-$runnerTokenPath="{}"
+$jitConfig="{}"
 $labels="{}"
-$registrationURL="{}"
-$runnerGroup1="{}"
-$runnerGroup2="{}"
-$defaultLabels="{}"
 
 $Env:AWS_RETRY_MODE = "standard"  # better retry
 
@@ -204,12 +185,7 @@ function action () {
 
   & ./job-reporter.ps1 "\${runnerNamePath}" /actions/workflow.log 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
 
-  $RunnerVersion = Get-Content /actions/RUNNER_VERSION -Raw
-  if ($RunnerVersion -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }
-  ./config.cmd --unattended --url "\${registrationUrl}" --token "\${runnerTokenPath}" --ephemeral --work _work --labels "\${labels},cdkghr:started:$(Get-Date -UFormat +%s)" $RunnerFlags --name "\${runnerNamePath}" \${runnerGroup1} \${runnerGroup2} \${defaultLabels} 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
-
-  if ($LASTEXITCODE -ne 0) { return 1 }
-  ./run.cmd 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
+  ./run.cmd --jitconfig "\${jitConfig}" 2>&1 | Out-File -Encoding ASCII -Append /actions/runner.log
   if ($LASTEXITCODE -ne 0) { return 2 }
 
   $STATUS = Select-String -Path './_diag/*.log' -Pattern 'finish job request for job [0-9a-f\\-]+ with result: (.*)' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1
@@ -239,7 +215,7 @@ try {
   Stop-Computer -ComputerName localhost -Force
 }
 </powershell>
-`.replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
+`.replace(/\\/g, '\\\\').replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
 
 
 /**
@@ -254,11 +230,6 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
    * @default Ec2RunnerProvider.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
-
-  /**
-   * @deprecated use imageBuilder
-   */
-  readonly amiBuilder?: IRunnerImageBuilder;
 
   /**
    * GitHub Actions labels used for this provider.
@@ -310,29 +281,11 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
   readonly storageOptions?: StorageOptions;
 
   /**
-   * Security Group to assign to launched runner instances.
-   *
-   * @default a new security group
-   *
-   * @deprecated use {@link securityGroups}
-   */
-  readonly securityGroup?: ec2.ISecurityGroup;
-
-  /**
    * Security groups to assign to launched runner instances.
    *
    * @default a new security group
    */
   readonly securityGroups?: ec2.ISecurityGroup[];
-
-  /**
-   * Subnet where the runner instances will be launched.
-   *
-   * @default default subnet of account's default VPC
-   *
-   * @deprecated use {@link vpc} and {@link subnetSelection}
-   */
-  readonly subnet?: ec2.ISubnet;
 
   /**
    * VPC where runner instances will be launched.
@@ -379,7 +332,7 @@ export interface Ec2RunnerProviderProps extends RunnerProviderProps {
  *
  * @internal
  */
-interface Ec2RunnerConfig extends RunnerEnvConfig {
+interface Ec2RunnerConfig extends RunnerConfig {
   readonly launchTemplateId: string;
   readonly instanceType: string;
   readonly securityGroupIds: string[];
@@ -439,8 +392,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider, 
           'UserData.$': 'States.Base64Encode(States.Format(' +
             `States.ArrayGetItem(States.Array($ec2UserDataLinux, $ec2UserDataWindows), ${p('userDataTemplateIdx')}), ` +
             `$$.Task.Token, ${p('logGroupName')}, ${RUNNER_INPUT.name}, ${RUNNER_INPUT.domain}, ${RUNNER_INPUT.owner}, ${RUNNER_INPUT.repo}, ` +
-            `${RUNNER_INPUT.token}, ${RUNNER_INPUT.labels}, ${RUNNER_INPUT.registrationUrl}, ` +
-            `${p('group1')}, ${p('group2')}, ${p('defaultLabels')}))`,
+            `${RUNNER_INPUT.jitConfig}, ${RUNNER_INPUT.labels}))`,
           'InstanceInitiatedShutdownBehavior': 'terminate',
           'IamInstanceProfile': {
             'Arn.$': p('instanceProfileArn'),
@@ -540,8 +492,8 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider, 
     this.labels = props?.labels ?? ['ec2'];
     this.group = props?.group;
     this.vpc = props?.vpc ?? ec2.Vpc.fromLookup(this, 'Default VPC', { isDefault: true });
-    this.securityGroups = props?.securityGroup ? [props.securityGroup] : (props?.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })]);
-    this.subnets = props?.subnet ? [props.subnet] : this.vpc.selectSubnets(props?.subnetSelection).subnets;
+    this.securityGroups = props?.securityGroups ?? [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })];
+    this.subnets = this.vpc.selectSubnets(props?.subnetSelection).subnets;
     this.instanceType = props?.instanceType ?? ec2.InstanceType.of(ec2.InstanceClass.M6I, ec2.InstanceSize.LARGE);
     this.storageSize = props?.storageSize ?? cdk.Size.gibibytes(30); // 30 is the minimum for Windows
     this.storageOptions = props?.storageOptions;
@@ -563,7 +515,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider, 
 
     const arch = this.instanceType.architecture === ec2.InstanceArchitecture.ARM_64 ? Architecture.ARM64 : Architecture.X86_64;
 
-    this.amiBuilder = props?.imageBuilder ?? props?.amiBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
+    this.amiBuilder = props?.imageBuilder ?? Ec2RunnerProvider.imageBuilder(this, 'Ami Builder', {
       vpc: props?.vpc,
       subnetSelection: props?.subnetSelection,
       securityGroups: this.securityGroups,
@@ -700,9 +652,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider, 
       // see selectProviderParams() in runner.ts, which merges them in at runtime
       tags: Object.entries(this.tags).map(([Key, Value]) => ({ Key, Value })),
       runnerGroup: this.group ?? '',
-      group1: this.group ? '--runnergroup' : '',
-      group2: this.group ? this.group : '',
-      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+      defaultLabels: runnerDefaultLabels(this.ami.os, this.ami.architecture, this.defaultLabels),
     };
 
     let config: any = undefined;
@@ -746,10 +696,3 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider, 
     return new ec2.Connections({ securityGroups: this.securityGroups });
   }
 }
-
-/**
- * @deprecated use {@link Ec2RunnerProvider}
- */
-export class Ec2Runner extends Ec2RunnerProvider {
-}
-

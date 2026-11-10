@@ -124,12 +124,12 @@ describe('Parameterized providers', () => {
     // the configs go in a workflow variable, not the execution state, and the lookup reads it by $.provider.
     // dynamic tokens (the project name) are de-duplicated into definitionSubstitutions, so the config carries a
     // ${...} placeholder rather than the token
-    expect(definition).toContain('"Assign":{"providerConfigs":{"test/p1":{"family":"codebuild","provider":"test/p1","projectName":"${__sfnsub_0}","runnerGroup":"my-group","group1":"--runnergroup","group2":"my-group","defaultLabels":"--no-default-labels"}}}');
+    expect(definition).toContain('"Assign":{"providerConfigs":{"test/p1":{"family":"codebuild","provider":"test/p1","projectName":"${__sfnsub_0}","runnerGroup":"my-group","defaultLabels":[]}}}');
     expect(definition).toContain('$lookup($providerConfigs, $states.input.provider)');
     expect(definitionSubstitutions(template).__sfnsub_0).toBeDefined();
   });
 
-  test('the selected config runner group is passed to the token retriever', () => {
+  test('the selected config runner group and labels are passed to the token retriever', () => {
     new GitHubRunners(stack, 'runners', {
       providers: [
         new CodeBuildRunnerProvider(stack, 'p1', { imageBuilder: staticImage(stack, 'i1'), group: 'my-group' }),
@@ -142,10 +142,12 @@ describe('Parameterized providers', () => {
 
     // the group of whichever config was selected, so a composite reports the sub-provider that actually runs
     expect(branch['Get Runner Token'].Parameters['group.$']).toBe('$.providerParams.runnerGroup');
-    // an unknown provider selects no config at all, so the group needs a default to read
-    expect(definition).toContain("$merge([{'family': 'provider not found', 'runnerGroup': ''}, $config");
-    // providers without a group report an empty one and are never checked
-    expect(definition).toContain('"test/p2":{"family":"lambda","provider":"test/p2","functionArn":"${__sfnsub_1}","runnerGroup":"","group":""');
+    expect(branch['Get Runner Token'].Parameters['labels.$']).toBe('$.labels');
+    expect(branch['Get Runner Token'].Parameters['defaultLabels.$']).toBe('$.providerParams.defaultLabels');
+    // an unknown provider selects no config at all, so the token retriever inputs need a default to read
+    expect(definition).toContain("$merge([{'family': 'provider not found', 'runnerGroup': '', 'defaultLabels': []}, $config");
+    // providers without a group report an empty one and are never checked. JIT runners don't get default labels on their own, so we add them
+    expect(definition).toContain('"test/p2":{"family":"lambda","provider":"test/p2","functionArn":"${__sfnsub_1}","runnerGroup":"","defaultLabels":["self-hosted","Linux","X64"]');
   });
 
   test('tokens shared across providers are de-duplicated into one substitution', () => {
@@ -190,8 +192,7 @@ describe('Parameterized providers', () => {
     expect(definition).not.toContain('"QueryLanguage":"JSONata","Resource":"arn:');
 
     // runner environment renders as name/value pairs, not name-arrays with integer values
-    expect(definition).toContain('{"Name":"RUNNER_TOKEN","Value.$":"$.runner.token"}');
-    expect(definition).toContain('{"Name":"RUNNER_GROUP1","Value.$":"$.providerParams.group1"}');
+    expect(definition).toContain('{"Name":"RUNNER_JIT_CONFIG","Value.$":"$.runner.jitConfig"}');
     expect(definition).toContain('"PlatformVersion":"LATEST"');
     expect(definition).toContain('"Tags.$":"$.providerParams.tags"');
   });
@@ -271,6 +272,9 @@ describe('Parameterized providers', () => {
     expect(branch['Clean Up Failed Runner'].Retry).toContainEqual({ ErrorEquals: ['States.ALL'], IntervalSeconds: 60, MaxAttempts: 60, BackoffRate: 1 });
     expect(branch['Clean Up Failed Runner'].Catch).toEqual([{ ErrorEquals: ['States.ALL'], ResultPath: '$.delete', Next: 'Runner Not Deleted' }]);
     expect(branch['Runner Not Deleted']).toMatchObject({ Type: 'Fail', Error: 'RunnerNotDeleted', CausePath: '$.delete.Cause' });
+
+    // the clean-up logs the error that got it there, so the dashboard can show failure reasons
+    expect(branch['Clean Up Failed Runner'].Parameters['error.$']).toEqual('$.error');
 
     // the outer retry never retries it. the specific retrier has to come before the one catching everything
     const retry = parsed.States['Run Providers'].Retry;
@@ -368,13 +372,14 @@ describe('Parameterized providers', () => {
     const parsed = JSON.parse(definition.replace(/<TOKEN>/g, 'token'));
     const branch = parsed.States['Run Providers'].Branches[0].States;
     expect(Object.keys(branch)).toEqual([
-      'Select Provider Config', 'Get Runner Token', 'Try Provider',
-      'Use Fallback Config', 'Fallback Configured?', 'Clean Up Failed Runner', 'Runner Not Deleted', 'All Attempts Failed',
+      'Select Provider Config', 'Get Runner Token',
+      'Use Fallback Config', 'Fallback Configured?', 'Clean Up Failed Runner', 'Try Provider', 'Runner Not Deleted', 'All Attempts Failed',
     ]);
     // the token is fetched after the config is selected, so the token retriever can check the selected config
     expect(branch['Select Provider Config'].Next).toBe('Get Runner Token');
     expect(branch['Get Runner Token'].Next).toBe('Try Provider');
-    expect(branch['Use Fallback Config'].Next).toBe('Try Provider');
+    // the clean-up deleted the runner of the failed attempt, so the fallback needs a JIT config of its own
+    expect(branch['Use Fallback Config'].Next).toBe('Get Runner Token');
   });
 
   test('a distributed config keeps the picked provider fallback chain', () => {

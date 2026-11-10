@@ -6,13 +6,11 @@ import { aws_ec2 as ec2, aws_ecr as ecr, aws_ssm as ssm } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import {
-  AmiBuilder,
   Architecture,
   BaseContainerImage,
   BaseImage,
   CodeBuildRunnerImageBuilder,
   CodeBuildRunnerProvider,
-  ContainerImageBuilder,
   Ec2RunnerProvider,
   FargateRunnerProvider,
   GitHubRunners,
@@ -34,19 +32,6 @@ describe('Image Builder', () => {
 
   afterAll(CloudAssembly.cleanupTemporaryDirectories);
 
-  test('AMI builder matching instance type (DEPRECATED)', () => {
-
-    const vpc = new ec2.Vpc(stack, 'vpc');
-
-    expect(() => {
-      new AmiBuilder(stack, 'linux arm64', {
-        os: Os.LINUX,
-        architecture: Architecture.ARM64,
-        vpc,
-      });
-    }).toThrowError('Builder architecture (ARM64) doesn\'t match selected instance type (m6i.large / x86_64)');
-  });
-
   test('AMI builder matching instance type', () => {
 
     const vpc = new ec2.Vpc(stack, 'vpc');
@@ -59,75 +44,6 @@ describe('Image Builder', () => {
         builderType: RunnerImageBuilderType.AWS_IMAGE_BUILDER,
       });
     }).toThrowError('Builder architecture (ARM64) doesn\'t match selected instance type (m6i.large / x86_64)');
-  });
-
-  test('AMI builder supported OS', () => {
-
-    const vpc = new ec2.Vpc(stack, 'vpc');
-
-    new AmiBuilder(stack, 'linux x64', {
-      os: Os.LINUX,
-      architecture: Architecture.X86_64,
-      vpc,
-    });
-    new AmiBuilder(stack, 'linux arm64', {
-      os: Os.LINUX,
-      architecture: Architecture.ARM64,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
-      vpc,
-    });
-    new AmiBuilder(stack, 'win x64', {
-      os: Os.WINDOWS,
-      architecture: Architecture.X86_64,
-      vpc,
-    });
-    new AmiBuilder(stack, 'win arm64', {
-      os: Os.WINDOWS,
-      architecture: Architecture.ARM64,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
-      vpc,
-    });
-  });
-
-  test('AMI do not skip docker', () => {
-
-    const vpc = new ec2.Vpc(stack, 'vpc');
-
-    new AmiBuilder(stack, 'windows', {
-      os: Os.WINDOWS,
-      vpc,
-      installDocker: true,
-    });
-
-    const template = Template.fromStack(stack);
-
-    template.hasResourceProperties(
-      'AWS::ImageBuilder::Component',
-      Match.objectLike({
-        Description: 'Install latest version of Docker',
-      }),
-    );
-  });
-
-  test('AMI skip docker', () => {
-
-    const vpc = new ec2.Vpc(stack, 'vpc');
-
-    new AmiBuilder(stack, 'windows', {
-      os: Os.WINDOWS,
-      vpc,
-      installDocker: false,
-    });
-
-    const template = Template.fromStack(stack);
-
-    template.resourcePropertiesCountIs(
-      'AWS::ImageBuilder::Component',
-      Match.objectLike({
-        Description: 'Install latest version of Docker',
-      }),
-      0,
-    );
   });
 
   test('AMI tags are merged into the distribution configuration', () => {
@@ -189,40 +105,6 @@ describe('Image Builder', () => {
         }),
       ]),
     }));
-  });
-
-  test('Container image builder supported OS', () => {
-
-    const vpc = new ec2.Vpc(stack, 'vpc');
-
-    expect(() => {
-      new ContainerImageBuilder(stack, 'linux x64', {
-        os: Os.LINUX,
-        architecture: Architecture.X86_64,
-        vpc,
-      });
-    }).toThrowError('Unsupported OS: Linux.');
-    expect(() => {
-      new ContainerImageBuilder(stack, 'linux arm64', {
-        os: Os.LINUX,
-        architecture: Architecture.ARM64,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
-        vpc,
-      });
-    }).toThrowError('Unsupported architecture: ARM64. Consider CodeBuild for faster image builds.');
-    new ContainerImageBuilder(stack, 'win x64', {
-      os: Os.WINDOWS,
-      architecture: Architecture.X86_64,
-      vpc,
-    });
-    expect(() => {
-      new ContainerImageBuilder(stack, 'win arm64', {
-        os: Os.WINDOWS,
-        architecture: Architecture.ARM64,
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.LARGE),
-        vpc,
-      });
-    }).toThrowError('Unsupported architecture: ARM64. Consider CodeBuild for faster image builds.');
   });
 
   test('AWS Image Builder reuse', () => {
@@ -568,6 +450,28 @@ describe('Component caching', () => {
     }
 
     expect(tokenizedComponentLogicalId(0)).toEqual(tokenizedComponentLogicalId(3));
+  });
+
+  test('CodeBuild builder with a tokenized command gets a stable build', () => {
+    // same as above, but the CodeBuild builder names its wait condition after a hash of the build spec
+    function tokenizedWaitHandleLogicalId(extraTokens: number): string {
+      const tokenApp = new cdk.App();
+      const tokenStack = new cdk.Stack(tokenApp, 'test');
+      for (let i = 0; i < extraTokens; i++) {
+        cdk.Lazy.string({ produce: () => `extra${i}` });
+      }
+      const tokenValue = cdk.Lazy.string({ produce: () => 'resolved-value' });
+
+      const builder = CodeBuildRunnerProvider.imageBuilder(tokenStack, 'builder', {
+        baseDockerImage: BaseContainerImage.fromString(cdk.Lazy.string({ produce: () => 'public.ecr.aws/lts/ubuntu:22.04' })),
+      });
+      builder.addComponent(RunnerImageComponent.environmentVariables({ TOKENIZED: tokenValue }));
+      builder.bindDockerImage();
+
+      return Object.keys(Template.fromStack(tokenStack).findResources('AWS::CloudFormation::WaitConditionHandle'))[0];
+    }
+
+    expect(tokenizedWaitHandleLogicalId(0)).toEqual(tokenizedWaitHandleLogicalId(3));
   });
 });
 
@@ -1017,6 +921,43 @@ describe('Image cleanup', () => {
         ]),
       }),
     }));
+  });
+
+  test('rebuild interval longer than 14 days warns that runners will stop getting jobs', () => {
+    CodeBuildRunnerProvider.imageBuilder(stack, 'biweekly', { rebuildInterval: cdk.Duration.days(14) });
+    CodeBuildRunnerProvider.imageBuilder(stack, 'rarely', { rebuildInterval: cdk.Duration.days(30) });
+    CodeBuildRunnerProvider.imageBuilder(stack, 'never', { rebuildInterval: cdk.Duration.days(0) });
+
+    const annotations = Annotations.fromStack(stack);
+    annotations.hasNoWarning('/test/biweekly', Match.stringLikeRegexp('rebuildInterval'));
+    annotations.hasWarning('/test/rarely', Match.stringLikeRegexp('rebuildInterval is 30 days'));
+    annotations.hasWarning('/test/never', Match.stringLikeRegexp('rebuildInterval is disabled'));
+  });
+
+  test('rebuild interval can be in hours', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    CodeBuildRunnerProvider.imageBuilder(stack, 'codebuild', { rebuildInterval: cdk.Duration.hours(12) }).bindDockerImage();
+    Ec2RunnerProvider.imageBuilder(stack, 'image builder', { vpc, rebuildInterval: cdk.Duration.hours(12) }).bindAmi();
+
+    const template = Template.fromStack(stack);
+    template.hasResourceProperties('AWS::Events::Rule', { ScheduleExpression: 'rate(12 hours)' });
+    expect(Object.values(template.findResources('AWS::ImageBuilder::ImagePipeline', {
+      Properties: { Schedule: { ScheduleExpression: 'rate(12 hours)' } },
+    }))).toHaveLength(1);
+    Annotations.fromStack(stack).hasNoWarning('*', Match.stringLikeRegexp('rebuildInterval'));
+  });
+
+  test('rebuild interval in hours longer than 14 days warns too', () => {
+    CodeBuildRunnerProvider.imageBuilder(stack, 'builder', { rebuildInterval: cdk.Duration.hours(400) });
+
+    Annotations.fromStack(stack).hasWarning('/test/builder', Match.stringLikeRegexp('rebuildInterval is 16 days 16 hours'));
+  });
+
+  test('zero rebuild interval leaves the image pipeline without a schedule', () => {
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    Ec2RunnerProvider.imageBuilder(stack, 'builder', { vpc, rebuildInterval: cdk.Duration.days(0) }).bindAmi();
+
+    Template.fromStack(stack).hasResourceProperties('AWS::ImageBuilder::ImagePipeline', { Schedule: Match.absent() });
   });
 
   test('overriding the stack AMI tag warns about cleanup', () => {

@@ -1,0 +1,29 @@
+name: integ-verify
+description: >
+  Assume the integration test role from test/default.integ.ts and find the stack's resources. Needs `id-token: write` and a checkout.
+
+inputs:
+  role:
+    description: ARN of the integration test role (INTEG_ROLE_ARN on CodeBuild x64 runners)
+    required: true
+  region:
+    description: Region of the github-runners-test stack
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: aws-actions/configure-aws-credentials@v6
+      with:
+        role-to-assume: ${{ inputs.role }}
+        aws-region: ${{ inputs.region }}
+    - name: Find stack resources
+      shell: bash
+      run: |
+        # describe-stack-resources stops at 100 resources, list-stack-resources pages through all of them
+        resources=$(aws cloudformation list-stack-resources --stack-name github-runners-test --query StackResourceSummaries)
+        resource() { jq -r --arg type "$1" --arg id "$2" '.[] | select(.ResourceType == $type and (.LogicalResourceId | test($id))) | .PhysicalResourceId' <<<"$resources"; }
+        state_machine=$(resource AWS::StepFunctions::StateMachine RunnerOrchestrator)
+        runner_check=$(resource AWS::Lambda::Function IntegrationTestRunnerCheck)
+        echo "STATE_MACHINE_ARN=${state_machine:?not found in stack}" >> "$GITHUB_ENV"
+        echo "RUNNER_CHECK_FUNCTION=${runner_check:?not found in stack}" >> "$GITHUB_ENV"

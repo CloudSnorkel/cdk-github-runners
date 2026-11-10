@@ -25,7 +25,7 @@ import { BaseContainerImage, defaultBaseDockerImage } from './aws-image-builder'
 import { BuildImageFunction } from './build-image-function';
 import { BuildImageFunctionProperties } from './build-image.lambda';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps } from './common';
-import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
+import { Architecture, Os, RunnerAmi, RunnerImage } from '../providers';
 import { singletonLambda, singletonLogGroup, SingletonLogType, singletonRole } from '../utils';
 
 
@@ -109,17 +109,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     this.buildImage = props?.codeBuildOptions?.buildImage ?? this.getDefaultBuildImage();
     this.waitOnDeploy = props?.waitOnDeploy ?? true;
     this.dockerSetupCommands = props?.dockerSetupCommands ?? [];
-
-    // normalize BaseContainerImageInput to BaseContainerImage (string support is deprecated, only at public API level)
-    const baseDockerImageInput = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
-    this.baseImage = typeof baseDockerImageInput === 'string' ? BaseContainerImage.fromString(baseDockerImageInput) : baseDockerImageInput;
-
-    // warn if using deprecated string format (only if user explicitly provided it)
-    if (props?.baseDockerImage && typeof props.baseDockerImage === 'string') {
-      Annotations.of(this).addWarning(
-        'Passing baseDockerImage as a string is deprecated. Please use BaseContainerImage static factory methods instead, e.g., BaseContainerImage.fromDockerHub("ubuntu", "22.04") or BaseContainerImage.fromString("public.ecr.aws/lts/ubuntu:22.04")',
-      );
-    }
+    this.baseImage = props?.baseDockerImage ?? defaultBaseDockerImage(this.os);
 
     // warn against isolated networks
     if (props?.subnetSelection?.subnetType == ec2.SubnetType.PRIVATE_ISOLATED) {
@@ -229,7 +219,6 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       architecture: this.architecture,
       os: this.os,
       logGroup,
-      runnerVersion: RunnerVersion.specific('unknown'),
       _dependable: completedImage,
     };
     return this.boundDockerImage;
@@ -319,7 +308,12 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
 
     const buildSpecVersion = 'v2'; // change this every time the build spec changes
     const hashedComponents = commandsHashedComponents.concat(buildSpecVersion, this.architecture.name, this.baseImage.image, this.os.name);
-    const hash = crypto.createHash('md5').update(hashedComponents.join('\n')).digest('hex').slice(0, 10);
+    // hash tokens by their resolved form, not by the `${Token[TOKEN.NN]}` placeholder whose counter changes between synths
+    let hashInput = hashedComponents.join('\n');
+    if (cdk.Token.isUnresolved(hashInput)) {
+      hashInput = JSON.stringify(thisStack.resolve(hashInput));
+    }
+    const hash = crypto.createHash('md5').update(hashInput).digest('hex').slice(0, 10);
 
     const buildSpec = codebuild.BuildSpec.fromObject({
       version: 0.2,
@@ -366,7 +360,7 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
             'echo "Skipping soci index: no image to index, the build never produced $REPO_URI"\n' +
             'elif [ "$SOCI_LABEL" = "null" ]; then\n' +
             'docker rmi "$REPO_URI"\n' + // it downloads the image again to /tmp, so save on space
-            'LATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -w "%{redirect_url}" -fsS https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
+            'LATEST_SOCI_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -o /dev/null -w "%{url_effective}" https://github.com/CloudSnorkel/standalone-soci-indexer/releases/latest | grep -oE "[^/]+$"`\n' +
             `curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL https://github.com/CloudSnorkel/standalone-soci-indexer/releases/download/$\{LATEST_SOCI_VERSION}/standalone-soci-indexer_Linux_${archUrl}.tar.gz | tar xz\n` +
             './standalone-soci-indexer "$REPO_URI"\n' +
             'fi',

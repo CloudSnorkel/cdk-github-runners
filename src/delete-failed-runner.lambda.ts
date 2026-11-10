@@ -13,10 +13,14 @@ interface DeleteFailedRunnerInput extends StepFunctionLambdaInput {
   /**
    * Family of the provider config that was tried, straight out of `$.providerParams.family`. A fallback chain hits
    * this Lambda once per attempt, so this is the family of that attempt and not of the whole chain.
-   *
-   * Undefined for executions started before this field existed.
    */
-  readonly family?: string;
+  readonly family: string;
+
+  /**
+   * The error that failed this attempt, straight out of the catch in `$.error`. We only log it, so failure reasons can be seen without state machine
+   * logging enabled.
+   */
+  readonly error: { readonly Error?: string; readonly Cause?: string };
 }
 
 /**
@@ -47,7 +51,7 @@ interface DeleteFailedRunnerResult {
  * Terminate leftover instances, but only for families that can have them.
  */
 async function terminateInstancesIfNeeded(event: DeleteFailedRunnerInput): Promise<string[]> {
-  if (!EC2_FAMILIES.includes(event.family ?? '')) {
+  if (!EC2_FAMILIES.includes(event.family)) {
     return [];
   }
 
@@ -66,6 +70,24 @@ async function terminateInstancesIfNeeded(event: DeleteFailedRunnerInput): Promi
 }
 
 export async function handler(event: DeleteFailedRunnerInput): Promise<DeleteFailedRunnerResult> {
+  const result = await cleanUp(event);
+
+  // logged only after a successful clean-up, so the step function retrying this Lambda doesn't log the same failure more than once. a clean-up that
+  // keeps failing ends the execution with `RunnerNotDeleted` and shows up in "Recent errors" instead.
+  console.log({
+    notice: 'Runner failed',
+    runnerName: event.runnerName,
+    owner: event.owner,
+    repo: event.repo,
+    family: event.family,
+    error: event.error,
+    ...result,
+  });
+
+  return result;
+}
+
+async function cleanUp(event: DeleteFailedRunnerInput): Promise<DeleteFailedRunnerResult> {
   // any error before we know the runner is gone is thrown as-is. the step function retries all of them for an hour and
   // then fails the whole execution without retrying it. see `Runner Not Deleted` in runner.ts for why.
   const { octokit, githubSecrets } = await getOctokit(event.installationId);

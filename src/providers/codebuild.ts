@@ -1,4 +1,3 @@
-import * as path from 'path';
 import {
   Annotations,
   ArnFormat,
@@ -22,12 +21,13 @@ import {
   IRunnerProvider,
   IRunnerProviderStatus,
   Os,
+  providerParam,
+  RunnerConfig,
+  runnerDefaultLabels,
   runnerEnvironment,
   RunnerImage,
   RunnerProviderProps,
   RunnerVersion,
-  providerParam,
-  RunnerEnvConfig,
 } from './common';
 import { IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
 
@@ -43,14 +43,6 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
    * @default CodeBuildRunnerProvider.imageBuilder()
    */
   readonly imageBuilder?: IRunnerImageBuilder;
-
-  /**
-   * GitHub Actions label used for this provider.
-   *
-   * @default undefined
-   * @deprecated use {@link labels} instead
-   */
-  readonly label?: string;
 
   /**
    * GitHub Actions labels used for this provider.
@@ -83,15 +75,6 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
    * @default no VPC
    */
   readonly vpc?: ec2.IVpc;
-
-  /**
-   * Security group to assign to this instance.
-   *
-   * @default public project with no security group
-   *
-   * @deprecated use {@link securityGroups}
-   */
-  readonly securityGroup?: ec2.ISecurityGroup;
 
   /**
    * Security groups to assign to this instance.
@@ -165,7 +148,7 @@ export interface CodeBuildRunnerProviderProps extends RunnerProviderProps {
  *
  * @internal
  */
-interface CodeBuildRunnerConfig extends RunnerEnvConfig {
+interface CodeBuildRunnerConfig extends RunnerConfig {
   readonly projectName: string;
 }
 
@@ -179,36 +162,6 @@ interface CodeBuildRunnerConfig extends RunnerEnvConfig {
 export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProvider, IParameterizedRunnerProvider {
   /** @internal */
   public static readonly _FAMILY = 'codebuild';
-
-  /**
-   * Path to Dockerfile for Linux x64 with all the requirements for CodeBuild runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
-   *
-   * Available build arguments that can be set in the image builder:
-   * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
-   * * `EXTRA_PACKAGES` can be used to install additional packages.
-   * * `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stable"`.
-   * * `DIND_COMMIT` overrides the commit where dind is found.
-   * * `DOCKER_VERSION` overrides the installed Docker version.
-   * * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
-   *
-   * @deprecated Use `imageBuilder()` instead.
-   */
-  public static readonly LINUX_X64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'codebuild', 'linux-x64');
-
-  /**
-   * Path to Dockerfile for Linux ARM64 with all the requirements for CodeBuild runner. Use this Dockerfile unless you need to customize it further than allowed by hooks.
-   *
-   * Available build arguments that can be set in the image builder:
-   * * `BASE_IMAGE` sets the `FROM` line. This should be an Ubuntu compatible image.
-   * * `EXTRA_PACKAGES` can be used to install additional packages.
-   * * `DOCKER_CHANNEL` overrides the channel from which Docker will be downloaded. Defaults to `"stable"`.
-   * * `DIND_COMMIT` overrides the commit where dind is found.
-   * * `DOCKER_VERSION` overrides the installed Docker version.
-   * * `DOCKER_COMPOSE_VERSION` overrides the installed docker-compose version.
-   *
-   * @deprecated Use `imageBuilder()` instead.
-   */
-  public static readonly LINUX_ARM64_DOCKERFILE_PATH = path.join(__dirname, '..', '..', 'assets', 'docker-images', 'codebuild', 'linux-arm64');
 
   /**
    * The fragment that runs any CodeBuild provider. Reads the config {@link _runnerConfig} generated for it from
@@ -286,10 +239,8 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
 
   /**
    * Docker image loaded with GitHub Actions Runner and its prerequisites. The image is built by an image builder and is specific to CodeBuild.
-   *
-   * @deprecated This field is internal and should not be accessed directly.
    */
-  readonly image: RunnerImage;
+  private readonly image: RunnerImage;
 
   /**
    * Log group where provided runners will save their logs.
@@ -320,18 +271,14 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
         'See https://docs.aws.amazon.com/codebuild/latest/userguide/vpc-support.html#best-practices-for-vpcs');
     }
 
-    this.labels = this.labelsFromProperties('codebuild', props?.label, props?.labels);
+    this.labels = props?.labels ?? ['codebuild'];
     this.group = props?.group;
     this.vpc = props?.vpc;
-    if (props?.securityGroup) {
-      this.securityGroups = [props.securityGroup];
+    if (props?.securityGroups) {
+      this.securityGroups = props.securityGroups;
     } else {
-      if (props?.securityGroups) {
-        this.securityGroups = props.securityGroups;
-      } else {
-        if (this.vpc) {
-          this.securityGroups = [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })];
-        }
+      if (this.vpc) {
+        this.securityGroups = [new ec2.SecurityGroup(this, 'SG', { vpc: this.vpc })];
       }
     }
 
@@ -342,16 +289,12 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       version: 0.2,
       env: {
         variables: {
-          RUNNER_TOKEN: 'unspecified',
+          RUNNER_JIT_CONFIG: '',
           RUNNER_NAME: 'unspecified',
           RUNNER_LABEL: 'unspecified',
           OWNER: 'unspecified',
           REPO: 'unspecified',
           GITHUB_DOMAIN: 'github.com',
-          REGISTRATION_URL: 'unspecified',
-          RUNNER_GROUP1: '',
-          RUNNER_GROUP2: '',
-          DEFAULT_LABELS: '',
         },
       },
       phases: {
@@ -359,14 +302,12 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
           commands: [
             this.dind ? 'nohup dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &' : '',
             this.dind ? 'timeout 15 sh -c "until docker info; do echo .; sleep 1; done"' : '',
-            'if [ "${RUNNER_VERSION}" = "latest" ]; then RUNNER_FLAGS=""; else RUNNER_FLAGS="--disableupdate"; fi',
             '/home/runner/job-reporter.sh ${RUNNER_NAME}',
-            'sudo -Hu runner /home/runner/config.sh --unattended --url "${REGISTRATION_URL}" --token "${RUNNER_TOKEN}" --ephemeral --work _work --labels "${RUNNER_LABEL},cdkghr:started:`date +%s`" ${RUNNER_FLAGS} --name "${RUNNER_NAME}" ${RUNNER_GROUP1} ${RUNNER_GROUP2} ${DEFAULT_LABELS}',
           ],
         },
         build: {
           commands: [
-            'sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh',
+            'sudo --preserve-env=AWS_CONTAINER_CREDENTIALS_RELATIVE_URI,AWS_DEFAULT_REGION,AWS_REGION -Hu runner /home/runner/run.sh --jitconfig "${RUNNER_JIT_CONFIG}"',
             'STATUS=$(grep -Phors "finish job request for job [0-9a-f-]+ with result: .*" /home/runner/_diag/ | tail -n1 | awk \'{print $NF}\')',
             'if [ -n "$STATUS" ]; then echo CDKGHA JOB DONE "$RUNNER_LABEL" "$STATUS"; fi',
           ],
@@ -381,12 +322,10 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       buildSpec.phases.install.commands = [
         'cd \\actions',
         '& ./job-reporter.ps1 "${Env:RUNNER_NAME}"',
-        'if (${Env:RUNNER_VERSION} -eq "latest") { $RunnerFlags = "" } else { $RunnerFlags = "--disableupdate" }',
-        './config.cmd --unattended --url "${Env:REGISTRATION_URL}" --token "${Env:RUNNER_TOKEN}" --ephemeral --work _work --labels "${Env:RUNNER_LABEL},cdkghr:started:$(Get-Date -UFormat %s)" ${RunnerFlags} --name "${Env:RUNNER_NAME}" ${Env:RUNNER_GROUP1} ${Env:RUNNER_GROUP2} ${Env:DEFAULT_LABELS}',
       ];
       buildSpec.phases.build.commands = [
         'cd \\actions',
-        './run.cmd',
+        './run.cmd --jitconfig "${Env:RUNNER_JIT_CONFIG}"',
         '$STATUS = Select-String -Path \'./_diag/*.log\' -Pattern \'finish job request for job [0-9a-f\\-]+ with result: (.*)\' | %{$_.Matches.Groups[1].Value} | Select-Object -Last 1',
         'if ($STATUS) { echo "CDKGHA JOB DONE $\{Env:RUNNER_LABEL\} $STATUS" }',
       ];
@@ -472,9 +411,7 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
       provider: this.node.path,
       projectName: this.project.projectName,
       runnerGroup: this.group ?? '',
-      group1: this.group ? '--runnergroup' : '',
-      group2: this.group ? this.group : '',
-      defaultLabels: this.defaultLabels ? '' : '--no-default-labels',
+      defaultLabels: runnerDefaultLabels(this.image.os, this.image.architecture, this.defaultLabels),
     };
   }
 
@@ -527,10 +464,4 @@ export class CodeBuildRunnerProvider extends BaseProvider implements IRunnerProv
   public get connections(): ec2.Connections {
     return this.project.connections;
   }
-}
-
-/**
- * @deprecated use {@link CodeBuildRunnerProvider}
- */
-export class CodeBuildRunner extends CodeBuildRunnerProvider {
 }

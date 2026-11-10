@@ -8,9 +8,9 @@ import {
 } from '@aws-sdk/client-sfn';
 import { SendMessageBatchCommand, SQSClient } from '@aws-sdk/client-sqs';
 import * as AWSLambda from 'aws-lambda';
-import { MAX_RUNNER_NAME_LENGTH, OrchestratorInput, WARM_RUNNER_JOB_ID } from './lambda-common';
+import { labelsMatch, MAX_RUNNER_NAME_LENGTH, OrchestratorInput, WARM_RUNNER_JOB_ID } from './lambda-common';
 import { getOctokit, isNotFound, resolveInstallationId } from './lambda-github';
-import { isControlledJob, RunnerReportMessage } from './lambda-tracker';
+import { controlledJobRunnerLabels, recordRunnerAccounted, RunnerReportMessage } from './lambda-tracker';
 
 const sfn = new SFNClient();
 const sqs = new SQSClient();
@@ -193,6 +193,9 @@ async function handleRunnerReport(report: RunnerReportMessage) {
     return;
   }
 
+  // the runner got a job, so the idle reaper doesn't need to look for a job it left without a runner once it's gone
+  await recordRunnerAccounted(report.runnerName, report.jobId);
+
   if (input.jobId == WARM_RUNNER_JOB_ID) {
     // warm runners aren't started for any job in particular, so nothing they run is technically stolen
     // warm runner keeper starts a replacement on its own as soon as it sees a warm runner go busy
@@ -239,19 +242,33 @@ async function handleRunnerReport(report: RunnerReportMessage) {
     return;
   }
 
-  if (await isControlledJob(jobId)) {
-    // GitHub shuffled jobs between runners we started
-    // every job involved has a runner, so no job is left hanging
+  const otherRunnerLabels = await controlledJobRunnerLabels(jobId);
+  if (otherRunnerLabels) {
+    if (labelsMatch(input.jobLabels.split(','), otherRunnerLabels)) {
+      // GitHub shuffled jobs between runners we started
+      // the runner we started for that job can run this runner's job instead, so no job is left hanging
+      console.log({
+        notice: 'Runner ran another job of ours',
+        runnerName: report.runnerName,
+        jobId,
+        expectedJobId: input.jobId,
+      });
+      return;
+    }
+
+    // the runner we started for that job can't run this runner's job (e.g. a [self-hosted, lambda] job took a runner started for
+    // [self-hosted, lambda, arm64] while its own runner is x64). this runner's job is left without a runner, so treat it as stolen.
     console.log({
-      notice: 'Runner ran another job of ours',
+      notice: 'Runner ran another job of ours, but that job\'s runner can\'t run this one\'s',
       runnerName: report.runnerName,
       jobId,
       expectedJobId: input.jobId,
+      otherRunnerLabels,
+      expectedJobLabels: input.jobLabels,
     });
-    return;
   }
 
-  // runner ran a job we never started a runner for
+  // runner ran a job we never started a runner for, or one whose runner can't take over
   // runner was stolen, start another one just like it
   await replaceRunner(report.runnerName, input, jobId);
 }

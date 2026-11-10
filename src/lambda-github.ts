@@ -154,6 +154,24 @@ export async function getOctokit(installationId?: number): Promise<{ octokit: Re
   };
 }
 
+/**
+ * `getOctokit` reads secrets manager and calls GitHub every time. Handlers that work on many runners at once should get one of these per
+ * invocation and use it instead. Tokens expire, so don't keep it any longer than the length of one Lambda call.
+ *
+ * @internal
+ */
+export function cachedGetOctokit(): typeof getOctokit {
+  const cache = new Map<number | undefined, Awaited<ReturnType<typeof getOctokit>>>();
+  return async (installationId?: number) => {
+    let cached = cache.get(installationId);
+    if (!cached) {
+      cached = await getOctokit(installationId);
+      cache.set(installationId, cached);
+    }
+    return cached;
+  };
+}
+
 // This function is used to get the Octokit instance for the app itself, not for a specific installation.
 // With PAT authentication, it returns undefined.
 export async function getAppOctokit(): Promise<RestOctokit | undefined> {
