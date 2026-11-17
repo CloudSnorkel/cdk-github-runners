@@ -22,6 +22,8 @@
     "bundle:image-builders/build-image.lambda:watch": "projen bundle:image-builders/build-image.lambda:watch",
     "bundle:providers/ami-root-device.lambda": "projen bundle:providers/ami-root-device.lambda",
     "bundle:providers/ami-root-device.lambda:watch": "projen bundle:providers/ami-root-device.lambda:watch",
+    "bundle:providers/microvm-image.lambda": "projen bundle:providers/microvm-image.lambda",
+    "bundle:providers/microvm-image.lambda:watch": "projen bundle:providers/microvm-image.lambda:watch",
     "bundle:providers/update-lambda.lambda": "projen bundle:providers/update-lambda.lambda",
     "bundle:providers/update-lambda.lambda:watch": "projen bundle:providers/update-lambda.lambda:watch",
     "bundle:setup.lambda": "projen bundle:setup.lambda",
@@ -82,6 +84,8 @@
     "@aws-sdk/client-ecr": "^3.1157.0",
     "@aws-sdk/client-imagebuilder": "^3.1157.0",
     "@aws-sdk/client-lambda": "^3.1157.0",
+    "@aws-sdk/client-lambda-microvms": "^3.1169.0",
+    "@aws-sdk/client-s3": "^3.1169.0",
     "@aws-sdk/client-secrets-manager": "^3.1157.0",
     "@aws-sdk/client-sfn": "^3.1157.0",
     "@aws-sdk/client-sns": "^3.1157.0",
@@ -100,7 +104,7 @@
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
     "aws-cdk": "^2",
-    "aws-cdk-lib": "2.239.0",
+    "aws-cdk-lib": "2.261.0",
     "bootstrap": "^5.2.0",
     "commit-and-tag-version": "^13",
     "constructs": "10.5.1",
@@ -116,6 +120,7 @@
     "jsii-docgen": "^10.5.0",
     "jsii-pacmak": "^1.142.0",
     "jsii-rosetta": "~5.9.0",
+    "jszip": "^3.10.2",
     "projen": "^0.104.17",
     "sass": "^1.54.0",
     "shx": "^0.4.0",
@@ -129,7 +134,7 @@
     "vite-plugin-singlefile": "^2"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.239.0",
+    "aws-cdk-lib": "^2.261.0",
     "constructs": "^10.5.1"
   },
   "dependencies": {

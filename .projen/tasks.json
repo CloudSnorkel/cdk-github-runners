@@ -106,6 +106,9 @@
           "spawn": "bundle:providers/ami-root-device.lambda"
         },
         {
+          "spawn": "bundle:providers/microvm-image.lambda"
+        },
+        {
           "spawn": "bundle:providers/update-lambda.lambda"
         },
         {
@@ -119,6 +122,9 @@
         },
         {
           "exec": "cp -r src/providers/*.ps1 assets/providers"
+        },
+        {
+          "exec": "cp -r src/providers/*.js assets/providers"
         },
         {
           "exec": "vite build setup"
@@ -354,6 +360,45 @@
             "--target=node22",
             "--platform=node",
             "--outfile=assets/providers/ami-root-device.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*",
+            "--watch"
+          ]
+        }
+      ]
+    },
+    "bundle:providers/microvm-image.lambda": {
+      "name": "bundle:providers/microvm-image.lambda",
+      "description": "Create a JavaScript bundle from src/providers/microvm-image.lambda.ts",
+      "steps": [
+        {
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/providers/microvm-image.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/providers/microvm-image.lambda/index.js",
+            "--packages=bundle",
+            "--tsconfig=test/tsconfig.json",
+            "--external:@aws-sdk/*"
+          ]
+        }
+      ]
+    },
+    "bundle:providers/microvm-image.lambda:watch": {
+      "name": "bundle:providers/microvm-image.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/providers/microvm-image.lambda.ts",
+      "steps": [
+        {
+          "execArgs": [
+            "esbuild",
+            "--bundle",
+            "src/providers/microvm-image.lambda.ts",
+            "--target=node22",
+            "--platform=node",
+            "--outfile=assets/providers/microvm-image.lambda/index.js",
             "--packages=bundle",
             "--tsconfig=test/tsconfig.json",
             "--external:@aws-sdk/*",
@@ -1223,7 +1268,7 @@
             "--peer",
             "--no-deprecated",
             "--dep=dev,prod,peer,optional",
-            "--filter=@aws-sdk/client-cloudformation,@aws-sdk/client-codebuild,@aws-sdk/client-dynamodb,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-sqs,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@types/aws-lambda,@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,projen,shx,ts-jest,ts-node,typescript,cron-parser"
+            "--filter=@aws-sdk/client-cloudformation,@aws-sdk/client-codebuild,@aws-sdk/client-dynamodb,@aws-sdk/client-ec2,@aws-sdk/client-ecr,@aws-sdk/client-imagebuilder,@aws-sdk/client-lambda,@aws-sdk/client-lambda-microvms,@aws-sdk/client-s3,@aws-sdk/client-secrets-manager,@aws-sdk/client-sfn,@aws-sdk/client-sns,@aws-sdk/client-sqs,@aws-sdk/client-ssm,@octokit/auth-app,@octokit/core,@octokit/request-error,@octokit/rest,@types/aws-lambda,@types/jest,@types/node,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,jsii-diff,jsii-pacmak,jszip,projen,shx,ts-jest,ts-node,typescript,cron-parser"
           ]
         },
         {
@@ -1240,6 +1285,8 @@
             "@aws-sdk/client-ecr",
             "@aws-sdk/client-imagebuilder",
             "@aws-sdk/client-lambda",
+            "@aws-sdk/client-lambda-microvms",
+            "@aws-sdk/client-s3",
             "@aws-sdk/client-secrets-manager",
             "@aws-sdk/client-sfn",
             "@aws-sdk/client-sns",
@@ -1272,6 +1319,7 @@
             "jsii-pacmak",
             "jsii-rosetta",
             "jsii",
+            "jszip",
             "projen",
             "sass",
             "shx",

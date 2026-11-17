@@ -33,6 +33,7 @@ import {
   IRunnerProvider,
   isParameterizedRunnerProvider,
   LambdaRunnerProvider,
+  MicroVmRunnerProvider,
   ProviderRetryOptions,
 } from './providers';
 import { Secrets } from './secrets';
@@ -56,6 +57,7 @@ const FAMILY_FRAGMENTS = new Map<string, (scope: Construct) => stepfunctions.ICh
   [EcsRunnerProvider._FAMILY, EcsRunnerProvider._stateMachineFragment],
   [FargateRunnerProvider._FAMILY, FargateRunnerProvider._stateMachineFragment],
   [LambdaRunnerProvider._FAMILY, LambdaRunnerProvider._stateMachineFragment],
+  [MicroVmRunnerProvider._FAMILY, MicroVmRunnerProvider._stateMachineFragment],
 ]);
 
 

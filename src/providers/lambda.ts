@@ -92,9 +92,10 @@ export interface LambdaRunnerProviderProps extends RunnerProviderProps {
   readonly timeout?: cdk.Duration;
 
   /**
-   * VPC to launch the runners in.
+   * VPC to send the runner's outbound traffic through. The network interfaces never get a public IP, so the subnets
+   * need a NAT gateway (or VPC endpoints) to reach GitHub, ECR and CloudWatch. Public subnets won't work.
    *
-   * @default no VPC
+   * @default no VPC, runners get public internet access
    */
   readonly vpc?: ec2.IVpc;
 

@@ -287,6 +287,10 @@ export abstract class RunnerImageComponent {
         } else if (os.is(Os.LINUX_AMAZON_2023)) {
           return [
             'curl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL https://cli.github.com/packages/rpm/gh-cli.repo -o /etc/yum.repos.d/gh-cli.repo',
+            // manually import key for microvm images using al2023-minimal and microdnf
+            'curl --retry 5 --retry-delay 30 --retry-all-errors -fsSSL $(grep gpgkey /etc/yum.repos.d/gh-cli.repo | cut -d= -f2) -o /tmp/gh-cli.key',
+            'rpm --import /tmp/gh-cli.key',
+            // install gh
             'dnf install -y gh',
           ];
         } else if (os.is(Os.WINDOWS)) {
@@ -454,7 +458,7 @@ export abstract class RunnerImageComponent {
           } else if (os.is(Os.LINUX_AMAZON_2)) {
             commands.push('yum install -y openssl-libs krb5-libs zlib libicu60');
           } else if (os.is(Os.LINUX_AMAZON_2023)) {
-            commands.push('dnf install -y openssl-libs krb5-libs zlib libicu-67.1');
+            commands.push('dnf install -y krb5-libs zlib libicu-67.1');
           }
 
           commands.push('mkdir -p /opt/hostedtoolcache', 'chown runner /opt/hostedtoolcache');
@@ -709,6 +713,57 @@ export abstract class RunnerImageComponent {
         return [
           'LABEL DISABLE_SOCI=1', // hacky way to disable soci v2 indexing on lambda as lambda will fail to start with an index
           'ENTRYPOINT ["bash", "/bootstrap.sh"]',
+        ];
+      }
+    };
+  }
+
+  /**
+   * A component to set up the required MicroVM entrypoint for Lambda MicroVM runners.
+   *
+   * Must be used *after* the {@link githubRunner} component.
+   */
+  static microVmEntrypoint(): RunnerImageComponent {
+    return new class extends RunnerImageComponent {
+      name = 'MicroVM-Entrypoint';
+
+      getCommands(os: Os, _architecture: Architecture) {
+        if (!os.isIn(Os._ALL_LINUX_VERSIONS)) {
+          throw new Error(`Unsupported OS for MicroVM entrypoint: ${os.name}`);
+        }
+
+        // every runner ships a node because JavaScript actions can't run without one. we pin the newest at build
+        // time, so if the runner ever stops shipping node, only the image build fails and not the runtime.
+        // node is the easiest way to get the required working http entrypoint.
+        return [
+          // `|| true` so a missing node gets the error below instead of `set -e` killing the build with no explanation
+          // x64 runners also ship node*_alpine builds that need musl, so only take the plain nodeNN ones
+          'NODE=$(ls -d /home/runner/externals/node*/bin/node 2>/dev/null | grep -E "/node[0-9]+/bin/node$" | sort -V | tail -1 || true)',
+          'if [ -z "$NODE" ]; then echo "No node in the runner externals. Is microVmEntrypoint() before githubRunner()?"; exit 1; fi',
+          'ln -s "$NODE" /microvm-node',
+        ];
+      }
+
+      getAssets(_os: Os, _architecture: Architecture): RunnerImageAsset[] {
+        return [
+          {
+            source: path.join(__dirname, '..', '..', 'assets', 'providers', 'microvm-hooks.js'),
+            target: '/microvm-hooks.js',
+          },
+          {
+            // same runner script the Lambda entrypoint uses, just started by the hook server instead of the runtime API
+            source: path.join(__dirname, '..', '..', 'assets', 'providers', 'lambda-runner.sh'),
+            target: '/runner.sh',
+          },
+        ];
+      }
+
+      getDockerCommands(_os: Os, _architecture: Architecture): string[] {
+        return [
+          'ENV HOME=/home/runner',
+          // the hook server is root, but jobs should run as the runner user like they do on EC2
+          'ENV RUNNER_USER=runner',
+          'CMD ["/microvm-node", "/microvm-hooks.js"]',
         ];
       }
     };

@@ -2,6 +2,7 @@ export * from './ec2';
 export * from './ecs';
 export * from './codebuild';
 export * from './lambda';
+export * from './microvm';
 export * from './fargate';
 export * from './composite';
 export * from './common';

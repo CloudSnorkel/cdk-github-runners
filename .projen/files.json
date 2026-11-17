@@ -22,6 +22,7 @@
     "src/image-builders/aws-image-builder/filter-failed-builds-function.ts",
     "src/image-builders/build-image-function.ts",
     "src/providers/ami-root-device-function.ts",
+    "src/providers/microvm-image-function.ts",
     "src/providers/update-lambda-function.ts",
     "src/setup-function.ts",
     "src/status-function.ts",

@@ -11,6 +11,7 @@ import {
   FargateRunnerProvider,
   IRunnerImageBuilder,
   LambdaRunnerProvider,
+  MicroVmRunnerProvider,
   Os,
 } from '../src';
 
@@ -76,6 +77,65 @@ describe('Providers', () => {
     template.hasResourceProperties('AWS::Lambda::Function', Match.objectLike({
       Timeout: 300,
     }));
+  });
+
+  test('MicroVM provider', () => {
+
+    new MicroVmRunnerProvider(stack, 'provider', {
+      memorySize: cdk.Size.gibibytes(8),
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties('AWS::Lambda::MicrovmImage', Match.objectLike({
+      CpuConfigurations: [{ Architecture: 'ARM_64' }],
+      Resources: [{ MinimumMemoryInMiB: 8192 }],
+      // the service rejects the image unless the ready hook is enabled alongside any lifecycle hook
+      Hooks: { MicrovmHooks: { Run: 'ENABLED' }, MicrovmImageHooks: { Ready: 'ENABLED' } },
+    }));
+  });
+
+  test('MicroVM provider supports x64 images', () => {
+
+    new MicroVmRunnerProvider(stack, 'provider', {
+      imageBuilder: MicroVmRunnerProvider.imageBuilder(stack, 'builder', {
+        architecture: Architecture.X86_64,
+      }),
+    });
+
+    Template.fromStack(stack).hasResourceProperties('AWS::Lambda::MicrovmImage', Match.objectLike({
+      CpuConfigurations: [{ Architecture: 'X86_64' }],
+    }));
+  });
+
+  test('MicroVM provider with VPC', () => {
+
+    const vpc = new ec2.Vpc(stack, 'vpc');
+    const provider = new MicroVmRunnerProvider(stack, 'provider', {
+      vpc,
+      subnetSelection: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+    });
+
+    const template = Template.fromStack(stack);
+    template.hasResourceProperties('AWS::Lambda::NetworkConnector', Match.objectLike({
+      Configuration: {
+        VpcEgressConfiguration: Match.objectLike({
+          SubnetIds: vpc.privateSubnets.map(subnet => stack.resolve(subnet.subnetId)),
+          AssociatedComputeResourceTypes: ['MicroVm'],
+        }),
+      },
+    }));
+    template.resourceCountIs('AWS::EC2::SecurityGroup', 1);
+    expect(provider.connections.securityGroups).toHaveLength(1);
+  });
+
+  test('MicroVM provider timeout is limited to 8 hours', () => {
+
+    new MicroVmRunnerProvider(stack, 'provider', {
+      timeout: cdk.Duration.hours(9),
+    });
+
+    Annotations.fromStack(stack).hasError('/test/provider', Match.stringLikeRegexp('8 hours or less'));
   });
 
   test('Fargate provider', () => {
