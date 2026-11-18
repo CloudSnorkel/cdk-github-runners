@@ -208,6 +208,8 @@ const mergifyFile = project.tryFindObjectFile('.mergify.yml');
 mergifyFile.addToArray('queue_rules.0.queue_conditions', 'status-success=test-examples');
 mergifyFile.addToArray('pull_request_rules.0.conditions', 'status-success=test-examples');
 
+project.gitignore.addPatterns('test/default.integ.snapshot/*.metadata.json');
+
 // funding
 project.package.addField('funding', 'https://github.com/sponsors/CloudSnorkel');
 
