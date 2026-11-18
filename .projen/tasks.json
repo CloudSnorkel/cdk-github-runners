@@ -1306,6 +1306,7 @@
             "@typescript-eslint/parser",
             "aws-cdk",
             "bootstrap",
+            "cdk-nag",
             "commit-and-tag-version",
             "esbuild",
             "eslint-import-resolver-typescript",

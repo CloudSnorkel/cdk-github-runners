@@ -102,6 +102,9 @@ importers:
       bootstrap:
         specifier: ^5.2.0
         version: 5.3.8(@popperjs/core@2.11.8)
+      cdk-nag:
+        specifier: ^3
+        version: 3.0.2(aws-cdk-lib@2.261.0(constructs@10.5.1))(constructs@10.5.1)
       commit-and-tag-version:
         specifier: ^13
         version: 13.3.0(conventional-commits-filter@6.0.1)(conventional-commits-parser@7.1.2)
@@ -1705,6 +1708,13 @@ packages:
   case@1.6.3:
     resolution: {integrity: sha512-mzDSXIPaFwVDvZAHqZ9VlbyF4yyXRuX6IvB06WvPYkqJVO24kX1PPhv9bfpKNFZyxYFmmgo03HUiD8iklmJYRQ==}
     engines: {node: '>= 0.8.0'}
+
+  cdk-nag@3.0.2:
+    resolution: {integrity: sha512-mmrspXnYRK5RmBTfEu5EQZmTwGxaVCESJ5GXbQq62eOkVFd4vc4MuIfSbav74K4J7irXQVJaY3d5js0kVQMWdA==}
+    engines: {node: '>= 18.12.0'}
+    peerDependencies:
+      aws-cdk-lib: ^2.257.0
+      constructs: ^10.5.1
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -5678,6 +5688,11 @@ snapshots:
   caniuse-lite@1.0.30001810: {}
 
   case@1.6.3: {}
+
+  cdk-nag@3.0.2(aws-cdk-lib@2.261.0(constructs@10.5.1))(constructs@10.5.1):
+    dependencies:
+      aws-cdk-lib: 2.261.0(constructs@10.5.1)
+      constructs: 10.5.1
 
   chalk@4.1.2:
     dependencies:

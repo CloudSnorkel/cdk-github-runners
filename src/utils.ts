@@ -2,8 +2,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { aws_ec2 as ec2, aws_iam as iam, aws_lambda as lambda, aws_logs as logs } from 'aws-cdk-lib';
 import * as cdk from 'aws-cdk-lib';
-import { Construct } from 'constructs';
+import { Construct, IConstruct } from 'constructs';
 
+
+/**
+ * Constructs created by this library. `Compliance` only changes resources inside these, so user resources in the same app are left alone.
+ *
+ * @internal
+ */
+export const LIBRARY_CONSTRUCTS = new WeakSet<IConstruct>();
 
 /**
  * Initialize or return a singleton Lambda function instance.
@@ -21,7 +28,9 @@ export function singletonLambda<FunctionType extends lambda.Function>(
     return existing as FunctionType;
   }
 
-  return new functionType(cdk.Stack.of(scope), constructName, props);
+  const func = new functionType(cdk.Stack.of(scope), constructName, props);
+  LIBRARY_CONSTRUCTS.add(func);
+  return func;
 }
 
 /**
@@ -37,7 +46,9 @@ export function singletonRole(scope: Construct, id: string, assumedBy: iam.IPrin
     return existing as iam.Role;
   }
 
-  return new iam.Role(cdk.Stack.of(scope), constructName, { assumedBy });
+  const role = new iam.Role(cdk.Stack.of(scope), constructName, { assumedBy });
+  LIBRARY_CONSTRUCTS.add(role);
+  return role;
 }
 
 /**
@@ -63,10 +74,12 @@ export function singletonLogGroup(scope: Construct, type: SingletonLogType): log
     return existing as logs.ILogGroup;
   }
 
-  return new logs.LogGroup(cdk.Stack.of(scope), type, {
+  const logGroup = new logs.LogGroup(cdk.Stack.of(scope), type, {
     retention: logs.RetentionDays.ONE_MONTH,
     removalPolicy: cdk.RemovalPolicy.DESTROY,
   });
+  LIBRARY_CONSTRUCTS.add(logGroup);
+  return logGroup;
 }
 
 /**

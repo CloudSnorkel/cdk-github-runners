@@ -37,6 +37,7 @@ Ephemeral (or on-demand) runners are the [recommended way by GitHub][14] for aut
   - [Composite Providers](#composite-providers)
   - [Custom Provider Selection](#custom-provider-selection)
   - [Warm Runners](#warm-runners)
+  - [Compliance](#compliance)
 - [Examples](#examples)
 - [Architecture](#architecture)
 - [Troubleshooting](#troubleshooting)
@@ -534,6 +535,22 @@ new ScheduledWarmRunner(this, 'work hours warm', {
 
 See the [warm-runners example](examples/typescript/warm-runners/) for a complete setup.
 
+### Compliance
+
+Compliance frameworks like HIPAA, PCI DSS, and NIST 800-53 often ask for your own encryption keys, limited Lambda concurrency, and API logs. `Compliance` applies those to everything created for your runners, including providers and image builders in other stacks.
+
+```typescript
+const runners = new GitHubRunners(this, 'runners', { providers: [...] });
+
+Compliance.of(runners).encrypt({ key, logs: logsKey });  // logs get their own key, everything else uses `key`
+Compliance.of(runners).limitLambdaConcurrency({ maxJobStarts: 50 });  // jobs you expect to start at once
+Compliance.of(runners).logApiRequests();
+```
+
+The key needs to be in a stack that every other stack can use. Adding a key to an existing deployment rebuilds runner images. We check the result against cdk-nag on every build, and the findings that remain are listed with reasons in [`test/compliance-acknowledged.ts`](test/compliance-acknowledged.ts). Passing cdk-nag doesn't make a deployment compliant on its own.
+
+See the [compliance example](examples/typescript/compliance/) for a complete setup.
+
 ## Examples
 
 We provide comprehensive examples in the [`examples/`](examples/) folder to help you get started quickly:
@@ -558,6 +575,7 @@ We provide comprehensive examples in the [`examples/`](examples/) folder to help
 - **[IAM Permissions](examples/typescript/iam-permissions/)** - Grant AWS IAM permissions to runners (also available in [Python](examples/python/iam-permissions/))
 - **[Network Access](examples/typescript/network-access/)** - Configure network access with VPCs and security groups (also available in [Python](examples/python/network-access/))
 - **[Access Control](examples/typescript/access-control/)** - Configure access control for webhook and setup functions (also available in [Python](examples/python/access-control/))
+- **[Compliance](examples/typescript/compliance/)** - Encrypt with your own KMS keys, limit Lambda concurrency, and log API requests (also available in [Python](examples/python/compliance/))
 
 ### Customization
 - **[Add Software](examples/typescript/add-software/)** - Add custom software to runner images (also available in [Python](examples/python/add-software/))

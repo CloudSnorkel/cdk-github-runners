@@ -36,6 +36,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@aws-sdk/client-ssm',
     '@aws-sdk/client-sfn',
     '@types/aws-lambda',
+    'cdk-nag@^3', // for test/compliance.test.ts
     'jszip',
     // for setup ui
     '@sveltejs/vite-plugin-svelte@^6',

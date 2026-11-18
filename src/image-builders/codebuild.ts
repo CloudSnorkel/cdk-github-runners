@@ -87,6 +87,8 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
   private readonly rebuildInterval: cdk.Duration;
   private readonly role: iam.Role;
   private readonly waitOnDeploy: boolean;
+  private waitHandle?: cloudformation.CfnWaitConditionHandle;
+  private waitCondition?: cloudformation.CfnWaitCondition;
   private readonly dockerSetupCommands: string[];
 
   constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
@@ -401,6 +403,8 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
       });
       waitHandleRef = handle.ref;
       waitDependable = wait;
+      this.waitHandle = handle;
+      this.waitCondition = wait;
     }
 
     const cr = new CustomResource(this, 'Builder', {
@@ -421,6 +425,17 @@ export class CodeBuildRunnerImageBuilder extends RunnerImageBuilderBase {
     cr.node.addDependency(crHandler);
 
     return waitDependable; // user needs to wait on the wait condition which is signaled when the image is built
+  }
+
+  /**
+   * Make the next deployment wait for a fresh image even if the build spec didn't change. Used when the repository is replaced and starts out empty.
+   *
+   * @internal
+   */
+  public _waitForNewImage(reason: string) {
+    for (const resource of [this.waitHandle, this.waitCondition]) {
+      resource?.overrideLogicalId(`${cdk.Names.uniqueId(resource)}${reason}`);
+    }
   }
 
   private rebuildImageOnSchedule(project: codebuild.Project, rebuildInterval?: Duration) {

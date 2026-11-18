@@ -42,7 +42,7 @@ import { StatusFunction } from './status-function';
 import { StolenRunnerDetector } from './stolen-runners';
 import { TokenRetrieverFunction } from './token-retriever-function';
 import { TokenRetrieverInput } from './token-retriever.lambda';
-import { dedupeStateMachineTokens, discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
+import { dedupeStateMachineTokens, discoverCertificateFiles, LIBRARY_CONSTRUCTS, singletonLogGroup, SingletonLogType } from './utils';
 import { WarmRunnerManagerFunction } from './warm-runner-manager-function';
 import { GithubWebhookHandler } from './webhook';
 import { GithubWebhookRedelivery } from './webhook-redelivery';
@@ -396,6 +396,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
+    LIBRARY_CONSTRUCTS.add(this);
 
     this.secrets = new Secrets(this, 'Secrets');
 
@@ -714,6 +715,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         definitionBody: stepfunctions.DefinitionBody.fromChainable(queueIdleReaperTask.next(configPass).next(runProviders)),
         definitionSubstitutions: dedupeStateMachineTokens(this, { providerConfigs, providerConsts }),
         logs: logOptions,
+        // explicit so removing a key from Compliance.encrypt() changes it back. CloudFormation keeps the key when the property is just removed.
+        encryptionConfiguration: new stepfunctions.AwsOwnedEncryptionConfiguration(),
       },
     );
 
@@ -961,6 +964,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     const queue = new sqs.Queue(this, 'Idle Reaper Queue', {
       deliveryDelay: cdk.Duration.minutes(5),
       visibilityTimeout: cdk.Duration.minutes(5),
+      enforceSSL: true,
     });
 
     // trigger reaper function from queue
@@ -1291,9 +1295,10 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    */
   public failedImageBuildsTopic(scope?: Construct) {
     scope ??= this;
-    const topic = new sns.Topic(scope, 'Failed Runner Image Builds');
+    const topic = new sns.Topic(scope, 'Failed Runner Image Builds', { enforceSSL: true });
+    LIBRARY_CONSTRUCTS.add(topic);
     const stack = cdk.Stack.of(scope);
-    const filteringTopic = AwsImageBuilderFailedBuildNotifier.createFilteringTopic(scope, topic);
+    const filteringTopic = AwsImageBuilderFailedBuildNotifier.createFilteringTopic(scope, topic, this.extraLambdaProps);
     cdk.Aspects.of(stack).add(new CodeBuildImageBuilderFailedBuildNotifier(filteringTopic));
     cdk.Aspects.of(stack).add(new AwsImageBuilderFailedBuildNotifier(filteringTopic));
     return topic;
@@ -1776,6 +1781,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     this.warmRunnerQueue = new sqs.Queue(this, 'Warm Runner Queue', {
       visibilityTimeout: cdk.Duration.minutes(1),
+      enforceSSL: true,
     });
 
     this.warmRunnerManager = new WarmRunnerManagerFunction(this, 'Warm Runner Manager', {

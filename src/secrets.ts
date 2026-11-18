@@ -94,5 +94,10 @@ export class Secrets extends Construct {
         },
       },
     );
+
+    // explicit so removing a key from Compliance.encrypt() changes it back. CloudFormation keeps the key when the property is just removed.
+    for (const secret of [this.webhook, this.github, this.githubPrivateKey, this.setup]) {
+      (secret.node.defaultChild as secretsmanager.CfnSecret).kmsKeyId = 'alias/aws/secretsmanager';
+    }
   }
 }

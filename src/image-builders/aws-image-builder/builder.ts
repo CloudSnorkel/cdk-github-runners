@@ -28,7 +28,7 @@ import { CleanerTarget, DeleteResourcesProps, ScheduledCleanupEvent } from './de
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
 import { generateBuildWorkflowWithDockerSetupCommands, Workflow } from './workflow';
 import { Architecture, Os, RunnerAmi, RunnerImage } from '../../providers';
-import { singletonLambda, singletonLogGroup, SingletonLogType } from '../../utils';
+import { LIBRARY_CONSTRUCTS, singletonLambda, singletonLogGroup, SingletonLogType } from '../../utils';
 import { BuildImageFunction } from '../build-image-function';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps, uniqueImageBuilderName } from '../common';
 
@@ -926,18 +926,21 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
  * @internal
  */
 export class AwsImageBuilderFailedBuildNotifier implements cdk.IAspect {
-  public static createFilteringTopic(scope: Construct, targetTopic: sns.Topic): sns.ITopic {
-    const topic = new sns.Topic(scope, 'Image Builder Builds');
+  public static createFilteringTopic(scope: Construct, targetTopic: sns.Topic, lambdaProps?: lambda.FunctionOptions): sns.ITopic {
+    const topic = new sns.Topic(scope, 'Image Builder Builds', { enforceSSL: true });
     const filter = new FilterFailedBuildsFunction(scope, 'Image Builder Builds Filter', {
       logGroup: singletonLogGroup(scope, SingletonLogType.RUNNER_IMAGE_BUILD),
       loggingFormat: lambda.LoggingFormat.JSON,
       environment: {
         TARGET_TOPIC_ARN: targetTopic.topicArn,
       },
+      ...lambdaProps,
     });
 
     topic.addSubscription(new subs.LambdaSubscription(filter));
     targetTopic.grantPublish(filter);
+    LIBRARY_CONSTRUCTS.add(topic);
+    LIBRARY_CONSTRUCTS.add(filter);
 
     return topic;
   }
