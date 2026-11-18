@@ -11006,6 +11006,7 @@
       {
        "Action": [
         "lambda:UpdateMicrovmImage",
+        "lambda:DeleteMicrovmImageVersion",
         "lambda:GetMicrovmImage",
         "lambda:ListMicrovmImageVersions"
        ],
@@ -11357,7 +11358,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "c5551be274786485aa2b64835638e45cbd92320f519f070c228e7ba275e961c7.zip"
+     "S3Key": "86995b100d4ec8639b29d1b3e9859f35ba2610e229a43fbe7f2d21fa284b6e9f.zip"
     },
     "Description": "Function that writes the Dockerfile MicroVM images are built from, and rebuilds them when the runner image changes",
     "Environment": {
@@ -11727,6 +11728,7 @@
       {
        "Action": [
         "lambda:UpdateMicrovmImage",
+        "lambda:DeleteMicrovmImageVersion",
         "lambda:GetMicrovmImage",
         "lambda:ListMicrovmImageVersions"
        ],

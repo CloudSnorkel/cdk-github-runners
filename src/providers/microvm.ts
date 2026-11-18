@@ -485,7 +485,7 @@ export class MicroVmRunnerProvider extends BaseProvider implements IRunnerProvid
       roles: [updater.role!],
       statements: [
         new iam.PolicyStatement({
-          actions: ['lambda:UpdateMicrovmImage', 'lambda:GetMicrovmImage', 'lambda:ListMicrovmImageVersions'],
+          actions: ['lambda:UpdateMicrovmImage', 'lambda:DeleteMicrovmImageVersion', 'lambda:GetMicrovmImage', 'lambda:ListMicrovmImageVersions'],
           resources: [this.image.attrImageArn],
         }),
         new iam.PolicyStatement({

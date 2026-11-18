@@ -1,6 +1,7 @@
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
 import { DescribeImagesCommand, ECRClient } from '@aws-sdk/client-ecr';
 import {
+  DeleteMicrovmImageVersionCommand,
   GetMicrovmImageCommand,
   LambdaMicrovmsClient,
   ListManagedMicrovmImageVersionsCommand,
@@ -102,26 +103,30 @@ async function latestBaseImageVersion(image: UpdateMicrovmImageRequest) {
   return latest?.imageVersion ?? image.baseImageVersion;
 }
 
+const KEEP_VERSIONS = 3;
+
 /**
- * Newest image version that didn't fail, so we know what it was built from and when.
+ * All image versions, newest first.
  */
-async function latestImageVersion(imageIdentifier: string) {
-  let latest: MicrovmImageVersionSummary | undefined;
+async function imageVersions(imageIdentifier: string) {
+  const versions: MicrovmImageVersionSummary[] = [];
   let nextToken: string | undefined;
   do {
     const page = await microvms.send(new ListMicrovmImageVersionsCommand({ imageIdentifier, nextToken }));
-    for (const version of page.items ?? []) {
-      if (version.state === 'FAILED') {
-        continue;
-      }
-      if (!latest || version.createdAt! > latest.createdAt!) {
-        latest = version;
-      }
-    }
+    versions.push(...page.items ?? []);
     nextToken = page.nextToken;
   } while (nextToken);
+  return versions.sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
+}
 
-  return latest;
+/**
+ * Wait until image is ready for updates/deletes.
+ */
+async function waitForImage(imageIdentifier: string) {
+  // deleting a version puts the whole image in UPDATING for a moment, and it won't take another change until it's done
+  while ((await microvms.send(new GetMicrovmImageCommand({ imageIdentifier }))).state === 'UPDATING') {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
 }
 
 async function handleRebuild(event: RebuildInput) {
@@ -149,13 +154,32 @@ async function handleRebuild(event: RebuildInput) {
     return;
   }
 
+  // Lambda only allows 50 versions per image, and nothing can update the image once we hit it, not even CloudFormation.
+  // nothing else is touching the image right now (stack is not *_IN_PROGRESS), so delete old versions. new VMs start from the active one.
+  const versions = await imageVersions(event.image.imageIdentifier!);
+  for (const version of versions.slice(KEEP_VERSIONS)) {
+    if (version.imageVersion === current.latestActiveImageVersion || version.state === 'DELETING' || version.state === 'DELETED') {
+      continue;
+    }
+    console.log({ notice: 'Deleting old MicroVM image version', image: event.image.imageIdentifier, version: version.imageVersion });
+    try {
+      await microvms.send(new DeleteMicrovmImageVersionCommand({
+        imageIdentifier: event.image.imageIdentifier,
+        imageVersion: version.imageVersion,
+      }));
+      await waitForImage(event.image.imageIdentifier!);
+    } catch (e) {
+      console.error({ notice: 'Failed to delete old MicroVM image version', image: event.image.imageIdentifier, version: version.imageVersion, error: e });
+    }
+  }
+
   // we run after every deployment, whether anything changed or not. CloudFormation may have also built a new version
   // already. so only build when the runner image or the base image is newer than what we already have.
   const images = await ecr.send(new DescribeImagesCommand({ repositoryName: event.repositoryName, imageIds: [{ imageTag: event.imageTag }] }));
   const pushedAt = images.imageDetails![0].imagePushedAt!;
   const baseImageVersion = await latestBaseImageVersion(event.image);
-  const built = await latestImageVersion(event.image.imageIdentifier!);
-  if (built && built.createdAt! > pushedAt && built.baseImageVersion === baseImageVersion) {
+  const built = versions.find(v => v.state === 'SUCCESSFUL');
+  if (built && built.createdAt! > pushedAt && built.baseImageVersion?.split('.')[0] === baseImageVersion) {
     console.log({
       notice: 'MicroVM image is already up to date',
       image: event.image.imageIdentifier,
