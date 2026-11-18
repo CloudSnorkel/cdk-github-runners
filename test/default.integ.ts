@@ -225,7 +225,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       imageBuilder: codeBuildArm64ImageBuilder,
     }),
     new CodeBuildRunnerProvider(stack, 'CodeBuildWindows', {
-      labels: ['codebuild', 'windows', 'x642'],
+      labels: ['codebuild', 'windows', 'x64'],
       computeType: codebuild.ComputeType.MEDIUM,
       imageBuilder: windowsImageBuilder,
     }),
