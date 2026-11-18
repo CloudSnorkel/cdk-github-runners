@@ -50,6 +50,9 @@ const runHookPayloadTemplate = JSON.stringify({
   repo: '{}',
 }).replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/\\{\\}/g, '{}');
 
+/**
+ * @experimental
+ */
 export interface MicroVmRunnerProviderProps extends RunnerProviderProps {
   /**
    * Runner image builder used to build Docker images containing GitHub Runner and all requirements.
@@ -144,6 +147,10 @@ export interface MicroVmRunnerConfig extends RunnerConfig {
  * real kernel, and they can run for up to eight hours.
  *
  * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+ *
+ * This provider is experimental and may change in the future.
+ *
+ * @experimental
  */
 export class MicroVmRunnerProvider extends BaseProvider implements IRunnerProvider, IParameterizedRunnerProvider {
   /** @internal */
@@ -617,13 +624,6 @@ export class MicroVmRunnerProvider extends BaseProvider implements IRunnerProvid
           account: 'aws',
           resource: 'network-connector',
           resourceName: 'aws-network-connector:INTERNET_EGRESS',
-          arnFormat: cdk.ArnFormat.COLON_RESOURCE_NAME,
-        }),
-        cdk.Stack.of(this).formatArn({
-          service: 'lambda',
-          account: 'aws',
-          resource: 'network-connector',
-          resourceName: 'aws-network-connector:HTTP_INGRESS',
           arnFormat: cdk.ArnFormat.COLON_RESOURCE_NAME,
         }),
         ...this.egressNetworkConnectors,

@@ -1952,6 +1952,8 @@ real kernel, and they can run for up to eight hours.
 
 This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
 
+This provider is experimental and may change in the future.
+
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.Initializer"></a>
 
 ```typescript

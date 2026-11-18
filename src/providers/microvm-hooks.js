@@ -12,7 +12,7 @@ const { execFile, spawn } = require('child_process');
 const PORT = 9000; // must match HOOK_PORT in microvm.ts, as that's the port we tell Lambda to call
 
 function aws(...args) {
-  spawn('aws', args, { stdio: 'inherit' });
+  spawn('aws', args, { stdio: 'inherit' }).on('error', err => console.error(err));
 }
 
 function run(body) {

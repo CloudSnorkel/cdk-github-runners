@@ -214,6 +214,7 @@ mergifyFile.addToArray('pull_request_rules.0.conditions', 'status-success=test-e
 
 // projen doesn't auto ignore this new file yet
 project.gitignore.addPatterns('test/default.integ.snapshot/*.metadata.json');
+project.gitignore.addPatterns('test/default.integ.snapshot/**/*.metadata.json');
 
 // funding
 project.package.addField('funding', 'https://github.com/sponsors/CloudSnorkel');

@@ -86,4 +86,5 @@ test/default.integ.snapshot/**/tree.json
 .cdk.staging/
 !/.vscode/settings.json
 test/default.integ.snapshot/*.metadata.json
+test/default.integ.snapshot/**/*.metadata.json
 !/.projenrc.js

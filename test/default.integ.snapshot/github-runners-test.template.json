@@ -4338,13 +4338,13 @@
         },
         " asset5-GithubRunner-2\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -o /dev/null -w \\\"%{url_effective}\\\" https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz\\nchmod +x /home/runner/job-reporter.sh\\nchmod +x /home/runner/job-started-hook.sh\\nchmod +x /home/runner/job-completed-hook.sh\\necho ACTIONS_RUNNER_HOOK_JOB_STARTED=/home/runner/job-started-hook.sh >> /home/runner/.env\\necho ACTIONS_RUNNER_HOOK_JOB_COMPLETED=/home/runner/job-completed-hook.sh >> /home/runner/.env\\nchown runner /home/runner/.env\\ntouch /home/runner/.workflowid && chown runner /home/runner/.workflowid\\ndnf install -y krb5-libs zlib libicu-67.1\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/bdb84750353d01681f357ec4ca0cb2ac140462ba71c1ec3968686be6694cf85a.js"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/ea62db031709fe1fcdea14a9944d6e51e1a4913b2ffa8ce32ad103eb63dc40fc.js"
         },
         " asset6-MicroVM-Entrypoint-0\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/6dd11b89b30f9d4f6e0439f6b5bb5ce71ed31cfd6527cbcf39587a303b346329.sh"
         },
-        " asset6-MicroVM-Entrypoint-1\",\n        \"cat > component6-MicroVM-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nNODE=$(ls -d /home/runner/externals/node*/bin/node 2>/dev/null | grep -E \\\"/node[0-9]+/bin/node$\\\" | sort -V | tail -1 || true)\\nif [ -z \\\"$NODE\\\" ]; then echo \\\"No node in the runner externals. Is microVmEntrypoint() before githubRunner()?\\\"; exit 1; fi\\nln -s \\\"$NODE\\\" /microvm-node\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-MicroVM-Entrypoint.sh\",\n        \"aws s3 cp ",
+        " asset6-MicroVM-Entrypoint-1\",\n        \"cat > component6-MicroVM-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nNODE=$(ls -d /home/runner/externals/node*/bin/node 2>/dev/null | grep -E \\\"/node[0-9]+/bin/node$\\\" | sort -V | tail -1 || true)\\nif [ -z \\\"$NODE\\\" ]; then echo \\\"No node in the runner externals. Is microVmEntrypoint() after githubRunner()?\\\"; exit 1; fi\\nln -s \\\"$NODE\\\" /microvm-node\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-MicroVM-Entrypoint.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
@@ -4381,15 +4381,15 @@
     ]
    }
   },
-  "MicroVMImageBuilderBuildWaitHandlec77402ae713E601156": {
+  "MicroVMImageBuilderBuildWaitHandle8f9f426b788E18F8FA": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "MicroVMImageBuilderBuildWaitc77402ae710D93D433": {
+  "MicroVMImageBuilderBuildWait8f9f426b78C7792F7E": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "MicroVMImageBuilderBuildWaitHandlec77402ae713E601156"
+     "Ref": "MicroVMImageBuilderBuildWaitHandle8f9f426b788E18F8FA"
     },
     "Timeout": "3600"
    }
@@ -4410,7 +4410,7 @@
      "Ref": "MicroVMImageBuilderCodeBuild0C20B7D4"
     },
     "WaitHandle": {
-     "Ref": "MicroVMImageBuilderBuildWaitHandlec77402ae713E601156"
+     "Ref": "MicroVMImageBuilderBuildWaitHandle8f9f426b788E18F8FA"
     }
    },
    "DependsOn": [
@@ -5168,13 +5168,13 @@
         },
         " asset5-GithubRunner-2\",\n        \"cat > component5-GithubRunner.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nRUNNER_VERSION=`curl --retry 5 --retry-delay 30 --retry-all-errors -fsSL -o /dev/null -w \\\"%{url_effective}\\\" https://github.com/actions/runner/releases/latest | grep -oE \\\"[^/v]+$\\\"`\\ncurl --retry 5 --retry-delay 30 --retry-all-errors -fsSLO \\\"https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\ntar -C /home/runner -xzf \\\"actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\\"\\nrm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz\\nchmod +x /home/runner/job-reporter.sh\\nchmod +x /home/runner/job-started-hook.sh\\nchmod +x /home/runner/job-completed-hook.sh\\necho ACTIONS_RUNNER_HOOK_JOB_STARTED=/home/runner/job-started-hook.sh >> /home/runner/.env\\necho ACTIONS_RUNNER_HOOK_JOB_COMPLETED=/home/runner/job-completed-hook.sh >> /home/runner/.env\\nchown runner /home/runner/.env\\ntouch /home/runner/.workflowid && chown runner /home/runner/.workflowid\\ndnf install -y krb5-libs zlib libicu-67.1\\nmkdir -p /opt/hostedtoolcache\\nchown runner /opt/hostedtoolcache\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component5-GithubRunner.sh\",\n        \"aws s3 cp ",
         {
-         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/bdb84750353d01681f357ec4ca0cb2ac140462ba71c1ec3968686be6694cf85a.js"
+         "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/ea62db031709fe1fcdea14a9944d6e51e1a4913b2ffa8ce32ad103eb63dc40fc.js"
         },
         " asset6-MicroVM-Entrypoint-0\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/6dd11b89b30f9d4f6e0439f6b5bb5ce71ed31cfd6527cbcf39587a303b346329.sh"
         },
-        " asset6-MicroVM-Entrypoint-1\",\n        \"cat > component6-MicroVM-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nNODE=$(ls -d /home/runner/externals/node*/bin/node 2>/dev/null | grep -E \\\"/node[0-9]+/bin/node$\\\" | sort -V | tail -1 || true)\\nif [ -z \\\"$NODE\\\" ]; then echo \\\"No node in the runner externals. Is microVmEntrypoint() before githubRunner()?\\\"; exit 1; fi\\nln -s \\\"$NODE\\\" /microvm-node\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-MicroVM-Entrypoint.sh\",\n        \"aws s3 cp ",
+        " asset6-MicroVM-Entrypoint-1\",\n        \"cat > component6-MicroVM-Entrypoint.sh <<'EOFGITHUBRUNNERSDOCKERFILE'\\n#!/bin/bash\\nset -exuo pipefail\\nNODE=$(ls -d /home/runner/externals/node*/bin/node 2>/dev/null | grep -E \\\"/node[0-9]+/bin/node$\\\" | sort -V | tail -1 || true)\\nif [ -z \\\"$NODE\\\" ]; then echo \\\"No node in the runner externals. Is microVmEntrypoint() after githubRunner()?\\\"; exit 1; fi\\nln -s \\\"$NODE\\\" /microvm-node\\nEOFGITHUBRUNNERSDOCKERFILE\",\n        \"chmod +x component6-MicroVM-Entrypoint.sh\",\n        \"aws s3 cp ",
         {
          "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/64f83fc47e69ce862669fca14d759c3034fdbed3686b66dcf7bf9ff166f65c68.yml"
         },
@@ -5211,15 +5211,15 @@
     ]
    }
   },
-  "MicroVMImageBuilderx64BuildWaitHandlefba6e55058BB60A032": {
+  "MicroVMImageBuilderx64BuildWaitHandlef47694f43aD737A2DB": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "MicroVMImageBuilderx64BuildWaitfba6e55058CF8898A7": {
+  "MicroVMImageBuilderx64BuildWaitf47694f43a3D7861EC": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "MicroVMImageBuilderx64BuildWaitHandlefba6e55058BB60A032"
+     "Ref": "MicroVMImageBuilderx64BuildWaitHandlef47694f43aD737A2DB"
     },
     "Timeout": "3600"
    }
@@ -5240,7 +5240,7 @@
      "Ref": "MicroVMImageBuilderx64CodeBuild1AA51AD0"
     },
     "WaitHandle": {
-     "Ref": "MicroVMImageBuilderx64BuildWaitHandlefba6e55058BB60A032"
+     "Ref": "MicroVMImageBuilderx64BuildWaitHandlef47694f43aD737A2DB"
     }
    },
    "DependsOn": [
@@ -7392,7 +7392,7 @@
     "Cache": {
      "Type": "NO_CACHE"
     },
-    "Description": "GitHub Actions self-hosted runner for labels codebuild,windows,x642",
+    "Description": "GitHub Actions self-hosted runner for labels codebuild,windows,x64",
     "EncryptionKey": "alias/aws/s3",
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_MEDIUM",
@@ -10994,7 +10994,7 @@
     ]
    },
    "DependsOn": [
-    "MicroVMImageBuilderBuildWaitc77402ae710D93D433",
+    "MicroVMImageBuilderBuildWait8f9f426b78C7792F7E",
     "MicroVMImageArtifactWriter8C2A197C"
    ]
   },
@@ -11715,7 +11715,7 @@
     ]
    },
    "DependsOn": [
-    "MicroVMImageBuilderx64BuildWaitfba6e55058CF8898A7",
+    "MicroVMImageBuilderx64BuildWaitf47694f43a3D7861EC",
     "MicroVMx64ImageArtifactWriter74BEA3BB"
    ]
   },
@@ -16236,22 +16236,6 @@
            {
             "Ref": "AWS::Region"
            },
-           ":aws:network-connector:aws-network-connector:HTTP_INGRESS"
-          ]
-         ]
-        },
-        {
-         "Fn::Join": [
-          "",
-          [
-           "arn:",
-           {
-            "Ref": "AWS::Partition"
-           },
-           ":lambda:",
-           {
-            "Ref": "AWS::Region"
-           },
            ":aws:network-connector:aws-network-connector:SHELL_INGRESS"
           ]
          ]
@@ -16821,6 +16805,47 @@
        }
       },
       {
+       "Action": "iam:PassRole",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "Fargatearm64taskTaskRoleD3C2CD58",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::GetAtt": [
+          "Fargatearm64taskExecutionRoleD10B61DC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "ec2:runInstances",
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "runnersRunnerOrchestratorRoleDefaultPolicyD1C26D61",
+    "Roles": [
+     {
+      "Ref": "runnersRunnerOrchestratorRole5D220AD7"
+     }
+    ]
+   }
+  },
+  "runnersRunnerOrchestratorRoleOverflowPolicy11A794735": {
+   "Type": "AWS::IAM::ManagedPolicy",
+   "Properties": {
+    "Description": "Part of the policies for github-runners-test/runners/Runner Orchestrator/Role",
+    "Path": "/",
+    "PolicyDocument": {
+     "Statement": [
+      {
        "Action": "ecs:RunTask",
        "Effect": "Allow",
        "Resource": {
@@ -16935,47 +16960,6 @@
          ]
         ]
        }
-      },
-      {
-       "Action": "ec2:runInstances",
-       "Effect": "Allow",
-       "Resource": "*"
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "runnersRunnerOrchestratorRoleDefaultPolicyD1C26D61",
-    "Roles": [
-     {
-      "Ref": "runnersRunnerOrchestratorRole5D220AD7"
-     }
-    ]
-   }
-  },
-  "runnersRunnerOrchestratorRoleOverflowPolicy11A794735": {
-   "Type": "AWS::IAM::ManagedPolicy",
-   "Properties": {
-    "Description": "Part of the policies for github-runners-test/runners/Runner Orchestrator/Role",
-    "Path": "/",
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "iam:PassRole",
-       "Effect": "Allow",
-       "Resource": [
-        {
-         "Fn::GetAtt": [
-          "Fargatearm64taskTaskRoleD3C2CD58",
-          "Arn"
-         ]
-        },
-        {
-         "Fn::GetAtt": [
-          "Fargatearm64taskExecutionRoleD10B61DC",
-          "Arn"
-         ]
-        }
-       ]
       },
       {
        "Action": "iam:PassRole",
@@ -18237,7 +18221,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "073b3ba09c5ebf7e3ca7da2f8a1d6072a674de7f95c27b23821cee18ff9985c3.zip"
+     "S3Key": "657e2bbdcff8aeb76bf939eb4c210187fa2d0ff2e0ee16f51a91dd3d933557cb.zip"
     },
     "Description": "Runner providers and their labels"
    }
@@ -19406,7 +19390,7 @@
       "labels": [
        "codebuild",
        "windows",
-       "x642"
+       "x64"
       ],
       "constructPath": "github-runners-test/CodeBuildWindows",
       "roleArn": {
@@ -21698,7 +21682,7 @@
        {
         "Ref": "AWS::Region"
        },
-       "\",\"stacked\":true,\"metrics\":[[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-ubuntu-2404-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-ubuntu-2404-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"codebuild, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,windows,x642\",\"Status\",\"Failed\",{\"label\":\"codebuild, windows, x642\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,x64,integ-warm\",\"Status\",\"Failed\",{\"label\":\"lambda, x64, integ-warm\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,arm64\",\"Status\",\"Failed\",{\"label\":\"lambda, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"microvm,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"microvm, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"microvm,linux,x64\",\"Status\",\"Failed\",{\"label\":\"microvm, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,windows,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, windows, x64\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"text\",\"width\":24,\"height\":3,\"x\":0,\"y\":16,\"properties\":{\"markdown\":\"## Runners\\nEvery runner we start is one step function execution. **Succeeded** means the runner started, ran and exited. **Failed** means it never managed to start, so the job it was started for may wait until GitHub gives up on it. Alarm on failed. **Recent failed attempts** below shows why. **Aborted** runners were stopped on purpose and are explained in the next section.\\n\\n**Runner time** includes start-up, so it's close to what you pay for each runner. A jump usually means slower start-ups or longer jobs.\"}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":19,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner executions\",\"region\":\"",
+       "\",\"stacked\":true,\"metrics\":[[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild-ubuntu-2404-x64\",\"Status\",\"Failed\",{\"label\":\"codebuild-ubuntu-2404-x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"codebuild, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"codebuild,windows,x64\",\"Status\",\"Failed\",{\"label\":\"codebuild, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ecs, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ecs,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ecs, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,x64,integ-warm\",\"Status\",\"Failed\",{\"label\":\"lambda, x64, integ-warm\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"lambda,arm64\",\"Status\",\"Failed\",{\"label\":\"lambda, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"microvm,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"microvm, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"microvm,linux,x64\",\"Status\",\"Failed\",{\"label\":\"microvm, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate-spot,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"fargate-spot, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"fargate,windows,x64\",\"Status\",\"Failed\",{\"label\":\"fargate, windows, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2-spot,linux,x64\",\"Status\",\"Failed\",{\"label\":\"ec2-spot, linux, x64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,linux,arm64\",\"Status\",\"Failed\",{\"label\":\"ec2, linux, arm64\",\"stat\":\"Sum\"}],[\"GitHubRunners\",\"JobCompleted\",\"ProviderLabels\",\"ec2,windows,x64\",\"Status\",\"Failed\",{\"label\":\"ec2, windows, x64\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"text\",\"width\":24,\"height\":3,\"x\":0,\"y\":16,\"properties\":{\"markdown\":\"## Runners\\nEvery runner we start is one step function execution. **Succeeded** means the runner started, ran and exited. **Failed** means it never managed to start, so the job it was started for may wait until GitHub gives up on it. Alarm on failed. **Recent failed attempts** below shows why. **Aborted** runners were stopped on purpose and are explained in the next section.\\n\\n**Runner time** includes start-up, so it's close to what you pay for each runner. A jump usually means slower start-ups or longer jobs.\"}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":19,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Runner executions\",\"region\":\"",
        {
         "Ref": "AWS::Region"
        },

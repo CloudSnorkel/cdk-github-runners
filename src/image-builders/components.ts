@@ -722,6 +722,8 @@ export abstract class RunnerImageComponent {
    * A component to set up the required MicroVM entrypoint for Lambda MicroVM runners.
    *
    * Must be used *after* the {@link githubRunner} component.
+   *
+   * @experimental
    */
   static microVmEntrypoint(): RunnerImageComponent {
     return new class extends RunnerImageComponent {
@@ -739,7 +741,7 @@ export abstract class RunnerImageComponent {
           // `|| true` so a missing node gets the error below instead of `set -e` killing the build with no explanation
           // x64 runners also ship node*_alpine builds that need musl, so only take the plain nodeNN ones
           'NODE=$(ls -d /home/runner/externals/node*/bin/node 2>/dev/null | grep -E "/node[0-9]+/bin/node$" | sort -V | tail -1 || true)',
-          'if [ -z "$NODE" ]; then echo "No node in the runner externals. Is microVmEntrypoint() before githubRunner()?"; exit 1; fi',
+          'if [ -z "$NODE" ]; then echo "No node in the runner externals. Is microVmEntrypoint() after githubRunner()?"; exit 1; fi',
           'ln -s "$NODE" /microvm-node',
         ];
       }
