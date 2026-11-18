@@ -168,6 +168,7 @@
           "src/webhook-redelivery.lambda.ts",
           "src/image-builders/build-image.lambda.ts",
           "src/providers/ami-root-device.lambda.ts",
+          "src/providers/microvm-image.lambda.ts",
           "src/providers/update-lambda.lambda.ts",
           "src/image-builders/aws-image-builder/delete-resources.lambda.ts",
           "src/image-builders/aws-image-builder/filter-failed-builds.lambda.ts",

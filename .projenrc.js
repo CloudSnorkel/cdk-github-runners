@@ -8,7 +8,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   authorAddress: 'amir@cloudsnorkel.com',
   stability: Stability.STABLE,
   majorVersion: 1,
-  cdkVersion: '2.239.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode, 2.77.0 for node 16, 2.110.0 for ib lifecycle, 2.123.0 for lambda logs, 2.155.0 for launch template throughput, 2.239.0 for https://github.com/aws/aws-cdk/issues/37041
+  cdkVersion: '2.261.0', // 2.21.1 for lambda url, 2.29.0 for Names.uniqueResourceName(), 2.50.0 for JsonPath.base64Encode, 2.77.0 for node 16, 2.110.0 for ib lifecycle, 2.123.0 for lambda logs, 2.155.0 for launch template throughput, 2.239.0 for https://github.com/aws/aws-cdk/issues/37041, 2.261.0 for CfnMicrovmImage
   defaultReleaseBranch: 'main',
   name: '@cloudsnorkel/cdk-github-runners',
   repositoryUrl: 'https://github.com/CloudSnorkel/cdk-github-runners.git',
@@ -28,12 +28,15 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@aws-sdk/client-ecr',
     '@aws-sdk/client-imagebuilder',
     '@aws-sdk/client-lambda',
+    '@aws-sdk/client-lambda-microvms',
+    '@aws-sdk/client-s3',
     '@aws-sdk/client-secrets-manager',
     '@aws-sdk/client-sns',
     '@aws-sdk/client-sqs',
     '@aws-sdk/client-ssm',
     '@aws-sdk/client-sfn',
     '@types/aws-lambda',
+    'jszip',
     // for setup ui
     '@sveltejs/vite-plugin-svelte@^6',
     '@tsconfig/svelte@^5',
@@ -147,6 +150,7 @@ project.npmrc.addConfig('node-linker', 'hoisted');
 // bundle docker images
 project.bundler.bundleTask.exec('cp -r src/providers/*.sh assets/providers');
 project.bundler.bundleTask.exec('cp -r src/providers/*.ps1 assets/providers');
+project.bundler.bundleTask.exec('cp -r src/providers/*.js assets/providers');
 
 // set proper line endings
 project.gitattributes.addAttributes('*.js', 'eol=lf');
@@ -207,9 +211,6 @@ project.vscode.settings.addSettings({
 const mergifyFile = project.tryFindObjectFile('.mergify.yml');
 mergifyFile.addToArray('queue_rules.0.queue_conditions', 'status-success=test-examples');
 mergifyFile.addToArray('pull_request_rules.0.conditions', 'status-success=test-examples');
-
-// projen doesn't auto ignore this new file yet
-project.gitignore.addPatterns('test/default.integ.snapshot/*.metadata.json');
 
 // funding
 project.package.addField('funding', 'https://github.com/sponsors/CloudSnorkel');

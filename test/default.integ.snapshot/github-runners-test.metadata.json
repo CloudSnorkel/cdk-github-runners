@@ -1,0 +1,8 @@
+{
+  "/github-runners-test": [
+    {
+      "type": "aws:cdk:info",
+      "data": "Number of resources: 479 is approaching allowed maximum of 500"
+    }
+  ]
+}

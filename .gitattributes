@@ -36,6 +36,7 @@
 /src/image-builders/aws-image-builder/filter-failed-builds-function.ts linguist-generated
 /src/image-builders/build-image-function.ts linguist-generated
 /src/providers/ami-root-device-function.ts linguist-generated
+/src/providers/microvm-image-function.ts linguist-generated
 /src/providers/update-lambda-function.ts linguist-generated
 /src/setup-function.ts linguist-generated
 /src/status-function.ts linguist-generated

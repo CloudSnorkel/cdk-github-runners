@@ -42,13 +42,6 @@ jobs:
             docker: true
             sudo: true
             imds: blocked
-          - name: ecs ubuntu 2404 x64
-            os: linux
-            arch: X64
-            runs-on: [self-hosted, ecs-ubuntu-2404, X64]
-            docker: true
-            sudo: true
-            imds: blocked
           - name: ecs arm64
             os: linux
             arch: ARM64
@@ -67,6 +60,20 @@ jobs:
             os: linux
             arch: ARM64
             runs-on: [self-hosted, lambda, arm64]
+            docker: false
+            sudo: false
+            no-python: true # Amazon Linux, and setup-python only has builds for Ubuntu
+          - name: microvm arm64
+            os: linux
+            arch: ARM64
+            runs-on: [self-hosted, microvm, arm64]
+            docker: false
+            sudo: false
+            no-python: true # Amazon Linux, and setup-python only has builds for Ubuntu
+          - name: microvm x64
+            os: linux
+            arch: X64
+            runs-on: [self-hosted, microvm, x64]
             docker: false
             sudo: false
             no-python: true # Amazon Linux, and setup-python only has builds for Ubuntu

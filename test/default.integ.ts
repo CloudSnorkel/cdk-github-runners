@@ -16,7 +16,7 @@ import {
   aws_logs as logs,
   aws_sqs as sqs,
   aws_stepfunctions as stepfunctions,
-  custom_resources as cr,
+  custom_resources as cr, cx_api,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
@@ -28,6 +28,7 @@ import {
   FargateRunnerProvider,
   GitHubRunners,
   LambdaRunnerProvider,
+  MicroVmRunnerProvider,
   Os,
   RunnerImageComponent,
   ScheduledWarmRunner,
@@ -49,7 +50,14 @@ const githubRepository = 'CloudSnorkel/cdk-github-runners';
 // turn this on if your account doesn't have a GitHub OIDC provider yet. an account can only have one, so we use the existing one by default.
 const createGitHubOidcProvider = false;
 
-const app = new cdk.App();
+const app = new cdk.App({
+  context: {
+    // keep host paths and per-resource noise out of the snapshot metadata file
+    [cx_api.DISABLE_CREATION_STACK_TRACES]: true,
+    [cx_api.DISABLE_METADATA_STACK_TRACE]: true,
+    [cx_api.DISABLE_LOGICAL_ID_METADATA]: true,
+  },
+});
 const stack = new cdk.Stack(app, 'github-runners-test');
 
 const vpc = new ec2.Vpc(stack, 'Vpc', {
@@ -127,18 +135,6 @@ const envComponent = RunnerImageComponent.environmentVariables({
   FOO: 'bar',
 });
 
-const fargateX64Builder = FargateRunnerProvider.imageBuilder(stack, 'Fargate builder', {
-  architecture: Architecture.X86_64,
-});
-fargateX64Builder.addComponent(extraFilesComponentLinux);
-fargateX64Builder.addComponent(envComponent);
-
-const fargateArm64Builder = FargateRunnerProvider.imageBuilder(stack, 'Fargate builder arm', {
-  architecture: Architecture.ARM64,
-});
-fargateArm64Builder.addComponent(extraFilesComponentLinux);
-fargateArm64Builder.addComponent(envComponent);
-
 const lambdaImageBuilder = LambdaRunnerProvider.imageBuilder(stack, 'Lambda Image Builder x64', {
   architecture: Architecture.X86_64,
 });
@@ -188,6 +184,19 @@ const lambdaArm64ImageBuilder = LambdaRunnerProvider.imageBuilder(stack, 'Lambda
 lambdaArm64ImageBuilder.addComponent(extraFilesComponentLinux);
 lambdaArm64ImageBuilder.addComponent(envComponent);
 
+const microVmImageBuilder = MicroVmRunnerProvider.imageBuilder(stack, 'MicroVM Image Builder', {
+  architecture: Architecture.ARM64,
+});
+microVmImageBuilder.addComponent(extraFilesComponentLinux);
+microVmImageBuilder.addComponent(envComponent);
+microVmImageBuilder.bindDockerImage();
+
+const microVmX64ImageBuilder = MicroVmRunnerProvider.imageBuilder(stack, 'MicroVM Image Builder x64', {
+  architecture: Architecture.X86_64,
+});
+microVmX64ImageBuilder.addComponent(extraFilesComponentLinux);
+microVmX64ImageBuilder.addComponent(envComponent);
+
 const ec2ImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'AMI Linux arm64 Builder', {
   architecture: Architecture.ARM64,
   awsImageBuilderOptions: {
@@ -206,15 +215,6 @@ const ec2WindowsImageBuilder = Ec2RunnerProvider.imageBuilder(stack, 'Windows EC
 });
 ec2WindowsImageBuilder.addComponent(extraFilesComponentWindows);
 ec2WindowsImageBuilder.addComponent(envComponent);
-
-// build but don't use AL2 image
-// we build so we can confirm all the default components work
-// we don't use because it's EOL
-// node 24, required by all recent actions, doesn't even work there
-// .../node: /lib64/libm.so.6: version `GLIBC_2.27' not found
-FargateRunnerProvider.imageBuilder(stack, 'AL2 builder', {
-  os: Os.LINUX_AMAZON_2,
-}).bindDockerImage();
 
 const runners = new GitHubRunners(stack, 'runners', {
   providers: [
@@ -268,21 +268,6 @@ const runners = new GitHubRunners(stack, 'runners', {
         },
       }),
     ]),
-    new EcsRunnerProvider(stack, 'ECS Ubuntu 2404', {
-      labels: ['ecs-ubuntu-2404', 'x64'],
-      imageBuilder: codeBuildUbuntu2404ImageBuilder, // codebuild has dind
-      cluster,
-      vpc,
-      securityGroups: [sg],
-      maxInstances: 1,
-      spot: true,
-      storageSize: cdk.Size.gibibytes(40),
-      storageOptions: {
-        volumeType: ec2.EbsDeviceVolumeType.GP3,
-        iops: 1500,
-        throughput: 150,
-      },
-    }),
     new EcsRunnerProvider(stack, 'ECS ARM64', {
       labels: ['ecs', 'linux', 'arm64'],
       imageBuilder: codeBuildArm64ImageBuilder, // codebuild has dind
@@ -308,11 +293,19 @@ const runners = new GitHubRunners(stack, 'runners', {
       labels: ['lambda', 'arm64'],
       imageBuilder: lambdaArm64ImageBuilder,
     }),
+    new MicroVmRunnerProvider(stack, 'MicroVM', {
+      labels: ['microvm', 'linux', 'arm64'],
+      imageBuilder: microVmImageBuilder,
+    }),
+    new MicroVmRunnerProvider(stack, 'MicroVM x64', {
+      labels: ['microvm', 'linux', 'x64'],
+      imageBuilder: microVmX64ImageBuilder,
+    }),
     new FargateRunnerProvider(stack, 'Fargate', {
       labels: ['fargate', 'linux', 'x64'],
       cpu: 256,
       memoryLimitMiB: 512,
-      imageBuilder: fargateX64Builder,
+      imageBuilder: codeBuildImageBuilder, // same components, technically ok to share
       cluster,
       vpc: cluster.vpc,
       securityGroups: [sg],
@@ -326,7 +319,7 @@ const runners = new GitHubRunners(stack, 'runners', {
           spot: true,
           cpu: 256,
           memoryLimitMiB: 512,
-          imageBuilder: fargateX64Builder,
+          imageBuilder: codeBuildImageBuilder, // same components, technically ok to share
           cluster,
           vpc: cluster.vpc,
           securityGroups: [sg],
@@ -344,7 +337,7 @@ const runners = new GitHubRunners(stack, 'runners', {
           spot: true,
           cpu: 256,
           memoryLimitMiB: 512,
-          imageBuilder: fargateX64Builder,
+          imageBuilder: codeBuildImageBuilder, // same components, technically ok to share
           cluster,
           vpc: cluster.vpc,
           securityGroups: [sg],
@@ -360,7 +353,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       labels: ['fargate', 'linux', 'arm64'],
       cpu: 256,
       memoryLimitMiB: 512,
-      imageBuilder: fargateArm64Builder,
+      imageBuilder: codeBuildArm64ImageBuilder, // same components, technically ok to share
       cluster,
       vpc: cluster.vpc,
       securityGroups: [sg],
@@ -371,7 +364,7 @@ const runners = new GitHubRunners(stack, 'runners', {
       spot: true,
       cpu: 256,
       memoryLimitMiB: 512,
-      imageBuilder: fargateArm64Builder,
+      imageBuilder: codeBuildArm64ImageBuilder,
       cluster,
       vpc: cluster.vpc,
       securityGroups: [sg],
@@ -601,8 +594,6 @@ if (testDeploymentFailureAfterImageBuilt) {
     count: 1,
   });
   for (const dependency of [
-    fargateX64Builder,
-    fargateArm64Builder,
     lambdaImageBuilder,
     windowsImageBuilder,
     amiX64Builder,
@@ -610,6 +601,8 @@ if (testDeploymentFailureAfterImageBuilt) {
     codeBuildUbuntu2404ImageBuilder,
     codeBuildArm64ImageBuilder,
     lambdaArm64ImageBuilder,
+    microVmImageBuilder,
+    microVmX64ImageBuilder,
     ec2ImageBuilder,
     ec2WindowsImageBuilder,
     runners,

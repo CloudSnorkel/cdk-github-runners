@@ -29,6 +29,14 @@
       "type": "build"
     },
     {
+      "name": "@aws-sdk/client-lambda-microvms",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-s3",
+      "type": "build"
+    },
+    {
       "name": "@aws-sdk/client-secrets-manager",
       "type": "build"
     },
@@ -171,6 +179,10 @@
       "type": "build"
     },
     {
+      "name": "jszip",
+      "type": "build"
+    },
+    {
       "name": "projen",
       "type": "build"
     },
@@ -231,7 +243,7 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": "^2.239.0",
+      "version": "^2.261.0",
       "type": "peer"
     },
     {

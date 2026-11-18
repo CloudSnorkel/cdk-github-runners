@@ -1941,6 +1941,257 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 ---
 
 
+### MicroVmRunnerProvider <a name="MicroVmRunnerProvider" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider"></a>
+
+- *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>, constructs.IConstruct
+
+GitHub Actions runner provider using Lambda MicroVMs to execute jobs.
+
+MicroVMs sit between Lambda and EC2. They boot from a snapshot in about a second, they have a writable disk and a
+real kernel, and they can run for up to eight hours.
+
+This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+
+This provider is experimental and may change in the future.
+
+#### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.Initializer"></a>
+
+```typescript
+import { MicroVmRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
+
+new MicroVmRunnerProvider(scope: Construct, id: string, props?: MicroVmRunnerProviderProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.Initializer.parameter.props">props</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps">MicroVmRunnerProviderProps</a></code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps">MicroVmRunnerProviderProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.with">with</a></code> | Applies one or more mixins to this construct. |
+
+---
+
+##### `toString` <a name="toString" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `with` <a name="with" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.with"></a>
+
+```typescript
+public with(mixins: ...IMixin[]): IConstruct
+```
+
+Applies one or more mixins to this construct.
+
+Mixins are applied in order. The list of constructs is captured at the
+start of the call, so constructs added by a mixin will not be visited.
+Use multiple `with()` calls if subsequent mixins should apply to added
+constructs.
+
+###### `mixins`<sup>Required</sup> <a name="mixins" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.with.parameter.mixins"></a>
+
+- *Type:* ...constructs.IMixin[]
+
+The mixins to apply.
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.imageBuilder">imageBuilder</a></code> | Create new image builder that builds MicroVM specific runner images. |
+
+---
+
+##### `isConstruct` <a name="isConstruct" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.isConstruct"></a>
+
+```typescript
+import { MicroVmRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
+
+MicroVmRunnerProvider.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+Use this method instead of `instanceof` to properly detect `Construct`
+instances, even when the construct library is symlinked.
+
+Explanation: in JavaScript, multiple copies of the `constructs` library on
+disk are seen as independent, completely different libraries. As a
+consequence, the class `Construct` in each copy of the `constructs` library
+is seen as a different class, and an instance of one class will not test as
+`instanceof` the other class. `npm install` will not create installations
+like this, but users may manually symlink construct libraries together or
+use a monorepo tool: in those cases, multiple copies of the `constructs`
+library can be accidentally installed, and `instanceof` will behave
+unpredictably. It is safest to avoid using `instanceof`, and using
+this type-testing method instead.
+
+###### `x`<sup>Required</sup> <a name="x" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+##### `imageBuilder` <a name="imageBuilder" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.imageBuilder"></a>
+
+```typescript
+import { MicroVmRunnerProvider } from '@cloudsnorkel/cdk-github-runners'
+
+MicroVmRunnerProvider.imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps)
+```
+
+Create new image builder that builds MicroVM specific runner images.
+
+You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
+
+You can add components to the image builder by calling `imageBuilder.addComponent()`.
+
+The default OS is Amazon Linux 2023 running on x64 architecture.
+
+The default base image is Lambda's own, which is the only one guaranteed to survive being snapshotted. Among
+other things it carries an AWS-patched OpenSSL, so don't change it unless you know your image is snapshot
+compatible.
+
+Included components:
+ * `RunnerImageComponent.requiredPackages()`
+ * `RunnerImageComponent.runnerUser()`
+ * `RunnerImageComponent.git()`
+ * `RunnerImageComponent.githubCli()`
+ * `RunnerImageComponent.awsCli()`
+ * `RunnerImageComponent.githubRunner()`
+ * `RunnerImageComponent.microVmEntrypoint()`
+
+###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.imageBuilder.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+###### `id`<sup>Required</sup> <a name="id" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.imageBuilder.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.imageBuilder.parameter.props"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.RunnerImageBuilderProps">RunnerImageBuilderProps</a>
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.property.connections">connections</a></code> | <code>aws-cdk-lib.aws_ec2.Connections</code> | The network connections associated with this resource. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.property.grantPrincipal">grantPrincipal</a></code> | <code>aws-cdk-lib.aws_iam.IPrincipal</code> | Grant principal used to add permissions to the runner role. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.property.labels">labels</a></code> | <code>string[]</code> | Labels associated with this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.property.logGroup">logGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group where provided runners will save their logs. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `connections`<sup>Required</sup> <a name="connections" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.property.connections"></a>
+
+```typescript
+public readonly connections: Connections;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.Connections
+
+The network connections associated with this resource.
+
+These security groups only apply to outbound traffic through the VPC. Inbound access to the MicroVM goes through
+Lambda's endpoint with an auth token, and not through the VPC.
+
+---
+
+##### `grantPrincipal`<sup>Required</sup> <a name="grantPrincipal" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.property.grantPrincipal"></a>
+
+```typescript
+public readonly grantPrincipal: IPrincipal;
+```
+
+- *Type:* aws-cdk-lib.aws_iam.IPrincipal
+
+Grant principal used to add permissions to the runner role.
+
+---
+
+##### `labels`<sup>Required</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+
+Labels associated with this provider.
+
+---
+
+##### `logGroup`<sup>Required</sup> <a name="logGroup" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.property.logGroup"></a>
+
+```typescript
+public readonly logGroup: ILogGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_logs.ILogGroup
+
+Log group where provided runners will save their logs.
+
+Note that this is not the job log, but the runner itself. It will not contain output from the GitHub Action but only metadata on its execution.
+
+---
+
+
 ### RunnerImageBuilder <a name="RunnerImageBuilder" id="@cloudsnorkel/cdk-github-runners.RunnerImageBuilder"></a>
 
 - *Implements:* <a href="#@cloudsnorkel/cdk-github-runners.IConfigurableRunnerImageBuilder">IConfigurableRunnerImageBuilder</a>
@@ -4547,7 +4798,7 @@ const lambdaRunnerProviderProps: LambdaRunnerProviderProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to this instance. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | The function execution time (in seconds) after which Lambda terminates the function. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to launch the runners in. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to send the runner's outbound traffic through. |
 
 ---
 
@@ -4716,9 +4967,12 @@ public readonly vpc: IVpc;
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.IVpc
-- *Default:* no VPC
+- *Default:* no VPC, runners get public internet access
 
-VPC to launch the runners in.
+VPC to send the runner's outbound traffic through.
+
+The network interfaces never get a public IP, so the subnets
+need a NAT gateway (or VPC endpoints) to reach GitHub, ECR and CloudWatch. Public subnets won't work.
 
 ---
 
@@ -4797,6 +5051,189 @@ The number of days log events are kept in CloudWatch Logs.
 When updating
 this property, unsetting it doesn't remove the log retention policy. To
 remove the retention policy, set the value to `INFINITE`.
+
+---
+
+### MicroVmRunnerProviderProps <a name="MicroVmRunnerProviderProps" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps"></a>
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.Initializer"></a>
+
+```typescript
+import { MicroVmRunnerProviderProps } from '@cloudsnorkel/cdk-github-runners'
+
+const microVmRunnerProviderProps: MicroVmRunnerProviderProps = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.defaultLabels">defaultLabels</a></code> | <code>boolean</code> | Add default labels based on OS and architecture of the runner. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.logRetention">logRetention</a></code> | <code>aws-cdk-lib.aws_logs.RetentionDays</code> | The number of days log events are kept in CloudWatch Logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.group">group</a></code> | <code>string</code> | GitHub Actions runner group name. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.imageBuilder">imageBuilder</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a></code> | Runner image builder used to build Docker images containing GitHub Runner and all requirements. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.labels">labels</a></code> | <code>string[]</code> | GitHub Actions labels used for this provider. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.memorySize">memorySize</a></code> | <code>aws-cdk-lib.Size</code> | Memory given to the MicroVM. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.securityGroups">securityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | Security groups to assign to the outbound traffic. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.subnetSelection">subnetSelection</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Where to place the network interfaces within the VPC. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Time after which the MicroVM is terminated, whether the job is done or not. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to send the runner's outbound traffic through. |
+
+---
+
+##### `defaultLabels`<sup>Optional</sup> <a name="defaultLabels" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.defaultLabels"></a>
+
+```typescript
+public readonly defaultLabels: boolean;
+```
+
+- *Type:* boolean
+- *Default:* true
+
+Add default labels based on OS and architecture of the runner.
+
+This will tell GitHub Runner to add default labels like `self-hosted`, `linux`, `x64`, and `arm64`.
+
+---
+
+##### `logRetention`<sup>Optional</sup> <a name="logRetention" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.logRetention"></a>
+
+```typescript
+public readonly logRetention: RetentionDays;
+```
+
+- *Type:* aws-cdk-lib.aws_logs.RetentionDays
+- *Default:* logs.RetentionDays.ONE_MONTH
+
+The number of days log events are kept in CloudWatch Logs.
+
+When updating
+this property, unsetting it doesn't remove the log retention policy. To
+remove the retention policy, set the value to `INFINITE`.
+
+---
+
+##### `group`<sup>Optional</sup> <a name="group" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.group"></a>
+
+```typescript
+public readonly group: string;
+```
+
+- *Type:* string
+- *Default:* undefined
+
+GitHub Actions runner group name.
+
+If specified, the runner will be registered with this group name. Setting a runner group can help managing access to self-hosted runners. It
+requires a paid GitHub account and organization level runner registration.
+
+The group must exist or the runner will not start.
+
+Users will still be able to trigger this runner with the correct labels. But the runner will only be able to run jobs from repos allowed to use the group.
+
+---
+
+##### `imageBuilder`<sup>Optional</sup> <a name="imageBuilder" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.imageBuilder"></a>
+
+```typescript
+public readonly imageBuilder: IRunnerImageBuilder;
+```
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerImageBuilder">IRunnerImageBuilder</a>
+- *Default:* MicroVmRunnerProvider.imageBuilder()
+
+Runner image builder used to build Docker images containing GitHub Runner and all requirements.
+
+The image builder must contain the {@link RunnerImageComponent.microVmEntrypoint} component.
+
+---
+
+##### `labels`<sup>Optional</sup> <a name="labels" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.labels"></a>
+
+```typescript
+public readonly labels: string[];
+```
+
+- *Type:* string[]
+- *Default:* ['microvm']
+
+GitHub Actions labels used for this provider.
+
+These labels are used to identify which provider should spawn a new on-demand runner. Every job sends a webhook with the labels it's looking for
+based on runs-on. We match the labels from the webhook with the labels specified here. If all the labels specified here are present in the
+job's labels, this provider will be chosen and spawn a new runner.
+
+---
+
+##### `memorySize`<sup>Optional</sup> <a name="memorySize" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.memorySize"></a>
+
+```typescript
+public readonly memorySize: Size;
+```
+
+- *Type:* aws-cdk-lib.Size
+- *Default:* 4 GiB (and therefore 2 vCPU)
+
+Memory given to the MicroVM.
+
+CPU is allocated proportionally, about one vCPU for every 2 GiB.
+
+---
+
+##### `securityGroups`<sup>Optional</sup> <a name="securityGroups" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.securityGroups"></a>
+
+```typescript
+public readonly securityGroups: ISecurityGroup[];
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup[]
+- *Default:* a new security group, if VPC is used
+
+Security groups to assign to the outbound traffic.
+
+---
+
+##### `subnetSelection`<sup>Optional</sup> <a name="subnetSelection" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.subnetSelection"></a>
+
+```typescript
+public readonly subnetSelection: SubnetSelection;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.SubnetSelection
+- *Default:* default subnets of the VPC
+
+Where to place the network interfaces within the VPC.
+
+---
+
+##### `timeout`<sup>Optional</sup> <a name="timeout" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.timeout"></a>
+
+```typescript
+public readonly timeout: Duration;
+```
+
+- *Type:* aws-cdk-lib.Duration
+- *Default:* Duration.hours(1)
+
+Time after which the MicroVM is terminated, whether the job is done or not.
+
+Must be 8 hours or less.
+
+---
+
+##### `vpc`<sup>Optional</sup> <a name="vpc" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProviderProps.property.vpc"></a>
+
+```typescript
+public readonly vpc: IVpc;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.IVpc
+- *Default:* no VPC, runners get public internet access
+
+VPC to send the runner's outbound traffic through.
+
+The network interfaces never get a public IP, so the subnets
+need a NAT gateway (or VPC endpoints) to reach GitHub, ECR and CloudWatch. Public subnets won't work.
 
 ---
 
@@ -6990,6 +7427,7 @@ Returns true if the image builder should be rebooted after this component is ins
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobCompletedHook">jobCompletedHook</a></code> | A component that runs a script after every job the runner executes. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobStartedHook">jobStartedHook</a></code> | A component that runs a script before every job the runner executes. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.lambdaEntrypoint">lambdaEntrypoint</a></code> | A component to set up the required Lambda entrypoint for Lambda runners. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.microVmEntrypoint">microVmEntrypoint</a></code> | A component to set up the required MicroVM entrypoint for Lambda MicroVM runners. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.requiredPackages">requiredPackages</a></code> | A component to install the required packages for the runner. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.RunnerImageComponent.runnerUser">runnerUser</a></code> | A component to prepare the required runner user. |
 
@@ -7232,6 +7670,18 @@ RunnerImageComponent.lambdaEntrypoint()
 ```
 
 A component to set up the required Lambda entrypoint for Lambda runners.
+
+##### `microVmEntrypoint` <a name="microVmEntrypoint" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.microVmEntrypoint"></a>
+
+```typescript
+import { RunnerImageComponent } from '@cloudsnorkel/cdk-github-runners'
+
+RunnerImageComponent.microVmEntrypoint()
+```
+
+A component to set up the required MicroVM entrypoint for Lambda MicroVM runners.
+
+Must be used *after* the {@link githubRunner} component.
 
 ##### `requiredPackages` <a name="requiredPackages" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.requiredPackages"></a>
 
@@ -7804,7 +8254,7 @@ Log group name for the image builder where history of image builds can be analyz
 
 - *Extends:* aws-cdk-lib.aws_ec2.IConnectable, aws-cdk-lib.aws_iam.IGrantable, constructs.IConstruct
 
-- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider">CodeBuildRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider">Ec2RunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider">EcsRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider">FargateRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider">LambdaRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
+- *Implemented By:* <a href="#@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider">CodeBuildRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider">Ec2RunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.EcsRunnerProvider">EcsRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.FargateRunnerProvider">FargateRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider">LambdaRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider">MicroVmRunnerProvider</a>, <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
 
 Interface for all runner providers.
 
