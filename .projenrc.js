@@ -208,6 +208,7 @@ const mergifyFile = project.tryFindObjectFile('.mergify.yml');
 mergifyFile.addToArray('queue_rules.0.queue_conditions', 'status-success=test-examples');
 mergifyFile.addToArray('pull_request_rules.0.conditions', 'status-success=test-examples');
 
+// projen doesn't auto ignore this new file yet
 project.gitignore.addPatterns('test/default.integ.snapshot/*.metadata.json');
 
 // funding
