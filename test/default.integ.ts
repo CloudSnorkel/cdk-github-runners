@@ -16,7 +16,7 @@ import {
   aws_logs as logs,
   aws_sqs as sqs,
   aws_stepfunctions as stepfunctions,
-  custom_resources as cr,
+  custom_resources as cr, cx_api,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
@@ -50,7 +50,14 @@ const githubRepository = 'CloudSnorkel/cdk-github-runners';
 // turn this on if your account doesn't have a GitHub OIDC provider yet. an account can only have one, so we use the existing one by default.
 const createGitHubOidcProvider = false;
 
-const app = new cdk.App();
+const app = new cdk.App({
+  context: {
+    // keep host paths and per-resource noise out of the snapshot metadata file
+    [cx_api.DISABLE_CREATION_STACK_TRACES]: true,
+    [cx_api.DISABLE_METADATA_STACK_TRACE]: true,
+    [cx_api.DISABLE_LOGICAL_ID_METADATA]: true,
+  },
+});
 const stack = new cdk.Stack(app, 'github-runners-test');
 
 const vpc = new ec2.Vpc(stack, 'Vpc', {
