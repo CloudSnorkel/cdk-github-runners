@@ -7919,7 +7919,7 @@
        "Fn::Join": [
         "",
         [
-         "#!/bin/bash\nyum install -y awscli || dnf install -y awscli\naws ecr get-login-password --region ",
+         "#!/bin/bash\nwhich aws >/dev/null || yum install -y awscli || dnf install -y awscli\naws ecr get-login-password --region ",
          {
           "Ref": "AWS::Region"
          },
@@ -8632,7 +8632,7 @@
        "Fn::Join": [
         "",
         [
-         "#!/bin/bash\nyum install -y awscli || dnf install -y awscli\naws ecr get-login-password --region ",
+         "#!/bin/bash\nwhich aws >/dev/null || yum install -y awscli || dnf install -y awscli\naws ecr get-login-password --region ",
          {
           "Ref": "AWS::Region"
          },
@@ -9224,7 +9224,7 @@
        "Fn::Join": [
         "",
         [
-         "#!/bin/bash\nyum install -y awscli || dnf install -y awscli\naws ecr get-login-password --region ",
+         "#!/bin/bash\nwhich aws >/dev/null || yum install -y awscli || dnf install -y awscli\naws ecr get-login-password --region ",
          {
           "Ref": "AWS::Region"
          },
