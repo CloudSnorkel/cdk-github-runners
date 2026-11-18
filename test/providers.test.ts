@@ -88,23 +88,23 @@ describe('Providers', () => {
     const template = Template.fromStack(stack);
 
     template.hasResourceProperties('AWS::Lambda::MicrovmImage', Match.objectLike({
-      CpuConfigurations: [{ Architecture: 'ARM_64' }],
+      CpuConfigurations: [{ Architecture: 'X86_64' }],
       Resources: [{ MinimumMemoryInMiB: 8192 }],
       // the service rejects the image unless the ready hook is enabled alongside any lifecycle hook
       Hooks: { MicrovmHooks: { Run: 'ENABLED' }, MicrovmImageHooks: { Ready: 'ENABLED' } },
     }));
   });
 
-  test('MicroVM provider supports x64 images', () => {
+  test('MicroVM provider supports ARM64 images', () => {
 
     new MicroVmRunnerProvider(stack, 'provider', {
       imageBuilder: MicroVmRunnerProvider.imageBuilder(stack, 'builder', {
-        architecture: Architecture.X86_64,
+        architecture: Architecture.ARM64,
       }),
     });
 
     Template.fromStack(stack).hasResourceProperties('AWS::Lambda::MicrovmImage', Match.objectLike({
-      CpuConfigurations: [{ Architecture: 'X86_64' }],
+      CpuConfigurations: [{ Architecture: 'ARM_64' }],
     }));
   });
 
