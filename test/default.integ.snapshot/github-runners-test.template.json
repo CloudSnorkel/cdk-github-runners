@@ -11357,7 +11357,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "aa88886a62144ddcfd95c22ccf8916e7449aed832727284c3245e2c4dc95fe29.zip"
+     "S3Key": "c5551be274786485aa2b64835638e45cbd92320f519f070c228e7ba275e961c7.zip"
     },
     "Description": "Function that writes the Dockerfile MicroVM images are built from, and rebuilds them when the runner image changes",
     "Environment": {

@@ -6,6 +6,7 @@ import {
   ListManagedMicrovmImageVersionsCommand,
   ListMicrovmImageVersionsCommand,
   ManagedMicrovmImageVersion,
+  MicrovmImageVersionSummary,
   UpdateMicrovmImageCommand,
   UpdateMicrovmImageRequest,
 } from '@aws-sdk/client-lambda-microvms';
@@ -102,11 +103,10 @@ async function latestBaseImageVersion(image: UpdateMicrovmImageRequest) {
 }
 
 /**
- * Creation time of the newest image version that didn't fail, so we know if it was built before the runner image was
- * pushed.
+ * Newest image version that didn't fail, so we know what it was built from and when.
  */
-async function latestImageVersionTime(imageIdentifier: string) {
-  let latest: Date | undefined;
+async function latestImageVersion(imageIdentifier: string) {
+  let latest: MicrovmImageVersionSummary | undefined;
   let nextToken: string | undefined;
   do {
     const page = await microvms.send(new ListMicrovmImageVersionsCommand({ imageIdentifier, nextToken }));
@@ -114,8 +114,8 @@ async function latestImageVersionTime(imageIdentifier: string) {
       if (version.state === 'FAILED') {
         continue;
       }
-      if (!latest || version.createdAt! > latest) {
-        latest = version.createdAt!;
+      if (!latest || version.createdAt! > latest.createdAt!) {
+        latest = version;
       }
     }
     nextToken = page.nextToken;
@@ -149,22 +149,22 @@ async function handleRebuild(event: RebuildInput) {
     return;
   }
 
-  // we run after every deployment, whether the runner image changed or not. CloudFormation may have also built a new
-  // version already.
+  // we run after every deployment, whether anything changed or not. CloudFormation may have also built a new version
+  // already. so only build when the runner image or the base image is newer than what we already have.
   const images = await ecr.send(new DescribeImagesCommand({ repositoryName: event.repositoryName, imageIds: [{ imageTag: event.imageTag }] }));
   const pushedAt = images.imageDetails![0].imagePushedAt!;
-  const builtAt = await latestImageVersionTime(event.image.imageIdentifier!);
-  if (builtAt && builtAt > pushedAt) {
+  const baseImageVersion = await latestBaseImageVersion(event.image);
+  const built = await latestImageVersion(event.image.imageIdentifier!);
+  if (built && built.createdAt! > pushedAt && built.baseImageVersion === baseImageVersion) {
     console.log({
-      notice: 'MicroVM image is already newer than the runner image',
+      notice: 'MicroVM image is already up to date',
       image: event.image.imageIdentifier,
       pushedAt,
-      builtAt,
+      builtAt: built.createdAt,
+      baseImageVersion,
     });
     return;
   }
-
-  const baseImageVersion = await latestBaseImageVersion(event.image);
 
   console.log({
     notice: 'Building new MicroVM image version from the runner image',
