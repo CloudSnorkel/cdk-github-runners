@@ -63,7 +63,7 @@ A runner provider creates compute resources on-demand and uses [actions/runner][
 | **Storage**      | Unlimited         | 50gb to 824gb              | 20gb to 200gb  | Unlimited      | Up to 10gb    | Up to 10gb     |
 | **Architecture** | x86_64, ARM64     | x86_64, ARM64              | x86_64, ARM64  | x86_64, ARM64  | x86_64, ARM64 | x86_64, ARM64  |
 | **GPU**          | ✔                 | ✔                         | ❌              | ✔              | ❌           | ❌             |
-| **sudo**         | ✔                 | ✔                         | ✔              | ✔              | ❌           | ✔              |
+| **sudo**         | ✔                 | ✔                         | ✔              | ✔              | ❌           | ❌              |
 | **Docker**       | ✔                 | ✔ (Linux only)            | ❌              | ✔              | ❌           | ❌             |
 | **Spot pricing** | ✔                 | ❌                         | ✔              | ✔              | ❌           | ❌             |
 | **OS**           | Linux, Windows    | Linux, Windows             | Linux, Windows | Linux, Windows | Linux         | Linux          |

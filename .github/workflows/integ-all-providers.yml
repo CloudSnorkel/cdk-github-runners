@@ -68,14 +68,14 @@ jobs:
             arch: ARM64
             runs-on: [self-hosted, microvm, arm64]
             docker: false
-            sudo: true
+            sudo: false
             no-python: true # Amazon Linux, and setup-python only has builds for Ubuntu
           - name: microvm x64
             os: linux
             arch: X64
             runs-on: [self-hosted, microvm, x64]
             docker: false
-            sudo: true
+            sudo: false
             no-python: true # Amazon Linux, and setup-python only has builds for Ubuntu
           - name: fargate x64
             os: linux
