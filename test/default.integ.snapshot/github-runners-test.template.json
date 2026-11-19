@@ -600,6 +600,21 @@
        "Action": "ecr:GetAuthorizationToken",
        "Effect": "Allow",
        "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -616,6 +631,15 @@
    "Type": "AWS::ECR::Repository",
    "Properties": {
     "EmptyOnDelete": true,
+    "EncryptionConfiguration": {
+     "EncryptionType": "KMS",
+     "KmsKey": {
+      "Fn::GetAtt": [
+       "ComplianceKeyE1D8D58A",
+       "Arn"
+      ]
+     }
+    },
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
@@ -761,6 +785,12 @@
   "LambdaImageBuilderx64Logs1C003BB4": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -776,7 +806,12 @@
      "Type": "NO_CACHE"
     },
     "Description": "Build docker image for self-hosted GitHub runner github-runners-test/Lambda Image Builder x64 (Amazon Linux 2023/X86_64)",
-    "EncryptionKey": "alias/aws/s3",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_SMALL",
      "Image": "aws/codebuild/amazonlinux2-x86_64-standard:5.0",
@@ -917,15 +952,15 @@
     ]
    }
   },
-  "LambdaImageBuilderx64BuildWaitHandleb82e8f19f60E35AF60": {
+  "githubrunnerstestLambdaImageBuilderx64BuildWaitHandleb82e8f19f65CA642C6Kms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderx64BuildWaitb82e8f19f6DD9DD7A7": {
+  "githubrunnerstestLambdaImageBuilderx64BuildWaitb82e8f19f6F7A3AB6CKms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandleb82e8f19f60E35AF60"
+     "Ref": "githubrunnerstestLambdaImageBuilderx64BuildWaitHandleb82e8f19f65CA642C6Kms434dbcbd"
     },
     "Timeout": "3600"
    }
@@ -946,7 +981,7 @@
      "Ref": "LambdaImageBuilderx64CodeBuild67DE14C8"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderx64BuildWaitHandleb82e8f19f60E35AF60"
+     "Ref": "githubrunnerstestLambdaImageBuilderx64BuildWaitHandleb82e8f19f65CA642C6Kms434dbcbd"
     }
    },
    "DependsOn": [
@@ -1100,6 +1135,15 @@
    "Type": "AWS::ECR::Repository",
    "Properties": {
     "EmptyOnDelete": true,
+    "EncryptionConfiguration": {
+     "EncryptionType": "KMS",
+     "KmsKey": {
+      "Fn::GetAtt": [
+       "ComplianceKeyE1D8D58A",
+       "Arn"
+      ]
+     }
+    },
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
@@ -1228,6 +1272,12 @@
   "WindowsImageBuilderDockerLogE660E23E": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "LogGroupName": "/aws/imagebuilder/github-runners-test-WindowsImageBuilder-ContainerRecipe-C577A80B",
     "RetentionInDays": 30
    },
@@ -1641,6 +1691,13 @@
       },
       "Ebs": {
        "DeleteOnTermination": true,
+       "Encrypted": true,
+       "KmsKeyId": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       },
        "VolumeSize": 33
       }
      }
@@ -1755,6 +1812,12 @@
   "AMILinuxBuilderAmiLog0DB16E38": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "LogGroupName": "/aws/imagebuilder/github-runners-test-AMILinuxBuilder-AmiRecipe-2B5C5A8B",
     "RetentionInDays": 30
    },
@@ -2158,6 +2221,21 @@
        "Action": "ecr:GetAuthorizationToken",
        "Effect": "Allow",
        "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -2174,6 +2252,15 @@
    "Type": "AWS::ECR::Repository",
    "Properties": {
     "EmptyOnDelete": true,
+    "EncryptionConfiguration": {
+     "EncryptionType": "KMS",
+     "KmsKey": {
+      "Fn::GetAtt": [
+       "ComplianceKeyE1D8D58A",
+       "Arn"
+      ]
+     }
+    },
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
@@ -2188,6 +2275,12 @@
   "CodeBuildImageBuilderLogsE4CADFCC": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -2203,7 +2296,12 @@
      "Type": "NO_CACHE"
     },
     "Description": "Build docker image for self-hosted GitHub runner github-runners-test/CodeBuild Image Builder (Ubuntu Linux/X86_64)",
-    "EncryptionKey": "alias/aws/s3",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_SMALL",
      "Image": "aws/codebuild/amazonlinux2-x86_64-standard:5.0",
@@ -2343,15 +2441,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderBuildWaitHandle92f97319c61BC2E956": {
+  "githubrunnerstestCodeBuildImageBuilderBuildWaitHandle92f97319c62E13C257Kms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderBuildWait92f97319c673333B20": {
+  "githubrunnerstestCodeBuildImageBuilderBuildWait92f97319c69E1710B8Kms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandle92f97319c61BC2E956"
+     "Ref": "githubrunnerstestCodeBuildImageBuilderBuildWaitHandle92f97319c62E13C257Kms434dbcbd"
     },
     "Timeout": "3600"
    }
@@ -2372,7 +2470,7 @@
      "Ref": "CodeBuildImageBuilderCodeBuild38ECAA44"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderBuildWaitHandle92f97319c61BC2E956"
+     "Ref": "githubrunnerstestCodeBuildImageBuilderBuildWaitHandle92f97319c62E13C257Kms434dbcbd"
     }
    },
    "DependsOn": [
@@ -2611,6 +2709,21 @@
        "Action": "ecr:GetAuthorizationToken",
        "Effect": "Allow",
        "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -2627,6 +2740,15 @@
    "Type": "AWS::ECR::Repository",
    "Properties": {
     "EmptyOnDelete": true,
+    "EncryptionConfiguration": {
+     "EncryptionType": "KMS",
+     "KmsKey": {
+      "Fn::GetAtt": [
+       "ComplianceKeyE1D8D58A",
+       "Arn"
+      ]
+     }
+    },
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
@@ -2641,6 +2763,12 @@
   "CodeBuildUbuntu2404ImageBuilderLogsAD7DFF28": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -2656,7 +2784,12 @@
      "Type": "NO_CACHE"
     },
     "Description": "Build docker image for self-hosted GitHub runner github-runners-test/CodeBuild Ubuntu 2404 Image Builder (Ubuntu Linux 24.04/X86_64)",
-    "EncryptionKey": "alias/aws/s3",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_SMALL",
      "Image": "aws/codebuild/amazonlinux2-x86_64-standard:5.0",
@@ -2789,15 +2922,15 @@
     ]
    }
   },
-  "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle31277ab446A438F7DC": {
+  "githubrunnerstestCodeBuildUbuntu2404ImageBuilderBuildWaitHandle31277ab44622CD6C88Kms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildUbuntu2404ImageBuilderBuildWait31277ab4461CF3A97F": {
+  "githubrunnerstestCodeBuildUbuntu2404ImageBuilderBuildWait31277ab446BA638ED7Kms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle31277ab446A438F7DC"
+     "Ref": "githubrunnerstestCodeBuildUbuntu2404ImageBuilderBuildWaitHandle31277ab44622CD6C88Kms434dbcbd"
     },
     "Timeout": "3600"
    }
@@ -2818,7 +2951,7 @@
      "Ref": "CodeBuildUbuntu2404ImageBuilderCodeBuild30AF5C46"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildUbuntu2404ImageBuilderBuildWaitHandle31277ab446A438F7DC"
+     "Ref": "githubrunnerstestCodeBuildUbuntu2404ImageBuilderBuildWaitHandle31277ab44622CD6C88Kms434dbcbd"
     }
    },
    "DependsOn": [
@@ -3057,6 +3190,21 @@
        "Action": "ecr:GetAuthorizationToken",
        "Effect": "Allow",
        "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -3073,6 +3221,15 @@
    "Type": "AWS::ECR::Repository",
    "Properties": {
     "EmptyOnDelete": true,
+    "EncryptionConfiguration": {
+     "EncryptionType": "KMS",
+     "KmsKey": {
+      "Fn::GetAtt": [
+       "ComplianceKeyE1D8D58A",
+       "Arn"
+      ]
+     }
+    },
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
@@ -3087,6 +3244,12 @@
   "CodeBuildImageBuilderarmLogs5A60CB81": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -3102,7 +3265,12 @@
      "Type": "NO_CACHE"
     },
     "Description": "Build docker image for self-hosted GitHub runner github-runners-test/CodeBuild Image Builder arm (Ubuntu Linux/ARM64)",
-    "EncryptionKey": "alias/aws/s3",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_SMALL",
      "Image": "aws/codebuild/amazonlinux2-aarch64-standard:3.0",
@@ -3235,15 +3403,15 @@
     ]
    }
   },
-  "CodeBuildImageBuilderarmBuildWaitHandle750fa3c166DBD5D9B0": {
+  "githubrunnerstestCodeBuildImageBuilderarmBuildWaitHandle750fa3c16602DDD96BKms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "CodeBuildImageBuilderarmBuildWait750fa3c166248F7B19": {
+  "githubrunnerstestCodeBuildImageBuilderarmBuildWait750fa3c1661FC9805BKms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle750fa3c166DBD5D9B0"
+     "Ref": "githubrunnerstestCodeBuildImageBuilderarmBuildWaitHandle750fa3c16602DDD96BKms434dbcbd"
     },
     "Timeout": "3600"
    }
@@ -3264,7 +3432,7 @@
      "Ref": "CodeBuildImageBuilderarmCodeBuildBFF1CF57"
     },
     "WaitHandle": {
-     "Ref": "CodeBuildImageBuilderarmBuildWaitHandle750fa3c166DBD5D9B0"
+     "Ref": "githubrunnerstestCodeBuildImageBuilderarmBuildWaitHandle750fa3c16602DDD96BKms434dbcbd"
     }
    },
    "DependsOn": [
@@ -3503,6 +3671,21 @@
        "Action": "ecr:GetAuthorizationToken",
        "Effect": "Allow",
        "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -3519,6 +3702,15 @@
    "Type": "AWS::ECR::Repository",
    "Properties": {
     "EmptyOnDelete": true,
+    "EncryptionConfiguration": {
+     "EncryptionType": "KMS",
+     "KmsKey": {
+      "Fn::GetAtt": [
+       "ComplianceKeyE1D8D58A",
+       "Arn"
+      ]
+     }
+    },
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
@@ -3664,6 +3856,12 @@
   "LambdaImageBuilderzLogsC9FB42C8": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -3679,7 +3877,12 @@
      "Type": "NO_CACHE"
     },
     "Description": "Build docker image for self-hosted GitHub runner github-runners-test/Lambda Image Builderz (Amazon Linux 2023/ARM64)",
-    "EncryptionKey": "alias/aws/s3",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_SMALL",
      "Image": "aws/codebuild/amazonlinux2-aarch64-standard:3.0",
@@ -3820,15 +4023,15 @@
     ]
    }
   },
-  "LambdaImageBuilderzBuildWaitHandle9edd3ecd19167A57C1": {
+  "githubrunnerstestLambdaImageBuilderzBuildWaitHandle9edd3ecd19E96CC9C4Kms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "LambdaImageBuilderzBuildWait9edd3ecd1990F46908": {
+  "githubrunnerstestLambdaImageBuilderzBuildWait9edd3ecd19B7C6B40FKms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle9edd3ecd19167A57C1"
+     "Ref": "githubrunnerstestLambdaImageBuilderzBuildWaitHandle9edd3ecd19E96CC9C4Kms434dbcbd"
     },
     "Timeout": "3600"
    }
@@ -3849,7 +4052,7 @@
      "Ref": "LambdaImageBuilderzCodeBuild73AB6718"
     },
     "WaitHandle": {
-     "Ref": "LambdaImageBuilderzBuildWaitHandle9edd3ecd19167A57C1"
+     "Ref": "githubrunnerstestLambdaImageBuilderzBuildWaitHandle9edd3ecd19E96CC9C4Kms434dbcbd"
     }
    },
    "DependsOn": [
@@ -4088,6 +4291,21 @@
        "Action": "ecr:GetAuthorizationToken",
        "Effect": "Allow",
        "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -4104,6 +4322,15 @@
    "Type": "AWS::ECR::Repository",
    "Properties": {
     "EmptyOnDelete": true,
+    "EncryptionConfiguration": {
+     "EncryptionType": "KMS",
+     "KmsKey": {
+      "Fn::GetAtt": [
+       "ComplianceKeyE1D8D58A",
+       "Arn"
+      ]
+     }
+    },
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
@@ -4225,6 +4452,12 @@
   "MicroVMImageBuilderLogs3DDFA9E6": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -4240,7 +4473,12 @@
      "Type": "NO_CACHE"
     },
     "Description": "Build docker image for self-hosted GitHub runner github-runners-test/MicroVM Image Builder (Amazon Linux 2023/ARM64)",
-    "EncryptionKey": "alias/aws/s3",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_SMALL",
      "Image": "aws/codebuild/amazonlinux2-aarch64-standard:3.0",
@@ -4381,15 +4619,15 @@
     ]
    }
   },
-  "MicroVMImageBuilderBuildWaitHandle8f9f426b788E18F8FA": {
+  "githubrunnerstestMicroVMImageBuilderBuildWaitHandle8f9f426b7827022E23Kms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "MicroVMImageBuilderBuildWait8f9f426b78C7792F7E": {
+  "githubrunnerstestMicroVMImageBuilderBuildWait8f9f426b781286DFD5Kms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "MicroVMImageBuilderBuildWaitHandle8f9f426b788E18F8FA"
+     "Ref": "githubrunnerstestMicroVMImageBuilderBuildWaitHandle8f9f426b7827022E23Kms434dbcbd"
     },
     "Timeout": "3600"
    }
@@ -4410,7 +4648,7 @@
      "Ref": "MicroVMImageBuilderCodeBuild0C20B7D4"
     },
     "WaitHandle": {
-     "Ref": "MicroVMImageBuilderBuildWaitHandle8f9f426b788E18F8FA"
+     "Ref": "githubrunnerstestMicroVMImageBuilderBuildWaitHandle8f9f426b7827022E23Kms434dbcbd"
     }
    },
    "DependsOn": [
@@ -4463,6 +4701,12 @@
   "RunnerImageBuildHelpersLog13186633": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -4612,6 +4856,7 @@
       "Ref": "RunnerImageBuildHelpersLog13186633"
      }
     },
+    "ReservedConcurrentExecutions": 5,
     "Role": {
      "Fn::GetAtt": [
       "buildimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRoleC3DE4837",
@@ -4918,6 +5163,21 @@
        "Action": "ecr:GetAuthorizationToken",
        "Effect": "Allow",
        "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -4934,6 +5194,15 @@
    "Type": "AWS::ECR::Repository",
    "Properties": {
     "EmptyOnDelete": true,
+    "EncryptionConfiguration": {
+     "EncryptionType": "KMS",
+     "KmsKey": {
+      "Fn::GetAtt": [
+       "ComplianceKeyE1D8D58A",
+       "Arn"
+      ]
+     }
+    },
     "ImageScanningConfiguration": {
      "ScanOnPush": true
     },
@@ -5055,6 +5324,12 @@
   "MicroVMImageBuilderx64Logs35519E2C": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -5070,7 +5345,12 @@
      "Type": "NO_CACHE"
     },
     "Description": "Build docker image for self-hosted GitHub runner github-runners-test/MicroVM Image Builder x64 (Amazon Linux 2023/X86_64)",
-    "EncryptionKey": "alias/aws/s3",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_SMALL",
      "Image": "aws/codebuild/amazonlinux2-x86_64-standard:5.0",
@@ -5211,15 +5491,15 @@
     ]
    }
   },
-  "MicroVMImageBuilderx64BuildWaitHandlef47694f43aD737A2DB": {
+  "githubrunnerstestMicroVMImageBuilderx64BuildWaitHandlef47694f43a9401C703Kms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitConditionHandle"
   },
-  "MicroVMImageBuilderx64BuildWaitf47694f43a3D7861EC": {
+  "githubrunnerstestMicroVMImageBuilderx64BuildWaitf47694f43aB6522B63Kms434dbcbd": {
    "Type": "AWS::CloudFormation::WaitCondition",
    "Properties": {
     "Count": 1,
     "Handle": {
-     "Ref": "MicroVMImageBuilderx64BuildWaitHandlef47694f43aD737A2DB"
+     "Ref": "githubrunnerstestMicroVMImageBuilderx64BuildWaitHandlef47694f43a9401C703Kms434dbcbd"
     },
     "Timeout": "3600"
    }
@@ -5240,7 +5520,7 @@
      "Ref": "MicroVMImageBuilderx64CodeBuild1AA51AD0"
     },
     "WaitHandle": {
-     "Ref": "MicroVMImageBuilderx64BuildWaitHandlef47694f43aD737A2DB"
+     "Ref": "githubrunnerstestMicroVMImageBuilderx64BuildWaitHandlef47694f43a9401C703Kms434dbcbd"
     }
    },
    "DependsOn": [
@@ -5467,6 +5747,23 @@
   "AMILinuxarm64BuilderAmiRecipe6A6ED38F": {
    "Type": "AWS::ImageBuilder::ImageRecipe",
    "Properties": {
+    "BlockDeviceMappings": [
+     {
+      "DeviceName": {
+       "Ref": "AMILinuxarm64BuilderAmiRecipeAMIRootDevice3B5A149C"
+      },
+      "Ebs": {
+       "DeleteOnTermination": true,
+       "Encrypted": true,
+       "KmsKeyId": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       }
+      }
+     }
+    ],
     "Components": [
      {
       "ComponentArn": {
@@ -5574,9 +5871,44 @@
     "WorkingDirectory": "/home/runner"
    }
   },
+  "AMILinuxarm64BuilderAmiRecipeAMIRootDevice3B5A149C": {
+   "Type": "Custom::AmiRootDevice",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C",
+      "Arn"
+     ]
+    },
+    "Ami": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":imagebuilder:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":aws:image/ubuntu-server-22-lts-arm64/x.x.x"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
   "AMILinuxarm64BuilderAmiLog84A9D94A": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "LogGroupName": "/aws/imagebuilder/github-runners-test-AMILinuxarm64Builder-AmiRecipe-9167B5EF",
     "RetentionInDays": 30
    },
@@ -5968,6 +6300,23 @@
   "WindowsEC2BuilderAmiRecipe41A137FF": {
    "Type": "AWS::ImageBuilder::ImageRecipe",
    "Properties": {
+    "BlockDeviceMappings": [
+     {
+      "DeviceName": {
+       "Ref": "WindowsEC2BuilderAmiRecipeAMIRootDeviceDE72942C"
+      },
+      "Ebs": {
+       "DeleteOnTermination": true,
+       "Encrypted": true,
+       "KmsKeyId": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       }
+      }
+     }
+    ],
     "Components": [
      {
       "ComponentArn": {
@@ -6075,9 +6424,44 @@
     "WorkingDirectory": "C:/"
    }
   },
+  "WindowsEC2BuilderAmiRecipeAMIRootDeviceDE72942C": {
+   "Type": "Custom::AmiRootDevice",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C",
+      "Arn"
+     ]
+    },
+    "Ami": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":imagebuilder:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":aws:image/windows-server-2022-english-full-base-x86/x.x.x"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
   "WindowsEC2BuilderAmiLog126E54B2": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "LogGroupName": "/aws/imagebuilder/github-runners-test-WindowsEC2Builder-AmiRecipe-BEDA5750",
     "RetentionInDays": 30
    },
@@ -6295,6 +6679,12 @@
   "CodeBuildx64LogsA21ECD59": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -6483,6 +6873,21 @@
          ]
         ]
        }
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -6505,7 +6910,12 @@
      "Type": "NO_CACHE"
     },
     "Description": "GitHub Actions self-hosted runner for labels codebuild-x64",
-    "EncryptionKey": "alias/aws/s3",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_SMALL",
      "Image": {
@@ -6591,6 +7001,12 @@
   "CodeBuildUbuntu2404x64Logs27D26829": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -6779,6 +7195,21 @@
          ]
         ]
        }
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -6801,7 +7232,12 @@
      "Type": "NO_CACHE"
     },
     "Description": "GitHub Actions self-hosted runner for labels codebuild-ubuntu-2404-x64",
-    "EncryptionKey": "alias/aws/s3",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_SMALL",
      "Image": {
@@ -6887,6 +7323,12 @@
   "CodeBuildARMLogs7C7FC5A7": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -7075,6 +7517,21 @@
          ]
         ]
        }
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -7097,7 +7554,12 @@
      "Type": "NO_CACHE"
     },
     "Description": "GitHub Actions self-hosted runner for labels codebuild,linux,arm64",
-    "EncryptionKey": "alias/aws/s3",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_SMALL",
      "Image": {
@@ -7183,6 +7645,12 @@
   "CodeBuildWindowsLogsF4DD93A5": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -7371,6 +7839,21 @@
          ]
         ]
        }
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ComplianceKeyE1D8D58A",
+         "Arn"
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -7393,7 +7876,12 @@
      "Type": "NO_CACHE"
     },
     "Description": "GitHub Actions self-hosted runner for labels codebuild,windows,x64",
-    "EncryptionKey": "alias/aws/s3",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_MEDIUM",
      "Image": {
@@ -7690,6 +8178,7 @@
       "Ref": "RunnerImageBuildHelpersLog13186633"
      }
     },
+    "ReservedConcurrentExecutions": 5,
     "Role": {
      "Fn::GetAtt": [
       "awsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e1ServiceRoleB6525E5C",
@@ -7851,7 +8340,14 @@
        },
        "Ebs": {
         "DeleteOnTermination": true,
+        "Encrypted": true,
         "Iops": 1500,
+        "KmsKeyId": {
+         "Fn::GetAtt": [
+          "ComplianceKeyE1D8D58A",
+          "Arn"
+         ]
+        },
         "Throughput": 150,
         "VolumeSize": 40,
         "VolumeType": "gp3"
@@ -8067,6 +8563,12 @@
   "ECSSpotlogs75CE3929": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -8409,6 +8911,7 @@
       "Ref": "RunnerImageBuildHelpersLog13186633"
      }
     },
+    "ReservedConcurrentExecutions": 5,
     "Role": {
      "Fn::GetAtt": [
       "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1ServiceRole69906A36",
@@ -8570,7 +9073,14 @@
        },
        "Ebs": {
         "DeleteOnTermination": true,
+        "Encrypted": true,
         "Iops": 1500,
+        "KmsKeyId": {
+         "Fn::GetAtt": [
+          "ComplianceKeyE1D8D58A",
+          "Arn"
+         ]
+        },
         "Throughput": 150,
         "VolumeSize": 40,
         "VolumeType": "gp3"
@@ -8780,6 +9290,12 @@
   "ECSNonSpotlogsA90C16E5": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -9169,6 +9685,23 @@
    "Type": "AWS::EC2::LaunchTemplate",
    "Properties": {
     "LaunchTemplateData": {
+     "BlockDeviceMappings": [
+      {
+       "DeviceName": {
+        "Ref": "ECSARM64LaunchTemplateAMIRootDeviceA016A4C3"
+       },
+       "Ebs": {
+        "DeleteOnTermination": true,
+        "Encrypted": true,
+        "KmsKeyId": {
+         "Fn::GetAtt": [
+          "ComplianceKeyE1D8D58A",
+          "Arn"
+         ]
+        }
+       }
+      }
+     ],
      "IamInstanceProfile": {
       "Arn": {
        "Fn::GetAtt": [
@@ -9309,6 +9842,24 @@
     "ECSARM64LaunchTemplateRole9D1574E2"
    ]
   },
+  "ECSARM64LaunchTemplateAMIRootDeviceA016A4C3": {
+   "Type": "Custom::AmiRootDevice",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C",
+      "Arn"
+     ]
+    },
+    "Ami": "resolve:ssm:/aws/service/ecs/optimized-ami/amazon-linux-2023/arm64/recommended/image_id"
+   },
+   "DependsOn": [
+    "ECSARM64LaunchTemplateRoleDefaultPolicy0705A7AA",
+    "ECSARM64LaunchTemplateRole9D1574E2"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
   "ECSARM64AutoScalingGroupASGA19FC118": {
    "Type": "AWS::AutoScaling::AutoScalingGroup",
    "Properties": {
@@ -9372,6 +9923,12 @@
   "ECSARM64logs1A2F1E00": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -9761,6 +10318,23 @@
    "Type": "AWS::EC2::LaunchTemplate",
    "Properties": {
     "LaunchTemplateData": {
+     "BlockDeviceMappings": [
+      {
+       "DeviceName": {
+        "Ref": "ECSWindowsLaunchTemplateAMIRootDevice8994EC0A"
+       },
+       "Ebs": {
+        "DeleteOnTermination": true,
+        "Encrypted": true,
+        "KmsKeyId": {
+         "Fn::GetAtt": [
+          "ComplianceKeyE1D8D58A",
+          "Arn"
+         ]
+        }
+       }
+      }
+     ],
      "IamInstanceProfile": {
       "Arn": {
        "Fn::GetAtt": [
@@ -9901,6 +10475,24 @@
     "ECSWindowsLaunchTemplateRole610E9A88"
    ]
   },
+  "ECSWindowsLaunchTemplateAMIRootDevice8994EC0A": {
+   "Type": "Custom::AmiRootDevice",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AMIRootDeviceReaderdcc036c8876b451ea2c1552f9e06e9e1C64D247C",
+      "Arn"
+     ]
+    },
+    "Ami": "resolve:ssm:/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized/image_id"
+   },
+   "DependsOn": [
+    "ECSWindowsLaunchTemplateRoleDefaultPolicy48457459",
+    "ECSWindowsLaunchTemplateRole610E9A88"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
   "ECSWindowsAutoScalingGroupASG864E3AAF": {
    "Type": "AWS::AutoScaling::AutoScalingGroup",
    "Properties": {
@@ -9964,6 +10556,12 @@
   "ECSWindowslogs83D9D352": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -10229,6 +10827,12 @@
   "LambdaLog2764B04F": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -10304,7 +10908,7 @@
     ]
    },
    "DependsOn": [
-    "LambdaImageBuilderx64BuildWaitb82e8f19f6DD9DD7A7"
+    "githubrunnerstestLambdaImageBuilderx64BuildWaitb82e8f19f6F7A3AB6CKms434dbcbd"
    ]
   },
   "LambdaFunction9233991D": {
@@ -10375,6 +10979,7 @@
     },
     "MemorySize": 2048,
     "PackageType": "Image",
+    "ReservedConcurrentExecutions": 20,
     "Role": {
      "Fn::GetAtt": [
       "LambdaFunctionServiceRoleB1826A50",
@@ -10390,7 +10995,7 @@
     "Timeout": 900
    },
    "DependsOn": [
-    "LambdaImageBuilderx64BuildWaitb82e8f19f6DD9DD7A7",
+    "githubrunnerstestLambdaImageBuilderx64BuildWaitb82e8f19f6F7A3AB6CKms434dbcbd",
     "LambdaFunctionServiceRoleB1826A50"
    ]
   },
@@ -10483,6 +11088,7 @@
       "Ref": "RunnerImageBuildHelpersLog13186633"
      }
     },
+    "ReservedConcurrentExecutions": 5,
     "Role": {
      "Fn::GetAtt": [
       "updatelambdadcc036c8876b451ea2c1552f9e06e9e1ServiceRoleE163ADCA",
@@ -10500,6 +11106,12 @@
   "LambdaARMLogAA2DA09F": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -10575,7 +11187,7 @@
     ]
    },
    "DependsOn": [
-    "LambdaImageBuilderzBuildWait9edd3ecd1990F46908"
+    "githubrunnerstestLambdaImageBuilderzBuildWait9edd3ecd19B7C6B40FKms434dbcbd"
    ]
   },
   "LambdaARMFunctionDD4B5FF7": {
@@ -10646,6 +11258,7 @@
     },
     "MemorySize": 2048,
     "PackageType": "Image",
+    "ReservedConcurrentExecutions": 20,
     "Role": {
      "Fn::GetAtt": [
       "LambdaARMFunctionServiceRole136069A0",
@@ -10661,13 +11274,19 @@
     "Timeout": 900
    },
    "DependsOn": [
-    "LambdaImageBuilderzBuildWait9edd3ecd1990F46908",
+    "githubrunnerstestLambdaImageBuilderzBuildWait9edd3ecd19B7C6B40FKms434dbcbd",
     "LambdaARMFunctionServiceRole136069A0"
    ]
   },
   "MicroVMLogs86FC85E9": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -10994,7 +11613,7 @@
     ]
    },
    "DependsOn": [
-    "MicroVMImageBuilderBuildWait8f9f426b78C7792F7E",
+    "githubrunnerstestMicroVMImageBuilderBuildWait8f9f426b781286DFD5Kms434dbcbd",
     "MicroVMImageArtifactWriter8C2A197C"
    ]
   },
@@ -11210,6 +11829,22 @@
   "MicroVMImageArtifactsdcc036c8876b451ea2c1552f9e06e9e16E4A071C": {
    "Type": "AWS::S3::Bucket",
    "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "BucketKeyEnabled": true,
+       "ServerSideEncryptionByDefault": {
+        "KMSMasterKeyID": {
+         "Fn::GetAtt": [
+          "ComplianceKeyE1D8D58A",
+          "Arn"
+         ]
+        },
+        "SSEAlgorithm": "aws:kms"
+       }
+      }
+     ]
+    },
     "PublicAccessBlockConfiguration": {
      "BlockPublicAcls": true,
      "BlockPublicPolicy": true,
@@ -11373,6 +12008,7 @@
       "Ref": "RunnerImageBuildHelpersLog13186633"
      }
     },
+    "ReservedConcurrentExecutions": 5,
     "Role": {
      "Fn::GetAtt": [
       "microvmimagedcc036c8876b451ea2c1552f9e06e9e1ServiceRole48AADF31",
@@ -11390,6 +12026,12 @@
   "MicroVMx64Logs96D3655D": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -11716,7 +12358,7 @@
     ]
    },
    "DependsOn": [
-    "MicroVMImageBuilderx64BuildWaitf47694f43a3D7861EC",
+    "githubrunnerstestMicroVMImageBuilderx64BuildWaitf47694f43aB6522B63Kms434dbcbd",
     "MicroVMx64ImageArtifactWriter74BEA3BB"
    ]
   },
@@ -11932,6 +12574,12 @@
   "FargatelogsCB753638": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -12203,6 +12851,12 @@
   "Fargatex64spotsubnet1logs7081E8E6": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -12474,6 +13128,12 @@
   "Fargatex64spotsubnet2logs305194C7": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -12745,6 +13405,12 @@
   "Fargatearm64logs00171A52": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -13016,6 +13682,12 @@
   "Fargatearm64spotlogsEFCCEC59": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -13287,6 +13959,12 @@
   "FargateWindowslogs52881DBF": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -13627,6 +14305,12 @@
   "EC2LinuxLogsC4CD8F14": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -13955,6 +14639,12 @@
   "EC2Linux2Logs666ED658": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -14117,6 +14807,12 @@
   "EC2SpotLinuxLogsF78D5F0E": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -14279,6 +14975,12 @@
   "EC2Linuxarm64Logs577E371E": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -14352,6 +15054,7 @@
     "AMILinuxarm64BuilderAmiLog84A9D94A",
     "AMILinuxarm64BuilderAMIPipeline9CC1354C",
     "AMILinuxarm64BuilderAmiRecipe6A6ED38F",
+    "AMILinuxarm64BuilderAmiRecipeAMIRootDevice3B5A149C",
     "AMILinuxarm64BuilderImageCleanerScheduleAllowEventRulegithubrunnerstestawsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e110E16314D9F8DE87",
     "AMILinuxarm64BuilderImageCleanerScheduleA0B2C476",
     "AMILinuxarm64BuilderImageCleanerA5DDFE7A",
@@ -14570,6 +15273,12 @@
   "EC2WindowsLogsDC1F2ABF": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30,
     "Tags": [
      {
@@ -14643,6 +15352,7 @@
     "WindowsEC2BuilderAmiLog126E54B2",
     "WindowsEC2BuilderAMIPipelineE3836949",
     "WindowsEC2BuilderAmiRecipe41A137FF",
+    "WindowsEC2BuilderAmiRecipeAMIRootDeviceDE72942C",
     "WindowsEC2BuilderImageCleanerScheduleAllowEventRulegithubrunnerstestawsimagebuilderdeleteresourcesdcc036c8876b451ea2c1552f9e06e9e110E16314ED4BC60B",
     "WindowsEC2BuilderImageCleanerScheduleE8DEB84B",
     "WindowsEC2BuilderImageCleanerEF537850",
@@ -14748,7 +15458,12 @@
      "IncludeSpace": false,
      "SecretStringTemplate": "{}"
     },
-    "KmsKeyId": "alias/aws/secretsmanager"
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    }
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -14763,7 +15478,12 @@
      "IncludeSpace": false,
      "SecretStringTemplate": "{\"domain\":\"github.com\",\"appId\":\"\",\"personalAuthToken\":\"\"}"
     },
-    "KmsKeyId": "alias/aws/secretsmanager"
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    }
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -14772,7 +15492,12 @@
    "Type": "AWS::SecretsManager::Secret",
    "Properties": {
     "Description": "GitHub app private key (RSA private key in PEM format). This secret is only needed when using GitHub App authentication. Not required when using personal access tokens. For setup instructions, see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md",
-    "KmsKeyId": "alias/aws/secretsmanager",
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "SecretString": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
    },
    "UpdateReplacePolicy": "Delete",
@@ -14788,7 +15513,12 @@
      "IncludeSpace": false,
      "SecretStringTemplate": "{\"token\":\"\"}"
     },
-    "KmsKeyId": "alias/aws/secretsmanager"
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    }
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -15081,6 +15811,7 @@
       "Ref": "OrchestratorLogFB9610E7"
      }
     },
+    "ReservedConcurrentExecutions": 20,
     "Role": {
      "Fn::GetAtt": [
       "runnersIdleReaperServiceRoleA775758D",
@@ -15209,6 +15940,7 @@
       "Ref": "OrchestratorLogFB9610E7"
      }
     },
+    "ReservedConcurrentExecutions": 20,
     "Role": {
      "Fn::GetAtt": [
       "runnerstokenretrieverServiceRole6099F71C",
@@ -15227,6 +15959,12 @@
    "Type": "AWS::SQS::Queue",
    "Properties": {
     "DelaySeconds": 300,
+    "KmsMasterKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "VisibilityTimeout": 300
    },
    "UpdateReplacePolicy": "Delete",
@@ -15379,6 +16117,7 @@
       "Ref": "OrchestratorLogFB9610E7"
      }
     },
+    "ReservedConcurrentExecutions": 20,
     "Role": {
      "Fn::GetAtt": [
       "runnersdeleterunnerServiceRole35856967",
@@ -17504,7 +18243,13 @@
      }
     },
     "EncryptionConfiguration": {
-     "Type": "AWS_OWNED_KEY"
+     "KmsKeyId": {
+      "Fn::GetAtt": [
+       "ComplianceKeyE1D8D58A",
+       "Arn"
+      ]
+     },
+     "Type": "CUSTOMER_MANAGED_KMS_KEY"
     },
     "RoleArn": {
      "Fn::GetAtt": [
@@ -17537,6 +18282,16 @@
       "KeyType": "HASH"
      }
     ],
+    "SSESpecification": {
+     "KMSMasterKeyId": {
+      "Fn::GetAtt": [
+       "ComplianceKeyE1D8D58A",
+       "Arn"
+      ]
+     },
+     "SSEEnabled": true,
+     "SSEType": "KMS"
+    },
     "TimeToLiveSpecification": {
      "AttributeName": "ttl",
      "Enabled": true
@@ -17550,6 +18305,12 @@
    "Properties": {
     "DelaySeconds": 60,
     "FifoQueue": true,
+    "KmsMasterKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "MessageRetentionPeriod": 3600,
     "VisibilityTimeout": 180
    },
@@ -17807,6 +18568,7 @@
       "Ref": "OrchestratorLogFB9610E7"
      }
     },
+    "ReservedConcurrentExecutions": 20,
     "Role": {
      "Fn::GetAtt": [
       "runnersStolenRunnersHandlerServiceRole675308DD",
@@ -18517,6 +19279,7 @@
       "Ref": "OrchestratorLogFB9610E7"
      }
     },
+    "ReservedConcurrentExecutions": 20,
     "Role": {
      "Fn::GetAtt": [
       "runnersWebhookHandlerwebhookhandlerServiceRole03DB58D2",
@@ -18873,6 +19636,7 @@
       "Ref": "SetupLog8A8B0E5C"
      }
     },
+    "ReservedConcurrentExecutions": 5,
     "Role": {
      "Fn::GetAtt": [
       "runnerssetupServiceRole588BFE9A",
@@ -19233,6 +19997,7 @@
       "Ref": "SetupLog8A8B0E5C"
      }
     },
+    "ReservedConcurrentExecutions": 5,
     "Role": {
      "Fn::GetAtt": [
       "runnersstatusServiceRole71A1ADB6",
@@ -21025,6 +21790,12 @@
   "runnersWarmRunnerQueue858D73CB": {
    "Type": "AWS::SQS::Queue",
    "Properties": {
+    "KmsMasterKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "VisibilityTimeout": 60
    },
    "UpdateReplacePolicy": "Delete",
@@ -21330,6 +22101,7 @@
      }
     },
     "RecursiveLoop": "Allow",
+    "ReservedConcurrentExecutions": 5,
     "Role": {
      "Fn::GetAtt": [
       "runnersWarmRunnerManagerServiceRole461F211F",
@@ -21364,7 +22136,15 @@
    }
   },
   "runnersFailedRunnerImageBuilds233D2237": {
-   "Type": "AWS::SNS::Topic"
+   "Type": "AWS::SNS::Topic",
+   "Properties": {
+    "KmsMasterKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    }
+   }
   },
   "runnersFailedRunnerImageBuildsPolicyC1C99AF8": {
    "Type": "AWS::SNS::TopicPolicy",
@@ -21396,7 +22176,15 @@
    }
   },
   "runnersImageBuilderBuildsDF5A50E4": {
-   "Type": "AWS::SNS::Topic"
+   "Type": "AWS::SNS::Topic",
+   "Properties": {
+    "KmsMasterKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    }
+   }
   },
   "runnersImageBuilderBuildsPolicy667F9B6F": {
    "Type": "AWS::SNS::TopicPolicy",
@@ -21517,6 +22305,7 @@
       "Ref": "RunnerImageBuildHelpersLog13186633"
      }
     },
+    "ReservedConcurrentExecutions": 5,
     "Role": {
      "Fn::GetAtt": [
       "runnersImageBuilderBuildsFilterServiceRoleED82BC5F",
@@ -21948,6 +22737,12 @@
   "OrchestratorLogFB9610E7": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -22022,6 +22817,12 @@
   "SetupLog8A8B0E5C": {
    "Type": "AWS::Logs::LogGroup",
    "Properties": {
+    "KmsKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    },
     "RetentionInDays": 30
    },
    "UpdateReplacePolicy": "Delete",
@@ -22044,6 +22845,437 @@
       "Input": "{\"action\":\"fill\",\"providerPath\":\"github-runners-test/Lambda\",\"providerLabels\":[\"lambda\",\"x64\",\"integ-warm\"],\"count\":1,\"duration\":1800,\"owner\":\"CloudSnorkel\",\"repo\":\"cdk-github-runners\",\"configHash\":\"54599c08adad5c93\"}"
      }
     ]
+   }
+  },
+  "ComplianceKeyE1D8D58A": {
+   "Type": "AWS::KMS::Key",
+   "Properties": {
+    "EnableKeyRotation": true,
+    "KeyPolicy": {
+     "Statement": [
+      {
+       "Action": "kms:*",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":iam::",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":root"
+          ]
+         ]
+        }
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:CreateGrant",
+        "kms:DescribeKey"
+       ],
+       "Condition": {
+        "StringEquals": {
+         "kms:CallerAccount": {
+          "Ref": "AWS::AccountId"
+         },
+         "kms:ViaService": {
+          "Fn::Join": [
+           "",
+           [
+            "ecr.",
+            {
+             "Ref": "AWS::Region"
+            },
+            ".amazonaws.com"
+           ]
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Encrypt*",
+        "kms:Decrypt*",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:Describe*"
+       ],
+       "Condition": {
+        "ArnLike": {
+         "kms:EncryptionContext:aws:logs:arn": {
+          "Fn::Join": [
+           "",
+           [
+            "arn:",
+            {
+             "Ref": "AWS::Partition"
+            },
+            ":logs:",
+            {
+             "Ref": "AWS::Region"
+            },
+            ":",
+            {
+             "Ref": "AWS::AccountId"
+            },
+            ":log-group:*"
+           ]
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Service": {
+         "Fn::Join": [
+          "",
+          [
+           "logs.",
+           {
+            "Ref": "AWS::Region"
+           },
+           ".amazonaws.com"
+          ]
+         ]
+        }
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:CreateGrant",
+        "kms:DescribeKey"
+       ],
+       "Condition": {
+        "StringEquals": {
+         "kms:CallerAccount": {
+          "Ref": "AWS::AccountId"
+         },
+         "kms:ViaService": {
+          "Fn::Join": [
+           "",
+           [
+            "ec2.",
+            {
+             "Ref": "AWS::Region"
+            },
+            ".amazonaws.com"
+           ]
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:CreateGrant",
+        "kms:DescribeKey"
+       ],
+       "Condition": {
+        "StringEquals": {
+         "kms:CallerAccount": {
+          "Ref": "AWS::AccountId"
+         },
+         "kms:ViaService": {
+          "Fn::Join": [
+           "",
+           [
+            "s3.",
+            {
+             "Ref": "AWS::Region"
+            },
+            ".amazonaws.com"
+           ]
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:CreateGrant",
+        "kms:DescribeKey"
+       ],
+       "Condition": {
+        "StringEquals": {
+         "kms:CallerAccount": {
+          "Ref": "AWS::AccountId"
+         },
+         "kms:ViaService": {
+          "Fn::Join": [
+           "",
+           [
+            "secretsmanager.",
+            {
+             "Ref": "AWS::Region"
+            },
+            ".amazonaws.com"
+           ]
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:CreateGrant",
+        "kms:DescribeKey"
+       ],
+       "Condition": {
+        "StringEquals": {
+         "kms:CallerAccount": {
+          "Ref": "AWS::AccountId"
+         },
+         "kms:ViaService": {
+          "Fn::Join": [
+           "",
+           [
+            "sqs.",
+            {
+             "Ref": "AWS::Region"
+            },
+            ".amazonaws.com"
+           ]
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:GenerateDataKey*"
+       ],
+       "Condition": {
+        "StringEquals": {
+         "aws:SourceAccount": {
+          "Ref": "AWS::AccountId"
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Service": [
+         "events.amazonaws.com",
+         "codestar-notifications.amazonaws.com"
+        ]
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:CreateGrant",
+        "kms:DescribeKey"
+       ],
+       "Condition": {
+        "StringEquals": {
+         "kms:CallerAccount": {
+          "Ref": "AWS::AccountId"
+         },
+         "kms:ViaService": {
+          "Fn::Join": [
+           "",
+           [
+            "states.",
+            {
+             "Ref": "AWS::Region"
+            },
+            ".amazonaws.com"
+           ]
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:GenerateDataKey"
+       ],
+       "Condition": {
+        "StringEquals": {
+         "kms:CallerAccount": {
+          "Ref": "AWS::AccountId"
+         }
+        },
+        "ArnLike": {
+         "kms:EncryptionContext:aws:states:stateMachineArn": {
+          "Fn::Join": [
+           "",
+           [
+            "arn:",
+            {
+             "Ref": "AWS::Partition"
+            },
+            ":states:",
+            {
+             "Ref": "AWS::Region"
+            },
+            ":",
+            {
+             "Ref": "AWS::AccountId"
+            },
+            ":stateMachine:*"
+           ]
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:CreateGrant",
+        "kms:DescribeKey"
+       ],
+       "Condition": {
+        "StringEquals": {
+         "kms:CallerAccount": {
+          "Ref": "AWS::AccountId"
+         },
+         "kms:ViaService": {
+          "Fn::Join": [
+           "",
+           [
+            "dynamodb.",
+            {
+             "Ref": "AWS::Region"
+            },
+            ".amazonaws.com"
+           ]
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:CreateGrant",
+        "kms:DescribeKey"
+       ],
+       "Condition": {
+        "StringEquals": {
+         "kms:CallerAccount": {
+          "Ref": "AWS::AccountId"
+         },
+         "kms:ViaService": {
+          "Fn::Join": [
+           "",
+           [
+            "sns.",
+            {
+             "Ref": "AWS::Region"
+            },
+            ".amazonaws.com"
+           ]
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PendingWindowInDays": 7
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "ComplianceKeyAlias497B11AB": {
+   "Type": "AWS::KMS::Alias",
+   "Properties": {
+    "AliasName": "alias/github-runners-compliance",
+    "TargetKeyId": {
+     "Fn::GetAtt": [
+      "ComplianceKeyE1D8D58A",
+      "Arn"
+     ]
+    }
    }
   },
   "IntegrationTestRunnerCheckLogs5EF71FE9": {
