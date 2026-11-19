@@ -281,186 +281,180 @@ function keyFor(settings: ComplianceSettings[], type: 'logs' | 'secrets' | 'mess
 }
 
 function encrypt(node: cdk.CfnResource, settings: ComplianceSettings[]) {
-  new Encryptor().encrypt(node, settings);
-}
+  const logsKey = keyFor(settings, 'logs');
+  const secretsKey = keyFor(settings, 'secrets');
+  const messagesKey = keyFor(settings, 'messages');
+  const imagesKey = keyFor(settings, 'images');
+  const storageKey = keyFor(settings, 'storage');
 
-class Encryptor {
-  encrypt(node: cdk.CfnResource, settings: ComplianceSettings[]) {
-    const logsKey = keyFor(settings, 'logs');
-    const secretsKey = keyFor(settings, 'secrets');
-    const messagesKey = keyFor(settings, 'messages');
-    const imagesKey = keyFor(settings, 'images');
-    const storageKey = keyFor(settings, 'storage');
-
-    if (node instanceof logs.CfnLogGroup && logsKey) {
-      node.kmsKeyId = logsKey.keyArn;
-      this.allowLogs(node, logsKey);
-    } else if (node instanceof secretsmanager.CfnSecret && secretsKey) {
-      node.kmsKeyId = secretsKey.keyArn;
-      this.allowService(node, secretsKey, 'secretsmanager');
-    } else if (node instanceof sqs.CfnQueue && messagesKey) {
-      node.kmsMasterKeyId = messagesKey.keyArn;
-      this.allowService(node, messagesKey, 'sqs');
-      this.allowEvents(node, messagesKey);
-    } else if (node instanceof sns.CfnTopic && messagesKey) {
-      node.kmsMasterKeyId = messagesKey.keyArn;
-      this.allowService(node, messagesKey, 'sns');
-      this.allowEvents(node, messagesKey);
-    } else if (node instanceof dynamodb.CfnTable && messagesKey) {
-      node.sseSpecification = { sseEnabled: true, sseType: 'KMS', kmsMasterKeyId: messagesKey.keyArn };
-      this.allowService(node, messagesKey, 'dynamodb');
-    } else if (node instanceof ecr.CfnRepository && imagesKey) {
-      node.encryptionConfiguration = { encryptionType: 'KMS', kmsKey: imagesKey.keyArn };
-      this.allowService(node, imagesKey, 'ecr');
-      const builder = node.node.scopes.find(s => s instanceof CodeBuildRunnerImageBuilder) as CodeBuildRunnerImageBuilder | undefined;
-      // a new key replaces the repository, so the deployment must wait for the image to be built again
-      builder?._waitForNewImage(`Kms${crypto.createHash('md5').update(cdk.Names.uniqueId(imagesKey)).digest('hex').slice(0, 8)}`);
-    } else if (node instanceof imagebuilder.CfnImageRecipe && imagesKey) {
-      // the AMI keeps the encryption of the volume it was built on, and the new recipe builds it again on deploy
-      node.blockDeviceMappings = this.encryptVolumes(node, node.parentImage, node.blockDeviceMappings as any, imagesKey);
-      this.allowService(node, imagesKey, 'ec2');
-    } else if (node instanceof ec2.CfnLaunchTemplate && storageKey) {
-      const data = node.launchTemplateData as ec2.CfnLaunchTemplate.LaunchTemplateDataProperty;
-      node.launchTemplateData = {
-        ...data,
-        blockDeviceMappings: this.encryptVolumes(node, data.imageId, data.blockDeviceMappings as any, storageKey),
-      };
-      this.allowService(node, storageKey, 'ec2');
-    } else if (node instanceof ecs.CfnCluster && storageKey) {
-      node.configuration = {
-        ...node.configuration as ecs.CfnCluster.ClusterConfigurationProperty,
-        managedStorageConfiguration: { fargateEphemeralStorageKmsKeyId: storageKey.keyId },
-      };
-      this.allowFargate(node, storageKey);
-    } else if (node instanceof codebuild.CfnProject && storageKey) {
-      node.encryptionKey = storageKey.keyArn;
-      const project = node.node.scope;
-      if (project instanceof codebuild.Project) {
-        storageKey.grantEncryptDecrypt(project);
-      }
-    } else if (node instanceof stepfunctions.CfnStateMachine && messagesKey) {
-      node.encryptionConfiguration = { type: 'CUSTOMER_MANAGED_KMS_KEY', kmsKeyId: messagesKey.keyArn };
-      // runners and functions that start executions or send task results use the key through Step Functions
-      this.allowService(node, messagesKey, 'states');
-      // the execution role uses the key directly. it goes in the key policy and not the role policy, so the key outlives the state machine
-      // using it when compliance is removed, and exists before it when compliance is added.
-      const stack = cdk.Stack.of(node);
-      this.allow(node, messagesKey, `state machine role ${stack.account} ${stack.region}`, new iam.PolicyStatement({
+  if (node instanceof logs.CfnLogGroup && logsKey) {
+    node.kmsKeyId = logsKey.keyArn;
+    allowLogs(node, logsKey);
+  } else if (node instanceof secretsmanager.CfnSecret && secretsKey) {
+    node.kmsKeyId = secretsKey.keyArn;
+    allowService(node, secretsKey, 'secretsmanager');
+  } else if (node instanceof sqs.CfnQueue && messagesKey) {
+    node.kmsMasterKeyId = messagesKey.keyArn;
+    allowService(node, messagesKey, 'sqs');
+    allowEvents(node, messagesKey);
+  } else if (node instanceof sns.CfnTopic && messagesKey) {
+    node.kmsMasterKeyId = messagesKey.keyArn;
+    allowService(node, messagesKey, 'sns');
+    allowEvents(node, messagesKey);
+  } else if (node instanceof dynamodb.CfnTable && messagesKey) {
+    node.sseSpecification = { sseEnabled: true, sseType: 'KMS', kmsMasterKeyId: messagesKey.keyArn };
+    allowService(node, messagesKey, 'dynamodb');
+  } else if (node instanceof ecr.CfnRepository && imagesKey) {
+    node.encryptionConfiguration = { encryptionType: 'KMS', kmsKey: imagesKey.keyArn };
+    allowService(node, imagesKey, 'ecr');
+    const builder = node.node.scopes.find(s => s instanceof CodeBuildRunnerImageBuilder) as CodeBuildRunnerImageBuilder | undefined;
+    // a new key replaces the repository, so the deployment must wait for the image to be built again
+    builder?._waitForNewImage(`Kms${crypto.createHash('md5').update(cdk.Names.uniqueId(imagesKey)).digest('hex').slice(0, 8)}`);
+  } else if (node instanceof imagebuilder.CfnImageRecipe && imagesKey) {
+    // the AMI keeps the encryption of the volume it was built on, and the new recipe builds it again on deploy
+    node.blockDeviceMappings = encryptVolumes(node, node.parentImage, node.blockDeviceMappings as any, imagesKey);
+    allowService(node, imagesKey, 'ec2');
+  } else if (node instanceof ec2.CfnLaunchTemplate && storageKey) {
+    const data = node.launchTemplateData as ec2.CfnLaunchTemplate.LaunchTemplateDataProperty;
+    node.launchTemplateData = {
+      ...data,
+      blockDeviceMappings: encryptVolumes(node, data.imageId, data.blockDeviceMappings as any, storageKey),
+    };
+    allowService(node, storageKey, 'ec2');
+  } else if (node instanceof ecs.CfnCluster && storageKey) {
+    node.configuration = {
+      ...node.configuration as ecs.CfnCluster.ClusterConfigurationProperty,
+      managedStorageConfiguration: { fargateEphemeralStorageKmsKeyId: storageKey.keyId },
+    };
+    allowFargate(node, storageKey);
+  } else if (node instanceof codebuild.CfnProject && storageKey) {
+    node.encryptionKey = storageKey.keyArn;
+    const project = node.node.scope;
+    if (project instanceof codebuild.Project) {
+      storageKey.grantEncryptDecrypt(project);
+    }
+  } else if (node instanceof stepfunctions.CfnStateMachine && messagesKey) {
+    node.encryptionConfiguration = { type: 'CUSTOMER_MANAGED_KMS_KEY', kmsKeyId: messagesKey.keyArn };
+    // runners and functions that start executions or send task results use the key through Step Functions
+    allowService(node, messagesKey, 'states');
+    // the execution role uses the key directly. it goes in the key policy and not the role policy, so the key outlives the state machine
+    // using it when compliance is removed, and exists before it when compliance is added.
+    const stack = cdk.Stack.of(node);
+    allow(node, messagesKey, `state machine role ${stack.account} ${stack.region}`, new iam.PolicyStatement({
+      principals: [new iam.AnyPrincipal()],
+      actions: ['kms:Decrypt', 'kms:GenerateDataKey'],
+      resources: ['*'],
+      conditions: {
+        StringEquals: { 'kms:CallerAccount': stack.account },
+        ArnLike: { 'kms:EncryptionContext:aws:states:stateMachineArn': `arn:${stack.partition}:states:${stack.region}:${stack.account}:stateMachine:*` },
+      },
+    }));
+    if (node.loggingConfiguration) {
+      allow(node, messagesKey, `state machine role logs ${stack.account} ${stack.region}`, new iam.PolicyStatement({
         principals: [new iam.AnyPrincipal()],
-        actions: ['kms:Decrypt', 'kms:GenerateDataKey'],
+        actions: ['kms:GenerateDataKey'],
         resources: ['*'],
         conditions: {
           StringEquals: { 'kms:CallerAccount': stack.account },
-          ArnLike: { 'kms:EncryptionContext:aws:states:stateMachineArn': `arn:${stack.partition}:states:${stack.region}:${stack.account}:stateMachine:*` },
+          ArnLike: { 'kms:EncryptionContext:SourceArn': `arn:${stack.partition}:logs:${stack.region}:${stack.account}:*` },
         },
       }));
-      if (node.loggingConfiguration) {
-        this.allow(node, messagesKey, `state machine role logs ${stack.account} ${stack.region}`, new iam.PolicyStatement({
-          principals: [new iam.AnyPrincipal()],
-          actions: ['kms:GenerateDataKey'],
-          resources: ['*'],
-          conditions: {
-            StringEquals: { 'kms:CallerAccount': stack.account },
-            ArnLike: { 'kms:EncryptionContext:SourceArn': `arn:${stack.partition}:logs:${stack.region}:${stack.account}:*` },
-          },
-        }));
-        this.allow(node, messagesKey, 'log delivery', new iam.PolicyStatement({
-          principals: [new iam.ServicePrincipal('delivery.logs.amazonaws.com')],
-          actions: ['kms:Decrypt*'],
-          resources: ['*'],
-        }));
-      }
-    } else if (node instanceof s3.CfnBucket && storageKey) {
-      node.bucketEncryption = {
-        serverSideEncryptionConfiguration: [{
-          serverSideEncryptionByDefault: { sseAlgorithm: 'aws:kms', kmsMasterKeyId: storageKey.keyArn },
-          bucketKeyEnabled: true,
-        }],
-      };
-      this.allowService(node, storageKey, 's3');
+      allow(node, messagesKey, 'log delivery', new iam.PolicyStatement({
+        principals: [new iam.ServicePrincipal('delivery.logs.amazonaws.com')],
+        actions: ['kms:Decrypt*'],
+        resources: ['*'],
+      }));
     }
+  } else if (node instanceof s3.CfnBucket && storageKey) {
+    node.bucketEncryption = {
+      serverSideEncryptionConfiguration: [{
+        serverSideEncryptionByDefault: { sseAlgorithm: 'aws:kms', kmsMasterKeyId: storageKey.keyArn },
+        bucketKeyEnabled: true,
+      }],
+    };
+    allowService(node, storageKey, 's3');
   }
+}
 
-  private encryptVolumes(scope: IConstruct, image: string | undefined, mappings: any[] | undefined, key: kms.IKey) {
-    if (!mappings) {
-      if (!image) {
-        return undefined;
-      }
-      // no storage options, so there is no mapping for the root volume yet
-      mappings = [{ deviceName: amiRootDevice(scope as Construct, image).ref, ebs: { deleteOnTermination: true } }];
+function encryptVolumes(scope: IConstruct, image: string | undefined, mappings: any[] | undefined, key: kms.IKey) {
+  if (!mappings) {
+    if (!image) {
+      return undefined;
     }
-    return mappings.map(m => ({ ...m, ebs: m.ebs ? { ...m.ebs, encrypted: true, kmsKeyId: key.keyArn } : undefined }));
+    // no storage options, so there is no mapping for the root volume yet
+    mappings = [{ deviceName: amiRootDevice(scope as Construct, image).ref, ebs: { deleteOnTermination: true } }];
   }
+  return mappings.map(m => ({ ...m, ebs: m.ebs ? { ...m.ebs, encrypted: true, kmsKeyId: key.keyArn } : undefined }));
+}
 
-  /**
-   * Same access AWS managed keys give: anyone in the account allowed by IAM to use the resource can use the key through that service.
-   */
-  private allowService(node: IConstruct, key: kms.IKey, service: string) {
-    const stack = cdk.Stack.of(node);
-    this.allow(node, key, `${service} ${stack.account} ${stack.region}`, new iam.PolicyStatement({
-      principals: [new iam.AnyPrincipal()],
-      actions: ['kms:Encrypt', 'kms:Decrypt', 'kms:ReEncrypt*', 'kms:GenerateDataKey*', 'kms:CreateGrant', 'kms:DescribeKey'],
-      resources: ['*'],
-      conditions: {
-        StringEquals: {
-          'kms:CallerAccount': stack.account,
-          'kms:ViaService': `${service}.${stack.region}.amazonaws.com`,
-        },
+/**
+ * Same access AWS managed keys give: anyone in the account allowed by IAM to use the resource can use the key through that service.
+ */
+function allowService(node: IConstruct, key: kms.IKey, service: string) {
+  const stack = cdk.Stack.of(node);
+  allow(node, key, `${service} ${stack.account} ${stack.region}`, new iam.PolicyStatement({
+    principals: [new iam.AnyPrincipal()],
+    actions: ['kms:Encrypt', 'kms:Decrypt', 'kms:ReEncrypt*', 'kms:GenerateDataKey*', 'kms:CreateGrant', 'kms:DescribeKey'],
+    resources: ['*'],
+    conditions: {
+      StringEquals: {
+        'kms:CallerAccount': stack.account,
+        'kms:ViaService': `${service}.${stack.region}.amazonaws.com`,
       },
-    }));
-  }
+    },
+  }));
+}
 
-  private allowLogs(node: IConstruct, key: kms.IKey) {
-    const stack = cdk.Stack.of(node);
-    this.allow(node, key, `logs ${stack.account} ${stack.region}`, new iam.PolicyStatement({
-      principals: [new iam.ServicePrincipal(`logs.${stack.region}.amazonaws.com`)],
-      actions: ['kms:Encrypt*', 'kms:Decrypt*', 'kms:ReEncrypt*', 'kms:GenerateDataKey*', 'kms:Describe*'],
-      resources: ['*'],
-      conditions: {
-        ArnLike: {
-          'kms:EncryptionContext:aws:logs:arn': `arn:${stack.partition}:logs:${stack.region}:${stack.account}:log-group:*`,
-        },
+function allowLogs(node: IConstruct, key: kms.IKey) {
+  const stack = cdk.Stack.of(node);
+  allow(node, key, `logs ${stack.account} ${stack.region}`, new iam.PolicyStatement({
+    principals: [new iam.ServicePrincipal(`logs.${stack.region}.amazonaws.com`)],
+    actions: ['kms:Encrypt*', 'kms:Decrypt*', 'kms:ReEncrypt*', 'kms:GenerateDataKey*', 'kms:Describe*'],
+    resources: ['*'],
+    conditions: {
+      ArnLike: {
+        'kms:EncryptionContext:aws:logs:arn': `arn:${stack.partition}:logs:${stack.region}:${stack.account}:log-group:*`,
       },
-    }));
-  }
+    },
+  }));
+}
 
-  /**
-   * EventBridge sends to the warm runner queue, and image build notifications go to the topics.
-   */
-  private allowEvents(node: IConstruct, key: kms.IKey) {
-    this.allow(node, key, 'events', new iam.PolicyStatement({
-      principals: [new iam.ServicePrincipal('events.amazonaws.com'), new iam.ServicePrincipal('codestar-notifications.amazonaws.com')],
-      actions: ['kms:Decrypt', 'kms:GenerateDataKey*'],
-      resources: ['*'],
-      conditions: {
-        StringEquals: { 'aws:SourceAccount': cdk.Stack.of(node).account },
-      },
-    }));
-  }
+/**
+ * EventBridge sends to the warm runner queue, and image build notifications go to the topics.
+ */
+function allowEvents(node: IConstruct, key: kms.IKey) {
+  allow(node, key, 'events', new iam.PolicyStatement({
+    principals: [new iam.ServicePrincipal('events.amazonaws.com'), new iam.ServicePrincipal('codestar-notifications.amazonaws.com')],
+    actions: ['kms:Decrypt', 'kms:GenerateDataKey*'],
+    resources: ['*'],
+    conditions: {
+      StringEquals: { 'aws:SourceAccount': cdk.Stack.of(node).account },
+    },
+  }));
+}
 
-  private allowFargate(node: IConstruct, key: kms.IKey) {
-    const stack = cdk.Stack.of(node);
-    this.allow(node, key, `fargate ${stack.account}`, new iam.PolicyStatement({
-      principals: [new iam.ServicePrincipal('fargate.amazonaws.com')],
-      actions: ['kms:GenerateDataKeyWithoutPlaintext', 'kms:CreateGrant'],
-      resources: ['*'],
-      conditions: {
-        StringEquals: { 'kms:EncryptionContext:aws:ecs:clusterAccount': stack.account },
-      },
-    }));
-  }
+function allowFargate(node: IConstruct, key: kms.IKey) {
+  const stack = cdk.Stack.of(node);
+  allow(node, key, `fargate ${stack.account}`, new iam.PolicyStatement({
+    principals: [new iam.ServicePrincipal('fargate.amazonaws.com')],
+    actions: ['kms:GenerateDataKeyWithoutPlaintext', 'kms:CreateGrant'],
+    resources: ['*'],
+    conditions: {
+      StringEquals: { 'kms:EncryptionContext:aws:ecs:clusterAccount': stack.account },
+    },
+  }));
+}
 
-  private allow(node: IConstruct, key: kms.IKey, id: string, statement: iam.PolicyStatement) {
-    const added = KEY_POLICIES.get(key) ?? new Set<string>();
-    KEY_POLICIES.set(key, added);
-    if (added.has(id)) {
-      return;
-    }
-    added.add(id);
-    if (!key.addToResourcePolicy(statement).statementAdded) {
-      cdk.Annotations.of(node).addWarningV2('@cloudsnorkel/cdk-github-runners:importedKey',
-        `${key.keyArn} is imported, so its key policy must allow: ${JSON.stringify(cdk.Stack.of(node).resolve(statement.toStatementJson()))}`);
-    }
+function allow(node: IConstruct, key: kms.IKey, id: string, statement: iam.PolicyStatement) {
+  const added = KEY_POLICIES.get(key) ?? new Set<string>();
+  KEY_POLICIES.set(key, added);
+  if (added.has(id)) {
+    return;
+  }
+  added.add(id);
+  if (!key.addToResourcePolicy(statement).statementAdded) {
+    cdk.Annotations.of(node).addWarningV2('@cloudsnorkel/cdk-github-runners:importedKey',
+      `${key.keyArn} is imported, so its key policy must allow: ${JSON.stringify(cdk.Stack.of(node).resolve(statement.toStatementJson()))}`);
   }
 }
 
