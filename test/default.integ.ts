@@ -55,7 +55,7 @@ const createGitHubOidcProvider = false;
 
 // turn this on to test applying compliance settings to an existing deployment. deploy without it first, start jobs, and deploy again with it.
 // it adds a KMS key, a few log groups, and replaces the ECR repositories, so it's off for regular runs.
-const testCompliance = true;
+const testCompliance = false;
 
 const app = new cdk.App({
   context: {
