@@ -547,7 +547,7 @@ Compliance.of(runners).limitLambdaConcurrency({ maxJobStarts: 50 });  // jobs yo
 Compliance.of(runners).logApiRequests();
 ```
 
-The key needs to be in a stack that every other stack can use. Adding a key to an existing deployment rebuilds runner images. We check the result against cdk-nag on every build, and the findings that remain are listed with reasons in [`test/compliance-acknowledged.ts`](test/compliance-acknowledged.ts). Passing cdk-nag doesn't make a deployment compliant on its own.
+The key needs to be in a stack that every other stack can use. Adding a key to an existing deployment rebuilds runner images.
 
 See the [compliance example](examples/typescript/compliance/) for a complete setup.
 
