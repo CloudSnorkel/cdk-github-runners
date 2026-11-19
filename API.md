@@ -3561,7 +3561,7 @@ ECS clusters and capacity providers you pass in are not changed.
 
 ### ComplianceLambdaConcurrencyOptions <a name="ComplianceLambdaConcurrencyOptions" id="@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions"></a>
 
-Reserved concurrency for Lambda functions created by {@link GitHubRunners}.
+Reserved concurrency for Lambda functions used by runners.
 
 #### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions.Initializer"></a>
 
@@ -3577,7 +3577,6 @@ const complianceLambdaConcurrencyOptions: ComplianceLambdaConcurrencyOptions = {
 | --- | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions.property.maxJobStarts">maxJobStarts</a></code> | <code>number</code> | How many jobs you expect to start at the same time. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions.property.maxLambdaJobs">maxLambdaJobs</a></code> | <code>number</code> | How many jobs each Lambda runner provider can run at the same time. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions.property.maxLambdaJobsPerProvider">maxLambdaJobsPerProvider</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceProviderConcurrency">ComplianceProviderConcurrency</a>[]</code> | How many jobs specific Lambda runner providers can run at the same time, instead of `maxLambdaJobs`. |
 
 ---
 
@@ -3609,64 +3608,6 @@ public readonly maxLambdaJobs: number;
 - *Default:* 20
 
 How many jobs each Lambda runner provider can run at the same time.
-
----
-
-##### `maxLambdaJobsPerProvider`<sup>Optional</sup> <a name="maxLambdaJobsPerProvider" id="@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions.property.maxLambdaJobsPerProvider"></a>
-
-```typescript
-public readonly maxLambdaJobsPerProvider: ComplianceProviderConcurrency[];
-```
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ComplianceProviderConcurrency">ComplianceProviderConcurrency</a>[]
-- *Default:* `maxLambdaJobs` for every Lambda runner provider
-
-How many jobs specific Lambda runner providers can run at the same time, instead of `maxLambdaJobs`.
-
----
-
-### ComplianceProviderConcurrency <a name="ComplianceProviderConcurrency" id="@cloudsnorkel/cdk-github-runners.ComplianceProviderConcurrency"></a>
-
-Reserved concurrency for one Lambda runner provider.
-
-#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ComplianceProviderConcurrency.Initializer"></a>
-
-```typescript
-import { ComplianceProviderConcurrency } from '@cloudsnorkel/cdk-github-runners'
-
-const complianceProviderConcurrency: ComplianceProviderConcurrency = { ... }
-```
-
-#### Properties <a name="Properties" id="Properties"></a>
-
-| **Name** | **Type** | **Description** |
-| --- | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceProviderConcurrency.property.maxLambdaJobs">maxLambdaJobs</a></code> | <code>number</code> | How many jobs this provider can run at the same time. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceProviderConcurrency.property.provider">provider</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a></code> | Lambda runner provider. |
-
----
-
-##### `maxLambdaJobs`<sup>Required</sup> <a name="maxLambdaJobs" id="@cloudsnorkel/cdk-github-runners.ComplianceProviderConcurrency.property.maxLambdaJobs"></a>
-
-```typescript
-public readonly maxLambdaJobs: number;
-```
-
-- *Type:* number
-
-How many jobs this provider can run at the same time.
-
----
-
-##### `provider`<sup>Required</sup> <a name="provider" id="@cloudsnorkel/cdk-github-runners.ComplianceProviderConcurrency.property.provider"></a>
-
-```typescript
-public readonly provider: IRunnerProvider;
-```
-
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a>
-
-Lambda runner provider.
 
 ---
 
@@ -7118,15 +7059,19 @@ The rendered base image to use.
 
 ### Compliance <a name="Compliance" id="@cloudsnorkel/cdk-github-runners.Compliance"></a>
 
-Settings that compliance frameworks like HIPAA, PCI DSS, and NIST 800-53 ask for, applied to everything created for your runners.
+Settings that compliance frameworks like HIPAA, PCI DSS, and NIST 800-53 ask for, applied to everything this library creates in a scope.
 
-This includes runner providers and image builders, even when they're in other stacks. Resources you create yourself are not changed.
+The scope can be an app, a stage, a stack, or a single construct like a runner provider. Settings of the closest scope win, so you can set a key
+for a whole stack and a stricter one for a single provider. Resources you create yourself are not changed.
+
+Once anything uses `Compliance`, synth warns about runner resources in the same stage that no scope covers. Like other aspects, an app
+scope doesn't reach into nested stages, so use `Compliance.of(stage)` for those.
 
 ```typescript
-const runners = new GitHubRunners(this, 'runners', { providers: [...] });
-Compliance.of(runners).encrypt({ key });
-Compliance.of(runners).limitLambdaConcurrency();
-Compliance.of(runners).logApiRequests();
+Compliance.of(stack).encrypt({ key });
+Compliance.of(gpuProvider).encrypt({ storage: gpuKey });
+Compliance.of(stack).limitLambdaConcurrency();
+Compliance.of(stack).logApiRequests();
 ```
 
 #### Methods <a name="Methods" id="Methods"></a>
@@ -7163,7 +7108,9 @@ public limitLambdaConcurrency(options?: ComplianceLambdaConcurrencyOptions): voi
 
 Set reserved concurrency on Lambda functions.
 
-Reserved concurrency comes out of your account limit, and the account must keep 100 unreserved.
+This reserves 5 x `maxJobStarts` for functions called on every job, `maxLambdaJobs` for every Lambda runner provider, and 5 for every other
+function. With the defaults, that's about 120 for a simple deployment and 190 for one using every feature. Reserved concurrency comes out of
+your account limit, and the account must keep 100 unreserved.
 
 ###### `options`<sup>Optional</sup> <a name="options" id="@cloudsnorkel/cdk-github-runners.Compliance.limitLambdaConcurrency.parameter.options"></a>
 
@@ -7186,7 +7133,7 @@ https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html
 
 | **Name** | **Description** |
 | --- | --- |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Compliance.of">of</a></code> | Compliance settings for the given runners. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Compliance.of">of</a></code> | Compliance settings for everything this library creates in the given scope. |
 
 ---
 
@@ -7195,14 +7142,14 @@ https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html
 ```typescript
 import { Compliance } from '@cloudsnorkel/cdk-github-runners'
 
-Compliance.of(runners: GitHubRunners)
+Compliance.of(scope: IConstruct)
 ```
 
-Compliance settings for the given runners.
+Compliance settings for everything this library creates in the given scope.
 
-###### `runners`<sup>Required</sup> <a name="runners" id="@cloudsnorkel/cdk-github-runners.Compliance.of.parameter.runners"></a>
+###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.Compliance.of.parameter.scope"></a>
 
-- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners">GitHubRunners</a>
+- *Type:* constructs.IConstruct
 
 ---
 

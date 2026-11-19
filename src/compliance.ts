@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import * as cdk from 'aws-cdk-lib';
 import {
   aws_apigateway as apigateway,
@@ -20,13 +21,15 @@ import {
 import { Construct, IConstruct } from 'constructs';
 import { DeleteFailedRunnerFunction } from './delete-failed-runner-function';
 import { IdleRunnerRepearFunction } from './idle-runner-repear-function';
-import { CodeBuildRunnerImageBuilder } from './image-builders';
-import { IRunnerProvider, LambdaRunnerProvider } from './providers';
-import { amiRootDevice } from './providers/common';
+import { CodeBuildRunnerImageBuilder, RunnerImageBuilderBase } from './image-builders';
+import { FilterFailedBuildsFunction } from './image-builders/aws-image-builder/filter-failed-builds-function';
+import { LambdaRunnerProvider } from './providers';
+import { amiRootDevice, BaseProvider } from './providers/common';
 import { GitHubRunners } from './runner';
 import { StolenRunnerHandlerFunction } from './stolen-runner-handler-function';
 import { TokenRetrieverFunction } from './token-retriever-function';
-import { LIBRARY_CONSTRUCTS } from './utils';
+import { SingletonLogType } from './utils';
+import { AlwaysOnWarmRunner, ScheduledWarmRunner } from './warm-runner';
 import { WebhookHandlerFunction } from './webhook-handler-function';
 
 /**
@@ -81,22 +84,7 @@ export interface ComplianceEncryptionOptions {
 }
 
 /**
- * Reserved concurrency for one Lambda runner provider.
- */
-export interface ComplianceProviderConcurrency {
-  /**
-   * Lambda runner provider.
-   */
-  readonly provider: IRunnerProvider;
-
-  /**
-   * How many jobs this provider can run at the same time.
-   */
-  readonly maxLambdaJobs: number;
-}
-
-/**
- * Reserved concurrency for Lambda functions created by {@link GitHubRunners}.
+ * Reserved concurrency for Lambda functions used by runners.
  */
 export interface ComplianceLambdaConcurrencyOptions {
   /**
@@ -116,35 +104,33 @@ export interface ComplianceLambdaConcurrencyOptions {
    */
   readonly maxLambdaJobs?: number;
 
-  /**
-   * How many jobs specific Lambda runner providers can run at the same time, instead of `maxLambdaJobs`.
-   *
-   * @default `maxLambdaJobs` for every Lambda runner provider
-   */
-  readonly maxLambdaJobsPerProvider?: ComplianceProviderConcurrency[];
 }
 
 /**
- * Settings that compliance frameworks like HIPAA, PCI DSS, and NIST 800-53 ask for, applied to everything created for your runners.
+ * Settings that compliance frameworks like HIPAA, PCI DSS, and NIST 800-53 ask for, applied to everything this library creates in a scope.
  *
- * This includes runner providers and image builders, even when they're in other stacks. Resources you create yourself are not changed.
+ * The scope can be an app, a stage, a stack, or a single construct like a runner provider. Settings of the closest scope win, so you can set a key
+ * for a whole stack and a stricter one for a single provider. Resources you create yourself are not changed.
+ *
+ * Once anything uses `Compliance`, synth warns about runner resources in the same stage that no scope covers. Like other aspects, an app
+ * scope doesn't reach into nested stages, so use `Compliance.of(stage)` for those.
  *
  * ```typescript
- * const runners = new GitHubRunners(this, 'runners', { providers: [...] });
- * Compliance.of(runners).encrypt({ key });
- * Compliance.of(runners).limitLambdaConcurrency();
- * Compliance.of(runners).logApiRequests();
+ * Compliance.of(stack).encrypt({ key });
+ * Compliance.of(gpuProvider).encrypt({ storage: gpuKey });
+ * Compliance.of(stack).limitLambdaConcurrency();
+ * Compliance.of(stack).logApiRequests();
  * ```
  */
 export class Compliance {
   /**
-   * Compliance settings for the given runners.
+   * Compliance settings for everything this library creates in the given scope.
    */
-  public static of(runners: GitHubRunners) {
-    return new Compliance(runners);
+  public static of(scope: IConstruct) {
+    return new Compliance(scope);
   }
 
-  private constructor(private readonly runners: GitHubRunners) {
+  private constructor(private readonly scope: IConstruct) {
   }
 
   /**
@@ -153,16 +139,18 @@ export class Compliance {
    * Keys created in the same app get the key policy they need. For imported keys, a warning lists the statements to add to the key policy.
    */
   public encrypt(options: ComplianceEncryptionOptions) {
-    this.apply(new EncryptAspect(options));
+    this.settings().encrypt = options;
   }
 
   /**
    * Set reserved concurrency on Lambda functions.
    *
-   * Reserved concurrency comes out of your account limit, and the account must keep 100 unreserved.
+   * This reserves 5 x `maxJobStarts` for functions called on every job, `maxLambdaJobs` for every Lambda runner provider, and 5 for every other
+   * function. With the defaults, that's about 120 for a simple deployment and 190 for one using every feature. Reserved concurrency comes out of
+   * your account limit, and the account must keep 100 unreserved.
    */
   public limitLambdaConcurrency(options: ComplianceLambdaConcurrencyOptions = {}) {
-    this.apply(new LambdaConcurrencyAspect(options));
+    this.settings().concurrency = options;
   }
 
   /**
@@ -172,36 +160,135 @@ export class Compliance {
    * https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html
    */
   public logApiRequests() {
-    this.apply(new ApiLoggingAspect());
+    this.settings().apiLogs = true;
   }
 
-  private apply(aspect: cdk.IAspect) {
-    // providers and image builders can be in other stacks, so we go over the whole app and only touch what we created
-    cdk.Aspects.of(this.runners.node.root).add(aspect, { priority: cdk.AspectPriority.MUTATING });
+  private settings() {
+    let settings = SETTINGS.get(this.scope);
+    if (!settings) {
+      settings = {};
+      SETTINGS.set(this.scope, settings);
+      cdk.Aspects.of(this.scope).add(new ComplianceAspect(this.scope), { priority: cdk.AspectPriority.MUTATING });
+      const stage = cdk.Stage.of(this.scope) ?? this.scope.node.root;
+      if (!WARNED_STAGES.has(stage)) {
+        WARNED_STAGES.add(stage);
+        cdk.Aspects.of(stage).add(new UncoveredWarningAspect(), { priority: cdk.AspectPriority.READONLY });
+      }
+    }
+    return settings;
   }
 }
 
-function isLibraryConstruct(construct: IConstruct) {
-  return construct.node.scopes.some(scope => LIBRARY_CONSTRUCTS.has(scope));
+interface ComplianceSettings {
+  encrypt?: ComplianceEncryptionOptions;
+  concurrency?: ComplianceLambdaConcurrencyOptions;
+  apiLogs?: boolean;
 }
 
-class EncryptAspect implements cdk.IAspect {
-  private readonly keyPolicies = new Set<string>();
+const SETTINGS = new WeakMap<IConstruct, ComplianceSettings>();
+const WARNED_STAGES = new WeakSet<IConstruct>();
+const KEY_POLICIES = new WeakMap<kms.IKey, Set<string>>();
 
-  constructor(private readonly options: ComplianceEncryptionOptions) {
+/**
+ * Settings of all scopes containing the construct, closest first.
+ */
+function settingsOf(construct: IConstruct) {
+  return construct.node.scopes.slice().reverse().map(scope => SETTINGS.get(scope)).filter(s => s !== undefined) as ComplianceSettings[];
+}
+
+/**
+ * Whether this library created the construct. It's either inside one of our constructs, or a singleton we put in the stack.
+ */
+function isRunnerConstruct(construct: IConstruct): boolean {
+  return construct.node.scopes.some(scope =>
+    scope instanceof GitHubRunners || scope instanceof BaseProvider || scope instanceof RunnerImageBuilderBase ||
+    scope instanceof AlwaysOnWarmRunner || scope instanceof ScheduledWarmRunner ||
+    scope instanceof FilterFailedBuildsFunction ||
+    (cdk.Stack.isStack(scope.node.scope) && isSingletonId(scope.node.id)) ||
+    // failedImageBuildsTopic() can put its topics in any scope, next to the function that filters them
+    (scope instanceof sns.Topic && scope.node.scope?.node.children.some(c => c instanceof FilterFailedBuildsFunction)),
+  );
+}
+
+function isSingletonId(id: string) {
+  return id.includes('dcc036c8-876b-451e-a2c1-552f9e06e9e1') || (Object.values(SingletonLogType) as string[]).includes(id);
+}
+
+/**
+ * Applies the settings of the closest scope to everything this library created in it.
+ */
+class ComplianceAspect implements cdk.IAspect {
+  constructor(private readonly scope: IConstruct) {
   }
 
   visit(node: IConstruct) {
-    if (!isLibraryConstruct(node)) {
+    if (!(node instanceof cdk.CfnResource) || !isRunnerConstruct(node)) {
       return;
     }
 
-    const o = this.options;
-    const logsKey = o.logs ?? o.key;
-    const secretsKey = o.secrets ?? o.key;
-    const messagesKey = o.messages ?? o.key;
-    const imagesKey = o.images ?? o.key;
-    const storageKey = o.storage ?? o.key;
+    // the closest scope with settings handles the resource, so nothing is changed twice
+    const owner = node.node.scopes.slice().reverse().find(scope => SETTINGS.has(scope));
+    if (owner !== this.scope) {
+      return;
+    }
+
+    const settings = settingsOf(node);
+    if (settings.some(s => s.encrypt)) {
+      encrypt(node, settings);
+    }
+    if (node instanceof lambda.CfnFunction && settings.some(s => s.concurrency)) {
+      limitConcurrency(node, settings);
+    }
+    if (node instanceof apigateway.CfnStage && settings.some(s => s.apiLogs)) {
+      logApiRequests(node);
+    }
+  }
+}
+
+/**
+ * Warns about runner resources that no `Compliance` scope covers.
+ */
+class UncoveredWarningAspect implements cdk.IAspect {
+  private readonly warnedStacks = new Set<cdk.Stack>();
+
+  visit(node: IConstruct) {
+    if (!(node instanceof cdk.CfnResource) || !isRunnerConstruct(node) || settingsOf(node).length > 0) {
+      return;
+    }
+
+    const stack = cdk.Stack.of(node);
+    if (!this.warnedStacks.has(stack)) {
+      this.warnedStacks.add(stack);
+      cdk.Annotations.of(stack).addWarningV2('@cloudsnorkel/cdk-github-runners:complianceUncovered',
+        `Compliance doesn't cover runner resources in this stack, like ${node.node.path}. Use Compliance.of(stack) to cover them.`);
+    }
+  }
+}
+
+/**
+ * Key of the closest scope that has one for this type of resource.
+ */
+function keyFor(settings: ComplianceSettings[], type: 'logs' | 'secrets' | 'messages' | 'images' | 'storage') {
+  for (const s of settings) {
+    const key = s.encrypt?.[type] ?? s.encrypt?.key;
+    if (key) {
+      return key;
+    }
+  }
+  return undefined;
+}
+
+function encrypt(node: cdk.CfnResource, settings: ComplianceSettings[]) {
+  new Encryptor().encrypt(node, settings);
+}
+
+class Encryptor {
+  encrypt(node: cdk.CfnResource, settings: ComplianceSettings[]) {
+    const logsKey = keyFor(settings, 'logs');
+    const secretsKey = keyFor(settings, 'secrets');
+    const messagesKey = keyFor(settings, 'messages');
+    const imagesKey = keyFor(settings, 'images');
+    const storageKey = keyFor(settings, 'storage');
 
     if (node instanceof logs.CfnLogGroup && logsKey) {
       node.kmsKeyId = logsKey.keyArn;
@@ -224,7 +311,8 @@ class EncryptAspect implements cdk.IAspect {
       node.encryptionConfiguration = { encryptionType: 'KMS', kmsKey: imagesKey.keyArn };
       this.allowService(node, imagesKey, 'ecr');
       const builder = node.node.scopes.find(s => s instanceof CodeBuildRunnerImageBuilder) as CodeBuildRunnerImageBuilder | undefined;
-      builder?._waitForNewImage('Kms');
+      // a new key replaces the repository, so the deployment must wait for the image to be built again
+      builder?._waitForNewImage(`Kms${crypto.createHash('md5').update(cdk.Names.uniqueId(imagesKey)).digest('hex').slice(0, 8)}`);
     } else if (node instanceof imagebuilder.CfnImageRecipe && imagesKey) {
       // the AMI keeps the encryption of the volume it was built on, and the new recipe builds it again on deploy
       node.blockDeviceMappings = this.encryptVolumes(node, node.parentImage, node.blockDeviceMappings as any, imagesKey);
@@ -361,11 +449,12 @@ class EncryptAspect implements cdk.IAspect {
   }
 
   private allow(node: IConstruct, key: kms.IKey, id: string, statement: iam.PolicyStatement) {
-    const dedupe = `${cdk.Names.uniqueId(key)} ${id}`;
-    if (this.keyPolicies.has(dedupe)) {
+    const added = KEY_POLICIES.get(key) ?? new Set<string>();
+    KEY_POLICIES.set(key, added);
+    if (added.has(id)) {
       return;
     }
-    this.keyPolicies.add(dedupe);
+    added.add(id);
     if (!key.addToResourcePolicy(statement).statementAdded) {
       cdk.Annotations.of(node).addWarningV2('@cloudsnorkel/cdk-github-runners:importedKey',
         `${key.keyArn} is imported, so its key policy must allow: ${JSON.stringify(cdk.Stack.of(node).resolve(statement.toStatementJson()))}`);
@@ -373,57 +462,38 @@ class EncryptAspect implements cdk.IAspect {
   }
 }
 
-class LambdaConcurrencyAspect implements cdk.IAspect {
-  constructor(private readonly options: ComplianceLambdaConcurrencyOptions) {
+function limitConcurrency(node: lambda.CfnFunction, settings: ComplianceSettings[]) {
+  // closest scope that sets each option
+  const option = (name: keyof ComplianceLambdaConcurrencyOptions) => settings.map(s => s.concurrency?.[name]).find(v => v !== undefined);
+
+  let limit;
+  const func = node.node.scope;
+  if (node.node.scopes.some(s => s instanceof LambdaRunnerProvider)) {
+    limit = option('maxLambdaJobs') ?? 20;
+  } else if (func instanceof WebhookHandlerFunction || func instanceof TokenRetrieverFunction || func instanceof DeleteFailedRunnerFunction ||
+    func instanceof IdleRunnerRepearFunction || func instanceof StolenRunnerHandlerFunction) {
+    limit = option('maxJobStarts') ?? 20; // called for every job
+  } else {
+    limit = 5; // status, setup, warm runners, and helpers that only run during deployment
   }
 
-  visit(node: IConstruct) {
-    if (!(node instanceof lambda.CfnFunction) || !isLibraryConstruct(node)) {
-      return;
-    }
-
-    const limit = this.limit(node);
-    // keep lower limits we already set, like webhook redelivery's 1
-    node.reservedConcurrentExecutions = Math.min(node.reservedConcurrentExecutions ?? limit, limit);
-  }
-
-  private limit(node: lambda.CfnFunction) {
-    const maxJobStarts = this.options.maxJobStarts ?? 20;
-    const scopes = node.node.scopes;
-
-    if (scopes.some(s => s instanceof LambdaRunnerProvider)) {
-      return this.options.maxLambdaJobsPerProvider?.find(p => scopes.includes(p.provider))?.maxLambdaJobs ?? this.options.maxLambdaJobs ?? 20;
-    }
-
-    const func = node.node.scope;
-    if (func instanceof WebhookHandlerFunction || func instanceof TokenRetrieverFunction || func instanceof DeleteFailedRunnerFunction ||
-      func instanceof IdleRunnerRepearFunction || func instanceof StolenRunnerHandlerFunction) {
-      return maxJobStarts; // called for every job
-    }
-
-    return 5; // status, setup, warm runners, and helpers that only run during deployment
-  }
+  // keep lower limits we already set, like webhook redelivery's 1
+  node.reservedConcurrentExecutions = Math.min(node.reservedConcurrentExecutions ?? limit, limit);
 }
 
-class ApiLoggingAspect implements cdk.IAspect {
-  visit(node: IConstruct) {
-    if (!(node instanceof apigateway.CfnStage) || !isLibraryConstruct(node)) {
-      return;
-    }
-
-    const logGroup = new logs.LogGroup(node.node.scope!, 'Access Logs', {
-      retention: logs.RetentionDays.ONE_MONTH,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-    });
-    node.accessLogSetting = {
-      destinationArn: logGroup.logGroupArn,
-      format: apigateway.AccessLogFormat.jsonWithStandardFields().toString(),
-    };
-    node.methodSettings = [{
-      httpMethod: '*',
-      resourcePath: '/*',
-      loggingLevel: 'ERROR',
-      metricsEnabled: true,
-    }];
-  }
+function logApiRequests(stage: apigateway.CfnStage) {
+  const logGroup = new logs.LogGroup(stage.node.scope!, 'Access Logs', {
+    retention: logs.RetentionDays.ONE_MONTH,
+    removalPolicy: cdk.RemovalPolicy.DESTROY,
+  });
+  stage.accessLogSetting = {
+    destinationArn: logGroup.logGroupArn,
+    format: apigateway.AccessLogFormat.jsonWithStandardFields().toString(),
+  };
+  stage.methodSettings = [{
+    httpMethod: '*',
+    resourcePath: '/*',
+    loggingLevel: 'ERROR',
+    metricsEnabled: true,
+  }];
 }

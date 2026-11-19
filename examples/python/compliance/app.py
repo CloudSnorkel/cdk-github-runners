@@ -27,7 +27,7 @@ class ComplianceStack(Stack):
         )
 
         # Create the GitHub runners infrastructure
-        runners = GitHubRunners(
+        GitHubRunners(
             self, "GitHubRunners",
             providers=[codebuild_provider],
             webhook_access=LambdaAccess.api_gateway(
@@ -38,13 +38,13 @@ class ComplianceStack(Stack):
         # Encrypt everything with one key, except logs that get their own key
         key = kms.Key(self, "Key", enable_key_rotation=True)
         logs_key = kms.Key(self, "Logs Key", enable_key_rotation=True)
-        Compliance.of(runners).encrypt(key=key, logs=logs_key)
+        Compliance.of(self).encrypt(key=key, logs=logs_key)
 
         # Limit Lambda concurrency, sized for up to 50 jobs starting at once
-        Compliance.of(runners).limit_lambda_concurrency(max_job_starts=50)
+        Compliance.of(self).limit_lambda_concurrency(max_job_starts=50)
 
         # Log webhook requests to API Gateway
-        Compliance.of(runners).log_api_requests()
+        Compliance.of(self).log_api_requests()
 
 
 app = cdk.App()

@@ -25,7 +25,7 @@ class ComplianceStack extends Stack {
     });
 
     // Create the GitHub runners infrastructure
-    const runners = new GitHubRunners(this, 'GitHubRunners', {
+    new GitHubRunners(this, 'GitHubRunners', {
       providers: [codebuildProvider],
       webhookAccess: LambdaAccess.apiGateway({
         allowedIps: LambdaAccess.githubWebhookIps(),
@@ -35,13 +35,13 @@ class ComplianceStack extends Stack {
     // Encrypt everything with one key, except logs that get their own key
     const key = new kms.Key(this, 'Key', { enableKeyRotation: true });
     const logsKey = new kms.Key(this, 'Logs Key', { enableKeyRotation: true });
-    Compliance.of(runners).encrypt({ key, logs: logsKey });
+    Compliance.of(this).encrypt({ key, logs: logsKey });
 
     // Limit Lambda concurrency, sized for up to 50 jobs starting at once
-    Compliance.of(runners).limitLambdaConcurrency({ maxJobStarts: 50 });
+    Compliance.of(this).limitLambdaConcurrency({ maxJobStarts: 50 });
 
     // Log webhook requests to API Gateway
-    Compliance.of(runners).logApiRequests();
+    Compliance.of(this).logApiRequests();
   }
 }
 

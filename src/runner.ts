@@ -42,7 +42,7 @@ import { StatusFunction } from './status-function';
 import { StolenRunnerDetector } from './stolen-runners';
 import { TokenRetrieverFunction } from './token-retriever-function';
 import { TokenRetrieverInput } from './token-retriever.lambda';
-import { dedupeStateMachineTokens, discoverCertificateFiles, LIBRARY_CONSTRUCTS, singletonLogGroup, SingletonLogType } from './utils';
+import { dedupeStateMachineTokens, discoverCertificateFiles, singletonLogGroup, SingletonLogType } from './utils';
 import { WarmRunnerManagerFunction } from './warm-runner-manager-function';
 import { GithubWebhookHandler } from './webhook';
 import { GithubWebhookRedelivery } from './webhook-redelivery';
@@ -396,7 +396,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
   constructor(scope: Construct, id: string, readonly props?: GitHubRunnersProps) {
     super(scope, id);
-    LIBRARY_CONSTRUCTS.add(this);
 
     this.secrets = new Secrets(this, 'Secrets');
 
@@ -1296,7 +1295,6 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   public failedImageBuildsTopic(scope?: Construct) {
     scope ??= this;
     const topic = new sns.Topic(scope, 'Failed Runner Image Builds', { enforceSSL: true });
-    LIBRARY_CONSTRUCTS.add(topic);
     const stack = cdk.Stack.of(scope);
     const filteringTopic = AwsImageBuilderFailedBuildNotifier.createFilteringTopic(scope, topic, this.extraLambdaProps);
     cdk.Aspects.of(stack).add(new CodeBuildImageBuilderFailedBuildNotifier(filteringTopic));

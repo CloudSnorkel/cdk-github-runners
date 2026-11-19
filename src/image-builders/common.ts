@@ -5,7 +5,6 @@ import { AwsImageBuilderRunnerImageBuilderProps, BaseContainerImage, BaseImage }
 import { CodeBuildRunnerImageBuilderProps } from './codebuild';
 import { RunnerImageComponent } from './components';
 import { Architecture, Os, RunnerAmi, RunnerImage, RunnerVersion } from '../providers';
-import { LIBRARY_CONSTRUCTS } from '../utils';
 
 /**
  * @internal
@@ -344,7 +343,6 @@ export abstract class RunnerImageBuilderBase extends Construct implements IConfi
 
   protected constructor(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     super(scope, id);
-    LIBRARY_CONSTRUCTS.add(this);
 
     if (props?.components) {
       this.components.push(...props.components);

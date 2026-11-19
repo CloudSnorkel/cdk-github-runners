@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_kms as kms } from 'aws-cdk-lib';
-import { Annotations, Match } from 'aws-cdk-lib/assertions';
+import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import { AwsSolutionsChecks, HIPAASecurityChecks, NIST80053R4Checks, NIST80053R5Checks, PCIDSS321Checks } from 'cdk-nag';
 import { ACKNOWLEDGED_FINDINGS } from './compliance-acknowledged';
@@ -78,6 +78,7 @@ interface Resource {
 
 let app: cdk.App;
 let key: kms.Key;
+let providerLogsKey: kms.Key;
 let resources: Resource[];
 
 function glob(pattern: string) {
@@ -87,15 +88,15 @@ function glob(pattern: string) {
 
 describe('Compliance', () => {
   beforeAll(() => {
-    app = fullFeatureApp((runners, k) => {
+    app = fullFeatureApp((a, runners, k) => {
       key = k as kms.Key;
-      Compliance.of(runners).encrypt({ key });
-      const lambdaProvider = runners.providers.find(p => p.node.id == 'Lambda') as LambdaRunnerProvider;
-      Compliance.of(runners).limitLambdaConcurrency({
-        maxJobStarts: 30,
-        maxLambdaJobsPerProvider: [{ provider: lambdaProvider, maxLambdaJobs: 7 }],
-      });
-      Compliance.of(runners).logApiRequests();
+      providerLogsKey = new kms.Key(cdk.Stack.of(key), 'Provider Logs Key', { enableKeyRotation: true });
+      const lambdaProvider = runners.providers.find(p => p.node.id == 'Lambda')!;
+      Compliance.of(a).encrypt({ key });
+      Compliance.of(a).limitLambdaConcurrency({ maxJobStarts: 30 });
+      Compliance.of(a).logApiRequests();
+      Compliance.of(lambdaProvider).encrypt({ logs: providerLogsKey });
+      Compliance.of(lambdaProvider).limitLambdaConcurrency({ maxLambdaJobs: 7 });
     });
     const assembly = app.synth();
 
@@ -120,11 +121,22 @@ describe('Compliance', () => {
   });
 
   test('Encrypted resource types use the key', () => {
-    const keyId = cdk.Stack.of(key).getLogicalId(key.node.defaultChild as kms.CfnKey);
+    const keyIds = [key, providerLogsKey].map(k => cdk.Stack.of(k).getLogicalId(k.node.defaultChild as kms.CfnKey));
     const unencrypted = resources
-      .filter(r => RESOURCE_TYPES[r.type] === 'encrypted' && !r.json.includes(keyId))
+      .filter(r => RESOURCE_TYPES[r.type] === 'encrypted' && !keyIds.some(id => r.json.includes(id)))
       .map(r => r.path);
     expect(unencrypted).toEqual([]);
+  });
+
+  test('Closest scope wins', () => {
+    const providerLogsKeyId = cdk.Stack.of(providerLogsKey).getLogicalId(providerLogsKey.node.defaultChild as kms.CfnKey);
+    const usesProviderKey = resources.filter(r => r.json.includes(providerLogsKeyId)).map(r => r.path);
+    expect(usesProviderKey).toEqual(['providers/Lambda/Log/Resource']);
+  });
+
+  test('Resources we did not create are left alone', () => {
+    const selector = app.node.findAll().find(c => c.node.path == 'runners/Provider Selector/Resource') as cdk.CfnResource;
+    expect((selector as any).reservedConcurrentExecutions).toBeUndefined();
   });
 
   test('Lambda concurrency', () => {
@@ -168,6 +180,38 @@ describe('Compliance', () => {
 
     expect(unacknowledged).toEqual([]);
     expect(ACKNOWLEDGED_FINDINGS.filter((_, i) => !used.has(i))).toEqual([]);
+  });
+
+  test('Uncovered runner resources warn', () => {
+    const otherApp = new cdk.App();
+    const env = { account: '123456789012', region: 'us-east-1' };
+    const providersStack = new cdk.Stack(otherApp, 'providers', { env });
+    const runnersStack = new cdk.Stack(otherApp, 'runners', { env });
+    const runners = new GitHubRunners(runnersStack, 'runners', { providers: [new LambdaRunnerProvider(providersStack, 'p1')] });
+    Compliance.of(runners).limitLambdaConcurrency();
+
+    // singletons are in the stack and not in runners, and the provider is in another stack
+    Annotations.fromStack(runnersStack).hasWarning('/runners', Match.stringLikeRegexp('Use Compliance.of\\(stack\\)'));
+    Annotations.fromStack(providersStack).hasWarning('/providers', Match.stringLikeRegexp('Use Compliance.of\\(stack\\)'));
+  });
+
+  test('Stages are separate', () => {
+    const otherApp = new cdk.App();
+    const stacks = ['dev', 'prod'].map(name => {
+      const stage = new cdk.Stage(otherApp, name, { env: { account: name == 'dev' ? '111111111111' : '222222222222', region: 'us-east-1' } });
+      const stack = new cdk.Stack(stage, 'runners');
+      new GitHubRunners(stack, 'runners', { providers: [new LambdaRunnerProvider(stack, 'p1')] });
+      return stack;
+    });
+    const prodKey = new kms.Key(stacks[1], 'key');
+    Compliance.of(stacks[1]).encrypt({ key: prodKey });
+
+    const secretKeys = (stack: cdk.Stack) => Object.values(Template.fromStack(stack).findResources('AWS::SecretsManager::Secret'))
+      .map(r => JSON.stringify(r.Properties.KmsKeyId));
+    const prodKeyId = stacks[1].getLogicalId(prodKey.node.defaultChild as kms.CfnKey);
+    expect(secretKeys(stacks[1]).every(k => k.includes(prodKeyId))).toBe(true);
+    expect(secretKeys(stacks[0]).every(k => k == '"alias/aws/secretsmanager"')).toBe(true);
+    Annotations.fromStack(stacks[0]).hasNoWarning('*', Match.stringLikeRegexp('Compliance'));
   });
 
   test('Imported keys warn about the key policy', () => {

@@ -28,7 +28,7 @@ import {
 } from './common';
 import { MicrovmImageFunction } from './microvm-image-function';
 import { BaseContainerImage, IRunnerImageBuilder, RunnerImageBuilder, RunnerImageBuilderProps, RunnerImageComponent } from '../image-builders';
-import { LIBRARY_CONSTRUCTS, singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
+import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
 import { SetupInput } from './microvm-image.lambda';
 
 /**
@@ -450,7 +450,6 @@ export class MicroVmRunnerProvider extends BaseProvider implements IRunnerProvid
       enforceSSL: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY, // the custom resources delete their objects, so the bucket is empty by then
     });
-    LIBRARY_CONSTRUCTS.add(bucket);
     const key = `${this.node.addr}.zip`;
 
     const resource = new cdk.CustomResource(this, 'Image Artifact Writer', {

@@ -28,7 +28,7 @@ import { CleanerTarget, DeleteResourcesProps, ScheduledCleanupEvent } from './de
 import { FilterFailedBuildsFunction } from './filter-failed-builds-function';
 import { generateBuildWorkflowWithDockerSetupCommands, Workflow } from './workflow';
 import { Architecture, Os, RunnerAmi, RunnerImage } from '../../providers';
-import { LIBRARY_CONSTRUCTS, singletonLambda, singletonLogGroup, SingletonLogType } from '../../utils';
+import { singletonLambda, singletonLogGroup, SingletonLogType } from '../../utils';
 import { BuildImageFunction } from '../build-image-function';
 import { RunnerImageBuilderBase, RunnerImageBuilderProps, uniqueImageBuilderName } from '../common';
 
@@ -939,8 +939,6 @@ export class AwsImageBuilderFailedBuildNotifier implements cdk.IAspect {
 
     topic.addSubscription(new subs.LambdaSubscription(filter));
     targetTopic.grantPublish(filter);
-    LIBRARY_CONSTRUCTS.add(topic);
-    LIBRARY_CONSTRUCTS.add(filter);
 
     return topic;
   }

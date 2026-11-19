@@ -55,7 +55,7 @@ const createGitHubOidcProvider = false;
 
 // turn this on to test applying compliance settings to an existing deployment. deploy without it first, start jobs, and deploy again with it.
 // it adds a KMS key, a few log groups, and replaces the ECR repositories, so it's off for regular runs.
-const testCompliance = false;
+const testCompliance = true;
 
 const app = new cdk.App({
   context: {
@@ -523,7 +523,7 @@ runners.createLogsInsightsQueries();
 runners.createDashboard();
 
 if (testCompliance) {
-  Compliance.of(runners).encrypt({
+  Compliance.of(stack).encrypt({
     key: new kms.Key(stack, 'Compliance Key', {
       alias: 'github-runners-compliance',
       enableKeyRotation: true,
@@ -531,8 +531,8 @@ if (testCompliance) {
       pendingWindow: cdk.Duration.days(7),
     }),
   });
-  Compliance.of(runners).limitLambdaConcurrency();
-  Compliance.of(runners).logApiRequests();
+  Compliance.of(stack).limitLambdaConcurrency();
+  Compliance.of(stack).logApiRequests();
 }
 
 // tells the integration test workflows whether a runner is still registered on GitHub, so they never see the app key

@@ -3,7 +3,7 @@ import { aws_ec2 as ec2, aws_ecr as ecr, aws_iam as iam, aws_lambda as lambda, a
 import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
 import { Construct, IConstruct, IDependable } from 'constructs';
 import { AmiRootDeviceFunction } from './ami-root-device-function';
-import { LIBRARY_CONSTRUCTS, singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
+import { singletonLambda, singletonLogGroup, SingletonLogType } from '../utils';
 
 /**
  * Defines desired GitHub Actions runner version.
@@ -639,7 +639,6 @@ export interface StorageOptions {
 export abstract class BaseProvider extends Construct {
   protected constructor(scope: Construct, id: string, _props?: RunnerProviderProps) {
     super(scope, id);
-    LIBRARY_CONSTRUCTS.add(this);
 
     cdk.Tags.of(this).add('GitHubRunners:Provider', this.node.path);
   }

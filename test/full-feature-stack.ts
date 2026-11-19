@@ -4,7 +4,6 @@ import {
   AlwaysOnWarmRunner,
   Architecture,
   CodeBuildRunnerProvider,
-  Compliance,
   CompositeProvider,
   Ec2RunnerProvider,
   EcsRunnerProvider,
@@ -22,7 +21,7 @@ import {
  *
  * Shared by the compliance tests. It's over 500 resources, so it can't be deployed as one stack and is only synthesized.
  */
-export function fullFeatureApp(compliance?: (runners: GitHubRunners, key: kms.IKey) => void) {
+export function fullFeatureApp(compliance?: (app: cdk.App, runners: GitHubRunners, key: kms.IKey) => void) {
   const app = new cdk.App({ context: { '@aws-cdk/core:stackResourceLimit': 1000 } });
   const env = { account: '123456789012', region: 'us-east-1' };
   // the key and the network are used by every other stack, so they go first
@@ -85,7 +84,7 @@ export function fullFeatureApp(compliance?: (runners: GitHubRunners, key: kms.IK
   runners.createDashboard();
 
   if (compliance) {
-    compliance(runners, new kms.Key(sharedStack, 'Key', { enableKeyRotation: true }));
+    compliance(app, runners, new kms.Key(sharedStack, 'Key', { enableKeyRotation: true }));
   }
 
   return app;
