@@ -1,8 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_kms as kms } from 'aws-cdk-lib';
+import { aws_kms as kms, aws_sns as sns } from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import { CloudAssembly } from 'aws-cdk-lib/cx-api';
 import { AwsSolutionsChecks, HIPAASecurityChecks, NIST80053R4Checks, NIST80053R5Checks, PCIDSS321Checks } from 'cdk-nag';
+import { Construct } from 'constructs';
 import { ACKNOWLEDGED_FINDINGS } from './compliance-acknowledged';
 import { fullFeatureApp } from './full-feature-stack';
 import { Compliance, GitHubRunners, LambdaRunnerProvider } from '../src';
@@ -137,6 +138,19 @@ describe('Compliance', () => {
   test('Resources we did not create are left alone', () => {
     const selector = app.node.findAll().find(c => c.node.path == 'runners/Provider Selector/Resource') as cdk.CfnResource;
     expect((selector as any).reservedConcurrentExecutions).toBeUndefined();
+  });
+
+  test('Topics next to the failed builds topic are left alone', () => {
+    const otherApp = new cdk.App();
+    const stack = new cdk.Stack(otherApp, 'test', { env: { account: '123456789012', region: 'us-east-1' } });
+    const runners = new GitHubRunners(stack, 'runners', { providers: [new LambdaRunnerProvider(stack, 'p1')] });
+    runners.failedImageBuildsTopic(stack);
+    new sns.Topic(stack, 'User Topic');
+    new sns.Topic(new Construct(stack, 'User Scope'), 'Failed Runner Image Builds');
+    Compliance.of(stack).encrypt({ key: new kms.Key(stack, 'key') });
+
+    // only our two topics
+    Template.fromStack(stack).resourcePropertiesCountIs('AWS::SNS::Topic', { KmsMasterKeyId: Match.anyValue() }, 2);
   });
 
   test('Lambda concurrency', () => {

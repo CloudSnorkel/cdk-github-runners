@@ -205,8 +205,10 @@ function isRunnerConstruct(construct: IConstruct): boolean {
     scope instanceof AlwaysOnWarmRunner || scope instanceof ScheduledWarmRunner ||
     scope instanceof FilterFailedBuildsFunction ||
     (cdk.Stack.isStack(scope.node.scope) && isSingletonId(scope.node.id)) ||
-    // failedImageBuildsTopic() can put its topics in any scope, next to the function that filters them
-    (scope instanceof sns.Topic && scope.node.scope?.node.children.some(c => c instanceof FilterFailedBuildsFunction)),
+    // failedImageBuildsTopic() can put its topics in any scope, next to the function that filters them. ids can't repeat in a scope, so
+    // checking both only matches our topics.
+    (scope instanceof sns.Topic && ['Failed Runner Image Builds', 'Image Builder Builds'].includes(scope.node.id) &&
+      scope.node.scope!.node.children.some(c => c instanceof FilterFailedBuildsFunction)),
   );
 }
 
