@@ -342,6 +342,9 @@ class EncryptAspect implements cdk.IAspect {
       principals: [new iam.ServicePrincipal('events.amazonaws.com'), new iam.ServicePrincipal('codestar-notifications.amazonaws.com')],
       actions: ['kms:Decrypt', 'kms:GenerateDataKey*'],
       resources: ['*'],
+      conditions: {
+        StringEquals: { 'aws:SourceAccount': cdk.Stack.of(node).account },
+      },
     }));
   }
 
