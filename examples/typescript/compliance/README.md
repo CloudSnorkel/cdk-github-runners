@@ -11,5 +11,5 @@ This example demonstrates how to apply settings that compliance frameworks like 
 ## Setup
 
 1. Deploy the stack: `cdk deploy`
-2. Follow the setup instructions in the main [README.md](../../README.md) to configure GitHub integration
+2. Follow the setup instructions in the main [README.md](../../../README.md) to configure GitHub integration
 3. Use the `codebuild` label in your workflows
