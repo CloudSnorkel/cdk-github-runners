@@ -4597,7 +4597,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "e63a505c851c0e41097d427f77e39e18ea5239d0ca153b82e8c1e207cfd42b6d.zip"
+     "S3Key": "7bff765ab41041ca01b2b7869a03c32c55ff455118edc9819124a2fd7eaeb46f.zip"
     },
     "Description": "Custom resource handler that triggers CodeBuild to build runner images",
     "Environment": {
@@ -7675,7 +7675,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "09be9786702c789b1b41fe3ac96e758cf25ce6d8412fab0de06cfc9c0146f4c3.zip"
+     "S3Key": "a6301639fdd0a2dc1b49de489ceb687e2c24f5bd0af956309951570514826a25.zip"
     },
     "Description": "Deletes old EC2 Image Builder runner images, and all of them when their builder is removed",
     "Environment": {
@@ -8394,7 +8394,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "570b7a887e29a9f7e3b04d06a5b76418d2e43af7f2f5904518e9d9787aa6ead9.zip"
+     "S3Key": "f5a1e64e6dddd5a13bd3ce7ea3406ce6ebb31a64e0356969a6529c42457e74c2.zip"
     },
     "Description": "Custom resource handler that discovers the boot drive device name for a given AMI",
     "Environment": {
@@ -11358,7 +11358,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "86995b100d4ec8639b29d1b3e9859f35ba2610e229a43fbe7f2d21fa284b6e9f.zip"
+     "S3Key": "1a3af398e2d96c9a39be59e6a12a20efd4f226837d56206dfb65cbe5a5c3cfce.zip"
     },
     "Description": "Function that writes the Dockerfile MicroVM images are built from, and rebuilds them when the runner image changes",
     "Environment": {
@@ -21209,7 +21209,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "b0c37c4f994ad292c9b6deb223ce530213b6da40f660072e158c25ce845b49c9.zip"
+     "S3Key": "c7f973815393c0ae78fd89849c953ad7487d05a79dbb070937d3891af15d7fe0.zip"
     },
     "Description": "Manage warm GitHub runners: fill on invoke, keep alive via SQS",
     "Environment": {
