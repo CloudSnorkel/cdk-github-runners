@@ -1,7 +1,6 @@
 import * as crypto from 'crypto';
 import * as cdk from 'aws-cdk-lib';
 import {
-  aws_apigateway as apigateway,
   aws_codebuild as codebuild,
   aws_dynamodb as dynamodb,
   aws_ec2 as ec2,
@@ -119,7 +118,6 @@ export interface ComplianceLambdaConcurrencyOptions {
  * Compliance.of(stack).encrypt({ key });
  * Compliance.of(gpuProvider).encrypt({ storage: gpuKey });
  * Compliance.of(stack).limitLambdaConcurrency();
- * Compliance.of(stack).logApiRequests();
  * ```
  */
 export class Compliance {
@@ -153,15 +151,6 @@ export class Compliance {
     this.settings().concurrency = options;
   }
 
-  /**
-   * Log access and errors of API Gateway endpoints used for webhook, setup, and status access.
-   *
-   * API Gateway can only write logs once the account has a CloudWatch Logs role. See
-   * https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html
-   */
-  public logApiRequests() {
-    this.settings().apiLogs = true;
-  }
 
   private settings() {
     let settings = SETTINGS.get(this.scope);
@@ -182,7 +171,6 @@ export class Compliance {
 interface ComplianceSettings {
   encrypt?: ComplianceEncryptionOptions;
   concurrency?: ComplianceLambdaConcurrencyOptions;
-  apiLogs?: boolean;
 }
 
 const SETTINGS = new WeakMap<IConstruct, ComplianceSettings>();
@@ -240,9 +228,6 @@ class ComplianceAspect implements cdk.IAspect {
     }
     if (node instanceof lambda.CfnFunction && settings.some(s => s.concurrency)) {
       limitConcurrency(node, settings);
-    }
-    if (node instanceof apigateway.CfnStage && settings.some(s => s.apiLogs)) {
-      logApiRequests(node);
     }
   }
 }
@@ -475,21 +460,4 @@ function limitConcurrency(node: lambda.CfnFunction, settings: ComplianceSettings
 
   // keep lower limits we already set, like webhook redelivery's 1
   node.reservedConcurrentExecutions = Math.min(node.reservedConcurrentExecutions ?? limit, limit);
-}
-
-function logApiRequests(stage: apigateway.CfnStage) {
-  const logGroup = new logs.LogGroup(stage.node.scope!, 'Access Logs', {
-    retention: logs.RetentionDays.ONE_MONTH,
-    removalPolicy: cdk.RemovalPolicy.DESTROY,
-  });
-  stage.accessLogSetting = {
-    destinationArn: logGroup.logGroupArn,
-    format: apigateway.AccessLogFormat.jsonWithStandardFields().toString(),
-  };
-  stage.methodSettings = [{
-    httpMethod: '*',
-    resourcePath: '/*',
-    loggingLevel: 'ERROR',
-    metricsEnabled: true,
-  }];
 }

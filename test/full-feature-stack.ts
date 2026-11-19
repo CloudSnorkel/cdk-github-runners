@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_codebuild as codebuild, aws_ec2 as ec2, aws_ecs as ecs, aws_events as events, aws_kms as kms, aws_lambda as lambda } from 'aws-cdk-lib';
+import { aws_apigateway as apigateway, aws_codebuild as codebuild, aws_ec2 as ec2, aws_ecs as ecs, aws_events as events, aws_kms as kms, aws_lambda as lambda, aws_logs as logs } from 'aws-cdk-lib';
 import {
   AlwaysOnWarmRunner,
   Architecture,
@@ -31,6 +31,7 @@ export function fullFeatureApp(compliance?: (app: cdk.App, runners: GitHubRunner
   const runnersStack = new cdk.Stack(app, 'runners', { env });
 
   const vpc = new ec2.Vpc(sharedStack, 'Vpc');
+  const apiLogs = new logs.LogGroup(sharedStack, 'API Logs');
   const cluster = new ecs.Cluster(providersStack, 'Cluster', { vpc, enableFargateCapacityProviders: true });
 
   const codeBuildImage = CodeBuildRunnerProvider.imageBuilder(buildersStack, 'CodeBuild Image');
@@ -61,8 +62,8 @@ export function fullFeatureApp(compliance?: (app: cdk.App, runners: GitHubRunner
     vpc,
     logOptions: { includeExecutionData: true },
     retryOptions: { retry: true },
-    webhookAccess: LambdaAccess.apiGateway({ allowedIps: ['192.30.252.0/22'] }),
-    statusAccess: LambdaAccess.apiGateway({ allowedVpc: vpc }),
+    webhookAccess: LambdaAccess.apiGateway({ allowedIps: ['192.30.252.0/22'], accessLogGroup: apiLogs, loggingLevel: apigateway.MethodLoggingLevel.ERROR }),
+    statusAccess: LambdaAccess.apiGateway({ allowedVpc: vpc, accessLogGroup: apiLogs, loggingLevel: apigateway.MethodLoggingLevel.INFO }),
     providerSelector: new lambda.Function(runnersStack, 'Provider Selector', {
       runtime: lambda.Runtime.NODEJS_LATEST,
       handler: 'index.handler',

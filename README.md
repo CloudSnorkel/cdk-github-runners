@@ -537,13 +537,12 @@ See the [warm-runners example](examples/typescript/warm-runners/) for a complete
 
 ### Compliance
 
-Compliance frameworks like HIPAA, PCI DSS, and NIST 800-53 often ask for your own encryption keys, limited Lambda concurrency, and API logs. `Compliance` applies those to everything this library creates in a scope, like a stack or a whole app. Settings of the closest scope win.
+Compliance frameworks like HIPAA, PCI DSS, and NIST 800-53 often ask for your own encryption keys and limited Lambda concurrency. `Compliance` applies those to everything this library creates in a scope, like a stack or a whole app. Settings of the closest scope win.
 
 ```typescript
 Compliance.of(this).encrypt({ key, logs: logsKey });  // logs get their own key, everything else uses `key`
 Compliance.of(gpuProvider).encrypt({ storage: gpuKey });  // stricter key for one provider
 Compliance.of(this).limitLambdaConcurrency({ maxJobStarts: 50 });  // jobs you expect to start at once
-Compliance.of(this).logApiRequests();
 ```
 
 Synth warns about runner resources that no scope covers, like image builders in another stack. The key needs to be in a stack that every other stack can use. Adding a key to an existing deployment rebuilds runner images.

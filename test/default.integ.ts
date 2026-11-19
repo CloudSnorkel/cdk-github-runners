@@ -532,7 +532,6 @@ if (testCompliance) {
     }),
   });
   Compliance.of(stack).limitLambdaConcurrency();
-  Compliance.of(stack).logApiRequests();
 }
 
 // tells the integration test workflows whether a runner is still registered on GitHub, so they never see the app key

@@ -2990,10 +2990,28 @@ const apiGatewayAccessProps: ApiGatewayAccessProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.accessLogGroup">accessLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group for access logs, with one JSON line for each request. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedIps">allowedIps</a></code> | <code>string[]</code> | List of IP addresses in CIDR notation that are allowed to access the API Gateway. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedSecurityGroups">allowedSecurityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | List of security groups that are allowed to access the API Gateway. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpc">allowedVpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | Create a private API Gateway and allow access from the specified VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpcEndpoints">allowedVpcEndpoints</a></code> | <code>aws-cdk-lib.aws_ec2.IVpcEndpoint[]</code> | Create a private API Gateway and allow access from the specified VPC endpoints. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.loggingLevel">loggingLevel</a></code> | <code>aws-cdk-lib.aws_apigateway.MethodLoggingLevel</code> | Level of execution logs. API Gateway writes them to its own log group named `API-Gateway-Execution-Logs_{rest-api-id}/{stage}`. |
+
+---
+
+##### `accessLogGroup`<sup>Optional</sup> <a name="accessLogGroup" id="@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.accessLogGroup"></a>
+
+```typescript
+public readonly accessLogGroup: ILogGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_logs.ILogGroup
+- *Default:* no access logs
+
+Log group for access logs, with one JSON line for each request.
+
+API Gateway can only write logs once the account has a CloudWatch Logs role. See
+https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html
 
 ---
 
@@ -3054,6 +3072,21 @@ Use this to make use of existing VPC endpoints or to share an endpoint between m
 No other settings are supported when using this option.
 
 All endpoints will be allowed access, but only the first one will be used as the URL by the runner system for setting up the webhook, and as setup URL.
+
+---
+
+##### `loggingLevel`<sup>Optional</sup> <a name="loggingLevel" id="@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.loggingLevel"></a>
+
+```typescript
+public readonly loggingLevel: MethodLoggingLevel;
+```
+
+- *Type:* aws-cdk-lib.aws_apigateway.MethodLoggingLevel
+- *Default:* no execution logs
+
+Level of execution logs. API Gateway writes them to its own log group named `API-Gateway-Execution-Logs_{rest-api-id}/{stage}`.
+
+Like access logs, these need a CloudWatch Logs role in the account.
 
 ---
 
@@ -7071,7 +7104,6 @@ scope doesn't reach into nested stages, so use `Compliance.of(stage)` for those.
 Compliance.of(stack).encrypt({ key });
 Compliance.of(gpuProvider).encrypt({ storage: gpuKey });
 Compliance.of(stack).limitLambdaConcurrency();
-Compliance.of(stack).logApiRequests();
 ```
 
 #### Methods <a name="Methods" id="Methods"></a>
@@ -7080,7 +7112,6 @@ Compliance.of(stack).logApiRequests();
 | --- | --- |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Compliance.encrypt">encrypt</a></code> | Encrypt data at rest with your own KMS keys. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.Compliance.limitLambdaConcurrency">limitLambdaConcurrency</a></code> | Set reserved concurrency on Lambda functions. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.Compliance.logApiRequests">logApiRequests</a></code> | Log access and errors of API Gateway endpoints used for webhook, setup, and status access. |
 
 ---
 
@@ -7117,17 +7148,6 @@ your account limit, and the account must keep 100 unreserved.
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions">ComplianceLambdaConcurrencyOptions</a>
 
 ---
-
-##### `logApiRequests` <a name="logApiRequests" id="@cloudsnorkel/cdk-github-runners.Compliance.logApiRequests"></a>
-
-```typescript
-public logApiRequests(): void
-```
-
-Log access and errors of API Gateway endpoints used for webhook, setup, and status access.
-
-API Gateway can only write logs once the account has a CloudWatch Logs role. See
-https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 

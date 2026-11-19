@@ -95,7 +95,6 @@ describe('Compliance', () => {
       const lambdaProvider = runners.providers.find(p => p.node.id == 'Lambda')!;
       Compliance.of(a).encrypt({ key });
       Compliance.of(a).limitLambdaConcurrency({ maxJobStarts: 30 });
-      Compliance.of(a).logApiRequests();
       Compliance.of(lambdaProvider).encrypt({ logs: providerLogsKey });
       Compliance.of(lambdaProvider).limitLambdaConcurrency({ maxLambdaJobs: 7 });
     });
@@ -167,7 +166,9 @@ describe('Compliance', () => {
     const stages = resources.filter(r => r.type == 'AWS::ApiGateway::Stage');
     expect(stages.length).toBe(2);
     for (const stage of stages) {
-      expect(JSON.parse(stage.json).AccessLogSetting).toBeDefined();
+      const props = JSON.parse(stage.json);
+      expect(props.AccessLogSetting.DestinationArn).toBeDefined();
+      expect(props.MethodSettings[0].LoggingLevel).toMatch(/ERROR|INFO/);
     }
   });
 
