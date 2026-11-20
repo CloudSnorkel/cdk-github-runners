@@ -36,6 +36,11 @@ export const ACKNOWLEDGED_FINDINGS: AcknowledgedFinding[] = [
     reason: 'Image build and custom resource helpers only call AWS APIs. They are not in the image builder VPC, which may have no route to those APIs, and that would hang the deployment.',
   },
   {
+    rules: ['LambdaInsideVPC'],
+    paths: ['**/Image Builder Builds Filter/**'],
+    reason: 'Only forwards failed image build notifications to another topic. Putting it in the VPC would need an SNS endpoint in VPCs without internet access.',
+  },
+  {
     rules: ['SMG4', 'SecretsManagerRotationEnabled'],
     reason: 'The secrets hold GitHub app credentials that are created on GitHub and pasted in during setup.',
   },

@@ -4927,6 +4927,8 @@ Make sure the selected VPC and subnets have access to the following with either 
 * Secrets Manager
 * SQS
 * Step Functions
+* DynamoDB
+* Lambda (only with {@link providerSelector})
 * CloudFormation (status function only)
 * EC2
 * ECR (status function only)

@@ -152,6 +152,8 @@ export interface GitHubRunnersProps {
    * * Secrets Manager
    * * SQS
    * * Step Functions
+   * * DynamoDB
+   * * Lambda (only with {@link providerSelector})
    * * CloudFormation (status function only)
    * * EC2
    * * ECR (status function only)
@@ -1296,7 +1298,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     scope ??= this;
     const topic = new sns.Topic(scope, 'Failed Runner Image Builds', { enforceSSL: true });
     const stack = cdk.Stack.of(scope);
-    const filteringTopic = AwsImageBuilderFailedBuildNotifier.createFilteringTopic(scope, topic, this.extraLambdaProps);
+    const filteringTopic = AwsImageBuilderFailedBuildNotifier.createFilteringTopic(scope, topic);
     cdk.Aspects.of(stack).add(new CodeBuildImageBuilderFailedBuildNotifier(filteringTopic));
     cdk.Aspects.of(stack).add(new AwsImageBuilderFailedBuildNotifier(filteringTopic));
     return topic;

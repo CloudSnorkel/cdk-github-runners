@@ -926,7 +926,7 @@ export class AwsImageBuilderRunnerImageBuilder extends RunnerImageBuilderBase {
  * @internal
  */
 export class AwsImageBuilderFailedBuildNotifier implements cdk.IAspect {
-  public static createFilteringTopic(scope: Construct, targetTopic: sns.Topic, lambdaProps?: lambda.FunctionOptions): sns.ITopic {
+  public static createFilteringTopic(scope: Construct, targetTopic: sns.Topic): sns.ITopic {
     const topic = new sns.Topic(scope, 'Image Builder Builds', { enforceSSL: true });
     const filter = new FilterFailedBuildsFunction(scope, 'Image Builder Builds Filter', {
       logGroup: singletonLogGroup(scope, SingletonLogType.RUNNER_IMAGE_BUILD),
@@ -934,7 +934,6 @@ export class AwsImageBuilderFailedBuildNotifier implements cdk.IAspect {
       environment: {
         TARGET_TOPIC_ARN: targetTopic.topicArn,
       },
-      ...lambdaProps,
     });
 
     topic.addSubscription(new subs.LambdaSubscription(filter));
