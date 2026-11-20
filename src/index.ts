@@ -4,3 +4,4 @@ export * from './runner';
 export * from './providers';
 export * from './warm-runner';
 export * from './webhook';
+export * from './compliance';

@@ -152,6 +152,8 @@ export interface GitHubRunnersProps {
    * * Secrets Manager
    * * SQS
    * * Step Functions
+   * * DynamoDB
+   * * Lambda (only with {@link providerSelector})
    * * CloudFormation (status function only)
    * * EC2
    * * ECR (status function only)
@@ -714,6 +716,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
         definitionBody: stepfunctions.DefinitionBody.fromChainable(queueIdleReaperTask.next(configPass).next(runProviders)),
         definitionSubstitutions: dedupeStateMachineTokens(this, { providerConfigs, providerConsts }),
         logs: logOptions,
+        // explicit so removing a key from Compliance.encrypt() changes it back. CloudFormation keeps the key when the property is just removed.
+        encryptionConfiguration: new stepfunctions.AwsOwnedEncryptionConfiguration(),
       },
     );
 
@@ -961,6 +965,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
     const queue = new sqs.Queue(this, 'Idle Reaper Queue', {
       deliveryDelay: cdk.Duration.minutes(5),
       visibilityTimeout: cdk.Duration.minutes(5),
+      enforceSSL: true,
     });
 
     // trigger reaper function from queue
@@ -1291,7 +1296,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    */
   public failedImageBuildsTopic(scope?: Construct) {
     scope ??= this;
-    const topic = new sns.Topic(scope, 'Failed Runner Image Builds');
+    const topic = new sns.Topic(scope, 'Failed Runner Image Builds', { enforceSSL: true });
     const stack = cdk.Stack.of(scope);
     const filteringTopic = AwsImageBuilderFailedBuildNotifier.createFilteringTopic(scope, topic);
     cdk.Aspects.of(stack).add(new CodeBuildImageBuilderFailedBuildNotifier(filteringTopic));
@@ -1776,6 +1781,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
 
     this.warmRunnerQueue = new sqs.Queue(this, 'Warm Runner Queue', {
       visibilityTimeout: cdk.Duration.minutes(1),
+      enforceSSL: true,
     });
 
     this.warmRunnerManager = new WarmRunnerManagerFunction(this, 'Warm Runner Manager', {

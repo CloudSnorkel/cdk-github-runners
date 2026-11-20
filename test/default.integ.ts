@@ -12,16 +12,19 @@ import {
   aws_ecs as ecs,
   aws_events as events,
   aws_iam as iam,
+  aws_kms as kms,
   aws_lambda as lambda,
   aws_logs as logs,
   aws_sqs as sqs,
   aws_stepfunctions as stepfunctions,
-  custom_resources as cr, cx_api,
+  custom_resources as cr,
+  cx_api,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
   Architecture,
   CodeBuildRunnerProvider,
+  Compliance,
   CompositeProvider,
   Ec2RunnerProvider,
   EcsRunnerProvider,
@@ -49,6 +52,10 @@ const githubRepository = 'CloudSnorkel/cdk-github-runners';
 
 // turn this on if your account doesn't have a GitHub OIDC provider yet. an account can only have one, so we use the existing one by default.
 const createGitHubOidcProvider = false;
+
+// turn this on to test applying compliance settings to an existing deployment. deploy without it first, start jobs, and deploy again with it.
+// it adds a KMS key, a few log groups, and replaces the ECR repositories, so it's off for regular runs.
+const testCompliance = false;
 
 const app = new cdk.App({
   context: {
@@ -514,6 +521,18 @@ runners.metricStolenRunners();
 runners.metricJobsMatchingMultipleProviders();
 runners.createLogsInsightsQueries();
 runners.createDashboard();
+
+if (testCompliance) {
+  Compliance.of(stack).encrypt({
+    key: new kms.Key(stack, 'Compliance Key', {
+      alias: 'github-runners-compliance',
+      enableKeyRotation: true,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      pendingWindow: cdk.Duration.days(7),
+    }),
+  });
+  Compliance.of(stack).limitLambdaConcurrency();
+}
 
 // tells the integration test workflows whether a runner is still registered on GitHub, so they never see the app key
 const runnerCheck = new lambda.Function(stack, 'Integration Test Runner Check', {

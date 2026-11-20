@@ -106,6 +106,7 @@
     "aws-cdk": "^2",
     "aws-cdk-lib": "2.261.0",
     "bootstrap": "^5.2.0",
+    "cdk-nag": "^3",
     "commit-and-tag-version": "^13",
     "constructs": "10.5.1",
     "esbuild": "^0.28.2",

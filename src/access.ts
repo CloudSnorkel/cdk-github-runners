@@ -1,6 +1,6 @@
 import { execFileSync } from 'child_process';
 import * as cdk from 'aws-cdk-lib';
-import { aws_apigateway as apigateway, aws_ec2 as ec2, aws_iam as iam, aws_lambda as lambda } from 'aws-cdk-lib';
+import { aws_apigateway as apigateway, aws_ec2 as ec2, aws_iam as iam, aws_lambda as lambda, aws_logs as logs } from 'aws-cdk-lib';
 import { PolicyDocument } from 'aws-cdk-lib/aws-iam';
 import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
@@ -38,6 +38,25 @@ export interface ApiGatewayAccessProps {
    * Only works for private API Gateways with {@link allowedVpc}.
    */
   readonly allowedSecurityGroups?: ec2.ISecurityGroup[];
+
+  /**
+   * Log group for access logs, with one JSON line for each request.
+   *
+   * API Gateway can only write logs once the account has a CloudWatch Logs role. See
+   * https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html
+   *
+   * @default no access logs
+   */
+  readonly accessLogGroup?: logs.ILogGroup;
+
+  /**
+   * Level of execution logs. API Gateway writes them to its own log group named `API-Gateway-Execution-Logs_{rest-api-id}/{stage}`.
+   *
+   * Like access logs, these need a CloudWatch Logs role in the account.
+   *
+   * @default no execution logs
+   */
+  readonly loggingLevel?: apigateway.MethodLoggingLevel;
 }
 
 /**
@@ -247,6 +266,11 @@ class ApiGateway {
       cloudWatchRole: false,
       endpointConfiguration: endpointConfig,
       policy,
+      deployOptions: {
+        accessLogDestination: this.props?.accessLogGroup ? new apigateway.LogGroupLogDestination(this.props.accessLogGroup) : undefined,
+        accessLogFormat: this.props?.accessLogGroup ? apigateway.AccessLogFormat.jsonWithStandardFields() : undefined,
+        loggingLevel: this.props?.loggingLevel,
+      },
     });
 
     // remove CfnOutput

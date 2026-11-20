@@ -120,6 +120,11 @@
       "type": "build"
     },
     {
+      "name": "cdk-nag",
+      "version": "^3",
+      "type": "build"
+    },
+    {
       "name": "commit-and-tag-version",
       "version": "^13",
       "type": "build"

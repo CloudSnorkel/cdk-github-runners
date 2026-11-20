@@ -102,6 +102,7 @@ export class StolenRunnerDetector extends Construct {
       // point keeping one for days. this also bounds anything that fails forever without needing a dead letter
       // queue full of reports nobody will ever look at.
       retentionPeriod: cdk.Duration.hours(1),
+      enforceSSL: true,
     });
 
     this.handler = new StolenRunnerHandlerFunction(this, 'Handler', {

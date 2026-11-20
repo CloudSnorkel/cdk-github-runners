@@ -2990,10 +2990,28 @@ const apiGatewayAccessProps: ApiGatewayAccessProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.accessLogGroup">accessLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | Log group for access logs, with one JSON line for each request. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedIps">allowedIps</a></code> | <code>string[]</code> | List of IP addresses in CIDR notation that are allowed to access the API Gateway. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedSecurityGroups">allowedSecurityGroups</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup[]</code> | List of security groups that are allowed to access the API Gateway. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpc">allowedVpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | Create a private API Gateway and allow access from the specified VPC. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.allowedVpcEndpoints">allowedVpcEndpoints</a></code> | <code>aws-cdk-lib.aws_ec2.IVpcEndpoint[]</code> | Create a private API Gateway and allow access from the specified VPC endpoints. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.loggingLevel">loggingLevel</a></code> | <code>aws-cdk-lib.aws_apigateway.MethodLoggingLevel</code> | Level of execution logs. API Gateway writes them to its own log group named `API-Gateway-Execution-Logs_{rest-api-id}/{stage}`. |
+
+---
+
+##### `accessLogGroup`<sup>Optional</sup> <a name="accessLogGroup" id="@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.accessLogGroup"></a>
+
+```typescript
+public readonly accessLogGroup: ILogGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_logs.ILogGroup
+- *Default:* no access logs
+
+Log group for access logs, with one JSON line for each request.
+
+API Gateway can only write logs once the account has a CloudWatch Logs role. See
+https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html
 
 ---
 
@@ -3054,6 +3072,21 @@ Use this to make use of existing VPC endpoints or to share an endpoint between m
 No other settings are supported when using this option.
 
 All endpoints will be allowed access, but only the first one will be used as the URL by the runner system for setting up the webhook, and as setup URL.
+
+---
+
+##### `loggingLevel`<sup>Optional</sup> <a name="loggingLevel" id="@cloudsnorkel/cdk-github-runners.ApiGatewayAccessProps.property.loggingLevel"></a>
+
+```typescript
+public readonly loggingLevel: MethodLoggingLevel;
+```
+
+- *Type:* aws-cdk-lib.aws_apigateway.MethodLoggingLevel
+- *Default:* no execution logs
+
+Level of execution logs. API Gateway writes them to its own log group named `API-Gateway-Execution-Logs_{rest-api-id}/{stage}`.
+
+Like access logs, these need a CloudWatch Logs role in the account.
 
 ---
 
@@ -3447,6 +3480,167 @@ public readonly vpc: IVpc;
 - *Default:* no VPC
 
 VPC to launch the runners in.
+
+---
+
+### ComplianceEncryptionOptions <a name="ComplianceEncryptionOptions" id="@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions"></a>
+
+Keys used by {@link Compliance.encrypt}. Each type of resource uses its own key if set, or `key` otherwise. Types with neither are left as they are.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions.Initializer"></a>
+
+```typescript
+import { ComplianceEncryptionOptions } from '@cloudsnorkel/cdk-github-runners'
+
+const complianceEncryptionOptions: ComplianceEncryptionOptions = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions.property.images">images</a></code> | <code>aws-cdk-lib.aws_kms.IKey</code> | Key for ECR repositories holding runner images, and for AMIs built for EC2 runners. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions.property.key">key</a></code> | <code>aws-cdk-lib.aws_kms.IKey</code> | Key for every type of resource that doesn't have its own key below. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions.property.logs">logs</a></code> | <code>aws-cdk-lib.aws_kms.IKey</code> | Key for CloudWatch log groups, including runner logs. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions.property.messages">messages</a></code> | <code>aws-cdk-lib.aws_kms.IKey</code> | Key for the Step Functions state machine, SQS queues, SNS topics and the DynamoDB table used to manage runners. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions.property.secrets">secrets</a></code> | <code>aws-cdk-lib.aws_kms.IKey</code> | Key for Secrets Manager secrets holding GitHub credentials. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions.property.storage">storage</a></code> | <code>aws-cdk-lib.aws_kms.IKey</code> | Key for runner storage: EBS volumes of ECS instances, Fargate ephemeral storage, CodeBuild build output, and buckets used to build images. |
+
+---
+
+##### `images`<sup>Optional</sup> <a name="images" id="@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions.property.images"></a>
+
+```typescript
+public readonly images: IKey;
+```
+
+- *Type:* aws-cdk-lib.aws_kms.IKey
+- *Default:* `key`
+
+Key for ECR repositories holding runner images, and for AMIs built for EC2 runners.
+
+EC2 runner volumes are encrypted with the key of their AMI.
+
+Adding a key to an existing repository replaces it. The deployment waits for the image to be rebuilt in the new repository before runners use it.
+
+---
+
+##### `key`<sup>Optional</sup> <a name="key" id="@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions.property.key"></a>
+
+```typescript
+public readonly key: IKey;
+```
+
+- *Type:* aws-cdk-lib.aws_kms.IKey
+- *Default:* only types with their own key are encrypted
+
+Key for every type of resource that doesn't have its own key below.
+
+---
+
+##### `logs`<sup>Optional</sup> <a name="logs" id="@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions.property.logs"></a>
+
+```typescript
+public readonly logs: IKey;
+```
+
+- *Type:* aws-cdk-lib.aws_kms.IKey
+- *Default:* `key`
+
+Key for CloudWatch log groups, including runner logs.
+
+---
+
+##### `messages`<sup>Optional</sup> <a name="messages" id="@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions.property.messages"></a>
+
+```typescript
+public readonly messages: IKey;
+```
+
+- *Type:* aws-cdk-lib.aws_kms.IKey
+- *Default:* `key`
+
+Key for the Step Functions state machine, SQS queues, SNS topics and the DynamoDB table used to manage runners.
+
+---
+
+##### `secrets`<sup>Optional</sup> <a name="secrets" id="@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions.property.secrets"></a>
+
+```typescript
+public readonly secrets: IKey;
+```
+
+- *Type:* aws-cdk-lib.aws_kms.IKey
+- *Default:* `key`
+
+Key for Secrets Manager secrets holding GitHub credentials.
+
+---
+
+##### `storage`<sup>Optional</sup> <a name="storage" id="@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions.property.storage"></a>
+
+```typescript
+public readonly storage: IKey;
+```
+
+- *Type:* aws-cdk-lib.aws_kms.IKey
+- *Default:* `key`
+
+Key for runner storage: EBS volumes of ECS instances, Fargate ephemeral storage, CodeBuild build output, and buckets used to build images.
+
+ECS clusters and capacity providers you pass in are not changed.
+
+---
+
+### ComplianceLambdaConcurrencyOptions <a name="ComplianceLambdaConcurrencyOptions" id="@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions"></a>
+
+Reserved concurrency for Lambda functions used by runners.
+
+#### Initializer <a name="Initializer" id="@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions.Initializer"></a>
+
+```typescript
+import { ComplianceLambdaConcurrencyOptions } from '@cloudsnorkel/cdk-github-runners'
+
+const complianceLambdaConcurrencyOptions: ComplianceLambdaConcurrencyOptions = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions.property.maxJobStarts">maxJobStarts</a></code> | <code>number</code> | How many jobs you expect to start at the same time. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions.property.maxLambdaJobs">maxLambdaJobs</a></code> | <code>number</code> | How many jobs each Lambda runner provider can run at the same time. |
+
+---
+
+##### `maxJobStarts`<sup>Optional</sup> <a name="maxJobStarts" id="@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions.property.maxJobStarts"></a>
+
+```typescript
+public readonly maxJobStarts: number;
+```
+
+- *Type:* number
+- *Default:* 20
+
+How many jobs you expect to start at the same time.
+
+Functions called for every job, like the webhook handler, can run this many at once.
+If more jobs start at once, they wait a bit longer for a runner.
+
+Status, setup, warm runner and deployment helper functions are limited to 5.
+
+---
+
+##### `maxLambdaJobs`<sup>Optional</sup> <a name="maxLambdaJobs" id="@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions.property.maxLambdaJobs"></a>
+
+```typescript
+public readonly maxLambdaJobs: number;
+```
+
+- *Type:* number
+- *Default:* 20
+
+How many jobs each Lambda runner provider can run at the same time.
 
 ---
 
@@ -4733,6 +4927,8 @@ Make sure the selected VPC and subnets have access to the following with either 
 * Secrets Manager
 * SQS
 * Step Functions
+* DynamoDB
+* Lambda (only with {@link providerSelector})
 * CloudFormation (status function only)
 * EC2
 * ECR (status function only)
@@ -6894,6 +7090,91 @@ public readonly image: string;
 The rendered base image to use.
 
 ---
+
+
+### Compliance <a name="Compliance" id="@cloudsnorkel/cdk-github-runners.Compliance"></a>
+
+Settings that compliance frameworks like HIPAA, PCI DSS, and NIST 800-53 ask for, applied to everything this library creates in a scope.
+
+The scope can be an app, a stage, a stack, or a single construct like a runner provider. Settings of the closest scope win, so you can set a key
+for a whole stack and a stricter one for a single provider. Resources you create yourself are not changed.
+
+Once anything uses `Compliance`, synth warns about runner resources in the same stage that no scope covers. Like other aspects, an app
+scope doesn't reach into nested stages, so use `Compliance.of(stage)` for those.
+
+```typescript
+Compliance.of(stack).encrypt({ key });
+Compliance.of(gpuProvider).encrypt({ storage: gpuKey });
+Compliance.of(stack).limitLambdaConcurrency();
+```
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Compliance.encrypt">encrypt</a></code> | Encrypt data at rest with your own KMS keys. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Compliance.limitLambdaConcurrency">limitLambdaConcurrency</a></code> | Set reserved concurrency on Lambda functions. |
+
+---
+
+##### `encrypt` <a name="encrypt" id="@cloudsnorkel/cdk-github-runners.Compliance.encrypt"></a>
+
+```typescript
+public encrypt(options: ComplianceEncryptionOptions): void
+```
+
+Encrypt data at rest with your own KMS keys.
+
+Keys created in the same app get the key policy they need. For imported keys, a warning lists the statements to add to the key policy.
+
+###### `options`<sup>Required</sup> <a name="options" id="@cloudsnorkel/cdk-github-runners.Compliance.encrypt.parameter.options"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ComplianceEncryptionOptions">ComplianceEncryptionOptions</a>
+
+---
+
+##### `limitLambdaConcurrency` <a name="limitLambdaConcurrency" id="@cloudsnorkel/cdk-github-runners.Compliance.limitLambdaConcurrency"></a>
+
+```typescript
+public limitLambdaConcurrency(options?: ComplianceLambdaConcurrencyOptions): void
+```
+
+Set reserved concurrency on Lambda functions.
+
+This reserves 5 x `maxJobStarts` for functions called on every job, `maxLambdaJobs` for every Lambda runner provider, and 5 for every other
+function. With the defaults, that's about 120 for a simple deployment and 190 for one using every feature. Reserved concurrency comes out of
+your account limit, and the account must keep 100 unreserved.
+
+###### `options`<sup>Optional</sup> <a name="options" id="@cloudsnorkel/cdk-github-runners.Compliance.limitLambdaConcurrency.parameter.options"></a>
+
+- *Type:* <a href="#@cloudsnorkel/cdk-github-runners.ComplianceLambdaConcurrencyOptions">ComplianceLambdaConcurrencyOptions</a>
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.Compliance.of">of</a></code> | Compliance settings for everything this library creates in the given scope. |
+
+---
+
+##### `of` <a name="of" id="@cloudsnorkel/cdk-github-runners.Compliance.of"></a>
+
+```typescript
+import { Compliance } from '@cloudsnorkel/cdk-github-runners'
+
+Compliance.of(scope: IConstruct)
+```
+
+Compliance settings for everything this library creates in the given scope.
+
+###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.Compliance.of.parameter.scope"></a>
+
+- *Type:* constructs.IConstruct
+
+---
+
 
 
 ### CompositeProvider <a name="CompositeProvider" id="@cloudsnorkel/cdk-github-runners.CompositeProvider"></a>

@@ -14747,7 +14747,8 @@
      "GenerateStringKey": "webhookSecret",
      "IncludeSpace": false,
      "SecretStringTemplate": "{}"
-    }
+    },
+    "KmsKeyId": "alias/aws/secretsmanager"
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -14761,7 +14762,8 @@
      "GenerateStringKey": "dummy",
      "IncludeSpace": false,
      "SecretStringTemplate": "{\"domain\":\"github.com\",\"appId\":\"\",\"personalAuthToken\":\"\"}"
-    }
+    },
+    "KmsKeyId": "alias/aws/secretsmanager"
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -14770,6 +14772,7 @@
    "Type": "AWS::SecretsManager::Secret",
    "Properties": {
     "Description": "GitHub app private key (RSA private key in PEM format). This secret is only needed when using GitHub App authentication. Not required when using personal access tokens. For setup instructions, see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md",
+    "KmsKeyId": "alias/aws/secretsmanager",
     "SecretString": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
    },
    "UpdateReplacePolicy": "Delete",
@@ -14784,7 +14787,8 @@
      "GenerateStringKey": "token",
      "IncludeSpace": false,
      "SecretStringTemplate": "{\"token\":\"\"}"
-    }
+    },
+    "KmsKeyId": "alias/aws/secretsmanager"
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -15227,6 +15231,39 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "runnersIdleReaperQueuePolicy49E50851": {
+   "Type": "AWS::SQS::QueuePolicy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sqs:*",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersIdleReaperQueue117EFB9F",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Queues": [
+     {
+      "Ref": "runnersIdleReaperQueue117EFB9F"
+     }
+    ]
+   }
   },
   "runnersdeleterunnerServiceRole35856967": {
    "Type": "AWS::IAM::Role",
@@ -17466,6 +17503,9 @@
       "Ref": "EC2WindowsAMIRootDevice9FFC971A"
      }
     },
+    "EncryptionConfiguration": {
+     "Type": "AWS_OWNED_KEY"
+    },
     "RoleArn": {
      "Fn::GetAtt": [
       "runnersRunnerOrchestratorRole5D220AD7",
@@ -17515,6 +17555,39 @@
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
+  },
+  "runnersStolenRunnersQueuePolicy4FCC14CA": {
+   "Type": "AWS::SQS::QueuePolicy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sqs:*",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersStolenRunnersQueue65F1E43C",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Queues": [
+     {
+      "Ref": "runnersStolenRunnersQueue65F1E43C"
+     }
+    ]
+   }
   },
   "runnersStolenRunnersHandlerServiceRole675308DD": {
    "Type": "AWS::IAM::Role",
@@ -20963,6 +21036,24 @@
     "PolicyDocument": {
      "Statement": [
       {
+       "Action": "sqs:*",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": {
+        "Fn::GetAtt": [
+         "runnersWarmRunnerQueue858D73CB",
+         "Arn"
+        ]
+       }
+      },
+      {
        "Action": [
         "sqs:SendMessage",
         "sqs:GetQueueAttributes",
@@ -21275,6 +21366,35 @@
   "runnersFailedRunnerImageBuilds233D2237": {
    "Type": "AWS::SNS::Topic"
   },
+  "runnersFailedRunnerImageBuildsPolicyC1C99AF8": {
+   "Type": "AWS::SNS::TopicPolicy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sns:Publish",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": "*",
+       "Resource": {
+        "Ref": "runnersFailedRunnerImageBuilds233D2237"
+       },
+       "Sid": "AllowPublishThroughSSLOnly"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Topics": [
+     {
+      "Ref": "runnersFailedRunnerImageBuilds233D2237"
+     }
+    ]
+   }
+  },
   "runnersImageBuilderBuildsDF5A50E4": {
    "Type": "AWS::SNS::Topic"
   },
@@ -21285,6 +21405,20 @@
      "Statement": [
       {
        "Action": "sns:Publish",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": "*",
+       "Resource": {
+        "Ref": "runnersImageBuilderBuildsDF5A50E4"
+       },
+       "Sid": "AllowPublishThroughSSLOnly"
+      },
+      {
+       "Action": "sns:Publish",
        "Effect": "Allow",
        "Principal": {
         "Service": "codestar-notifications.amazonaws.com"
@@ -21292,7 +21426,7 @@
        "Resource": {
         "Ref": "runnersImageBuilderBuildsDF5A50E4"
        },
-       "Sid": "0"
+       "Sid": "1"
       }
      ],
      "Version": "2012-10-17"

@@ -2,7 +2,7 @@
   "/github-runners-test": [
     {
       "type": "aws:cdk:info",
-      "data": "Number of resources: 479 is approaching allowed maximum of 500"
+      "data": "Number of resources: 482 is approaching allowed maximum of 500"
     }
   ]
 }
