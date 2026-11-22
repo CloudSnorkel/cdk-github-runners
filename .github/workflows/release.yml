@@ -412,3 +412,31 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GO_GITHUB_TOKEN }}
           PUBLIB_DRYRUN: ${{ inputs.dry_run }}
         run: npx '-p' 'publib@latest' 'publib-golang'
+  release_docs:
+    name: Publish docs website
+    needs:
+      - release
+      - release_github
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    if: ${{ !inputs.dry_run }}
+    steps:
+      - name: Download build artifacts
+        id: download_build_artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          artifact-ids: ${{ needs.release.outputs.artifact_id }}
+          path: dist
+      - name: Upload docs
+        id: upload_docs
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist/docs
+      - name: Deploy docs
+        id: deploy
+        uses: actions/deploy-pages@v5

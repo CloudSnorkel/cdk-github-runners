@@ -150,7 +150,7 @@ Integration with GitHub can be done using an [app](#app-authentication) or [pers
 
 Personal access tokens work with both repository-level and organization-level runner registration. Both classic
 tokens and fine-grained tokens are supported. The permissions the token needs depend on the token type and on the
-[registration level](#4-runner-registration-level) you choose.
+[registration level](#registration-level-recommendation) you choose.
 
 > **⚠️ Note:** A personal access token is tied to the user that created it. Runners will stop working if the token
 > expires, if it is revoked, or if the user loses access to the repositories or the organization.

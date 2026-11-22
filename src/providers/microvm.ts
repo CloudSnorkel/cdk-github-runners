@@ -146,7 +146,7 @@ export interface MicroVmRunnerConfig extends RunnerConfig {
  * MicroVMs sit between Lambda and EC2. They boot from a snapshot in about a second, they have a writable disk and a
  * real kernel, and they can run for up to eight hours.
  *
- * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+ * This construct is not meant to be used by itself. It should be passed in the {@link GitHubRunnersProps.providers} property for {@link GitHubRunners}.
  *
  * This provider is experimental and may change in the future.
  *
@@ -230,7 +230,7 @@ export class MicroVmRunnerProvider extends BaseProvider implements IRunnerProvid
    *
    * You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
    *
-   * You can add components to the image builder by calling `imageBuilder.addComponent()`.
+   * You can add components to the image builder by calling {@link IConfigurableRunnerImageBuilder.addComponent}.
    *
    * The default OS is Amazon Linux 2023 running on x64 architecture.
    *
@@ -239,13 +239,13 @@ export class MicroVmRunnerProvider extends BaseProvider implements IRunnerProvid
    * compatible.
    *
    * Included components:
-   *  * `RunnerImageComponent.requiredPackages()`
-   *  * `RunnerImageComponent.runnerUser()`
-   *  * `RunnerImageComponent.git()`
-   *  * `RunnerImageComponent.githubCli()`
-   *  * `RunnerImageComponent.awsCli()`
-   *  * `RunnerImageComponent.githubRunner()`
-   *  * `RunnerImageComponent.microVmEntrypoint()`
+   *  * {@link RunnerImageComponent.requiredPackages}
+   *  * {@link RunnerImageComponent.runnerUser}
+   *  * {@link RunnerImageComponent.git}
+   *  * {@link RunnerImageComponent.githubCli}
+   *  * {@link RunnerImageComponent.awsCli}
+   *  * {@link RunnerImageComponent.githubRunner}
+   *  * {@link RunnerImageComponent.microVmEntrypoint}
    */
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     return RunnerImageBuilder.new(scope, id, {

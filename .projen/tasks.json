@@ -816,6 +816,22 @@
         }
       ]
     },
+    "docs:build": {
+      "name": "docs:build",
+      "steps": [
+        {
+          "exec": "vitepress build docs"
+        }
+      ]
+    },
+    "docs:dev": {
+      "name": "docs:dev",
+      "steps": [
+        {
+          "exec": "vitepress dev docs"
+        }
+      ]
+    },
     "eject": {
       "name": "eject",
       "description": "Remove projen from the project",
@@ -1044,6 +1060,9 @@
         {
           "spawn": "package-all",
           "condition": "node -e \"if (process.env.CI) process.exit(1)\""
+        },
+        {
+          "spawn": "docs:build"
         }
       ]
     },
@@ -1332,6 +1351,7 @@
             "typescript",
             "vite-plugin-singlefile",
             "vite",
+            "vitepress",
             "cron-parser",
             "aws-cdk-lib",
             "constructs",

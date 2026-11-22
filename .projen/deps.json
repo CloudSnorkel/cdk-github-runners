@@ -238,6 +238,11 @@
       "type": "build"
     },
     {
+      "name": "vitepress",
+      "version": "^1.6.4",
+      "type": "build"
+    },
+    {
       "name": "cron-parser",
       "type": "bundled"
     },

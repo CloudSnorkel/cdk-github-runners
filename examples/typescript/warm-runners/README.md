@@ -22,7 +22,7 @@ Pre-provisioned runners for low-latency job starts. Warm runners stay idle until
    cdk deploy
    ```
 
-4. Follow the setup instructions in the main [README.md](../../README.md) to configure GitHub integration. Ensure your runners are registered at org level if you use `registrationLevel: 'org'`.
+4. Follow the [setup instructions](https://ghr.cloudsnorkel.com/guide/setup-github) to configure GitHub integration. Ensure your runners are registered at org level if you use `registrationLevel: 'org'`.
 
 ## GitHub Workflow
 

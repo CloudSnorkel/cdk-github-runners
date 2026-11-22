@@ -1,6 +1,7 @@
 const { awscdk } = require('projen');
 const { CdkConfig } = require('projen/lib/awscdk');
 const { Stability } = require('projen/lib/cdk/jsii-project');
+const { JobPermission } = require('projen/lib/github/workflows-model');
 const { NpmAccess } = require('projen/lib/javascript');
 
 const project = new awscdk.AwsCdkConstructLibrary({
@@ -51,6 +52,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'eslint-plugin-svelte@^2.29.0',
     // https://github.com/projen/projen/issues/4368
     'shx',
+    // for docs website
+    'vitepress@^1.6.4',
   ],
   deps: [
   ],
@@ -212,6 +215,73 @@ project.vscode.settings.addSettings({
 const mergifyFile = project.tryFindObjectFile('.mergify.yml');
 mergifyFile.addToArray('queue_rules.0.queue_conditions', 'status-success=test-examples');
 mergifyFile.addToArray('pull_request_rules.0.conditions', 'status-success=test-examples');
+
+// docs website, built with the package so broken docstring links fail PRs, but compile stays fast
+project.gitignore.addPatterns('/docs/.vitepress/cache', '/docs/api', '/docs/.vitepress/*.timestamp-*.mjs');
+project.addPackageIgnore('/docs');
+const docsTask = project.addTask('docs:build', { exec: 'vitepress build docs' });
+project.addTask('docs:dev', { exec: 'vitepress dev docs' });
+project.packageTask.spawn(docsTask);
+const deployDocsSteps = [
+  {
+    name: 'Upload docs',
+    uses: 'actions/upload-pages-artifact@v5',
+    with: { path: 'dist/docs' },
+  },
+  {
+    name: 'Deploy docs',
+    id: 'deploy',
+    uses: 'actions/deploy-pages@v5',
+  },
+];
+const deployDocsJob = {
+  runsOn: ['ubuntu-latest'],
+  permissions: {
+    pages: JobPermission.WRITE,
+    idToken: JobPermission.WRITE,
+  },
+  environment: {
+    name: 'github-pages',
+    url: '${{ steps.deploy.outputs.page_url }}',
+  },
+};
+project.release.addJobs({
+  release_docs: {
+    ...deployDocsJob,
+    name: 'Publish docs website',
+    needs: ['release', 'release_github'],
+    if: '${{ !inputs.dry_run }}',
+    steps: [
+      {
+        name: 'Download build artifacts',
+        uses: 'actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c',
+        with: {
+          'artifact-ids': '${{ needs.release.outputs.artifact_id }}',
+          'path': 'dist',
+        },
+      },
+      ...deployDocsSteps,
+    ],
+  },
+});
+// publish docs without a release, for initial setup and docs-only changes
+const docsWorkflow = project.github.addWorkflow('docs');
+docsWorkflow.on({ workflowDispatch: {} });
+docsWorkflow.addJobs({
+  docs: {
+    ...deployDocsJob,
+    permissions: {
+      ...deployDocsJob.permissions,
+      contents: JobPermission.READ,
+    },
+    steps: [
+      { name: 'Checkout', uses: 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' },
+      ...project.renderWorkflowSetup({ mutable: false }),
+      { name: 'Build docs', run: 'pnpm exec projen compile && pnpm exec projen docs:build' },
+      ...deployDocsSteps,
+    ],
+  },
+});
 
 // funding
 project.package.addField('funding', 'https://github.com/sponsors/CloudSnorkel');

@@ -351,7 +351,7 @@ interface FargateRunnerConfig extends RunnerConfig {
  *
  * Creates a task definition with a single container that gets started for each job.
  *
- * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+ * This construct is not meant to be used by itself. It should be passed in the {@link GitHubRunnersProps.providers} property for {@link GitHubRunners}.
  */
 export class FargateRunnerProvider extends BaseProvider implements IRunnerProvider {
   /** @internal */
@@ -402,17 +402,17 @@ export class FargateRunnerProvider extends BaseProvider implements IRunnerProvid
    *
    * You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
    *
-   * You can add components to the image builder by calling `imageBuilder.addComponent()`.
+   * You can add components to the image builder by calling {@link IConfigurableRunnerImageBuilder.addComponent}.
    *
    * The default OS is Ubuntu running on x64 architecture.
    *
    * Included components:
-   *  * `RunnerImageComponent.requiredPackages()`
-   *  * `RunnerImageComponent.runnerUser()`
-   *  * `RunnerImageComponent.git()`
-   *  * `RunnerImageComponent.githubCli()`
-   *  * `RunnerImageComponent.awsCli()`
-   *  * `RunnerImageComponent.githubRunner()`
+   *  * {@link RunnerImageComponent.requiredPackages}
+   *  * {@link RunnerImageComponent.runnerUser}
+   *  * {@link RunnerImageComponent.git}
+   *  * {@link RunnerImageComponent.githubCli}
+   *  * {@link RunnerImageComponent.awsCli}
+   *  * {@link RunnerImageComponent.githubRunner}
    */
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     return RunnerImageBuilder.new(scope, id, {

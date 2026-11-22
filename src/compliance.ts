@@ -111,8 +111,8 @@ export interface ComplianceLambdaConcurrencyOptions {
  * The scope can be an app, a stage, a stack, or a single construct like a runner provider. Settings of the closest scope win, so you can set a key
  * for a whole stack and a stricter one for a single provider. Resources you create yourself are not changed.
  *
- * Once anything uses `Compliance`, synth warns about runner resources in the same stage that no scope covers. Like other aspects, an app
- * scope doesn't reach into nested stages, so use `Compliance.of(stage)` for those.
+ * Once anything uses {@link Compliance}, synth warns about runner resources in the same stage that no scope covers. Like other aspects, an app
+ * scope doesn't reach into nested stages, so call {@link Compliance.of} on those stages too.
  *
  * ```typescript
  * Compliance.of(stack).encrypt({ key });
@@ -233,7 +233,7 @@ class ComplianceAspect implements cdk.IAspect {
 }
 
 /**
- * Warns about runner resources that no `Compliance` scope covers.
+ * Warns about runner resources that no {@link Compliance} scope covers.
  */
 class UncoveredWarningAspect implements cdk.IAspect {
   private readonly warnedStacks = new Set<cdk.Stack>();

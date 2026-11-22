@@ -21,6 +21,6 @@ This example demonstrates how to configure access control for the webhook and se
 ## Setup
 
 1. Deploy the stack: `cdk deploy`
-2. Follow the setup instructions in the main [README.md](../../README.md) to configure GitHub integration
+2. Follow the [setup instructions](https://ghr.cloudsnorkel.com/guide/setup-github) to configure GitHub integration
 3. After setup is complete, the setup function will be inaccessible
 4. Use the `codebuild` label in your workflows

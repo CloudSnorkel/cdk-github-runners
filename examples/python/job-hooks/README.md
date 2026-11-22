@@ -27,5 +27,5 @@ If you only need one of the hooks, add just that component.
 
 1. Edit [`job-started.sh`](job-started.sh) and [`job-completed.sh`](job-completed.sh) to run your own per-job commands
 2. Deploy the stack: `cdk deploy`
-3. Follow the setup instructions in the main [README.md](../../../README.md) to configure GitHub integration
+3. Follow the [setup instructions](https://ghr.cloudsnorkel.com/guide/setup-github) to configure GitHub integration
 4. Use the `ec2` label in your workflows -- the hook runs automatically before each job

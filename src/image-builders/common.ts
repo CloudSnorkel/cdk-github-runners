@@ -24,7 +24,7 @@ export interface ImageBuilderBaseProps {
   /**
    * Image architecture.
    *
-   * @default Architecture.X86_64
+   * @default {@link Architecture.X86_64}
    */
   readonly architecture?: Architecture;
 
@@ -132,7 +132,7 @@ export interface RunnerImageBuilderProps {
   /**
    * Image architecture.
    *
-   * @default Architecture.X86_64
+   * @default {@link Architecture.X86_64}
    */
   readonly architecture?: Architecture;
 
@@ -146,15 +146,15 @@ export interface RunnerImageBuilderProps {
   /**
    * Base image from which Docker runner images will be built.
    *
-   * This can be a BaseContainerImage instance created using static factory methods:
-   *   - `BaseContainerImage.fromDockerHub('ubuntu', '22.04')` - Use DockerHub
-   *   - `BaseContainerImage.fromEcr(repo, 'latest')` - Use ECR (automatically grants permissions with CodeBuild)
-   *   - `BaseContainerImage.fromEcrPublic('lts', 'ubuntu', '22.04')` - Use ECR Public
-   *   - `BaseContainerImage.fromString('public.ecr.aws/lts/ubuntu:22.04')` - Use any string
+   * This can be a {@link BaseContainerImage} instance created using static factory methods:
+   *   - {@link BaseContainerImage.fromDockerHub}: use DockerHub, like `BaseContainerImage.fromDockerHub('ubuntu', '22.04')`
+   *   - {@link BaseContainerImage.fromEcr}: use ECR (automatically grants permissions with CodeBuild), like `BaseContainerImage.fromEcr(repo, 'latest')`
+   *   - {@link BaseContainerImage.fromEcrPublic}: use ECR Public, like `BaseContainerImage.fromEcrPublic('lts', 'ubuntu', '22.04')`
+   *   - {@link BaseContainerImage.fromString}: use any string, like `BaseContainerImage.fromString('public.ecr.aws/lts/ubuntu:22.04')`
    *
-   * When using private images from a different account or not on ECR, you may need to include additional setup commands with {@link dockerSetupCommands}.
+   * When using private images from a different account or not on ECR, you may need to include additional setup commands with {@link RunnerImageBuilderProps.dockerSetupCommands}.
    *
-   * @default public.ecr.aws/lts/ubuntu:22.04 for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, public.ecr.aws/lts/ubuntu:24.04 for Os.LINUX_UBUNTU_2404, public.ecr.aws/amazonlinux/amazonlinux:2 for Os.LINUX_AMAZON_2, mcr.microsoft.com/windows/servercore:ltsc2019-amd64 for Os.WINDOWS
+   * @default public.ecr.aws/lts/ubuntu:22.04 for {@link Os.LINUX_UBUNTU} and {@link Os.LINUX_UBUNTU_2204}, public.ecr.aws/lts/ubuntu:24.04 for {@link Os.LINUX_UBUNTU_2404}, public.ecr.aws/amazonlinux/amazonlinux:2 for {@link Os.LINUX_AMAZON_2}, mcr.microsoft.com/windows/servercore:ltsc2019-amd64 for {@link Os.WINDOWS}
    */
   readonly baseDockerImage?: BaseContainerImage;
 
@@ -170,17 +170,17 @@ export interface RunnerImageBuilderProps {
   /**
    * Base AMI from which runner AMIs will be built.
    *
-   * This can be a BaseImage instance created using static factory methods:
-   *   - `BaseImage.fromAmiId('ami-12345')` - Use an AMI ID
-   *   - `BaseImage.fromString('arn:aws:imagebuilder:...')` - Use any string (ARN, AMI ID, etc.)
-   *   - `BaseImage.fromSsmParameter(parameter)` - Use an SSM parameter object
-   *   - `BaseImage.fromSsmParameterName('/aws/service/ami/...')` - Use an SSM parameter by name
-   *   - `BaseImage.fromMarketplaceProductId('product-id')` - Use a Marketplace product ID
-   *   - `BaseImage.fromImageBuilder(scope, 'ubuntu-server-22-lts-x86')` - Use an AWS-provided Image Builder image
+   * This can be a {@link BaseImage} instance created using static factory methods:
+   *   - {@link BaseImage.fromAmiId}: use an AMI ID, like `BaseImage.fromAmiId('ami-12345')`
+   *   - {@link BaseImage.fromString}: use any string (ARN, AMI ID, etc.), like `BaseImage.fromString('arn:aws:imagebuilder:...')`
+   *   - {@link BaseImage.fromSsmParameter}: use an SSM parameter object, like `BaseImage.fromSsmParameter(parameter)`
+   *   - {@link BaseImage.fromSsmParameterName}: use an SSM parameter by name, like `BaseImage.fromSsmParameterName('/aws/service/ami/...')`
+   *   - {@link BaseImage.fromMarketplaceProductId}: use a Marketplace product ID, like `BaseImage.fromMarketplaceProductId('product-id')`
+   *   - {@link BaseImage.fromImageBuilder}: use an AWS-provided Image Builder image, like `BaseImage.fromImageBuilder(scope, 'ubuntu-server-22-lts-x86')`
    *
    * For example `BaseImage.fromImageBuilder(scope, 'ubuntu-server-22-lts-x86')` would always use the latest version of Ubuntu 22.04 in each build. If you want a specific version, you can pass the version as the third parameter.
    *
-   * @default latest Ubuntu 22.04 AMI for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, Ubuntu 24.04 AMI for Os.LINUX_UBUNTU_2404, latest Amazon Linux 2 AMI for Os.LINUX_AMAZON_2, latest Windows Server 2022 AMI for Os.WINDOWS
+   * @default latest Ubuntu 22.04 AMI for {@link Os.LINUX_UBUNTU} and {@link Os.LINUX_UBUNTU_2204}, Ubuntu 24.04 AMI for {@link Os.LINUX_UBUNTU_2404}, latest Amazon Linux 2 AMI for {@link Os.LINUX_AMAZON_2}, latest Windows Server 2022 AMI for {@link Os.WINDOWS}
    */
   readonly baseAmi?: BaseImage;
 
@@ -250,12 +250,12 @@ export interface RunnerImageBuilderProps {
   readonly builderType?: RunnerImageBuilderType;
 
   /**
-   * Options specific to CodeBuild image builder. Only used when builderType is RunnerImageBuilderType.CODE_BUILD.
+   * Options specific to CodeBuild image builder. Only used when {@link RunnerImageBuilderProps.builderType} is {@link RunnerImageBuilderType.CODE_BUILD}.
    */
   readonly codeBuildOptions?: CodeBuildRunnerImageBuilderProps;
 
   /**
-   * Options specific to AWS Image Builder. Only used when builderType is RunnerImageBuilderType.AWS_IMAGE_BUILDER.
+   * Options specific to AWS Image Builder. Only used when {@link RunnerImageBuilderProps.builderType} is {@link RunnerImageBuilderType.AWS_IMAGE_BUILDER}.
    */
   readonly awsImageBuilderOptions?: AwsImageBuilderRunnerImageBuilderProps;
 

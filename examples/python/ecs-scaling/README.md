@@ -23,5 +23,5 @@ You can customize the schedules and add additional scaling policies based on you
 ## Setup
 
 1. Deploy the stack: `cdk deploy`
-2. Follow the setup instructions in the main [README.md](../../README.md) to configure GitHub integration
+2. Follow the [setup instructions](https://ghr.cloudsnorkel.com/guide/setup-github) to configure GitHub integration
 3. Use the `ecs` label in your workflows

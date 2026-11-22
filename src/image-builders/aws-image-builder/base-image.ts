@@ -80,7 +80,7 @@ export class BaseImage {
    *
    * Uses AWS Deep Learning AMIs for Linux (Ubuntu, Amazon Linux 2, Amazon Linux 2023).
    * For Windows, subscribe to NVIDIA RTX Virtual Workstation in AWS Marketplace, then use
-   * {@link fromMarketplaceProductId} with the product ID.
+   * {@link BaseImage.fromMarketplaceProductId} with the product ID.
    *
    * @param os Target operating system
    * @param architecture Target architecture
