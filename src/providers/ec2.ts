@@ -48,7 +48,7 @@ ownerPath="{}"
 repoPath="{}"
 export ACTIONS_RUNNER_INPUT_JITCONFIG="{}" # run.sh reads --jitconfig from here so set -x doesn't log it
 labels="{}"
-
+export AWS_REGION="{}" # so aws calls don't need IMDS to find the region
 export AWS_RETRY_MODE=standard # better retry
 touch /var/log/runner.log
 
@@ -130,7 +130,7 @@ $ownerPath="{}"
 $repoPath="{}"
 $jitConfig="{}"
 $labels="{}"
-
+$Env:AWS_REGION = "{}"  # so aws calls don't need IMDS to find the region
 $Env:AWS_RETRY_MODE = "standard"  # better retry
 
 # EC2Launch only starts ssm agent after user data is done, so we need to start it ourselves (it is disabled by default)
@@ -392,7 +392,7 @@ export class Ec2RunnerProvider extends BaseProvider implements IRunnerProvider, 
           'UserData.$': 'States.Base64Encode(States.Format(' +
             `States.ArrayGetItem(States.Array($ec2UserDataLinux, $ec2UserDataWindows), ${p('userDataTemplateIdx')}), ` +
             `$$.Task.Token, ${p('logGroupName')}, ${RUNNER_INPUT.name}, ${RUNNER_INPUT.domain}, ${RUNNER_INPUT.owner}, ${RUNNER_INPUT.repo}, ` +
-            `${RUNNER_INPUT.jitConfig}, ${RUNNER_INPUT.labels}))`,
+            `${RUNNER_INPUT.jitConfig}, ${RUNNER_INPUT.labels}, '${cdk.Aws.REGION}'))`,
           'InstanceInitiatedShutdownBehavior': 'terminate',
           'IamInstanceProfile': {
             'Arn.$': p('instanceProfileArn'),
