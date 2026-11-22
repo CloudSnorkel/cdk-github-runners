@@ -129,9 +129,9 @@ export interface LambdaRunnerConfig extends RunnerConfig {
  * Creates a Docker-based function that gets executed for each job.
  *
  * Execution environments can be reused between jobs. All jobs that can run on the same function should be equally trusted. See
- * https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
+ * https://ghr.cloudsnorkel.com/guide/security#job-isolation
  *
- * This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+ * This construct is not meant to be used by itself. It should be passed in the {@link GitHubRunnersProps.providers} property for {@link GitHubRunners}.
  */
 export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvider {
   /** @internal */
@@ -181,18 +181,18 @@ export class LambdaRunnerProvider extends BaseProvider implements IRunnerProvide
    *
    * You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
    *
-   * You can add components to the image builder by calling `imageBuilder.addComponent()`.
+   * You can add components to the image builder by calling {@link IConfigurableRunnerImageBuilder.addComponent}.
    *
    * The default OS is Amazon Linux 2023 running on x64 architecture.
    *
    * Included components:
-   *  * `RunnerImageComponent.requiredPackages()`
-   *  * `RunnerImageComponent.runnerUser()`
-   *  * `RunnerImageComponent.git()`
-   *  * `RunnerImageComponent.githubCli()`
-   *  * `RunnerImageComponent.awsCli()`
-   *  * `RunnerImageComponent.githubRunner()`
-   *  * `RunnerImageComponent.lambdaEntrypoint()`
+   *  * {@link RunnerImageComponent.requiredPackages}
+   *  * {@link RunnerImageComponent.runnerUser}
+   *  * {@link RunnerImageComponent.git}
+   *  * {@link RunnerImageComponent.githubCli}
+   *  * {@link RunnerImageComponent.awsCli}
+   *  * {@link RunnerImageComponent.githubRunner}
+   *  * {@link RunnerImageComponent.lambdaEntrypoint}
    */
   public static imageBuilder(scope: Construct, id: string, props?: RunnerImageBuilderProps) {
     return RunnerImageBuilder.new(scope, id, {

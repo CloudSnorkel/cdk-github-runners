@@ -1,0 +1,84 @@
+/* only show code for the language picked in the navigation bar */
+html[data-lang] .lang {
+  display: none;
+}
+html[data-lang="typescript"] .lang-typescript,
+html[data-lang="python"] .lang-python,
+html[data-lang="java"] .lang-java,
+html[data-lang="csharp"] .lang-csharp,
+html[data-lang="go"] .lang-go {
+  display: revert;
+}
+
+.language-picker {
+  display: flex;
+  gap: 2px;
+  margin: 0 16px;
+  padding: 3px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background-color: var(--vp-c-bg-alt);
+}
+
+.language-picker button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.language-picker button:hover {
+  color: var(--vp-c-text-1);
+}
+
+.language-picker button[aria-checked="true"] {
+  background-color: var(--vp-c-bg);
+  color: var(--vp-c-brand-1);
+  box-shadow: var(--vp-shadow-1);
+}
+
+/* icons from Simple Icons (CC0), drawn in the text color */
+.language-icon {
+  width: 16px;
+  height: 16px;
+  background-color: currentColor;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+}
+
+.VPNavScreen .language-picker {
+  justify-content: space-between;
+  margin: 0 0 16px;
+}
+
+/* small screens have the picker in the menu instead */
+@media (max-width: 767px) {
+  .VPNavBar .language-picker {
+    display: none;
+  }
+}
+
+.video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 8px;
+}
+
+/* same look as the edit link */
+.report-issue {
+  display: inline-block;
+  margin-top: 64px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--vp-c-brand-1);
+  text-decoration: none;
+}
+
+.report-issue:hover {
+  color: var(--vp-c-brand-2);
+}

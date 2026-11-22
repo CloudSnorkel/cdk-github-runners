@@ -721,7 +721,7 @@ export abstract class RunnerImageComponent {
   /**
    * A component to set up the required MicroVM entrypoint for Lambda MicroVM runners.
    *
-   * Must be used *after* the {@link githubRunner} component.
+   * Must be used *after* the {@link RunnerImageComponent.githubRunner} component.
    *
    * @experimental
    */
@@ -778,7 +778,7 @@ export abstract class RunnerImageComponent {
    *
    * It is not recommended to use this component to pass secrets. Instead, use GitHub Secrets or AWS Secrets Manager.
    *
-   * Must be used after the {@link githubRunner} component.
+   * Must be used after the {@link RunnerImageComponent.githubRunner} component.
    */
   static environmentVariables(vars: Record<string, string>): RunnerImageComponent {
     Object.entries(vars).forEach(([key, value]) => {
@@ -819,7 +819,7 @@ export abstract class RunnerImageComponent {
    * [`ACTIONS_RUNNER_HOOK_JOB_STARTED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
    * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
    *
-   * Must be used after the {@link githubRunner} component.
+   * Must be used after the {@link RunnerImageComponent.githubRunner} component.
    *
    * @param sourcePath path to a local script file to run before every job
    */
@@ -835,7 +835,7 @@ export abstract class RunnerImageComponent {
    * [`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
    * environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
    *
-   * Must be used after the {@link githubRunner} component.
+   * Must be used after the {@link RunnerImageComponent.githubRunner} component.
    *
    * @param sourcePath path to a local script file to run after every job
    */

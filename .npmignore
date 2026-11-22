@@ -26,5 +26,6 @@ test/.tmp
 test/default.integ.snapshot
 /setup
 /examples
+/docs
 /.gitattributes
 /.projenrc.js

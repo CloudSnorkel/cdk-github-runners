@@ -45,6 +45,8 @@
     "compile": "projen compile",
     "default": "projen default",
     "docgen": "projen docgen",
+    "docs:build": "projen docs:build",
+    "docs:dev": "projen docs:dev",
     "eject": "projen eject",
     "eslint": "projen eslint",
     "integ:default:assert": "projen integ:default:assert",
@@ -132,7 +134,8 @@
     "ts-node": "^10.9.2",
     "typescript": "5.9.3",
     "vite": "^7",
-    "vite-plugin-singlefile": "^2"
+    "vite-plugin-singlefile": "^2",
+    "vitepress": "^1.6.4"
   },
   "peerDependencies": {
     "aws-cdk-lib": "^2.261.0",

@@ -10,47 +10,27 @@ Runners will be provisioned using the specified provider and registered in the s
 
 Registration level must match the one selected during setup.
 
-> [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
-
 **Limitations**
 
 - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
 - You may briefly see more than `count` runners when changing config or at rotation.
 - To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
-If you don't follow this procedure, warm runners may linger until they expire.
+  If you don't follow this procedure, warm runners may linger until they expire.
 - Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a
-gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
-can be tweaked using `retryOptions`. This will be improved in the future.
+  gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
+  can be tweaked using `retryOptions`. This will be improved in the future.
 
 ```typescript
 new AlwaysOnWarmRunner(stack, 'AlwaysOnLinux', {
-runners,
-provider: myProvider,
-count: 3,
-owner: 'my-org',
-repo: 'my-repo',
+  runners,
+  provider: myProvider,
+  count: 3,
+  owner: 'my-org',
+  repo: 'my-repo',
 });
-```](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
+```
 
-**Limitations**
-
-- Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
-- You may briefly see more than `count` runners when changing config or at rotation.
-- To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
-If you don't follow this procedure, warm runners may linger until they expire.
-- Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a
-gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
-can be tweaked using `retryOptions`. This will be improved in the future.
-
-```typescript
-new AlwaysOnWarmRunner(stack, 'AlwaysOnLinux', {
-runners,
-provider: myProvider,
-count: 3,
-owner: 'my-org',
-repo: 'my-repo',
-});
-```)
+> [https://ghr.cloudsnorkel.com/guide/setup-github](https://ghr.cloudsnorkel.com/guide/setup-github)
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunner.Initializer"></a>
 
@@ -193,7 +173,7 @@ GitHub Actions runner provider using CodeBuild to execute jobs.
 
 Creates a project that gets started for each job.
 
-This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+This construct is not meant to be used by itself. It should be passed in the {@link GitHubRunnersProps.providers } property for {@link GitHubRunners }.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.Initializer"></a>
 
@@ -320,18 +300,18 @@ Create new image builder that builds CodeBuild specific runner images.
 
 You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
 
-You can add components to the image builder by calling `imageBuilder.addComponent()`.
+You can add components to the image builder by calling {@link IConfigurableRunnerImageBuilder.addComponent }.
 
 The default OS is Ubuntu running on x64 architecture.
 
 Included components:
- * `RunnerImageComponent.requiredPackages()`
- * `RunnerImageComponent.runnerUser()`
- * `RunnerImageComponent.git()`
- * `RunnerImageComponent.githubCli()`
- * `RunnerImageComponent.awsCli()`
- * `RunnerImageComponent.docker()`
- * `RunnerImageComponent.githubRunner()`
+ * {@link RunnerImageComponent.requiredPackages}
+ * {@link RunnerImageComponent.runnerUser}
+ * {@link RunnerImageComponent.git}
+ * {@link RunnerImageComponent.githubCli}
+ * {@link RunnerImageComponent.awsCli}
+ * {@link RunnerImageComponent.docker}
+ * {@link RunnerImageComponent.githubRunner}
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.CodeBuildRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -445,7 +425,7 @@ CodeBuild project hosting the runner.
 
 GitHub Actions runner provider using EC2 to execute jobs.
 
-This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+This construct is not meant to be used by itself. It should be passed in the {@link GitHubRunnersProps.providers } property for {@link GitHubRunners }.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.Initializer"></a>
 
@@ -572,19 +552,19 @@ Create new image builder that builds EC2 specific runner images.
 
 You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
 
-You can add components to the image builder by calling `imageBuilder.addComponent()`.
+You can add components to the image builder by calling {@link IConfigurableRunnerImageBuilder.addComponent }.
 
 The default OS is Ubuntu running on x64 architecture.
 
 Included components:
- * `RunnerImageComponent.requiredPackages()`
- * `RunnerImageComponent.cloudWatchAgent()`
- * `RunnerImageComponent.runnerUser()`
- * `RunnerImageComponent.git()`
- * `RunnerImageComponent.githubCli()`
- * `RunnerImageComponent.awsCli()`
- * `RunnerImageComponent.docker()`
- * `RunnerImageComponent.githubRunner()`
+ * {@link RunnerImageComponent.requiredPackages}
+ * {@link RunnerImageComponent.cloudWatchAgent}
+ * {@link RunnerImageComponent.runnerUser}
+ * {@link RunnerImageComponent.git}
+ * {@link RunnerImageComponent.githubCli}
+ * {@link RunnerImageComponent.awsCli}
+ * {@link RunnerImageComponent.docker}
+ * {@link RunnerImageComponent.githubRunner}
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.Ec2RunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -690,9 +670,9 @@ group to scale down to zero during the night and scale up during work hours. Thi
 infrastructure to spin up.
 
 Jobs share instances, and by default run in privileged containers on Linux that can take over the instance. All jobs that can run on the same
-cluster should be equally trusted. See https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
+cluster should be equally trusted. See https://ghr.cloudsnorkel.com/guide/security#job-isolation
 
-This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+This construct is not meant to be used by itself. It should be passed in the {@link GitHubRunnersProps.providers } property for {@link GitHubRunners }.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.Initializer"></a>
 
@@ -819,18 +799,18 @@ Create new image builder that builds ECS specific runner images.
 
 You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
 
-You can add components to the image builder by calling `imageBuilder.addComponent()`.
+You can add components to the image builder by calling {@link IConfigurableRunnerImageBuilder.addComponent }.
 
 The default OS is Ubuntu running on x64 architecture.
 
 Included components:
- * `RunnerImageComponent.requiredPackages()`
- * `RunnerImageComponent.runnerUser()`
- * `RunnerImageComponent.git()`
- * `RunnerImageComponent.githubCli()`
- * `RunnerImageComponent.awsCli()`
- * `RunnerImageComponent.docker()`
- * `RunnerImageComponent.githubRunner()`
+ * {@link RunnerImageComponent.requiredPackages}
+ * {@link RunnerImageComponent.runnerUser}
+ * {@link RunnerImageComponent.git}
+ * {@link RunnerImageComponent.githubCli}
+ * {@link RunnerImageComponent.awsCli}
+ * {@link RunnerImageComponent.docker}
+ * {@link RunnerImageComponent.githubRunner}
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.EcsRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -948,7 +928,7 @@ GitHub Actions runner provider using Fargate to execute jobs.
 
 Creates a task definition with a single container that gets started for each job.
 
-This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+This construct is not meant to be used by itself. It should be passed in the {@link GitHubRunnersProps.providers } property for {@link GitHubRunners }.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.Initializer"></a>
 
@@ -1075,17 +1055,17 @@ Create new image builder that builds Fargate specific runner images.
 
 You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
 
-You can add components to the image builder by calling `imageBuilder.addComponent()`.
+You can add components to the image builder by calling {@link IConfigurableRunnerImageBuilder.addComponent }.
 
 The default OS is Ubuntu running on x64 architecture.
 
 Included components:
- * `RunnerImageComponent.requiredPackages()`
- * `RunnerImageComponent.runnerUser()`
- * `RunnerImageComponent.git()`
- * `RunnerImageComponent.githubCli()`
- * `RunnerImageComponent.awsCli()`
- * `RunnerImageComponent.githubRunner()`
+ * {@link RunnerImageComponent.requiredPackages}
+ * {@link RunnerImageComponent.runnerUser}
+ * {@link RunnerImageComponent.git}
+ * {@link RunnerImageComponent.githubCli}
+ * {@link RunnerImageComponent.awsCli}
+ * {@link RunnerImageComponent.githubRunner}
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.FargateRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -1199,7 +1179,7 @@ Note that this is not the job log, but the runner itself. It will not contain ou
 
 Create all the required infrastructure to provide self-hosted GitHub runners.
 
-It creates a webhook, secrets, and a step function to orchestrate all runs. Secrets are not automatically filled. See README.md for instructions on how to setup GitHub integration.
+It creates a webhook, secrets, and a step function to orchestrate all runs. Secrets are not automatically filled. See https://ghr.cloudsnorkel.com/guide/setup-github for instructions on how to setup GitHub integration.
 
 By default, this will create a runner provider of each available type with the defaults. This is good enough for the initial setup stage when you just want to get GitHub integration working.
 
@@ -1337,8 +1317,8 @@ It's split into sections, each with a short explanation of what its numbers mean
   were runners stopped before getting a job?
 * **Management functions (orchestration)**: is GitHub reaching the webhook, and is any of our code failing?
 
-**WARNING:** this method calls {@link metricJobCompleted}, {@link metricStolenRunners}, {@link metricStoppedRunners} and
-{@link metricJobsMatchingMultipleProviders} which create metric filters. These resources may incur cost.
+**WARNING:** this method calls {@link GitHubRunners.metricJobCompleted}, {@link GitHubRunners.metricStolenRunners}, {@link GitHubRunners.metricStoppedRunners} and
+{@link GitHubRunners.metricJobsMatchingMultipleProviders} which create metric filters. These resources may incur cost.
 
 This dashboard is very basic. Pull requests and issues are welcome to improve it.
 
@@ -1412,7 +1392,7 @@ public metricFailed(props?: MetricOptions): Metric
 
 Metric for failed runner executions.
 
-A failed runner usually means the runner failed to start and so a job was never executed. It doesn't necessarily mean the job was executed and failed. For that, see {@link metricJobCompleted}.
+A failed runner usually means the runner failed to start and so a job was never executed. It doesn't necessarily mean the job was executed and failed. For that, see {@link GitHubRunners.metricJobCompleted}.
 
 ###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricFailed.parameter.props"></a>
 
@@ -1449,7 +1429,7 @@ Metric for the number of jobs whose labels matched more than one provider.
 We start a runner from the first matching provider, but GitHub may give such a job a runner from any of them, including one started for
 another job. Stolen runner detection starts another runner for the job left behind, but the job itself may run on a provider you didn't
 expect. Anything over zero means some workflows ask for too few labels. Add labels to those jobs so they match only one provider. Use the
-"Jobs matching multiple providers" CloudWatch Logs Insights query created by {@link createLogsInsightsQueries} to find them.
+"Jobs matching multiple providers" CloudWatch Logs Insights query created by {@link GitHubRunners.createLogsInsightsQueries} to find them.
 
 Jobs routed by a provider selector are not counted, as the selector picks the provider.
 
@@ -1473,7 +1453,7 @@ These are the functions that handle webhooks, retrieve runner tokens, stop idle 
 jobs may not have gotten a runner. You should use this metric to trigger an alarm.
 
 Only unhandled errors are counted here, as reported by Lambda itself. Errors that are handled and logged, like a webhook with a bad signature,
-are not failed invocations. Use the "Webhook errors" and "Orchestration errors" queries created by {@link createLogsInsightsQueries} to find
+are not failed invocations. Use the "Webhook errors" and "Orchestration errors" queries created by {@link GitHubRunners.createLogsInsightsQueries} to find
 those.
 
 Management functions created after this method is called are not included. Call it last if you use warm runners.
@@ -1493,7 +1473,7 @@ public metricStolenRunners(props?: MetricOptions): Metric
 Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them.
 
 A high number here means your runners are shared with jobs you didn't mean to serve. Use the "Stolen runners"
-CloudWatch Logs Insights query created by {@link createLogsInsightsQueries} to see which repositories and jobs
+CloudWatch Logs Insights query created by {@link GitHubRunners.createLogsInsightsQueries} to see which repositories and jobs
 are taking them.
 
 This metric has two dimensions:
@@ -1518,7 +1498,7 @@ public metricStoppedRunners(props?: MetricOptions): Metric
 
 Metric for the number of runners we stopped on purpose before they got a job.
 
-These step function executions end up as aborted and not failed, so they don't show up in {@link metricFailed}.
+These step function executions end up as aborted and not failed, so they don't show up in {@link GitHubRunners.metricFailed}.
 
 This metric has one dimension, `Reason`, which is the error the step function was stopped with:
  * `IdleRunner`: the runner was idle for longer than its idle timeout and was reaped. This is usually a runner whose job was taken by
@@ -1545,7 +1525,7 @@ Metric for successful executions.
 
 A successful execution doesn't always mean a runner was started. It can be successful even without any label matches.
 
-A successful runner doesn't mean the job it executed was successful. For that, see {@link metricJobCompleted}.
+A successful runner doesn't mean the job it executed was successful. For that, see {@link GitHubRunners.metricJobCompleted}.
 
 ###### `props`<sup>Optional</sup> <a name="props" id="@cloudsnorkel/cdk-github-runners.GitHubRunners.metricSucceeded.parameter.props"></a>
 
@@ -1693,9 +1673,9 @@ GitHub Actions runner provider using Lambda to execute jobs.
 Creates a Docker-based function that gets executed for each job.
 
 Execution environments can be reused between jobs. All jobs that can run on the same function should be equally trusted. See
-https://github.com/CloudSnorkel/cdk-github-runners#job-isolation
+https://ghr.cloudsnorkel.com/guide/security#job-isolation
 
-This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+This construct is not meant to be used by itself. It should be passed in the {@link GitHubRunnersProps.providers } property for {@link GitHubRunners }.
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.Initializer"></a>
 
@@ -1822,18 +1802,18 @@ Create new image builder that builds Lambda specific runner images.
 
 You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
 
-You can add components to the image builder by calling `imageBuilder.addComponent()`.
+You can add components to the image builder by calling {@link IConfigurableRunnerImageBuilder.addComponent }.
 
 The default OS is Amazon Linux 2023 running on x64 architecture.
 
 Included components:
- * `RunnerImageComponent.requiredPackages()`
- * `RunnerImageComponent.runnerUser()`
- * `RunnerImageComponent.git()`
- * `RunnerImageComponent.githubCli()`
- * `RunnerImageComponent.awsCli()`
- * `RunnerImageComponent.githubRunner()`
- * `RunnerImageComponent.lambdaEntrypoint()`
+ * {@link RunnerImageComponent.requiredPackages}
+ * {@link RunnerImageComponent.runnerUser}
+ * {@link RunnerImageComponent.git}
+ * {@link RunnerImageComponent.githubCli}
+ * {@link RunnerImageComponent.awsCli}
+ * {@link RunnerImageComponent.githubRunner}
+ * {@link RunnerImageComponent.lambdaEntrypoint}
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.LambdaRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -1950,7 +1930,7 @@ GitHub Actions runner provider using Lambda MicroVMs to execute jobs.
 MicroVMs sit between Lambda and EC2. They boot from a snapshot in about a second, they have a writable disk and a
 real kernel, and they can run for up to eight hours.
 
-This construct is not meant to be used by itself. It should be passed in the providers property for GitHubRunners.
+This construct is not meant to be used by itself. It should be passed in the {@link GitHubRunnersProps.providers } property for {@link GitHubRunners }.
 
 This provider is experimental and may change in the future.
 
@@ -2079,7 +2059,7 @@ Create new image builder that builds MicroVM specific runner images.
 
 You can customize the OS, architecture, VPC, subnet, security groups, etc. by passing in props.
 
-You can add components to the image builder by calling `imageBuilder.addComponent()`.
+You can add components to the image builder by calling {@link IConfigurableRunnerImageBuilder.addComponent }.
 
 The default OS is Amazon Linux 2023 running on x64 architecture.
 
@@ -2088,13 +2068,13 @@ other things it carries an AWS-patched OpenSSL, so don't change it unless you kn
 compatible.
 
 Included components:
- * `RunnerImageComponent.requiredPackages()`
- * `RunnerImageComponent.runnerUser()`
- * `RunnerImageComponent.git()`
- * `RunnerImageComponent.githubCli()`
- * `RunnerImageComponent.awsCli()`
- * `RunnerImageComponent.githubRunner()`
- * `RunnerImageComponent.microVmEntrypoint()`
+ * {@link RunnerImageComponent.requiredPackages}
+ * {@link RunnerImageComponent.runnerUser}
+ * {@link RunnerImageComponent.git}
+ * {@link RunnerImageComponent.githubCli}
+ * {@link RunnerImageComponent.awsCli}
+ * {@link RunnerImageComponent.githubRunner}
+ * {@link RunnerImageComponent.microVmEntrypoint}
 
 ###### `scope`<sup>Required</sup> <a name="scope" id="@cloudsnorkel/cdk-github-runners.MicroVmRunnerProvider.imageBuilder.parameter.scope"></a>
 
@@ -2462,85 +2442,46 @@ Runners will be provisioned using the specified provider and registered in the s
 
 Registration level must match the one selected during setup.
 
-> [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
-
 **Limitations**
 
-- **No deployment-fill**: Unlike `AlwaysOnWarmRunner`, scheduled warm runners do not get an initial
-fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
-a 2pm schedule, runners will not appear until 2pm.
+- **No deployment-fill**: Unlike {@link AlwaysOnWarmRunner}, scheduled warm runners do not get an initial
+  fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
+  a 2pm schedule, runners will not appear until 2pm.
 - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
 - You may briefly see more than `count` runners when changing config or at rotation.
 - To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
-If you don't follow this procedure, warm runners may linger until they expire.
+  If you don't follow this procedure, warm runners may linger until they expire.
 - Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a
-gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
-can be tweaked using `retryOptions`. This will be improved in the future.
+  gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
+  can be tweaked using `retryOptions`. This will be improved in the future.
 
 ```typescript
 // Cron: fill at 1pm on weekdays
 new ScheduledWarmRunner(stack, 'Business Hours', {
-runners,
-provider: myProvider,
-count: 3,
-owner: 'my-org',
-repo: 'my-repo',
-schedule: events.Schedule.cron({ hour: '13', minute: '0', weekDay: 'MON-FRI' }),
-duration: cdk.Duration.hours(2),
+  runners,
+  provider: myProvider,
+  count: 3,
+  owner: 'my-org',
+  repo: 'my-repo',
+  schedule: events.Schedule.cron({ hour: '13', minute: '0', weekDay: 'MON-FRI' }),
+  duration: cdk.Duration.hours(2),
 });
 ```
 
 ```typescript
 // Rate: fill every 12 hours
 new ScheduledWarmRunner(stack, 'Every 12 Hours', {
-runners,
-provider: myProvider,
-count: 2,
-owner: 'my-org',
-repo: 'my-repo',
-schedule: events.Schedule.rate(cdk.Duration.hours(5)),
-duration: cdk.Duration.hours(12),
-});
-```](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
-
-**Limitations**
-
-- **No deployment-fill**: Unlike `AlwaysOnWarmRunner`, scheduled warm runners do not get an initial
-fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
-a 2pm schedule, runners will not appear until 2pm.
-- Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
-- You may briefly see more than `count` runners when changing config or at rotation.
-- To remove: set `count` to 0, deploy, wait for warm runners to stop, then remove and deploy again.
-If you don't follow this procedure, warm runners may linger until they expire.
-- Provider failures or timeouts (like Lambda provider timing out after 15 minutes) will result in a
-gap in coverage until the retry succeeds. Current retry mechanism has built-in back-off rate and
-can be tweaked using `retryOptions`. This will be improved in the future.
-
-```typescript
-// Cron: fill at 1pm on weekdays
-new ScheduledWarmRunner(stack, 'Business Hours', {
-runners,
-provider: myProvider,
-count: 3,
-owner: 'my-org',
-repo: 'my-repo',
-schedule: events.Schedule.cron({ hour: '13', minute: '0', weekDay: 'MON-FRI' }),
-duration: cdk.Duration.hours(2),
+  runners,
+  provider: myProvider,
+  count: 2,
+  owner: 'my-org',
+  repo: 'my-repo',
+  schedule: events.Schedule.rate(cdk.Duration.hours(5)),
+  duration: cdk.Duration.hours(12),
 });
 ```
 
-```typescript
-// Rate: fill every 12 hours
-new ScheduledWarmRunner(stack, 'Every 12 Hours', {
-runners,
-provider: myProvider,
-count: 2,
-owner: 'my-org',
-repo: 'my-repo',
-schedule: events.Schedule.rate(cdk.Duration.hours(5)),
-duration: cdk.Duration.hours(12),
-});
-```)
+> [https://ghr.cloudsnorkel.com/guide/setup-github](https://ghr.cloudsnorkel.com/guide/setup-github)
 
 #### Initializers <a name="Initializers" id="@cloudsnorkel/cdk-github-runners.ScheduledWarmRunner.Initializer"></a>
 
@@ -2887,7 +2828,7 @@ const alwaysOnWarmRunnerProps: AlwaysOnWarmRunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.count">count</a></code> | <code>number</code> | Number of warm runners to maintain. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.owner">owner</a></code> | <code>string</code> | GitHub owner where runners will be registered (org or user login). |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.provider">provider</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a> \| <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a></code> | Provider to use. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.runners">runners</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners">GitHubRunners</a></code> | The GitHubRunners construct that owns the shared warm runner infrastructure. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.runners">runners</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners">GitHubRunners</a></code> | The {@link GitHubRunners} construct that owns the shared warm runner infrastructure. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.registrationLevel">registrationLevel</a></code> | <code>string</code> | Registration level — must match how your runners are set up in GitHub. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.AlwaysOnWarmRunnerProps.property.repo">repo</a></code> | <code>string</code> | Repository name (without owner) where runners will be registered. |
 
@@ -2940,7 +2881,7 @@ public readonly runners: GitHubRunners;
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners">GitHubRunners</a>
 
-The GitHubRunners construct that owns the shared warm runner infrastructure.
+The {@link GitHubRunners} construct that owns the shared warm runner infrastructure.
 
 ---
 
@@ -2958,7 +2899,7 @@ Registration level — must match how your runners are set up in GitHub.
 Choose
 'org' for org-wide runners, 'repo' for repo-level. See the setup wizard for choosing repo vs org.
 
-> [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md)
+> [https://ghr.cloudsnorkel.com/guide/setup-github](https://ghr.cloudsnorkel.com/guide/setup-github)
 
 ---
 
@@ -3041,7 +2982,7 @@ public readonly allowedSecurityGroups: ISecurityGroup[];
 
 List of security groups that are allowed to access the API Gateway.
 
-Only works for private API Gateways with {@link allowedVpc}.
+Only works for private API Gateways with {@link ApiGatewayAccessProps.allowedVpc}.
 
 ---
 
@@ -3435,7 +3376,7 @@ public readonly securityGroups: ISecurityGroup[];
 ```
 
 - *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup[]
-- *Default:* a new security group, if {@link vpc } is used
+- *Default:* a new security group, if {@link CodeBuildRunnerProviderProps.vpc } is used
 
 Security groups to assign to this instance.
 
@@ -4000,7 +3941,7 @@ Existing ECS cluster to use.
 
 Jobs from all providers using the same cluster can share instances. Only share a cluster between providers whose jobs are equally trusted.
 
-> [https://github.com/CloudSnorkel/cdk-github-runners#job-isolation](https://github.com/CloudSnorkel/cdk-github-runners#job-isolation)
+> [https://ghr.cloudsnorkel.com/guide/security#job-isolation](https://ghr.cloudsnorkel.com/guide/security#job-isolation)
 
 ---
 
@@ -4035,7 +3976,7 @@ later. All jobs that can run on the same cluster should be equally trusted. Disa
 
 Disabling Docker-in-Docker can also speed up runner provisioning as the runner doesn't have to wait for Docker to boot.
 
-> [https://github.com/CloudSnorkel/cdk-github-runners#job-isolation](https://github.com/CloudSnorkel/cdk-github-runners#job-isolation)
+> [https://ghr.cloudsnorkel.com/guide/security#job-isolation](https://ghr.cloudsnorkel.com/guide/security#job-isolation)
 
 ---
 
@@ -4824,7 +4765,7 @@ Optional Lambda function to customize provider selection logic and label assignm
 
 **For reliable provider assignment based on job characteristics, consider using repo-level runner registration where you can control which runners are available for specific repositories. This information is also available while using the setup wizard.
 
-> [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md)
+> [https://ghr.cloudsnorkel.com/guide/setup-github](https://ghr.cloudsnorkel.com/guide/setup-github)
 
 ---
 
@@ -4876,7 +4817,7 @@ Use this to provide outbound access from management functions to GitHub Enterpri
 
 **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
 
-**Note:** Defining inbound rules on this security group does nothing. This security group only controls outbound access FROM the management functions. To limit access TO the webhook or setup functions, use {@link webhookAccess} and {@link setupAccess} instead.
+**Note:** Defining inbound rules on this security group does nothing. This security group only controls outbound access FROM the management functions. To limit access TO the webhook or setup functions, use {@link GitHubRunnersProps.webhookAccess} and {@link GitHubRunnersProps.setupAccess} instead.
 
 ---
 
@@ -4887,11 +4828,11 @@ public readonly setupAccess: LambdaAccess;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a>
-- *Default:* LambdaAccess.lambdaUrl()
+- *Default:* {@link LambdaAccess.lambdaUrl }
 
 Access configuration for the setup function.
 
-Once you finish the setup process, you can set this to `LambdaAccess.noAccess()` to remove access to the setup function. You can also use `LambdaAccess.apiGateway({ allowedIps: ['my-ip/0']})` to limit access to your IP only.
+Once you finish the setup process, you can set this to {@link LambdaAccess.noAccess} to remove access to the setup function. You can also use `LambdaAccess.apiGateway({ allowedIps: ['my-ip/0']})` to limit access to your IP only.
 
 ---
 
@@ -4902,7 +4843,7 @@ public readonly statusAccess: LambdaAccess;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a>
-- *Default:* LambdaAccess.noAccess()
+- *Default:* {@link LambdaAccess.noAccess }
 
 Access configuration for the status function.
 
@@ -4928,7 +4869,7 @@ Make sure the selected VPC and subnets have access to the following with either 
 * SQS
 * Step Functions
 * DynamoDB
-* Lambda (only with {@link providerSelector})
+* Lambda (only with {@link GitHubRunnersProps.providerSelector})
 * CloudFormation (status function only)
 * EC2
 * ECR (status function only)
@@ -4958,7 +4899,7 @@ public readonly webhookAccess: LambdaAccess;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.LambdaAccess">LambdaAccess</a>
-- *Default:* LambdaAccess.lambdaUrl()
+- *Default:* {@link LambdaAccess.lambdaUrl }
 
 Access configuration for the webhook function.
 
@@ -5487,7 +5428,7 @@ public readonly interval: Duration;
 
 How much time to wait after first retryable failure.
 
-This interval will be multiplied by {@link backoffRate} each retry, up to {@link maxDelay}.
+This interval will be multiplied by {@link ProviderRetryOptions.backoffRate} each retry, up to {@link ProviderRetryOptions.maxDelay}.
 
 ---
 
@@ -5931,7 +5872,7 @@ public readonly architecture: Architecture;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.Architecture">Architecture</a>
-- *Default:* Architecture.X86_64
+- *Default:* {@link Architecture.X86_64 }
 
 Image architecture.
 
@@ -5947,7 +5888,7 @@ public readonly awsImageBuilderOptions: AwsImageBuilderRunnerImageBuilderProps;
 
 Options specific to AWS Image Builder.
 
-Only used when builderType is RunnerImageBuilderType.AWS_IMAGE_BUILDER.
+Only used when {@link RunnerImageBuilderProps.builderType} is {@link RunnerImageBuilderType.AWS_IMAGE_BUILDER}.
 
 ---
 
@@ -5958,17 +5899,17 @@ public readonly baseAmi: BaseImage;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.BaseImage">BaseImage</a>
-- *Default:* latest Ubuntu 22.04 AMI for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, Ubuntu 24.04 AMI for Os.LINUX_UBUNTU_2404, latest Amazon Linux 2 AMI for Os.LINUX_AMAZON_2, latest Windows Server 2022 AMI for Os.WINDOWS
+- *Default:* latest Ubuntu 22.04 AMI for {@link Os.LINUX_UBUNTU } and {@link Os.LINUX_UBUNTU_2204 }, Ubuntu 24.04 AMI for {@link Os.LINUX_UBUNTU_2404 }, latest Amazon Linux 2 AMI for {@link Os.LINUX_AMAZON_2 }, latest Windows Server 2022 AMI for {@link Os.WINDOWS }
 
 Base AMI from which runner AMIs will be built.
 
-This can be a BaseImage instance created using static factory methods:
-  - `BaseImage.fromAmiId('ami-12345')` - Use an AMI ID
-  - `BaseImage.fromString('arn:aws:imagebuilder:...')` - Use any string (ARN, AMI ID, etc.)
-  - `BaseImage.fromSsmParameter(parameter)` - Use an SSM parameter object
-  - `BaseImage.fromSsmParameterName('/aws/service/ami/...')` - Use an SSM parameter by name
-  - `BaseImage.fromMarketplaceProductId('product-id')` - Use a Marketplace product ID
-  - `BaseImage.fromImageBuilder(scope, 'ubuntu-server-22-lts-x86')` - Use an AWS-provided Image Builder image
+This can be a {@link BaseImage} instance created using static factory methods:
+  - {@link BaseImage.fromAmiId}: use an AMI ID, like `BaseImage.fromAmiId('ami-12345')`
+  - {@link BaseImage.fromString}: use any string (ARN, AMI ID, etc.), like `BaseImage.fromString('arn:aws:imagebuilder:...')`
+  - {@link BaseImage.fromSsmParameter}: use an SSM parameter object, like `BaseImage.fromSsmParameter(parameter)`
+  - {@link BaseImage.fromSsmParameterName}: use an SSM parameter by name, like `BaseImage.fromSsmParameterName('/aws/service/ami/...')`
+  - {@link BaseImage.fromMarketplaceProductId}: use a Marketplace product ID, like `BaseImage.fromMarketplaceProductId('product-id')`
+  - {@link BaseImage.fromImageBuilder}: use an AWS-provided Image Builder image, like `BaseImage.fromImageBuilder(scope, 'ubuntu-server-22-lts-x86')`
 
 For example `BaseImage.fromImageBuilder(scope, 'ubuntu-server-22-lts-x86')` would always use the latest version of Ubuntu 22.04 in each build. If you want a specific version, you can pass the version as the third parameter.
 
@@ -5981,17 +5922,17 @@ public readonly baseDockerImage: BaseContainerImage;
 ```
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.BaseContainerImage">BaseContainerImage</a>
-- *Default:* public.ecr.aws/lts/ubuntu:22.04 for Os.LINUX_UBUNTU and Os.LINUX_UBUNTU_2204, public.ecr.aws/lts/ubuntu:24.04 for Os.LINUX_UBUNTU_2404, public.ecr.aws/amazonlinux/amazonlinux:2 for Os.LINUX_AMAZON_2, mcr.microsoft.com/windows/servercore:ltsc2019-amd64 for Os.WINDOWS
+- *Default:* public.ecr.aws/lts/ubuntu:22.04 for {@link Os.LINUX_UBUNTU } and {@link Os.LINUX_UBUNTU_2204 }, public.ecr.aws/lts/ubuntu:24.04 for {@link Os.LINUX_UBUNTU_2404 }, public.ecr.aws/amazonlinux/amazonlinux:2 for {@link Os.LINUX_AMAZON_2 }, mcr.microsoft.com/windows/servercore:ltsc2019-amd64 for {@link Os.WINDOWS }
 
 Base image from which Docker runner images will be built.
 
-This can be a BaseContainerImage instance created using static factory methods:
-  - `BaseContainerImage.fromDockerHub('ubuntu', '22.04')` - Use DockerHub
-  - `BaseContainerImage.fromEcr(repo, 'latest')` - Use ECR (automatically grants permissions with CodeBuild)
-  - `BaseContainerImage.fromEcrPublic('lts', 'ubuntu', '22.04')` - Use ECR Public
-  - `BaseContainerImage.fromString('public.ecr.aws/lts/ubuntu:22.04')` - Use any string
+This can be a {@link BaseContainerImage} instance created using static factory methods:
+  - {@link BaseContainerImage.fromDockerHub}: use DockerHub, like `BaseContainerImage.fromDockerHub('ubuntu', '22.04')`
+  - {@link BaseContainerImage.fromEcr}: use ECR (automatically grants permissions with CodeBuild), like `BaseContainerImage.fromEcr(repo, 'latest')`
+  - {@link BaseContainerImage.fromEcrPublic}: use ECR Public, like `BaseContainerImage.fromEcrPublic('lts', 'ubuntu', '22.04')`
+  - {@link BaseContainerImage.fromString}: use any string, like `BaseContainerImage.fromString('public.ecr.aws/lts/ubuntu:22.04')`
 
-When using private images from a different account or not on ECR, you may need to include additional setup commands with {@link dockerSetupCommands}.
+When using private images from a different account or not on ECR, you may need to include additional setup commands with {@link RunnerImageBuilderProps.dockerSetupCommands}.
 
 ---
 
@@ -6016,7 +5957,7 @@ public readonly codeBuildOptions: CodeBuildRunnerImageBuilderProps;
 
 Options specific to CodeBuild image builder.
 
-Only used when builderType is RunnerImageBuilderType.CODE_BUILD.
+Only used when {@link RunnerImageBuilderProps.builderType} is {@link RunnerImageBuilderType.CODE_BUILD}.
 
 ---
 
@@ -6330,7 +6271,7 @@ const scheduledWarmRunnerProps: ScheduledWarmRunnerProps = { ... }
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.duration">duration</a></code> | <code>aws-cdk-lib.Duration</code> | How long the warm runners should be maintained from the fill time (schedule). |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.owner">owner</a></code> | <code>string</code> | GitHub owner where runners will be registered (org or user login). |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.provider">provider</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.IRunnerProvider">IRunnerProvider</a> \| <a href="#@cloudsnorkel/cdk-github-runners.ICompositeProvider">ICompositeProvider</a></code> | Provider to use. |
-| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.runners">runners</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners">GitHubRunners</a></code> | The GitHubRunners construct that owns the shared warm runner infrastructure. |
+| <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.runners">runners</a></code> | <code><a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners">GitHubRunners</a></code> | The {@link GitHubRunners} construct that owns the shared warm runner infrastructure. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.schedule">schedule</a></code> | <code>aws-cdk-lib.aws_events.Schedule</code> | When to start filling the pool (e.g. start of business hours). |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.registrationLevel">registrationLevel</a></code> | <code>string</code> | Registration level — must match how your runners are set up in GitHub. |
 | <code><a href="#@cloudsnorkel/cdk-github-runners.ScheduledWarmRunnerProps.property.repo">repo</a></code> | <code>string</code> | Repository name (without owner) where runners will be registered. |
@@ -6399,7 +6340,7 @@ public readonly runners: GitHubRunners;
 
 - *Type:* <a href="#@cloudsnorkel/cdk-github-runners.GitHubRunners">GitHubRunners</a>
 
-The GitHubRunners construct that owns the shared warm runner infrastructure.
+The {@link GitHubRunners} construct that owns the shared warm runner infrastructure.
 
 ---
 
@@ -6429,7 +6370,7 @@ Registration level — must match how your runners are set up in GitHub.
 Choose
 'org' for org-wide runners, 'repo' for repo-level. See the setup wizard for choosing repo vs org.
 
-> [https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md](https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md)
+> [https://ghr.cloudsnorkel.com/guide/setup-github](https://ghr.cloudsnorkel.com/guide/setup-github)
 
 ---
 
@@ -6942,7 +6883,7 @@ A base AMI with NVIDIA drivers pre-installed for GPU workloads.
 
 Uses AWS Deep Learning AMIs for Linux (Ubuntu, Amazon Linux 2, Amazon Linux 2023).
 For Windows, subscribe to NVIDIA RTX Virtual Workstation in AWS Marketplace, then use
-{@link fromMarketplaceProductId} with the product ID.
+{@link BaseImage.fromMarketplaceProductId} with the product ID.
 
 ###### `os`<sup>Required</sup> <a name="os" id="@cloudsnorkel/cdk-github-runners.BaseImage.fromGpuBase.parameter.os"></a>
 
@@ -7099,8 +7040,8 @@ Settings that compliance frameworks like HIPAA, PCI DSS, and NIST 800-53 ask for
 The scope can be an app, a stage, a stack, or a single construct like a runner provider. Settings of the closest scope win, so you can set a key
 for a whole stack and a stricter one for a single provider. Resources you create yourself are not changed.
 
-Once anything uses `Compliance`, synth warns about runner resources in the same stage that no scope covers. Like other aspects, an app
-scope doesn't reach into nested stages, so use `Compliance.of(stage)` for those.
+Once anything uses {@link Compliance}, synth warns about runner resources in the same stage that no scope covers. Like other aspects, an app
+scope doesn't reach into nested stages, so call {@link Compliance.of} on those stages too.
 
 ```typescript
 Compliance.of(stack).encrypt({ key });
@@ -7798,7 +7739,7 @@ These variables only affect the jobs ran by the runner. They are not global. The
 
 It is not recommended to use this component to pass secrets. Instead, use GitHub Secrets or AWS Secrets Manager.
 
-Must be used after the {@link githubRunner} component.
+Must be used after the {@link RunnerImageComponent.githubRunner} component.
 
 ###### `vars`<sup>Required</sup> <a name="vars" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.environmentVariables.parameter.vars"></a>
 
@@ -7907,7 +7848,7 @@ configured to run it after each job through the
 [`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
 environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
 
-Must be used after the {@link githubRunner} component.
+Must be used after the {@link RunnerImageComponent.githubRunner} component.
 
 ###### `sourcePath`<sup>Required</sup> <a name="sourcePath" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobCompletedHook.parameter.sourcePath"></a>
 
@@ -7932,7 +7873,7 @@ configured to run it before each job through the
 [`ACTIONS_RUNNER_HOOK_JOB_STARTED`](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/run-scripts)
 environment variable. GitHub passes job context to the script as environment variables such as `GITHUB_REPOSITORY` and `GITHUB_RUN_ID`.
 
-Must be used after the {@link githubRunner} component.
+Must be used after the {@link RunnerImageComponent.githubRunner} component.
 
 ###### `sourcePath`<sup>Required</sup> <a name="sourcePath" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.jobStartedHook.parameter.sourcePath"></a>
 
@@ -7962,7 +7903,7 @@ RunnerImageComponent.microVmEntrypoint()
 
 A component to set up the required MicroVM entrypoint for Lambda MicroVM runners.
 
-Must be used *after* the {@link githubRunner} component.
+Must be used *after* the {@link RunnerImageComponent.githubRunner} component.
 
 ##### `requiredPackages` <a name="requiredPackages" id="@cloudsnorkel/cdk-github-runners.RunnerImageComponent.requiredPackages"></a>
 
@@ -8246,7 +8187,7 @@ image OS.
 
 Interface for composite runner providers that combine multiple sub-providers.
 
-Unlike IRunnerProvider, composite providers do not have connections, grant capabilities,
+Unlike {@link IRunnerProvider}, composite providers do not have connections, grant capabilities,
 or log groups as they delegate to their sub-providers.
 
 Note that this interface cannot be implemented by external code. Use {@link CompositeProvider } factory methods.

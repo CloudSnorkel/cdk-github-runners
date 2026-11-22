@@ -1,0 +1,11 @@
+// Fixture with only the stack around the snippet. Snippets import what they use.
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+
+class Fixture extends cdk.Stack {
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    /// here
+  }
+}

@@ -269,7 +269,7 @@ export interface ProviderRetryOptions {
   readonly retry?: boolean;
 
   /**
-   * How much time to wait after first retryable failure. This interval will be multiplied by {@link backoffRate} each retry, up to {@link maxDelay}.
+   * How much time to wait after first retryable failure. This interval will be multiplied by {@link ProviderRetryOptions.backoffRate} each retry, up to {@link ProviderRetryOptions.maxDelay}.
    *
    * @default 1 minute
    */
@@ -574,7 +574,7 @@ export function runnerDefaultLabels(os: Os, architecture: Architecture, enabled:
 
 /**
  * Interface for composite runner providers that combine multiple sub-providers.
- * Unlike IRunnerProvider, composite providers do not have connections, grant capabilities,
+ * Unlike {@link IRunnerProvider}, composite providers do not have connections, grant capabilities,
  * or log groups as they delegate to their sub-providers.
  *
  * Note that this interface cannot be implemented by external code. Use {@link CompositeProvider} factory methods.

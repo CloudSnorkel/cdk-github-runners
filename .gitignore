@@ -85,4 +85,8 @@ test/default.integ.snapshot/**/tree.json
 /cdk.out/
 .cdk.staging/
 !/.vscode/settings.json
+/docs/.vitepress/cache
+/docs/api
+/docs/.vitepress/*.timestamp-*.mjs
+!/.github/workflows/docs.yml
 !/.projenrc.js

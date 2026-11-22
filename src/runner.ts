@@ -153,7 +153,7 @@ export interface GitHubRunnersProps {
    * * SQS
    * * Step Functions
    * * DynamoDB
-   * * Lambda (only with {@link providerSelector})
+   * * Lambda (only with {@link GitHubRunnersProps.providerSelector})
    * * CloudFormation (status function only)
    * * EC2
    * * ECR (status function only)
@@ -181,7 +181,7 @@ export interface GitHubRunnersProps {
    *
    * **Note:** This only affects management functions that interact with GitHub. Lambda functions that help with runner image building and don't interact with GitHub are NOT affected by this setting.
    *
-   * **Note:** Defining inbound rules on this security group does nothing. This security group only controls outbound access FROM the management functions. To limit access TO the webhook or setup functions, use {@link webhookAccess} and {@link setupAccess} instead.
+   * **Note:** Defining inbound rules on this security group does nothing. This security group only controls outbound access FROM the management functions. To limit access TO the webhook or setup functions, use {@link GitHubRunnersProps.webhookAccess} and {@link GitHubRunnersProps.setupAccess} instead.
    */
   readonly securityGroups?: ec2.ISecurityGroup[];
 
@@ -228,9 +228,9 @@ export interface GitHubRunnersProps {
   readonly logOptions?: LogOptions;
 
   /**
-   * Access configuration for the setup function. Once you finish the setup process, you can set this to `LambdaAccess.noAccess()` to remove access to the setup function. You can also use `LambdaAccess.apiGateway({ allowedIps: ['my-ip/0']})` to limit access to your IP only.
+   * Access configuration for the setup function. Once you finish the setup process, you can set this to {@link LambdaAccess.noAccess} to remove access to the setup function. You can also use `LambdaAccess.apiGateway({ allowedIps: ['my-ip/0']})` to limit access to your IP only.
    *
-   * @default LambdaAccess.lambdaUrl()
+   * @default {@link LambdaAccess.lambdaUrl}
    */
   readonly setupAccess?: LambdaAccess;
 
@@ -242,14 +242,14 @@ export interface GitHubRunnersProps {
    *
    * *WARNING*: changing access type may change the URL. When the URL changes, you must update GitHub as well.
    *
-   * @default LambdaAccess.lambdaUrl()
+   * @default {@link LambdaAccess.lambdaUrl}
    */
   readonly webhookAccess?: LambdaAccess;
 
   /**
    * Access configuration for the status function. This function returns a lot of sensitive information about the runner, so you should only allow access to it from trusted IPs, if at all.
    *
-   * @default LambdaAccess.noAccess()
+   * @default {@link LambdaAccess.noAccess}
    */
   readonly statusAccess?: LambdaAccess;
 
@@ -280,7 +280,7 @@ export interface GitHubRunnersProps {
    *
    * **For reliable provider assignment based on job characteristics, consider using repo-level runner registration where you can control which runners are available for specific repositories. This information is also available while using the setup wizard.
    *
-   * @see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
+   * @see https://ghr.cloudsnorkel.com/guide/setup-github
    */
   readonly providerSelector?: lambda.IFunction;
 }
@@ -319,7 +319,7 @@ export interface LogOptions {
 }
 
 /**
- * Create all the required infrastructure to provide self-hosted GitHub runners. It creates a webhook, secrets, and a step function to orchestrate all runs. Secrets are not automatically filled. See README.md for instructions on how to setup GitHub integration.
+ * Create all the required infrastructure to provide self-hosted GitHub runners. It creates a webhook, secrets, and a step function to orchestrate all runs. Secrets are not automatically filled. See https://ghr.cloudsnorkel.com/guide/setup-github for instructions on how to setup GitHub integration.
  *
  * By default, this will create a runner provider of each available type with the defaults. This is good enough for the initial setup stage when you just want to get GitHub integration working.
  *
@@ -1117,7 +1117,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    *
    * A successful execution doesn't always mean a runner was started. It can be successful even without any label matches.
    *
-   * A successful runner doesn't mean the job it executed was successful. For that, see {@link metricJobCompleted}.
+   * A successful runner doesn't mean the job it executed was successful. For that, see {@link GitHubRunners.metricJobCompleted}.
    */
   public metricSucceeded(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
     return this.orchestrator.metricSucceeded(props);
@@ -1126,7 +1126,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   /**
    * Metric for failed runner executions.
    *
-   * A failed runner usually means the runner failed to start and so a job was never executed. It doesn't necessarily mean the job was executed and failed. For that, see {@link metricJobCompleted}.
+   * A failed runner usually means the runner failed to start and so a job was never executed. It doesn't necessarily mean the job was executed and failed. For that, see {@link GitHubRunners.metricJobCompleted}.
    */
   public metricFailed(props?: cloudwatch.MetricOptions): cloudwatch.Metric {
     return this.orchestrator.metricFailed(props);
@@ -1143,7 +1143,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * Metric for the number of runners that were stolen by a job that shouldn't have been assigned to them.
    *
    * A high number here means your runners are shared with jobs you didn't mean to serve. Use the "Stolen runners"
-   * CloudWatch Logs Insights query created by {@link createLogsInsightsQueries} to see which repositories and jobs
+   * CloudWatch Logs Insights query created by {@link GitHubRunners.createLogsInsightsQueries} to see which repositories and jobs
    * are taking them.
    *
    * This metric has two dimensions:
@@ -1185,7 +1185,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * We start a runner from the first matching provider, but GitHub may give such a job a runner from any of them, including one started for
    * another job. Stolen runner detection starts another runner for the job left behind, but the job itself may run on a provider you didn't
    * expect. Anything over zero means some workflows ask for too few labels. Add labels to those jobs so they match only one provider. Use the
-   * "Jobs matching multiple providers" CloudWatch Logs Insights query created by {@link createLogsInsightsQueries} to find them.
+   * "Jobs matching multiple providers" CloudWatch Logs Insights query created by {@link GitHubRunners.createLogsInsightsQueries} to find them.
    *
    * Jobs routed by a provider selector are not counted, as the selector picks the provider.
    *
@@ -1216,7 +1216,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
   /**
    * Metric for the number of runners we stopped on purpose before they got a job.
    *
-   * These step function executions end up as aborted and not failed, so they don't show up in {@link metricFailed}.
+   * These step function executions end up as aborted and not failed, so they don't show up in {@link GitHubRunners.metricFailed}.
    *
    * This metric has one dimension, `Reason`, which is the error the step function was stopped with:
    *  * `IdleRunner`: the runner was idle for longer than its idle timeout and was reaped. This is usually a runner whose job was taken by
@@ -1258,7 +1258,7 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    * jobs may not have gotten a runner. You should use this metric to trigger an alarm.
    *
    * Only unhandled errors are counted here, as reported by Lambda itself. Errors that are handled and logged, like a webhook with a bad signature,
-   * are not failed invocations. Use the "Webhook errors" and "Orchestration errors" queries created by {@link createLogsInsightsQueries} to find
+   * are not failed invocations. Use the "Webhook errors" and "Orchestration errors" queries created by {@link GitHubRunners.createLogsInsightsQueries} to find
    * those.
    *
    * Management functions created after this method is called are not included. Call it last if you use warm runners.
@@ -1494,8 +1494,8 @@ export class GitHubRunners extends Construct implements ec2.IConnectable {
    *   were runners stopped before getting a job?
    * * **Management functions (orchestration)**: is GitHub reaching the webhook, and is any of our code failing?
    *
-   * **WARNING:** this method calls {@link metricJobCompleted}, {@link metricStolenRunners}, {@link metricStoppedRunners} and
-   * {@link metricJobsMatchingMultipleProviders} which create metric filters. These resources may incur cost.
+   * **WARNING:** this method calls {@link GitHubRunners.metricJobCompleted}, {@link GitHubRunners.metricStolenRunners}, {@link GitHubRunners.metricStoppedRunners} and
+   * {@link GitHubRunners.metricJobsMatchingMultipleProviders} which create metric filters. These resources may incur cost.
    *
    * This dashboard is very basic. Pull requests and issues are welcome to improve it.
    *

@@ -35,7 +35,7 @@ export interface ApiGatewayAccessProps {
   /**
    * List of security groups that are allowed to access the API Gateway.
    *
-   * Only works for private API Gateways with {@link allowedVpc}.
+   * Only works for private API Gateways with {@link ApiGatewayAccessProps.allowedVpc}.
    */
   readonly allowedSecurityGroups?: ec2.ISecurityGroup[];
 

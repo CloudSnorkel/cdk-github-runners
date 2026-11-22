@@ -17,7 +17,7 @@ import { WarmRunnerFillPayload } from './warm-runner-manager.lambda';
  */
 export interface WarmRunnerBaseProps {
   /**
-   * The GitHubRunners construct that owns the shared warm runner infrastructure.
+   * The {@link GitHubRunners} construct that owns the shared warm runner infrastructure.
    */
   readonly runners: GitHubRunners;
 
@@ -41,7 +41,7 @@ export interface WarmRunnerBaseProps {
    * Registration level — must match how your runners are set up in GitHub. Choose
    * 'org' for org-wide runners, 'repo' for repo-level. See the setup wizard for choosing repo vs org.
    *
-   * @see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
+   * @see https://ghr.cloudsnorkel.com/guide/setup-github
    *
    * @default 'repo'
    */
@@ -138,8 +138,6 @@ function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule:
  *
  * Registration level must match the one selected during setup.
  *
- * @see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
- *
  * **Limitations**
  *
  * - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
@@ -159,6 +157,8 @@ function buildWarmRunner(scope: Construct, props: WarmRunnerBaseProps, schedule:
  *   repo: 'my-repo',
  * });
  * ```
+ *
+ * @see https://ghr.cloudsnorkel.com/guide/setup-github
  */
 export class AlwaysOnWarmRunner extends Construct {
   /**
@@ -232,11 +232,9 @@ function getScheduleIntervalSeconds(expressionString: string): number | undefine
  *
  * Registration level must match the one selected during setup.
  *
- * @see https://github.com/CloudSnorkel/cdk-github-runners/blob/main/SETUP_GITHUB.md
- *
  * **Limitations**
  *
- * - **No deployment-fill**: Unlike `AlwaysOnWarmRunner`, scheduled warm runners do not get an initial
+ * - **No deployment-fill**: Unlike {@link AlwaysOnWarmRunner}, scheduled warm runners do not get an initial
  *   fill on deploy. The first fill happens at the next schedule occurrence. If you deploy at 1pm for
  *   a 2pm schedule, runners will not appear until 2pm.
  * - Jobs will still trigger provisioning of on-demand runners, even if a warm runner ends up being used.
@@ -272,6 +270,8 @@ function getScheduleIntervalSeconds(expressionString: string): number | undefine
  *   duration: cdk.Duration.hours(12),
  * });
  * ```
+ *
+ * @see https://ghr.cloudsnorkel.com/guide/setup-github
  */
 export class ScheduledWarmRunner extends Construct {
   /**
