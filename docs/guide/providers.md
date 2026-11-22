@@ -15,7 +15,7 @@ A runner provider creates compute resources on-demand and uses [actions/runner](
 | **Spot pricing** | ✔                 | ❌                         | ✔              | ✔              | ❌           | ❌             |
 | **OS**           | Linux, Windows    | Linux, Windows             | Linux, Windows | Linux, Windows | Linux         | Linux          |
 
-The best provider to use mostly depends on your current infrastructure. When in doubt, CodeBuild is always a good choice. Execution history and logs are easy to view, and it has no restrictive limits unless you need to run for more than 8 hours.
+The best provider to use mostly depends on your current infrastructure. When in doubt, CodeBuild is always a good choice. Execution history and logs are easy to view, and it has no restrictive limits unless you need to run for more than 36 hours.
 
 * [EC2](/api/Ec2RunnerProvider) is useful when you want runners to have complete access to the host
 * [ECS](/api/EcsRunnerProvider) is useful when you want to control the infrastructure, like leaving the runner host running for faster startups

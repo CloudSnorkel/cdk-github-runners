@@ -29,7 +29,7 @@ aws --region us-east-1 lambda invoke --function-name status-XYZ123 status.json
 
 ## Rebuilding runner images
 
-Runner images are rebuilt every [`rebuildInterval`](/api/RunnerImageBuilderProps#rebuildInterval) (7 days by default). To rebuild all of them right now, run this with the name of the every stack your runners are built in. It starts every image builder in the stack and prints the build ids. Runners pick up the new images as soon as the builds finish.
+Runner images are rebuilt every [`rebuildInterval`](/api/RunnerImageBuilderProps#rebuildInterval) (7 days by default). To rebuild all of them right now, run this with the name of each stack your runners are built in. It starts every image builder in the stack and prints the build ids. Runners pick up the new images as soon as the builds finish.
 
 ```sh
 STACK=my-runners-stack

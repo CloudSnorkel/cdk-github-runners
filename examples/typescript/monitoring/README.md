@@ -37,6 +37,6 @@ After deploying:
 1. **Important**: Update the email address in the code (`your-email@example.com`) to your actual email
 2. Deploy the stack: `cdk deploy`
 3. Check your email and confirm the SNS subscription (you'll receive a confirmation email)
-4. Follow the setup instructions in the main [README.md](../../README.md) to configure GitHub integration
+4. Follow the [setup instructions](https://ghr.cloudsnorkel.com/guide/setup-github) to configure GitHub integration
 5. Optionally, uncomment the code to add email notifications to the failed runners alarm as well
 6. Use the `codebuild` label in your workflows

@@ -31,5 +31,5 @@ This example demonstrates how to configure runners for GitHub Enterprise Server 
 2. Get the webhook URL from `status.json` (it will be a VPC-internal URL)
 3. Configure GitHub Enterprise Server webhook to use this URL
 4. If GHES uses a self-signed certificate, uncomment and configure the certificate sections in the code
-5. Follow the setup instructions in the main [README.md](../../README.md) for authentication
+5. Follow the [setup instructions](https://ghr.cloudsnorkel.com/guide/setup-github) for authentication
 6. Use the `codebuild` label in your workflows

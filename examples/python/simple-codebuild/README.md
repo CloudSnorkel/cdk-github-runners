@@ -20,7 +20,7 @@ This is the simplest example of using the CDK GitHub Runners library with just a
    cdk deploy
    ```
 
-3. Follow the setup instructions in the main [README.md](../../README.md) to configure GitHub integration
+3. Follow the [setup instructions](https://ghr.cloudsnorkel.com/guide/setup-github) to configure GitHub integration
 
 ## GitHub Workflow
 

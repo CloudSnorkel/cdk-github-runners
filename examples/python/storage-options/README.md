@@ -64,5 +64,5 @@ After deploying, your runners will have the configured storage options. This is 
 ## Setup
 
 1. Deploy the stack: `cdk deploy`
-2. Follow the setup instructions in the main [README.md](../../README.md) to configure GitHub integration
+2. Follow the [setup instructions](https://ghr.cloudsnorkel.com/guide/setup-github) to configure GitHub integration
 3. Use the `ec2` or `codebuild` labels in your workflows

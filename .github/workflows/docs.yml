@@ -34,7 +34,7 @@ jobs:
         run: pnpm i --frozen-lockfile
       - name: Build docs
         id: build_docs
-        run: pnpm exec projen compile && pnpm exec projen docgen && pnpm exec projen docs:build
+        run: pnpm exec projen compile && pnpm exec projen docs:build
       - name: Upload docs
         id: upload_docs
         uses: actions/upload-pages-artifact@v5

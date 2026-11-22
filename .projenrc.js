@@ -277,7 +277,7 @@ docsWorkflow.addJobs({
     steps: [
       { name: 'Checkout', uses: 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' },
       ...project.renderWorkflowSetup({ mutable: false }),
-      { name: 'Build docs', run: 'pnpm exec projen compile && pnpm exec projen docgen && pnpm exec projen docs:build' },
+      { name: 'Build docs', run: 'pnpm exec projen compile && pnpm exec projen docs:build' },
       ...deployDocsSteps,
     ],
   },
