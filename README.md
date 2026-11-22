@@ -37,6 +37,7 @@ Everything you need is on **[ghr.cloudsnorkel.com][21]**, with code in TypeScrip
 * [Security](https://ghr.cloudsnorkel.com/guide/security)
 * [Compliance](https://ghr.cloudsnorkel.com/guide/compliance)
 * [Monitoring](https://ghr.cloudsnorkel.com/guide/monitoring)
+* [Cost](https://ghr.cloudsnorkel.com/guide/cost)
 * [Troubleshooting](https://ghr.cloudsnorkel.com/guide/troubleshooting)
 * [API Reference](https://ghr.cloudsnorkel.com/api/)
 
