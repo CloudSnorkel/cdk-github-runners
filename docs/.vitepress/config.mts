@@ -63,6 +63,7 @@ export default defineConfig({
             { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'Providers', link: '/guide/providers' },
             { text: 'Setting Up GitHub', link: '/guide/setup-github' },
+            { text: 'Upgrading', link: '/guide/upgrading' },
           ],
         },
         {
