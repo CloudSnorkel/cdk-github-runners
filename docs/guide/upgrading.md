@@ -4,7 +4,7 @@ We maintain backwards compatibility within a major version. Upgrading to a newer
 
 Runners keep working during deployment. Jobs that are already running are not interrupted, and jobs that are queued during deployment still get a runner.
 
-Upgrading between major versions may require extra steps to maintain no downtime during deployment. Those steps will be mentioned in the release notes and down below.
+Major version upgrades may need extra steps to avoid downtime. Those steps are in the release notes and below.
 
 ## Suggestions
 
