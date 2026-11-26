@@ -17,6 +17,10 @@ hero:
       link: /api/
 
 features:
+  - title: Battle tested
+    details: Running production workloads since 2022, from small teams to large organizations.
+  - title: Scales without hassle
+    details: Built on Lambda, Step Functions, SQS and DynamoDB. No servers to manage, and one stack handles hundreds of providers.
   - title: Easy GitHub setup
     details: Configure the GitHub integration with a web-based wizard, as an app or with a personal access token.
   - title: Customizable runners
