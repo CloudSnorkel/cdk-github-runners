@@ -7,3 +7,12 @@ The diagram also doesn't cover runner image building which runs on schedule. The
 still a good overview of the main loop of the system.
 
 ![Architecture diagram](/architecture.svg)
+
+## Scaling
+
+Everything in the control plane is serverless. Webhooks land in Lambda, each job gets its own Step Functions execution,
+and background work goes through SQS and DynamoDB. There are no servers to size or patch, and nothing sits idle
+between jobs. A burst of jobs just means more executions.
+
+The state machine has one state per provider family (CodeBuild, EC2, ECS, etc.), not one per provider, so adding
+providers doesn't grow it. Some setups run hundreds of providers from one stack.

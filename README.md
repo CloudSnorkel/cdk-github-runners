@@ -12,6 +12,8 @@
 
 Use this CDK construct to create ephemeral [self-hosted GitHub runners][1] on-demand inside your AWS account.
 
+* 🛡️ Battle tested in production since 2022, from small teams to large organizations
+* 📈 Scales to hundreds of runner types and as many runners as your AWS quotas allow, with serverless orchestration
 * 🧩 Easy to configure GitHub integration with a web-based interface
 * 🧠 Customizable runners with decent defaults
 * 🏃🏻 Multiple runner configurations controlled by labels
